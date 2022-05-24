@@ -55,7 +55,7 @@ class GT(_heading.HeadingAPI):
 
     def render(self) -> str:
         self = self._build_data()
-        html_table = self._render_as_html()  # type: ignore
+        html_table = self._render_as_html()
         return html_table
 
     def _build_data(self):
@@ -125,14 +125,14 @@ def _create_body_component(data: GT):
 
     column_names = _get_column_names_from_list_dicts(table_input_data=cell_data)
 
-    body_rows: List(str) = []  # type: ignore
+    body_rows: List[str] = []
 
-    for x in range(len(cell_data)):
-
-        body_cells: List(str) = []  # type: ignore
+    for x in cell_data:
+        # TODO: Use list comprehension
+        body_cells: List[str] = []
 
         for y in column_names:
-            body_cells.append("  <td>" + str(cell_data[x][y]) + "</td>")
+            body_cells.append("  <td>" + str(x[y]) + "</td>")
 
         body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
 
@@ -148,17 +148,17 @@ def _create_footnotes_component(data: GT):
 
 
 def _uniqueify_list(a_list: List[str]) -> List[str]:
-    d = {}
+    d: Dict[str, bool] = {}
     for x in a_list:
-        d[x] = 1
+        d[x] = True
 
     return list(d.keys())
 
 
 def _get_column_names_from_list_dicts(
     table_input_data: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
-    keys: str = []  # type: ignore
+) -> List[str]:
+    keys: List[str] = []
     for d in table_input_data:
         keys.extend(d)
     return _uniqueify_list(keys)
