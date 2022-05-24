@@ -47,3 +47,5 @@ class HeadingAPI:
         self._heading.title = title
         self._heading.subtitle = subtitle
         self._heading.preheader = preheader
+
+        return self
