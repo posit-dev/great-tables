@@ -4,7 +4,7 @@ data = [{"a": 5, "b": 10}, {"a": 15, "b": 20}]
 
 gt_tbl = gt.GT(data).tab_header(title="Title of Table")
 
-print(gt_tbl)
+print(gt_tbl.render())
 
 # print(GT(data))
 # print(GT(data)._data)
