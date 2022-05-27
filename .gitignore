@@ -105,3 +105,6 @@ typings/
 
 docs/source/generated/
 docs/source/reference/
+
+# Playground Scripts
+playground*.py
