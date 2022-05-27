@@ -30,11 +30,14 @@ class GT(_heading.HeadingAPI):
         >>> print(x)
     """
 
-    def __init__(self, data: List[Dict[str, Any]], locale: str = ""):
+    def __init__(self, data: Any, locale: str = ""):
         _heading.HeadingAPI.__init__(self)
 
-        # The tabular data
-        self._tbl_data: List[Dict[str, Any]] = data
+        # TODO: Transform incoming data to a pandas DataFrame
+        pd_data = pd.DataFrame(data)
+
+        # The tabular data stored as a pandas DataFrame
+        self._tbl_data: pd.DataFrame = pd_data
 
         # Table parts
         self._boxhead: Dict[str, Any]
