@@ -1,7 +1,7 @@
 from typing import List, Dict, Any
 from gt import _heading
 import pandas as pd
-
+import numpy as np
 
 __all__ = ["GT"]
 
