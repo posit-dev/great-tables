@@ -1,5 +1,6 @@
 from typing import List, Dict, Any
 from gt import _heading
+import pandas as pd
 
 
 __all__ = ["GT"]
