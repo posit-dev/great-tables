@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from gt import _heading
+from gt import _heading, _tbl_data
 import pandas as pd
 import numpy as np
 
@@ -15,7 +15,7 @@ __all__ = ["GT"]
 # =============================================================================
 # GT class
 # =============================================================================
-class GT(_heading.HeadingAPI):
+class GT(_heading.HeadingAPI, _tbl_data.TblDataAPI):
     """
     Create a gt Table object
     Methods:
@@ -32,12 +32,7 @@ class GT(_heading.HeadingAPI):
 
     def __init__(self, data: Any, locale: str = ""):
         _heading.HeadingAPI.__init__(self)
-
-        # TODO: Transform incoming data to a pandas DataFrame
-        pd_data = pd.DataFrame(data)
-
-        # The tabular data stored as a pandas DataFrame
-        self._tbl_data: pd.DataFrame = pd_data
+        _tbl_data.TblDataAPI.__init__(self, data)
 
         # Table parts
         self._boxhead: pd.DataFrame = _dt_boxhead_init(self)
@@ -125,7 +120,7 @@ def _create_columns_component(data: GT) -> str:
 
 def _create_body_component(data: GT):
 
-    tbl_data: pd.DataFrame = data._tbl_data
+    tbl_data: pd.DataFrame = data._tbl_data._tbl_data
 
     data_column_index: pd.Index = tbl_data.columns
     column_names: List[str] = list(data_column_index)
@@ -166,7 +161,7 @@ def _dt_boxhead_init(data: GT) -> pd.DataFrame:
     # 3: `column_align` = "center"
     # 4: `column_width` = np.nan
 
-    tbl_data: pd.DataFrame = data._tbl_data
+    tbl_data: pd.DataFrame = data._tbl_data._tbl_data
 
     data_column_index: pd.Index = tbl_data.columns
     column_names: List[str] = list(data_column_index)
