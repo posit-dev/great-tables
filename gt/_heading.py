@@ -15,8 +15,10 @@ class Heading:
         if self.title is None:
             return ""
 
-        # Get effective number of columns
-        # n_cols_total = data._get_effective_number_of_columns(data=data)
+        # TODO: Get effective number of columns
+        # This cannot yet be done but we need a way to effectively count the
+        # number of columns that will finally be rendered
+        # e.g., n_cols_total = self._get_effective_number_of_columns(data=data)
         n_cols_total = 2
 
         title_row = f"""  <tr>
