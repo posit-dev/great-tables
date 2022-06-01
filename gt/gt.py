@@ -71,15 +71,14 @@ class GT(_heading.HeadingAPI, _tbl_data.TblDataAPI):
         source_notes_component = _create_source_notes_component(self)
         footnotes_component = _create_footnotes_component(self)
 
-        html_table = f"""
-            <table class=\"gt_table\">
-            {heading_component}
-            {columns_component}
-            {body_component}
-            {source_notes_component}
-            {footnotes_component}
-            </table>
-        """
+        html_table = f"""<table class=\"gt_table\">
+{heading_component}
+{column_labels_component}
+{body_component}
+{source_notes_component}
+{footnotes_component}
+</table>
+"""
 
         return html_table
 
