@@ -11,9 +11,10 @@ class Footnotes:
         # 1: `grpname` (empty, str)
         # 2: `colname` (empty, str)
         # 3: `locnum` (empty, number)
-        # 4: `colnum` (empty, int)
-        # 5: `footnotes` (empty list, str)
-        # 6: `placement` (empty, str)
+        # 4: `rownum` (empty, int)
+        # 5: `colnum` (empty, int)
+        # 6: `footnotes` (empty list, str)
+        # 7: `placement` (empty, str)
 
         self._footnotes: pd.DataFrame = pd.DataFrame(
             columns=[
@@ -21,6 +22,7 @@ class Footnotes:
                 "grpname",
                 "colname",
                 "locnum",
+                "rownum",
                 "colnum",
                 "footnotes",
                 "placement",
