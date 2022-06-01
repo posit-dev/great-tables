@@ -120,24 +120,24 @@ def _create_columns_component(data: GT) -> str:
 
 def _create_body_component(data: GT):
 
-    tbl_data: pd.DataFrame = data._tbl_data._tbl_data
+    tbl_data = data._tbl_data
 
-    data_column_index: pd.Index = tbl_data.columns
-    column_names: List[str] = list(data_column_index)
+    column_names = tbl_data.columns
 
     body_rows: List[str] = []
 
-    for i in range(len(tbl_data)):
+    for i in range(tbl_data.rows):
 
         body_cells: List[str] = []
 
         for name in column_names:
 
-            cell_content: Any = tbl_data[name][i]
+            cell_content: Any = tbl_data.get_cell(i, name)
             cell_str: str = str(cell_content)
 
             body_cells.append("  <td>" + cell_str + "</td>")
-            body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
+
+        body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
 
     return "\n".join(body_rows)
 
