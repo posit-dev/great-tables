@@ -19,15 +19,11 @@ class Heading:
         # n_cols_total = data._get_effective_number_of_columns(data=data)
         n_cols_total = 2
 
-        title_row = f"""
-            <tr>
-            <th colspan=\"{n_cols_total}\">{self.title}
-            </tr>
-        """
+        title_row = f"""  <tr>
+    <th colspan=\"{n_cols_total}\">{self.title}
+  </tr>"""
 
-        heading_component = f"""
-        <thead class=\"gt_header\">{title_row}</thead>
-        """
+        heading_component = f"""<thead class=\"gt_header\">{title_row}</thead>"""
 
         return heading_component
 
