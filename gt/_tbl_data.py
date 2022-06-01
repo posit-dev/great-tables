@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List, cast
 import pandas as pd
 
 
@@ -10,6 +10,18 @@ class TblData:
 
         # The tabular data stored as a pandas DataFrame
         self._tbl_data: pd.DataFrame = pd_data
+
+    @property
+    def columns(self) -> List[str]:
+        data_column_index: pd.Index = self._tbl_data.columns
+        return list(data_column_index)
+
+    @property
+    def rows(self) -> int:
+        return len(self._tbl_data)
+
+    def get_cell(self, row: int, column: str) -> Any:
+        return cast(Any, self._tbl_data[column][row])
 
 
 class TblDataAPI:
