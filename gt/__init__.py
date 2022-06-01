@@ -5,3 +5,5 @@ from ._heading import *
 from ._tbl_data import *
 from ._boxhead import *
 from ._stub import *
+from ._row_groups import *
+from ._stubhead import *
