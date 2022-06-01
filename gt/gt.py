@@ -10,6 +10,7 @@ from gt import (
     _source_notes,
     _footnotes,
     _styles,
+    _locale,
 )
 
 __all__ = ["GT"]
@@ -35,6 +36,7 @@ class GT(
     _source_notes.SourceNotesAPI,
     _footnotes.FootnotesAPI,
     _styles.StylesAPI,
+    _locale.LocaleAPI,
 ):
     """
     Create a gt Table object
@@ -62,13 +64,13 @@ class GT(
         _source_notes.SourceNotesAPI.__init__(self)
         _footnotes.FootnotesAPI.__init__(self)
         _styles.StylesAPI.__init__(self)
+        _locale.LocaleAPI.__init__(self, locale)
 
         # Table parts
         self._formats: Dict[str, Any]
         self._summary: Dict[str, Any]
         self._options: Dict[str, Any]
         self._transforms: Dict[str, Any]
-        self._locale: str = _locale_init(locale)
         self._has_built: bool = _has_built_init()
         self._rendered_tbl: str = _rendered_tbl_init()
 
@@ -106,12 +108,6 @@ class GT(
 # =============================================================================
 # Initialization Functions
 # =============================================================================
-
-
-def _locale_init(locale: str) -> str:
-    if locale is None:
-        locale = "en"
-    return locale
 
 
 def _has_built_init() -> bool:
