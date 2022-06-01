@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from gt import _heading, _tbl_data, _boxhead
+from gt import _heading, _tbl_data, _boxhead, _stub
 
 __all__ = ["GT"]
 
@@ -13,7 +13,7 @@ __all__ = ["GT"]
 # =============================================================================
 # GT class
 # =============================================================================
-class GT(_heading.HeadingAPI, _tbl_data.TblDataAPI, _boxhead.BoxheadAPI):
+class GT(_heading.HeadingAPI, _tbl_data.TblDataAPI, _boxhead.BoxheadAPI, _stub.StubAPI):
     """
     Create a gt Table object
     Methods:
@@ -33,9 +33,9 @@ class GT(_heading.HeadingAPI, _tbl_data.TblDataAPI, _boxhead.BoxheadAPI):
         _heading.HeadingAPI.__init__(self)
         _tbl_data.TblDataAPI.__init__(self, data)
         _boxhead.BoxheadAPI.__init__(self, data)
+        _stub.StubAPI.__init__(self, data)
 
         # Table parts
-        self._stub_df: Dict[str, Any]
         self._row_groups: Dict[str, Any]
         self._spanners: Dict[str, Any]
         self._stubhead: Dict[str, Any]
