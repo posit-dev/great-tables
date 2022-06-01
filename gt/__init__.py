@@ -10,3 +10,4 @@ from ._spanners import *
 from ._stubhead import *
 from ._source_notes import *
 from ._footnotes import *
+from ._styles import *
