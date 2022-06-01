@@ -66,7 +66,7 @@ class GT(_heading.HeadingAPI, _tbl_data.TblDataAPI):
     def _render_as_html(self) -> str:
 
         heading_component = self._heading.create_heading_component()
-        columns_component = _create_columns_component(self)
+        column_labels_component = _create_column_labels_component(self)
         body_component = _create_body_component(self)
         source_notes_component = _create_source_notes_component(self)
         footnotes_component = _create_footnotes_component(self)
