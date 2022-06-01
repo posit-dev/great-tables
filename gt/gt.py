@@ -9,6 +9,7 @@ from gt import (
     _stubhead,
     _source_notes,
     _footnotes,
+    _styles,
 )
 
 __all__ = ["GT"]
@@ -33,6 +34,7 @@ class GT(
     _stubhead.StubheadAPI,
     _source_notes.SourceNotesAPI,
     _footnotes.FootnotesAPI,
+    _styles.StylesAPI,
 ):
     """
     Create a gt Table object
@@ -59,10 +61,10 @@ class GT(
         _stubhead.StubheadAPI.__init__(self)
         _source_notes.SourceNotesAPI.__init__(self)
         _footnotes.FootnotesAPI.__init__(self)
+        _styles.StylesAPI.__init__(self)
 
         # Table parts
         self._formats: Dict[str, Any]
-        self._styles: Dict[str, Any]
         self._summary: Dict[str, Any]
         self._options: Dict[str, Any]
         self._transforms: Dict[str, Any]
