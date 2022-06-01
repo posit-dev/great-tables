@@ -1,7 +1,5 @@
 from typing import List, Dict, Any
-from gt import _heading, _tbl_data
-import pandas as pd
-import numpy as np
+from gt import _heading, _tbl_data, _boxhead
 
 __all__ = ["GT"]
 
@@ -15,7 +13,7 @@ __all__ = ["GT"]
 # =============================================================================
 # GT class
 # =============================================================================
-class GT(_heading.HeadingAPI, _tbl_data.TblDataAPI):
+class GT(_heading.HeadingAPI, _tbl_data.TblDataAPI, _boxhead.BoxheadAPI):
     """
     Create a gt Table object
     Methods:
@@ -31,11 +29,12 @@ class GT(_heading.HeadingAPI, _tbl_data.TblDataAPI):
     """
 
     def __init__(self, data: Any, locale: str = ""):
+
         _heading.HeadingAPI.__init__(self)
         _tbl_data.TblDataAPI.__init__(self, data)
+        _boxhead.BoxheadAPI.__init__(self, data)
 
         # Table parts
-        self._boxhead: pd.DataFrame = _dt_boxhead_init(self)
         self._stub_df: Dict[str, Any]
         self._row_groups: Dict[str, Any]
         self._spanners: Dict[str, Any]
@@ -150,32 +149,3 @@ def _create_source_notes_component(data: GT):
 
 def _create_footnotes_component(data: GT):
     return ""
-
-
-def _dt_boxhead_init(data: GT) -> pd.DataFrame:
-
-    # The `boxhead` DataFrame is used to handle column labels, column
-    # ordering, alignments of entire columns, column widths, and
-    # column visibility (e.g., displayed/hidden)
-    # 0: `var` (obtained from column names)
-    # 1: `type` = "default"
-    # 2: `column_label` (obtained from column names)
-    # 3: `column_align` = "center"
-    # 4: `column_width` = np.nan
-
-    tbl_data: pd.DataFrame = data._tbl_data._tbl_data
-
-    data_column_index: pd.Index = tbl_data.columns
-    column_names: List[str] = list(data_column_index)
-
-    boxhead: pd.DataFrame = pd.DataFrame(
-        {
-            "var": column_names,
-            "type": "default",
-            "column_label": column_names,
-            "column_align": "center",
-            "column_width": np.nan,
-        }
-    )
-
-    return boxhead
