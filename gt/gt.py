@@ -185,20 +185,3 @@ def _dt_boxhead_init(data: GT) -> pd.DataFrame:
     )
 
     return boxhead
-
-
-def _uniqueify_list(a_list: List[str]) -> List[str]:
-    d: Dict[str, bool] = {}
-    for x in a_list:
-        d[x] = True
-
-    return list(d.keys())
-
-
-def _get_column_names_from_list_dicts(
-    table_input_data: List[Dict[str, Any]]
-) -> List[str]:
-    keys: List[str] = []
-    for d in table_input_data:
-        keys.extend(d)
-    return _uniqueify_list(keys)
