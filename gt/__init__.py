@@ -11,3 +11,4 @@ from ._stubhead import *
 from ._source_notes import *
 from ._footnotes import *
 from ._styles import *
+from ._locale import *
