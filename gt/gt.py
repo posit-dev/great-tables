@@ -93,12 +93,6 @@ class GT(_heading.HeadingAPI, _tbl_data.TblDataAPI):
 # =============================================================================
 
 
-def _heading_init():
-
-    heading = {"title": None, "subtitle": None, "preheader": None}
-    return heading
-
-
 def _locale_init(locale: str) -> str:
     if locale is None:
         locale = "en"
