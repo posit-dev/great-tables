@@ -1,10 +1,10 @@
 from typing import List, Dict, Any
 from gt import (
-    _heading,
     _tbl_data,
     _boxhead,
     _stub,
     _row_groups,
+    _heading,
     _stubhead,
     _source_notes,
     _footnotes,
@@ -23,11 +23,11 @@ __all__ = ["GT"]
 # GT class
 # =============================================================================
 class GT(
-    _heading.HeadingAPI,
     _tbl_data.TblDataAPI,
     _boxhead.BoxheadAPI,
     _stub.StubAPI,
     _row_groups.RowGroupsAPI,
+    _heading.HeadingAPI,
     _stubhead.StubheadAPI,
     _source_notes.SourceNotesAPI,
     _footnotes.FootnotesAPI,
@@ -48,11 +48,11 @@ class GT(
 
     def __init__(self, data: Any, locale: str = ""):
 
-        _heading.HeadingAPI.__init__(self)
         _tbl_data.TblDataAPI.__init__(self, data)
         _boxhead.BoxheadAPI.__init__(self, data)
         _stub.StubAPI.__init__(self, data)
         _row_groups.RowGroupsAPI.__init__(self)
+        _heading.HeadingAPI.__init__(self)
         _stubhead.StubheadAPI.__init__(self)
         _source_notes.SourceNotesAPI.__init__(self)
         _footnotes.FootnotesAPI.__init__(self)
