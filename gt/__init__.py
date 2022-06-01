@@ -7,3 +7,4 @@ from ._boxhead import *
 from ._stub import *
 from ._row_groups import *
 from ._stubhead import *
+from ._source_notes import *
