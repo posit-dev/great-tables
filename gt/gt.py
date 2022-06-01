@@ -4,6 +4,7 @@ from gt import (
     _boxhead,
     _stub,
     _row_groups,
+    _spanners,
     _heading,
     _stubhead,
     _source_notes,
@@ -27,6 +28,7 @@ class GT(
     _boxhead.BoxheadAPI,
     _stub.StubAPI,
     _row_groups.RowGroupsAPI,
+    _spanners.SpannersAPI,
     _heading.HeadingAPI,
     _stubhead.StubheadAPI,
     _source_notes.SourceNotesAPI,
@@ -52,14 +54,13 @@ class GT(
         _boxhead.BoxheadAPI.__init__(self, data)
         _stub.StubAPI.__init__(self, data)
         _row_groups.RowGroupsAPI.__init__(self)
+        _spanners.SpannersAPI.__init__(self)
         _heading.HeadingAPI.__init__(self)
         _stubhead.StubheadAPI.__init__(self)
         _source_notes.SourceNotesAPI.__init__(self)
         _footnotes.FootnotesAPI.__init__(self)
 
         # Table parts
-        self._spanners: Dict[str, Any]
-
         self._formats: Dict[str, Any]
         self._styles: Dict[str, Any]
         self._summary: Dict[str, Any]
