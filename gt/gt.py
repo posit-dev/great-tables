@@ -114,8 +114,17 @@ def _rendered_tbl_init() -> str:
     return ""
 
 
-def _create_columns_component(data: GT) -> str:
-    return ""
+def _create_column_labels_component(data: GT) -> str:
+
+    tbl_data = data._tbl_data
+
+    column_names = tbl_data.columns
+
+    th_cells = "".join([f"  <th>{x}</th>\n" for x in column_names])
+
+    column_names_str = f"<tr>\n{th_cells}</tr>"
+
+    return column_names_str
 
 
 def _create_body_component(data: GT):
