@@ -4,9 +4,11 @@ import pandas as pd
 class Footnotes:
     def __init__(self):
 
-        # The `footnotes` DataFrame is used to handle footnote text, the precise
-        # location where footnote marks should be placed, the placement of the
-        # footnote mark around the text, and more
+        # The `footnotes` DataFrame is used to store information
+        # on table footnotes. The major components include precise
+        # location data for where the footnote marks should be
+        # placed, the footnote text, and the placement of the
+        # footnote mark around the text.
         # 0: `locname` (empty, str)
         # 1: `grpname` (empty, str)
         # 2: `colname` (empty, str)
