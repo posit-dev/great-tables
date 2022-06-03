@@ -68,9 +68,9 @@ class GT(
 
         # Table parts
         self._formats: Dict[str, Any]
+        self._transforms: Dict[str, Any]
         self._summary: Dict[str, Any]
         self._options: Dict[str, Any]
-        self._transforms: Dict[str, Any]
         self._has_built: bool = _has_built_init()
         self._rendered_tbl: str = _rendered_tbl_init()
 
