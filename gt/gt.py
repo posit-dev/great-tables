@@ -55,7 +55,7 @@ class GT(
     def __init__(self, data: Any, locale: str = ""):
 
         _tbl_data.TblDataAPI.__init__(self, data)
-        _boxhead.BoxheadAPI.__init__(self, data)
+        _boxhead.BoxheadAPI.__init__(self)
         _stub.StubAPI.__init__(self, data)
         _row_groups.RowGroupsAPI.__init__(self)
         _spanners.SpannersAPI.__init__(self)
