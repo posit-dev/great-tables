@@ -9,3 +9,8 @@ Main TODOs:
 - htmltools implementation
 - print methods (e.g., Jupyter, other notebooks, **html**, **repr**, **str**)
 - tests and feature parity with gt-r (process to ensure this target can be reached)
+- look at other other possibilities for implementing the ColInfo class (used in `_boxhead.py`):
+  - dataclass
+  - TypedDict
+  - traitlets (3rd party package)
+- Consider this big picture question: should ALL metadata be immutable? (R style)
