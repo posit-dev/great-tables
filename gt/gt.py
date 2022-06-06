@@ -56,7 +56,7 @@ class GT(
 
         _tbl_data.TblDataAPI.__init__(self, data)
         _boxhead.BoxheadAPI.__init__(self)
-        _stub.StubAPI.__init__(self, data)
+        _stub.StubAPI.__init__(self)
         _row_groups.RowGroupsAPI.__init__(self)
         _spanners.SpannersAPI.__init__(self)
         _heading.HeadingAPI.__init__(self)
