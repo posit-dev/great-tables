@@ -1,32 +1,46 @@
-import pandas as pd
+from typing import List, Optional
+
+
+class StyleInfo:
+    locname: Optional[str]
+    grpname: Optional[str]
+    colname: Optional[str]
+    locnum: Optional[int]
+    rownum: Optional[int]
+    colnum: Optional[int]
+    styles: Optional[List[str]]
+
+    # The components of a style declaration are:
+    # `locname` (empty, str)
+    # `grpname` (empty, str)
+    # `colname` (empty, str)
+    # `locnum` (empty, int)
+    # `rownum` (empty, int)
+    # `colnum` (empty, int)
+    # `styles` (empty list, str)
+
+    def __init__(
+        self,
+        locname: Optional[str] = None,
+        grpname: Optional[str] = None,
+        colname: Optional[str] = None,
+        locnum: Optional[int] = None,
+        rownum: Optional[int] = None,
+        colnum: Optional[int] = None,
+        styles: Optional[List[str]] = None,
+    ):
+        self.locname = locname
+        self.grpname = grpname
+        self.colname = colname
+        self.locnum = locnum
+        self.rownum = rownum
+        self.colnum = colnum
+        self.styles = styles
 
 
 class Styles:
     def __init__(self):
-
-        # The `styles` DataFrame is used to store information
-        # on cell styling. The major components include precise
-        # location data for where the styling should occur and
-        # the styling directives.
-        # 0: `locname` (empty, str)
-        # 1: `grpname` (empty, str)
-        # 2: `colname` (empty, str)
-        # 3: `locnum` (empty, number)
-        # 4: `rownum` (empty, int)
-        # 5: `colnum` (empty, int)
-        # 6: `styles` (empty list, str)
-
-        self._styles: pd.DataFrame = pd.DataFrame(
-            columns=[
-                "locname",
-                "grpname",
-                "colname",
-                "locnum",
-                "rownum",
-                "colnum",
-                "styles",
-            ]
-        )
+        pass
 
 
 class StylesAPI:
