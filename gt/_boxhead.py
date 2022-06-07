@@ -1,15 +1,15 @@
 from typing import Optional
-from enum import Enum
+from enum import Enum, auto
 
 from ._base_api import BaseAPI
 from ._tbl_data import TblData
 
 
 class ColumnAlignment(Enum):
-    Left = 1
-    Center = 2
-    Right = 3
-    Justify = 4
+    Left = auto()
+    Center = auto()
+    Right = auto()
+    Justify = auto()
 
 
 class ColInfo:
