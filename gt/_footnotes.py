@@ -1,35 +1,57 @@
-import pandas as pd
+from typing import Optional, List
+from enum import Enum, auto
+
+
+class FootnotePlacement(Enum):
+    Auto = auto()
+    Left = auto()
+    Right = auto()
+
+
+class FootnoteInfo:
+    locname: Optional[str]
+    grpname: Optional[str]
+    colname: Optional[str]
+    locnum: Optional[int]
+    rownum: Optional[int]
+    colnum: Optional[int]
+    footnotes: Optional[List[str]]
+    placement: Optional[FootnotePlacement]
+
+    # The components of a footnote declaration are:
+    # `locname` (empty, str)
+    # `grpname` (empty, str)
+    # `colname` (empty, str)
+    # `locnum` (empty, int)
+    # `rownum` (empty, int)
+    # `colnum` (empty, int)
+    # `footnotes` (empty list, str)
+    # `placement` (enum, 3 possible values)
+
+    def __init__(
+        self,
+        locname: Optional[str] = None,
+        grpname: Optional[str] = None,
+        colname: Optional[str] = None,
+        locnum: Optional[int] = None,
+        rownum: Optional[int] = None,
+        colnum: Optional[int] = None,
+        footnotes: Optional[List[str]] = None,
+        placement: Optional[FootnotePlacement] = None,
+    ):
+        self.locname = locname
+        self.grpname = grpname
+        self.colname = colname
+        self.locnum = locnum
+        self.rownum = rownum
+        self.colnum = colnum
+        self.footnotes = footnotes
+        self.placement = placement
 
 
 class Footnotes:
     def __init__(self):
-
-        # The `footnotes` DataFrame is used to store information
-        # on table footnotes. The major components include precise
-        # location data for where the footnote marks should be
-        # placed, the footnote text, and the placement of the
-        # footnote mark around the text.
-        # 0: `locname` (empty, str)
-        # 1: `grpname` (empty, str)
-        # 2: `colname` (empty, str)
-        # 3: `locnum` (empty, number)
-        # 4: `rownum` (empty, int)
-        # 5: `colnum` (empty, int)
-        # 6: `footnotes` (empty list, str)
-        # 7: `placement` (empty, str)
-
-        self._footnotes: pd.DataFrame = pd.DataFrame(
-            columns=[
-                "locname",
-                "grpname",
-                "colname",
-                "locnum",
-                "rownum",
-                "colnum",
-                "footnotes",
-                "placement",
-            ]
-        )
+        pass
 
 
 class FootnotesAPI:
