@@ -74,13 +74,13 @@ class GT(
         self._has_built: bool = _has_built_init()
         self._rendered_tbl: str = _rendered_tbl_init()
 
+    def _build_data(self):
+        return self
+
     def render(self) -> str:
         self = self._build_data()
         html_table = self._render_as_html()
         return html_table
-
-    def _build_data(self):
-        return self
 
     # =============================================================================
     # HTML Rendering
