@@ -2,9 +2,9 @@ from typing import Optional
 
 
 class Heading:
-    title: Optional[str]
-    subtitle: Optional[str]
-    preheader: Optional[str]
+    title: Optional[str] = None
+    subtitle: Optional[str] = None
+    preheader: Optional[str] = None
 
     def __init__(self):
         pass
