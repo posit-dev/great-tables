@@ -6,7 +6,7 @@ on:
     branches:
       - main
 
-name: pytest
+name: CI Tests
 
 jobs:
   build:
