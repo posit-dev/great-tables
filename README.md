@@ -1,3 +1,5 @@
+[![CI Build](https://github.com/rstudio/gt-python/workflows/CI%20Tests/badge.svg?branch=main)](https://github.com/rstudio/gt-python/actions?query=workflow%3A%22CI+Tests%22+branch%3Amain)
+
 # gt
 
 Easily Create Presentation-Ready Display Tables
