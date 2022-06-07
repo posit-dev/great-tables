@@ -7,7 +7,7 @@ pd_data = pd.DataFrame(data)
 gt_tbl = gt.GT(pd_data)
 
 
-def test_gt_object():
+def test_gt_object_prerender():
 
     assert type(gt_tbl).__name__ == "GT"
 
@@ -23,3 +23,10 @@ def test_gt_object():
     assert type(gt_tbl._footnotes).__name__ == "Footnotes"
     assert type(gt_tbl._styles).__name__ == "Styles"
     assert type(gt_tbl._locale).__name__ == "Locale"
+
+
+def test_gt_table_render():
+
+    # Assert that a table render process will generate a string object
+    assert type(gt_tbl.render()).__name__ == "str"
+    assert type(gt_tbl.tab_header(title="Title of Table").render()).__name__ == "str"
