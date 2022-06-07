@@ -4,7 +4,9 @@ test:
 	pytest
 
 check:
-	pyright --pythonversion 3.7 gt
+	pyright --pythonversion 3.8 gt
+	pyright --pythonversion 3.9 gt
+	pyright --pythonversion 3.10 gt
 	pyright --pythonversion 3.11 gt
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
