@@ -13,4 +13,5 @@ from ._source_notes import *
 from ._footnotes import *
 from ._styles import *
 from ._formats import *
+from ._options import *
 from ._locale import *
