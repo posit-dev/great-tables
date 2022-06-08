@@ -11,6 +11,7 @@ from gt import (
     _footnotes,
     _styles,
     _locale,
+    _formats,
 )
 
 __all__ = ["GT"]
@@ -37,6 +38,7 @@ class GT(
     _footnotes.FootnotesAPI,
     _styles.StylesAPI,
     _locale.LocaleAPI,
+    _formats.FormatsAPI,
 ):
     """
     Create a gt Table object
@@ -65,9 +67,9 @@ class GT(
         _footnotes.FootnotesAPI.__init__(self)
         _styles.StylesAPI.__init__(self)
         _locale.LocaleAPI.__init__(self, locale)
+        _formats.FormatsAPI.__init__(self)  # TODO: WIP
 
         # Table parts
-        self._formats: Dict[str, Any]
         self._transforms: Dict[str, Any]
         self._summary: Dict[str, Any]
         self._options: Dict[str, Any]
