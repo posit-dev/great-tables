@@ -9,7 +9,7 @@ class Heading:
     def __init__(self):
         pass
 
-    def create_heading_component(self):
+    def create_heading_component(self) -> str:
 
         # If there is no title or heading component, then return an empty string
         if self.title is None:
