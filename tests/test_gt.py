@@ -30,3 +30,12 @@ def test_gt_table_render():
     # Assert that a table render process will generate a string object
     assert type(gt_tbl.render()).__name__ == "str"
     assert type(gt_tbl.tab_header(title="Title of Table").render()).__name__ == "str"
+    assert type(gt_tbl.tab_source_note(source_note="Note").render()).__name__ == "str"
+    assert (
+        type(
+            gt_tbl.tab_source_note(source_note="Note 1")
+            .tab_source_note(source_note="Note 2")
+            .render()
+        ).__name__
+        == "str"
+    )
