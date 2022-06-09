@@ -26,8 +26,11 @@ class Heading:
     def create_heading_component(self) -> str:
 
         # If there is no title or heading component, then return an empty string
-        if self.title is None:
+        if heading_has_title(title=self.title) is False:
             return ""
+
+        title = self.title
+        subtitle_defined = heading_has_subtitle(subtitle=self.subtitle)
 
         # TODO: Get effective number of columns
         # This cannot yet be done but we need a way to effectively count the
@@ -35,11 +38,20 @@ class Heading:
         # e.g., n_cols_total = self._get_effective_number_of_columns(data=data)
         n_cols_total = 2
 
-        title_row = f"""  <tr>
-    <th colspan=\"{n_cols_total}\">{self.title}
+        heading_rows = f"""  <tr>
+    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}
   </tr>"""
 
-        heading_component = f"""<thead class=\"gt_header\">{title_row}</thead>"""
+        if subtitle_defined:
+
+            subtitle = self.subtitle
+
+            subtitle_row = f"""  <tr>
+    <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}
+  </tr>"""
+            heading_rows = f"""{heading_rows}\n{subtitle_row}"""
+
+        heading_component = f"""<thead class=\"gt_header\">{heading_rows}</thead>"""
 
         return heading_component
 
