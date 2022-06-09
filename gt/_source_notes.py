@@ -7,6 +7,9 @@ class SourceNotes:
     def __init__(self):
         pass
 
+    def create_source_notes_component(self) -> str:
+        return ""
+
 
 class SourceNotesAPI:
     _source_notes: SourceNotes
