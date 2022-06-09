@@ -94,7 +94,7 @@ class GT(
         heading_component = self._heading.create_heading_component()
         column_labels_component = _create_column_labels_component(self)
         body_component = _create_body_component(self)
-        source_notes_component = _create_source_notes_component(self)
+        source_notes_component = self._source_notes.create_source_notes_component()
         footnotes_component = _create_footnotes_component(self)
 
         html_table = f"""<table class=\"gt_table\">
@@ -162,10 +162,6 @@ def _create_body_component(data: GT):
         body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
 
     return "\n".join(body_rows)
-
-
-def _create_source_notes_component(data: GT):
-    return ""
 
 
 def _create_footnotes_component(data: GT):
