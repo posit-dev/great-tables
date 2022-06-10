@@ -28,8 +28,8 @@ What should have happened? Please be as specific as possible.
 
 ## Environment (please complete the following information)
 
-- Operating System: [e.g. Linux, MacOS, Windows]
-- Great Expectations Version: [e.g. 0.13.2]
+- Operating System: [e.g., Linux, macOS, Windows]
+- **gt** Version: [e.g., 0.0.1]
 
 ## Additional context
 
