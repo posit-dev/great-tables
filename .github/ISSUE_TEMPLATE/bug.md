@@ -26,7 +26,7 @@ Describe the bug clearly and concisely.
 
 What should have happened? Please be as specific as possible.
 
-## Environment (please complete the following information)
+## Development environment
 
 - Operating System: [e.g., Linux, macOS, Windows]
 - **gt** Version: [e.g., 0.0.1]
