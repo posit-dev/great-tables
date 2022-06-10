@@ -13,6 +13,7 @@ from gt import (
     _locale,
     _formats,
     _options,
+    _utils,
 )
 
 __all__ = ["GT"]
@@ -91,7 +92,7 @@ class GT(
     # =============================================================================
     def _render_as_html(self) -> str:
 
-        heading_component = self._heading.create_heading_component()
+        heading_component = _create_heading_component(self)
         column_labels_component = _create_column_labels_component(self)
         body_component = _create_body_component(self)
         source_notes_component = self._source_notes.create_source_notes_component()
@@ -125,6 +126,39 @@ def _rendered_tbl_init() -> str:
 # =============================================================================
 # Table Structuring Functions
 # =============================================================================
+
+
+def _create_heading_component(data: GT) -> str:
+
+    # If there is no title or heading component, then return an empty string
+    if _utils.heading_has_title(title=data._heading.title) is False:
+        return ""
+
+    title = data._heading.title
+    subtitle_defined = _utils.heading_has_subtitle(subtitle=data._heading.subtitle)
+
+    # TODO: Get effective number of columns
+    # This cannot yet be done but we need a way to effectively count the
+    # number of columns that will finally be rendered
+    # e.g., n_cols_total = self._get_effective_number_of_columns(data=data)
+    n_cols_total = 2
+
+    heading_rows = f"""  <tr>
+    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}
+  </tr>"""
+
+    if subtitle_defined:
+
+        subtitle = data._heading.subtitle
+
+        subtitle_row = f"""  <tr>
+    <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}
+  </tr>"""
+        heading_rows = f"""{heading_rows}\n{subtitle_row}"""
+
+    heading_component = f"""<thead class=\"gt_header\">{heading_rows}</thead>"""
+
+    return heading_component
 
 
 def _create_column_labels_component(data: GT) -> str:
