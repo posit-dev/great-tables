@@ -95,7 +95,7 @@ class GT(
         heading_component = _create_heading_component(self)
         column_labels_component = _create_column_labels_component(self)
         body_component = _create_body_component(self)
-        source_notes_component = self._source_notes.create_source_notes_component()
+        source_notes_component = _create_source_notes_component(self)
         footnotes_component = _create_footnotes_component(self)
 
         html_table = f"""<table class=\"gt_table\">
@@ -137,11 +137,9 @@ def _create_heading_component(data: GT) -> str:
     title = data._heading.title
     subtitle_defined = _utils.heading_has_subtitle(subtitle=data._heading.subtitle)
 
-    # TODO: Get effective number of columns
-    # This cannot yet be done but we need a way to effectively count the
-    # number of columns that will finally be rendered
-    # e.g., n_cols_total = self._get_effective_number_of_columns(data=data)
-    n_cols_total = 2
+    # Get the effective number of columns, which is number of columns
+    # that will finally be rendered accounting for the stub layout
+    n_cols_total = data._boxhead._get_effective_number_of_columns()
 
     heading_rows = f"""  <tr>
     <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}
@@ -196,6 +194,69 @@ def _create_body_component(data: GT):
         body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
 
     return "\n".join(body_rows)
+
+
+def _create_source_notes_component(data: GT) -> str:
+
+    source_notes = data._source_notes.source_notes
+
+    # If there are no source notes, then return an empty string
+    if source_notes == []:
+        return ""
+
+    # TODO: Obtain the `multiline` option from `_options`
+    multiline = True
+
+    # TODO: Obtain the `separator` option from `_options`
+    separator = " "
+
+    # Get the effective number of columns, which is number of columns
+    # that will finally be rendered accounting for the stub layout
+    n_cols_total = data._boxhead._get_effective_number_of_columns()
+
+    # Handle the multiline source notes case (each note takes up one line)
+    if multiline:
+
+        # Create the source notes component as a series of `<tr><td>` (one per
+        # source note) inside of a `<tfoot>`
+
+        source_notes_tr: List[str] = []
+
+        for note in source_notes:
+            source_notes_tr.append(
+                f"""
+  <tr>
+    <td class="gt_sourcenote" colspan="{n_cols_total}">{note}</td>
+  </tr>
+"""
+            )
+
+        source_notes_joined = "\n".join(source_notes_tr)
+
+        source_notes_component = f"""  <tfoot class="gt_sourcenotes">
+  {source_notes_joined}
+</tfoot>"""
+
+        return source_notes_component
+
+    # TODO: Perform HTML escaping on the separator text and
+    # transform space characters to non-breaking spaces
+
+    # Create the source notes component as a single `<tr><td>` inside
+    # of a `<tfoot>`
+
+    source_notes_str_joined = separator.join(source_notes)
+
+    source_notes_component = f"""<tfoot>
+  <tr class="gt_sourcenotes">
+    <td class="gt_sourcenote" colspan="{n_cols_total}">
+      <div style="padding-bottom:2px;">{source_notes_str_joined}</div>
+    </td>
+  </tr>
+</tfoot>
+    """
+
+    return source_notes_component
 
 
 def _create_footnotes_component(data: GT):
