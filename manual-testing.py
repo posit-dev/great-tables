@@ -1,13 +1,18 @@
+import pandas as pd
 import gt
+from IPython.display import display, HTML
 
-data = [{"a": 5, "b": 10}, {"a": 15, "b": 20}]
+pd_data = pd.DataFrame([{"a": 5, "b": 15}, {"a": 15, "b": 2000}])
 
-gt_tbl = gt.GT(data).tab_header(title="Title of Table")
+# gt_tbl = gt.GT(pd_data)
+# gt_tbl = gt.GT(pd_data).tab_header(title="Title of Table")
+gt_tbl = (
+    gt.GT(pd_data)
+    .tab_header(title="Title", subtitle="Subtitle")
+    .tab_source_note("Source Note 1")
+    .tab_source_note("Source Note 2")
+)
 
 print(gt_tbl.render())
 
-# print(GT(data))
-# print(GT(data)._data)
-# print(GT(data)._has_built)
-# print(GT(data)._locale)
-# print(GT(data)._heading)
+display(HTML(gt_tbl.render()))
