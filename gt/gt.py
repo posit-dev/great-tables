@@ -205,11 +205,9 @@ def _create_source_notes_component(data: GT) -> str:
     if source_notes == []:
         return ""
 
-    # TODO: Obtain the `multiline` option from `_options`
-    multiline = True
-
-    # TODO: Obtain the `separator` option from `_options`
-    separator = " "
+    # Obtain the `multiline` and `separator` options from `_options`
+    multiline = data._options._get_option_value("source_notes_multiline")
+    separator = data._options._get_option_value("source_notes_sep")
 
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
