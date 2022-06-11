@@ -224,3 +224,5 @@ class OptionsAPI:
 
     def __init__(self):
         self._options = Options()
+
+    # TODO: create the `tab_options()` function
