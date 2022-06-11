@@ -226,3 +226,23 @@ class OptionsAPI:
         self._options = Options()
 
     # TODO: create the `tab_options()` function
+
+    # TODO: create the `opt_footnote_marks()` function
+
+    # TODO: create the `opt_row_striping()` function
+
+    # TODO: create the `opt_align_table_header()` function
+
+    # TODO: create the `opt_vertical_padding()` function
+
+    # TODO: create the `opt_horizontal_padding()` function
+
+    # TODO: create the `opt_all_caps()` function
+
+    # TODO: create the `opt_table_lines()` function
+
+    # TODO: create the `opt_table_outline()` function
+
+    # TODO: create the `opt_table_font()` function
+    
+    # TODO: create the `opt_css()` function
