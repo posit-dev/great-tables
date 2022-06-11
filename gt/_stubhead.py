@@ -13,3 +13,5 @@ class StubheadAPI:
 
     def __init__(self):
         self._stubhead = Stubhead()
+
+    # TODO: create the `tab_stubhead()` function
