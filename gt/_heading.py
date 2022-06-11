@@ -47,7 +47,7 @@ class HeadingAPI:
         Examples
         --------
             >>> from gt import *
-            >>> x = GT([{"a": 5, "b": 10}, {"a": 15, "b": 20
+            >>> x = GT([{"a": 5, "b": 10}, {"a": 15, "b": 20}])
             >>>     .tab_header(title="Title", subtitle="Subtitle")
             >>> x
             >>> print(x)
