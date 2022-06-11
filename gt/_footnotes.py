@@ -59,3 +59,5 @@ class FootnotesAPI:
 
     def __init__(self):
         self._footnotes = Footnotes()
+
+    # TODO: create the `tab_footnote()` function
