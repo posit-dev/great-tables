@@ -44,13 +44,14 @@ class GT(
     _options.OptionsAPI,
 ):
     """
-    Create a gt Table object
-    Methods:
-    --------
-        render: Returns the HTML table.
+    Create a gt Table object.
 
-    Examples:
-    ---------
+    Methods
+    -------
+        render: Renders and returns the HTML table.
+
+    Examples
+    --------
         >>> from gt import *
         >>> x = GT([{"a": 5, "b": 10}, {"a": 15, "b": 20}])
         >>> x

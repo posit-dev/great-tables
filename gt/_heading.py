@@ -20,7 +20,7 @@ class HeadingAPI:
         preheader: Optional[Union[str, List[str]]] = None,
     ):
         """
-        Add a table header
+        Add a table header.
 
         We can add a table header to the **gt** table with a title and even a
         subtitle. A table header is an optional table part that is positioned above
