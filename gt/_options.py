@@ -1,4 +1,4 @@
-from typing import Optional, List, Any
+from typing import Optional, Union, List, Any
 
 
 class OptionsInfo:
@@ -6,7 +6,7 @@ class OptionsInfo:
     scss: Optional[bool]
     category: Optional[str]
     type: Optional[str]
-    value: Optional[List[Any]]
+    value: Optional[Union[Any, List[str]]]
 
     def __init__(
         self,
@@ -14,7 +14,7 @@ class OptionsInfo:
         scss: Optional[bool] = None,
         category: Optional[str] = None,
         type: Optional[str] = None,
-        value: Optional[List[Any]] = None,
+        value: Optional[Union[Any, List[str]]] = None,
     ):
         self.parameter = parameter
         self.scss = scss
