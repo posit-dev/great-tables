@@ -24,7 +24,7 @@ class HeadingAPI:
 
         Parameters
         ----------
-        title,subtitle
+        title (str), subtitle (str)
             Text to be used in the table title and, optionally, for
             the table subtitle. We can elect to use the `md()` and `html()`
             helper functions to style the text as Markdown or to retain HTML
