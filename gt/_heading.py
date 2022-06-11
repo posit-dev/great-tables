@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union, List
 
 
 class Heading:
@@ -17,7 +17,7 @@ class HeadingAPI:
         self,
         title: str,
         subtitle: Optional[str] = None,
-        preheader: Optional[str] = None,
+        preheader: Optional[Union[str, List[str]]] = None,
     ):
         """
         Add a table header
