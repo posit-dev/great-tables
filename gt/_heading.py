@@ -29,7 +29,7 @@ class HeadingAPI:
             the table subtitle. We can elect to use the `md()` and `html()`
             helper functions to style the text as Markdown or to retain HTML
             elements in the text.
-        preheader
+        preheader (str)
             Optional preheader content that is rendered above the table. Can
             be supplied as a list of strings.
 
