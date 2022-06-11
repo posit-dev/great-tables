@@ -50,7 +50,7 @@ class Boxhead:
         column_names = data.columns
         self._boxhead: list[ColInfo] = [ColInfo(col) for col in column_names]
 
-    # Get a list of visible columns in
+    # Get a list of visible columns
     def _get_visible_columns(self) -> List[str]:
 
         visible_columns = [x.var for x in self._boxhead if x.visible is True]
