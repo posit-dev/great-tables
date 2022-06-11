@@ -33,8 +33,13 @@ class HeadingAPI:
             Optional preheader content that is rendered above the table. Can
             be supplied as a list of strings.
 
-        Examples:
-        ---------
+        Returns
+        -------
+        GT
+            Result of the table operation.
+
+        Examples
+        --------
             >>> from gt import *
             >>> x = GT([{"a": 5, "b": 10}, {"a": 15, "b": 20
             >>>     .tab_header(title="Title", subtitle="Subtitle")
