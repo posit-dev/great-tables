@@ -4,7 +4,7 @@ from typing import Optional, Union, List
 class Heading:
     title: Optional[str] = None
     subtitle: Optional[str] = None
-    preheader: Optional[str] = None
+    preheader: Optional[Union[str, List[str]]] = None
 
 
 class HeadingAPI:
