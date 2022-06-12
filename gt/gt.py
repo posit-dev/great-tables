@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, cast
 from gt import (
     _tbl_data,
     _boxhead,
@@ -206,8 +206,8 @@ def _create_source_notes_component(data: GT) -> str:
         return ""
 
     # Obtain the `multiline` and `separator` options from `_options`
-    multiline = data._options._get_option_value("source_notes_multiline")
-    separator = data._options._get_option_value("source_notes_sep")
+    multiline = cast(str, data._options._get_option_value("source_notes_multiline"))
+    separator = cast(str, data._options._get_option_value("source_notes_sep"))
 
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
