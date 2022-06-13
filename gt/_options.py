@@ -222,11 +222,8 @@ class Options:
         # TODO: ensure error if we pop from empty list
         return [x.value for x in self._options if x.parameter == option].pop()
     
-    # TODO: create the `_set_option_value()` function
     def _set_option_value(self, option: str, value: Any):
-        
-        idx: int
-        idx = self._get_option_index(option=option)
+        idx: int = self._get_option_index(option=option)
         self._options[idx].value = value
         return self
 
