@@ -214,6 +214,9 @@ class Options:
         ]
 # fmt: on
 
+    def _get_all_options_keys(self) -> List[Union[str, None]]:
+        return [x.parameter for x in self._options]
+
     def _get_option_index(self, option: str) -> int:
         # TODO: ensure error if we pop from empty list
         return [x for x in range(len(self._options)) if self._options[x].parameter == option].pop() 
