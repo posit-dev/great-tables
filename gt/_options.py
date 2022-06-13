@@ -214,7 +214,12 @@ class Options:
         ]
 # fmt: on
 
+    def _get_option_index(self, option: str) -> int:
+        # TODO: ensure error if we pop from empty list
+        return [x for x in range(len(self._options)) if self._options[x].parameter == option].pop() 
+
     def _get_option_value(self, option: str) -> Union[Any, List[str]]:
+        # TODO: ensure error if we pop from empty list
         return [x.value for x in self._options if x.parameter == option].pop()
     
     # TODO: create the `_set_option_value()` function
