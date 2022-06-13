@@ -406,6 +406,293 @@ class OptionsAPI:
         page_header_height: Optional[str] = None,
         page_footer_height: Optional[str] = None,
     ):
+        """
+        Modify the table output options
+
+        Modify the options available in a table. These options are named by the
+        components, the subcomponents, and the element that can adjusted.
+
+        Parameters
+        ----------
+        container_width,container_height
+            The width and height of the table's container. Can be specified as
+            a single-length character with units of pixels or as a percentage.
+            If provided as a single-length numeric vector, it is assumed that the
+            value is given in units of pixels. The `px()` and `pct()` helper
+            functions can also be used to pass in numeric values and obtain values
+            as pixel or percent units.
+            
+        container_overflow_x,container_overflow_y
+            Options to enable scrolling in the horizontal and vertical directions
+            when the table content overflows the container dimensions. Using `True`
+            (the default for both) means that horizontal or vertical scrolling is
+            enabled to view the entire table in those directions. With `False`, the
+            table may be clipped if the table width or height exceeds the
+            `container_width` or `container_height`.
+
+         table_width
+            The width of the table. Can be specified as a single-length character
+            with units of pixels or as a percentage. If provided as a single-length
+            numeric vector, it is assumed that the value is given in units of pixels.
+            The `px()` and `pct()` helper functions can also be used to pass in
+            numeric values and obtain values as pixel or percent units.
+
+         table_layout
+            The value for the `table-layout` CSS style in the HTML output context.
+            By default, this is `"fixed"` but another valid option is `"auto"`.
+
+         table_align
+            The horizontal alignment of the table in its container. By default, this
+            is `"center"`. Other options are `"left"` and `"right"`. This will
+            automatically set `table_margin_left` and `table_margin_right` to the
+            appropriate values.
+
+         table_margin_left,table_margin_right
+            The size of the margins on the left and right of the table within the
+            container. Can be specified as a single-length character with units of
+            pixels or as a percentage. If provided as a single-length numeric
+            vector, it is assumed that the value is given in units of pixels. The
+            `px()` and `pct()` helper functions can also be used to pass in numeric
+            values and obtain values as pixel or percent units. Using
+            `table_margin_left` or `table_margin_right` will overwrite any values
+            set by `table_align`.
+
+         table_background_color,heading_background_color,column_labels_background_color,row_group_background_color,stub_background_color,summary_row_background_color,grand_summary_row_background_color,footnotes_background_color,source_notes_background_color
+           Background colors for the parent element `table` and the following child
+           elements: `heading`, `column_labels`, `row_group`, `stub`, `summary_row`,
+           `grand_summary_row`, `footnotes`, and `source_notes`. A color name or a
+           hexadecimal color code should be provided.
+
+         table_additional_css
+            This option can be used to supply an additional block of CSS rules to be
+            applied after the automatically generated table CSS.
+
+         table_font_names
+            The names of the fonts used for the table. This is a vector of several font
+            names. If the first font isn't available, then the next font is tried (and
+            so on).
+
+         table_font_style
+            The font style for the table. Can be one of either `"normal"`, `"italic"`,
+            or `"oblique"`.
+
+         table_font_color,table_font_color_light
+            The text color used throughout the table. There are two variants:
+            `table_font_color` is for text overlaid on lighter background colors, and
+            `table_font_color_light` is automatically used when text needs to be
+            overlaid on darker background colors. A color name or a hexadecimal color
+            code should be provided.
+
+         table_font_size,heading_title_font_size,heading_subtitle_font_size,column_labels_font_size,row_group_font_size,stub_font_size,footnotes_font_size,source_notes_font_size
+            The font sizes for the parent text element `table` and the following child
+            elements: `heading_title`, `heading_subtitle`, `column_labels`,
+            `row_group`, `footnotes`, and `source_notes`. Can be specified as a
+            single-length character vector with units of pixels (e.g., `12px`) or as a
+            percentage (e.g., `80%`). If provided as a single-length numeric vector,
+            it is assumed that the value is given in units of pixels. The `px()` and
+            `pct()` helper functions can also be used to pass in numeric values and
+            obtain values as pixel or percentage units.
+
+         heading_align
+            Controls the horizontal alignment of the heading title and subtitle. We can
+            either use `"center"`, `"left"`, or `"right"`.
+
+         table_font_weight,heading_title_font_weight,heading_subtitle_font_weight,column_labels_font_weight,row_group_font_weight,stub_font_weight
+            The font weights of the table, `heading_title`, `heading_subtitle`,
+            `column_labels`, `row_group`, and `stub` text elements. Can be a text-based
+            keyword such as `"normal"`, `"bold"`, `"lighter"`, `"bolder"`, or, a
+            numeric value between `1` and `1000`, inclusive. Note that only variable
+            fonts may support the numeric mapping of weight.
+
+         column_labels_text_transform,row_group_text_transform,stub_text_transform,summary_row_text_transform,grand_summary_row_text_transform
+            Options to apply text transformations to the `column_labels`, `row_group`,
+            `stub`, `summary_row`, and `grand_summary_row` text elements. Either of the
+            `"uppercase"`, `"lowercase"`, or `"capitalize"` keywords can be used.
+
+         heading_padding,column_labels_padding,data_row_padding,row_group_padding,summary_row_padding,grand_summary_row_padding,footnotes_padding,source_notes_padding
+            The amount of vertical padding to incorporate in the `heading` (title and
+            subtitle), the `column_labels` (this includes the column spanners), the row
+            group labels (`row_group_padding`), in the body/stub rows
+            (`data_row_padding`), in summary rows (`summary_row_padding` or
+            `grand_summary_row_padding`), or in the footnotes and source notes
+            (`footnotes_padding` and `source_notes_padding`).
+
+         heading_padding_horizontal,column_labels_padding_horizontal,data_row_padding_horizontal,row_group_padding_horizontal,summary_row_padding_horizontal,grand_summary_row_padding_horizontal,footnotes_padding_horizontal,source_notes_padding_horizontal
+            The amount of horizontal padding to incorporate in the `heading` (title and
+            subtitle), the `column_labels` (this includes the column spanners), the row
+            group labels (`row_group_padding_horizontal`), in the body/stub rows
+            (`data_row_padding`), in summary rows (`summary_row_padding_horizontal` or
+            `grand_summary_row_padding_horizontal`), or in the footnotes and source
+            notes (`footnotes_padding_horizontal` and `source_notes_padding_horizontal`).
+
+         table_border_top_style,table_border_top_width,table_border_top_color,table_border_right_style,table_border_right_width,table_border_right_color,table_border_bottom_style,table_border_bottom_width,table_border_bottom_color,table_border_left_style,table_border_left_width,table_border_left_color
+            The style, width, and color properties of the table's absolute top and
+            absolute bottom borders.
+
+         heading_border_bottom_style,heading_border_bottom_width,heading_border_bottom_color
+            The style, width, and color properties of the header's bottom border. This
+            border shares space with that of the `column_labels` location. If the
+            `width` of this border is larger, then it will be the visible border.
+
+         heading_border_lr_style,heading_border_lr_width,heading_border_lr_color
+            The style, width, and color properties for the left and right borders of
+            the `heading` location.
+
+         column_labels_vlines_style,column_labels_vlines_width,column_labels_vlines_color
+            The style, width, and color properties for all vertical lines ('vlines')
+            of the the `column_labels`.
+
+         column_labels_border_top_style,column_labels_border_top_width,column_labels_border_top_color
+            The style, width, and color properties for the top border of the
+            `column_labels` location. This border shares space with that of the
+            `heading` location. If the `width` of this border is larger, then it will
+            be the visible border.
+
+         column_labels_border_bottom_style,column_labels_border_bottom_width,column_labels_border_bottom_color
+            The style, width, and color properties for the bottom border of the
+            `column_labels` location.
+
+         column_labels_border_lr_style,column_labels_border_lr_width,column_labels_border_lr_color
+            The style, width, and color properties for the left and right borders of
+            the `column_labels` location.
+
+         column_labels_hidden
+            An option to hide the column labels. If providing `TRUE` then the entire
+            `column_labels` location won't be seen and the table header (if present)
+            will collapse downward.
+
+         row_group_border_top_style,row_group_border_top_width,row_group_border_top_color,row_group_border_bottom_style,row_group_border_bottom_width,row_group_border_bottom_color,row_group_border_left_style,row_group_border_left_width,row_group_border_left_color,row_group_border_right_style,row_group_border_right_width,row_group_border_right_color
+            The style, width, and color properties for all top, bottom, left, and right
+            borders of the `row_group` location.
+
+         table_body_hlines_style,table_body_hlines_width,table_body_hlines_color,table_body_vlines_style,table_body_vlines_width,table_body_vlines_color
+            The style, width, and color properties for all horizontal lines ('hlines')
+            and vertical lines ('vlines') in the `table_body`.
+
+         table_body_border_top_style,table_body_border_top_width,table_body_border_top_color,table_body_border_bottom_style,table_body_border_bottom_width,table_body_border_bottom_color
+            The style, width, and color properties for all top and bottom borders of
+            the `table_body` location.
+
+         stub_border_style,stub_border_width,stub_border_color
+            The style, width, and color properties for the vertical border of the table
+            stub.
+
+         stub_row_group_font_size,stub_row_group_font_weight,stub_row_group_text_transform,stub_row_group_border_style,stub_row_group_border_width,stub_row_group_border_color
+            Options for the row group column in the stub (made possible when using
+            `row_group_as_column = TRUE`). The defaults for these options mirror that
+            of the `stub.*` variants (except for `stub_row_group_border_width`, which
+            is `"1px"` instead of `"2px"`).
+
+         row_group_default_label
+            An option to set a default row group label for any rows not formally placed
+            in a row group named by `group` in any call of `tab_row_group()`. If this
+            is set as `None` and there are rows that haven't been placed into
+            a row group (where one or more row groups already exist), those rows will
+            be automatically placed into a row group without a label.
+
+         row_group_as_column
+            How should row groups be structured? By default, they are separate rows
+            that lie above the each of the groups. Setting this to `True` will
+            structure row group labels are columns to the far left of the table.
+
+         summary_row_border_style,summary_row_border_width,summary_row_border_color
+            The style, width, and color properties for all horizontal borders of the
+            `summary_row` location.
+
+         grand_summary_row_border_style,grand_summary_row_border_width,grand_summary_row_border_color
+            The style, width, and color properties for the top borders of the
+            `grand_summary_row` location.
+
+         footnotes_border_bottom_style,footnotes_border_bottom_width,footnotes_border_bottom_color
+            The style, width, and color properties for the bottom border of the
+            `footnotes` location.
+
+         footnotes_border_lr_style,footnotes_border_lr_width,footnotes_border_lr_color
+            The style, width, and color properties for the left and right borders of
+            the `footnotes` location.
+
+         footnotes_marks
+            The set of sequential marks used to reference and identify each of the
+            footnotes (same input as the [opt_footnote_marks()] function. We can
+            supply a list that represents the series of footnote marks. This
+            list is recycled when its usage goes beyond the length of the set. At
+            each cycle, the marks are simply combined (e.g., `*` -> `**` ->
+            `***`). The option exists for providing keywords for certain types of
+            footnote marks. The keyword `"numbers"` (the default, indicating that we
+            want to use numeric marks). We can use lowercase `"letters"` or uppercase
+            `"LETTERS"`. There is the option for using a traditional symbol set where
+            `"standard"` provides four symbols, and, `"extended"` adds two more
+            symbols, making six.
+
+         footnotes_multiline,source_notes_multiline
+            An option to either put footnotes and source notes in separate lines
+            (the default, or `True`) or render them as a continuous line of text
+            with `footnotes_sep` providing the separator (by default `" "`) between
+            notes.
+
+         footnotes_sep,source_notes_sep
+            The separating characters between adjacent footnotes and source notes
+            in their respective footer sections when rendered as a continuous
+            line of text (when `footnotes_multiline is False`). The default value
+            is a single space character (`" "`).
+
+         source_notes_border_bottom_style,source_notes_border_bottom_width,source_notes_border_bottom_color
+            The style, width, and color properties for the bottom border of the
+            `source_notes` location.
+
+         source_notes_border_lr_style,source_notes_border_lr_width,source_notes_border_lr_color
+            The style, width, and color properties for the left and right borders of
+            the `source_notes` location.
+
+         row_striping_background_color
+            The background color for striped table body rows. A color name or a
+            hexadecimal color code should be provided.
+
+         row_striping_include_stub
+            An option for whether to include the stub when striping rows.
+
+         row_striping_include_table_body
+            An option for whether to include the table body when striping rows.
+
+         page_orientation
+            For RTF output, this provides an two options for page orientation:
+            `"portrait"` (the default) and `"landscape"`.
+
+         page_numbering
+            Within RTF output, should page numbering be displayed? By default,
+            this is set to `False` but if `True` then page numbering text will be
+            added to the document header.
+
+         page_header_use_tbl_headings
+            If `True` then RTF output tables will migrate all table headings
+            (including the table title and all column labels) to the page header.
+            This page header content will repeat across pages. By default, this is
+            `False`.
+
+         page_footer_use_tbl_notes
+            If `True` then RTF output tables will migrate all table footer content
+            (this includes footnotes and source notes) to the page footer. This page
+            footer content will repeat across pages. By default, this is `False`.
+
+         page_width,page_height
+            The page width and height in the standard portrait orientation. This is
+            for RTF table output and the default values (in inches) are `8.5in` and
+            `11.0in`.
+
+         page_margin_left,page_margin_right,page_margin_top,page_margin_bottom
+            For RTF table output, these options correspond to the left, right, top, and
+            bottom page margins. The default values for each of these is `1.0in`.
+
+         page_header_height,page_footer_height
+            The heights of the page header and footer for RTF table outputs. Default
+            values for both are `0.5in`.
+
+        Returns
+        -------
+
+        GT
+            Result of the table operation.
+        """
         saved_args = locals()
 
         del saved_args["self"]
