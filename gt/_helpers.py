@@ -76,3 +76,10 @@ def LETTERS() -> List[str]:
 
     return lett
 
+
+def px(x: Union[int, float]) -> str:
+    return f"{x}px"
+
+
+def pct(x: Union[int, float]) -> str:
+    return f"{x}%"
