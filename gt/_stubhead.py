@@ -28,7 +28,7 @@ class StubheadAPI:
         Parameters
         ----------
         label (str)
-            The text to be used as the stubhead label We can optionally use the `md()`
+            The text to be used as the stubhead label. We can optionally use the `md()`
             and `html()` functions to style the text as Markdown or to retain HTML
             elements in the text.
 
