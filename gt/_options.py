@@ -376,7 +376,7 @@ class OptionsAPI:
         footnotes_border_lr_style: Optional[str] = None,
         footnotes_border_lr_width: Optional[str] = None,
         footnotes_border_lr_color: Optional[str] = None,
-        footnotes_marks: Optional[str] = None,
+        footnotes_marks: Optional[Union[str, list[str]]] = None,
         footnotes_multiline: Optional[bool] = None,
         footnotes_sep: Optional[str] = None,
         source_notes_background_color: Optional[str] = None,
