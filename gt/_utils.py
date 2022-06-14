@@ -15,7 +15,25 @@ def heading_has_subtitle(subtitle: Optional[str]) -> bool:
         return True
 
 
-# TODO: generate informative user-facing error message if argument value is not matched
-# TODO: require that `lst` contains unique elements
-def _match_arg(x: str, lst: List[str]):
-    return [el for el in lst if x in el]
+def _match_arg(x: str, lst: List[str]) -> str:
+
+    # Ensure that `lst` has at least one element
+    if len(lst) == 0:
+        raise ValueError("The `lst` object must contain at least one element.")
+
+    # Ensure that all elements in `lst` are strings
+    if not all(isinstance(el, str) for el in lst):
+        raise ValueError("All elements in the `lst` object must be strings.")
+
+    # Ensure that `lst` does not have duplicates by comparing against
+    # a set based on `lst` (using `set()` will remove duplicates)
+    if len(lst) != len(set(lst)):
+        raise ValueError("The `lst` object must contain unique elements.")
+
+    matched = [el for el in lst if x in el]
+
+    # Raise error if there is no match
+    if len(matched) == 0:
+        raise ValueError(f"The supplied value (`{x}`) is not an allowed option.")
+
+    return matched.pop()
