@@ -128,6 +128,7 @@ class Options:
             OptionsInfo("row_group_border_left_color",        True,  "row_group",        "value",    "#D3D3D3"),
             OptionsInfo("row_group_default_label",           False,  "row_group",        "value",    None),
             OptionsInfo("row_group_as_column",               False,  "row_group",        "logical",  False),
+            OptionsInfo("row_group_as_column",               False,  "row_group",        "boolean",  False),
             OptionsInfo("table_body_hlines_style",            True,  "table_body",       "value",    "solid"),
             OptionsInfo("table_body_hlines_width",            True,  "table_body",       "px",       "1px"),
             OptionsInfo("table_body_hlines_color",            True,  "table_body",       "value",    "#D3D3D3"),
@@ -417,7 +418,7 @@ class OptionsAPI:
         container_width,container_height
             The width and height of the table's container. Can be specified as
             a single-length character with units of pixels or as a percentage.
-            If provided as a single-length numeric vector, it is assumed that the
+            If provided as a scalar numeric value, it is assumed that the
             value is given in units of pixels. The `px()` and `pct()` helper
             functions can also be used to pass in numeric values and obtain values
             as pixel or percent units.
@@ -432,8 +433,8 @@ class OptionsAPI:
 
          table_width
             The width of the table. Can be specified as a single-length character
-            with units of pixels or as a percentage. If provided as a single-length
-            numeric vector, it is assumed that the value is given in units of pixels.
+            with units of pixels or as a percentage. If provided as a scalar
+            numeric value, it is assumed that the value is given in units of pixels.
             The `px()` and `pct()` helper functions can also be used to pass in
             numeric values and obtain values as pixel or percent units.
 
@@ -450,12 +451,11 @@ class OptionsAPI:
          table_margin_left,table_margin_right
             The size of the margins on the left and right of the table within the
             container. Can be specified as a single-length character with units of
-            pixels or as a percentage. If provided as a single-length numeric
-            vector, it is assumed that the value is given in units of pixels. The
-            `px()` and `pct()` helper functions can also be used to pass in numeric
-            values and obtain values as pixel or percent units. Using
-            `table_margin_left` or `table_margin_right` will overwrite any values
-            set by `table_align`.
+            pixels or as a percentage. If provided as a scalar numeric value, it is
+            assumed that the value is given in units of pixels. The `px()` and
+            `pct()` helper functions can also be used to pass in numeric values and
+            obtain values as pixel or percent units. Using `table_margin_left` or
+            `table_margin_right` will overwrite any values set by `table_align`.
 
          table_background_color,heading_background_color,column_labels_background_color,row_group_background_color,stub_background_color,summary_row_background_color,grand_summary_row_background_color,footnotes_background_color,source_notes_background_color
            Background colors for the parent element `table` and the following child
@@ -468,9 +468,9 @@ class OptionsAPI:
             applied after the automatically generated table CSS.
 
          table_font_names
-            The names of the fonts used for the table. This is a vector of several font
-            names. If the first font isn't available, then the next font is tried (and
-            so on).
+            The names of the fonts used for the table. This should be provided as a
+            list of font names. If the first font isn't available, then the next font
+            is tried (and so on).
 
          table_font_style
             The font style for the table. Can be one of either `"normal"`, `"italic"`,
@@ -487,11 +487,11 @@ class OptionsAPI:
             The font sizes for the parent text element `table` and the following child
             elements: `heading_title`, `heading_subtitle`, `column_labels`,
             `row_group`, `footnotes`, and `source_notes`. Can be specified as a
-            single-length character vector with units of pixels (e.g., `12px`) or as a
-            percentage (e.g., `80%`). If provided as a single-length numeric vector,
-            it is assumed that the value is given in units of pixels. The `px()` and
-            `pct()` helper functions can also be used to pass in numeric values and
-            obtain values as pixel or percentage units.
+            string with units of pixels (e.g., `"12px"`) or as a percentage (e.g.,
+            `"80%"`). If provided as a scalar numeric value, it is assumed that the
+            value is given in units of pixels. The `px()` and `pct()` helper
+            functions can also be used to pass in numeric values and obtain values
+            as pixel or percentage units.
 
          heading_align
             Controls the horizontal alignment of the heading title and subtitle. We can
