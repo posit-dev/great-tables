@@ -770,7 +770,7 @@ class OptionsAPI:
         By default, a gt*table does not have row striping enabled. However, this
         method allows us to easily enable or disable striped rows in the table
         body. It's a convenient shortcut for
-        `gt.tab_options(row_striping_include_table_body = [True|False])`.
+        `gt.tab_options(row_striping_include_table_body = <True|False>)`.
 
         Parameters
         ----------
