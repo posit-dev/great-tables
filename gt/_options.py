@@ -709,8 +709,28 @@ class OptionsAPI:
 
     # TODO: create the `opt_footnote_marks()` function
 
-    # TODO: create the `opt_row_striping()` function
     def opt_row_striping(self, row_striping: bool = True):
+        """
+        Option to add or remove row striping.
+
+        By default, a gt*table does not have row striping enabled. However, this
+        method allows us to easily enable or disable striped rows in the table
+        body. It's a convenient shortcut for
+        `gt.tab_options(row_striping_include_table_body = [True|False])`.
+
+        Parameters
+        ----------
+        
+        row_striping (bool):
+            A boolean that indicates whether row striping should be added or
+            removed. Defaults to True.
+
+        Returns
+        -------
+
+        GT
+            Result of the table operation.
+        """
         self.tab_options(row_striping_include_table_body=row_striping)
         return self
 
