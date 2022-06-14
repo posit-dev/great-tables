@@ -710,6 +710,10 @@ class OptionsAPI:
     # TODO: create the `opt_footnote_marks()` function
 
     # TODO: create the `opt_row_striping()` function
+    def opt_row_striping(self, row_striping: bool = True):
+        self.tab_options(row_striping_include_table_body=row_striping)
+        return self
+
 
     # TODO: create the `opt_align_table_header()` function
 
