@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Any
 
 
 def heading_has_title(title: Optional[str]) -> bool:
@@ -37,3 +37,21 @@ def _match_arg(x: str, lst: List[str]) -> str:
         raise ValueError(f"The supplied value (`{x}`) is not an allowed option.")
 
     return matched.pop()
+
+
+def _assert_str_scalar(x: Any) -> None:
+    if type(x).__name__ != "str":
+        raise AssertionError(f"The supplied value (`{x}`) is not a string.")
+
+
+def _assert_str_list(x: Any) -> None:
+    if type(x).__name__ != "list":
+        raise AssertionError(f"The supplied value (`{x}`) is not a list.")
+    if not all(map(lambda x: isinstance(x, str), x)):
+        raise AssertionError("Not all elements of the supplied list are strings.")
+
+
+def _assert_str_in_set(x: str, set: List[str]):
+    while x not in set:
+        raise AssertionError(f"The string `{x}` is not part of the defined `set`.")
+
