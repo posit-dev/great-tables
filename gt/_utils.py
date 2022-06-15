@@ -55,3 +55,7 @@ def _assert_str_in_set(x: str, set: List[str]):
     while x not in set:
         raise AssertionError(f"The string `{x}` is not part of the defined `set`.")
 
+
+def _str_scalar_to_list(x: str):
+    _assert_str_scalar(x)
+    return [x]
