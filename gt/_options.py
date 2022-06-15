@@ -823,7 +823,82 @@ class OptionsAPI:
 
     # TODO: create the `opt_horizontal_padding()` function
 
-    # TODO: create the `opt_all_caps()` function
+    def opt_all_caps(
+        self,
+        all_caps: bool = True,
+        locations: Union[str, List[str]] = ["column_labels", "stub", "row_group"],
+    ):
+        """
+        Option to use all caps in select table locations.
+
+        Sometimes an all-capitalized look is suitable for a table. By using
+        `opt_all_caps()`, we can transform characters in the column labels,
+        the stub, and in all row groups in this way (and there's control over which
+        of these locations are transformed). This function serves as a convenient
+        shortcut for `tab_options(<location>.text_transform="uppercase",
+        <location>.font.size=gt.pct(80), <location>.font.weight="bolder")` (for
+        all `locations` selected).
+
+        Parameters
+        ----------
+        
+        all_caps (bool):
+            Indicates whether the text transformation to all caps should be
+            performed (`True`, the default) or reset to default values (`False`)
+            for the `locations` targeted.
+        
+        locations (list(str)):
+            Which locations should undergo this text transformation? By default it
+            includes all of the `"column_labels"`, the `"stub"`, and the
+            `"row_group"` locations. However, we could just choose one or two
+            of those.
+        
+        Returns
+        -------
+
+        GT
+            Result of the table operation.
+        """
+
+        # If providing a scalar string value, normalize it to be in a list
+        if type(locations).__name__ != "list":
+            locations = _utils._str_scalar_to_list(cast(str, locations))
+
+        # Ensure that the `locations` value is a list of strings
+        _utils._assert_str_list(locations)
+
+        # TODO: Ensure that all values within `locations` are valid
+
+        # Set new options for `locations` selected, or, reset to default options
+        # if `all_caps` is False
+        if all_caps is True:
+            if "column_labels" in locations:
+                self.tab_options(column_labels_font_size="80%")
+                self.tab_options(column_labels_font_weight="bolder")
+                self.tab_options(column_labels_text_transform="uppercase")
+            
+            if "stub" in locations:
+                self.tab_options(stub_font_size="80%")
+                self.tab_options(stub_font_weight="bolder")
+                self.tab_options(stub_text_transform="uppercase")
+
+            if "row_group" in locations:
+                self.tab_options(row_group_font_size="80%")
+                self.tab_options(row_group_font_weight="bolder")
+                self.tab_options(row_group_text_transform="uppercase")
+
+        else:
+            self.tab_options(column_labels_font_size="100%")
+            self.tab_options(column_labels_font_weight="normal")
+            self.tab_options(column_labels_text_transform="inherit")
+            self.tab_options(stub_font_size="100%")
+            self.tab_options(stub_font_weight="initial")
+            self.tab_options(stub_text_transform="inherit")
+            self.tab_options(row_group_font_size="100%")
+            self.tab_options(row_group_font_weight="initial")
+            self.tab_options(row_group_text_transform="inherit")
+
+        return self
 
     # TODO: create the `opt_table_lines()` function
 
