@@ -56,6 +56,13 @@ def _assert_str_in_set(x: str, set: List[str]):
         raise AssertionError(f"The string `{x}` is not part of the defined `set`.")
 
 
+def _assert_list_is_subset(x: List[Any], set: List[Any]):
+    if not (all(x in x for x in set)):
+        raise AssertionError(
+            "The `x` list is not a strict subset of the defined `set`."
+        )
+
+
 def _str_scalar_to_list(x: str):
     _assert_str_scalar(x)
     return [x]
