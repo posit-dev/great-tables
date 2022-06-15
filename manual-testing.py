@@ -14,6 +14,7 @@ gt_tbl = (
     .tab_options(table_width="720px", table_font_size="16px")
     .opt_row_striping(row_striping=True)
     .opt_all_caps()
+    .cols_label(a="new_a")
 )
 
 print(gt_tbl.render())
