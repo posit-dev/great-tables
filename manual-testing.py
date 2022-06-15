@@ -13,6 +13,7 @@ gt_tbl = (
     .tab_source_note("Source Note 2")
     .tab_options(table_width="720px", table_font_size="16px")
     .opt_row_striping(row_striping=True)
+    .opt_all_caps()
 )
 
 print(gt_tbl.render())
