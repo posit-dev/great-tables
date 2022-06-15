@@ -789,7 +789,35 @@ class OptionsAPI:
         return self
 
 
-    # TODO: create the `opt_align_table_header()` function
+    def opt_align_table_header(self, align: str = "center"):
+        """
+        Option to align the table header.
+
+        By default, a table header added to a gt table has center alignment
+        for both the title and the subtitle elements. This function allows us to
+        easily set the horizontal alignment of the title and subtitle to the left
+        or right by using the `"align"` argument. This function serves as a
+        convenient shortcut for `gt.tab_options(heading.align = <align>)`.
+
+        Parameters
+        ----------
+        
+        align (str):
+            The alignment of the title and subtitle elements in the table
+            header. Options are `"center"` (the default), `"left"`, or
+            `"right"`.
+
+        Returns
+        -------
+
+        GT
+            Result of the table operation.
+        """
+
+        align = _utils._match_arg(x=align, lst=["left", "center", "right"])
+
+        self.tab_options(heading_align=align)
+        return self
 
     # TODO: create the `opt_vertical_padding()` function
 
