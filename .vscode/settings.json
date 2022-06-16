@@ -1,4 +1,13 @@
 {
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
     "editor.formatOnSave": true,
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "black",
+    "editor.tabSize": 4,
+    "files.exclude": {
+        "**/__pycache__": true
+    },
+    "editor.rulers": [
+        80
+    ]
 }
