@@ -1,5 +1,7 @@
 import commonmark
+import re
 
 
 def md_html(x: str) -> str:
-    return commonmark.commonmark(x)
+    str = commonmark.commonmark(x)
+    return re.sub(r"^<p>|</p>\n$", "", str)
