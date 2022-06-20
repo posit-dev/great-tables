@@ -158,3 +158,22 @@ def md(text: str) -> Text:
         `type` is 'markdown'.
     """
     return Text(text=text, type="markdown")
+
+
+def html(text: str) -> Text:
+    """Interpret input text as HTML-formatted text.
+
+    For certain pieces of text (like in column labels or table headings) we may
+    want to express them as raw HTML. In fact, with HTML, anything goes so it
+    can be much more than just text. The `html()` function will guard the input
+    HTML against escaping, so, your HTML tags will come through as HTML when
+    rendered... to HTML.
+
+    Args:
+        text (str): The text that is understood to contain HTML formatting.
+
+    Returns:
+        Text: An instance of the Text class is returned, where the text
+        `type` is 'html'.
+    """
+    return Text(text=text, type="html")
