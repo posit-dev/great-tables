@@ -132,3 +132,10 @@ def pct(x: Union[int, float]) -> str:
         >>> print(x)
     """
     return f"{x}%"
+
+
+class Text:
+    def __init__(self, text: str, type: str):
+        self.text: str = text
+        self.type: str = type
+
