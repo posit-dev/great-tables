@@ -139,3 +139,6 @@ class Text:
         self.text: str = text
         self.type: str = type
 
+
+def md(text: str) -> Text:
+    return Text(text=text, type="markdown")
