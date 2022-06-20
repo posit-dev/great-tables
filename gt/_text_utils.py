@@ -17,11 +17,13 @@ def _process_text(x: Union[Text, str]) -> str:
         text = x
         type = "plaintext"
     else:
-        text = x.text  # type: ignore
-        type = x.type  # type: ignore
+        text = x.text
+        type = x.type
 
     if type == "markdown":
-        x_out = _md_html(text)  # type: ignore
+        x_out = _md_html(text)
+    if type == "html":
+        x_out = text
     else:
         x_out = text
 
