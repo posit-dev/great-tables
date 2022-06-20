@@ -141,4 +141,20 @@ class Text:
 
 
 def md(text: str) -> Text:
+    """Interpret input text as Markdown-formatted text.
+
+    Markdown! It's a wonderful thing. We can use it in certain places (e.g.,
+    footnotes, source notes, the table title, etc.) and expect it to render to
+    HTML as Markdown does. There is the `html()` helper that allows you to ferry
+    in HTML but this function `md()`... it's almost like a two-for-one deal (you
+    get to use Markdown plus any HTML fragments at the same time).
+
+    Args:
+        text (str): The text that is understood to contain Markdown
+        formatting.
+
+    Returns:
+        Text: An instance of the Text class is returned, where the text
+        `type` is 'markdown'.
+    """
     return Text(text=text, type="markdown")
