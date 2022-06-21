@@ -23,6 +23,12 @@ class TblData:
     def get_cell(self, row: int, column: str) -> Any:
         return cast(Any, self._tbl_data[column][row])
 
+    def pd_to_dict(self):
+        return self._tbl_data.reset_index().to_dict(orient="list")
+
+    def get_column_dtype(self, column: str) -> str:
+        return self._tbl_data[column].dtypes
+
 
 class TblDataAPI:
     _tbl_data: TblData
