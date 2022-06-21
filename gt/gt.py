@@ -1,6 +1,7 @@
 from typing import List, Dict, Any, cast
 from gt import (
     _tbl_data,
+    _body,
     _boxhead,
     _stub,
     _row_groups,
@@ -30,6 +31,7 @@ __all__ = ["GT"]
 # =============================================================================
 class GT(
     _tbl_data.TblDataAPI,
+    _body.BodyAPI,
     _boxhead.BoxheadAPI,
     _stub.StubAPI,
     _row_groups.RowGroupsAPI,
@@ -61,6 +63,7 @@ class GT(
     def __init__(self, data: Any, locale: str = ""):
 
         _tbl_data.TblDataAPI.__init__(self, data)
+        _body.BodyAPI.__init__(self)
         _boxhead.BoxheadAPI.__init__(self)
         _stub.StubAPI.__init__(self)
         _row_groups.RowGroupsAPI.__init__(self)
@@ -81,6 +84,28 @@ class GT(
         self._rendered_tbl: str = _rendered_tbl_init()
 
     def _build_data(self):
+
+        # Building of the table body with cell rendering, merging
+        # of cells, and row/column reordering for sake of grouping
+
+        # self = self._body_build()
+        # self = self._render_formats()
+        # self = self._migrate_unformatted_to_output()
+        # self = self._perform_col_merge()
+        # self = self._body_reassemble()
+
+        # Reordering of the metadata elements of the table
+
+        # self = self.reorder_stub_df()
+        # self = self.reorder_footnotes()
+        # self = self.reorder_styles()
+
+        # Transformations of individual cells at supported locations
+
+        # self = self.perform_text_transforms()
+
+        # ...
+
         return self
 
     def render(self) -> str:
