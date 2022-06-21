@@ -39,9 +39,6 @@ class Formats:
     def __init__(self):
         pass
 
-    # def format(data: TblData) -> List[Dict[str, str]]:
-    #     pass
-
 
 class FormatsAPI(BaseAPI):
     _formats: List[FormatInfo]
