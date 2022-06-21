@@ -212,7 +212,7 @@ def _create_body_component(data: GT):
 
         for name in column_names:
 
-            cell_content: Any = tbl_data.get_cell(i, name)
+            cell_content: Any = tbl_data._get_cell(i, name)
             cell_str: str = str(cell_content)
 
             body_cells.append("  <td>" + cell_str + "</td>")

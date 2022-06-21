@@ -22,17 +22,23 @@ class TblData:
         """Get the number of rows from the input data table"""
         return len(self._tbl_data)
 
-    def get_cell(self, row: int, column: str) -> Any:
+    def _get_cell(self, row: int, column: str) -> Any:
         """Get the content from a single cell in the input data table"""
         return cast(Any, self._tbl_data[column][row])
 
-    def pd_to_dict(self):
+    def _pd_to_dict(self):
         """Transform the input data table from a DataFrame to a dictionary"""
         return self._tbl_data.reset_index().to_dict(orient="list")
 
-    def get_column_dtype(self, column: str) -> str:
+    def _get_column_dtype(self, column: str) -> str:
         """Get the data type for a single column in the input data table"""
         return self._tbl_data[column].dtypes
+
+    def _make_empty_df(self):
+        """Create an empty DataFrame variant of the input data table"""
+        column_list = list(self._tbl_data.columns)
+        rowidx_list = list(range(len(self._tbl_data)))
+        return pd.DataFrame(columns=column_list, index=rowidx_list)
 
 
 class TblDataAPI:
