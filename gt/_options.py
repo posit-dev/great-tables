@@ -220,7 +220,7 @@ class Options:
 
     def _get_option_index(self, option: str) -> int:
         # TODO: ensure error if we pop from empty list
-        return [x for x in range(len(self._options)) if self._options[x].parameter == option].pop() 
+        return [x for x in range(len(self._options)) if self._options[x].parameter == option].pop()
 
     def _get_option_type(self, option: str) -> Union[Any, List[str]]:
         # TODO: ensure error if we pop from empty list
@@ -229,7 +229,7 @@ class Options:
     def _get_option_value(self, option: str) -> Union[Any, List[str]]:
         # TODO: ensure error if we pop from empty list
         return [x.value for x in self._options if x.parameter == option].pop()
-    
+
     def _set_option_value(self, option: str, value: Any):
         idx: int = self._get_option_index(option=option)
         self._options[idx].value = value
@@ -422,7 +422,7 @@ class OptionsAPI:
             value is given in units of pixels. The `px()` and `pct()` helper
             functions can also be used to pass in numeric values and obtain values
             as pixel or percent units.
-            
+
         container_overflow_x,container_overflow_y
             Options to enable scrolling in the horizontal and vertical directions
             when the table content overflows the container dimensions. Using `True`
@@ -693,20 +693,15 @@ class OptionsAPI:
         GT
             Result of the table operation.
         """
-        saved_args = locals()
-
-        del saved_args["self"]
-
-        modified_args = {k: v for k, v in saved_args.items() if v is not None}
-        
-        for i in range(len(modified_args)):
-            self._options._set_option_value(
-                option=list(modified_args.keys())[i],
-                value=list(modified_args.values())[i]
-            )
-
+        for k, v in locals():
+           if k == "self" or v is None:
+              continue
+           self._options._set_option_value(
+              option=k,
+              value=v,
+           )
         return self
-    
+
 
     def opt_footnote_marks(self, marks: Union[str, List[str]] = "numbers"):
         """
@@ -722,7 +717,7 @@ class OptionsAPI:
         length of the set. At each cycle, the marks are simply doubled, tripled, and
         so on (e.g., `*` -> `**` -> `***`). The option exists for providing keywords
         for certain types of footnote marks. The keywords are:
-        
+
         - `"numbers"`: numeric marks, they begin from 1 and these marks are not
         subject to recycling behavior
         - `"letters"`: lowercase alphabetic marks. Same as using the `gt.letters()`
@@ -774,7 +769,7 @@ class OptionsAPI:
 
         Parameters
         ----------
-        
+
         row_striping (bool):
             A boolean that indicates whether row striping should be added or
             removed. Defaults to True.
@@ -801,7 +796,7 @@ class OptionsAPI:
 
         Parameters
         ----------
-        
+
         align (str):
             The alignment of the title and subtitle elements in the table
             header. Options are `"center"` (the default), `"left"`, or
@@ -841,18 +836,18 @@ class OptionsAPI:
 
         Parameters
         ----------
-        
+
         all_caps (bool):
             Indicates whether the text transformation to all caps should be
             performed (`True`, the default) or reset to default values (`False`)
             for the `locations` targeted.
-        
+
         locations (list(str)):
             Which locations should undergo this text transformation? By default it
             includes all of the `"column_labels"`, the `"stub"`, and the
             `"row_group"` locations. However, we could just choose one or two
             of those.
-        
+
         Returns
         -------
 
@@ -876,7 +871,7 @@ class OptionsAPI:
                 self.tab_options(column_labels_font_size="80%")
                 self.tab_options(column_labels_font_weight="bolder")
                 self.tab_options(column_labels_text_transform="uppercase")
-            
+
             if "stub" in locations:
                 self.tab_options(stub_font_size="80%")
                 self.tab_options(stub_font_weight="bolder")
@@ -905,5 +900,5 @@ class OptionsAPI:
     # TODO: create the `opt_table_outline()` function
 
     # TODO: create the `opt_table_font()` function
-    
+
     # TODO: create the `opt_css()` function
