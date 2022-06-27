@@ -1,22 +1,22 @@
-from typing import List, Dict, Any, cast
+from typing import Any, Dict, List, cast
+
 from gt import (
-    _tbl_data,
     _body,
     _boxhead,
-    _stub,
-    _row_groups,
-    _spanners,
-    _heading,
-    _stubhead,
-    _source_notes,
     _footnotes,
-    _styles,
-    _locale,
     _formats,
+    _heading,
+    _locale,
     _options,
-    _utils,
+    _row_groups,
+    _source_notes,
+    _spanners,
+    _stub,
+    _stubhead,
+    _styles,
+    _tbl_data,
     _text,
-    StringBuilder,
+    _utils,
 )
 
 __all__ = ["GT"]
