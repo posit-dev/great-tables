@@ -1,5 +1,7 @@
 from typing import Union, List
 
+from ._text import Text
+
 
 def letters() -> List[str]:
     """Lowercase letters of the Roman alphabet
@@ -132,12 +134,6 @@ def pct(x: Union[int, float]) -> str:
         >>> print(x)
     """
     return f"{x}%"
-
-
-class Text:
-    def __init__(self, text: str, type: str):
-        self.text: str = text
-        self.type: str = type
 
 
 def md(text: str) -> Text:
