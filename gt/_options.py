@@ -18,7 +18,7 @@ default_fonts_list = [
 
 
 class OptionsInfo:
-    parameter: Optional[str]
+    parameter: str
     scss: Optional[bool]
     category: Optional[str]
     type: Optional[str]
@@ -26,7 +26,7 @@ class OptionsInfo:
 
     def __init__(
         self,
-        parameter: Optional[str] = None,
+        parameter: str,
         scss: Optional[bool] = None,
         category: Optional[str] = None,
         type: Optional[str] = None,
@@ -42,7 +42,8 @@ class OptionsInfo:
 # fmt: off
 class Options:
     def __init__(self):
-        self._options: list[OptionsInfo] = [
+        self._options: dict[str, OptionsInfo] = dict(
+           (v.parameter, v) for v in [
             #           parameter                            scss    category            type        value
             OptionsInfo("container_width",                   False,  "container",        "px",       "auto"),
             OptionsInfo("container_height",                  False,  "container",        "px",       "auto"),
@@ -212,28 +213,32 @@ class Options:
             OptionsInfo("page_margin_bottom",                False,  "page",             "value",    "1.0in"),
             OptionsInfo("page_header_height",                False,  "page",             "value",    "0.5in"),
             OptionsInfo("page_footer_height",                False,  "page",             "value",    "0.5in"),
-        ]
+        ])
 # fmt: on
 
     def _get_all_options_keys(self) -> List[Union[str, None]]:
-        return [x.parameter for x in self._options]
+        return [x.parameter for x in self._options.values()]
 
-    def _get_option_index(self, option: str) -> int:
-        # TODO: ensure error if we pop from empty list
-        return [x for x in range(len(self._options)) if self._options[x].parameter == option].pop()
+    #def __setattr__(self, __name: str, __value: Any) -> None:
+    #    self._options[__name].value = __value
 
-    def _get_option_type(self, option: str) -> Union[Any, List[str]]:
-        # TODO: ensure error if we pop from empty list
-        return [x.type for x in self._options if x.parameter == option].pop()
+    def __getattr__(self, __name: str) -> OptionsInfo:
+        return self._options[__name]
+        # use this like
+        #
+        # options = Options()
+        # options.foo.value = "bar"
+        # print(options.foo.type)
 
-    def _get_option_value(self, option: str) -> Union[Any, List[str]]:
-        # TODO: ensure error if we pop from empty list
-        return [x.value for x in self._options if x.parameter == option].pop()
+    #def _get_option_type(self, option: str) -> Union[Any, List[str]]:
+    #    return self._options[option].type
+
+    #def _get_option_value(self, option: str) -> Union[Any, List[str]]:
+    #    return self._options[option].value
 
     def _set_option_value(self, option: str, value: Any):
-        idx: int = self._get_option_index(option=option)
-        self._options[idx].value = value
-        return self
+       self._options[option].value = value
+       return self
 
 
 class OptionsAPI:
