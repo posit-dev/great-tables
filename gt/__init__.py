@@ -18,3 +18,4 @@ from ._options import *
 from ._locale import *
 from ._utils import *
 from ._helpers import *
+from ._text import *
