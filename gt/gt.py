@@ -15,6 +15,8 @@ from gt import (
     _formats,
     _options,
     _utils,
+    _text,
+    StringBuilder,
 )
 
 __all__ = ["GT"]
@@ -44,6 +46,8 @@ class GT(
     _locale.LocaleAPI,
     _formats.FormatsAPI,
     _options.OptionsAPI,
+    _text.Text,
+    _text.StringBuilder,
 ):
     """
     Create a gt Table object.
@@ -114,6 +118,13 @@ class GT(
         return html_table
 
     # =============================================================================
+    # Building
+    # =============================================================================
+
+    def _body_build(self):
+        return self
+
+    # =============================================================================
     # HTML Rendering
     # =============================================================================
     def _render_as_html(self) -> str:
@@ -154,11 +165,13 @@ def _rendered_tbl_init() -> str:
 # =============================================================================
 
 
-def _create_heading_component(data: GT) -> str:
+def _create_heading_component(data: GT) -> StringBuilder:
+
+    result = StringBuilder()
 
     # If there is no title or heading component, then return an empty string
     if _utils.heading_has_title(title=data._heading.title) is False:
-        return ""
+        return result
 
     title = data._heading.title
     subtitle_defined = _utils.heading_has_subtitle(subtitle=data._heading.subtitle)
@@ -167,9 +180,11 @@ def _create_heading_component(data: GT) -> str:
     # that will finally be rendered accounting for the stub layout
     n_cols_total = data._boxhead._get_effective_number_of_columns()
 
-    heading_rows = f"""  <tr>
+    result.append(
+        f"""  <tr>
     <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}
   </tr>"""
+    )
 
     if subtitle_defined:
 
@@ -178,11 +193,9 @@ def _create_heading_component(data: GT) -> str:
         subtitle_row = f"""  <tr>
     <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}
   </tr>"""
-        heading_rows = f"""{heading_rows}\n{subtitle_row}"""
+        result.append(f"\n{subtitle_row}")
 
-    heading_component = f"""<thead class=\"gt_header\">{heading_rows}</thead>"""
-
-    return heading_component
+    return StringBuilder('<thead class="gt_header">', result, "</thead>")
 
 
 def _create_column_labels_component(data: GT) -> str:
@@ -231,8 +244,8 @@ def _create_source_notes_component(data: GT) -> str:
         return ""
 
     # Obtain the `multiline` and `separator` options from `_options`
-    multiline = cast(str, data._options._get_option_value("source_notes_multiline"))
-    separator = cast(str, data._options._get_option_value("source_notes_sep"))
+    multiline = data._options.source_notes_multiline.value
+    separator = cast(str, data._options.source_notes_sep.value)
 
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
