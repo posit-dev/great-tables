@@ -7,8 +7,7 @@ class BaseAPI:
     # It's important that we never keep state in this class, as
     # we will be multiply inheriting from it. I think. --jcheng
 
-    @property
-    def _data(self) -> TblData:
+    def _get_tbl_data(self) -> TblData:
         result = cast(TblDataAPI, self)._tbl_data
         if result is None:
             raise AssertionError(
