@@ -68,7 +68,7 @@ class FormatsAPI(BaseAPI):
         #     columns = [columns]
 
         if rows is None:
-            rows = list(range(self._data.rows))
+            rows = list(range(self._get_tbl_data().n_rows()))
         elif isinstance(rows, int):
             rows = [rows]
 
