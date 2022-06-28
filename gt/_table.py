@@ -1,4 +1,5 @@
 import pandas as pd
+from typing import Dict, Tuple
 
 
 class Cell:
@@ -15,8 +16,8 @@ class Cell:
 
 
 class Table:
-    cells: dict[tuple[int, int], Cell]
-    columns: dict[str, int]
+    cells: Dict[Tuple[int, int], Cell]
+    columns: Dict[str, int]
     n_row: int
     n_col: int
 

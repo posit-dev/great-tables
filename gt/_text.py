@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 
 import commonmark
 import re
@@ -11,12 +11,12 @@ class Text:
 
 
 class StringBuilder:
-    pieces: list[Union[str, "StringBuilder"]]
+    pieces: List[Union[str, "StringBuilder"]]
 
     def __init__(self, *args: Union[str, "StringBuilder"]):
         self.pieces = list(args)
 
-    def _collect(self, lst: list[str]):
+    def _collect(self, lst: List[str]):
         for piece in self.pieces:
             if isinstance(piece, str):
                 lst.append(piece)

@@ -1,5 +1,8 @@
 from typing import Any, Dict, List, cast
 
+from ._text import StringBuilder
+from ._tbl_data import TblDataAPI
+
 from gt import (
     _body,
     _boxhead,
@@ -15,7 +18,6 @@ from gt import (
     _stubhead,
     _styles,
     _tbl_data,
-    _text,
     _utils,
 )
 
@@ -32,7 +34,7 @@ __all__ = ["GT"]
 # GT class
 # =============================================================================
 class GT(
-    _tbl_data.TblDataAPI,
+    TblDataAPI,
     _body.BodyAPI,
     _boxhead.BoxheadAPI,
     _stub.StubAPI,
@@ -46,8 +48,6 @@ class GT(
     _locale.LocaleAPI,
     _formats.FormatsAPI,
     _options.OptionsAPI,
-    _text.Text,
-    _text.StringBuilder,
 ):
     """
     Create a gt Table object.
