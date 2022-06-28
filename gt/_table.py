@@ -12,7 +12,7 @@ class Cell:
         self.value = val
 
     def get_cell_value(self):
-        self.value
+        return self.value
 
 
 class Table:
