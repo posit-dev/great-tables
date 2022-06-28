@@ -3,22 +3,22 @@ import pandas as pd
 
 
 class TblData:
+    _tbl_data: pd.DataFrame
+
     def __init__(self, data: Any):
 
         # Transform incoming data to a pandas DataFrame
-        pd_data = pd.DataFrame(data)
+        pd_data = pd.DataFrame(data).copy()
 
         # The tabular data stored as a pandas DataFrame
-        self._tbl_data: pd.DataFrame = pd_data
+        self._tbl_data = pd_data
 
-    @property
-    def columns(self) -> List[str]:
+    def get_column_names(self) -> List[str]:
         """Get a list of column names from the input data table"""
         data_column_index: pd.Index = self._tbl_data.columns
         return list(data_column_index)
 
-    @property
-    def rows(self) -> int:
+    def n_rows(self) -> int:
         """Get the number of rows from the input data table"""
         return len(self._tbl_data)
 
