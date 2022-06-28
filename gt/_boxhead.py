@@ -3,7 +3,8 @@ from enum import Enum, auto
 
 from ._base_api import BaseAPI
 from ._tbl_data import TblData
-from gt import _utils
+
+from ._utils import _assert_list_is_subset
 
 
 class ColumnAlignment(Enum):
@@ -44,12 +45,14 @@ class ColInfo:
 
 
 class Boxhead:
+    _boxhead: List[ColInfo]
+
     def __init__(self, data: TblData):
 
         # Obtain the column names from the data and initialize the
         # `_boxhead` from that
-        column_names = data.columns
-        self._boxhead: list[ColInfo] = [ColInfo(col) for col in column_names]
+        column_names = data.get_column_names()
+        self._boxhead = [ColInfo(col) for col in column_names]
 
     # Get a list of columns
     def _get_columns(self) -> List[str]:
@@ -97,7 +100,7 @@ class BoxheadAPI(BaseAPI):
     _boxhead: Boxhead
 
     def __init__(self):
-        self._boxhead = Boxhead(self._data)
+        self._boxhead = Boxhead(self._get_tbl_data())
 
     def cols_label(self, **kwargs: str):
         """
@@ -140,7 +143,7 @@ class BoxheadAPI(BaseAPI):
 
         # Stop function if any of the column names specified are not in `cols_labels`
         # msg: "All column names provided must exist in the input `.data` table."
-        _utils._assert_list_is_subset(mod_columns, column_names)
+        _assert_list_is_subset(mod_columns, column_names)
 
         for i in range(len(kwargs)):
             self._boxhead._set_column_label(column=mod_columns[i], label=new_labels[i])
