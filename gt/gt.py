@@ -2,6 +2,7 @@ from typing import Any, Dict, List, cast
 
 from ._text import StringBuilder
 from ._tbl_data import TblDataAPI
+from ._table import Table
 
 from gt import (
     _body,
@@ -17,7 +18,6 @@ from gt import (
     _stub,
     _stubhead,
     _styles,
-    _tbl_data,
     _utils,
 )
 
@@ -66,7 +66,8 @@ class GT(
 
     def __init__(self, data: Any, locale: str = ""):
 
-        _tbl_data.TblDataAPI.__init__(self, data)
+        TblDataAPI.__init__(self, data)
+
         _body.BodyAPI.__init__(self)
         _boxhead.BoxheadAPI.__init__(self)
         _stub.StubAPI.__init__(self)
@@ -92,11 +93,13 @@ class GT(
         # Building of the table body with cell rendering, merging
         # of cells, and row/column reordering for sake of grouping
 
-        # self = self._body_build()
-        # self = self._render_formats()
-        # self = self._migrate_unformatted_to_output()
-        # self = self._perform_col_merge()
-        # self = self._body_reassemble()
+        body = Table(self._tbl_data._tbl_data)
+
+        self._body_build(body)
+        # self._render_formats()
+        # self._migrate_unformatted_to_output()
+        # self._perform_col_merge()
+        # self._body_reassemble()
 
         # Reordering of the metadata elements of the table
 
@@ -121,8 +124,9 @@ class GT(
     # Building
     # =============================================================================
 
-    def _body_build(self):
+    def _body_build(self, data: Table):
         return self
+        # data.cells[(1, 3)].set_cell_value("foo")
 
     # =============================================================================
     # HTML Rendering
@@ -202,7 +206,7 @@ def _create_column_labels_component(data: GT) -> str:
 
     tbl_data = data._tbl_data
 
-    column_names = tbl_data.columns
+    column_names = tbl_data.get_column_names()
 
     th_cells = "".join([f"  <th>{x}</th>\n" for x in column_names])
 
@@ -215,11 +219,11 @@ def _create_body_component(data: GT):
 
     tbl_data = data._tbl_data
 
-    column_names = tbl_data.columns
+    column_names = tbl_data.get_column_names()
 
     body_rows: List[str] = []
 
-    for i in range(tbl_data.rows):
+    for i in range(tbl_data.n_rows()):
 
         body_cells: List[str] = []
 
