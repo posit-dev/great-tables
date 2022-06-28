@@ -39,7 +39,7 @@ class Stub:
 
         # Obtain a list of row indices from the data and initialize
         # the `_stub` from that
-        row_indices = list(range(data.rows))
+        row_indices = list(range(len(data._tbl_data)))
 
         # Obtain the column names from the data and initialize the
         # `_boxhead` from that
@@ -50,4 +50,4 @@ class StubAPI(BaseAPI):
     _stub: Stub
 
     def __init__(self):
-        self._stub = Stub(self._data)
+        self._stub = Stub(self._get_tbl_data())
