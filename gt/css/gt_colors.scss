@@ -1,0 +1,17 @@
+
+$heading_background_color: $table_background_color !default;
+$column_labels_background_color: $table_background_color !default;
+$row_group_background_color: $table_background_color !default;
+$stub_background_color: $table_background_color !default;
+$stub_row_group_background_color: $table_background_color !default;
+$summary_row_background_color: $table_background_color !default;
+$grand_summary_row_background_color: $table_background_color !default;
+$footnotes_background_color: $table_background_color !default;
+$source_notes_background_color: $table_background_color !default;
+
+@function font-color($color) {
+  @return if(
+    red($color) * 0.299 + green($color) * 0.587 + blue($color) * 0.114 > 186,
+    $table_font_color, $table_font_color_light
+  );
+}
