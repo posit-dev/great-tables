@@ -204,9 +204,7 @@ def _create_heading_component(data: GT) -> StringBuilder:
 
 def _create_column_labels_component(data: GT) -> str:
 
-    tbl_data = data._tbl_data
-
-    column_names = tbl_data.get_column_names()
+    column_names = data._boxhead._get_column_labels()
 
     th_cells = "".join([f"  <th>{x}</th>\n" for x in column_names])
 
