@@ -1,0 +1,48 @@
+mfr,model,year,trim,bdy_style,hp,hp_rpm,trq,trq_rpm,mpg_c,mpg_h,drivetrain,trsmn,ctry_origin,msrp
+Ford,GT,2017,Base Coupe,coupe,647,6250,550,5900,11,18,rwd,7a,United States,447000
+Ferrari,458 Speciale,2015,Base Coupe,coupe,597,9000,398,6000,13,17,rwd,7a,Italy,291744
+Ferrari,458 Spider,2015,Base,convertible,562,9000,398,6000,13,17,rwd,7a,Italy,263553
+Ferrari,458 Italia,2014,Base Coupe,coupe,562,9000,398,6000,13,17,rwd,7a,Italy,233509
+Ferrari,488 GTB,2016,Base Coupe,coupe,661,8000,561,3000,15,22,rwd,7a,Italy,245400
+Ferrari,California,2015,Base Convertible,convertible,553,7500,557,4750,16,23,rwd,7a,Italy,198973
+Ferrari,GTC4Lusso,2017,Base Coupe,coupe,680,8250,514,5750,12,17,awd,7a,Italy,298000
+Ferrari,FF,2015,Base Coupe,coupe,652,8000,504,6000,11,16,awd,7a,Italy,295000
+Ferrari,F12Berlinetta,2015,Base Coupe,coupe,731,8250,509,6000,11,16,rwd,7a,Italy,319995
+Ferrari,LaFerrari,2015,Base Coupe,coupe,949,9000,664,6750,12,16,rwd,7a,Italy,1416362
+Acura,NSX,2017,Base Coupe,coupe,573,6500,476,2000,21,22,awd,9a,Japan,156000
+Nissan,GT-R,2016,Premium Coupe,coupe,545,6400,436,3200,16,22,awd,6a,Japan,101770
+Lamborghini,Aventador,2015,LP 700-4 Coupe,coupe,700,8250,507,5500,11,18,awd,7a,Italy,397500
+Lamborghini,Huracan,2015,LP 610-4 Coupe,coupe,610,8250,413,6500,16,20,rwd,7a,Italy,237250
+Lamborghini,Gallardo,2014,LP 550-2 Coupe,coupe,550,8000,398,6500,12,20,rwd,6a,Italy,191900
+Bentley,Continental GT,2016,V8 Coupe,coupe,500,6000,487,1700,15,25,awd,8am,United Kingdom,198500
+Maserati,Granturismo,2016,Sport Coupe,coupe,454,7600,384,4750,13,21,rwd,6am,Italy,132825
+Maserati,Quattroporte,2016,S Sedan,sedan,404,5500,406,1500,16,23,rwd,8am,Italy,99900
+Maserati,Ghibli,2016,Base Sedan,sedan,345,5250,369,1750,17,24,rwd,8am,Italy,70600
+BMW,6-Series,2016,640 I Coupe,coupe,315,5800,330,1400,20,30,rwd,8am,Germany,77300
+BMW,i8,2016,Mega World Coupe,coupe,357,5800,420,3700,28,29,awd,6am,Germany,140700
+BMW,M4,2016,Base Coupe,coupe,425,5500,406,1850,17,24,rwd,6m,Germany,65700
+BMW,M5,2016,Base Sedan,sedan,560,6000,500,1500,15,22,rwd,7am,Germany,94100
+BMW,M6,2016,Base Coupe,coupe,560,6000,500,1500,15,22,rwd,7a,Germany,113400
+Aston Martin,DB11,2017,Base Coupe,coupe,608,6500,516,1500,15,21,rwd,8am,United Kingdom,211195
+Aston Martin,Rapide S,2016,Base Sedan,sedan,552,6650,465,5500,14,21,rwd,8am,United Kingdom,205300
+Aston Martin,Vanquish,2016,Base Coupe,coupe,568,6650,465,5500,13,21,rwd,8am,United Kingdom,287250
+Aston Martin,Vantage,2016,V8 GT (Manual) Coupe,coupe,430,7300,361,5000,13,19,rwd,6m,United Kingdom,103300
+Chevrolet,Corvette,2016,Z06 Coupe,coupe,650,6400,650,3600,15,22,rwd,7m,United States,88345
+Dodge,Viper,2017,GT Coupe,coupe,645,5000,600,5000,12,19,rwd,6m,United States,95895
+Audi,R8,2015,4.2 (Manual) Coupe,coupe,430,7900,317,4500,11,20,awd,6m,Germany,115900
+Audi,RS 7,2016,Quattro Hatchback,hatchback,560,5700,516,1750,15,25,awd,8am,Germany,108900
+Audi,S6,2016,Premium Plus quattro Sedan,sedan,450,5800,406,1400,18,27,awd,7a,Germany,70900
+Audi,S7,2016,Prestige quattro Hatchback,hatchback,450,5800,406,1400,17,27,awd,7a,Germany,82900
+Audi,S8,2016,Base Sedan,sedan,520,5800,481,1700,15,25,awd,8am,Germany,114900
+Lotus,Evora,2017,2+2 Coupe,coupe,400,7000,302,3500,16,24,rwd,6m,United Kingdom,91900
+Jaguar,F-Type,2016,Base (Manual) Coupe,coupe,340,6500,332,3500,16,24,rwd,6m,United Kingdom,65000
+Mercedes-Benz,AMG GT,2016,S Coupe,coupe,503,6250,479,1750,16,22,rwd,7a,Germany,129900
+Mercedes-Benz,SL-Class,2016,SL400 Convertible,convertible,329,5250,354,1600,20,27,rwd,7am,Germany,85050
+Tesla,Model S,2017,75D,sedan,259,6100,243,,,,awd,1dd,United States,74500
+Porsche,718 Boxster,2017,Base Convertible,convertible,300,6500,280,1950,21,28,rwd,6m,Germany,56000
+Porsche,718 Cayman,2017,Base Coupe,coupe,300,6500,280,1950,20,29,rwd,6m,Germany,53900
+Porsche,911,2016,Carrera Coupe,coupe,350,7400,287,5600,20,28,rwd,7m,Germany,84300
+Porsche,Panamera,2016,Base Sedan,sedan,310,6200,295,3750,18,28,rwd,7a,Germany,78100
+McLaren,570,2016,Base Coupe,coupe,570,7500,443,5000,16,23,rwd,7a,United Kingdom,184900
+Rolls-Royce,Dawn,2016,Base Convertible,convertible,563,5250,575,1500,12,19,rwd,8a,United Kingdom,335000
+Rolls-Royce,Wraith,2016,Base Coupe,coupe,624,5600,590,1500,13,21,rwd,8a,United Kingdom,304350
