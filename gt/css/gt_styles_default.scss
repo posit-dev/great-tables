@@ -1,0 +1,407 @@
+@mixin gt_styles() {
+
+  .gt_table {
+    display: table;
+    border-collapse: collapse;
+    margin-left: $table_margin_left; // table.margin.left
+    margin-right: $table_margin_right; // table.margin.right
+    color: font-color($table_background_color);
+    font-size: $table_font_size; // table.font.size
+    font-weight: $table_font_weight; // table.font.weight
+    font-style: $table_font_style; // table.font.style
+    background-color: $table_background_color; // table.background.color
+    width: $table_width; // table.width
+    border-top-style: $table_border_top_style; // table.border.top.style
+    border-top-width: $table_border_top_width; // table.border.top.width
+    border-top-color: $table_border_top_color; // table.border.top.color
+    border-right-style: $table_border_right_style; // table.border.right.style
+    border-right-width: $table_border_right_width; // table.border.right.width
+    border-right-color: $table_border_right_color; // table.border.right.color
+    border-bottom-style: $table_border_bottom_style; // table.border.bottom.style
+    border-bottom-width: $table_border_bottom_width; // table.border.bottom.width
+    border-bottom-color: $table_border_bottom_color; // table.border.bottom.color
+    border-left-style: $table_border_left_style; // table.border.left.style
+    border-left-width: $table_border_left_width; // table.border.left.width
+    border-left-color: $table_border_left_color; // table.border.left.color
+  }
+
+  .gt_heading {
+    background-color: $heading_background_color; // heading.background.color
+    text-align: $heading_align; // heading.align
+    border-bottom-color: $table_background_color; // table.background.color
+    border-left-style: $heading_border_lr_style; // heading.border.lr.style
+    border-left-width: $heading_border_lr_width; // heading.border.lr.width
+    border-left-color: $heading_border_lr_color; // heading.border.lr.color
+    border-right-style: $heading_border_lr_style; // heading.border.lr.style
+    border-right-width: $heading_border_lr_width; // heading.border.lr.width
+    border-right-color: $heading_border_lr_color; // heading.border.lr.color
+  }
+
+  .gt_title {
+    color: font-color($heading_background_color);
+    font-size: $heading_title_font_size; // heading.title.font.size
+    font-weight: $heading_title_font_weight; // heading.title.font.weight
+    padding-top: $heading_padding; // heading.padding
+    padding-bottom: $heading_padding; //heading.padding
+    padding-left: $heading_padding_horizontal; // heading.padding.horizontal
+    padding-right: $heading_padding_horizontal; //heading.padding.horizontal
+    border-bottom-color: $table_background_color; // table.background.color
+    border-bottom-width: 0;
+  }
+
+  .gt_subtitle {
+    color: font-color($heading_background_color);
+    font-size: $heading_subtitle_font_size; // heading.subtitle.font.size
+    font-weight: $heading_subtitle_font_weight; // heading.subtitle.font.weight
+    padding-top: 0;
+    padding-bottom: $heading_padding + 2; // heading.padding
+    padding-left: $heading_padding_horizontal; // heading.padding.horizontal
+    padding-right: $heading_padding_horizontal; //heading.padding.horizontal
+    border-top-color: $table_background_color; // table.background.color
+    border-top-width: 0;
+  }
+
+  .gt_bottom_border {
+    border-bottom-style: $heading_border_bottom_style; // heading.border.bottom.style
+    border-bottom-width: $heading_border_bottom_width; // heading.border.bottom.width
+    border-bottom-color: $heading_border_bottom_color; // heading.border.bottom.color
+  }
+
+  .gt_col_headings {
+    border-top-style: $column_labels_border_top_style; // column_labels.border.top.style
+    border-top-width: $column_labels_border_top_width; // column_labels.border.top.width
+    border-top-color: $column_labels_border_top_color; // column_labels.border.top.color
+    border-bottom-style: $column_labels_border_bottom_style; // column_labels.border.bottom.style
+    border-bottom-width: $column_labels_border_bottom_width; // column_labels.border.bottom.width
+    border-bottom-color: $column_labels_border_bottom_color; // column_labels.border.bottom.color
+    border-left-style: $column_labels_border_lr_style; // column_labels.border.lr.style
+    border-left-width: $column_labels_border_lr_width; // column_labels.border.lr.width
+    border-left-color: $column_labels_border_lr_color; // column_labels.border.lr.color
+    border-right-style: $column_labels_border_lr_style; // column_labels.border.lr.style
+    border-right-width: $column_labels_border_lr_width; // column_labels.border.lr.width
+    border-right-color: $column_labels_border_lr_color; // column_labels.border.lr.color
+  }
+
+  .gt_col_heading {
+    color: font-color($column_labels_background_color);
+    background-color: $column_labels_background_color; // column_labels.background.color
+    font-size: $column_labels_font_size; // column_labels.font.size
+    font-weight: $column_labels_font_weight; // column_labels.font.weight
+    text-transform: $column_labels_text_transform; // column_labels.text_transform
+    border-left-style:  $column_labels_vlines_style; // column_labels.vlines.style
+    border-left-width:  $column_labels_vlines_width; // column_labels.vlines.width
+    border-left-color:  $column_labels_vlines_color; // column_labels.vlines.color
+    border-right-style: $column_labels_vlines_style; // column_labels.vlines.style
+    border-right-width: $column_labels_vlines_width; // column_labels.vlines.width
+    border-right-color: $column_labels_vlines_color; // column_labels.vlines.color
+    vertical-align: bottom;
+    padding-top: $column_labels_padding; // column_labels.padding
+    padding-bottom: $column_labels_padding + 1; // column_labels.padding
+    padding-left: $column_labels_padding_horizontal; // column_labels.padding.horizontal
+    padding-right: $column_labels_padding_horizontal; // column_labels.padding.horizontal
+    overflow-x: hidden;
+  }
+
+  .gt_column_spanner_outer {
+    color: font-color($column_labels_background_color);
+    background-color: $column_labels_background_color; // column_labels.background.color
+    font-size: $column_labels_font_size; // column_labels.font.size
+    font-weight: $column_labels_font_weight; // column_labels.font.weight
+    text-transform: $column_labels_text_transform; // column_labels.text_transform
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .gt_column_spanner_outer:first-child {
+    padding-left: 0;
+  }
+  .gt_column_spanner_outer:last-child {
+    padding-right: 0;
+  }
+
+  .gt_column_spanner {
+    border-bottom-style: $column_labels_border_bottom_style; // column_labels.border.bottom.style
+    border-bottom-width: $column_labels_border_bottom_width; // column_labels.border.bottom.width
+    border-bottom-color: $column_labels_border_bottom_color; // column_labels.border.bottom.color
+    vertical-align: bottom;
+    padding-top: $column_labels_padding; // column_labels.padding
+    padding-bottom: $column_labels_padding; // column_labels.padding
+    overflow-x: hidden;
+    display: inline-block;
+    width: 100%;
+  }
+
+  .gt_group_heading {
+    padding-top: $row_group_padding; // row_group.padding
+    padding-bottom: $row_group_padding; // row_group.padding
+    padding-left: $row_group_padding_horizontal; // row_group.padding.horizontal
+    padding-right: $row_group_padding_horizontal; // row_group.padding.horizontal
+    color: font-color($row_group_background_color);
+    background-color: $row_group_background_color; // row_group.background.color
+    font-size: $row_group_font_size; // row_group.font.size
+    font-weight: $row_group_font_weight; // row_group.font.weight
+    text-transform: $row_group_text_transform; // row_group.text_transform
+    border-top-style: $row_group_border_top_style; // row_group.border.top.style
+    border-top-width: $row_group_border_top_width; // row_group.border.top.width
+    border-top-color: $row_group_border_top_color; // row_group.border.top.color
+    border-bottom-style: $row_group_border_bottom_style; // row_group.border.bottom.style
+    border-bottom-width: $row_group_border_bottom_width; // row_group.border.bottom.width
+    border-bottom-color: $row_group_border_bottom_color; // row_group.border.bottom.color
+    border-left-style: $row_group_border_left_style; // row_group.border.left.style
+    border-left-width: $row_group_border_left_width; // row_group.border.left.width
+    border-left-color: $row_group_border_left_color; // row_group.border.left.color
+    border-right-style: $row_group_border_right_style; // row_group.border.right.style
+    border-right-width: $row_group_border_right_width; // row_group.border.right.width
+    border-right-color: $row_group_border_right_color; // row_group.border.right.color
+    vertical-align: middle;
+  }
+
+  .gt_empty_group_heading {
+    padding: 0.5px;
+    color: font-color($row_group_background_color);
+    background-color: $row_group_background_color; // row_group.background.color
+    font-size: $row_group_font_size; // row_group.font.size
+    font-weight: $row_group_font_weight; // row_group.font.weight
+    border-top-style: $row_group_border_top_style; // row_group.border.top.style
+    border-top-width: $row_group_border_top_width; // row_group.border.top.width
+    border-top-color: $row_group_border_top_color; // row_group.border.top.color
+    border-bottom-style: $row_group_border_bottom_style; // row_group.border.bottom.style
+    border-bottom-width: $row_group_border_bottom_width; // row_group.border.bottom.width
+    border-bottom-color: $row_group_border_bottom_color; // row_group.border.bottom.color
+    vertical-align: middle;
+  }
+
+  .gt_from_md > :first-child {
+    margin-top: 0;
+  }
+
+  .gt_from_md > :last-child {
+    margin-bottom: 0;
+  }
+
+  .gt_row {
+    padding-top: $data_row_padding; // data_row.padding
+    padding-bottom: $data_row_padding; // data_row.padding
+    padding-left: $data_row_padding_horizontal; // data_row.padding.horizontal
+    padding-right: $data_row_padding_horizontal; // data_row.padding.horizontal
+    margin: 10px;
+    border-top-style: $table_body_hlines_style; // table_body.hlines.style
+    border-top-width: $table_body_hlines_width; // table_body.hlines.width
+    border-top-color: $table_body_hlines_color; // table_body.hlines.color
+    border-left-style: $table_body_vlines_style; // table_body.vlines.style
+    border-left-width: $table_body_vlines_width; // table_body.vlines.width
+    border-left-color: $table_body_vlines_color; // table_body.vlines.color
+    border-right-style: $table_body_vlines_style; // table_body.vlines.style
+    border-right-width: $table_body_vlines_width; // table_body.vlines.width
+    border-right-color: $table_body_vlines_color; // table_body.vlines.color
+    vertical-align: middle;
+    overflow-x: hidden;
+  }
+
+  .gt_stub {
+    color: font-color($stub_background_color);
+    background-color: $stub_background_color; // stub.background.color
+    font-size: $stub_font_size; // stub.font.size
+    font-weight: $stub_font_weight; // stub.font.weight
+    text-transform: $stub_text_transform; // stub.text_transform
+    border-right-style: $stub_border_style; // stub.border.style
+    border-right-width: $stub_border_width; // stub.border.width
+    border-right-color: $stub_border_color; // stub.border.color
+    padding-left:  $data_row_padding_horizontal; // data_row.padding.horizontal
+    padding-right: $data_row_padding_horizontal; // data_row.padding.horizontal
+  }
+
+  .gt_stub_row_group {
+    color: font-color($stub_row_group_background_color);
+    background-color: $stub_row_group_background_color; // stub_row_group.background.color
+    font-size: $stub_row_group_font_size; // stub_row_group.font.size
+    font-weight: $stub_row_group_font_weight; // stub_row_group.font.weight
+    text-transform: $stub_row_group_text_transform; // stub_row_group.text_transform
+    border-right-style: $stub_row_group_border_style; // stub_row_group.border.style
+    border-right-width: $stub_row_group_border_width; // stub_row_group.border.width
+    border-right-color: $stub_row_group_border_color; // stub_row_group.border.color
+    padding-left:  $row_group_padding_horizontal; // new: row_group.padding.horizontal
+    padding-right: $row_group_padding_horizontal; // new: row_group.padding.horizontal
+    vertical-align: top;
+  }
+
+  .gt_row_group_first td {
+    border-top-width: $row_group_border_top_width;
+  }
+
+  .gt_summary_row {
+    color: font-color($summary_row_background_color);
+    background-color: $summary_row_background_color; // summary_row.background.color
+    text-transform: $summary_row_text_transform; // summary_row.text_transform
+    padding-top: $summary_row_padding; // summary_row.padding
+    padding-bottom: $summary_row_padding; // summary_row.padding
+    padding-left: $summary_row_padding_horizontal; // summary_row.padding.horizontal
+    padding-right: $summary_row_padding_horizontal; // summary_row.padding.horizontal
+  }
+
+  .gt_first_summary_row {
+    border-top-style: $summary_row_border_style; // summary_row.border.style
+    border-top-color: $summary_row_border_color; // summary_row.border.color
+  }
+
+  .gt_first_summary_row.thick {
+    border-top-width: $summary_row_border_width; // summary_row.border.width
+  }
+
+  .gt_last_summary_row {
+    padding-top: $summary_row_padding; // summary_row.padding
+    padding-bottom: $summary_row_padding; // summary_row.padding
+    padding-left: $summary_row_padding_horizontal; // summary_row.padding.horizontal
+    padding-right: $summary_row_padding_horizontal; // summary_row.padding.horizontal
+    border-bottom-style: $summary_row_border_style; // summary_row.border.style
+    border-bottom-width: $summary_row_border_width; // summary_row.border.width
+    border-bottom-color: $summary_row_border_color; // summary_row.border.color
+  }
+
+  .gt_grand_summary_row {
+    color: font-color($grand_summary_row_background_color);
+    background-color: $grand_summary_row_background_color; // grand_summary_row.background.color
+    text-transform: $grand_summary_row_text_transform; // grand_summary_row.text_transform
+    padding-top: $grand_summary_row_padding; // grand_summary_row.padding
+    padding-bottom: $grand_summary_row_padding; // grand_summary_row.padding
+    padding-left: $grand_summary_row_padding_horizontal; // grand_summary_row.padding.horizontal
+    padding-right: $grand_summary_row_padding_horizontal; // grand_summary_row.padding.horizontal
+  }
+
+  .gt_first_grand_summary_row {
+    padding-top: $grand_summary_row_padding; // grand_summary_row.padding
+    padding-bottom: $grand_summary_row_padding; // grand_summary_row.padding
+    padding-left: $grand_summary_row_padding_horizontal; // grand_summary_row.padding.horizontal
+    padding-right: $grand_summary_row_padding_horizontal; // grand_summary_row.padding.horizontal
+    border-top-style: $grand_summary_row_border_style; // grand_summary_row.border.style
+    border-top-width: $grand_summary_row_border_width; // grand_summary_row.border.width
+    border-top-color: $grand_summary_row_border_color; // grand_summary_row.border.color
+  }
+
+  .gt_striped {
+     background-color: $row_striping_background_color; // row.striping.background_color
+  }
+
+  .gt_table_body {
+    border-top-style: $table_body_border_top_style; // table_body.border.top.style
+    border-top-width: $table_body_border_top_width; // table_body.border.top.width
+    border-top-color: $table_body_border_top_color; // table_body.border.top.color
+    border-bottom-style: $table_body_border_bottom_style; // table_body.border.bottom.style
+    border-bottom-width: $table_body_border_bottom_width; // table_body.border.bottom.width
+    border-bottom-color: $table_body_border_bottom_color; // table_body.border.bottom.color
+  }
+
+  .gt_footnotes {
+    color: font-color($footnotes_background_color);
+    background-color: $footnotes_background_color; // footnotes.background.color
+    border-bottom-style: $footnotes_border_bottom_style; // footnotes.border.bottom.style
+    border-bottom-width: $footnotes_border_bottom_width; // footnotes.border.bottom.width
+    border-bottom-color: $footnotes_border_bottom_color; // footnotes.border.bottom.color
+    border-left-style:  $footnotes_border_lr_style; // footnotes.border.lr.color
+    border-left-width:  $footnotes_border_lr_width; // footnotes.border.lr.color
+    border-left-color:  $footnotes_border_lr_color; // footnotes.border.lr.color
+    border-right-style: $footnotes_border_lr_style; // footnotes.border.lr.color
+    border-right-width: $footnotes_border_lr_width; // footnotes.border.lr.color
+    border-right-color: $footnotes_border_lr_color; // footnotes.border.lr.color
+  }
+
+  .gt_footnote {
+    margin: $footnotes_margin;
+    font-size: $footnotes_font_size; // footnotes.font.size
+    padding-left: $footnotes_padding; // footnotes.padding
+    padding-right: $footnotes_padding; // footnotes.padding
+    padding-left: $footnotes_padding_horizontal; // footnotes.padding.horizontal
+    padding-right: $footnotes_padding_horizontal; // footnotes.padding.horizontal
+  }
+
+  .gt_sourcenotes {
+    color: font-color($source_notes_background_color);
+    background-color: $source_notes_background_color; // source_notes.background.color
+    border-bottom-style: $source_notes_border_bottom_style; // source_notes.border.bottom.style
+    border-bottom-width: $source_notes_border_bottom_width; // source_notes.border.bottom.width
+    border-bottom-color: $source_notes_border_bottom_color; // source_notes.border.bottom.color
+    border-left-style:  $source_notes_border_lr_style; // source_notes.border.lr.style
+    border-left-width:  $source_notes_border_lr_width; // source_notes.border.lr.style
+    border-left-color:  $source_notes_border_lr_color; // source_notes.border.lr.style
+    border-right-style: $source_notes_border_lr_style; // source_notes.border.lr.style
+    border-right-width: $source_notes_border_lr_width; // source_notes.border.lr.style
+    border-right-color: $source_notes_border_lr_color; // source_notes.border.lr.style
+  }
+
+  .gt_sourcenote {
+    font-size: $source_notes_font_size; // source_notes.font.size
+    padding-top: $source_notes_padding; // source_notes.padding
+    padding-bottom: $source_notes_padding; // source_notes.padding
+    padding-left: $source_notes_padding_horizontal; // source_notes.padding.horizontal
+    padding-right: $source_notes_padding_horizontal; // source_notes.padding.horizontal
+  }
+
+  .gt_left {
+    text-align: left;
+  }
+
+  .gt_center {
+    text-align: center;
+  }
+
+  .gt_right {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .gt_font_normal {
+    font-weight: normal;
+  }
+
+  .gt_font_bold {
+    font-weight: bold;
+  }
+
+  .gt_font_italic {
+    font-style: italic;
+  }
+
+  .gt_super {
+    font-size: 65%;
+  }
+
+  .gt_two_val_uncert {
+    display: inline-block;
+    line-height: 1em;
+    text-align: right;
+    font-size: 60%;
+    vertical-align: -0.25em;
+    margin-left: 0.1em;
+  }
+
+  .gt_footnote_marks {
+    font-style: italic;
+    font-weight: normal;
+    font-size: 75%;
+    vertical-align: 0.4em;
+  }
+
+  .gt_asterisk {
+    font-size: 100%;
+    vertical-align: 0;
+  }
+
+  .gt_slash_mark {
+    font-size: 0.7em;
+    line-height: 0.7em;
+    vertical-align: 0.15em;
+  }
+
+  .gt_fraction_numerator {
+    font-size: 0.6em;
+    line-height: 0.6em;
+    vertical-align: 0.45em;
+  }
+
+  .gt_fraction_denominator {
+    font-size: 0.6em;
+    line-height: 0.6em;
+    vertical-align: -0.05em;
+  }
+}
