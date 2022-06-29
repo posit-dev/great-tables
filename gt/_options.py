@@ -698,13 +698,18 @@ class OptionsAPI:
         GT
             Result of the table operation.
         """
-        for k, v in locals():
-           if k == "self" or v is None:
-              continue
-           self._options._set_option_value(
-              option=k,
-              value=v,
-           )
+        saved_args = locals()
+
+        del saved_args["self"]
+
+        modified_args = {k: v for k, v in saved_args.items() if v is not None}
+
+        for i in range(len(modified_args)):
+            self._options._set_option_value(
+                option=list(modified_args.keys())[i],
+                value=list(modified_args.values())[i]
+            )
+
         return self
 
 
