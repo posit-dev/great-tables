@@ -4,7 +4,6 @@ from .gt import *
 from ._base_api import *
 from ._body import *
 from ._boxhead import *
-from ._datasets import *
 from ._footnotes import *
 from ._formats import *
 from ._heading import *
@@ -21,3 +20,4 @@ from ._table import *
 from ._tbl_data import *
 from ._text import *
 from ._utils import *
+from gt.data import *
