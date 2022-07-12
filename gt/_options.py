@@ -233,8 +233,8 @@ class Options:
     #def _get_option_type(self, option: str) -> Union[Any, List[str]]:
     #    return self._options[option].type
 
-    #def _get_option_value(self, option: str) -> Union[Any, List[str]]:
-    #    return self._options[option].value
+    def _get_option_value(self, option: str) -> Union[Any, List[str]]:
+        return self._options[option].value
 
     def _set_option_value(self, option: str, value: Any):
        self._options[option].value = value
