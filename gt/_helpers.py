@@ -1,4 +1,5 @@
 from typing import Union, List
+import random
 
 from ._text import Text
 
@@ -173,3 +174,16 @@ def html(text: str) -> Text:
         `type` is 'html'.
     """
     return Text(text=text, type="html")
+
+
+def random_id(n: int = 10) -> str:
+    """Helper for creating a random `id` for a gt table
+
+    Args:
+        n (int, optional): The number of lowercase letters to use in the random
+        ID string. Defaults to 10.
+
+    Returns:
+        str: A string that constitutes a random ID value.
+    """
+    return "".join(random.choices(letters(), k=n))
