@@ -1,5 +1,4 @@
 from typing import Optional, Union, List, Any
-import re
 
 
 def heading_has_title(title: Optional[str]) -> bool:
