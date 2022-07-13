@@ -75,7 +75,7 @@ def _unique_set(x: Union[List[Any], None]) -> Union[List[Any], None]:
     return list(set(x))
 
 
-def as_css_font_family_attr(fonts: List[str], value_only: bool = False) -> str:
+def _as_css_font_family_attr(fonts: List[str], value_only: bool = False) -> str:
 
     fonts_w_spaces = list(map(lambda x: f"'{x}'" if " " in x else x, fonts))
 
