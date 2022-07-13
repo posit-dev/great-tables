@@ -1,4 +1,4 @@
-from typing import Optional, List, Any
+from typing import Optional, Union, List, Any
 
 
 def heading_has_title(title: Optional[str]) -> bool:
@@ -66,3 +66,9 @@ def _assert_list_is_subset(x: List[Any], set: List[Any]):
 def _str_scalar_to_list(x: str):
     _assert_str_scalar(x)
     return [x]
+
+
+def _unique_set(x: Union[List[Any], None]) -> Union[List[Any], None]:
+    if x is None:
+        return None
+    return list(set(x))
