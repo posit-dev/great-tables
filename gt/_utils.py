@@ -1,4 +1,5 @@
 from typing import Optional, Union, List, Any
+import re
 
 
 def heading_has_title(title: Optional[str]) -> bool:
@@ -72,3 +73,15 @@ def _unique_set(x: Union[List[Any], None]) -> Union[List[Any], None]:
     if x is None:
         return None
     return list(set(x))
+
+
+def as_css_font_family_attr(fonts: List[str], value_only: bool = False) -> str:
+
+    fonts_w_spaces = list(map(lambda x: f"'{x}'" if " " in x else x, fonts))
+
+    fonts_str = ", ".join(fonts_w_spaces)
+
+    if value_only is True:
+        return fonts_str
+
+    return f"font-family: {fonts_str};"
