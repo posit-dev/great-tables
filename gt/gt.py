@@ -1,8 +1,7 @@
 from typing import Any, Dict, List, cast
 
-from ._text import StringBuilder
-from ._tbl_data import TblDataAPI
-from ._table import Table
+import sass
+import re
 
 from gt import (
     _body,
@@ -20,6 +19,11 @@ from gt import (
     _styles,
     _utils,
 )
+
+from ._table import Table
+from ._tbl_data import TblDataAPI
+from ._text import StringBuilder
+from ._utils import _as_css_font_family_attr, _unique_set
 
 __all__ = ["GT"]
 
@@ -147,6 +151,8 @@ class GT(
 {footnotes_component}
 </table>
 """
+
+        html_table = _compile_scss(data=self, html_table=html_table)
 
         return html_table
 
@@ -300,3 +306,47 @@ def _create_source_notes_component(data: GT) -> str:
 
 def _create_footnotes_component(data: GT):
     return ""
+
+
+# TODO: Port the SCSS compilation routine from the R implementation here
+def _compile_scss(data: GT) -> str:
+
+    # Obtain the SCSS options dictionary
+    gt_options_dict = data._options._options
+
+    # Get collection of parameters that pertain to SCSS
+    scss_params = [
+        f"${x.parameter}: {x.value};"
+        for x in gt_options_dict.values()
+        if x.scss is True and x.value is not None
+    ]
+    scss_params_str = "\n".join(scss_params) + "\n"
+
+    # Obtain the `table_id` value (might be set, might be None)
+    table_id = gt_options_dict["table_id"].value
+
+    has_id = table_id is not None
+
+    # TODO: need to implement a function to normalize color (`html_color()`)
+
+    # Get the unique list of fonts from `gt_options_dict`
+    font_list = _unique_set(gt_options_dict["table_font_names"].value)
+
+    # Generate a `font-family` string
+    if font_list is not None:
+        font_family_attr = _as_css_font_family_attr(fonts=font_list)
+    else:
+        font_family_attr = ""
+
+    gt_styles_default_file = open("gt/css/gt_styles_default.scss")
+    gt_styles_default = gt_styles_default_file.read()
+    gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, 0, re.MULTILINE)
+    gt_styles_default = re.sub(r"}", "}\n", gt_styles_default, 0, re.MULTILINE)
+
+    gt_colors_file = open("gt/css/gt_colors.scss")
+    gt_colors = gt_colors_file.read()
+
+    scss = scss_params_str + gt_colors + gt_styles_default
+    compiled_sass = cast(str, sass.compile(string=scss))
+
+    return compiled_sass
