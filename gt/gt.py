@@ -145,7 +145,7 @@ class GT(
         footnotes_component = _create_footnotes_component(self)
 
         html_table = f"""<table class=\"gt_table\">
-{heading_component}
+{heading_component.make_string()}
 {column_labels_component}
 {body_component}
 {source_notes_component}
@@ -153,9 +153,17 @@ class GT(
 </table>
 """
 
-        # compiled_scss = _compile_scss(data=self)
+        css = _compile_scss(data=self)
 
-        return html_table
+        finalized_table = f"""<div id="pvwgjlnpjt" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+{css}
+</style>
+{html_table}
+</div>
+        """
+
+        return finalized_table
 
 
 # =============================================================================
