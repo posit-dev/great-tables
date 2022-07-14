@@ -152,7 +152,7 @@ class GT(
 </table>
 """
 
-        html_table = _compile_scss(data=self, html_table=html_table)
+        # compiled_scss = _compile_scss(data=self)
 
         return html_table
 
@@ -347,6 +347,6 @@ def _compile_scss(data: GT) -> str:
     gt_colors = gt_colors_file.read()
 
     scss = scss_params_str + gt_colors + gt_styles_default
-    compiled_sass = cast(str, sass.compile(string=scss))
+    compiled_css = cast(str, sass.compile(string=scss))
 
-    return compiled_sass
+    return compiled_css
