@@ -24,6 +24,7 @@ from ._table import Table
 from ._tbl_data import TblDataAPI
 from ._text import StringBuilder
 from ._utils import _as_css_font_family_attr, _unique_set
+from ._helpers import random_id
 
 __all__ = ["GT"]
 
@@ -325,8 +326,6 @@ def _compile_scss(data: GT) -> str:
     # Obtain the `table_id` value (might be set, might be None)
     table_id = gt_options_dict["table_id"].value
 
-    has_id = table_id is not None
-
     # TODO: need to implement a function to normalize color (`html_color()`)
 
     # Get the unique list of fonts from `gt_options_dict`
@@ -349,4 +348,15 @@ def _compile_scss(data: GT) -> str:
     scss = scss_params_str + gt_colors + gt_styles_default
     compiled_css = cast(str, sass.compile(string=scss))
 
-    return compiled_css
+    if table_id is not None:
+        compiled_css = re.sub(
+            r"\.gt_", f"#{table_id} .gt_", compiled_css, 0, re.MULTILINE
+        )
+
+    finalized_css = f"""html {{
+      {font_family_attr}
+}}
+
+{compiled_css}"""
+
+    return finalized_css
