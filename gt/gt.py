@@ -153,6 +153,7 @@ class GT(
 </table>
 """
 
+        # Get a string of compiled CSS
         css = _compile_scss(data=self)
 
         # Obtain the `table_id` value (might be set, might be None)
