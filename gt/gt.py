@@ -155,7 +155,21 @@ class GT(
 
         css = _compile_scss(data=self)
 
-        finalized_table = f"""<div id="pvwgjlnpjt" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+        # Obtain the `table_id` value (might be set, might be None)
+        table_id = self._options._options["table_id"].value
+
+        # Obtain options set for overflow and container dimensions
+        overflow_x = self._options._options["container_overflow_x"].value
+        overflow_y = self._options._options["container_overflow_y"].value
+        width = self._options._options["container_width"].value
+        height = self._options._options["container_height"].value
+
+        if table_id is None:
+            id_attr_str = ""
+        else:
+            id_attr_str = f'id="{table_id}"'
+
+        finalized_table = f"""<div {id_attr_str} style="overflow-x:{overflow_x};overflow-y:{overflow_y};width:{width};height:{height};">
 <style>
 {css}
 </style>
