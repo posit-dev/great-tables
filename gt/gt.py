@@ -20,11 +20,12 @@ from gt import (
     _utils,
 )
 
-from ._table import Table
+# from ._table import Table
+# from ._helpers import random_id
 from ._tbl_data import TblDataAPI
 from ._text import StringBuilder
 from ._utils import _as_css_font_family_attr, _unique_set
-from ._helpers import random_id
+
 
 __all__ = ["GT"]
 
@@ -71,6 +72,8 @@ class GT(
 
     def __init__(self, data: Any, locale: str = ""):
 
+        # This init will take the input data (any valid input for the Pandas
+        # DataFrame class) and store the resulting DataFrame as `self._tbl_data`
         TblDataAPI.__init__(self, data)
 
         _body.BodyAPI.__init__(self)
