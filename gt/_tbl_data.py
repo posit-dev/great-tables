@@ -1,5 +1,6 @@
-from typing import Any, List, cast
+from typing import Any, List, Dict, cast
 import pandas as pd
+from pandas._typing import Column
 
 
 class TblData:
@@ -36,12 +37,15 @@ class TblData:
         rowidx_list = list(range(len(self._tbl_data)))
         return pd.DataFrame(columns=column_list, index=rowidx_list)
 
-    def _make_empty_table_dict(self):
+    def _make_empty_table_dict(self) -> Dict[Column, Any]:
         """Create an empty DataFrame variant of the input data table"""
         column_list = list(self._tbl_data.columns)
         rowidx_list = list(range(len(self._tbl_data)))
         df = pd.DataFrame(columns=column_list, index=rowidx_list)
-        return df.reset_index().to_dict(orient="list")
+        df = df.reset_index().to_dict(orient="list")
+        idx_key = list(df.keys())[0]
+        df.pop(idx_key, None)
+        return df
 
     def _pd_to_dict(self):
         """Transform the input data table from a DataFrame to a dictionary"""
