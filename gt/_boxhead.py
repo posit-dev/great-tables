@@ -1,5 +1,6 @@
 from typing import Optional, List
 from enum import Enum, auto
+import pandas as pd
 
 from ._base_api import BaseAPI
 from ._tbl_data import TblData
@@ -149,3 +150,13 @@ class BoxheadAPI(BaseAPI):
             self._boxhead._set_column_label(column=mod_columns[i], label=new_labels[i])
 
         return self
+
+    def _print_boxhead(self) -> pd.DataFrame:
+        boxhead_list = list(
+            zip(
+                [x.var for x in self._boxhead._boxhead],
+                [x.visible for x in self._boxhead._boxhead],
+                [x.column_label for x in self._boxhead._boxhead],
+            )
+        )
+        return pd.DataFrame(boxhead_list, columns=["var", "visible", "column_label"])
