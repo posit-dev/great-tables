@@ -26,10 +26,6 @@ class TblData:
         """Get the content from a single cell in the input data table"""
         return cast(Any, self._tbl_data[column][row])
 
-    def _pd_to_dict(self):
-        """Transform the input data table from a DataFrame to a dictionary"""
-        return self._tbl_data.reset_index().to_dict(orient="list")
-
     def _get_column_dtype(self, column: str) -> str:
         """Get the data type for a single column in the input data table"""
         return self._tbl_data[column].dtypes
@@ -39,6 +35,17 @@ class TblData:
         column_list = list(self._tbl_data.columns)
         rowidx_list = list(range(len(self._tbl_data)))
         return pd.DataFrame(columns=column_list, index=rowidx_list)
+
+    def _make_empty_table_dict(self):
+        """Create an empty DataFrame variant of the input data table"""
+        column_list = list(self._tbl_data.columns)
+        rowidx_list = list(range(len(self._tbl_data)))
+        df = pd.DataFrame(columns=column_list, index=rowidx_list)
+        return df.reset_index().to_dict(orient="list")
+
+    def _pd_to_dict(self):
+        """Transform the input data table from a DataFrame to a dictionary"""
+        return self._tbl_data.reset_index().to_dict(orient="list")
 
 
 class TblDataAPI:
