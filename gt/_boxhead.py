@@ -17,8 +17,8 @@ class ColumnAlignment(Enum):
 class ColInfo:
     # TODO: Make var readonly
     var: str
-    column_label: str
     visible: bool
+    column_label: str
     column_align: Optional[ColumnAlignment]
     column_width: Optional[str]
 
@@ -32,14 +32,14 @@ class ColInfo:
     def __init__(
         self,
         var: str,
-        column_label: Optional[str] = None,
         visible: bool = True,
+        column_label: Optional[str] = None,
         column_align: Optional[ColumnAlignment] = None,
         column_width: Optional[str] = None,
     ):
         self.var = var
-        self.column_label = column_label or var
         self.visible = visible
+        self.column_label = column_label or var
         self.column_align = column_align
         self.column_width = column_width
 
