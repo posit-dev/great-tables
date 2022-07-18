@@ -98,11 +98,16 @@ class GT(
         # Building of the table body with cell rendering, merging
         # of cells, and row/column reordering for sake of grouping
 
-        body = Table(self._tbl_data._tbl_data)
+        # body = Table(self._tbl_data._tbl_data)
 
-        self._body_build(body)
-        # self._render_formats()
-        # self._migrate_unformatted_to_output()
+        # Build the body of the table by generating a dictionary
+        # of lists with cells initially set to nan values
+        # body = self._tbl_data._make_empty_table_dict()
+
+        # body = _render_formats(body)
+
+        # body = _migrate_unformatted_to_output(body)
+
         # self._perform_col_merge()
         # self._body_reassemble()
 
@@ -129,9 +134,19 @@ class GT(
     # Building
     # =============================================================================
 
-    def _body_build(self, data: Table):
-        return self
-        # data.cells[(1, 3)].set_cell_value("foo")
+    # def _body_build(self, data: Table):
+    #     return self
+    #     # data.cells[(1, 3)].set_cell_value("foo")
+
+    # def _migrate_unformatted_to_output(self, body: Dict[Column, Any]):
+
+    #     # Get the dictionary keys from the body as these serve as column names
+    #     colnames = body.keys()
+
+    #     for column in colnames:
+    #         body[column]
+
+    #     return body
 
     # =============================================================================
     # HTML Rendering
