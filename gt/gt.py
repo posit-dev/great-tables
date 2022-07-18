@@ -260,11 +260,13 @@ def _create_body_component(data: GT):
             cell_content: Any = tbl_data._get_cell(i, name)
             cell_str: str = str(cell_content)
 
-            body_cells.append("  <td>" + cell_str + "</td>")
+            body_cells.append('  <td class="gt_row">' + cell_str + "</td>")
 
         body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
 
-    return "\n".join(body_rows)
+    all_body_rows = "\n".join(body_rows)
+
+    return f'<tbody class="gt_table_body">\n{all_body_rows}\n</tbody>'
 
 
 def _create_source_notes_component(data: GT) -> str:
