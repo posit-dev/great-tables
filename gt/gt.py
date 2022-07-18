@@ -262,7 +262,7 @@ def _create_body_component(data: GT):
 
     tbl_data = data._tbl_data
 
-    column_names = tbl_data.get_column_names()
+    column_names = data._boxhead._get_visible_columns()
 
     body_rows: List[str] = []
 
