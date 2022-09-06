@@ -1,4 +1,6 @@
 from typing import Optional, Union, List, Any
+import pandas as pd
+import json
 
 
 def heading_has_title(title: Optional[str]) -> bool:
@@ -84,3 +86,29 @@ def _as_css_font_family_attr(fonts: List[str], value_only: bool = False) -> str:
         return fonts_str
 
     return f"font-family: {fonts_str};"
+
+
+def _object_as_dict(v: Any) -> Any:
+    try:
+        return v.object_as_dict()
+    except:
+        pass
+    if type(v) == pd.DataFrame:
+        return v.to_dict()
+    if type(v) in [tuple, list]:
+        return list(_object_as_dict(i) for i in v)
+    if type(v) == dict:
+        return dict((k, _object_as_dict(val)) for (k, val) in v.items())
+    try:
+        d = vars(v)
+    except TypeError:
+        try:
+            json.dumps(v)
+        except TypeError:
+            return "JSON_UNSERIALIZABLE"
+        return v
+    return dict((k, _object_as_dict(v)) for (k, v) in d.items())
+
+
+def prettify_gt_object(v: Any) -> str:
+    return json.dumps(_object_as_dict(v), indent=2)
