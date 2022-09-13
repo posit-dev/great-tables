@@ -68,11 +68,6 @@ class FormatsAPI(BaseAPI):
 
         columns = listify(columns, List[str])
 
-        # if columns is None:
-        #     columns = self._data.columns
-        # elif isinstance(columns, str):
-        #     columns = [columns]
-
         if rows is None:
             rows = list(range(self._get_tbl_data().n_rows()))
         elif isinstance(rows, int):
