@@ -80,6 +80,7 @@ class FormatsAPI(BaseAPI):
         self,
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
+        decimals=2,
     ):
         # TODO: Not implemented yet
         return self
