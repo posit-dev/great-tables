@@ -76,6 +76,14 @@ class FormatsAPI(BaseAPI):
 
         return self
 
+    def fmt_number(
+        self,
+        columns: Union[str, List[str], None] = None,
+        rows: Union[int, List[int], None] = None,
+    ):
+        # TODO: Not implemented yet
+        return self
+
 
 T = TypeVar("T")
 
