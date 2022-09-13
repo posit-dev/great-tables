@@ -93,6 +93,9 @@ class FormatsAPI(BaseAPI):
         # TODO: Not implemented yet
         return self
 
+    # TODO: add `fmt_scientific()`
+    # TODO: add `fmt_engineering()`
+
     def fmt_percent(
         self,
         columns: Union[str, List[str], None] = None,
@@ -101,6 +104,19 @@ class FormatsAPI(BaseAPI):
     ):
         # TODO: Not implemented yet
         return self
+
+    # TODO: add `fmt_partsper()`
+    # TODO: add `fmt_fraction()`
+    # TODO: add `fmt_currency()`
+    # TODO: add `fmt_roman()`
+    # TODO: add `fmt_bytes()`
+    # TODO: add `fmt_date()`
+    # TODO: add `fmt_time()`
+    # TODO: add `fmt_datetime()`
+    # TODO: add `fmt_duration()`
+    # TODO: add `fmt_markdown()`
+    # TODO: add `fmt_passthrough()`
+
 
 T = TypeVar("T")
 
