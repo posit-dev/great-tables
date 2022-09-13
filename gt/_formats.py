@@ -51,8 +51,6 @@ class FormatsAPI(BaseAPI):
         fns: Union[FormatFn, FormatFns],
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
-        *,
-        prepend: bool = False,
     ):
 
         # If a single function is supplied to `fns` then
@@ -74,10 +72,7 @@ class FormatsAPI(BaseAPI):
 
         formatter = FormatInfo(fns, columns, rows)
 
-        if prepend is True:
-            self._formats.insert(0, formatter)
-        else:
-            self._formats.append(formatter)
+        self._formats.append(formatter)
 
         return self
 
