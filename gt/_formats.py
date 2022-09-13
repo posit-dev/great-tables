@@ -1,26 +1,34 @@
-from typing import Any, Callable, TypeVar, TypedDict, Union, List, cast
-from typing_extensions import NotRequired
+from typing import Any, Callable, TypeVar, Union, List, cast, Optional
 
 from ._base_api import BaseAPI
 
-# TODO: when htmltools is used, we may want to support multiple output types
-#       like Markdown or Tag objects with dependencies as some examples
-FormatFn = Callable[[Any], str]
+FormatFn = Callable[Any, str]
+
+FormatFns = dict[str, FormatFn]
 
 
-class FormatFns(TypedDict):
-    html: NotRequired[FormatFn]
-    latex: NotRequired[FormatFn]
-    rtf: NotRequired[FormatFn]
-    default: NotRequired[FormatFn]
+class FormatFns:
+    html: Optional[FormatFn]
+    latex: Optional[FormatFn]
+    rtf: Optional[FormatFn]
+    default: Optional[FormatFn]
 
-    # TODO: Could we use something other than TypedDict so
-    # this becomes possible? Maybe dataclasses?
-    # def __call__(self, context: str, x: Any) -> str:
-    #     if self has context:
-    #         return self[context](x)
-    #     elif self has "default":
-    #         return self["default"](x)
+    def __init__(self, **kwargs: FormatFn):
+        for format in ["html", "latex", "rtf"]:
+            if kwargs.get(format):
+                setattr(self, format, kwargs[format])
+        if kwargs.get("html") is not None:
+            self.html = kwargs["html"]
+        if kwargs.get("latex") is not None:
+            self.latex = kwargs["latex"]
+        if kwargs.get("latex") is not None:
+            self.latex = kwargs["latex"]
+
+
+# f_funs = FormatFns(
+#     html=make_simple_html_formatter, latex=make_simple_latex_formatter
+# )
+# f.html
 
 
 class FormatInfo:
