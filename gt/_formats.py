@@ -2,9 +2,7 @@ from typing import Any, Callable, TypeVar, Union, List, cast, Optional, Tuple
 
 from ._base_api import BaseAPI
 
-FormatFn = Callable[Any, str]
-
-FormatFns = dict[str, FormatFn]
+FormatFn = Callable[[Any], str]
 
 
 class FormatFns:
