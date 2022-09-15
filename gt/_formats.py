@@ -1,4 +1,4 @@
-from typing import Any, Callable, TypeVar, Union, List, cast, Optional
+from typing import Any, Callable, TypeVar, Union, List, cast, Optional, Tuple
 
 from ._base_api import BaseAPI
 
