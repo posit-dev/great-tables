@@ -99,6 +99,8 @@ def _object_as_dict(v: Any) -> Any:
         return list(_object_as_dict(i) for i in v)
     if type(v) == dict:
         return dict((k, _object_as_dict(val)) for (k, val) in v.items())
+    if type(v) == type(_object_as_dict):  # FIXME figure out how to get "function"
+        return f"<function {v.__name__}>"
     try:
         d = vars(v)
     except TypeError:
