@@ -12,15 +12,9 @@ class FormatFns:
     default: Optional[FormatFn]
 
     def __init__(self, **kwargs: FormatFn):
-        for format in ["html", "latex", "rtf"]:
+        for format in ["html", "latex", "rtf", "default"]:
             if kwargs.get(format):
                 setattr(self, format, kwargs[format])
-        if kwargs.get("html") is not None:
-            self.html = kwargs["html"]
-        if kwargs.get("latex") is not None:
-            self.latex = kwargs["latex"]
-        if kwargs.get("latex") is not None:
-            self.latex = kwargs["latex"]
 
 
 # f_funs = FormatFns(
