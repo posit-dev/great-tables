@@ -84,6 +84,7 @@ class FormatsAPI(BaseAPI):
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
         decimals=2,
+        scale_by=1,
     ):
         # TODO: Not implemented yet
         return self
