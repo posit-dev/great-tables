@@ -20,8 +20,9 @@ from gt import (
     _utils,
 )
 
-# from ._table import Table
+
 # from ._helpers import random_id
+from ._body import Body
 from ._tbl_data import TblDataAPI
 from ._text import StringBuilder
 from ._utils import _as_css_font_family_attr, _unique_set
@@ -98,16 +99,9 @@ class GT(
 
     def _build_data(self):
 
-        # Building of the table body with cell rendering, merging
-        # of cells, and row/column reordering for sake of grouping
-
-        # body = Table(self._tbl_data._tbl_data)
-
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
-        # body = self._tbl_data._make_empty_table_dict()
-
-        # body = _render_formats(body)
+        self._body = Body(self._tbl_data._make_empty_df())._render_formats()
 
         # body = _migrate_unformatted_to_output(body)
 
@@ -263,7 +257,7 @@ def _create_column_labels_component(data: GT) -> str:
 
 def _create_body_component(data: GT):
 
-    tbl_data = data._tbl_data
+    tbl_data = data._body.body
 
     column_names = data._boxhead._get_visible_columns()
 
