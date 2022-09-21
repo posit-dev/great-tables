@@ -17,21 +17,33 @@ class FormatFns:
                 setattr(self, format, kwargs[format])
 
 
-# f_funs = FormatFns(
-#     html=make_simple_html_formatter, latex=make_simple_latex_formatter
-# )
-# f.html
+class CellSubset:
+    def __init__(self):
+        pass
+
+    def resolve(self) -> List[Tuple[str, int]]:
+        raise NotImplementedError("Not implemented")
+
+
+class CellRectangle(CellSubset):
+    cols: List[str]
+    rows: List[int]
+
+    def __init__(self, cols: List[str], rows: List[int]):
+        self.cols = cols
+        self.rows = rows
+
+    # def resolve(self):
+    #     return list((col, row) for col in self.cols for row in self.rows)
 
 
 class FormatInfo:
     func: FormatFns
-    cols: List[str]
-    rows: List[int]
+    cells: CellSubset
 
     def __init__(self, func: FormatFns, cols: List[str], rows: List[int]):
         self.func = func
-        self.cols = cols
-        self.rows = rows
+        self.cells = CellRectangle(cols, rows)
 
 
 # TODO: this will contain private methods for formatting cell values to strings
@@ -66,7 +78,6 @@ class FormatsAPI(BaseAPI):
             rows = [rows]
 
         formatter = FormatInfo(fns, columns, rows)
-
         self._formats.append(formatter)
 
         return self
@@ -75,9 +86,14 @@ class FormatsAPI(BaseAPI):
         self,
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
-        decimals=2,
-        scale_by=1,
+        decimals: int = 2,
+        scale_by: float = 1,
     ):
+        def default_fn(x: float):
+            return f"{x * 2}"
+
+        self.fmt(fns=default_fn, columns=columns, rows=rows)
+
         # TODO: Not implemented yet
         return self
 
@@ -96,7 +112,7 @@ class FormatsAPI(BaseAPI):
         self,
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
-        decimals=2,
+        decimals: int = 2,
     ):
         # TODO: Not implemented yet
         return self
