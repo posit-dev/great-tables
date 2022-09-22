@@ -26,6 +26,9 @@ class TblData:
         """Get the content from a single cell in the input data table"""
         return cast(Any, self._tbl_data[column][row])
 
+    def _set_cell(self, row: int, column: str, value: Any):
+        self._tbl_data[column][row] = value
+
     def _get_column_dtype(self, column: str) -> str:
         """Get the data type for a single column in the input data table"""
         return self._tbl_data[column].dtypes
