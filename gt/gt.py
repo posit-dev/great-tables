@@ -2,6 +2,7 @@ from typing import Any, Dict, List, cast
 
 import sass
 import re
+import copy
 
 from gt import (
     _body,
@@ -18,15 +19,16 @@ from gt import (
     _stubhead,
     _styles,
     _utils,
+    _tbl_data,
 )
 
 
 # from ._helpers import random_id
 from ._body import Body
-from ._tbl_data import TblDataAPI
 from ._text import StringBuilder
 from ._utils import _as_css_font_family_attr, _unique_set
 
+from .utils_render_common import Context, render_formats
 
 __all__ = ["GT"]
 
@@ -41,7 +43,7 @@ __all__ = ["GT"]
 # GT class
 # =============================================================================
 class GT(
-    TblDataAPI,
+    _tbl_data.TblDataAPI,
     _body.BodyAPI,
     _boxhead.BoxheadAPI,
     _stub.StubAPI,
@@ -75,7 +77,7 @@ class GT(
 
         # This init will take the input data (any valid input for the Pandas
         # DataFrame class) and store the resulting DataFrame as `self._tbl_data`
-        TblDataAPI.__init__(self, data)
+        _tbl_data.TblDataAPI.__init__(self, data)
 
         _body.BodyAPI.__init__(self)
         _boxhead.BoxheadAPI.__init__(self)
@@ -97,11 +99,18 @@ class GT(
         self._has_built: bool = _has_built_init()
         self._rendered_tbl: str = _rendered_tbl_init()
 
-    def _build_data(self):
+    def _render_formats(self, context: Context):
+        render_formats(self, context)
+        return self
+
+    def _build_data(self, context: Context):
 
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
-        self._body = Body(self._tbl_data._make_empty_df())._render_formats()
+
+        self = copy.copy(self)
+        self._body = Body(self._body.body._tbl_data._make_empty_df())
+        self._render_formats(context)
 
         # body = _migrate_unformatted_to_output(body)
 
@@ -122,8 +131,8 @@ class GT(
 
         return self
 
-    def render(self) -> str:
-        self = self._build_data()
+    def render(self, context: Context) -> str:
+        self = self._build_data(context=context)
         html_table = self._render_as_html()
         return html_table
 
