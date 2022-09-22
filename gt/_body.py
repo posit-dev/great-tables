@@ -11,8 +11,8 @@ class Body:
         self.data = data
 
     def _render_formats(self) -> "Body":
-        result = Body(self.body, self.data)
-        return result
+        self = Body(self.body, self.data)
+        return self
 
 
 class BodyAPI:
