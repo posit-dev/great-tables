@@ -28,7 +28,8 @@ from ._body import Body
 from ._text import StringBuilder
 from ._utils import _as_css_font_family_attr, _unique_set
 
-from .utils_render_common import Context, render_formats
+from ._body import Context
+
 
 __all__ = ["GT"]
 
@@ -79,7 +80,7 @@ class GT(
         # DataFrame class) and store the resulting DataFrame as `self._tbl_data`
         _tbl_data.TblDataAPI.__init__(self, data)
 
-        _body.BodyAPI.__init__(self)
+        _body.BodyAPI.__init__(self, data)
         _boxhead.BoxheadAPI.__init__(self)
         _stub.StubAPI.__init__(self)
         _row_groups.RowGroupsAPI.__init__(self)
@@ -100,14 +101,13 @@ class GT(
         self._rendered_tbl: str = _rendered_tbl_init()
 
     def _render_formats(self, context: Context):
-        render_formats(self, context)
+        self._body.render_formats(self._tbl_data, self._formats, context)
         return self
 
     def _build_data(self, context: Context):
 
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
-
         self = copy.copy(self)
         self._body = Body(self._body.body._tbl_data._make_empty_df())
         self._render_formats(context)
