@@ -33,8 +33,8 @@ class CellRectangle(CellSubset):
         self.cols = cols
         self.rows = rows
 
-    # def resolve(self):
-    #     return list((col, row) for col in self.cols for row in self.rows)
+    def resolve(self):
+        return list((col, row) for col in self.cols for row in self.rows)
 
 
 class FormatInfo:
