@@ -105,8 +105,21 @@ class FormatsAPI(BaseAPI):
         # TODO: Not implemented yet
         return self
 
-    # TODO: add `fmt_scientific()`
-    # TODO: add `fmt_engineering()`
+    def fmt_scientific(
+        self,
+        columns: Union[str, List[str], None] = None,
+        rows: Union[int, List[int], None] = None,
+    ):
+        # TODO: Not implemented yet
+        return self
+
+    def fmt_engineering(
+        self,
+        columns: Union[str, List[str], None] = None,
+        rows: Union[int, List[int], None] = None,
+    ):
+        # TODO: Not implemented yet
+        return self
 
     def fmt_percent(
         self,
