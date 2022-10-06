@@ -89,10 +89,22 @@ class FormatsAPI(BaseAPI):
         decimals: int = 2,
         scale_by: float = 1,
     ):
-        def default_fn(x: float):
-            return f"{x * 2}"
 
-        self.fmt(fns=default_fn, columns=columns, rows=rows)
+        # Generate a function that will operate on single `x` values in
+        # the table body
+        def fmt_number_fn(
+            x: float, decimals: int = decimals, scale_by: float = scale_by
+        ):
+            # Scale `x` value by a defined `scale_by` value
+            x = x * scale_by
+
+            # Generate a format specification using `decimals`
+            fmt_spec = f".{decimals}f"
+
+            # Return the formatted `x`
+            return format(x, fmt_spec)
+
+        self.fmt(fns=fmt_number_fn, columns=columns, rows=rows)
 
         # TODO: Not implemented yet
         return self
