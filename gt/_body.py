@@ -28,6 +28,8 @@ class Body:
                 result = eval_func(data_tbl._get_cell(row, col))
                 self.body._set_cell(row, col, result)
 
+        return self
+
     # def _render_formats(self) -> "Body":
 
     #     self = Body(self.body, self.data)
