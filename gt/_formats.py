@@ -87,13 +87,19 @@ class FormatsAPI(BaseAPI):
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
         decimals: int = 2,
+        drop_trailing_zeros: bool = False,
+        drop_trailing_dec_mark: bool = True,
         scale_by: float = 1,
     ):
 
         # Generate a function that will operate on single `x` values in
         # the table body
         def fmt_number_fn(
-            x: float, decimals: int = decimals, scale_by: float = scale_by
+            x: float,
+            decimals: int = decimals,
+            drop_trailing_zeros: bool = drop_trailing_zeros,
+            drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
+            scale_by: float = scale_by,
         ):
             # Scale `x` value by a defined `scale_by` value
             x = x * scale_by
@@ -101,8 +107,18 @@ class FormatsAPI(BaseAPI):
             # Generate a format specification using `decimals`
             fmt_spec = f".{decimals}f"
 
-            # Return the formatted `x`
-            return format(x, fmt_spec)
+            # Get the formatted `x` value
+            x_formatted = format(x, fmt_spec)
+
+            # Drop any trailing zeros if option is taken
+            if drop_trailing_zeros is True:
+                x_formatted = x_formatted.rstrip("0")
+
+            # Drop the trailing decimal mark if it is present
+            if drop_trailing_dec_mark is True:
+                x_formatted = x_formatted.rstrip(".")
+
+            return x_formatted
 
         self.fmt(fns=fmt_number_fn, columns=columns, rows=rows)
 
