@@ -49,7 +49,7 @@ def _process_text(x: Union[Text, str]) -> str:
         text = x.text
         type = x.type
 
-    if type == "markdown":
+    if type == "from_markdown":
         x_out = _md_html(text)
     if type == "html":
         x_out = text

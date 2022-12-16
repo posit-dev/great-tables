@@ -154,7 +154,7 @@ def md(text: str) -> Text:
         Text: An instance of the Text class is returned, where the text
         `type` is 'markdown'.
     """
-    return Text(text=text, type="markdown")
+    return Text(text=text, type="from_markdown")
 
 
 def html(text: str) -> Text:
