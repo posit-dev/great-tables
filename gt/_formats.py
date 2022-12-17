@@ -122,7 +122,6 @@ class FormatsAPI(BaseAPI):
 
         self.fmt(fns=fmt_number_fn, columns=columns, rows=rows)
 
-        # TODO: Not implemented yet
         return self
 
     def fmt_integer(
