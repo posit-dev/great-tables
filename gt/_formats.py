@@ -128,8 +128,23 @@ class FormatsAPI(BaseAPI):
         self,
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
+        scale_by: float = 1,
     ):
-        # TODO: Not implemented yet
+        # Generate a function that will operate on single `x` values in
+        # the table body
+        def fmt_integer_fn(
+            x: float,
+            scale_by: float = scale_by,
+        ):
+            # Scale `x` value by a defined `scale_by` value
+            x = x * scale_by
+
+            x_formatted = f"{x}"
+
+            return x_formatted
+
+        self.fmt(fns=fmt_integer_fn, columns=columns, rows=rows)
+
         return self
 
     def fmt_scientific(
