@@ -139,6 +139,8 @@ class FormatsAPI(BaseAPI):
             # Scale `x` value by a defined `scale_by` value
             x = x * scale_by
 
+            x = round(x)
+
             x_formatted = f"{x}"
 
             return x_formatted
