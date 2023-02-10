@@ -1,7 +1,7 @@
 from gt import *
 import pandas as pd
 
-# Generate a GT Table object for assertion testing
+# Generate a gt Table object for assertion testing
 data = [{"a": 5, "b": 15}, {"a": 15, "b": 2000}]
 pd_data = pd.DataFrame(data)
 gt_tbl = gt.GT(pd_data)
