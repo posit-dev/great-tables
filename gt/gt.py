@@ -392,8 +392,8 @@ def _compile_scss(data: GT) -> str:
     gt_colors = gt_colors_file.read()
 
     scss = scss_params_str + gt_colors + gt_styles_default
-    compiled_css = cast(str, sass.compile(string=scss))
 
+    compiled_css = cast(str, sass.compile(string=scss))
     if table_id is not None:
         compiled_css = re.sub(
             r"\.gt_", f"#{table_id} .gt_", compiled_css, 0, re.MULTILINE
