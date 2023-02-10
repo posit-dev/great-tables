@@ -154,6 +154,7 @@ class FormatsAPI(BaseAPI):
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
     ):
+
         # TODO: Not implemented yet
         return self
 
@@ -170,6 +171,8 @@ class FormatsAPI(BaseAPI):
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
         decimals: int = 2,
+        drop_trailing_zeros: bool = False,
+        drop_trailing_dec_mark: bool = True,
     ):
         # TODO: Not implemented yet
         return self
