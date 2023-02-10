@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* Richard Iannone <rich@rstudio.com>
+* Richard Iannone <rich@posit.co>
 
 Contributors
 ------------
