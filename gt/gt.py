@@ -40,6 +40,7 @@ __all__ = ["GT"]
 #    State from GT class is transformed into input for the render step.
 # 3. Render into final output.
 
+
 # =============================================================================
 # GT class
 # =============================================================================
@@ -75,7 +76,6 @@ class GT(
     """
 
     def __init__(self, data: Any, locale: str = ""):
-
         # This init will take the input data (any valid input for the Pandas
         # DataFrame class) and store the resulting DataFrame as `self._tbl_data`
         _tbl_data.TblDataAPI.__init__(self, data)
@@ -105,7 +105,6 @@ class GT(
         return self
 
     def _build_data(self, context: Context):
-
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         self = copy.copy(self)
@@ -158,7 +157,6 @@ class GT(
     # HTML Rendering
     # =============================================================================
     def _render_as_html(self) -> str:
-
         heading_component = _create_heading_component(self)
         column_labels_component = _create_column_labels_component(self)
         body_component = _create_body_component(self)
@@ -221,7 +219,6 @@ def _rendered_tbl_init() -> str:
 
 
 def _create_heading_component(data: GT) -> StringBuilder:
-
     result = StringBuilder()
 
     # If there is no title or heading component, then return an empty string
@@ -242,7 +239,6 @@ def _create_heading_component(data: GT) -> StringBuilder:
     )
 
     if subtitle_defined:
-
         subtitle = data._heading.subtitle
 
         subtitle_row = f"""  <tr>
@@ -254,7 +250,6 @@ def _create_heading_component(data: GT) -> StringBuilder:
 
 
 def _create_column_labels_component(data: GT) -> str:
-
     column_names = data._boxhead._get_column_labels()
 
     th_cells = "".join([f"  <th>{x}</th>\n" for x in column_names])
@@ -265,7 +260,6 @@ def _create_column_labels_component(data: GT) -> str:
 
 
 def _create_body_component(data: GT):
-
     tbl_data = data._body.body
 
     column_names = data._boxhead._get_visible_columns()
@@ -273,11 +267,9 @@ def _create_body_component(data: GT):
     body_rows: List[str] = []
 
     for i in range(tbl_data.n_rows()):
-
         body_cells: List[str] = []
 
         for name in column_names:
-
             cell_content: Any = tbl_data._get_cell(i, name)
             cell_str: str = str(cell_content)
 
@@ -291,7 +283,6 @@ def _create_body_component(data: GT):
 
 
 def _create_source_notes_component(data: GT) -> str:
-
     source_notes = data._source_notes.source_notes
 
     # If there are no source notes, then return an empty string
@@ -308,7 +299,6 @@ def _create_source_notes_component(data: GT) -> str:
 
     # Handle the multiline source notes case (each note takes up one line)
     if multiline:
-
         # Create the source notes component as a series of `<tr><td>` (one per
         # source note) inside of a `<tfoot>`
 
@@ -357,7 +347,6 @@ def _create_footnotes_component(data: GT):
 
 # TODO: Port the SCSS compilation routine from the R implementation here
 def _compile_scss(data: GT) -> str:
-
     # Obtain the SCSS options dictionary
     gt_options_dict = data._options._options
 
