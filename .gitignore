@@ -109,3 +109,4 @@ docs/source/reference/
 # Playground Scripts
 playground*.py
 manual-testing.py
+manual-testing.ipynb
