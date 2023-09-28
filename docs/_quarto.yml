@@ -7,10 +7,12 @@ website:
   page-navigation: true
   navbar:
     left:
-      - text: Intro
+      - href: articles/intro.qmd
       - text: Articles
+        menu:
+          - articles/case-study-gtcars.qmd
       - href: reference/index.qmd
-      - text: Changelog
+      - href: changelog.qmd
     right:
       - icon: github
         href: https://github.com/rstudio/gt-python/
@@ -18,7 +20,7 @@ website:
 
 format:
   html:
-    # theme: cosmo
+    theme: cosmo
     # css: styles.css
     toc: true
 

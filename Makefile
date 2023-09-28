@@ -35,5 +35,10 @@ dist: clean ## builds source and wheel package
 	python3 setup.py bdist_wheel
 	ls -l dist
 
+docs-build:
+	cd docs \
+	  && quartodoc build --verbose \
+	  && quarto render
+
 install: dist ## install the package to the active Python's site-packages
 	python3 -m pip install --force-reinstall dist/gt*.whl
