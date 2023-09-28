@@ -56,9 +56,9 @@ jobs:
           npm install -g netlify-cli
           # push main branch to production, others to preview --
           if [ "${ALIAS}" == "main" ]; then
-            netlify deploy --dir=docs/_build --alias="main"
+            netlify deploy --dir=docs/_site --alias="main"
           else
-            netlify deploy --dir=docs/_build --alias="${ALIAS}"
+            netlify deploy --dir=docs/_site --alias="${ALIAS}"
           fi
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
