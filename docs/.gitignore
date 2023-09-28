@@ -1,0 +1,7 @@
+/.quarto/
+
+# quartodoc
+_site
+_sidebar.yml
+objects.json
+reference

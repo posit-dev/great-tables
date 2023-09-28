@@ -1,0 +1,102 @@
+project:
+  type: website
+
+
+website:
+  title: gt
+  page-navigation: true
+  navbar:
+    left:
+      - href: articles/intro.qmd
+      - text: Articles
+        menu:
+          - articles/case-study-gtcars.qmd
+      - href: reference/index.qmd
+      - href: changelog.qmd
+    right:
+      - icon: github
+        href: https://github.com/rstudio/gt-python/
+
+
+format:
+  html:
+    theme: cosmo
+    # css: styles.css
+    toc: true
+
+
+# tell quarto to read the generated sidebar
+metadata-files:
+  - _sidebar.yml
+
+
+quartodoc:
+  # the name used to import the package
+  package: gt
+
+  # write sidebar data to this file
+  sidebar: _sidebar.yml
+  dynamic: true
+
+  sections:
+    - title: Table Creation
+      contents:
+        - GT
+        # TODO: not sure where this function is
+        # - gt_preview
+    - title: Creating or modifying parts of a table
+      contents:
+        - GT.tab_header
+        - GT.tab_options
+        - GT.tab_source_note
+        - GT.tab_stubhead
+    - title: Formatting column data
+      contents:
+        - GT.fmt_engineering
+        - GT.fmt_integer
+        - GT.fmt_number
+        - GT.fmt_percent
+        - GT.fmt_scientific
+        - GT.fmt
+    - title: Text transformation
+    - title: Modifying columns
+      contents:
+        - GT.cols_label
+    - title: Adding or modifying rows
+    - title: Removing parts of a table
+    - title: Helper functions
+      contents:
+        - md
+        - html
+        - px
+        - pct
+        # - from_column
+        # - currency
+        # - nanoplot_options
+        # - adjust_luminance
+    - title: Image addition utilities
+    - title: Table options
+      contents:
+        - GT.opt_align_table_header
+        - GT.opt_all_caps
+        - GT.opt_footnote_marks
+        - GT.opt_row_striping
+    - title: Informational tables for reference
+    - title: Shiny
+    - title: Export and extraction functions
+    - title: Working with table groups
+    - title: Vector formatting
+    - title: Built in datasets
+      contents:
+        - data.countrypops
+        - data.sza
+        - data.gtcars
+        - data.sp500
+        - data.pizzaplace
+        - data.exibble
+        # - data.towny
+        # - data.metro
+        # - data.illness
+        # - data.rx_adsl
+        # - data.rx_addv
+
