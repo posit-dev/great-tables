@@ -1,1 +1,2 @@
 include gt/css/*.scss
+include gt/data/*.csv
