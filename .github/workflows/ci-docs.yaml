@@ -1,10 +1,10 @@
 on:
-    push:
-      branches:
-        - main
-    pull_request:
-      branches:
-        - main
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 name: CI Docs
 
@@ -24,7 +24,6 @@ jobs:
         run: |
           make docs-build
       # push to netlify -------------------------------------------------------
-
       # set release name ----
 
       - name: Configure pull release name
@@ -39,7 +38,6 @@ jobs:
           # use branch name, but replace slashes. E.g. feat/a -> feat-a
           echo "RELEASE_NAME=${GITHUB_REF_NAME/\//-}" >> $GITHUB_ENV
       # deploy ----
-
       - name: Create Github Deployment
         uses: bobheadxi/deployments@v0.4.3
         id: deployment
@@ -49,7 +47,7 @@ jobs:
           env: ${{ env.RELEASE_NAME }}
           ref: ${{ github.head_ref }}
           transient: true
-          logs: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+          logs: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Netlify docs preview
         run: |
@@ -73,10 +71,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env_url: 'https://${{ steps.deployment.outputs.env }}--gt-python.netlify.app'
-          logs: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+          env_url: "https://${{ steps.deployment.outputs.env }}--gt-python.netlify.app"
+          logs: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
       - uses: peaceiris/actions-gh-pages@v3
-        if: github.event_name == 'release'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_site
