@@ -75,6 +75,9 @@ class GT(
         >>> print(x)
     """
 
+    def _repr_html_(self):
+        return self.render(context="html")
+
     def __init__(self, data: Any, locale: str = ""):
         # This init will take the input data (any valid input for the Pandas
         # DataFrame class) and store the resulting DataFrame as `self._tbl_data`
