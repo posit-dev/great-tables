@@ -18,7 +18,6 @@ def heading_has_subtitle(subtitle: Optional[str]) -> bool:
 
 
 def _match_arg(x: str, lst: List[str]) -> str:
-
     # Ensure that `lst` has at least one element
     if len(lst) == 0:
         raise ValueError("The `lst` object must contain at least one element.")
@@ -73,11 +72,10 @@ def _str_scalar_to_list(x: str):
 def _unique_set(x: Union[List[Any], None]) -> Union[List[Any], None]:
     if x is None:
         return None
-    return list(set(x))
+    return list({k: True for k in x})
 
 
 def _as_css_font_family_attr(fonts: List[str], value_only: bool = False) -> str:
-
     fonts_w_spaces = list(map(lambda x: f"'{x}'" if " " in x else x, fonts))
 
     fonts_str = ", ".join(fonts_w_spaces)
