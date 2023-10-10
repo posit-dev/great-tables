@@ -436,7 +436,7 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="gt.GT.opt_footnote_marks" class="level1">
 <h1>GT.opt_footnote_marks</h1>
-<p><code>gt.GT.opt_footnote_marks(self, marks='numbers')</code></p>
+<p><code>GT.opt_footnote_marks(marks='numbers')</code></p>
 <p>Option to modify the set of footnote marks.</p>
 <p>Alter the footnote marks for any footnotes that may be present in the table. Either a list of marks can be provided (including Unicode characters), or, a specific keyword could be used to signify a preset sequence. This function serves as a shortcut for using <code>tab_options(footnotes_marks = &lt;marks&gt;)</code></p>
 <p>We can supply a list of strings will represent the series of marks. The series of footnote marks is recycled when its usage goes beyond the length of the set. At each cycle, the marks are simply doubled, tripled, and so on (e.g., <code>*</code> -&gt; <code>**</code> -&gt; <code>***</code>). The option exists for providing keywords for certain types of footnote marks. The keywords are:</p>
