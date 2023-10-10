@@ -1,4 +1,5 @@
 from typing import Any, Dict, List, cast
+import pkg_resources
 
 import sass
 import re
@@ -375,12 +376,16 @@ def _compile_scss(data: GT) -> str:
     else:
         font_family_attr = ""
 
-    gt_styles_default_file = open("gt/css/gt_styles_default.scss")
+    gt_styles_default_file = open(
+        pkg_resources.resource_filename("gt", "css/gt_styles_default.scss")
+    )
+
     gt_styles_default = gt_styles_default_file.read()
     gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, 0, re.MULTILINE)
     gt_styles_default = re.sub(r"}", "}\n", gt_styles_default, 0, re.MULTILINE)
 
-    gt_colors_file = open("gt/css/gt_colors.scss")
+    gt_colors_file = open(pkg_resources.resource_filename("gt", "css/gt_colors.scss"))
+
     gt_colors = gt_colors_file.read()
 
     scss = scss_params_str + gt_colors + gt_styles_default
