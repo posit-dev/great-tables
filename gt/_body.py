@@ -1,6 +1,6 @@
 from typing import Union, List, Literal, Any
 import pandas as pd
-from ._tbl_data import TblData
+from ._tbl_data import TblData, _get_cell, _set_cell
 from ._formats import FormatInfo
 
 Context = Literal["html", "default"]
@@ -25,8 +25,8 @@ class Body:
             if eval_func is None:
                 raise Exception("Internal Error")
             for col, row in fmt.cells.resolve():
-                result = eval_func(data_tbl._get_cell(row, col))
-                self.body._set_cell(row, col, result)
+                result = eval_func(_get_cell(data_tbl, row, col))
+                _set_cell(self.body, row, col, result)
 
         return self
 

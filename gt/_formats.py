@@ -1,6 +1,7 @@
 from typing import Any, Callable, TypeVar, Union, List, cast, Optional, Tuple
 
 from ._base_api import BaseAPI
+from ._tbl_data import n_rows
 
 FormatFn = Callable[[Any], str]
 
@@ -73,7 +74,7 @@ class FormatsAPI(BaseAPI):
         columns = listify(columns, List[str])
 
         if rows is None:
-            rows = list(range(self._get_tbl_data().n_rows()))
+            rows = list(range(n_rows(self._get_tbl_data())))
         elif isinstance(rows, int):
             rows = [rows]
 
