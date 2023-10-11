@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     TblData = DataFrameLike
 
 else:
+    from abc import ABC
 
     class PdDataFrame(AbstractBackend):
         _backends = [("pandas", "DataFrame")]
@@ -27,7 +28,12 @@ else:
 
     # TODO: these types are imported throughout gt, so we need to either put
     # those imports under TYPE_CHECKING, or continue to make available dynamically here.
-    DataFrameLike = Union[PdDataFrame, PlDataFrame]
+    class DataFrameLike(ABC):
+        """Represent some DataFrame"""
+
+    DataFrameLike.register(PdDataFrame)
+    DataFrameLike.register(PlDataFrame)
+
     TblData = DataFrameLike
 
 
