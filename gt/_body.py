@@ -1,6 +1,6 @@
 from typing import Union, List, Literal, Any
 import pandas as pd
-from ._tbl_data import TblData, _get_cell, _set_cell
+from ._tbl_data import TblData, _get_cell, _set_cell, copy_data
 from ._formats import FormatInfo
 
 Context = Literal["html", "default"]
@@ -12,7 +12,7 @@ class Body:
 
     def __init__(self, body: Union[pd.DataFrame, TblData], data: Any = None):
         if isinstance(body, pd.DataFrame):
-            self.body = TblData(body)
+            self.body = copy_data(body)
         else:
             self.body = body
         self.data = data

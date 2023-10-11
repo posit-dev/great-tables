@@ -113,7 +113,7 @@ class GT(
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         self = copy.copy(self)
-        self._body = Body(self._body.body._tbl_data)
+        self._body = Body(self._body.body)
         self._render_formats(context)
 
         # body = _migrate_unformatted_to_output(body)

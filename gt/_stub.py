@@ -1,7 +1,7 @@
 from typing import Optional
 
 from ._base_api import BaseAPI
-from ._tbl_data import TblData
+from ._tbl_data import TblData, n_rows
 
 
 class RowInfo:
@@ -39,7 +39,7 @@ class Stub:
 
         # Obtain a list of row indices from the data and initialize
         # the `_stub` from that
-        row_indices = list(range(len(data._tbl_data)))
+        row_indices = list(range(n_rows(data)))
 
         # Obtain the column names from the data and initialize the
         # `_boxhead` from that
