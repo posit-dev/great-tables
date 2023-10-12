@@ -3,7 +3,7 @@ from enum import Enum, auto
 import pandas as pd
 
 from ._base_api import BaseAPI
-from ._tbl_data import TblData
+from ._tbl_data import TblData, get_column_names
 
 from ._utils import _assert_list_is_subset
 
@@ -52,7 +52,7 @@ class Boxhead:
 
         # Obtain the column names from the data and initialize the
         # `_boxhead` from that
-        column_names = data.get_column_names()
+        column_names = get_column_names(data)
         self._boxhead = [ColInfo(col) for col in column_names]
 
     # Get a list of columns

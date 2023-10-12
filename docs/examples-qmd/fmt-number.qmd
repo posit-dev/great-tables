@@ -11,7 +11,8 @@ from gt import exibble
 Use the exibble dataset to create a gt table. With the `fmt_number()` method, we'll format the num column to have three decimal places (with `decimals=3`) and omit the use of digit separators (with `use_seps=False`).
 
 ```{python}
-gt.GT(exibble).fmt_number(columns=num, decimals=3, use_seps=False)
+# gt.GT(exibble).fmt_number(columns="num", decimals=3, use_seps=False)
+gt.GT(exibble).fmt_number(columns="num", decimals=3)
 ```
 
 Use a modified version of the countrypops dataset to create a gt table with row labels. Format all columns to use large-number suffixing (e.g., where `'10,000,000'` becomes `'10M'`) with the `suffixing=True` option.

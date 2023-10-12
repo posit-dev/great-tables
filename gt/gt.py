@@ -23,11 +23,13 @@ from gt import (
     _tbl_data,
 )
 
-
 # from ._helpers import random_id
 from ._body import Body
 from ._text import StringBuilder
 from ._utils import _as_css_font_family_attr, _unique_set
+from ._tbl_data import n_rows, _get_cell
+
+
 
 from ._body import Context
 
@@ -112,7 +114,7 @@ class GT(
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         self = copy.copy(self)
-        self._body = Body(self._body.body._tbl_data)
+        self._body = Body(self._body.body)
         self._render_formats(context)
 
         # body = _migrate_unformatted_to_output(body)
@@ -270,11 +272,11 @@ def _create_body_component(data: GT):
 
     body_rows: List[str] = []
 
-    for i in range(tbl_data.n_rows()):
+    for i in range(n_rows(tbl_data)):
         body_cells: List[str] = []
 
         for name in column_names:
-            cell_content: Any = tbl_data._get_cell(i, name)
+            cell_content: Any = _get_cell(tbl_data, i, name)
             cell_str: str = str(cell_content)
 
             body_cells.append('  <td class="gt_row">' + cell_str + "</td>")

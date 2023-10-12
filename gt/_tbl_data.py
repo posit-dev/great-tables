@@ -1,61 +1,139 @@
-from typing import Any, List, cast
+from __future__ import annotations
+
+from typing import Any, List, Union, cast, TYPE_CHECKING
+from ._databackend import AbstractBackend
+from functools import singledispatch
+
 import pandas as pd
 
 
-class TblData:
-    _tbl_data: pd.DataFrame
+if TYPE_CHECKING:
+    import pandas as pd
+    import polars as pl
 
-    def __init__(self, data: Any):
+    PdDataFrame = pd.DataFrame
+    PlDataFrame = pl.DataFrame
 
-        # Transform incoming data to a pandas DataFrame
-        pd_data = pd.DataFrame(data).copy()
+    DataFrameLike = Union[PdDataFrame, PlDataFrame]
+    TblData = DataFrameLike
 
-        # The tabular data stored as a pandas DataFrame
-        self._tbl_data = pd_data
+else:
+    from abc import ABC
 
-    def get_column_names(self) -> List[str]:
-        """Get a list of column names from the input data table"""
-        data_column_index: pd.Index = self._tbl_data.columns
-        return list(data_column_index)
+    class PdDataFrame(AbstractBackend):
+        _backends = [("pandas", "DataFrame")]
 
-    def n_rows(self) -> int:
-        """Get the number of rows from the input data table"""
-        return len(self._tbl_data)
+    class PlDataFrame(AbstractBackend):
+        _backends = [("polars", "DataFrame")]
 
-    def _get_cell(self, row: int, column: str) -> Any:
-        """Get the content from a single cell in the input data table"""
-        return cast(Any, self._tbl_data[column][row])
+    # TODO: these types are imported throughout gt, so we need to either put
+    # those imports under TYPE_CHECKING, or continue to make available dynamically here.
+    class DataFrameLike(ABC):
+        """Represent some DataFrame"""
 
-    def _set_cell(self, row: int, column: str, value: Any):
-        self._tbl_data[column][row] = value
+    DataFrameLike.register(PdDataFrame)
+    DataFrameLike.register(PlDataFrame)
 
-    def _get_column_dtype(self, column: str) -> str:
-        """Get the data type for a single column in the input data table"""
-        return self._tbl_data[column].dtypes
+    TblData = DataFrameLike
 
-    def _make_empty_df(self):
-        """Create an empty DataFrame variant of the input data table"""
-        column_list = list(self._tbl_data.columns)
-        rowidx_list = list(range(len(self._tbl_data)))
-        return pd.DataFrame(columns=column_list, index=rowidx_list)
 
-    def _make_empty_table_dict(self):
-        """Create an empty DataFrame variant of the input data table"""
-        column_list = list(self._tbl_data.columns)
-        rowidx_list = list(range(len(self._tbl_data)))
-        df = pd.DataFrame(columns=column_list, index=rowidx_list)
-        df = df.reset_index().to_dict(orient="list")
-        idx_key = list(df.keys())[0]
-        df.pop(idx_key, None)
-        return df
+# utils ----
 
-    def _pd_to_dict(self):
-        """Transform the input data table from a DataFrame to a dictionary"""
-        return self._tbl_data.reset_index().to_dict(orient="list")
+def _raise_not_implemented(data):
+    raise NotImplementedError(f"Unsupported data type: {type(data)}")
+
+# classes ----
 
 
 class TblDataAPI:
     _tbl_data: TblData
 
     def __init__(self, data: Any):
-        self._tbl_data = TblData(data)
+        self._tbl_data = copy_data(data)
+
+
+# generic functions ----
+
+# copy_data ----
+@singledispatch
+def copy_data(data: DataFrameLike) -> DataFrameLike:
+    """Get a list of column names from the input data table"""
+    _raise_not_implemented(data)
+
+@copy_data.register(PdDataFrame)
+def _(data: PdDataFrame):
+    return data.copy()
+
+@copy_data.register(PlDataFrame)
+def _(data: PlDataFrame):
+    return data.clone()
+
+# get_column_names ----
+
+@singledispatch
+def get_column_names(data: DataFrameLike) -> List[str]:
+    """Get a list of column names from the input data table"""
+    _raise_not_implemented(data)
+
+@get_column_names.register(PdDataFrame)
+def _(data: PdDataFrame):
+    return data.columns.tolist()
+
+@get_column_names.register(PlDataFrame)
+def _(data: PlDataFrame):
+    return data.columns
+
+
+# n_rows ----
+
+@singledispatch
+def n_rows(data: DataFrameLike) -> int:
+    """Get the number of rows from the input data table"""
+    raise _raise_not_implemented(data)
+
+
+@n_rows.register(PdDataFrame)
+@n_rows.register(PlDataFrame)
+def _(data):
+    return len(data)
+
+
+# _get_cell ----
+
+@singledispatch
+def _get_cell(data: DataFrameLike, row: int, column: str) -> Any:
+    """Get the content from a single cell in the input data table"""
+
+    _raise_not_implemented(data)
+
+@_get_cell.register(PdDataFrame)
+@_get_cell.register(PlDataFrame)
+def _(data, row: int, column: str):
+    return data[column][row]
+
+
+# _set_cell ----
+
+@singledispatch
+def _set_cell(data: DataFrameLike, row: int, column: str, value: Any):
+    _raise_not_implemented(data)
+
+
+@_set_cell.register(PdDataFrame)
+def _(data, row: int, column: str, value: Any):
+    # TODO: should this use data.loc?
+    data[column][row] = value
+
+
+@_set_cell.register(PlDataFrame)
+def _(data, row: int, column: str, value: Any):
+    data[row, column] = value
+
+
+# _get_column_dtype ----
+
+@singledispatch
+def _get_column_dtype(data: DataFrameLike, column: str) -> str:
+    """Get the data type for a single column in the input data table"""
+    return data[column].dtype
+

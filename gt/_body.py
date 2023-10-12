@@ -1,6 +1,6 @@
 from typing import Union, List, Literal, Any
 import pandas as pd
-from ._tbl_data import TblData
+from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell, copy_data
 from ._formats import FormatInfo
 
 Context = Literal["html", "default"]
@@ -11,8 +11,8 @@ class Body:
     data: Any
 
     def __init__(self, body: Union[pd.DataFrame, TblData], data: Any = None):
-        if isinstance(body, pd.DataFrame):
-            self.body = TblData(body)
+        if isinstance(body, DataFrameLike):
+            self.body = copy_data(body)
         else:
             self.body = body
         self.data = data
@@ -25,8 +25,11 @@ class Body:
             if eval_func is None:
                 raise Exception("Internal Error")
             for col, row in fmt.cells.resolve():
-                result = eval_func(data_tbl._get_cell(row, col))
-                self.body._set_cell(row, col, result)
+                result = eval_func(_get_cell(data_tbl, row, col))
+                # TODO: I think that this is very inefficient with polars, so
+                # we could either accumulate results and set them per column, or
+                # could always use a pandas DataFrame inside Body?
+                _set_cell(self.body, row, col, result)
 
         return self
 
