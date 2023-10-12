@@ -256,7 +256,7 @@
     "href": "reference/data.exibble.html",
     "title": "data.exibble",
     "section": "",
-    "text": "data.exibble\ndata.exibble\nA toy example tibble for testing with gt: exibble\nThis tibble contains data of a few different classes, which makes it well-suited for quick experimentation with the functions in this package. It contains only eight rows with numeric and character columns. The last 4 rows contain missing values in the majority of this tibble’s columns (1 missing value per column). The date, time, and datetime columns are character-based dates/times in the familiar ISO 8601 format. The row and group columns provide for unique rownames and two groups (grp_a and grp_b) for experimenting with the rowname_col and groupname_col arguments."
+    "text": "data.exibble\ndata.exibble\nA toy example table for testing with gt: exibble\nThis table contains data of a few different classes, which makes it well-suited for quick experimentation with the functions in this package. It contains only eight rows with numeric and character columns. The last 4 rows contain missing values in the majority of this table’s columns (1 missing value per column). The date, time, and datetime columns are character-based dates/times in the familiar ISO 8601 format. The row and group columns provide for unique rownames and two groups (grp_a and grp_b) for experimenting with the rowname_col and groupname_col arguments."
   },
   {
     "objectID": "reference/GT.fmt_scientific.html",
@@ -368,7 +368,7 @@
     "href": "reference/index.html",
     "title": "Function reference",
     "section": "",
-    "text": "GT\nCreate a gt Table object.\n\n\n\n\n\n\n\n\n\nGT.tab_header\nAdd a table header.\n\n\nGT.tab_options\nModify the table output options\n\n\nGT.tab_source_note\nAdd a source note citation.\n\n\nGT.tab_stubhead\nAdd label text to the stubhead.\n\n\n\n\n\n\n\n\n\nGT.fmt_engineering\n\n\n\nGT.fmt_integer\n\n\n\nGT.fmt_number\n\n\n\nGT.fmt_percent\n\n\n\nGT.fmt_scientific\n\n\n\nGT.fmt\n\n\n\n\n\n\n\n\n\n\n\n\n\nGT.cols_label\nRelabel one or more columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nmd\nInterpret input text as Markdown-formatted text.\n\n\nhtml\nInterpret input text as HTML-formatted text.\n\n\npx\nHelper for providing a CSS length value in pixels.\n\n\npct\nHelper for providing a CSS length value as a percentage.\n\n\n\n\n\n\n\n\n\n\n\n\nGT.opt_align_table_header\nOption to align the table header.\n\n\nGT.opt_all_caps\nOption to use all caps in select table locations.\n\n\nGT.opt_footnote_marks\nOption to modify the set of footnote marks.\n\n\nGT.opt_row_striping\nOption to add or remove row striping.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndata.countrypops\nYearly populations of countries from 1960 to 2017\n\n\ndata.sza\nTwice hourly solar zenith angles by month & latitude\n\n\ndata.gtcars\nDeluxe automobiles from the 2014-2017 period\n\n\ndata.sp500\nDaily S&P 500 Index data from 1950 to 2015\n\n\ndata.pizzaplace\nA year of pizza sales from a pizza place\n\n\ndata.exibble\nA toy example tibble for testing with gt: exibble"
+    "text": "GT\nCreate a gt Table object.\n\n\n\n\n\n\n\n\n\nGT.tab_header\nAdd a table header.\n\n\nGT.tab_options\nModify the table output options\n\n\nGT.tab_source_note\nAdd a source note citation.\n\n\nGT.tab_stubhead\nAdd label text to the stubhead.\n\n\n\n\n\n\n\n\n\nGT.fmt_engineering\n\n\n\nGT.fmt_integer\n\n\n\nGT.fmt_number\n\n\n\nGT.fmt_percent\n\n\n\nGT.fmt_scientific\n\n\n\nGT.fmt\n\n\n\n\n\n\n\n\n\n\n\n\n\nGT.cols_label\nRelabel one or more columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nmd\nInterpret input text as Markdown-formatted text.\n\n\nhtml\nInterpret input text as HTML-formatted text.\n\n\npx\nHelper for providing a CSS length value in pixels.\n\n\npct\nHelper for providing a CSS length value as a percentage.\n\n\n\n\n\n\n\n\n\n\n\n\nGT.opt_align_table_header\nOption to align the table header.\n\n\nGT.opt_all_caps\nOption to use all caps in select table locations.\n\n\nGT.opt_footnote_marks\nOption to modify the set of footnote marks.\n\n\nGT.opt_row_striping\nOption to add or remove row striping.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndata.countrypops\nYearly populations of countries from 1960 to 2022\n\n\ndata.sza\nTwice hourly solar zenith angles by month & latitude\n\n\ndata.gtcars\nDeluxe automobiles from the 2014-2017 period\n\n\ndata.sp500\nDaily S&P 500 Index data from 1950 to 2015\n\n\ndata.pizzaplace\nA year of pizza sales from a pizza place\n\n\ndata.exibble\nA toy example table for testing with gt: exibble"
   },
   {
     "objectID": "reference/index.html#table-creation",
@@ -417,7 +417,7 @@
     "href": "reference/index.html#built-in-datasets",
     "title": "Function reference",
     "section": "",
-    "text": "data.countrypops\nYearly populations of countries from 1960 to 2017\n\n\ndata.sza\nTwice hourly solar zenith angles by month & latitude\n\n\ndata.gtcars\nDeluxe automobiles from the 2014-2017 period\n\n\ndata.sp500\nDaily S&P 500 Index data from 1950 to 2015\n\n\ndata.pizzaplace\nA year of pizza sales from a pizza place\n\n\ndata.exibble\nA toy example tibble for testing with gt: exibble"
+    "text": "data.countrypops\nYearly populations of countries from 1960 to 2022\n\n\ndata.sza\nTwice hourly solar zenith angles by month & latitude\n\n\ndata.gtcars\nDeluxe automobiles from the 2014-2017 period\n\n\ndata.sp500\nDaily S&P 500 Index data from 1950 to 2015\n\n\ndata.pizzaplace\nA year of pizza sales from a pizza place\n\n\ndata.exibble\nA toy example table for testing with gt: exibble"
   },
   {
     "objectID": "reference/html.html",
@@ -431,7 +431,7 @@
     "href": "reference/data.countrypops.html",
     "title": "data.countrypops",
     "section": "",
-    "text": "data.countrypops\ndata.countrypops\nYearly populations of countries from 1960 to 2017\nA dataset that presents yearly, total populations of countries. Total population is based on counts of all residents regardless of legal status or citizenship. Country identifiers include the English-language country names, and the 2- and 3-letter ISO 3166-1 country codes. Each row contains a population value for a given year (from 1960 to 2017). Any missing values for populations indicate the non-existence of the country during that year."
+    "text": "data.countrypops\ndata.countrypops\nYearly populations of countries from 1960 to 2022\nA dataset that presents yearly, total populations of countries. Total population is based on counts of all residents regardless of legal status or citizenship. Country identifiers include the English-language country names, and the 2- and 3-letter ISO 3166-1 country codes. Each row contains a population value for a given year (from 1960 to 2022). Any missing values for populations indicate the non-existence of the entity during that year."
   },
   {
     "objectID": "examples-qmd/GT.html",
