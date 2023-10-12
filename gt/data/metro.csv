@@ -1,0 +1,309 @@
+name,caption,lines,connect_rer,connect_tramway,connect_transilien,connect_other,passengers,latitude,longitude,location
+Argentine,,1,,,,,2079212,48.875278,2.29,"Paris 16th, Paris 17th"
+Bastille,,"1, 5, 8",,,,,8069243,48.853082,2.369077,"Paris 4th, Paris 11th, Paris 12th"
+Bérault,,1,,,,,2106827,48.845278,2.428333,"Saint-Mandé, Vincennes"
+Champs-Élysées—Clemenceau,Grand Palais,"1, 13",,,,,1909005,48.8675,2.3135,Paris 8th
+Charles de Gaulle—Étoile,,"1, 2, 6",A,,,,4291663,48.873889,2.295,"Paris 8th, Paris 16th, Paris 17th"
+Château de Vincennes,,1,,,,,3617738,48.844444,2.44,"Paris 12th, Vincennes"
+Châtelet,,"1, 4, 7, 11, 14","A, B, D",,,,8350794,48.858351999999996,2.347324,"Paris 1st, Paris 4th"
+Concorde,,"1, 8, 12",,,,,3401219,48.86541,2.32111,Paris 1st
+Esplanade de La Défense,,1,,,,,4708183,48.888333,2.25,"Courbevoie, Puteaux"
+Franklin D. Roosevelt,,"1, 9",,,,,6173830,48.868977,2.30989,Paris 8th
+Gare de Lyon,,"1, 14","A, D",,R,"TGV, TGV Lyria, Renfe-SNCF, OUIGO, Frecciarossa",28640475,48.844722,2.373889,Paris 12th
+George V,,1,,,,,3842260,48.871944,2.300556,Paris 8th
+Hôtel de Ville,,"1, 11",,,,,7251729,48.857487,2.351525,Paris 4th
+La Défense,Grande Arche,1,A,T2,"L, U",,9256802,48.891852,2.238539,Puteaux
+Les Sablons,Jardin d'Acclimatation,1,,,,,3954920,48.880833,2.272222,Neuilly-sur-Seine
+Louvre—Rivoli,,1,,,,,1869612,48.86108,2.340283,Paris 1st
+Nation,,"1, 2, 6, 9",A,,,,6050797,48.848333,2.395833,"Paris 11th, Paris 12th"
+Palais Royal–Musée du Louvre,,"1, 7",,,,,4822599,48.862644,2.336578,Paris 1st
+Pont de Neuilly,,1,,,,,4809503,48.885,2.259722,Neuilly-sur-Seine
+Porte de Vincennes,,1,,"T3a, T3b",,,5446602,48.847326,2.407759,"Paris 12th, Paris 20th"
+Porte Maillot,Palais des Congrès,1,C,,,,4138301,48.878056,2.281944,"Paris 16th, Paris 17th"
+Reuilly—Diderot,,"1, 8",,,,,4580091,48.846944,2.386389,Paris 12th
+Saint-Mandé,,1,,,,,3944640,48.846111,2.418889,Saint-Mandé
+Saint-Paul,Le Marais,1,,,,,4295823,48.855214,2.360859,Paris 4th
+Tuileries,,1,,,,,1859552,48.864531,2.329617,Paris 1st
+Alexandre Dumas,,2,,,,,2476608,48.855907,2.39479,"Paris 11th, Paris 20th"
+Anvers,Sacré-Cœur,2,,,,Funiculaire de Montmartre,3420749,48.883007,2.344849,"Paris 9th, Paris 18th"
+Avron,,2,,,,,1345521,48.85194,2.397863,Paris 11th
+Barbès—Rochechouart,,"2, 4",,,,,5390939,48.883611,2.350556,"Paris 9th, Paris 10th, Paris 18th"
+Belleville,,"2, 11",,,,,7314438,48.872083,2.376947,Paris 10th
+Blanche,,2,,,,,2167570,48.883459,2.333703,Paris 9th
+Colonel Fabien,,2,,,,,3043606,48.877136,2.37116,Paris 10th
+Courcelles,,2,,,,,1583429,48.879167,2.304167,"Paris 8th, Paris 17th"
+Couronnes,,2,,,,,2151515,48.869521,2.379861,"Paris 11th, Paris 20th"
+Jaurès,,"2, 5, 7bis",,,,,4055461,48.88292,2.37067,"Paris 10th, Paris 19th"
+La Chapelle,,2,"B, D, E",,"H, K","TGV, TER, Thalys, Eurostar",4855531,48.884411,2.360288,"Paris 10th, Paris 18th"
+Ménilmontant,,2,,,,,2847264,48.866248,2.383618,"Paris 11th, Paris 20th"
+Monceau,,2,,,,,1148677,48.88,2.308333,"Paris 8th, Paris 17th"
+Père Lachaise,,"2, 3",,,,,3465307,48.862921,2.387388,"Paris 11th, Paris 20th"
+Philippe Auguste,,2,,,,,1262653,48.858021,2.390938,"Paris 11th, Paris 20th"
+Pigalle,,"2, 12",,,,,3501831,48.882255,2.337573,"Paris 9th, Paris 18th"
+Place de Clichy,,"2, 13",,,,,5161932,48.883889,2.3275,"Paris 8th, Paris 9th, Paris 17th, Paris 18th"
+Porte Dauphine,,2,C,,,,2021656,48.87139,2.27667,Paris 16th
+Rome,,2,,,,,1696331,48.882425,2.322052,"Paris 8th, Paris 17th"
+Stalingrad,,"2, 5, 7",,,,,4924583,48.88429,2.36586,"Paris 10th, Paris 19th"
+Ternes,,2,,,,,2292256,48.877778,2.298611,"Paris 8th, Paris 17th"
+Victor Hugo,,2,,,,,2801041,48.86972,2.285,Paris 16th
+Villiers,,"2, 3",,,,,3586376,48.88113,2.314867,"Paris 8th, Paris 17th"
+Anatole France,,3,,,,,2311825,48.892022,2.285536,Levallois-Perret
+Arts et Métiers,,"3, 11",,,,,2403042,48.8655,2.3561,Paris 3rd
+Bourse,,3,,,,,1725043,48.868738,2.34137,Paris 2nd
+Europe,,3,,,,,1106459,48.878821,2.32238,Paris 8th
+Gallieni,Parc de Bagnolet,3,,,,,3899195,48.8635,2.41578,Bagnolet
+Gambetta,,3,,,,,4796724,48.864947,2.398451,Paris 20th
+Havre—Caumartin,,"3, 9","A, E",,,,5894982,48.873465,2.327968,Paris 9th
+Louise Michel,,3,,,,,2319185,48.889273,2.288073,Levallois-Perret
+Malesherbes,,3,,,,,1427143,48.882476,2.311002,Paris 17th
+Opéra,,"3, 7, 8",A,,,,5193831,48.870636,2.332353,"Paris 2nd, Paris 9th"
+Parmentier,,3,,,,,2037234,48.865299,2.374381,Paris 11th
+Pereire,,3,C,,,,3130190,48.884648,2.299211,Paris 17th
+Pont de Levallois—Bécon,,3,,,,,2984777,48.897313,2.280787,Levallois-Perret
+Porte de Bagnolet,,3,,T3b,,,3085790,48.864565,2.407278,Paris 20th
+Porte de Champerret,,3,,,,,2101673,48.885851,2.293487,Paris 17th
+Quatre-Septembre,,3,,,,,1165004,48.869574,2.336633,Paris 2nd
+Réaumur—Sébastopol,,"3, 4",,,,,3579544,48.866111,2.3525,"Paris 2nd, Paris 3rd"
+République,,"3, 5, 8, 9, 11",,,,,11079708,48.867503,2.363811,"Paris 3rd, Paris 10th, Paris 11th"
+Rue Saint-Maur,,3,,,,,2004445,48.864335,2.379448,Paris 11th
+Saint-Lazare,,"3, 12, 13, 14",E,,"J, L","TGV, TER, Intercités",33128384,48.87549,2.32664,"Paris 8th, Paris 9th"
+Sentier,,3,,,,,2222744,48.8676,2.3464,Paris 2nd
+Temple,,3,,,,,891858,48.866488,2.360595,Paris 3rd
+Wagram,,3,,,,,1508617,48.884057,2.303668,Paris 17th
+Pelleport,,3bis,,,,,229524,48.868671,2.401752,Paris 20th
+Porte des Lilas,,"3bis, 11",,T3b,,,3105016,48.877183,2.406655,"Paris 19th, Paris 20th"
+Saint-Fargeau,,3bis,,,,,472258,48.872083,2.40452,Paris 20th
+Alésia,,4,,,,,3098136,48.828333,2.326667,Paris 14th
+Bagneux—Lucie Aubrac,,4,,,,,,48.8027,2.3173,Bagneux
+Barbara,,4,,,,,,48.8092,2.3176,"Montrouge, Bagneux"
+Château d'Eau,,4,,,,,2687103,48.872778,2.356111,Paris 10th
+Château Rouge,,4,,,,,5841122,48.886667,2.349444,Paris 18th
+Cité,,4,,,,,1004657,48.855278,2.346389,Paris 4th
+Denfert-Rochereau,,"4, 6",B,,,,2543959,48.833901,2.332728,Paris 14th
+Étienne Marcel,,4,,,,,1705639,48.864167,2.350556,Paris 1st
+Gare de l'Est,,"4, 5, 7",E,,P,"TGV, TER, OUIGO, Nightjet",15538471,48.876111,2.358333,Paris 10th
+Gare du Nord,,"4, 5","B, D, E",,"H, K","TGV, TER, Thalys, Eurostar",34503097,48.880556,2.355,Paris 10th
+Les Halles,,4,"A, B, D",,,,10623876,48.8625,2.34611,Paris 1st
+Mairie de Montrouge,,4,,,,,4316647,48.81843,2.31953,Montrouge
+Marcadet—Poissonniers,,"4, 12",,,,,3982005,48.890278,2.35,Paris 18th
+Montparnasse—Bienvenüe,,"4, 6, 12, 13",,,N,"TGV, TER, Intercités, OUIGO",20407224,48.843466,2.323072,"Paris 6th, Paris 14th, Paris 15th"
+Mouton-Duvernet,,4,,,,,1131403,48.832139,2.330325,Paris 14th
+Odéon,,"4, 10",,,,,3478491,48.851944,2.338889,Paris 6th
+Porte d'Orléans,,4,,T3a,,,4175817,48.823189,2.325364,Paris 14th
+Porte de Clignancourt,Puces de Saint-Ouen,4,,T3b,,,5611814,48.896944,2.345,Paris 18th
+Raspail,,"4, 6",,,,,1238357,48.839194,2.330606,Paris 14th
+Saint-Germain-des-Prés,,4,,,,,2378860,48.853889,2.333333,Paris 6th
+Saint-Michel,,4,"B, C",,,,3747385,48.853611,2.343889,"Paris 5th, Paris 6th"
+Saint-Placide,,4,,,,,2391205,48.846844,2.326914,Paris 6th
+Saint-Sulpice,,4,,,,,1571987,48.850909,2.330652,Paris 6th
+Simplon,,4,,,,,2056501,48.893333,2.348333,Paris 18th
+Strasbourg—Saint-Denis,,"4, 8, 9",,,,,6345770,48.869722,2.353889,"Paris 2nd, Paris 3rd, Paris 10th"
+Vavin,,4,,,,,1322588,48.842233,2.32895,"Paris 6th, Paris 14th"
+Bobigny—Pablo Picasso,Préfecture—Hôtel du Département,5,,T1,,,6561327,48.906538,2.449994,Bobigny
+Bobigny—Pantin—Raymond Queneau,,5,,,,,2335465,48.895,2.425,Bobigny
+Bréguet—Sabin,,5,,,,,1490160,8.856,2.37,Paris 11th
+Campo Formio,,5,,,,,1016150,48.835,2.358,Paris 13th
+Église de Pantin,,5,,,,,2832467,48.894,2.413,Pantin
+Gare d'Austerlitz,,"5, 10",C,,,"TGV, TER, Intercités",6318543,48.842626,2.364971,Paris 13th
+Hoche,,5,,,,,3928404,48.891,2.403,Pantin
+Jacques Bonsergent,,5,,,,,1743989,48.871,2.361,Paris 10th
+Laumière,,5,,,,,3258568,48.885,2.379,Paris 19th
+Oberkampf,,"5, 9",,,,,3205110,48.8635,2.37025,Paris 11th
+Ourcq,,5,,,,,2862337,48.887,2.386,Paris 19th
+Place d'Italie,,"5, 6, 7",,,,,7119097,48.831483,2.355692,Paris 13th
+Porte de Pantin,Parc de la Villette,5,,T3b,,,3374733,48.88971,2.39629,Paris 19th
+Quai de la Rapée,,5,,,,,798728,48.846,2.366,Paris 12th
+Richard-Lenoir,,5,,,,,1544636,48.86,2.372,Paris 11th
+Saint-Marcel,,5,,,,,1666744,48.838,2.36,Paris 13th
+Bel-Air,,6,,,,,1605573,48.841344,2.400912,Paris 12th
+Bercy,,"6, 14",,,,"TER, Intercités",3884212,48.83993,2.380418,Paris 12th
+Bir-Hakeim,Tour Eiffel,6,C,,,,3362908,48.853917,2.289332,Paris 15th
+Boissière,,6,,,,,1224181,48.867386,2.290392,Paris 16th
+Cambronne,,6,,,,,1636566,48.847537,2.302937,Paris 15th
+Chevaleret,,6,,,,,2748696,48.834938,2.368082,Paris 13th
+Corvisart,,6,,,,,1570331,48.829807,2.350508,Paris 13th
+Daumesnil,,"6, 8",,,,,3634023,48.839644,2.395792,Paris 12th
+Dugommier,,6,,,,,1725412,48.83905,2.389964,Paris 12th
+Dupleix,,6,,,,,2028963,48.850392,2.293611,Paris 15th
+Edgar Quinet,,6,,,,,1349178,48.841048,2.325084,Paris 14th
+Glacière,,6,,,,,3005750,48.83115,2.343384,Paris 13th
+Kléber,,6,,,,,724215,48.871138,2.293118,Paris 16th
+La Motte-Picquet—Grenelle,,"6, 8, 10",,,,,5117708,48.849143,2.29809,Paris 15th
+Nationale,,6,,,,,1320290,48.833183,2.362718,Paris 13th
+Passy,,6,,,,,2080548,48.857445,2.285779,Paris 16th
+Pasteur,,"6, 12",,,,,3026286,48.842836,2.312681,Paris 15th
+Picpus,,6,,,,,931602,48.84515,2.400494,Paris 12th
+Quai de la Gare,,6,,,,,1735465,48.837069,2.372773,Paris 13th
+Saint-Jacques,,6,,,,,1407837,48.832913,2.337081,Paris 14th
+Sèvres—Lecourbe,,6,,,,,1257040,48.845634,2.309476,Paris 15th
+Trocadéro,,"6, 9",,,,,5284134,48.863301,2.287061,Paris 16th
+Aubervilliers—Pantin—Quatre Chemins,,7,,,,,5616435,48.9039,2.3925,Aubervilliers
+Cadet,,7,,,,,1843984,48.876135,2.344876,Paris 9th
+Censier—Daubenton,,7,,,,,2291843,48.840597,2.351774,Paris 5th
+Château-Landon,,7,,,P,"TGV, TER",1140353,48.87846,2.362071,Paris 10th
+Chaussée d'Antin—La Fayette,,"7, 9",,,,,4251916,48.87307,2.33393,Paris 9th
+Corentin Cariou,,7,,,,,1697076,48.89434,2.381745,Paris 19th
+Crimée,,7,,,,,3543952,48.89158,2.37707,Paris 19th
+Fort d'Aubervilliers,,7,,,,,3103518,48.91424,2.403785,Aubervilliers
+Jussieu,,"7, 10",,,,,2889642,48.846052,2.355738,Paris 5th
+La Courneuve—8 Mai 1945,,7,,T1,,,4924444,48.920777,2.410668,La Courneuve
+Le Kremlin—Bicêtre,,7,,,,,2925325,48.810388,2.361849,Le Kremlin-Bicêtre
+Le Peletier,,7,,,,,1677832,48.87472,2.33955,Paris 9th
+Les Gobelins,,7,,,,,2365942,48.8364,2.35225,"Paris 5th, Paris 13th"
+Louis Blanc,,7,,,,,1548029,48.881137,2.364839,Paris 10th
+Mairie d'Ivry,,7,,,,,2042071,48.81112,2.38339,Ivry-sur-Seine
+Maison Blanche,,7,,,,,1203631,48.822155,2.358531,Paris 13th
+Pierre et Marie Curie,,7,,,,,1100552,48.81592,2.37789,Ivry-sur-Seine
+Place Monge,Jardin des Plantes—Arènes de Lutèce,7,,,,,1837996,48.84359,2.352279,Paris 5th
+Poissonnière,,7,,,,,2306725,48.87708,2.34845,"Paris 9th, Paris 10th"
+Pont Marie,Cité des Arts,7,,,,,1101482,48.85329,2.35762,Paris 4th
+Pont Neuf,,7,,,,,1188930,48.85868,2.34149,Paris 1st
+Porte d'Italie,,7,,T3a,,,1507152,48.819196,2.360805,Paris 13th
+Porte d'Ivry,,7,,T3a,,,1282199,48.82096,2.37044,Paris 13th
+Porte de Choisy,,7,,"T3a, T9",,,1592144,48.82032,2.36529,Paris 13th
+Porte de la Villette,Cité des Sciences et de l'Industrie,7,,T3b,,,2706288,48.89709,2.38588,Paris 19th
+Pyramides,,"7, 14",,,,,3962698,48.86587,2.33467,Paris 1st
+Riquet,,7,,,,,1588438,48.88788,2.373578,Paris 19th
+Sully—Morland,,7,,,,,1124169,48.851425,2.361894,Paris 4th
+Tolbiac,,7,,,,,2287918,48.826665,2.357678,Paris 13th
+Villejuif—Léo Lagrange,,7,,T7,,,1952627,48.803768,2.363927,Villejuif
+Villejuif—Louis Aragon,,7,,,,,5218070,48.787175,2.367564,Villejuif
+Villejuif—Paul Vaillant-Couturier,Hôpital Paul Brousse,7,,,,,1764879,48.795991,2.368248,Villejuif
+Bolivar,,7bis,,,,,367598,48.880502,2.374922,Paris 19th
+Botzaris,,7bis,,,,,669323,48.879552,2.38804,Paris 19th
+Buttes Chaumont,,7bis,,,,,358301,48.8785,2.3817719999999998,Paris 19th
+Danube,,7bis,,,,,400157,48.881808,2.394201,Paris 19th
+Place des Fêtes,,"7bis, 11",,,,,2318764,48.87684,2.39296,Paris 19th
+Pré-Saint-Gervais,,7bis,,T3b,,,282626,48.88025,2.39891,Paris 19th
+Balard,,8,,"T2, T3a",,,3236801,48.83597,2.278212,Paris 15th
+Bonne Nouvelle,,"8, 9",,,,,2806227,48.870639,2.348875,Paris 2nd
+Boucicaut,,8,,,,,2288055,48.840578,2.286621,Paris 15th
+Charenton—Écoles,,8,,,,,2164023,48.82149,2.41386,Charenton-le-Pont
+Chemin Vert,,8,,,,,1018958,48.856778,2.368348,Paris 3rd
+Commerce,,8,,,,,2212666,48.845093,2.294215,Paris 15th
+Créteil—L'Échat,Hôpital Henri Mondor,8,,,,,1660120,48.795963,2.449356,Créteil
+Créteil—Préfecture,Hôtel de Ville,8,,,,,3330602,48.779772,2.459317,Créteil
+Créteil—Université,,8,,,,,2496595,48.789754,2.450785,Créteil
+École Militaire,,8,,,,,2805976,48.85511,2.306737,Paris 7th
+École Vétérinaire de Maisons-Alfort,,8,,,,,2269487,48.81519,2.421882,Maisons-Alfort
+Faidherbe—Chaligny,,8,,,,,2190416,48.850158,2.383398,Paris 11th
+Félix Faure,,8,,,,,1161978,48.842351,2.291004,Paris 15th
+Filles du Calvaire,,8,,,,,1093673,48.864167,2.366111,Paris 3rd
+Grands Boulevards,,"8, 9",,,,,3737316,48.871426,2.344342,"Paris 2nd, Paris 9th"
+Invalides,,"8, 13",C,,,,3482080,48.86299,2.31333,Paris 7th
+La Tour-Maubourg,,8,,,,,1361723,48.857667,2.310399,Paris 7th
+Ledru-Rollin,,8,,,,,2570283,48.851529,2.37516,"Paris 11th, Paris 12th"
+Liberté,,8,,,,,1704609,48.825882,2.407022,Charenton-le-Pont
+Lourmel,,8,,,,,1696432,48.838604,2.281817,Paris 15th
+Madeleine,,"8, 12, 14",,,,,5330928,48.86977,2.3244,Paris 8th
+Maisons-Alfort—Les Juilliottes,,8,,,,,1297495,48.802567,2.446432,Maisons-Alfort
+Maisons-Alfort—Stade,,8,,,,,1702479,48.808681,2.436073,Maisons-Alfort
+Michel Bizot,,8,,,,,1403416,48.837485,2.401234,Paris 12th
+Montgallet,,8,,,,,1108395,48.844276,2.389974,Paris 12th
+Pointe du Lac,Créteil,8,,,,,2114438,48.76889,2.46472,Créteil
+Porte de Charenton,,8,,T3a,,,1529778,48.83278,2.4004,Paris 12th
+Porte Dorée,,8,,T3a,,,1918182,48.835481,2.4061,Paris 12th
+Richelieu—Drouot,,8,,,,,2994510,48.871987,2.338741,"Paris 2nd, Paris 9th"
+Saint-Sébastien—Froissart,,8,,,,,1151192,48.86048,2.367358,"Paris 3rd, Paris 11th"
+Alma—Marceau,,9,C,,,,2564842,48.864904,2.300234,"Paris 8th, Paris 16th"
+Billancourt,,9,,,,,1967532,48.83209,2.238177,Boulogne-Billancourt
+Buzenval,,9,,,,,1448855,48.851976,2.402045,Paris 20th
+Charonne,,9,,,,,2705320,48.855103,2.384639,Paris 11th
+Croix de Chavaux,,9,,,,,3729545,48.858055,2.435764,Montreuil
+Exelmans,,9,,,,,1607223,48.842405,2.259549,Paris 16th
+Iéna,,9,,,,,1646925,48.864466,2.29338,Paris 16th
+Jasmin,,9,,,,,1418238,48.851898,2.267856,Paris 16th
+La Muette,,9,C,,,,3010370,48.857718,2.273719,Paris 16th
+Mairie de Montreuil,,9,,,,,6158487,48.862283,2.441847,Montreuil
+Maraîchers,,9,,,,,1994064,48.852851,2.40699,Paris 20th
+Marcel Sembat,,9,,,,,3874792,48.83367,2.243579,Boulogne-Billancourt
+Michel-Ange—Auteuil,,"9, 10",,,,,1512050,48.8475,2.263611,Paris 16th
+Michel-Ange—Molitor,,"9, 10",,,,,1420552,48.84496,2.261194,Paris 16th
+Miromesnil,,"9, 13",,,,,3647255,48.87367,2.31446,Paris 8th
+Pont de Sèvres,,9,,T2,,,3430203,48.829747,2.231035,Boulogne-Billancourt
+Porte de Montreuil,,9,,T3b,,,3067413,48.853792,2.412245,Paris 20th
+Porte de Saint-Cloud,Parc des Princes,9,,,,,3485946,48.838082,2.256956,Paris 16th
+Ranelagh,,9,,,,,1779206,48.85502,2.269634,Paris 16th
+Robespierre,,9,,,,,2986308,48.855683,2.4236780000000002,Montreuil
+Rue de la Pompe,,9,,,,,2449458,48.863912,2.279052,Paris 16th
+Rue des Boulets,,9,,,,,1832442,48.851811,2.390151,Paris 11th
+Saint-Ambroise,,9,,,,,2158466,48.861295,2.374211,Paris 11th
+Saint-Augustin,,9,,,,,1934106,48.874441,2.322133,Paris 8th
+Saint-Philippe du Roule,,9,,,,,1935004,48.871941,2.310036,Paris 8th
+Voltaire,,9,,,,,3454006,48.857803,2.380106,Paris 11th
+Avenue Émile Zola,,10,,,,,1041233,48.846977,2.294512,Paris 15th
+Boulogne—Jean Jaurès,,10,,,,,2700354,48.842278,2.238877,Boulogne-Billancourt
+Boulogne—Pont de Saint-Cloud,,10,,T2,,,2182738,48.840684,2.228331,Boulogne-Billancourt
+Cardinal Lemoine,,10,,,,,1121854,48.847139,2.351203,Paris 5th
+Chardon Lagache,,10,,,,,482053,48.845138,2.266214,Paris 16th
+Charles Michels,,10,,,,,3079569,48.846591,2.286942,Paris 15th
+Cluny—La Sorbonne,,10,"B, C",,,,1261818,48.851019,2.344583,Paris 5th
+Duroc,,"10, 13",,,,,2645064,48.846829,2.316479,"Paris 6th, Paris 7th, Paris 15th"
+Église d'Auteuil,,10,,,,,124941,48.847169,2.26902,Paris 16th
+Javel—André Citroën,,10,C,,,,1589561,48.846165,2.278716,Paris 15th
+Mabillon,,10,,,,,1195051,48.852775,2.335322,Paris 6th
+Maubert—Mutualité,,10,,,,,1280387,48.850193,2.347936,Paris 5th
+Mirabeau,,10,,,,,1001302,48.8469,2.2721,Paris 16th
+Porte d'Auteuil,,10,,,,,375748,48.848025,2.25875,Paris 16th
+Ségur,,10,,,,,1100151,48.847434,2.306853,"Paris 7th, Paris 15th"
+Sèvres—Babylone,,"10, 12",,,,,3392504,48.85151,2.326655,"Paris 6th, Paris 7th"
+Vaneau,,10,,,,,725826,48.848947,2.321557,"Paris 6th, Paris 7th"
+Goncourt,Hôpital Saint-Louis,11,,,,,2199170,48.869831,2.370687,"Paris 10th, Paris 11th"
+Jourdain,,11,,,,,1881321,48.8752,2.389508,"Paris 19th, Paris 20th"
+Mairie des Lilas,,11,,,,,2894622,48.879788,2.416289,Les Lilas
+Pyrénées,,11,,,,,2288587,48.873875,2.385259,"Paris 19th, Paris 20th"
+Rambuteau,Centre Georges Pompidou,11,,,,,2127291,48.86119,2.35343,"Paris 3rd, Paris 4th"
+Télégraphe,,11,,,,,1636898,48.875463,2.398434,"Paris 19th, Paris 20th"
+Abbesses,Butte Montmartre,12,,,,Funiculaire de Montmartre,1513884,48.884849,2.338688,Paris 18th
+Aimé Césaire,,12,,,,,,48.908317,2.37802,Aubervilliers
+Assemblée Nationale,,12,,,,,611512,48.860655,2.32113,Paris 7th
+Convention,,12,,,,,3734750,48.837419,2.296795,Paris 15th
+Corentin Celton,,12,,,,,2504682,48.826833,2.278985,Issy-les-Moulineaux
+Falguière,,12,,,,,650291,48.844566,2.318287,Paris 15th
+Front Populaire,,12,,,,,1948542,48.9068,2.366,"Aubervilliers, Saint-Denis"
+Jules Joffrin,,12,,,,,2854819,48.892437,2.344782,Paris 18th
+Lamarck—Caulaincourt,,12,,,,,1875717,48.889139,2.338159,Paris 18th
+Mairie d'Aubervilliers,Plaine des Vertus,12,,,,,,48.913829,2.380651,Aubervilliers
+Mairie d'Issy,,12,,,,,2874138,48.824152,2.273434,Issy-les-Moulineaux
+Marx Dormoy,,12,,,,,2425928,48.891213,2.359909,Paris 18th
+Notre-Dame-de-Lorette,,12,,,,,1893828,48.87604,2.337341,Paris 9th
+Notre-Dame-des-Champs,,12,,,,,1487256,48.844568,2.328788,Paris 6th
+Porte de la Chapelle,,12,,T3b,,,1866281,48.897274,2.359191,Paris 18th
+Porte de Versailles,Parc des Expositions,12,,"T2, T3a",,,3268157,48.832328,2.287841,Paris 15th
+Rennes,,12,,,,,861334,48.848193,2.327763,Paris 6th
+Rue du Bac,,12,,,,,1423364,48.85569,2.325607,Paris 7th
+Saint-Georges,,12,,,,,1258381,48.878449,2.337382,Paris 9th
+Solférino,Musée d'Orsay,12,C,,,,1269143,48.858249,2.323225,Paris 7th
+Trinité—d'Estienne d'Orves,,12,,,,,1051982,48.876302,2.333197,Paris 9th
+Vaugirard,,12,,,,,2482886,48.839649,2.301491,Paris 15th
+Volontaires,,12,,,,,1734848,48.841343,2.3075040000000002,Paris 15th
+Basilique de Saint-Denis,Hôtel de Ville,13,,"T1, T5",,,3991395,48.93806,2.36083,Saint-Denis
+Brochant,,13,,,,,1543298,48.890833,2.319722,Paris 17th
+Carrefour Pleyel,,13,,,,,1535528,48.92,2.34389,Saint-Denis
+Châtillon—Montrouge,,13,,T6,,,5034012,48.810539,2.301826,"Châtillon, Montrouge"
+Gabriel Péri,,13,,,,,3790573,48.916667,2.294444,"Asnières-sur-Seine, Gennevilliers"
+Gaîté,,13,,,,,1644148,48.838654,2.322637,Paris 14th
+Garibaldi,,13,,,,,1965002,48.90639,2.33194,Saint-Ouen-sur-Seine
+Guy Môquet,,13,,,,,2205313,48.892222,2.327222,"Paris 17th, Paris 18th"
+La Fourche,,13,,,,,1829271,48.886944,2.325833,"Paris 17th, Paris 18th"
+Les Agnettes,,13,,,,,1890356,48.923056,2.285833,"Asnières-sur-Seine, Gennevilliers"
+Les Courtilles,Asnières—Gennevilliers,13,,T1,,,2802689,48.930556,2.283889,"Asnières-sur-Seine, Gennevilliers"
+Liège,,13,,,,,1143956,48.879722,2.326944,"Paris 8th, Paris 9th"
+Mairie de Clichy,,13,,,,,4043071,48.903056,2.306111,Clichy
+Mairie de Saint-Ouen,Région Île-de-France,"13, 14",,,,,4830810,48.91167,2.33389,Saint-Ouen-sur-Seine
+Malakoff—Plateau de Vanves,,13,,,,,2242320,48.82284,2.29834,Malakoff
+Malakoff—Rue Étienne Dolet,,13,,,,,1450451,48.8147,2.2973,Malakoff
+Pernety,,13,,,,,2173567,48.83421,2.31851,Paris 14th
+Plaisance,,13,,,,,3521753,48.831553,2.313741,Paris 14th
+Porte de Clichy,Tribunal de Paris,"13, 14",C,T3b,,,5278497,48.893889,2.314444,Paris 17th
+Porte de Saint-Ouen,,13,,T3b,,,2710638,48.896667,2.328611,"Paris 17th, Paris 18th"
+Porte de Vanves,,13,,T3a,,,3395358,48.82794,2.30588,Paris 14th
+Saint-Denis—Porte de Paris,Stade de France,13,,T8,,,3355836,48.93028,2.35778,Saint-Denis
+Saint-Denis—Université,,13,,T5,,,3569990,48.94583,2.36361,Saint-Denis
+Saint-François-Xavier,,13,,,,,1213378,48.851951,2.314475,Paris 7th
+Varenne,,13,,,,,782697,48.856238,2.314921,Paris 7th
+Bibliothèque François Mitterrand,,14,C,T3a,,,11104474,48.829822,2.376781,Paris 13th
+Cour Saint-Émilion,,14,,,,,2985122,48.834,2.386,Paris 12th
+Olympiades,,14,,,,,5214595,48.827222,2.368333,Paris 13th
+Pont Cardinet,,14,,,L,,4168538,48.889481,2.315206,Paris 17th
+Saint-Ouen,,14,C,,,,3420852,48.904497,2.321806,"Clichy, Saint-Ouen-sur-Seine"
