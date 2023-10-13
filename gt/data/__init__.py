@@ -1,19 +1,147 @@
 import pandas as pd
 import pkg_resources
 
-_countrypops_fname = pkg_resources.resource_filename("gt.data", "exibble.csv")
+_countrypops_fname = pkg_resources.resource_filename("gt.data", "countrypops.csv")
+_countrypops_dtype = {
+    "country_name": "object",
+    "country_code_2": "object",
+    "country_code_3": "object",
+    "year": "Int64",
+    "population": "Int64",
+}
+
 _sza_fname = pkg_resources.resource_filename("gt.data", "sza.csv")
+_sza_dtype = {
+    "latitude": "object",
+    "month": "object",
+    "tst": "object",
+    "sza": "float64",
+}
+
 _gtcars_fname = pkg_resources.resource_filename("gt.data", "gtcars.csv")
+_gtcars_dtype = {
+    "mfr": "object",
+    "model": "object",
+    "year": "Int64",
+    "trim": "object",
+    "bdy_style": "object",
+    "hp": "Int64",
+    "hp_rpm": "Int64",
+    "trq": "Int64",
+    "trq_rpm": "Int64",
+    "mpg_c": "Int64",
+    "mpg_h": "Int64",
+    "drivetrain": "object",
+    "trsmn": "object",
+    "ctry_origin": "object",
+    "msrp": "Int64",
+}
+
 _sp500_fname = pkg_resources.resource_filename("gt.data", "sp500.csv")
+_sp500_dtype = {
+    "date": "object",
+    "open": "float64",
+    "high": "float64",
+    "low": "float64",
+    "close": "float64",
+    "volume": "float64",
+    "adj_close": "float64",
+}
+
 _pizzaplace_fname = pkg_resources.resource_filename("gt.data", "pizzaplace.csv")
+_pizzaplace_dtype = {
+    "id": "object",
+    "date": "object",
+    "time": "object",
+    "name": "object",
+    "size": "object",
+    "type": "object",
+    "price": "float64",
+}
+
 _exibble_fname = pkg_resources.resource_filename("gt.data", "exibble.csv")
+_exibble_dtype = {
+    "num": "float64",
+    "char": "object",
+    "fctr": "object",
+    "date": "object",
+    "time": "object",
+    "datetime": "object",
+    "currency": "float64",
+    "row": "object",
+    "group": "object",
+}
+
 _towny_fname = pkg_resources.resource_filename("gt.data", "towny.csv")
+_towny_dtype = {
+    "name": "object",
+    "website": "object",
+    "status": "object",
+    "csd_type": "object",
+    "census_div": "object",
+    "latitude": "float64",
+    "longitude": "float64",
+    "land_area_km2": "float64",
+    "population_1996": "Int64",
+    "population_2001": "Int64",
+    "population_2006": "Int64",
+    "population_2011": "Int64",
+    "population_2016": "Int64",
+    "population_2021": "Int64",
+    "density_1996": "float64",
+    "density_2001": "float64",
+    "density_2006": "float64",
+    "density_2011": "float64",
+    "density_2016": "float64",
+    "density_2021": "float64",
+    "pop_change_1996_2001_pct": "float64",
+    "pop_change_2001_2006_pct": "float64",
+    "pop_change_2006_2011_pct": "float64",
+    "pop_change_2011_2016_pct": "float64",
+    "pop_change_2016_2021_pct": "float64",
+}
+
 _metro_fname = pkg_resources.resource_filename("gt.data", "metro.csv")
+_metro_dtype = {
+    "name": "object",
+    "caption": "object",
+    "lines": "object",
+    "connect_rer": "object",
+    "connect_tramway": "object",
+    "connect_transilien": "object",
+    "connect_other": "object",
+    "passengers": "Int64",
+    "latitude": "float64",
+    "longitude": "float64",
+    "location": "object",
+}
+
 _constants_fname = pkg_resources.resource_filename("gt.data", "constants.csv")
+_constants_dtype = {
+    "name": "object",
+    "value": "float64",
+    "uncert": "float64",
+    "sf_value": "Int64",
+    "sf_uncert": "Int64",
+    "units": "object",
+}
+
 _illness_fname = pkg_resources.resource_filename("gt.data", "illness.csv")
+_illness_dtype = {
+    "test": "object",
+    "units": "object",
+    "day_3": "float64",
+    "day_4": "float64",
+    "day_5": "float64",
+    "day_6": "float64",
+    "day_7": "float64",
+    "day_8": "float64",
+    "day_9": "float64",
+    "norm_l": "float64",
+    "norm_u": "float64",
+}
 
-
-countrypops: pd.DataFrame = pd.read_csv(_countrypops_fname)  # type: ignore
+countrypops: pd.DataFrame = pd.read_csv(_countrypops_fname, dtype=_countrypops_dtype)  # type: ignore
 countrypops.__doc__ = """
 Yearly populations of countries from 1960 to 2022
 
@@ -26,7 +154,7 @@ non-existence of the entity during that year.
 """
 
 
-sza: pd.DataFrame = pd.read_csv(_sza_fname)  # type: ignore
+sza: pd.DataFrame = pd.read_csv(_sza_fname, dtype=_sza_dtype)  # type: ignore
 sza.__doc__ = """
 Twice hourly solar zenith angles by month & latitude
 
@@ -38,7 +166,7 @@ are symmetric about noon.
 """
 
 
-gtcars: pd.DataFrame = pd.read_csv(_gtcars_fname)  # type: ignore
+gtcars: pd.DataFrame = pd.read_csv(_gtcars_fname, dtype=_gtcars_dtype)  # type: ignore
 gtcars.__doc__ = """
 Deluxe automobiles from the 2014-2017 period
 
@@ -49,7 +177,7 @@ country of origin for the car manufacturer is also given.
 """
 
 
-sp500: pd.DataFrame = pd.read_csv(_sp500_fname)  # type: ignore
+sp500: pd.DataFrame = pd.read_csv(_sp500_fname, dtype=_sp500_dtype)  # type: ignore
 sp500.__doc__ = """
 Daily S&P 500 Index data from 1950 to 2015
 
@@ -60,7 +188,7 @@ capitalization.
 """
 
 
-pizzaplace: pd.DataFrame = pd.read_csv(_pizzaplace_fname)  # type: ignore
+pizzaplace: pd.DataFrame = pd.read_csv(_pizzaplace_fname, dtype=_pizzaplace_dtype)  # type: ignore
 pizzaplace.__doc__ = """
 A year of pizza sales from a pizza place
 
@@ -76,7 +204,7 @@ Cheese pizza has so many cheeses, I can only offer it in Large Size!').
 """
 
 
-exibble: pd.DataFrame = pd.read_csv(_exibble_fname)  # type: ignore
+exibble: pd.DataFrame = pd.read_csv(_exibble_fname, dtype=_exibble_dtype)  # type: ignore
 exibble.__doc__ = """
 A toy example table for testing with gt: exibble
 
@@ -91,7 +219,7 @@ and two groups (grp_a and grp_b) for experimenting with the `rowname_col` and
 """
 
 
-towny: pd.DataFrame = pd.read_csv(_towny_fname)  # type: ignore
+towny: pd.DataFrame = pd.read_csv(_towny_fname, dtype=_towny_dtype)  # type: ignore
 towny.__doc__ = """
 Populations of all municipalities in Ontario from 1996 to 2021
 
@@ -110,7 +238,7 @@ year and population change values from adjacent census years.
 """
 
 
-metro: pd.DataFrame = pd.read_csv(_metro_fname)  # type: ignore
+metro: pd.DataFrame = pd.read_csv(_metro_fname, dtype=_metro_dtype)  # type: ignore
 metro.__doc__ = """
 The stations of the Paris Metro
 
@@ -134,7 +262,7 @@ Transilien rail network, tramway stations, several major train stations (e.g.,
 Gare du Nord, Gare de l'Est, etc.), and many bus lines.
 """
 
-constants: pd.DataFrame = pd.read_csv(_constants_fname)  # type: ignore
+constants: pd.DataFrame = pd.read_csv(_constants_fname, dtype=_constants_dtype)  # type: ignore
 constants.__doc__ = """
 The fundamental physical constants
 
@@ -150,7 +278,7 @@ Technology (NIST), Gaithersburg, Maryland, USA.
 """
 
 
-illness: pd.DataFrame = pd.read_csv(_illness_fname)  # type: ignore
+illness: pd.DataFrame = pd.read_csv(_illness_fname, dtype=_illness_dtype)  # type: ignore
 illness.__doc__ = """
 Lab tests for one suffering from an illness
 

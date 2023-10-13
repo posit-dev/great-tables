@@ -2,7 +2,6 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from gt import GT
-from gt.data import exibble
 
 
 def test_fmt_number_basic():
