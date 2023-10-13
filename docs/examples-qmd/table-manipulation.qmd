@@ -1,0 +1,33 @@
+---
+output: html
+jupyter: python3
+---
+
+```{python}
+import gt
+from gt import exibble, countrypops, gtcars, md, html
+
+from siuba import *
+
+```
+
+
+```{python}
+res = gtcars >> select(_.mfr, _.model, _.msrp) >> _.head(5)
+# TODO: Make `md()` work
+gt.GT(res).tab_header(
+    title="Data listing from **gtcars**", subtitle="`gtcars` is an R dataset"
+)
+```
+
+
+```{python}
+res = gtcars >> select(_.mfr, _.model, _.msrp) >> _.head(5)
+
+# TODO: Make `html()` work
+gt.GT(res).tab_header(
+    title=html("Data listing from <strong>gtcars</strong>"),
+    subtitle=html("From <span style='color:red;'>gtcars</span>"),
+)
+
+```
