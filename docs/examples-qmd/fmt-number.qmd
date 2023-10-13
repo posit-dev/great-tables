@@ -5,28 +5,32 @@ jupyter: python3
 
 ```{python}
 import gt
-from gt import exibble
+from gt import exibble, countrypops
 ```
 
 Use the exibble dataset to create a gt table. With the `fmt_number()` method, we'll format the num column to have three decimal places (with `decimals=3`) and omit the use of digit separators (with `use_seps=False`).
 
 ```{python}
 # gt.GT(exibble).fmt_number(columns="num", decimals=3, use_seps=False)
-gt.GT(exibble).fmt_number(columns="num", decimals=3)
+gt.GT(exibble).fmt_number(columns='num', decimals=3)
 ```
 
 Use a modified version of the countrypops dataset to create a gt table with row labels. Format all columns to use large-number suffixing (e.g., where `'10,000,000'` becomes `'10M'`) with the `suffixing=True` option.
 
 ```{python}
-# | eval: false
-countrypops |>
-  dplyr::select(country_code_3, year, population) |>
-  dplyr::filter(country_code_3 %in% c('CHN', 'IND', 'USA', 'PAK', 'IDN')) |>
-  dplyr::filter(year > 1975 & year %% 5 == 0) |>
-  tidyr::spread(year, population) |>
-  dplyr::arrange(desc(`2015`)) |>
-  gt(rowname_col='country_code_3') |>
-  fmt_number(suffixing=True)
+from siuba import *
+res = (countrypops
+   >> select(_.country_code_3, _.year, _.population)
+   >> filter(_.country_code_3.isin(['CHN', 'IND', 'USA', 'PAK', 'IDN']))
+   >> filter(_.year > 1975, _.year % 5 == 0)
+   >> spread(_.year, _.population)
+   >> arrange(-_[2015])
+)
+
+(gt.GT(res)
+   .fmt_integer(columns=1995)
+)
+
 ```
 
 In a variation of the previous table, we can combine large-number suffixing with a declaration of the number of significant digits to use. With things like population figures, `n_sigfig=3` is a very good option.
