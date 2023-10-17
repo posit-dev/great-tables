@@ -1,66 +1,17 @@
+from __future__ import annotations
+
 from typing import Any, Callable, TypeVar, Union, List, cast, Optional, Tuple
 
 from ._base_api import BaseAPI
 from ._tbl_data import n_rows
-
-FormatFn = Callable[[Any], str]
-
-
-class FormatFns:
-    html: Optional[FormatFn]
-    latex: Optional[FormatFn]
-    rtf: Optional[FormatFn]
-    default: Optional[FormatFn]
-
-    def __init__(self, **kwargs: FormatFn):
-        for format in ["html", "latex", "rtf", "default"]:
-            if kwargs.get(format):
-                setattr(self, format, kwargs[format])
+from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 
 
-class CellSubset:
-    def __init__(self):
-        pass
 
-    def resolve(self) -> List[Tuple[str, int]]:
-        raise NotImplementedError("Not implemented")
-
-
-class CellRectangle(CellSubset):
-    cols: List[str]
-    rows: List[int]
-
-    def __init__(self, cols: List[str], rows: List[int]):
-        self.cols = cols
-        self.rows = rows
-
-    def resolve(self):
-        return list((col, row) for col in self.cols for row in self.rows)
-
-
-class FormatInfo:
-    func: FormatFns
-    cells: CellSubset
-
-    def __init__(self, func: FormatFns, cols: List[str], rows: List[int]):
-        self.func = func
-        self.cells = CellRectangle(cols, rows)
-
-
-# TODO: this will contain private methods for formatting cell values to strings
-class Formats:
-    def __init__(self):
-        pass
-
-
-class FormatsAPI(BaseAPI):
-    _formats: List[FormatInfo]
-
-    def __init__(self):
-        self._formats = []
-
+class FormatsAPI:
+    @staticmethod
     def fmt(
-        self,
+        self: GTData,
         fns: Union[FormatFn, FormatFns],
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
@@ -70,10 +21,10 @@ class FormatsAPI(BaseAPI):
         if isinstance(fns, Callable):
             fns = FormatFns(default=fns)
 
-        columns = listify(columns, List[str])
+        columns = listify(columns, list)
 
         if rows is None:
-            rows = list(range(n_rows(self._get_tbl_data())))
+            rows = list(range(n_rows(self._tbl_data)))
         elif isinstance(rows, int):
             rows = [rows]
 
@@ -82,59 +33,9 @@ class FormatsAPI(BaseAPI):
 
         return self
 
-    def fmt_number(
-        self,
-        columns: Union[str, List[str], None] = None,
-        rows: Union[int, List[int], None] = None,
-        decimals: int = 2,
-        # n_sigfig: int = None,
-        drop_trailing_zeros: bool = False,
-        drop_trailing_dec_mark: bool = True,
-        # use_seps: bool = True,
-        # accounting: bool = False,
-        scale_by: float = 1,
-        # suffixing: bool = False,
-        # pattern: str = '{x}'
-        # sep_mark: str = ',',
-        # dec_mark: str = '.',
-        # force_sign: bool = False,
-        # system: str = 'intl',
-        # locale: str = None,
-    ):
-        # Generate a function that will operate on single `x` values in
-        # the table body
-        def fmt_number_fn(
-            x: float,
-            decimals: int = decimals,
-            drop_trailing_zeros: bool = drop_trailing_zeros,
-            drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
-            scale_by: float = scale_by,
-        ):
-            # Scale `x` value by a defined `scale_by` value
-            x = x * scale_by
-
-            # Generate a format specification using `decimals`
-            fmt_spec = f".{decimals}f"
-
-            # Get the formatted `x` value
-            x_formatted = format(x, fmt_spec)
-
-            # Drop any trailing zeros if option is taken
-            if drop_trailing_zeros is True:
-                x_formatted = x_formatted.rstrip("0")
-
-            # Drop the trailing decimal mark if it is present
-            if drop_trailing_dec_mark is True:
-                x_formatted = x_formatted.rstrip(".")
-
-            return x_formatted
-
-        self.fmt(fns=fmt_number_fn, columns=columns, rows=rows)
-
-        return self
-
+    @staticmethod
     def fmt_integer(
-        self,
+        self: GTData,
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
         scale_by: float = 1,
@@ -154,10 +55,11 @@ class FormatsAPI(BaseAPI):
 
             return x_formatted
 
-        self.fmt(fns=fmt_integer_fn, columns=columns, rows=rows)
+        FormatsAPI.fmt(self, fns=fmt_integer_fn, columns=columns, rows=rows)
 
         return self
 
+    # TODO: transition to static methods ----
     def fmt_scientific(
         self,
         columns: Union[str, List[str], None] = None,
@@ -196,6 +98,58 @@ class FormatsAPI(BaseAPI):
     # TODO: add `fmt_duration()`
     # TODO: add `fmt_markdown()`
     # TODO: add `fmt_passthrough()`
+
+
+def fmt_number(
+    self: GTData,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    decimals: int = 2,
+    # n_sigfig: int = None,
+    drop_trailing_zeros: bool = False,
+    drop_trailing_dec_mark: bool = True,
+    # use_seps: bool = True,
+    # accounting: bool = False,
+    scale_by: float = 1,
+    # suffixing: bool = False,
+    # pattern: str = '{x}'
+    # sep_mark: str = ',',
+    # dec_mark: str = '.',
+    # force_sign: bool = False,
+    # system: str = 'intl',
+    # locale: str = None,
+):
+    # Generate a function that will operate on single `x` values in
+    # the table body
+    def fmt_number_fn(
+        x: float,
+        decimals: int = decimals,
+        drop_trailing_zeros: bool = drop_trailing_zeros,
+        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
+        scale_by: float = scale_by,
+    ):
+        # Scale `x` value by a defined `scale_by` value
+        x = x * scale_by
+
+        # Generate a format specification using `decimals`
+        fmt_spec = f".{decimals}f"
+
+        # Get the formatted `x` value
+        x_formatted = format(x, fmt_spec)
+
+        # Drop any trailing zeros if option is taken
+        if drop_trailing_zeros is True:
+            x_formatted = x_formatted.rstrip("0")
+
+        # Drop the trailing decimal mark if it is present
+        if drop_trailing_dec_mark is True:
+            x_formatted = x_formatted.rstrip(".")
+
+        return x_formatted
+
+    FormatsAPI.fmt(self, fns=fmt_number_fn, columns=columns, rows=rows)
+
+    return self
 
 
 T = TypeVar("T")

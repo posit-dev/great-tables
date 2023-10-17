@@ -46,10 +46,7 @@ def _raise_not_implemented(data):
 
 
 class TblDataAPI:
-    _tbl_data: TblData
-
-    def __init__(self, data: Any):
-        self._tbl_data = copy_data(data)
+    pass
 
 
 # generic functions ----

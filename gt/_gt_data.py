@@ -1,0 +1,750 @@
+from __future__ import annotations
+
+# Body ----
+__Body = None
+
+from typing import Union, List, Literal, Any
+import pandas as pd
+from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell, copy_data
+# from ._formats import FormatInfo
+
+Context = Literal["html", "default"]
+
+
+class Body:
+    body: TblData
+    data: Any
+
+    def __init__(self, body: Union[pd.DataFrame, TblData], data: Any = None):
+        if isinstance(body, DataFrameLike):
+            self.body = pd.DataFrame(
+                pd.NA, index=body.index, columns=body.columns, dtype="string"
+            )
+        else:
+            raise NotImplementedError()
+        self.data = data
+
+    def render_formats(
+        self, data_tbl: TblData, formats: List[FormatInfo], context: Context
+    ):
+        for fmt in formats:
+            eval_func = getattr(fmt.func, context, fmt.func.default)
+            if eval_func is None:
+                raise Exception("Internal Error")
+            for col, row in fmt.cells.resolve():
+                result = eval_func(_get_cell(data_tbl, row, col))
+                # TODO: I think that this is very inefficient with polars, so
+                # we could either accumulate results and set them per column, or
+                # could always use a pandas DataFrame inside Body?
+                _set_cell(self.body, row, col, result)
+
+        return self
+
+
+# Boxhead ----
+__Boxhead = None
+
+from typing import Optional, List
+from enum import Enum, auto
+import pandas as pd
+
+from ._base_api import BaseAPI
+from ._tbl_data import TblData, get_column_names
+
+from ._utils import _assert_list_is_subset
+
+
+class ColumnAlignment(Enum):
+    Left = auto()
+    Center = auto()
+    Right = auto()
+    Justify = auto()
+
+
+class ColInfo:
+    # TODO: Make var readonly
+    var: str
+    visible: bool
+    column_label: str
+    column_align: Optional[ColumnAlignment]
+    column_width: Optional[str]
+
+    # The components of the boxhead are:
+    # `var` (obtained from column names)
+    # `column_label` (obtained from column names)
+    # `visible` = True
+    # `column_align` = None
+    # `column_width` = None
+
+    def __init__(
+        self,
+        var: str,
+        visible: bool = True,
+        column_label: Optional[str] = None,
+        column_align: Optional[ColumnAlignment] = None,
+        column_width: Optional[str] = None,
+    ):
+        self.var = var
+        self.visible = visible
+        self.column_label = column_label or var
+        self.column_align = column_align
+        self.column_width = column_width
+
+
+class Boxhead:
+    _boxhead: List[ColInfo]
+
+    def __init__(self, data: TblData):
+
+        # Obtain the column names from the data and initialize the
+        # `_boxhead` from that
+        column_names = get_column_names(data)
+        self._boxhead = [ColInfo(col) for col in column_names]
+
+    # Get a list of columns
+    def _get_columns(self) -> List[str]:
+        return [x.var for x in self._boxhead]
+
+    # Get a list of column labels
+    def _get_column_labels(self) -> List[str]:
+        return [x.column_label for x in self._boxhead]
+
+    # Set column label
+    def _set_column_label(self, column: str, label: str):
+
+        for x in self._boxhead:
+            if x.var == column:
+                x.column_label = label
+
+        return self
+
+    # Get a list of visible columns
+    def _get_visible_columns(self) -> List[str]:
+
+        visible_columns = [x.var for x in self._boxhead if x.visible is True]
+        return visible_columns
+
+    # Get the number of columns for the visible (not hidden) data; this
+    # excludes the number of columns required for the table stub
+    def _get_number_of_visible_data_columns(self) -> int:
+        return len(self._get_visible_columns())
+
+    # Obtain the number of visible columns in the built table; this should
+    # account for the size of the stub in the final, built table
+    def _get_effective_number_of_columns(self) -> int:
+
+        n_data_cols = self._get_number_of_visible_data_columns()
+
+        # TODO: Once the stub is defined in the package, we need to account
+        # for the width of the stub at build time to fully obtain the number
+        # of visible columns in the built table
+        # n_data_cols = n_data_cols + len(get_stub_layout(data=data))
+
+        return n_data_cols
+
+
+# Stub ----
+__Stub = None
+
+from typing import Optional
+
+from ._base_api import BaseAPI
+from ._tbl_data import TblData, n_rows
+
+
+class RowInfo:
+    # TODO: Make `rownum_i` readonly
+    rownum_i: int
+    group_id: Optional[str]
+    rowname: Optional[str]
+    group_label: Optional[str]
+    built: bool = False
+
+    # The components of the stub are:
+    # `rownum_i` (The initial row indices for the table at ingest time)
+    # `group_id` = None
+    # `rowname` = None
+    # `group_label` = None
+    # `built` = False
+
+    def __init__(
+        self,
+        rownum_i: int,
+        group_id: Optional[str] = None,
+        rowname: Optional[str] = None,
+        group_label: Optional[str] = None,
+        built: bool = False,
+    ):
+        self.rownum_i = rownum_i
+        self.group_id = group_id
+        self.rowname = rowname
+        self.group_label = group_label
+        self.built = built
+
+
+class Stub:
+    def __init__(self, data: TblData):
+
+        # Obtain a list of row indices from the data and initialize
+        # the `_stub` from that
+        row_indices = list(range(n_rows(data)))
+
+        # Obtain the column names from the data and initialize the
+        # `_boxhead` from that
+        self._stub: list[RowInfo] = [RowInfo(col) for col in row_indices]
+
+
+# Row groups ----
+__RowGroups = None
+
+from typing import Optional
+
+
+class RowGroups:
+    row_groups: Optional[str]
+
+    def __init__(self):
+        pass
+
+# Spanners ----
+__Spanners = None
+import pandas as pd
+
+class Spanners:
+    def __init__(self):
+
+        # The `spanners` DataFrame is used to handle spanner ID
+        # and text, the spanner level, the association to column names,
+        # whether the spanner is to gather columns, and the built
+        # form of the spanner label (depending on the output context)
+        # 0: `vars` (empty list, str)
+        # 1: `spanner_label` (empty list, str)
+        # 2: `spanner_id` (empty, str)
+        # 3: `spanner_level` (empty, int)
+        # 4: `gather` (empty, bool)
+        # 5: `built` (empty, str)
+
+        self._spanners: pd.DataFrame = pd.DataFrame(
+            columns=[
+                "vars",
+                "spanner_label",
+                "spanner_id",
+                "spanner_level",
+                "gather",
+                "built",
+            ]
+        )
+
+
+
+# Heading ---
+__Heading = None
+
+from typing import Optional, Union, List
+
+
+class Heading:
+    title: Optional[str] = None
+    subtitle: Optional[str] = None
+    preheader: Optional[Union[str, List[str]]] = None
+
+
+# Stubhead ----
+__Stubhead = None
+
+from typing import Optional
+
+
+class Stubhead:
+    stubhead: Optional[str]
+
+    def __init__(self):
+        pass
+
+
+# Sourcenotes ----
+__Sourcenotes = None
+
+from typing import List
+
+
+class SourceNotes:
+    source_notes: List[str] = []
+
+    def __init__(self):
+        pass
+
+# Footnotes ----
+__Footnotes = None
+
+from typing import Optional, List
+from enum import Enum, auto
+
+
+class FootnotePlacement(Enum):
+    Auto = auto()
+    Left = auto()
+    Right = auto()
+
+
+class FootnoteInfo:
+    locname: Optional[str]
+    grpname: Optional[str]
+    colname: Optional[str]
+    locnum: Optional[int]
+    rownum: Optional[int]
+    colnum: Optional[int]
+    footnotes: Optional[List[str]]
+    placement: Optional[FootnotePlacement]
+
+    # The components of a footnote declaration are:
+    # `locname` (empty, str)
+    # `grpname` (empty, str)
+    # `colname` (empty, str)
+    # `locnum` (empty, int)
+    # `rownum` (empty, int)
+    # `colnum` (empty, int)
+    # `footnotes` (empty list, str)
+    # `placement` (enum, 3 possible values)
+
+    def __init__(
+        self,
+        locname: Optional[str] = None,
+        grpname: Optional[str] = None,
+        colname: Optional[str] = None,
+        locnum: Optional[int] = None,
+        rownum: Optional[int] = None,
+        colnum: Optional[int] = None,
+        footnotes: Optional[List[str]] = None,
+        placement: Optional[FootnotePlacement] = None,
+    ):
+        self.locname = locname
+        self.grpname = grpname
+        self.colname = colname
+        self.locnum = locnum
+        self.rownum = rownum
+        self.colnum = colnum
+        self.footnotes = footnotes
+        self.placement = placement
+
+
+class Footnotes:
+    def __init__(self):
+        pass
+
+
+# Styles ----
+__Styles = None
+
+from typing import List, Optional
+
+
+class StyleInfo:
+    locname: Optional[str]
+    grpname: Optional[str]
+    colname: Optional[str]
+    locnum: Optional[int]
+    rownum: Optional[int]
+    colnum: Optional[int]
+    styles: Optional[List[str]]
+
+    # The components of a style declaration are:
+    # `locname` (empty, str)
+    # `grpname` (empty, str)
+    # `colname` (empty, str)
+    # `locnum` (empty, int)
+    # `rownum` (empty, int)
+    # `colnum` (empty, int)
+    # `styles` (empty list, str)
+
+    def __init__(
+        self,
+        locname: Optional[str] = None,
+        grpname: Optional[str] = None,
+        colname: Optional[str] = None,
+        locnum: Optional[int] = None,
+        rownum: Optional[int] = None,
+        colnum: Optional[int] = None,
+        styles: Optional[List[str]] = None,
+    ):
+        self.locname = locname
+        self.grpname = grpname
+        self.colname = colname
+        self.locnum = locnum
+        self.rownum = rownum
+        self.colnum = colnum
+        self.styles = styles
+
+
+class Styles:
+    def __init__(self):
+        pass
+
+
+# Locale ----
+__Locale = None
+
+from typing import Optional
+
+
+class Locale:
+    locale: Optional[str]
+
+    def __init__(self, locale: str = ""):
+        if locale is None or locale == "":
+            locale = "en"
+        self._locale = locale
+
+
+# Formats ----
+__Formats = None
+
+from typing import Any, Callable, TypeVar, Union, List, cast, Optional, Tuple
+
+from ._base_api import BaseAPI
+from ._tbl_data import n_rows
+
+FormatFn = Callable[[Any], str]
+
+
+class FormatFns:
+    html: Optional[FormatFn]
+    latex: Optional[FormatFn]
+    rtf: Optional[FormatFn]
+    default: Optional[FormatFn]
+
+    def __init__(self, **kwargs: FormatFn):
+        for format in ["html", "latex", "rtf", "default"]:
+            if kwargs.get(format):
+                setattr(self, format, kwargs[format])
+
+
+class CellSubset:
+    def __init__(self):
+        pass
+
+    def resolve(self) -> List[Tuple[str, int]]:
+        raise NotImplementedError("Not implemented")
+
+
+class CellRectangle(CellSubset):
+    cols: List[str]
+    rows: List[int]
+
+    def __init__(self, cols: List[str], rows: List[int]):
+        self.cols = cols
+        self.rows = rows
+
+    def resolve(self):
+        return list((col, row) for col in self.cols for row in self.rows)
+
+
+class FormatInfo:
+    func: FormatFns
+    cells: CellSubset
+
+    def __init__(self, func: FormatFns, cols: List[str], rows: List[int]):
+        self.func = func
+        self.cells = CellRectangle(cols, rows)
+
+
+# TODO: this will contain private methods for formatting cell values to strings
+# class Formats:
+#     def __init__(self):
+#         pass
+Formats = list
+
+# Tbl Data ----
+from ._tbl_data import TblData
+
+
+
+# Options ----
+__Options = None
+
+from typing import Optional, Union, List, Any, cast
+from gt import _utils
+
+default_fonts_list = [
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Helvetica Neue",
+    "Fira Sans",
+    "Droid Sans",
+    "Arial",
+    "sans-serif",
+]
+
+
+class OptionsInfo:
+    parameter: str
+    scss: Optional[bool]
+    category: Optional[str]
+    type: Optional[str]
+    value: Optional[Union[Any, List[str]]]
+
+    def __init__(
+        self,
+        parameter: str,
+        scss: Optional[bool] = None,
+        category: Optional[str] = None,
+        type: Optional[str] = None,
+        value: Optional[Union[Any, List[str]]] = None,
+    ):
+        self.parameter = parameter
+        self.scss = scss
+        self.category = category
+        self.type = type
+        self.value = value
+
+
+# fmt: off
+class Options:
+    def __init__(self):
+        self._options: dict[str, OptionsInfo] = dict(
+           (v.parameter, v) for v in [
+            #           parameter                            scss    category            type        value
+            OptionsInfo("container_width",                   False,  "container",        "px",       "auto"),
+            OptionsInfo("container_height",                  False,  "container",        "px",       "auto"),
+            OptionsInfo("container_overflow_x",              False,  "container",        "overflow", "auto"),
+            OptionsInfo("container_overflow_y",              False,  "container",        "overflow", "auto"),
+            OptionsInfo("table_id",                          False,  "table",            "value",    None),
+            OptionsInfo("table_caption",                     False,  "table",            "value",    None),
+            OptionsInfo("table_width",                        True,  "table",            "px",       "auto"),
+            OptionsInfo("table_layout",                       True,  "table",            "value",    "fixed"),
+            OptionsInfo("table_margin_left",                  True,  "table",            "px",       "auto"),
+            OptionsInfo("table_margin_right",                 True,  "table",            "px",       "auto"),
+            OptionsInfo("table_background_color",             True,  "table",            "value",    "#FFFFFF"),
+            OptionsInfo("table_additional_css",              False,  "table",            "values",   None),
+            OptionsInfo("table_font_names",                  False,  "table",            "values",   default_fonts_list),
+            OptionsInfo("table_font_size",                    True,  "table",            "px",       "16px"),
+            OptionsInfo("table_font_weight",                  True,  "table",            "value",    "normal"),
+            OptionsInfo("table_font_style",                   True,  "table",            "value",    "normal"),
+            OptionsInfo("table_font_color",                   True,  "table",            "value",    "#333333"),
+            OptionsInfo("table_font_color_light",             True,  "table",            "value",    "#FFFFFF"),
+            OptionsInfo("table_border_top_include",          False,  "table",            "boolean",  True),
+            OptionsInfo("table_border_top_style",             True,  "table",            "value",    "solid"),
+            OptionsInfo("table_border_top_width",             True,  "table",            "px",       "2px"),
+            OptionsInfo("table_border_top_color",             True,  "table",            "value",    "#A8A8A8"),
+            OptionsInfo("table_border_right_style",           True,  "table",            "value",    "none"),
+            OptionsInfo("table_border_right_width",           True,  "table",            "px",       "2px"),
+            OptionsInfo("table_border_right_color",           True,  "table",            "value",    "#D3D3D3"),
+            OptionsInfo("table_border_bottom_include",       False,  "table",            "boolean",  True),
+            OptionsInfo("table_border_bottom_style",          True,  "table",            "value",    "solid"),
+            OptionsInfo("table_border_bottom_width",          True,  "table",            "px",       "2px"),
+            OptionsInfo("table_border_bottom_color",          True,  "table",            "value",    "#A8A8A8"),
+            OptionsInfo("table_border_left_style",            True,  "table",            "value",    "none"),
+            OptionsInfo("table_border_left_width",            True,  "table",            "px",       "2px"),
+            OptionsInfo("table_border_left_color",            True,  "table",            "value",    "#D3D3D3"),
+            OptionsInfo("heading_background_color",           True,  "heading",          "value",    None),
+            OptionsInfo("heading_align",                      True,  "heading",          "value",    "center"),
+            OptionsInfo("heading_title_font_size",            True,  "heading",          "px",       "125%"),
+            OptionsInfo("heading_title_font_weight",          True,  "heading",          "value",    "initial"),
+            OptionsInfo("heading_subtitle_font_size",         True,  "heading",          "px",       "85%"),
+            OptionsInfo("heading_subtitle_font_weight",       True,  "heading",          "value",    "initial"),
+            OptionsInfo("heading_padding",                    True,  "heading",          "px",       "4px"),
+            OptionsInfo("heading_padding_horizontal",         True,  "heading",          "px",       "5px"),
+            OptionsInfo("heading_border_bottom_style",        True,  "heading",          "value",    "solid"),
+            OptionsInfo("heading_border_bottom_width",        True,  "heading",          "px",       "2px"),
+            OptionsInfo("heading_border_bottom_color",        True,  "heading",          "value",    "#D3D3D3"),
+            OptionsInfo("heading_border_lr_style",            True,  "heading",          "value",    "none"),
+            OptionsInfo("heading_border_lr_width",            True,  "heading",          "px",       "1px"),
+            OptionsInfo("heading_border_lr_color",            True,  "heading",          "value",    "#D3D3D3"),
+            OptionsInfo("column_labels_background_color",     True,  "column_labels",    "value",    None),
+            OptionsInfo("column_labels_font_size",            True,  "column_labels",    "px",       "100%"),
+            OptionsInfo("column_labels_font_weight",          True,  "column_labels",    "value",    "normal"),
+            OptionsInfo("column_labels_text_transform",       True,  "column_labels",    "value",    "inherit"),
+            OptionsInfo("column_labels_padding",              True,  "column_labels",    "px",       "5px"),
+            OptionsInfo("column_labels_padding_horizontal",   True,  "column_labels",    "px",       "5px"),
+            OptionsInfo("column_labels_vlines_style",         True,  "table_body",       "value",    "none"),
+            OptionsInfo("column_labels_vlines_width",         True,  "table_body",       "px",       "1px"),
+            OptionsInfo("column_labels_vlines_color",         True,  "table_body",       "value",    "#D3D3D3"),
+            OptionsInfo("column_labels_border_top_style",     True,  "column_labels",    "value",    "solid"),
+            OptionsInfo("column_labels_border_top_width",     True,  "column_labels",    "px",       "2px"),
+            OptionsInfo("column_labels_border_top_color",     True,  "column_labels",    "value",    "#D3D3D3"),
+            OptionsInfo("column_labels_border_bottom_style",  True,  "column_labels",    "value",    "solid"),
+            OptionsInfo("column_labels_border_bottom_width",  True,  "column_labels",    "px",       "2px"),
+            OptionsInfo("column_labels_border_bottom_color",  True,  "column_labels",    "value",    "#D3D3D3"),
+            OptionsInfo("column_labels_border_lr_style",      True,  "column_labels",    "value",    "none"),
+            OptionsInfo("column_labels_border_lr_width",      True,  "column_labels",    "px",       "1px"),
+            OptionsInfo("column_labels_border_lr_color",      True,  "column_labels",    "value",    "#D3D3D3"),
+            OptionsInfo("column_labels_hidden",              False,  "column_labels",    "boolean",  False),
+            OptionsInfo("row_group_background_color",         True,  "row_group",        "value",    None),
+            OptionsInfo("row_group_font_size",                True,  "row_group",        "px",       "100%"),
+            OptionsInfo("row_group_font_weight",              True,  "row_group",        "value",    "initial"),
+            OptionsInfo("row_group_text_transform",           True,  "row_group",        "value",    "inherit"),
+            OptionsInfo("row_group_padding",                  True,  "row_group",        "px",       "8px"),
+            OptionsInfo("row_group_padding_horizontal",       True,  "row_group",        "px",       "5px"),
+            OptionsInfo("row_group_border_top_style",         True,  "row_group",        "value",    "solid"),
+            OptionsInfo("row_group_border_top_width",         True,  "row_group",        "px",       "2px"),
+            OptionsInfo("row_group_border_top_color",         True,  "row_group",        "value",    "#D3D3D3"),
+            OptionsInfo("row_group_border_right_style",       True,  "row_group",        "value",    "none"),
+            OptionsInfo("row_group_border_right_width",       True,  "row_group",        "px",       "1px"),
+            OptionsInfo("row_group_border_right_color",       True,  "row_group",        "value",    "#D3D3D3"),
+            OptionsInfo("row_group_border_bottom_style",      True,  "row_group",        "value",    "solid"),
+            OptionsInfo("row_group_border_bottom_width",      True,  "row_group",        "px",       "2px"),
+            OptionsInfo("row_group_border_bottom_color",      True,  "row_group",        "value",    "#D3D3D3"),
+            OptionsInfo("row_group_border_left_style",        True,  "row_group",        "value",    "none"),
+            OptionsInfo("row_group_border_left_width",        True,  "row_group",        "px",       "1px"),
+            OptionsInfo("row_group_border_left_color",        True,  "row_group",        "value",    "#D3D3D3"),
+            OptionsInfo("row_group_default_label",           False,  "row_group",        "value",    None),
+            OptionsInfo("row_group_as_column",               False,  "row_group",        "boolean",  False),
+            OptionsInfo("table_body_hlines_style",            True,  "table_body",       "value",    "solid"),
+            OptionsInfo("table_body_hlines_width",            True,  "table_body",       "px",       "1px"),
+            OptionsInfo("table_body_hlines_color",            True,  "table_body",       "value",    "#D3D3D3"),
+            OptionsInfo("table_body_vlines_style",            True,  "table_body",       "value",    "none"),
+            OptionsInfo("table_body_vlines_width",            True,  "table_body",       "px",       "1px"),
+            OptionsInfo("table_body_vlines_color",            True,  "table_body",       "value",    "#D3D3D3"),
+            OptionsInfo("table_body_border_top_style",        True,  "table_body",       "value",    "solid"),
+            OptionsInfo("table_body_border_top_width",        True,  "table_body",       "px",       "2px"),
+            OptionsInfo("table_body_border_top_color",        True,  "table_body",       "value",    "#D3D3D3"),
+            OptionsInfo("table_body_border_bottom_style",     True,  "table_body",       "value",    "solid"),
+            OptionsInfo("table_body_border_bottom_width",     True,  "table_body",       "px",       "2px"),
+            OptionsInfo("table_body_border_bottom_color",     True,  "table_body",       "value",    "#D3D3D3"),
+            OptionsInfo("data_row_padding",                   True,  "data_row",         "px",       "8px"),
+            OptionsInfo("data_row_padding_horizontal",        True,  "data_row",         "px",       "5px"),
+            OptionsInfo("stub_background_color",              True,  "stub",             "value",    None),
+            OptionsInfo("stub_font_size",                     True,  "stub",             "px",       "100%"),
+            OptionsInfo("stub_font_weight",                   True,  "stub",             "value",    "initial"),
+            OptionsInfo("stub_text_transform",                True,  "stub",             "value",    "inherit"),
+            OptionsInfo("stub_border_style",                  True,  "stub",             "value",    "solid"),
+            OptionsInfo("stub_border_width",                  True,  "stub",             "px",       "2px"),
+            OptionsInfo("stub_border_color",                  True,  "stub",             "value",    "#D3D3D3"),
+            OptionsInfo("stub_row_group_background_color",    True,  "stub",             "value",    None),
+            OptionsInfo("stub_row_group_font_size",           True,  "stub",             "px",       "100%"),
+            OptionsInfo("stub_row_group_font_weight",         True,  "stub",             "value",    "initial"),
+            OptionsInfo("stub_row_group_text_transform",      True,  "stub",             "value",    "inherit"),
+            OptionsInfo("stub_row_group_border_style",        True,  "stub",             "value",    "solid"),
+            OptionsInfo("stub_row_group_border_width",        True,  "stub",             "px",       "2px"),
+            OptionsInfo("stub_row_group_border_color",        True,  "stub",             "value",    "#D3D3D3"),
+            OptionsInfo("summary_row_padding",                True,  "summary_row",      "px",       "8px"),
+            OptionsInfo("summary_row_padding_horizontal",     True,  "summary_row",      "px",       "5px"),
+            OptionsInfo("summary_row_background_color",       True,  "summary_row",      "value",    None),
+            OptionsInfo("summary_row_text_transform",         True,  "summary_row",      "value",    "inherit"),
+            OptionsInfo("summary_row_border_style",           True,  "summary_row",      "value",    "solid"),
+            OptionsInfo("summary_row_border_width",           True,  "summary_row",      "px",       "2px"),
+            OptionsInfo("summary_row_border_color",           True,  "summary_row",      "value",    "#D3D3D3"),
+            OptionsInfo("grand_summary_row_padding",          True,  "grand_summary_row", "px",      "8px"),
+            OptionsInfo("grand_summary_row_padding_horizontal",True, "grand_summary_row", "px",      "5px"),
+            OptionsInfo("grand_summary_row_background_color", True,  "grand_summary_row", "value",   None),
+            OptionsInfo("grand_summary_row_text_transform",   True,  "grand_summary_row", "value",   "inherit"),
+            OptionsInfo("grand_summary_row_border_style",     True,  "grand_summary_row", "value",   "double"),
+            OptionsInfo("grand_summary_row_border_width",     True,  "grand_summary_row", "px",      "6px"),
+            OptionsInfo("grand_summary_row_border_color",     True,  "grand_summary_row", "value",   "#D3D3D3"),
+            OptionsInfo("footnotes_font_size",                True,  "footnotes",        "px",       "90%"),
+            OptionsInfo("footnotes_padding",                  True,  "footnotes",        "px",       "4px"),
+            OptionsInfo("footnotes_padding_horizontal",       True,  "footnotes",        "px",       "5px"),
+            OptionsInfo("footnotes_background_color",         True,  "footnotes",        "value",    None),
+            OptionsInfo("footnotes_margin",                   True,  "footnotes",        "px",       "0px"),
+            OptionsInfo("footnotes_border_bottom_style",      True,  "footnotes",        "value",    "none"),
+            OptionsInfo("footnotes_border_bottom_width",      True,  "footnotes",        "px",       "2px"),
+            OptionsInfo("footnotes_border_bottom_color",      True,  "footnotes",        "value",    "#D3D3D3"),
+            OptionsInfo("footnotes_border_lr_style",          True,  "footnotes",        "value",    "none"),
+            OptionsInfo("footnotes_border_lr_width",          True,  "footnotes",        "px",       "2px"),
+            OptionsInfo("footnotes_border_lr_color",          True,  "footnotes",        "value",    "#D3D3D3"),
+            OptionsInfo("footnotes_marks" ,                  False,  "footnotes",        "values",   "numbers"),
+            OptionsInfo("footnotes_multiline",               False,  "footnotes",        "boolean",  True),
+            OptionsInfo("footnotes_sep",                     False,  "footnotes",        "value",    " "),
+            OptionsInfo("source_notes_padding",               True,  "source_notes",     "px",       "4px"),
+            OptionsInfo("source_notes_padding_horizontal",    True,  "source_notes",     "px",       "5px"),
+            OptionsInfo("source_notes_background_color",      True,  "source_notes",     "value",    None),
+            OptionsInfo("source_notes_font_size",             True,  "source_notes",     "px",       "90%"),
+            OptionsInfo("source_notes_border_bottom_style",   True,  "source_notes",     "value",    "none"),
+            OptionsInfo("source_notes_border_bottom_width",   True,  "source_notes",     "px",       "2px"),
+            OptionsInfo("source_notes_border_bottom_color",   True,  "source_notes",     "value",    "#D3D3D3"),
+            OptionsInfo("source_notes_border_lr_style",       True,  "source_notes",     "value",    "none"),
+            OptionsInfo("source_notes_border_lr_width",       True,  "source_notes",     "px",       "2px"),
+            OptionsInfo("source_notes_border_lr_color",       True,  "source_notes",     "value",    "#D3D3D3"),
+            OptionsInfo("source_notes_multiline",            False,  "source_notes",     "boolean",  True),
+            OptionsInfo("source_notes_sep",                  False,  "source_notes",     "value",    " "),
+            OptionsInfo("row_striping_background_color",      True,  "row",              "value",    "rgba(128,128,128,0.05)"),
+            OptionsInfo("row_striping_include_stub",         False,  "row",              "boolean",  False),
+            OptionsInfo("row_striping_include_table_body",   False,  "row",              "boolean",  False),
+            OptionsInfo("page_orientation",                  False,  "page",             "value",    "portrait"),
+            OptionsInfo("page_numbering",                    False,  "page",             "boolean",  False),
+            OptionsInfo("page_header_use_tbl_headings",      False,  "page",             "boolean",  False),
+            OptionsInfo("page_footer_use_tbl_notes",         False,  "page",             "boolean",  False),
+            OptionsInfo("page_width",                        False,  "page",             "value",    "8.5in"),
+            OptionsInfo("page_height",                       False,  "page",             "value",    "11.0in"),
+            OptionsInfo("page_margin_left",                  False,  "page",             "value",    "1.0in"),
+            OptionsInfo("page_margin_right",                 False,  "page",             "value",    "1.0in"),
+            OptionsInfo("page_margin_top",                   False,  "page",             "value",    "1.0in"),
+            OptionsInfo("page_margin_bottom",                False,  "page",             "value",    "1.0in"),
+            OptionsInfo("page_header_height",                False,  "page",             "value",    "0.5in"),
+            OptionsInfo("page_footer_height",                False,  "page",             "value",    "0.5in"),
+        ])
+# fmt: on
+
+    def _get_all_options_keys(self) -> List[Union[str, None]]:
+        return [x.parameter for x in self._options.values()]
+
+    #def __setattr__(self, __name: str, __value: Any) -> None:
+    #    self._options[__name].value = __value
+
+    def __getattr__(self, __name: str) -> OptionsInfo:
+        return self._options[__name]
+        # use this like
+        #
+        # options = Options()
+        # options.foo.value = "bar"
+        # print(options.foo.type)
+
+    #def _get_option_type(self, option: str) -> Union[Any, List[str]]:
+    #    return self._options[option].type
+
+    def _get_option_value(self, option: str) -> Union[Any, List[str]]:
+        return self._options[option].value
+
+    def _set_option_value(self, option: str, value: Any):
+       self._options[option].value = value
+       return self
+
+
+
+
+
+# GT Data ----
+from dataclasses import dataclass
+
+__GT = None
+
+@dataclass
+class GTData:
+    _tbl_data: TblData
+    _body: Body
+    _boxhead: Boxhead
+    _stub: Stub
+    _row_groups: RowGroups
+    _spanners: Spanners
+    _heading: Heading | None
+    _stubhead: Stubhead | None
+    _source_notes: SourceNotes
+    _footnotes: Footnotes
+    _styles: Styles
+    _locale: Locale | None
+    _formats: Formats
+    _options: Options
+
+    @classmethod
+    def from_data(cls, data: TblData, locale: str | None = None):
+        return cls(
+            _tbl_data=data,
+            _body=Body(data, data),
+            _boxhead=Boxhead(data),     # uses get_tbl_data()
+            _stub=Stub(data),           # uses get_tbl_data
+            _row_groups=RowGroups(),
+            _spanners=Spanners(),
+            _heading=Heading(),
+            _stubhead=Stubhead(),
+            _source_notes=SourceNotes(),
+            _footnotes=Footnotes(),
+            _styles=Styles(),
+            _locale=Locale(locale),
+            _formats=[],
+            _options=Options(),
+        )

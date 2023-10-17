@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional
 
 
@@ -9,11 +10,6 @@ class Stubhead:
 
 
 class StubheadAPI:
-    _stubhead: Stubhead
-
-    def __init__(self):
-        self._stubhead = Stubhead()
-
     def tab_stubhead(self, label: str):
         """
         Add label text to the stubhead.
