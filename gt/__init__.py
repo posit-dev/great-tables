@@ -1,6 +1,8 @@
 __version__ = "0.0.1"
 
 from .gt import GT
+from gt.data import *
+
 # from ._base_api import *
 # from ._body import *
 # from ._boxhead import *
@@ -20,5 +22,5 @@ from .gt import GT
 # from ._tbl_data import *
 # from ._text import *
 # from ._utils import *
-# from gt.data import *
+
 #
