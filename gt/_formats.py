@@ -123,6 +123,32 @@ def fmt_number(
     # system: str = 'intl',
     # locale: str = None,
 ) -> GTData:
+    """Format numeric values
+
+    The `fmt()` method provides a way to execute custom formatting
+    functionality with raw data values in a way that can consider all output
+    contexts.
+
+    Along with the `columns` and `rows` arguments that provide some precision in
+    targeting data cells, the `fns` argument allows you to define one or more
+    functions for manipulating the raw data.
+
+    Args:
+        fns (list): Either a single formatting function or a named list of
+        functions.
+
+        columns: The columns to target. Can either be a single column name
+        or a series of column names provided in a list.
+
+        rows: In conjunction with `columns`, we can specify which of their
+        rows should undergo formatting. The default is all rows, resulting
+        in all rows in `columns` being formatted. Alternatively, we can
+        supply a list of row indices.
+
+    Returns:
+        GTData: The GTData object is returned.
+    """
+
     # Generate a function that will operate on single `x` values in
     # the table body
     def fmt_number_fn(
