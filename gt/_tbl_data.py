@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Union, cast, TYPE_CHECKING
+from typing import Any, List, Union, TYPE_CHECKING
 from ._databackend import AbstractBackend
 from functools import singledispatch
 
@@ -39,8 +39,10 @@ else:
 
 # utils ----
 
+
 def _raise_not_implemented(data):
     raise NotImplementedError(f"Unsupported data type: {type(data)}")
+
 
 # classes ----
 
@@ -51,30 +53,37 @@ class TblDataAPI:
 
 # generic functions ----
 
+
 # copy_data ----
 @singledispatch
 def copy_data(data: DataFrameLike) -> DataFrameLike:
     """Get a list of column names from the input data table"""
     _raise_not_implemented(data)
 
+
 @copy_data.register(PdDataFrame)
 def _(data: PdDataFrame):
     return data.copy()
+
 
 @copy_data.register(PlDataFrame)
 def _(data: PlDataFrame):
     return data.clone()
 
+
 # get_column_names ----
+
 
 @singledispatch
 def get_column_names(data: DataFrameLike) -> List[str]:
     """Get a list of column names from the input data table"""
     _raise_not_implemented(data)
 
+
 @get_column_names.register(PdDataFrame)
 def _(data: PdDataFrame):
     return data.columns.tolist()
+
 
 @get_column_names.register(PlDataFrame)
 def _(data: PlDataFrame):
@@ -82,6 +91,7 @@ def _(data: PlDataFrame):
 
 
 # n_rows ----
+
 
 @singledispatch
 def n_rows(data: DataFrameLike) -> int:
@@ -97,11 +107,13 @@ def _(data):
 
 # _get_cell ----
 
+
 @singledispatch
 def _get_cell(data: DataFrameLike, row: int, column: str) -> Any:
     """Get the content from a single cell in the input data table"""
 
     _raise_not_implemented(data)
+
 
 @_get_cell.register(PdDataFrame)
 @_get_cell.register(PlDataFrame)
@@ -110,6 +122,7 @@ def _(data, row: int, column: str):
 
 
 # _set_cell ----
+
 
 @singledispatch
 def _set_cell(data: DataFrameLike, row: int, column: str, value: Any):
@@ -129,8 +142,8 @@ def _(data, row: int, column: str, value: Any):
 
 # _get_column_dtype ----
 
+
 @singledispatch
 def _get_column_dtype(data: DataFrameLike, column: str) -> str:
     """Get the data type for a single column in the input data table"""
     return data[column].dtype
-

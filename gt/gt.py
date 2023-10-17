@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, cast
+from typing import Any, List, cast
 import pkg_resources
 
 import sass

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Callable, TypeVar, Union, List, cast, Optional, Tuple
+from typing import Any, Callable, TypeVar, Union, List, cast
 
-from ._base_api import BaseAPI
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 

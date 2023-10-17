@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from typing import Optional, List
-from enum import Enum, auto
 import pandas as pd
 
 from ._base_api import BaseAPI
-from ._tbl_data import TblData, get_column_names
+from ._tbl_data import get_column_names
 
 from ._utils import _assert_list_is_subset
-
 
 
 class BoxheadAPI(BaseAPI):
