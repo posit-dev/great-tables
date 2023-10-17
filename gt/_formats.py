@@ -1,9 +1,9 @@
 from __future__ import annotations
-
 from typing import Any, Callable, TypeVar, Union, List, cast
-
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
+
+T = TypeVar("T")
 
 
 class FormatsAPI:
@@ -188,9 +188,6 @@ def fmt_number(
     FormatsAPI.fmt(self, fns=fmt_number_fn, columns=columns, rows=rows)
 
     return self
-
-
-T = TypeVar("T")
 
 
 def listify(
