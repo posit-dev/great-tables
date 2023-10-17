@@ -28,6 +28,14 @@ class FormatsAPI:
             fns (list): Either a single formatting function or a named list of
             functions.
 
+            columns: The columns to target. Can either be a single column name
+            or a series of column names provided in a list.
+
+            rows: In conjunction with `columns`, we can specify which of their
+            rows should undergo formatting. The default is all rows, resulting
+            in all rows in `columns` being formatted. Alternatively, we can
+            supply a list of row indices.
+
         Returns:
             GTData: The GTData object is returned.
         """
