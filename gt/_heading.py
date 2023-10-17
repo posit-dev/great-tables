@@ -1,18 +1,8 @@
+from __future__ import annotations
 from typing import Optional, Union, List
 
 
-class Heading:
-    title: Optional[str] = None
-    subtitle: Optional[str] = None
-    preheader: Optional[Union[str, List[str]]] = None
-
-
 class HeadingAPI:
-    _heading: Heading
-
-    def __init__(self):
-        self._heading = Heading()
-
     def tab_header(
         self,
         title: str,

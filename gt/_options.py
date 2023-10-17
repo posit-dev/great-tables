@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional, Union, List, Any, cast
 from gt import _utils
 
@@ -242,11 +243,6 @@ class Options:
 
 
 class OptionsAPI:
-    _options: Options
-
-    def __init__(self):
-        self._options = Options()
-
     def tab_options(self,
         container_width: Optional[str] = None,
         container_height: Optional[str] = None,

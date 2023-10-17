@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any, Dict, List, cast
 import pkg_resources
 
@@ -5,32 +7,43 @@ import sass
 import re
 import copy
 
-from gt import (
-    _body,
-    _boxhead,
-    _footnotes,
-    _formats,
-    _heading,
-    _locale,
-    _options,
-    _row_groups,
-    _source_notes,
-    _spanners,
-    _stub,
-    _stubhead,
-    _styles,
-    _utils,
-    _tbl_data,
+from gt._gt_data import (
+    GTData,
+    Context,
+    Body,
 )
 
+# Main gt imports ----
+from gt import (
+    _utils,
+)
+
+# Rewrite main gt imports to use relative imports of APIs ----
+from gt._tbl_data import TblDataAPI
+from gt._body import BodyAPI
+from gt._boxhead import BoxheadAPI
+from gt._footnotes import FootnotesAPI
+from gt._formats import FormatsAPI, fmt_number
+from gt._heading import HeadingAPI
+from gt._locale import LocaleAPI
+from gt._options import OptionsAPI
+from gt._row_groups import RowGroupsAPI
+from gt._source_notes import SourceNotesAPI
+from gt._spanners import SpannersAPI
+from gt._stub import StubAPI
+from gt._stubhead import StubheadAPI
+from gt._styles import StylesAPI
+
+
+
 # from ._helpers import random_id
-from ._body import Body
+# from ._body import Body
 from ._text import StringBuilder
 from ._utils import _as_css_font_family_attr, _unique_set
 from ._tbl_data import n_rows, _get_cell
 
 
-from ._body import Context
+# from ._body import Context
 
 
 __all__ = ["GT"]
@@ -47,20 +60,21 @@ __all__ = ["GT"]
 # GT class
 # =============================================================================
 class GT(
-    _tbl_data.TblDataAPI,
-    _body.BodyAPI,
-    _boxhead.BoxheadAPI,
-    _stub.StubAPI,
-    _row_groups.RowGroupsAPI,
-    _spanners.SpannersAPI,
-    _heading.HeadingAPI,
-    _stubhead.StubheadAPI,
-    _source_notes.SourceNotesAPI,
-    _footnotes.FootnotesAPI,
-    _styles.StylesAPI,
-    _locale.LocaleAPI,
-    _formats.FormatsAPI,
-    _options.OptionsAPI,
+    GTData,
+    TblDataAPI,
+    BodyAPI,
+    BoxheadAPI,
+    StubAPI,
+    RowGroupsAPI,
+    SpannersAPI,
+    HeadingAPI,
+    StubheadAPI,
+    SourceNotesAPI,
+    FootnotesAPI,
+    StylesAPI,
+    LocaleAPI,
+    FormatsAPI,
+    OptionsAPI,
 ):
     """
     Create a gt Table object.
@@ -81,29 +95,39 @@ class GT(
         return self.render(context="html")
 
     def __init__(self, data: Any, locale: str = ""):
+        # This is a bad idea ----
+        gtdata = GTData.from_data(data, locale)
+        super().__init__(**gtdata.__dict__)
+
         # This init will take the input data (any valid input for the Pandas
         # DataFrame class) and store the resulting DataFrame as `self._tbl_data`
-        _tbl_data.TblDataAPI.__init__(self, data)
+        # _tbl_data.TblDataAPI.__init__(self, data)
 
-        _body.BodyAPI.__init__(self, data)
-        _boxhead.BoxheadAPI.__init__(self)
-        _stub.StubAPI.__init__(self)
-        _row_groups.RowGroupsAPI.__init__(self)
-        _spanners.SpannersAPI.__init__(self)
-        _heading.HeadingAPI.__init__(self)
-        _stubhead.StubheadAPI.__init__(self)
-        _source_notes.SourceNotesAPI.__init__(self)
-        _footnotes.FootnotesAPI.__init__(self)
-        _styles.StylesAPI.__init__(self)
-        _locale.LocaleAPI.__init__(self, locale)
-        _formats.FormatsAPI.__init__(self)
-        _options.OptionsAPI.__init__(self)
+        # _body.BodyAPI.__init__(self, data)
+        # _boxhead.BoxheadAPI.__init__(self)
+        # _stub.StubAPI.__init__(self)
+        # _row_groups.RowGroupsAPI.__init__(self)
+        # _spanners.SpannersAPI.__init__(self)
+        # _heading.HeadingAPI.__init__(self)
+        # _stubhead.StubheadAPI.__init__(self)
+        # _source_notes.SourceNotesAPI.__init__(self)
+        # _footnotes.FootnotesAPI.__init__(self)
+        # _styles.StylesAPI.__init__(self)
+        # _locale.LocaleAPI.__init__(self, locale)
+        # _formats.FormatsAPI.__init__(self)
+        # _options.OptionsAPI.__init__(self)
 
-        # Table parts
-        self._transforms: Dict[str, Any]
-        self._summary: Dict[str, Any]
-        self._has_built: bool = _has_built_init()
-        self._rendered_tbl: str = _rendered_tbl_init()
+        # # Table parts
+        # self._transforms: Dict[str, Any]
+        # self._summary: Dict[str, Any]
+        # self._has_built: bool = _has_built_init()
+        # self._rendered_tbl: str = _rendered_tbl_init()
+
+    # Refactor API methods -----
+    fmt_number = fmt_number
+
+
+    # -----
 
     def _render_formats(self, context: Context):
         self._body.render_formats(self._tbl_data, self._formats, context)
