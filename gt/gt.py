@@ -30,7 +30,6 @@ from ._utils import _as_css_font_family_attr, _unique_set
 from ._tbl_data import n_rows, _get_cell
 
 
-
 from ._body import Context
 
 
@@ -114,7 +113,7 @@ class GT(
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         self = copy.copy(self)
-        self._body = Body(self._body.body)
+        self._body = Body(self._body.body, self._body.data)
         self._render_formats(context)
 
         # body = _migrate_unformatted_to_output(body)
@@ -266,7 +265,13 @@ def _create_column_labels_component(data: GT) -> str:
 
 
 def _create_body_component(data: GT):
-    tbl_data = data._body.body
+    import pandas as pd
+
+    # for now, just coerce everything in the original data to a string
+    # so we can fill in the body data with it
+    _str_orig_data = data._body.data.applymap(lambda x: str(x) if not pd.isna(x) else x)
+
+    tbl_data = data._body.body.fillna(_str_orig_data)
 
     column_names = data._boxhead._get_visible_columns()
 
