@@ -12,9 +12,11 @@ class Body:
 
     def __init__(self, body: Union[pd.DataFrame, TblData], data: Any = None):
         if isinstance(body, DataFrameLike):
-            self.body = copy_data(body)
+            self.body = pd.DataFrame(
+                pd.NA, index=body.index, columns=body.columns, dtype="string"
+            )
         else:
-            self.body = body
+            raise NotImplementedError()
         self.data = data
 
     def render_formats(
@@ -38,4 +40,4 @@ class BodyAPI:
     _body: Body
 
     def __init__(self, data: Any):
-        self._body = Body(data, self)
+        self._body = Body(data, data)
