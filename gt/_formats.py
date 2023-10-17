@@ -7,15 +7,32 @@ from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 
 
-
 class FormatsAPI:
     @staticmethod
     def fmt(
-        self: GTData,
+        x: GTData,
         fns: Union[FormatFn, FormatFns],
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
     ):
+        """Set a column format with a formatter function.
+
+        The `fmt()` method provides a way to execute custom formatting
+        functionality with raw data values in a way that can consider all output
+        contexts.
+
+        Along with the `columns` and `rows` arguments that provide some precision in
+        targeting data cells, the `fns` argument allows you to define one or more
+        functions for manipulating the raw data.
+
+        Args:
+            fns (list): Either a single formatting function or a named list of
+            functions.
+
+        Returns:
+            GTData: The GTData object is returned.
+        """
+
         # If a single function is supplied to `fns` then
         # repackage that into a list as the `default` function
         if isinstance(fns, Callable):
@@ -24,40 +41,14 @@ class FormatsAPI:
         columns = listify(columns, list)
 
         if rows is None:
-            rows = list(range(n_rows(self._tbl_data)))
+            rows = list(range(n_rows(x._tbl_data)))
         elif isinstance(rows, int):
             rows = [rows]
 
         formatter = FormatInfo(fns, columns, rows)
-        self._formats.append(formatter)
+        x._formats.append(formatter)
 
-        return self
-
-    @staticmethod
-    def fmt_integer(
-        self: GTData,
-        columns: Union[str, List[str], None] = None,
-        rows: Union[int, List[int], None] = None,
-        scale_by: float = 1,
-    ):
-        # Generate a function that will operate on single `x` values in
-        # the table body
-        def fmt_integer_fn(
-            x: float,
-            scale_by: float = scale_by,
-        ):
-            # Scale `x` value by a defined `scale_by` value
-            x = x * scale_by
-
-            x = round(x)
-
-            x_formatted = f"{x}"
-
-            return x_formatted
-
-        FormatsAPI.fmt(self, fns=fmt_integer_fn, columns=columns, rows=rows)
-
-        return self
+        return x
 
     # TODO: transition to static methods ----
     def fmt_scientific(
@@ -87,17 +78,31 @@ class FormatsAPI:
         # TODO: Not implemented yet
         return self
 
-    # TODO: add `fmt_partsper()`
-    # TODO: add `fmt_fraction()`
-    # TODO: add `fmt_currency()`
-    # TODO: add `fmt_roman()`
-    # TODO: add `fmt_bytes()`
-    # TODO: add `fmt_date()`
-    # TODO: add `fmt_time()`
-    # TODO: add `fmt_datetime()`
-    # TODO: add `fmt_duration()`
-    # TODO: add `fmt_markdown()`
-    # TODO: add `fmt_passthrough()`
+
+def fmt_integer(
+    self: GTData,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    scale_by: float = 1,
+):
+    # Generate a function that will operate on single `x` values in
+    # the table body
+    def fmt_integer_fn(
+        x: float,
+        scale_by: float = scale_by,
+    ):
+        # Scale `x` value by a defined `scale_by` value
+        x = x * scale_by
+
+        x = round(x)
+
+        x_formatted = f"{x}"
+
+        return x_formatted
+
+    FormatsAPI.fmt(self, fns=fmt_integer_fn, columns=columns, rows=rows)
+
+    return self
 
 
 def fmt_number(
