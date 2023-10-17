@@ -23,7 +23,7 @@ from gt._tbl_data import TblDataAPI
 from gt._body import BodyAPI
 from gt._boxhead import BoxheadAPI
 from gt._footnotes import FootnotesAPI
-from gt._formats import FormatsAPI, fmt_number
+from gt._formats import FormatsAPI, fmt_number, fmt_integer
 from gt._heading import HeadingAPI
 from gt._locale import LocaleAPI
 from gt._options import OptionsAPI
@@ -33,7 +33,6 @@ from gt._spanners import SpannersAPI
 from gt._stub import StubAPI
 from gt._stubhead import StubheadAPI
 from gt._styles import StylesAPI
-
 
 
 # from ._helpers import random_id
@@ -123,9 +122,9 @@ class GT(
         # self._has_built: bool = _has_built_init()
         # self._rendered_tbl: str = _rendered_tbl_init()
 
-    # Refactor API methods -----
+    # TODO: Refactor API methods -----
     fmt_number = fmt_number
-
+    fmt_integer = fmt_integer
 
     # -----
 
