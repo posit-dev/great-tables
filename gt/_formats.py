@@ -197,6 +197,28 @@ def listify(
     x: Union[T, List[T], None],
     default: Callable[[], List[T]],
 ) -> List[T]:
+    """
+    Convert the input into a list.
+
+    Args:
+        x (Union[T, List[T], None]): The input value to be converted into a
+        list. It can be a single value of type T, a list of values of type T,
+        or None.
+
+        default (Callable[[], List[T]]): A callable that returns a default list
+        when the input value is None.
+
+    Returns:
+        List[T]: The converted list.
+
+    Raises:
+        None
+
+    Examples:
+        listify(5, lambda: [1, 2, 3])  # Output: [5]
+        listify([1, 2, 3], lambda: [4, 5, 6])  # Output: [1, 2, 3]
+        listify(None, lambda: ['a', 'b', 'c'])  # Output: ['a', 'b', 'c']
+    """
     if x is None:
         return default()
     elif not isinstance(x, list):
