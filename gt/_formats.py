@@ -84,7 +84,7 @@ def fmt_integer(
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
     scale_by: float = 1,
-):
+) -> GTData:
     # Generate a function that will operate on single `x` values in
     # the table body
     def fmt_integer_fn(
@@ -123,7 +123,7 @@ def fmt_number(
     # force_sign: bool = False,
     # system: str = 'intl',
     # locale: str = None,
-):
+) -> GTData:
     # Generate a function that will operate on single `x` values in
     # the table body
     def fmt_number_fn(
