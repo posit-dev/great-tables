@@ -65,7 +65,6 @@ class FormatsAPI(BaseAPI):
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
     ):
-
         # If a single function is supplied to `fns` then
         # repackage that into a list as the `default` function
         if isinstance(fns, Callable):
@@ -88,11 +87,20 @@ class FormatsAPI(BaseAPI):
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
         decimals: int = 2,
+        # n_sigfig: int = None,
         drop_trailing_zeros: bool = False,
         drop_trailing_dec_mark: bool = True,
+        # use_seps: bool = True,
+        # accounting: bool = False,
         scale_by: float = 1,
+        # suffixing: bool = False,
+        # pattern: str = '{x}'
+        # sep_mark: str = ',',
+        # dec_mark: str = '.',
+        # force_sign: bool = False,
+        # system: str = 'intl',
+        # locale: str = None,
     ):
-
         # Generate a function that will operate on single `x` values in
         # the table body
         def fmt_number_fn(
@@ -155,7 +163,6 @@ class FormatsAPI(BaseAPI):
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
     ):
-
         # TODO: Not implemented yet
         return self
 
