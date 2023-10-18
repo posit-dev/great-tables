@@ -13,24 +13,24 @@ class BoxheadAPI(BaseAPI):
         """
         Relabel one or more columns.
 
-        Column labels can be modified from their default values (the names of the
-        columns from the input table data). When you create a gt table object
-        using `gt.GT()`, column names effectively become the column labels. While
-        this serves as a good first approximation, column names aren't often
-        appealing as column labels in a gt output table. The `cols_label()` method
-        provides the flexibility to relabel one or more columns and we even have the
-        option to use the `md()` or `html()` helper functions for rendering column
-        labels from Markdown or using HTML.
+        Column labels can be modified from their default values (the names of
+        the columns from the input table data). When you create a gt table
+        object using `gt.GT()`, column names effectively become the column
+        labels. While this serves as a good first approximation, column names
+        aren't often appealing as column labels in a gt output table. The
+        `cols_label()` method provides the flexibility to relabel one or more
+        columns and we even have the option to use the `md()` or `html()`
+        helpers for rendering column labels from Markdown or using HTML.
 
         It's important to note that while columns can be freely relabeled, we
-        continue to refer to columns by their original column names. Column names in
-        a tibble or data frame must be unique whereas column labels in gt have
-        no requirement for uniqueness (which is useful for labeling columns as, say,
-        measurement units that may be repeated several times---usually under
-        different spanner column labels). Thus, we can still easily distinguish
-        between columns in other gt method calls (e.g., in all of the `fmt*()`
-        methods) even though we may lose distinguishability in column labels once
-        they have been relabeled.
+        continue to refer to columns by their original column names. Column
+        names in a data frame must be unique whereas column labels in gt have
+        no requirement for uniqueness (which is useful for labeling columns as,
+        say, measurement units that may be repeated several times---usually
+        under different spanner column labels). Thus, we can still easily
+        distinguish between columns in other gt method calls (e.g., in all of
+        the `fmt*()` methods) even though we may lose distinguishability in
+        column labels once they have been relabeled.
 
         Returns
         -------
