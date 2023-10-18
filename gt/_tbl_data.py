@@ -57,7 +57,7 @@ class TblDataAPI:
 # copy_data ----
 @singledispatch
 def copy_data(data: DataFrameLike) -> DataFrameLike:
-    """Get a list of column names from the input data table"""
+    """Copy the stored table data"""
     _raise_not_implemented(data)
 
 
