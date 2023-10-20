@@ -9,7 +9,6 @@ import copy
 
 from gt._gt_data import (
     GTData,
-    Context,
     Body,
 )
 
@@ -98,48 +97,26 @@ class GT(
         gtdata = GTData.from_data(data, locale)
         super().__init__(**gtdata.__dict__)
 
-        # This init will take the input data (any valid input for the Pandas
-        # DataFrame class) and store the resulting DataFrame as `self._tbl_data`
-        # _tbl_data.TblDataAPI.__init__(self, data)
-
-        # _body.BodyAPI.__init__(self, data)
-        # _boxhead.BoxheadAPI.__init__(self)
-        # _stub.StubAPI.__init__(self)
-        # _row_groups.RowGroupsAPI.__init__(self)
-        # _spanners.SpannersAPI.__init__(self)
-        # _heading.HeadingAPI.__init__(self)
-        # _stubhead.StubheadAPI.__init__(self)
-        # _source_notes.SourceNotesAPI.__init__(self)
-        # _footnotes.FootnotesAPI.__init__(self)
-        # _styles.StylesAPI.__init__(self)
-        # _locale.LocaleAPI.__init__(self, locale)
-        # _formats.FormatsAPI.__init__(self)
-        # _options.OptionsAPI.__init__(self)
-
-        # # Table parts
-        # self._transforms: Dict[str, Any]
-        # self._summary: Dict[str, Any]
-        # self._has_built: bool = _has_built_init()
-        # self._rendered_tbl: str = _rendered_tbl_init()
-
     # TODO: Refactor API methods -----
     fmt_number = fmt_number
     fmt_integer = fmt_integer
 
     # -----
 
-    def _render_formats(self, context: Context):
+    def _get_has_built(self: GT) -> bool:
+        return self._has_built
+
+    def _render_formats(self, context: str) -> GT:
         self._body.render_formats(self._tbl_data, self._formats, context)
         return self
 
-    def _build_data(self, context: Context):
+    def _build_data(self, context: str):
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         self = copy.copy(self)
-        self._body = Body(self._body.body, self._body.data)
+        self._body = self._body.__class__(self._tbl_data)
         self._render_formats(context)
-
-        # body = _migrate_unformatted_to_output(body)
+        # self._body = _migrate_unformatted_to_output(body)
 
         # self._perform_col_merge()
         # self._body_reassemble()
@@ -158,8 +135,11 @@ class GT(
 
         return self
 
-    def render(self, context: Context) -> str:
+    def render(self, context: str) -> str:
         self = self._build_data(context=context)
+
+        self._has_built = True
+
         html_table = self._render_as_html()
         return html_table
 
@@ -229,16 +209,24 @@ class GT(
 
 
 # =============================================================================
-# Initialization Functions
+# End of GT class
 # =============================================================================
 
 
-def _has_built_init() -> bool:
-    return False
+# =============================================================================
+# GT Getter/Setter Functions
+# =============================================================================
 
 
-def _rendered_tbl_init() -> str:
-    return ""
+def _set_has_built(gt: GT, value: bool) -> GT:
+    gt._has_built = value
+    return gt
+
+
+def _get_column_labels(gt: GT, context: str) -> List[str]:
+    gt_built = gt._build_data(context=context)
+    column_labels = gt_built._boxhead._get_column_labels()
+    return column_labels
 
 
 # =============================================================================
@@ -292,7 +280,7 @@ def _create_body_component(data: GT):
 
     # for now, just coerce everything in the original data to a string
     # so we can fill in the body data with it
-    _str_orig_data = data._body.data.applymap(lambda x: str(x) if not pd.isna(x) else x)
+    _str_orig_data = data._tbl_data.applymap(lambda x: str(x) if not pd.isna(x) else x)
 
     tbl_data = data._body.body.fillna(_str_orig_data)
 
