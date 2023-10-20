@@ -72,8 +72,6 @@ def _(data: PlDataFrame):
 
 
 # get_column_names ----
-
-
 @singledispatch
 def get_column_names(data: DataFrameLike) -> List[str]:
     """Get a list of column names from the input data table"""
