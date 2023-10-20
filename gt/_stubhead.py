@@ -1,12 +1,11 @@
 from __future__ import annotations
-from typing import Optional
 
 
-class Stubhead:
-    stubhead: Optional[str]
-
-    def __init__(self):
-        pass
+# class Stubhead:
+#    stubhead: Optional[str]
+#
+#    def __init__(self):
+#        pass
 
 
 class StubheadAPI:
