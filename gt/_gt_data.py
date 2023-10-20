@@ -3,12 +3,11 @@ from __future__ import annotations
 # Body ----
 __Body = None
 
-from typing import Union, List, Literal, Any
+from typing import Union, List, Any
 import pandas as pd
 from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell, copy_data
-# from ._formats import FormatInfo
 
-Context = Literal["html", "default"]
+# from ._formats import FormatInfo
 
 
 class Body:
@@ -22,7 +21,6 @@ class Body:
             )
         else:
             raise NotImplementedError()
-        self.data = data
 
     def render_formats(
         self, data_tbl: TblData, formats: List[FormatInfo], context: Context
@@ -95,7 +93,6 @@ class Boxhead:
     _boxhead: List[ColInfo]
 
     def __init__(self, data: TblData):
-
         # Obtain the column names from the data and initialize the
         # `_boxhead` from that
         column_names = get_column_names(data)
@@ -111,7 +108,6 @@ class Boxhead:
 
     # Set column label
     def _set_column_label(self, column: str, label: str):
-
         for x in self._boxhead:
             if x.var == column:
                 x.column_label = label
@@ -120,7 +116,6 @@ class Boxhead:
 
     # Get a list of visible columns
     def _get_visible_columns(self) -> List[str]:
-
         visible_columns = [x.var for x in self._boxhead if x.visible is True]
         return visible_columns
 
@@ -132,7 +127,6 @@ class Boxhead:
     # Obtain the number of visible columns in the built table; this should
     # account for the size of the stub in the final, built table
     def _get_effective_number_of_columns(self) -> int:
-
         n_data_cols = self._get_number_of_visible_data_columns()
 
         # TODO: Once the stub is defined in the package, we need to account
@@ -184,7 +178,6 @@ class RowInfo:
 
 class Stub:
     def __init__(self, data: TblData):
-
         # Obtain a list of row indices from the data and initialize
         # the `_stub` from that
         row_indices = list(range(n_rows(data)))
@@ -206,13 +199,14 @@ class RowGroups:
     def __init__(self):
         pass
 
+
 # Spanners ----
 __Spanners = None
 import pandas as pd
 
+
 class Spanners:
     def __init__(self):
-
         # The `spanners` DataFrame is used to handle spanner ID
         # and text, the spanner level, the association to column names,
         # whether the spanner is to gather columns, and the built
@@ -234,7 +228,6 @@ class Spanners:
                 "built",
             ]
         )
-
 
 
 # Heading ---
@@ -273,6 +266,7 @@ class SourceNotes:
 
     def __init__(self):
         pass
+
 
 # Footnotes ----
 __Footnotes = None
@@ -456,7 +450,6 @@ Formats = list
 
 # Tbl Data ----
 from ._tbl_data import TblData
-
 
 
 # Options ----
@@ -729,6 +722,7 @@ class GTData:
     _locale: Locale | None
     _formats: Formats
     _options: Options
+    _has_built: bool = False
 
     @classmethod
     def from_data(cls, data: TblData, locale: str | None = None):
