@@ -28,8 +28,8 @@ res = (countrypops
 
 # TODO: implement `suffixing`
 (gt.GT(res)
-   .fmt_number(columns=1995)
-   #.fmt_number(columns=1995, suffixing=True)
+   .fmt_integer(columns=1980, scale_by=1/10000)
+   .fmt_number(columns=1985)
 )
 
 ```
