@@ -12,11 +12,12 @@ class HeadingAPI:
         """
         Add a table header.
 
-        We can add a table header to the **gt** table with a title and even a
-        subtitle. A table header is an optional table part that is positioned above
-        the column labels. We have the flexibility to use Markdown formatting for the
-        header's title and subtitle. Furthermore, if the table is intended for HTML
-        output, we can use HTML in either of the title or subtitle.
+        We can add a table header to the gt table with a title and even a
+        subtitle. A table header is an optional table part that is positioned
+        above the column labels. We have the flexibility to use Markdown
+        formatting for the header's title and subtitle. Furthermore, if the
+        table is intended for HTML output, we can use HTML in either of the
+        title or subtitle.
 
         Parameters
         ----------
