@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import pandas as pd
 
-from ._base_api import BaseAPI
 from ._tbl_data import get_column_names
 
 from ._utils import _assert_list_is_subset
 
 
-class BoxheadAPI(BaseAPI):
+class BoxheadAPI():
     def cols_label(self, **kwargs: str):
         """
         Relabel one or more columns.
