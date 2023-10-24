@@ -9,7 +9,7 @@ from gt.data import *
 # from ._footnotes import *
 # from ._formats import *
 # from ._heading import *
-# from ._helpers import *
+from ._helpers import letters, LETTERS, px, pct, md, html, random_id
 # from ._locale import *
 # from ._options import *
 # from ._row_groups import *
