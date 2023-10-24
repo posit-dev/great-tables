@@ -225,7 +225,6 @@ def _set_has_built(gt: GT, value: bool) -> GT:
 
 def _get_column_labels(gt: GT, context: str) -> List[str]:
     gt_built = gt._build_data(context=context)
-    # column_labels = gt_built._boxhead._get_column_labels()
     column_labels = [x.column_label for x in gt_built._boxhead._boxhead]
     return column_labels
 
