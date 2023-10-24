@@ -94,7 +94,7 @@ def fmt_number(
     # n_sigfig: int = None,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
-    # use_seps: bool = True,
+    use_seps: bool = True,
     # accounting: bool = False,
     scale_by: float = 1,
     # suffixing: bool = False,
@@ -154,6 +154,7 @@ def fmt_number(
         decimals: int = decimals,
         drop_trailing_zeros: bool = drop_trailing_zeros,
         drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
+        use_seps: bool = use_seps,  # TODO: not yet implemented
         scale_by: float = scale_by,
     ):
         # Scale `x` value by a defined `scale_by` value
@@ -275,3 +276,26 @@ def listify(
         return [x]
     else:
         return cast(Any, x)
+
+
+def format_number_with_separator(number: Union[float, int], separator: str = ","):
+    number_parts = str(number).split(".")
+
+    # Obtain the integer part
+    integer_part = number_parts[0]
+    formatted_integer = ""
+    count = 0
+    for digit in reversed(integer_part):
+        if count and count % 3 == 0:
+            formatted_integer = separator + formatted_integer
+        formatted_integer = digit + formatted_integer
+        count += 1
+
+    # Obtain the decimal part
+    decimal_part = number_parts[1] if len(number_parts) > 1 else ""
+    formatted_decimal = "." + decimal_part if decimal_part else ""
+
+    # Combine the integer and decimal parts
+    formatted_number = formatted_integer + formatted_decimal
+
+    return formatted_number
