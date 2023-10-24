@@ -1,17 +1,26 @@
 import pandas as pd
-import pytest
-from pandas.testing import assert_frame_equal
 
 from gt import GT
+from gt.gt import _get_column_of_values
 
 
-@pytest.mark.xfail(reason="Don't have a method to get formatted values as list")
 def test_fmt_number_basic():
     df = pd.DataFrame({"x": [1.234, 2.345], "y": [3.456, 4.567]})
+
+    # Expect that values in `x` are formatted to 2 decimal places
     gt = GT(df).fmt_number(columns="x", decimals=2)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    y = ["1.23", "2.35"]
+    assert x == y
 
-    # TODO: is 2.35 below the intended result?
-    res = gt._build_data("html")._body.body
-    dst = df.assign(x=["1.23", "2.35"])
+    # TODO: this fails because unformatted values not migrated to body
+    # Expect that values in `y` are formatted to 2 decimal places
+    # x = _get_column_of_values(gt, column_name="y", context="html")
+    # y = ["3.46", "4.57"] # is currently ['<NA>', '<NA>']
+    # assert x == y
 
-    assert_frame_equal(res, dst)
+    # Expect that values in `x` are formatted to 5 decimal places
+    gt = GT(df).fmt_number(columns="x", decimals=5)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    y = ["1.23400", "2.34500"]
+    assert x == y
