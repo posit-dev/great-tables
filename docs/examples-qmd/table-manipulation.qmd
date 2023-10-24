@@ -22,6 +22,7 @@ gt.GT(res).tab_header(
 
 
 ```{python}
+#| eval: false
 res = gtcars >> select(_.mfr, _.model, _.msrp) >> _.head(5)
 
 # TODO: Make `html()` work
