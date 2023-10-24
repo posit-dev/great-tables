@@ -46,7 +46,6 @@ from typing import Optional, List
 from enum import Enum, auto
 import pandas as pd
 
-from ._base_api import BaseAPI
 from ._tbl_data import TblData, get_column_names
 
 from ._utils import _assert_list_is_subset
@@ -142,7 +141,6 @@ __Stub = None
 
 from typing import Optional
 
-from ._base_api import BaseAPI
 from ._tbl_data import TblData, n_rows
 
 
@@ -395,7 +393,6 @@ __Formats = None
 
 from typing import Any, Callable, TypeVar, Union, List, cast, Optional, Tuple
 
-from ._base_api import BaseAPI
 from ._tbl_data import n_rows
 
 FormatFn = Callable[[Any], str]
