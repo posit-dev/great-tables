@@ -99,7 +99,7 @@ def fmt_number(
     scale_by: float = 1,
     # suffixing: bool = False,
     # pattern: str = '{x}'
-    # sep_mark: str = ',',
+    sep_mark: str = ",",
     # dec_mark: str = '.',
     # force_sign: bool = False,
     # system: str = 'intl',
@@ -155,6 +155,7 @@ def fmt_number(
         drop_trailing_zeros: bool = drop_trailing_zeros,
         drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
         use_seps: bool = use_seps,  # TODO: not yet implemented
+        sep_mark: str = sep_mark,
         scale_by: float = scale_by,
     ):
         # Scale `x` value by a defined `scale_by` value
@@ -166,6 +167,10 @@ def fmt_number(
         # Get the formatted `x` value
         x_formatted = format(x, fmt_spec)
 
+        # Add grouping separators (default is ',')
+        if use_seps is True:
+            x_formatted = _format_number_with_separator(x_formatted, separator=sep_mark)
+
         # Drop any trailing zeros if option is taken
         if drop_trailing_zeros is True:
             x_formatted = x_formatted.rstrip("0")
@@ -173,6 +178,9 @@ def fmt_number(
         # Drop the trailing decimal mark if it is present
         if drop_trailing_dec_mark is True:
             x_formatted = x_formatted.rstrip(".")
+
+        if drop_trailing_dec_mark is False and not "." in x_formatted:
+            x_formatted = x_formatted + "."
 
         return x_formatted
 
@@ -278,8 +286,24 @@ def listify(
         return cast(Any, x)
 
 
-def format_number_with_separator(number: Union[float, int], separator: str = ","):
-    number_parts = str(number).split(".")
+def _format_number_with_separator(
+    number: Union[int, float, str], separator: str = ","
+) -> str:
+    # If `number` is a string, validate that is at least number-like
+    if isinstance(number, str):
+        float(number)
+
+    if isinstance(number, (int, float)):
+        number = repr(number)
+
+    # Very small or very large numbers can be represented in exponential
+    # notation but we don't want that; we need the string value to be fully
+    # expanded with zeros so if an 'e' is detected we'll use a helper function
+    # to ensure it's back to a number
+    if "e" in number:
+        number = _expand_exponential_to_full_string(str_number=number)
+
+    number_parts = number.split(".")
 
     # Obtain the integer part
     integer_part = number_parts[0]
@@ -299,3 +323,9 @@ def format_number_with_separator(number: Union[float, int], separator: str = ","
     formatted_number = formatted_integer + formatted_decimal
 
     return formatted_number
+
+
+def _expand_exponential_to_full_string(str_number: str) -> str:
+    x_out = "{:f}".format(float(str_number))
+
+    return x_out
