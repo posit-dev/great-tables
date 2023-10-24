@@ -1,4 +1,5 @@
 from __future__ import annotations
+from decimal import Decimal
 from typing import Any, Callable, TypeVar, Union, List, cast
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
@@ -300,7 +301,7 @@ def _format_number_with_separator(
     # notation but we don't want that; we need the string value to be fully
     # expanded with zeros so if an 'e' is detected we'll use a helper function
     # to ensure it's back to a number
-    if "e" in number:
+    if "e" in number or "E" in number:
         number = _expand_exponential_to_full_string(str_number=number)
 
     number_parts = number.split(".")
@@ -326,6 +327,5 @@ def _format_number_with_separator(
 
 
 def _expand_exponential_to_full_string(str_number: str) -> str:
-    x_out = "{:f}".format(float(str_number))
-
-    return x_out
+    str_number = str(Decimal(str_number))
+    return str_number
