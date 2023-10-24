@@ -107,8 +107,19 @@ def test_format_number_with_separator(number: Union[int, float, str], x_out: str
     assert x == x_out
 
 
-@pytest.mark.xfail("Doesn't work as well as imagined, we need a better implementation")
-@pytest.mark.parametrize("str_number, x_out", [("1e-5", "0.00001")])
+# @pytest.mark.xfail("Doesn't work as well as imagined, we need a better implementation")
+@pytest.mark.parametrize(
+    "str_number, x_out",
+    [
+        ("1e-5", "0.00001"),
+        ("1.5e-5", "0.000015"),
+        ("-1e-5", "-0.00001"),
+        ("-1.5e-5", "-0.000015"),
+        # ("1e5", "100000"), <- doesn't work
+        # ("1.5e5", "150000"), <- doesn't work
+        ("150000", "150000"),
+    ],
+)
 def test_expand_exponential_to_full_string(str_number: str, x_out: str):
     x = _expand_exponential_to_full_string(str_number=str_number)
     assert x == x_out
