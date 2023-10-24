@@ -432,7 +432,30 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="gt.GT.fmt_integer" class="level1">
 <h1>GT.fmt_integer</h1>
-<p><code>GT.fmt_integer(columns=None, rows=None, scale_by=1)</code></p>
+<p><code>GT.fmt_integer</code></p>
+<p>Format values as integers.</p>
+<p>With numeric values in a gt table, we can perform number-based formatting so that the targeted values are always rendered as integer values.</p>
+<p>We can have fine control over integer formatting with the following options:</p>
+<ul>
+<li>digit grouping separators: options to enable/disable digit separators and provide a choice of separator symbol</li>
+<li>scaling: we can choose to scale targeted values by a multiplier value</li>
+<li>large-number suffixing: larger figures (thousands, millions, etc.) can be autoscaled and decorated with the appropriate suffixes</li>
+<li>pattern: option to use a text pattern for decoration of the formatted values</li>
+<li>locale-based formatting: providing a locale ID will result in number formatting specific to the chosen locale</li>
+</ul>
+<p>Args: fns (list): Either a single formatting function or a named list of functions.</p>
+<pre><code>columns: The columns to target. Can either be a single column name
+or a series of column names provided in a list.
+
+rows: In conjunction with `columns`, we can specify which of their
+rows should undergo formatting. The default is all rows, resulting
+in all rows in `columns` being formatted. Alternatively, we can
+supply a list of row indices.
+
+scale_by: All numeric values will be multiplied by the `scale_by` value
+before undergoing formatting. Since the `default` value is `1`, no
+values will be changed unless a different multiplier value is supplied.</code></pre>
+<p>Returns: GTData: The GTData object is returned.</p>
 
 
 </section>
