@@ -94,7 +94,7 @@ def test_fmt_number_drop_trailing():
         (0.01, "0.01"),
         (0.00023, "0.00023"),
         (0.000033, "0.000033"),
-        # (0.00000000446453, "0.00000000446453"),  # <- doesn't work
+        (0.00000000446453, "0.00000000446453"),
         ("8234324.23", "8,234,324.23"),
         (
             "82534563535234324.233535303503503530530535",
@@ -107,7 +107,6 @@ def test_format_number_with_separator(number: Union[int, float, str], x_out: str
     assert x == x_out
 
 
-# @pytest.mark.xfail("Doesn't work as well as imagined, we need a better implementation")
 @pytest.mark.parametrize(
     "str_number, x_out",
     [
@@ -119,9 +118,9 @@ def test_format_number_with_separator(number: Union[int, float, str], x_out: str
         ("1.5E-5", "0.000015"),
         ("-1E-5", "-0.00001"),
         ("-1.5E-5", "-0.000015"),
-        # ("4.46453E-9", "0.00000000446453"),  # <- doesn't work
-        # ("1E+5", "100000"),  # <- doesn't work
-        # ("1.5E+5", "150000"),  # <- doesn't work
+        ("4.46453E-9", "0.00000000446453"),
+        ("1E+5", "100000"),
+        ("1.5E+5", "150000"),
         ("150000", "150000"),
     ],
 )
