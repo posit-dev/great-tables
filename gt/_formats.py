@@ -340,8 +340,9 @@ def _format_number_with_separator(
 
 
 def _expand_exponential_to_full_string(str_number: str) -> str:
-    str_number = str(Decimal(str_number))
-    return str_number
+    decimal_number = Decimal(str_number)
+    formatted_number = "{:f}".format(decimal_number)
+    return formatted_number
 
 
 def _to_value_n_sigfig(
