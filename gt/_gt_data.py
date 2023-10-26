@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 from typing import overload, TypeVar
-from collections import abc
 from dataclasses import dataclass
 
+# Note that we replace with with collections.abc after python 3.8
+from typing import Sequence
 
 T = TypeVar("T")
 
 
-class _Sequence(abc.Sequence[T]):
+class _Sequence(Sequence[T]):
     _d: list[T]
 
     def __init__(self, data: Any):
