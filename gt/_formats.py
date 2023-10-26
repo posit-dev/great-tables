@@ -1,6 +1,7 @@
 from __future__ import annotations
 from decimal import Decimal
-from typing import Any, Callable, TypeVar, Union, List, cast
+from math import floor, log10
+from typing import Any, Callable, TypeVar, Union, List, cast, Optional
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 
@@ -92,7 +93,7 @@ def fmt_number(
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
     decimals: int = 2,
-    # n_sigfig: int = None,
+    n_sigfig: Optional[int] = None,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
@@ -153,6 +154,7 @@ def fmt_number(
     def fmt_number_fn(
         x: float,
         decimals: int = decimals,
+        n_sigfig: Optional[int] = n_sigfig,
         drop_trailing_zeros: bool = drop_trailing_zeros,
         drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
         use_seps: bool = use_seps,  # TODO: not yet implemented
@@ -162,26 +164,37 @@ def fmt_number(
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
-        # Generate a format specification using `decimals`
-        fmt_spec = f".{decimals}f"
+        if n_sigfig:
+            x_formatted = _to_value_n_sigfig(
+                value=x,
+                n_sigfig=n_sigfig,
+                notation="dec",
+                delimiter="e",
+                drop_trailing_zeros=drop_trailing_zeros,
+            )
+        else:
+            # Generate a format specification using `decimals`
+            fmt_spec = f".{decimals}f"
 
-        # Get the formatted `x` value
-        x_formatted = format(x, fmt_spec)
+            # Get the formatted `x` value
+            x_formatted = format(x, fmt_spec)
 
-        # Add grouping separators (default is ',')
-        if use_seps is True:
-            x_formatted = _format_number_with_separator(x_formatted, separator=sep_mark)
+            # Add grouping separators (default is ',')
+            if use_seps is True:
+                x_formatted = _format_number_with_separator(
+                    x_formatted, separator=sep_mark
+                )
 
-        # Drop any trailing zeros if option is taken
-        if drop_trailing_zeros is True:
-            x_formatted = x_formatted.rstrip("0")
+            # Drop any trailing zeros if option is taken
+            if drop_trailing_zeros is True:
+                x_formatted = x_formatted.rstrip("0")
 
-        # Drop the trailing decimal mark if it is present
-        if drop_trailing_dec_mark is True:
-            x_formatted = x_formatted.rstrip(".")
+            # Drop the trailing decimal mark if it is present
+            if drop_trailing_dec_mark is True:
+                x_formatted = x_formatted.rstrip(".")
 
-        if drop_trailing_dec_mark is False and not "." in x_formatted:
-            x_formatted = x_formatted + "."
+            if drop_trailing_dec_mark is False and not "." in x_formatted:
+                x_formatted = x_formatted + "."
 
         return x_formatted
 
@@ -329,3 +342,210 @@ def _format_number_with_separator(
 def _expand_exponential_to_full_string(str_number: str) -> str:
     str_number = str(Decimal(str_number))
     return str_number
+
+
+def _to_value_n_sigfig(
+    value: Union[int, float],
+    n_sigfig: int,
+    notation: str = "dec",
+    delimiter: str = "e",
+    drop_trailing_zeros: bool = False,
+    preserve_integer: bool = False,
+) -> str:
+    """
+    Formats a value with the needed number of significant digits.
+
+    value - any type that can be converted to a float
+    n_sigfig - the number of significant digits
+    notation - the notation type: (1) 'dec' is decimal notation, (2) 'sci' is
+        scientific notation, and (3) 'eng' is engineering notation
+    delimiter - is placed between the decimal value and exponent
+    drop_trailing_zeros - if True, trailing decimal zeros will be removed.
+    preserve_integer - if True, the 'dec' notation type will preserve all digits
+      when returning values that have no decimal component.
+    """
+
+    if notation == "dec":
+        conversion_fn: function = _value_to_decimal_notation
+    elif notation == "sci":
+        conversion_fn: function = _value_to_scientific_notation
+    elif notation == "eng":
+        conversion_fn: function = _value_to_engineering_notation
+    else:
+        raise ValueError("Unknown notation: " + notation)
+
+    return conversion_fn(
+        value, n_sigfig, delimiter, drop_trailing_zeros, preserve_integer
+    )
+
+
+def _value_to_decimal_notation(
+    value: Union[int, float],
+    n_sigfig: int,
+    _,
+    drop_trailing_zeros: bool,
+    preserve_integer: bool,
+) -> str:
+    """
+    Decimal notation.
+
+    Returns a string value with the correct precision.
+
+    drop_trailing_zeros - if True, trailing decimal zeros will be removed.
+    preserve_integer - if True, all digits will be preserved when returning
+      values that have no decimal component.
+    """
+    sig_digits, power, is_neg = _get_number_profile(value, n_sigfig)
+
+    result = ("-" if is_neg else "") + _insert_decimal_mark(
+        sig_digits, power, drop_trailing_zeros
+    )
+
+    if preserve_integer and not "." in result:
+        result = "{:0.0f}".format(value)
+
+    return result
+
+
+def _value_to_scientific_notation(
+    value: Union[int, float],
+    n_sigfig: int,
+    delimiter: str,
+    drop_trailing_zeros: bool,
+    _,
+) -> str:
+    """
+    Scientific notation.
+
+    Returns a string value with the correct precision and 10s exponent. The
+    delimiter is placed between the decimal value and 10s exponent.
+
+    drop_trailing_zeros - if True, trailing decimal zeros will be removed.
+    """
+
+    is_neg, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
+
+    return (
+        ("-" if is_neg else "")
+        + _insert_decimal_mark(sig_digits, dot_power, drop_trailing_zeros)
+        + delimiter
+        + str(ten_power)
+    )
+
+
+def _value_to_engineering_notation(
+    value: Union[int, float],
+    n_sigfig: int,
+    delimiter: str,
+    drop_trailing_zeros: bool,
+    _,
+) -> str:
+    """
+    Engineering notation.
+
+    Returns a string value with the correct precision and an exponent that
+    is divisible by three. The delimiter is placed between the decimal value and
+    the exponent.
+
+    drop_trailing_zeros - if True, trailing decimal zeros will be removed.
+    """
+
+    is_neg, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
+
+    eng_power = int(3 * floor(ten_power / 3))
+    eng_dot = dot_power + ten_power - eng_power
+
+    return (
+        ("-" if is_neg else "")
+        + _insert_decimal_mark(sig_digits, eng_dot, drop_trailing_zeros)
+        + delimiter
+        + str(eng_power)
+    )
+
+
+def _get_sci_parts(
+    value: Union[int, float], n_sigfig: int
+) -> tuple[bool, str, int, int]:
+    """
+    Returns the properties for constructing a number in scientific notation.
+    """
+
+    value = float(value)
+    sig_digits, power, is_neg = _get_number_profile(value, n_sigfig)
+
+    dot_power = -(n_sigfig - 1)
+    ten_power = power + n_sigfig - 1
+
+    return is_neg, sig_digits, dot_power, ten_power
+
+
+def _insert_decimal_mark(
+    digits: str, power: int, drop_trailing_zeros: bool = False
+) -> str:
+    """
+    Places the decimal mark in the correct location within the digits.
+
+    Should the decimal mark be outside the numeric range, zeros will be added.
+    If `drop_trailing_zeros` is True, trailing decimal zeros will be removed.
+
+    Examples:
+      _insert_decimal_mark("123",   2, False) => "12300"
+      _insert_decimal_mark("123",  -2, False) => "1.23"
+      _insert_decimal_mark("123",   3, False) => "0.123"
+      _insert_decimal_mark("123",   5, False) => "0.00123"
+      _insert_decimal_mark("120",   0, False) => "120."
+      _insert_decimal_mark("1200", -2, False) => "12.00"
+      _insert_decimal_mark("1200", -2, True ) => "12"
+      _insert_decimal_mark("1200", -1, False) => "120.0"
+      _insert_decimal_mark("1200", -1, True ) => "120"
+    """
+
+    if power > 0:
+        out = digits + "0" * power
+
+    elif power < 0:
+        power = abs(power)
+        n_sigfig = len(digits)
+
+        if power < n_sigfig:
+            out = digits[:-power] + "." + digits[-power:]
+
+        else:
+            out = "0." + "0" * (power - n_sigfig) + digits
+
+    else:
+        out = digits + ("." if digits[-1] == "0" and len(digits) > 1 else "")
+
+    if drop_trailing_zeros and "." in out:
+        out = out.rstrip("0").rstrip(".")
+
+    return out
+
+
+def _get_number_profile(
+    value: Union[int, float], n_sigfig: int
+) -> tuple[str, int, bool]:
+    """
+    Returns a tuple containing: (1) a string value of significant digits, (2) an
+    exponent to get the decimal mark to the proper location, and (3) a boolean
+    value that's True if the value is less than zero (i.e., negative).
+    """
+    value = float(value)
+    is_neg = value < 0
+    value = abs(value)
+
+    if value == 0:
+        sig_digits = str(("0" * n_sigfig))
+        power = -(1 - n_sigfig)
+    else:
+        power = -1 * floor(log10(value)) + n_sigfig - 1
+        value_power = value * 10.0**power
+
+        if value < 1 and floor(log10(int(round(value_power)))) > floor(
+            log10(int(value_power))
+        ):
+            power -= 1
+
+        sig_digits = str(int(round(value * 10.0**power)))
+
+    return sig_digits, int(-power), is_neg
