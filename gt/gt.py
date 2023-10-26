@@ -19,7 +19,7 @@ from gt import (
 
 # Rewrite main gt imports to use relative imports of APIs ----
 from gt._tbl_data import TblDataAPI
-from gt._body import BodyAPI
+from gt._body import body_reassemble
 from gt._boxhead import BoxheadAPI
 from gt._footnotes import FootnotesAPI
 from gt._formats import FormatsAPI, fmt_number, fmt_integer
@@ -29,7 +29,7 @@ from gt._options import OptionsAPI
 from gt._row_groups import RowGroupsAPI
 from gt._source_notes import SourceNotesAPI
 from gt._spanners import SpannersAPI
-from gt._stub import StubAPI
+from gt._stub import reorder_stub_df
 from gt._stubhead import StubheadAPI
 from gt._styles import StylesAPI
 
@@ -60,9 +60,7 @@ __all__ = ["GT"]
 class GT(
     GTData,
     TblDataAPI,
-    BodyAPI,
     BoxheadAPI,
-    StubAPI,
     RowGroupsAPI,
     SpannersAPI,
     HeadingAPI,
@@ -113,17 +111,17 @@ class GT(
     def _build_data(self, context: str):
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
-        self = copy.copy(self)
-        self._body = self._body.__class__(self._tbl_data)
-        self._render_formats(context)
-        # self._body = _migrate_unformatted_to_output(body)
+        built = copy.copy(self)
+        built._body = self._body.__class__(self._tbl_data)
+        built._render_formats(context)
+        # built._body = _migrate_unformatted_to_output(body)
 
-        # self._perform_col_merge()
-        # self._body_reassemble()
+        # built._perform_col_merge()
+        built._body = body_reassemble(built._body, self._row_groups, self._stub, self._boxhead)
 
         # Reordering of the metadata elements of the table
 
-        # self = self.reorder_stub_df()
+        built._stub = reorder_stub_df(self._stub, self._row_groups)
         # self = self.reorder_footnotes()
         # self = self.reorder_styles()
 
@@ -225,7 +223,7 @@ def _set_has_built(gt: GT, value: bool) -> GT:
 
 def _get_column_labels(gt: GT, context: str) -> List[str]:
     gt_built = gt._build_data(context=context)
-    column_labels = [x.column_label for x in gt_built._boxhead._boxhead]
+    column_labels = [x.column_label for x in gt_built._boxhead]
     return column_labels
 
 

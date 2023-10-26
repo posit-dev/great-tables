@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import overload, TypeVar
+from typing_extensions import Self
 from dataclasses import dataclass
 
 # Note that we replace with with collections.abc after python 3.8
@@ -20,12 +21,19 @@ class _Sequence(Sequence[T]):
         ...
 
     @overload
-    def __getitem__(self, ii: slice) -> _Sequence[T]:
+    def __getitem__(self, ii: slice) -> Self[T]:
         ...
 
-    def __getitem__(self, ii: int | slice) -> T | _Sequence[T]:
+    @overload
+    def __getitem__(self, ii: list[int]) -> Self[T]:
+        ...
+
+
+    def __getitem__(self, ii: int | slice | list[int]) -> T | Self[T]:
         if isinstance(ii, slice):
             return self.__class__(self._d[ii])
+        elif isinstance(ii, list):
+            return self.__class__([self._d[el] for el in ii])
 
         return self._d[ii]
 
@@ -46,17 +54,16 @@ from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell, copy_data
 # from ._formats import FormatInfo
 
 
+# TODO: it seems like this could just be a DataFrameLike object?
+# Similar to TblData now being a DataFrame, rather than its own class
+# I've left for now, and have just implemented concretes for it in
+# _tbl_data.py
 class Body:
     body: TblData
     data: Any
 
-    def __init__(self, body: Union[pd.DataFrame, TblData], data: Any = None):
-        if isinstance(body, DataFrameLike):
-            self.body = pd.DataFrame(
-                pd.NA, index=body.index, columns=body.columns, dtype="string"
-            )
-        else:
-            raise NotImplementedError()
+    def __init__(self, body: Union[pd.DataFrame, TblData]):
+        self.body = body
 
     def render_formats(
         self, data_tbl: TblData, formats: List[FormatInfo], context: Context
@@ -73,6 +80,14 @@ class Body:
                 _set_cell(self.body, row, col, result)
 
         return self
+
+    @classmethod
+    def from_empty(cls, body: DataFrameLike):
+        empty_df = pd.DataFrame(
+            pd.NA, index=body.index, columns=body.columns, dtype="string"
+        )
+
+        return cls(empty_df)
 
 
 # Boxhead ----
@@ -124,26 +139,29 @@ class ColInfo:
         self.column_width = column_width
 
 
-class Boxhead:
-    _boxhead: List[ColInfo]
+class Boxhead(_Sequence[ColInfo]):
+    _d: List[ColInfo]
 
-    def __init__(self, data: TblData):
-        # Obtain the column names from the data and initialize the
-        # `_boxhead` from that
-        column_names = get_column_names(data)
-        self._boxhead = [ColInfo(col) for col in column_names]
+    def __init__(self, data: TblData | list[ColInfo]):
+        if isinstance(data, list):
+            self._d = data
+        else:
+            # Obtain the column names from the data and initialize the
+            # `_boxhead` from that
+            column_names = get_column_names(data)
+            self._d = [ColInfo(col) for col in column_names]
 
     # Get a list of columns
     def _get_columns(self) -> List[str]:
-        return [x.var for x in self._boxhead]
+        return [x.var for x in self._d]
 
     # Get a list of column labels
     def _get_column_labels(self) -> List[str]:
-        return [x.column_label for x in self._boxhead]
+        return [x.column_label for x in self._d]
 
     # Set column label
     def _set_column_label(self, column: str, label: str):
-        for x in self._boxhead:
+        for x in self._d:
             if x.var == column:
                 x.column_label = label
 
@@ -151,7 +169,7 @@ class Boxhead:
 
     # Get a list of visible columns
     def _get_visible_columns(self) -> List[str]:
-        visible_columns = [x.var for x in self._boxhead if x.visible is True]
+        visible_columns = [x.var for x in self._d if x.visible is True]
         return visible_columns
 
     # Get the number of columns for the visible (not hidden) data; this
@@ -763,7 +781,7 @@ class GTData:
 
         return cls(
             _tbl_data=data,
-            _body=Body(data, data),
+            _body=Body(data),
             _boxhead=Boxhead(data),     # uses get_tbl_data()
             _stub=stub,           # uses get_tbl_data
             _row_groups=RowGroups(row_groups),

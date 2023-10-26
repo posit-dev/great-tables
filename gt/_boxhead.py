@@ -59,9 +59,9 @@ class BoxheadAPI():
     def _print_boxhead(self) -> pd.DataFrame:
         boxhead_list = list(
             zip(
-                [x.var for x in self._boxhead._boxhead],
-                [x.visible for x in self._boxhead._boxhead],
-                [x.column_label for x in self._boxhead._boxhead],
+                [x.var for x in self._boxhead],
+                [x.visible for x in self._boxhead],
+                [x.column_label for x in self._boxhead],
             )
         )
         return pd.DataFrame(boxhead_list, columns=["var", "visible", "column_label"])

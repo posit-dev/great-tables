@@ -3,7 +3,7 @@ import polars as pl
 import polars.testing
 import pytest
 
-from gt._tbl_data import _get_cell, _get_column_dtype, _set_cell, get_column_names, DataFrameLike
+from gt._tbl_data import _get_cell, _get_column_dtype, _set_cell, get_column_names, DataFrameLike, reorder
 
 
 params_frames = [
@@ -50,3 +50,13 @@ def test_set_cell(df: DataFrameLike):
     })
     _set_cell(df, 1, 'col2', 'x')
     assert_frame_equal(df, expected)
+
+
+def test_reorder(df: DataFrameLike):
+    res = reorder(df, [0, 2], ["col2"])
+    dst = df.__class__({"col2": ["a", "c"]})
+
+    if isinstance(dst, pd.DataFrame):
+        dst.index = pd.Index([0, 2])
+
+    assert_frame_equal(res, dst)
