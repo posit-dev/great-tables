@@ -480,6 +480,10 @@ def test_fmt_number_n_sigfig(n_sigfig: int, x_out: str):
     assert x == x_out
 
 
+# TODO: Expect that the `drop_trailing_zeros` argument is ignored when formatting
+# to a fixed number of signficant digits
+
+
 @pytest.mark.parametrize(
     "decimals, drop_trailing_zeros, drop_trailing_dec_mark, x_out",
     [
