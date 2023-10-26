@@ -386,7 +386,7 @@ def test_expand_exponential_to_full_string(str_number: str, x_out: str):
 
 
 def test_format_number_with_sigfig():
-    df = pd.DataFrame({"x": [1.23, 2.345], "y": [3.456, 4.567]})
+    df = pd.DataFrame({"x": [1.23, 2.345]})
     gt = GT(df).fmt_number(
         columns="x",
         n_sigfig=2,
@@ -398,7 +398,7 @@ def test_format_number_with_sigfig():
 
 
 def test_format_number_with_sigfig_2():
-    df = pd.DataFrame({"x": [0.000000000000000534, 9.123], "y": [3.456, 4.567]})
+    df = pd.DataFrame({"x": [0.000000000000000534, 9.123]})
     gt = GT(df).fmt_number(
         columns="x",
         n_sigfig=2,
