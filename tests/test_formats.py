@@ -11,57 +11,68 @@ from gt._formats import (
 
 
 @pytest.mark.parametrize(
-    "decimals, outcome",
+    "decimals, x_out",
     [(2, ["1.23", "2.35"]), (5, ["1.23400", "2.34500"]), (0, ["1", "2"])],
 )
-def test_fmt_number_basic(decimals: int, outcome: str):
+def test_fmt_number_basic(decimals: int, x_out: str):
     df = pd.DataFrame({"x": [1.234, 2.345], "y": [3.456, 4.567]})
 
     # Expect that values in `x` are formatted to 2 decimal places
     gt = GT(df).fmt_number(columns="x", decimals=decimals)
     x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == outcome
+    assert x == x_out
 
 
-# TODO: parameterize this as above
-def test_fmt_number_drop_trailing():
-    df = pd.DataFrame({"x": [1.23, 2.345], "y": [3.456, 4.567]})
+@pytest.mark.parametrize(
+    "decimals, drop_trailing_zeros, drop_trailing_dec_mark, x_out",
+    [
+        (0, False, False, ["1.", "2."]),
+        (0, False, True, ["1", "2"]),
+        (0, True, False, ["1.", "2."]),
+        (0, True, True, ["1", "2"]),
+        (1, False, False, ["1.2", "2.3"]),
+        (1, False, True, ["1.2", "2.3"]),
+        (1, True, False, ["1.2", "2.3"]),
+        (1, True, True, ["1.2", "2.3"]),
+        (2, False, False, ["1.23", "2.35"]),
+        (2, False, True, ["1.23", "2.35"]),
+        (2, True, False, ["1.23", "2.35"]),
+        (2, True, True, ["1.23", "2.35"]),
+        (3, False, False, ["1.230", "2.345"]),
+        (3, False, True, ["1.230", "2.345"]),
+        (3, True, False, ["1.23", "2.345"]),
+        (3, True, True, ["1.23", "2.345"]),
+        (4, False, False, ["1.2300", "2.3450"]),
+        (4, False, True, ["1.2300", "2.3450"]),
+        (4, True, False, ["1.23", "2.345"]),
+        (4, True, True, ["1.23", "2.345"]),
+        (5, False, False, ["1.23000", "2.34500"]),
+        (5, False, True, ["1.23000", "2.34500"]),
+        (5, True, False, ["1.23", "2.345"]),
+        (5, True, True, ["1.23", "2.345"]),
+        (10, False, False, ["1.2300000000", "2.3450000000"]),
+        (10, False, True, ["1.2300000000", "2.3450000000"]),
+        (10, True, False, ["1.23", "2.345"]),
+        (10, True, True, ["1.23", "2.345"]),
+        # (20, False, False, ["1.23000000000000000000", "2.34500000000000000000"]), # <- doesn't work
+        # (20, False, True, ["1.23000000000000000000", "2.34500000000000000000"]), # <- doesn't work
+        # (20, True, False, ["1.23", "2.345"]), # <- doesn't work
+        # (20, True, True, ["1.23", "2.345"]), # <- doesn't work
+    ],
+)
+def test_fmt_number_drop_trailing(
+    decimals: int, drop_trailing_zeros: bool, drop_trailing_dec_mark: bool, x_out: str
+):
+    df = pd.DataFrame({"x": [1.23, 2.345]})
 
     gt = GT(df).fmt_number(
         columns="x",
-        decimals=0,
-        drop_trailing_zeros=False,
-        drop_trailing_dec_mark=True,
+        decimals=decimals,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
     )
     x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == ["1", "2"]
-
-    gt = GT(df).fmt_number(
-        columns="x",
-        decimals=0,
-        drop_trailing_zeros=False,
-        drop_trailing_dec_mark=False,
-    )
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == ["1.", "2."]
-
-    gt = GT(df).fmt_number(
-        columns="x",
-        decimals=4,
-        drop_trailing_zeros=True,
-        drop_trailing_dec_mark=False,
-    )
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == ["1.23", "2.345"]
-
-    gt = GT(df).fmt_number(
-        columns="x",
-        decimals=4,
-        drop_trailing_zeros=False,
-        drop_trailing_dec_mark=True,
-    )
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == ["1.2300", "2.3450"]
+    assert x == x_out
 
 
 # Test `_format_number_with_separator()` util function
