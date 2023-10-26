@@ -150,13 +150,13 @@ def _get_column_dtype(data: DataFrameLike, column: str) -> str:
 # reorder ----
 
 @singledispatch
-def reorder(data: DataFrameLike, rows: list[int], columns: list[str]) -> DataFrameLike:
+def reorder(data: DataFrameLike, rows: List[int], columns: List[str]) -> DataFrameLike:
     """Return a re-ordered DataFrame."""
     _raise_not_implemented(data)
 
 
 @reorder.register
-def _(data: PdDataFrame, rows: list[int], columns: list[str]) -> PdDataFrame:
+def _(data: PdDataFrame, rows: List[int], columns: List[str]) -> PdDataFrame:
     # note that because loc is label based, we need
     # reset index to allow us to use integer indexing on the rows
     # note that this means the index is not preserved when reordering pandas
@@ -164,5 +164,5 @@ def _(data: PdDataFrame, rows: list[int], columns: list[str]) -> PdDataFrame:
 
 
 @reorder.register
-def _(data: PlDataFrame, rows: list[int], columns: list[str]) -> PlDataFrame:
+def _(data: PlDataFrame, rows: List[int], columns: List[str]) -> PlDataFrame:
     return data[rows, columns]
