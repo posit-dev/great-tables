@@ -94,7 +94,7 @@ def test_fmt_number_drop_trailing():
         (0.01, "0.01"),
         (0.00023, "0.00023"),
         (0.000033, "0.000033"),
-        # (0.00000000446453, "0.00000000446453"), <- doesn't work
+        # (0.00000000446453, "0.00000000446453"),  # <- doesn't work
         ("8234324.23", "8,234,324.23"),
         (
             "82534563535234324.233535303503503530530535",
@@ -119,6 +119,7 @@ def test_format_number_with_separator(number: Union[int, float, str], x_out: str
         ("1.5E-5", "0.000015"),
         ("-1E-5", "-0.00001"),
         ("-1.5E-5", "-0.000015"),
+        # ("4.46453E-9", "0.00000000446453"),  # <- doesn't work
         # ("1E+5", "100000"),  # <- doesn't work
         # ("1.5E+5", "150000"),  # <- doesn't work
         ("150000", "150000"),
@@ -127,3 +128,27 @@ def test_format_number_with_separator(number: Union[int, float, str], x_out: str
 def test_expand_exponential_to_full_string(str_number: str, x_out: str):
     x = _expand_exponential_to_full_string(str_number=str_number)
     assert x == x_out
+
+
+def test_format_number_with_sigfig():
+    df = pd.DataFrame({"x": [1.23, 2.345], "y": [3.456, 4.567]})
+    gt = GT(df).fmt_number(
+        columns="x",
+        n_sigfig=2,
+        drop_trailing_zeros=True,
+        drop_trailing_dec_mark=False,
+    )
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1.2", "2.3"]
+
+
+def test_format_number_with_sigfig_2():
+    df = pd.DataFrame({"x": [0.000000000000000534, 9.123], "y": [3.456, 4.567]})
+    gt = GT(df).fmt_number(
+        columns="x",
+        n_sigfig=2,
+        drop_trailing_zeros=True,
+        drop_trailing_dec_mark=False,
+    )
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["0.00000000000000053", "9.1"]
