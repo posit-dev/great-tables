@@ -131,7 +131,7 @@ class GT(
 
         # ...
 
-        return self
+        return built
 
     def render(self, context: str) -> str:
         self = self._build_data(context=context)

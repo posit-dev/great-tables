@@ -781,7 +781,7 @@ class GTData:
 
         return cls(
             _tbl_data=data,
-            _body=Body(data),
+            _body=Body.from_empty(data),
             _boxhead=Boxhead(data),     # uses get_tbl_data()
             _stub=stub,           # uses get_tbl_data
             _row_groups=RowGroups(row_groups),
