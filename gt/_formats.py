@@ -133,6 +133,13 @@ def fmt_number(
         with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
         `fmt_integer()` method should be considered.
 
+        n_sigfig: A option to format numbers to *n* significant figures. By
+        default, this is `None` and thus number values will be formatted
+        according to the number of decimal places set via `decimals`. If opting
+        to format according to the rules of significant figures, `n_sigfig` must
+        be a number greater than or equal to `1`. Any values passed to the
+        `decimals` and `drop_trailing_zeros` arguments will be ignored.
+
         drop_trailing_zeros: A boolean value that allows for removal of trailing
         zeros (those redundant zeros after the decimal mark).
 
