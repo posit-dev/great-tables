@@ -14,7 +14,7 @@ Interested in contributing to **great_tables**? Check out the contributing guide
 
 ## Code of Conduct
 
-Please note that the gt project is released with a [contributor code of conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/).<br>By participating in this project you agree to abide by its terms.
+Please note that the gt project is released with a [contributor code of conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).<br>By participating in this project you agree to abide by its terms.
 
 ## 📄 License
 
