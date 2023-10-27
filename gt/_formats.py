@@ -47,7 +47,7 @@ class FormatsAPI:
         if isinstance(fns, Callable):
             fns = FormatFns(default=fns)
 
-        columns = listify(columns, list)
+        columns = _listify(columns, list)
 
         if rows is None:
             rows = list(range(n_rows(x._tbl_data)))
@@ -297,7 +297,7 @@ def fmt_integer(
     return self
 
 
-def listify(
+def _listify(
     x: Union[T, List[T], None],
     default: Callable[[], List[T]],
 ) -> List[T]:
@@ -319,9 +319,9 @@ def listify(
         None
 
     Examples:
-        listify(5, lambda: [1, 2, 3])  # Output: [5]
-        listify([1, 2, 3], lambda: [4, 5, 6])  # Output: [1, 2, 3]
-        listify(None, lambda: ['a', 'b', 'c'])  # Output: ['a', 'b', 'c']
+        _listify(5, lambda: [1, 2, 3])  # Output: [5]
+        _listify([1, 2, 3], lambda: [4, 5, 6])  # Output: [1, 2, 3]
+        _listify(None, lambda: ['a', 'b', 'c'])  # Output: ['a', 'b', 'c']
     """
     if x is None:
         return default()
