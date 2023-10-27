@@ -109,51 +109,64 @@ def fmt_number(
 ) -> GTData:
     """Format numeric values.
 
-    The `fmt()` method provides a way to execute custom formatting
-    functionality with raw data values in a way that can consider all output
-    contexts.
+    The `fmt_number()` method provides a way to execute custom formatting functionality with raw
+    data values in a way that can consider all output contexts.
 
-    Along with the `columns` and `rows` arguments that provide some precision in
-    targeting data cells, the `fns` argument allows you to define one or more
-    functions for manipulating the raw data.
+    Along with the `columns` and `rows` arguments that provide some precision in targeting data
+    cells, the `fns` argument allows you to define one or more functions for manipulating the raw
+    data.
 
-    Args:
-        columns: The columns to target. Can either be a single column name
-        or a series of column names provided in a list.
+    Parameters
+    ----------
 
-        rows: In conjunction with `columns`, we can specify which of their
-        rows should undergo formatting. The default is all rows, resulting
-        in all rows in `columns` being formatted. Alternatively, we can
-        supply a list of row indices.
+    columns : Union[str, List[str], None], optional
 
-        decimals: This corresponds to the exact number of decimal places to use.
-        A value such as `2.34` can, for example, be formatted with `0` decimal
-        places and it would result in `"2"`. With `4` decimal places, the
-        formatted value becomes `"2.3400"`. The trailing zeros can be removed
-        with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    rows : Union[int, List[int], None], optional
+
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+
+    decimals : int, optional
+
+        The `decimals` values corresponds to the exact number of decimal places to use. A value such
+        as `2.34` can, for example, be formatted with `0` decimal places and it would result in
+        `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
+        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
         `fmt_integer()` method should be considered.
 
-        n_sigfig: A option to format numbers to *n* significant figures. By
-        default, this is `None` and thus number values will be formatted
-        according to the number of decimal places set via `decimals`. If opting
-        to format according to the rules of significant figures, `n_sigfig` must
-        be a number greater than or equal to `1`. Any values passed to the
-        `decimals` and `drop_trailing_zeros` arguments will be ignored.
+    n_sigfig : Optional[int], optional
 
-        drop_trailing_zeros: A boolean value that allows for removal of trailing
-        zeros (those redundant zeros after the decimal mark).
+        A option to format numbers to *n* significant figures. By default, this is `None` and thus
+        number values will be formatted according to the number of decimal places set via
+        `decimals`. If opting to format according to the rules of significant figures, `n_sigfig`
+        must be a number greater than or equal to `1`. Any values passed to the `decimals` and
+        `drop_trailing_zeros` arguments will be ignored.
 
-        drop_trailing_dec_mark: A boolean value that determines whether decimal
-        marks should always appear even if there are no decimal digits to
-        display after formatting (e.g., `23` becomes `23.` if `False`). By
+    drop_trailing_zeros : bool, optional
+
+        A boolean value that allows for removal of trailing zeros (those redundant zeros after the
+        decimal mark).
+
+    drop_trailing_dec_mark : bool, optional
+
+        A boolean value that determines whether decimal marks should always appear even if there are
+        no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
         default trailing decimal marks are not shown.
 
-        scale_by: All numeric values will be multiplied by the `scale_by` value
-        before undergoing formatting. Since the `default` value is `1`, no
-        values will be changed unless a different multiplier value is supplied.
+    scale_by : float, optional
 
-    Returns:
-        GTData: The GTData object is returned.
+        All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
+        Since the `default` value is `1`, no values will be changed unless a different multiplier
+        value is supplied.
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
     """
 
     # Generate a function that will operate on single `x` values in
@@ -188,9 +201,7 @@ def fmt_number(
 
             # Add grouping separators (default is ',')
             if use_seps is True:
-                x_formatted = _format_number_with_separator(
-                    x_formatted, separator=sep_mark
-                )
+                x_formatted = _format_number_with_separator(x_formatted, separator=sep_mark)
 
             # Drop any trailing zeros if option is taken
             if drop_trailing_zeros is True:
@@ -307,9 +318,7 @@ def listify(
         return cast(Any, x)
 
 
-def _format_number_with_separator(
-    number: Union[int, float, str], separator: str = ","
-) -> str:
+def _format_number_with_separator(number: Union[int, float, str], separator: str = ",") -> str:
     # If `number` is a string, validate that is at least number-like
     if isinstance(number, str):
         float(number)
@@ -382,9 +391,7 @@ def _to_value_n_sigfig(
     else:
         raise ValueError("Unknown notation: " + notation)
 
-    return conversion_fn(
-        value, n_sigfig, delimiter, drop_trailing_zeros, preserve_integer
-    )
+    return conversion_fn(value, n_sigfig, delimiter, drop_trailing_zeros, preserve_integer)
 
 
 def _value_to_decimal_notation(
@@ -405,9 +412,7 @@ def _value_to_decimal_notation(
     """
     sig_digits, power, is_neg = _get_number_profile(value, n_sigfig)
 
-    result = ("-" if is_neg else "") + _insert_decimal_mark(
-        sig_digits, power, drop_trailing_zeros
-    )
+    result = ("-" if is_neg else "") + _insert_decimal_mark(sig_digits, power, drop_trailing_zeros)
 
     if preserve_integer and not "." in result:
         result = "{:0.0f}".format(value)
@@ -471,9 +476,7 @@ def _value_to_engineering_notation(
     )
 
 
-def _get_sci_parts(
-    value: Union[int, float], n_sigfig: int
-) -> tuple[bool, str, int, int]:
+def _get_sci_parts(value: Union[int, float], n_sigfig: int) -> tuple[bool, str, int, int]:
     """
     Returns the properties for constructing a number in scientific notation.
     """
@@ -487,9 +490,7 @@ def _get_sci_parts(
     return is_neg, sig_digits, dot_power, ten_power
 
 
-def _insert_decimal_mark(
-    digits: str, power: int, drop_trailing_zeros: bool = False
-) -> str:
+def _insert_decimal_mark(digits: str, power: int, drop_trailing_zeros: bool = False) -> str:
     """
     Places the decimal mark in the correct location within the digits.
 
@@ -530,9 +531,7 @@ def _insert_decimal_mark(
     return out
 
 
-def _get_number_profile(
-    value: Union[int, float], n_sigfig: int
-) -> tuple[str, int, bool]:
+def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, int, bool]:
     """
     Returns a tuple containing: (1) a string value of significant digits, (2) an
     exponent to get the decimal mark to the proper location, and (3) a boolean
@@ -549,9 +548,7 @@ def _get_number_profile(
         power = -1 * floor(log10(value)) + n_sigfig - 1
         value_power = value * 10.0**power
 
-        if value < 1 and floor(log10(int(round(value_power)))) > floor(
-            log10(int(value_power))
-        ):
+        if value < 1 and floor(log10(int(round(value_power)))) > floor(log10(int(value_power))):
             power -= 1
 
         sig_digits = str(int(round(value * 10.0**power)))
