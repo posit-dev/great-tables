@@ -16,20 +16,7 @@ from gt._formats import (
         (0, ["1", "1", "1", "1", "1", "1", "1", "1", "1"]),
         (1, ["1.0", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2"]),
         (2, ["1.00", "1.20", "1.23", "1.23", "1.23", "1.23", "1.23", "1.23", "1.23"]),
-        (
-            3,
-            [
-                "1.000",
-                "1.200",
-                "1.230",
-                "1.234",
-                "1.234",
-                "1.235",
-                "1.235",
-                "1.235",
-                "1.235",
-            ],
-        ),
+        (3, ["1.000", "1.200", "1.230", "1.234", "1.234", "1.235", "1.235", "1.235", "1.235"]),
         (
             4,
             [
@@ -521,7 +508,7 @@ def test_fmt_number_n_sigfig(n_sigfig: int, x_out: str):
         # (20, True, True, ["1.23", "2.345"]), # <- doesn't work
     ],
 )
-def test_fmt_number_drop_trailing(
+def test_fmt_number_drop_trailing_00(
     decimals: int, drop_trailing_zeros: bool, drop_trailing_dec_mark: bool, x_out: str
 ):
     df = pd.DataFrame({"x": [1.23, 2.345]})
@@ -529,6 +516,38 @@ def test_fmt_number_drop_trailing(
     gt = GT(df).fmt_number(
         columns="x",
         decimals=decimals,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+    )
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "n_sigfig, drop_trailing_zeros, drop_trailing_dec_mark, x_out",
+    [
+        (1, False, False, ["1", "2"]),
+        (1, False, True, ["1", "2"]),
+        (1, True, False, ["1", "2"]),
+        (1, True, True, ["1", "2"]),
+        (2, False, False, ["1.2", "2.3"]),
+        (2, False, True, ["1.2", "2.3"]),
+        (2, True, False, ["1.2", "2.3"]),
+        (2, True, True, ["1.2", "2.3"]),
+        (3, False, False, ["1.23", "2.35"]),
+        (3, False, True, ["1.23", "2.35"]),
+        (3, True, False, ["1.23", "2.35"]),
+        (3, True, True, ["1.23", "2.35"]),
+    ],
+)
+def test_fmt_number_drop_trailing_01(
+    n_sigfig: int, drop_trailing_zeros: bool, drop_trailing_dec_mark: bool, x_out: str
+):
+    df = pd.DataFrame({"x": [1.23, 2.345]})
+
+    gt = GT(df).fmt_number(
+        columns="x",
+        n_sigfig=n_sigfig,
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
     )
