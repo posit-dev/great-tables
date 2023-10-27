@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 include = ["gt"]
 
 [project]
-name = "gt"
+name = "great-tables"
 description = "Easily generate information-rich, publication-quality tables from Python."
 readme = "README.md"
 keywords = ["tables"]
