@@ -472,6 +472,14 @@ default trailing decimal marks are not shown.</code></pre>
 <pre><code>All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
 Since the `default` value is `1`, no values will be changed unless a different multiplier
 value is supplied.</code></pre>
+<p>sep_mark : str, optional</p>
+<pre><code>The string to use as a separator between groups of digits. For example, using `sep_mark=","`
+with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
+ignored if a `locale` is supplied (i.e., is not `None`).</code></pre>
+<p>dec_mark : str, optional</p>
+<pre><code>The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
+`0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
+`locale` is supplied (i.e., is not `None`).</code></pre>
 </section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
