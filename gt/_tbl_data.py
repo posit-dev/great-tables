@@ -145,3 +145,24 @@ def _(data, row: int, column: str, value: Any):
 def _get_column_dtype(data: DataFrameLike, column: str) -> str:
     """Get the data type for a single column in the input data table"""
     return data[column].dtype
+
+
+# reorder ----
+
+@singledispatch
+def reorder(data: DataFrameLike, rows: List[int], columns: List[str]) -> DataFrameLike:
+    """Return a re-ordered DataFrame."""
+    _raise_not_implemented(data)
+
+
+@reorder.register
+def _(data: PdDataFrame, rows: List[int], columns: List[str]) -> PdDataFrame:
+    # note that because loc is label based, we need
+    # reset index to allow us to use integer indexing on the rows
+    # note that this means the index is not preserved when reordering pandas
+    return data.iloc[rows, :].loc[:, columns]
+
+
+@reorder.register
+def _(data: PlDataFrame, rows: List[int], columns: List[str]) -> PlDataFrame:
+    return data[rows, columns]
