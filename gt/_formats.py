@@ -109,12 +109,20 @@ def fmt_number(
 ) -> GTData:
     """Format numeric values.
 
-    The `fmt_number()` method provides a way to execute custom formatting functionality with raw
-    data values in a way that can consider all output contexts.
+    With numeric values in a **gt** table, we can perform number-based formatting so that the
+    targeted values are rendered with a higher consideration for tabular presentation. Furthermore,
+    there is finer control over numeric formatting with the following options:
 
-    Along with the `columns` and `rows` arguments that provide some precision in targeting data
-    cells, the `fns` argument allows you to define one or more functions for manipulating the raw
-    data.
+    - decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice
+    of the decimal symbol
+    - digit grouping separators: options to enable/disable digit separators and provide a choice of
+    separator symbol
+    - scaling: we can choose to scale targeted values by a multiplier value
+    - large-number suffixing: larger figures (thousands, millions, etc.) can be autoscaled and
+    decorated with the appropriate suffixes
+    - pattern: option to use a text pattern for decoration of the formatted values
+    - locale-based formatting: providing a locale ID will result in number formatting specific to
+    the chosen locale
 
     Parameters
     ----------
@@ -257,24 +265,30 @@ def fmt_integer(
     - locale-based formatting: providing a locale ID will result in number
     formatting specific to the chosen locale
 
-    Args:
-        fns (list): Either a single formatting function or a named list of
-        functions.
+    Parameters
+    ----------
 
-        columns: The columns to target. Can either be a single column name
-        or a series of column names provided in a list.
+    columns : Union[str, List[str], None], optional
 
-        rows: In conjunction with `columns`, we can specify which of their
-        rows should undergo formatting. The default is all rows, resulting
-        in all rows in `columns` being formatted. Alternatively, we can
-        supply a list of row indices.
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
 
-        scale_by: All numeric values will be multiplied by the `scale_by` value
-        before undergoing formatting. Since the `default` value is `1`, no
-        values will be changed unless a different multiplier value is supplied.
+    rows : Union[int, List[int], None], optional
 
-    Returns:
-        GTData: The GTData object is returned.
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+
+    scale_by : float, optional
+
+        All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
+        Since the `default` value is `1`, no values will be changed unless a different multiplier
+        value is supplied.
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
     """
 
     # Generate a function that will operate on single `x` values in
@@ -304,16 +318,22 @@ def _listify(
     """
     Convert the input into a list.
 
-    Args:
-        x (Union[T, List[T], None]): The input value to be converted into a
-        list. It can be a single value of type T, a list of values of type T,
-        or None.
+    Parameters
+    ----------
 
-        default (Callable[[], List[T]]): A callable that returns a default list
-        when the input value is None.
+    x : Union[T, List[T], None]
 
-    Returns:
-        List[T]: The converted list.
+        The input value to be converted into a list. It can be a single value of type T, a list of
+        values of type T, or None.
+
+    default : Callable[[], List[T]]
+
+        A callable that returns a default list when the input value is None.
+
+    Returns
+    -------
+
+    List[T]: The converted list.
 
     Raises:
         None
