@@ -143,8 +143,8 @@ def fmt_number(
         A option to format numbers to *n* significant figures. By default, this is `None` and thus
         number values will be formatted according to the number of decimal places set via
         `decimals`. If opting to format according to the rules of significant figures, `n_sigfig`
-        must be a number greater than or equal to `1`. Any values passed to the `decimals` and
-        `drop_trailing_zeros` arguments will be ignored.
+        must be a number greater than or equal to `1`. Any values passed to the `decimals`,
+        `drop_trailing_zeros`, and `drop_trailing_dec_mark` arguments will be ignored.
 
     drop_trailing_zeros : bool, optional
 
