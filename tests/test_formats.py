@@ -2,9 +2,9 @@ from typing import Union
 import pandas as pd
 import pytest
 
-from gt import GT
-from gt.gt import _get_column_of_values
-from gt._formats import (
+from great_tables import GT
+from great_tables.gt import _get_column_of_values
+from great_tables._formats import (
     _format_number_with_separator,
     _expand_exponential_to_full_string,
 )

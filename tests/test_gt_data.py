@@ -1,7 +1,7 @@
 import pandas as pd
 
-from gt._gt_data import Stub, RowInfo
-from gt._gt_data import RowGroups
+from great_tables._gt_data import Stub, RowInfo
+from great_tables._gt_data import RowGroups
 
 
 def test_stub_construct_manual():

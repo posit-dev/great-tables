@@ -4,8 +4,8 @@ jupyter: python3
 ---
 
 ```{python}
-import gt
-from gt import exibble
+import great_tables as gt
+from great_tables import exibble
 
 ```
 

@@ -1,6 +1,6 @@
 import pandas as pd
-from gt import GT
-from gt.gt import _get_column_labels
+from great_tables import GT
+from great_tables.gt import _get_column_labels
 
 
 def test_cols_label():

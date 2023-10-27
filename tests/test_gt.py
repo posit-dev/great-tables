@@ -1,4 +1,4 @@
-from gt import *
+from great_tables import *
 import pandas as pd
 
 # Generate a gt Table object for assertion testing

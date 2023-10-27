@@ -1,7 +1,14 @@
-__version__ = "0.0.1"
+# Set version ----
+from importlib_metadata import version as _v
+
+__version__ = _v("great_tables")
+
+del _v
+
+# Main gt imports ----
 
 from .gt import GT
-from gt.data import *
+from great_tables.data import *
 
 # from ._base_api import *
 # from ._body import *

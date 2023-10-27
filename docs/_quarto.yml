@@ -3,7 +3,7 @@ project:
 
 
 website:
-  title: gt
+  title: great_tables
   page-navigation: true
   navbar:
     left:
@@ -32,7 +32,7 @@ metadata-files:
 
 quartodoc:
   # the name used to import the package
-  package: gt
+  package: great_tables
 
   # write sidebar data to this file
   sidebar: _sidebar.yml

@@ -4,8 +4,8 @@ jupyter: python3
 ---
 
 ```{python}
-import gt
-from gt import exibble, countrypops
+import great_tables as gt
+from great_tables import exibble, countrypops
 ```
 
 Use the exibble dataset to create a gt table. With the `fmt_number()` method, we'll format the num column to have three decimal places (with `decimals=3`) and omit the use of digit separators (with `use_seps=False`).
