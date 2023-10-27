@@ -2,12 +2,11 @@
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
   "editor.formatOnSave": true,
-  "python.formatting.provider": "none",
   "editor.tabSize": 4,
   "files.exclude": {
     "**/__pycache__": true
   },
-  "editor.rulers": [80],
+  "editor.rulers": [100],
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
