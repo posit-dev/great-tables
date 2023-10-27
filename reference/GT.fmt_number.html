@@ -449,44 +449,15 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<p>columns : Union[str, List[str], None], optional</p>
-<pre><code>The columns to target. Can either be a single column name or a series of column names
-provided in a list.</code></pre>
-<p>rows : Union[int, List[int], None], optional</p>
-<pre><code>In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-we can supply a list of row indices.</code></pre>
-<p>decimals : int, optional</p>
-<pre><code>The `decimals` values corresponds to the exact number of decimal places to use. A value such
-as `2.34` can, for example, be formatted with `0` decimal places and it would result in
-`"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
-can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-`fmt_integer()` method should be considered.</code></pre>
-<p>n_sigfig : Optional[int], optional</p>
-<pre><code>A option to format numbers to *n* significant figures. By default, this is `None` and thus
-number values will be formatted according to the number of decimal places set via
-`decimals`. If opting to format according to the rules of significant figures, `n_sigfig`
-must be a number greater than or equal to `1`. Any values passed to the `decimals`,
-`drop_trailing_zeros`, and `drop_trailing_dec_mark` arguments will be ignored.</code></pre>
-<p>drop_trailing_zeros : bool, optional</p>
-<pre><code>A boolean value that allows for removal of trailing zeros (those redundant zeros after the
-decimal mark).</code></pre>
-<p>drop_trailing_dec_mark : bool, optional</p>
-<pre><code>A boolean value that determines whether decimal marks should always appear even if there are
-no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
-default trailing decimal marks are not shown.</code></pre>
-<p>scale_by : float, optional</p>
-<pre><code>All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
-Since the `default` value is `1`, no values will be changed unless a different multiplier
-value is supplied.</code></pre>
-<p>sep_mark : str, optional</p>
-<pre><code>The string to use as a separator between groups of digits. For example, using `sep_mark=","`
-with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
-ignored if a `locale` is supplied (i.e., is not `None`).</code></pre>
-<p>dec_mark : str, optional</p>
-<pre><code>The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
-`0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
-`locale` is supplied (i.e., is not `None`).</code></pre>
+<p>columns : Union[str, List[str], None], optional The columns to target. Can either be a single column name or a series of column names provided in a list.</p>
+<p>rows : Union[int, List[int], None], optional In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</p>
+<p>decimals : int, optional The <code>decimals</code> values corresponds to the exact number of decimal places to use. A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and it would result in <code>"2"</code>. With <code>4</code> decimal places, the formatted value becomes <code>"2.3400"</code>. The trailing zeros can be removed with <code>drop_trailing_zeros=True</code>. If you always need <code>decimals = 0</code>, the <code>fmt_integer()</code> method should be considered.</p>
+<p>n_sigfig : Optional[int], optional A option to format numbers to <em>n</em> significant figures. By default, this is <code>None</code> and thus number values will be formatted according to the number of decimal places set via <code>decimals</code>. If opting to format according to the rules of significant figures, <code>n_sigfig</code> must be a number greater than or equal to <code>1</code>. Any values passed to the <code>decimals</code>, <code>drop_trailing_zeros</code>, and <code>drop_trailing_dec_mark</code> arguments will be ignored.</p>
+<p>drop_trailing_zeros : bool, optional A boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).</p>
+<p>drop_trailing_dec_mark : bool, optional A boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., <code>23</code> becomes <code>23.</code> if <code>False</code>). By default trailing decimal marks are not shown.</p>
+<p>scale_by : float, optional All numeric values will be multiplied by the <code>scale_by</code> value before undergoing formatting. Since the <code>default</code> value is <code>1</code>, no values will be changed unless a different multiplier value is supplied.</p>
+<p>sep_mark : str, optional The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
+<p>dec_mark : str, optional The string to be used as the decimal mark. For example, using <code>dec_mark=","</code> with the value <code>0.152</code> would result in a formatted value of <code>"0,152"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
 </section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
