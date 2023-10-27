@@ -1,16 +1,16 @@
-[![CI Build](https://github.com/rstudio/gt-python/workflows/CI%20Tests/badge.svg?branch=main)](https://github.com/rstudio/gt-python/actions?query=workflow%3A%22CI+Tests%22+branch%3Amain)
+[![CI Build](https://github.com/posit-dev/great_tables/workflows/CI%20Tests/badge.svg?branch=main)](https://github.com/posit-dev/great_tables/actions?query=workflow%3A%22CI+Tests%22+branch%3Amain)
 
-With the **gt** package, anyone can make wonderful-looking tables with Python. The **gt** philosophy: we can construct a wide variety of useful tables with a cohesive set of table parts. These include the *table header*, the *stub*, the *column labels* and *spanner column labels*, the *table body*, and the *table footer*.
+With **great_tables** anyone can make wonderful-looking tables in Python. The **gt** philosophy is that we can construct a wide variety of useful tables by working with a cohesive set of table parts. You can mix and match things like a *header* and *footer*, attach a *stub* (which contains row labels), arrange *spanner labels* over top of the *column labels*, and much more.
 
 ## Installation
 
 ```bash
-$ pip install gt
+$ pip install great_tables
 ```
 
 ## Contributing
 
-Interested in contributing to **gt**? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
+Interested in contributing to **great_tables**? Check out the contributing guidelines.
 
 ## Code of Conduct
 
@@ -18,7 +18,7 @@ Please note that the gt project is released with a [contributor code of conduct]
 
 ## 📄 License
 
-**gt** is licensed under the MIT license. See the [`LICENSE`](LICENSE) file for more details.
+**great_tables** is licensed under the MIT license. See the [`LICENSE`](LICENSE) file for more details.
 
 © Posit Software, PBC.
 
