@@ -5,3 +5,5 @@ asyncio_mode = "strict"
 testpaths = [
     "tests"
 ]
+[tool.black]
+line-length = 100
