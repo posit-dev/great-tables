@@ -102,7 +102,7 @@ def fmt_number(
     # suffixing: bool = False,
     # pattern: str = '{x}'
     sep_mark: str = ",",
-    # dec_mark: str = '.',
+    dec_mark: str = ".",
     # force_sign: bool = False,
     # system: str = 'intl',
     # locale: str = None,
@@ -163,6 +163,18 @@ def fmt_number(
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
 
+    sep_mark : str, optional
+
+        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
+        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
+        ignored if a `locale` is supplied (i.e., is not `None`).
+
+    dec_mark : str, optional
+
+        The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
+        `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
+        `locale` is supplied (i.e., is not `None`).
+
     Returns
     -------
     GTData
@@ -179,6 +191,7 @@ def fmt_number(
         drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
         use_seps: bool = use_seps,  # TODO: not yet implemented
         sep_mark: str = sep_mark,
+        dec_mark: str = dec_mark,
         scale_by: float = scale_by,
     ):
         # Scale `x` value by a defined `scale_by` value
