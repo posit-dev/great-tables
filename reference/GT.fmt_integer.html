@@ -421,7 +421,11 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#gt.GT.fmt_integer" id="toc-gt.GT.fmt_integer" class="nav-link active" data-scroll-target="#gt.GT.fmt_integer">GT.fmt_integer</a></li>
+  <li><a href="#gt.GT.fmt_integer" id="toc-gt.GT.fmt_integer" class="nav-link active" data-scroll-target="#gt.GT.fmt_integer">GT.fmt_integer</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -443,21 +447,26 @@ ul.task-list li input[type="checkbox"] {
 <li>pattern: option to use a text pattern for decoration of the formatted values</li>
 <li>locale-based formatting: providing a locale ID will result in number formatting specific to the chosen locale</li>
 </ul>
-<p>Args: fns (list): Either a single formatting function or a named list of functions.</p>
-<pre><code>columns: The columns to target. Can either be a single column name
-or a series of column names provided in a list.
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<p>columns : Union[str, List[str], None], optional</p>
+<pre><code>The columns to target. Can either be a single column name or a series of column names
+provided in a list.</code></pre>
+<p>rows : Union[int, List[int], None], optional</p>
+<pre><code>In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+we can supply a list of row indices.</code></pre>
+<p>scale_by : float, optional</p>
+<pre><code>All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
+Since the `default` value is `1`, no values will be changed unless a different multiplier
+value is supplied.</code></pre>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<p>GTData The GTData object is returned.</p>
 
-rows: In conjunction with `columns`, we can specify which of their
-rows should undergo formatting. The default is all rows, resulting
-in all rows in `columns` being formatted. Alternatively, we can
-supply a list of row indices.
 
-scale_by: All numeric values will be multiplied by the `scale_by` value
-before undergoing formatting. Since the `default` value is `1`, no
-values will be changed unless a different multiplier value is supplied.</code></pre>
-<p>Returns: GTData: The GTData object is returned.</p>
-
-
+</section>
 </section>
 
 </main> <!-- /main -->

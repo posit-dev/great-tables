@@ -438,8 +438,15 @@ ul.task-list li input[type="checkbox"] {
 <h1>GT.fmt_number</h1>
 <p><code>GT.fmt_number</code></p>
 <p>Format numeric values.</p>
-<p>The <code>fmt_number()</code> method provides a way to execute custom formatting functionality with raw data values in a way that can consider all output contexts.</p>
-<p>Along with the <code>columns</code> and <code>rows</code> arguments that provide some precision in targeting data cells, the <code>fns</code> argument allows you to define one or more functions for manipulating the raw data.</p>
+<p>With numeric values in a <strong>gt</strong> table, we can perform number-based formatting so that the targeted values are rendered with a higher consideration for tabular presentation. Furthermore, there is finer control over numeric formatting with the following options:</p>
+<ul>
+<li>decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice of the decimal symbol</li>
+<li>digit grouping separators: options to enable/disable digit separators and provide a choice of separator symbol</li>
+<li>scaling: we can choose to scale targeted values by a multiplier value</li>
+<li>large-number suffixing: larger figures (thousands, millions, etc.) can be autoscaled and decorated with the appropriate suffixes</li>
+<li>pattern: option to use a text pattern for decoration of the formatted values</li>
+<li>locale-based formatting: providing a locale ID will result in number formatting specific to the chosen locale</li>
+</ul>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <p>columns : Union[str, List[str], None], optional</p>
