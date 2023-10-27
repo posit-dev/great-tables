@@ -459,8 +459,8 @@ can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0
 <pre><code>A option to format numbers to *n* significant figures. By default, this is `None` and thus
 number values will be formatted according to the number of decimal places set via
 `decimals`. If opting to format according to the rules of significant figures, `n_sigfig`
-must be a number greater than or equal to `1`. Any values passed to the `decimals` and
-`drop_trailing_zeros` arguments will be ignored.</code></pre>
+must be a number greater than or equal to `1`. Any values passed to the `decimals`,
+`drop_trailing_zeros`, and `drop_trailing_dec_mark` arguments will be ignored.</code></pre>
 <p>drop_trailing_zeros : bool, optional</p>
 <pre><code>A boolean value that allows for removal of trailing zeros (those redundant zeros after the
 decimal mark).</code></pre>
