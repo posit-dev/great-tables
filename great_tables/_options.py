@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Optional, Union, List, Any, cast
-from gt import _utils
+from great_tables import _utils
 
 default_fonts_list = [
     "-apple-system",

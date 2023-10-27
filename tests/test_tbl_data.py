@@ -3,7 +3,7 @@ import polars as pl
 import polars.testing
 import pytest
 
-from gt._tbl_data import _get_cell, _get_column_dtype, _set_cell, get_column_names, DataFrameLike, reorder
+from great_tables._tbl_data import _get_cell, _get_column_dtype, _set_cell, get_column_names, DataFrameLike, reorder
 
 
 params_frames = [

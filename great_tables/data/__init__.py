@@ -1,7 +1,9 @@
 import pandas as pd
 import pkg_resources
 
-_countrypops_fname = pkg_resources.resource_filename("gt.data", "countrypops.csv")
+DATA_MOD = "great_tables.data"
+
+_countrypops_fname = pkg_resources.resource_filename(DATA_MOD, "countrypops.csv")
 _countrypops_dtype = {
     "country_name": "object",
     "country_code_2": "object",
@@ -10,7 +12,7 @@ _countrypops_dtype = {
     "population": "Int64",
 }
 
-_sza_fname = pkg_resources.resource_filename("gt.data", "sza.csv")
+_sza_fname = pkg_resources.resource_filename(DATA_MOD, "sza.csv")
 _sza_dtype = {
     "latitude": "object",
     "month": "object",
@@ -18,7 +20,7 @@ _sza_dtype = {
     "sza": "float64",
 }
 
-_gtcars_fname = pkg_resources.resource_filename("gt.data", "gtcars.csv")
+_gtcars_fname = pkg_resources.resource_filename(DATA_MOD, "gtcars.csv")
 _gtcars_dtype = {
     "mfr": "object",
     "model": "object",
@@ -37,7 +39,7 @@ _gtcars_dtype = {
     "msrp": "Int64",
 }
 
-_sp500_fname = pkg_resources.resource_filename("gt.data", "sp500.csv")
+_sp500_fname = pkg_resources.resource_filename(DATA_MOD, "sp500.csv")
 _sp500_dtype = {
     "date": "object",
     "open": "float64",
@@ -48,7 +50,7 @@ _sp500_dtype = {
     "adj_close": "float64",
 }
 
-_pizzaplace_fname = pkg_resources.resource_filename("gt.data", "pizzaplace.csv")
+_pizzaplace_fname = pkg_resources.resource_filename(DATA_MOD, "pizzaplace.csv")
 _pizzaplace_dtype = {
     "id": "object",
     "date": "object",
@@ -59,7 +61,7 @@ _pizzaplace_dtype = {
     "price": "float64",
 }
 
-_exibble_fname = pkg_resources.resource_filename("gt.data", "exibble.csv")
+_exibble_fname = pkg_resources.resource_filename(DATA_MOD, "exibble.csv")
 _exibble_dtype = {
     "num": "float64",
     "char": "object",
@@ -72,7 +74,7 @@ _exibble_dtype = {
     "group": "object",
 }
 
-_towny_fname = pkg_resources.resource_filename("gt.data", "towny.csv")
+_towny_fname = pkg_resources.resource_filename(DATA_MOD, "towny.csv")
 _towny_dtype = {
     "name": "object",
     "website": "object",
@@ -101,7 +103,7 @@ _towny_dtype = {
     "pop_change_2016_2021_pct": "float64",
 }
 
-_metro_fname = pkg_resources.resource_filename("gt.data", "metro.csv")
+_metro_fname = pkg_resources.resource_filename(DATA_MOD, "metro.csv")
 _metro_dtype = {
     "name": "object",
     "caption": "object",
@@ -116,7 +118,7 @@ _metro_dtype = {
     "location": "object",
 }
 
-_constants_fname = pkg_resources.resource_filename("gt.data", "constants.csv")
+_constants_fname = pkg_resources.resource_filename(DATA_MOD, "constants.csv")
 _constants_dtype = {
     "name": "object",
     "value": "float64",
@@ -126,7 +128,7 @@ _constants_dtype = {
     "units": "object",
 }
 
-_illness_fname = pkg_resources.resource_filename("gt.data", "illness.csv")
+_illness_fname = pkg_resources.resource_filename(DATA_MOD, "illness.csv")
 _illness_dtype = {
     "test": "object",
     "units": "object",

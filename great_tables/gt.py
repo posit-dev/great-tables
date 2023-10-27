@@ -7,31 +7,31 @@ import sass
 import re
 import copy
 
-from gt._gt_data import (
+from great_tables._gt_data import (
     GTData,
     Body,
 )
 
 # Main gt imports ----
-from gt import (
+from great_tables import (
     _utils,
 )
 
 # Rewrite main gt imports to use relative imports of APIs ----
-from gt._tbl_data import TblDataAPI
-from gt._body import body_reassemble
-from gt._boxhead import BoxheadAPI
-from gt._footnotes import FootnotesAPI
-from gt._formats import FormatsAPI, fmt_number, fmt_integer
-from gt._heading import HeadingAPI
-from gt._locale import LocaleAPI
-from gt._options import OptionsAPI
-from gt._row_groups import RowGroupsAPI
-from gt._source_notes import SourceNotesAPI
-from gt._spanners import SpannersAPI
-from gt._stub import reorder_stub_df
-from gt._stubhead import StubheadAPI
-from gt._styles import StylesAPI
+from great_tables._tbl_data import TblDataAPI
+from great_tables._body import body_reassemble
+from great_tables._boxhead import BoxheadAPI
+from great_tables._footnotes import FootnotesAPI
+from great_tables._formats import FormatsAPI, fmt_number, fmt_integer
+from great_tables._heading import HeadingAPI
+from great_tables._locale import LocaleAPI
+from great_tables._options import OptionsAPI
+from great_tables._row_groups import RowGroupsAPI
+from great_tables._source_notes import SourceNotesAPI
+from great_tables._spanners import SpannersAPI
+from great_tables._stub import reorder_stub_df
+from great_tables._stubhead import StubheadAPI
+from great_tables._styles import StylesAPI
 
 
 # from ._helpers import random_id
@@ -406,14 +406,14 @@ def _compile_scss(data: GT) -> str:
         font_family_attr = ""
 
     gt_styles_default_file = open(
-        pkg_resources.resource_filename("gt", "css/gt_styles_default.scss")
+        pkg_resources.resource_filename("great_tables", "css/gt_styles_default.scss")
     )
 
     gt_styles_default = gt_styles_default_file.read()
     gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, 0, re.MULTILINE)
     gt_styles_default = re.sub(r"}", "}\n", gt_styles_default, 0, re.MULTILINE)
 
-    gt_colors_file = open(pkg_resources.resource_filename("gt", "css/gt_colors.scss"))
+    gt_colors_file = open(pkg_resources.resource_filename("great_tables", "css/gt_colors.scss"))
 
     gt_colors = gt_colors_file.read()
 

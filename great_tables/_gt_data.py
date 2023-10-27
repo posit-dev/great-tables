@@ -504,7 +504,7 @@ from ._tbl_data import TblData
 __Options = None
 
 from typing import Optional, Union, List, Any, cast
-from gt import _utils
+from great_tables import _utils
 
 default_fonts_list = [
     "-apple-system",
