@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>gt – fmt-number</title>
+<title>great_tables – fmt-number</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -102,13 +102,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <body class="nav-fixed">
 
+
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">gt</span>
+    <span class="navbar-title">great_tables</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -167,14 +168,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> gt</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> gt <span class="im">import</span> exibble, countrypops</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables <span class="im">as</span> gt</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> exibble, countrypops</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Use the exibble dataset to create a gt table. With the <code>fmt_number()</code> method, we’ll format the num column to have three decimal places (with <code>decimals=3</code>) and omit the use of digit separators (with <code>use_seps=False</code>).</p>
 <div class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gt.GT(exibble).fmt_number(columns<span class="op">=</span><span class="st">'num'</span>, decimals<span class="op">=</span><span class="dv">3</span>).cols_label(char <span class="op">=</span> <span class="st">"character"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/gt/_tbl_data.py:133: SettingWithCopyWarning: 
+<pre><code>/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/great_tables/_tbl_data.py:133: SettingWithCopyWarning: 
 A value is trying to be set on a copy of a slice from a DataFrame
 
 See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
@@ -696,7 +697,7 @@ html {
 2  1154638713  1240613620  1322866505  1396387127  
 4   295516599   309327143   320738994   331511512  
 1   228805144   244016173   259091970   271857970  
-3   174372098   194454498   210969298   227196741  , _body=&lt;gt._gt_data.Body object at 0x7f8c081c8b80&gt;, _boxhead=Boxhead([&lt;gt._gt_data.ColInfo object at 0x7f8c081c9660&gt;, &lt;gt._gt_data.ColInfo object at 0x7f8c081c9360&gt;, &lt;gt._gt_data.ColInfo object at 0x7f8c081c98d0&gt;, &lt;gt._gt_data.ColInfo object at 0x7f8c081c9600&gt;, &lt;gt._gt_data.ColInfo object at 0x7f8c081c9510&gt;, &lt;gt._gt_data.ColInfo object at 0x7f8c081c8b50&gt;, &lt;gt._gt_data.ColInfo object at 0x7f8c081c8fd0&gt;, &lt;gt._gt_data.ColInfo object at 0x7f8c081c96c0&gt;, &lt;gt._gt_data.ColInfo object at 0x7f8c081c9900&gt;, &lt;gt._gt_data.ColInfo object at 0x7f8c081c8ca0&gt;]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=&lt;gt._gt_data.Spanners object at 0x7f8c081c93f0&gt;, _heading=&lt;gt._gt_data.Heading object at 0x7f8c081c8b20&gt;, _stubhead=&lt;gt._gt_data.Stubhead object at 0x7f8c081c9420&gt;, _source_notes=&lt;gt._gt_data.SourceNotes object at 0x7f8c081c91b0&gt;, _footnotes=&lt;gt._gt_data.Footnotes object at 0x7f8c081c9030&gt;, _styles=&lt;gt._gt_data.Styles object at 0x7f8c081c9f60&gt;, _locale=&lt;gt._gt_data.Locale object at 0x7f8c081c9ff0&gt;, _formats=[&lt;gt._gt_data.FormatInfo object at 0x7f8c082063b0&gt;, &lt;gt._gt_data.FormatInfo object at 0x7f8c08206500&gt;], _options=&lt;gt._gt_data.Options object at 0x7f8c081c9e70&gt;, _has_built=False)</code></pre>
+3   174372098   194454498   210969298   227196741  , _body=&lt;great_tables._gt_data.Body object at 0x7f6ffc19efe0&gt;, _boxhead=Boxhead([&lt;great_tables._gt_data.ColInfo object at 0x7f6ffc19f010&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f6ffc19f880&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f6ffc19fd60&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f6ffc19f8b0&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f6ffc19eec0&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f6ffc19f070&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f6ffc19f460&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f6ffc19f760&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f6ffc19fb80&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f6ffc19ef20&gt;]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=&lt;great_tables._gt_data.Spanners object at 0x7f6ffc19fd30&gt;, _heading=&lt;great_tables._gt_data.Heading object at 0x7f6ff4804070&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f6ff48040a0&gt;, _source_notes=&lt;great_tables._gt_data.SourceNotes object at 0x7f6ff4804040&gt;, _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f6ff48041f0&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f6ff4804340&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f6ff4804430&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7f6ff4818880&gt;, &lt;great_tables._gt_data.FormatInfo object at 0x7f6ff48189d0&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7f6ff4804370&gt;, _has_built=False)</code></pre>
 </div>
 </div>
 <p>In a variation of the previous table, we can combine large-number suffixing with a declaration of the number of significant digits to use. With things like population figures, <code>n_sigfig=3</code> is a very good option.</p>

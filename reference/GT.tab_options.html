@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>gt – gt.tab_options</title>
+<title>great_tables – gt.tab_options</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -74,7 +74,7 @@ ul.task-list li input[type="checkbox"] {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">gt</span>
+    <span class="navbar-title">great_tables</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -421,7 +421,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#gt.GT.tab_options" id="toc-gt.GT.tab_options" class="nav-link active" data-scroll-target="#gt.GT.tab_options">GT.tab_options</a>
+  <li><a href="#great_tables.GT.tab_options" id="toc-great_tables.GT.tab_options" class="nav-link active" data-scroll-target="#great_tables.GT.tab_options">GT.tab_options</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
@@ -434,7 +434,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="gt.GT.tab_options" class="level1">
+<section id="great_tables.GT.tab_options" class="level1">
 <h1>GT.tab_options</h1>
 <p><code>GT.tab_options(container_width=None, container_height=None, container_overflow_x=None, container_overflow_y=None, table_width=None, table_layout=None, table_align=None, table_margin_left=None, table_margin_right=None, table_background_color=None, table_additional_css=None, table_font_names=None, table_font_size=None, table_font_weight=None, table_font_style=None, table_font_color=None, table_font_color_light=None, table_border_top_style=None, table_border_top_width=None, table_border_top_color=None, table_border_right_style=None, table_border_right_width=None, table_border_right_color=None, table_border_bottom_style=None, table_border_bottom_width=None, table_border_bottom_color=None, table_border_left_style=None, table_border_left_width=None, table_border_left_color=None, heading_background_color=None, heading_align=None, heading_title_font_size=None, heading_title_font_weight=None, heading_subtitle_font_size=None, heading_subtitle_font_weight=None, heading_padding=None, heading_padding_horizontal=None, heading_border_bottom_style=None, heading_border_bottom_width=None, heading_border_bottom_color=None, heading_border_lr_style=None, heading_border_lr_width=None, heading_border_lr_color=None, column_labels_background_color=None, column_labels_font_size=None, column_labels_font_weight=None, column_labels_text_transform=None, column_labels_padding=None, column_labels_padding_horizontal=None, column_labels_vlines_style=None, column_labels_vlines_width=None, column_labels_vlines_color=None, column_labels_border_top_style=None, column_labels_border_top_width=None, column_labels_border_top_color=None, column_labels_border_bottom_style=None, column_labels_border_bottom_width=None, column_labels_border_bottom_color=None, column_labels_border_lr_style=None, column_labels_border_lr_width=None, column_labels_border_lr_color=None, column_labels_hidden=None, row_group_background_color=None, row_group_font_size=None, row_group_font_weight=None, row_group_text_transform=None, row_group_padding=None, row_group_padding_horizontal=None, row_group_border_top_style=None, row_group_border_top_width=None, row_group_border_top_color=None, row_group_border_bottom_style=None, row_group_border_bottom_width=None, row_group_border_bottom_color=None, row_group_border_left_style=None, row_group_border_left_width=None, row_group_border_left_color=None, row_group_border_right_style=None, row_group_border_right_width=None, row_group_border_right_color=None, row_group_default_label=None, row_group_as_column=None, table_body_hlines_style=None, table_body_hlines_width=None, table_body_hlines_color=None, table_body_vlines_style=None, table_body_vlines_width=None, table_body_vlines_color=None, table_body_border_top_style=None, table_body_border_top_width=None, table_body_border_top_color=None, table_body_border_bottom_style=None, table_body_border_bottom_width=None, table_body_border_bottom_color=None, stub_background_color=None, stub_font_size=None, stub_font_weight=None, stub_text_transform=None, stub_border_style=None, stub_border_width=None, stub_border_color=None, stub_row_group_font_size=None, stub_row_group_font_weight=None, stub_row_group_text_transform=None, stub_row_group_border_style=None, stub_row_group_border_width=None, stub_row_group_border_color=None, data_row_padding=None, data_row_padding_horizontal=None, summary_row_background_color=None, summary_row_text_transform=None, summary_row_padding=None, summary_row_padding_horizontal=None, summary_row_border_style=None, summary_row_border_width=None, summary_row_border_color=None, grand_summary_row_background_color=None, grand_summary_row_text_transform=None, grand_summary_row_padding=None, grand_summary_row_padding_horizontal=None, grand_summary_row_border_style=None, grand_summary_row_border_width=None, grand_summary_row_border_color=None, footnotes_background_color=None, footnotes_font_size=None, footnotes_padding=None, footnotes_padding_horizontal=None, footnotes_border_bottom_style=None, footnotes_border_bottom_width=None, footnotes_border_bottom_color=None, footnotes_border_lr_style=None, footnotes_border_lr_width=None, footnotes_border_lr_color=None, footnotes_marks=None, footnotes_multiline=None, footnotes_sep=None, source_notes_background_color=None, source_notes_font_size=None, source_notes_padding=None, source_notes_padding_horizontal=None, source_notes_border_bottom_style=None, source_notes_border_bottom_width=None, source_notes_border_bottom_color=None, source_notes_border_lr_style=None, source_notes_border_lr_width=None, source_notes_border_lr_color=None, source_notes_multiline=None, source_notes_sep=None, row_striping_background_color=None, row_striping_include_stub=None, row_striping_include_table_body=None, page_orientation=None, page_numbering=None, page_header_use_tbl_headings=None, page_footer_use_tbl_notes=None, page_width=None, page_height=None, page_margin_left=None, page_margin_right=None, page_margin_top=None, page_margin_bottom=None, page_header_height=None, page_footer_height=None)</code></p>
 <p>Modify the table output options</p>
