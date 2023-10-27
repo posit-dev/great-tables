@@ -1,4 +1,11 @@
-__version__ = "0.0.1"
+# Set version ----
+from importlib_metadata import version as _v
+
+__version__ = _v("pins")
+
+del _v
+
+# Main gt imports ----
 
 from .gt import GT
 from gt.data import *

@@ -1,3 +1,68 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+
+[tool.setuptools.packages.find]
+include = ["gt"]
+
+[project]
+name = "gt"
+description = "Easily generate information-rich, publication-quality tables from Python."
+readme = "README.md"
+keywords = ["tables"]
+license.file = "LICENSE"
+authors = [{ name = "Richard Iannone", email = "rich@posit.co" }]
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup :: HTML",
+    "Topic :: Text Processing :: Markup :: LaTeX",
+    "Topic :: Text Processing :: Markup :: Markdown"
+]
+dependencies = [
+    "commonmark>=0.9.1",
+    "importlib-metadata",
+    "typing_extensions>=3.10.0.0",
+    "packaging>=20.9",
+    "pandas>=1.4.2",
+    "numpy>=1.22.4",
+    "libsass>=0.22.0"
+]
+requires-python = ">=3.7"
+
+[project.urls]
+homepage = "https://github.com/rstudio/gt-python"
+
+[project.optional-dependencies]
+dev = [
+    "jupyter",
+    "quartodoc",
+    "polars",
+    "pytest>=3",
+    "siuba",
+    "syrupy"
+]
+
+
+[tool.flake8]
+exclude = ["docs", ".venv"]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q"
