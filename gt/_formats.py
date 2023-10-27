@@ -128,18 +128,15 @@ def fmt_number(
     ----------
 
     columns : Union[str, List[str], None], optional
-
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
 
     rows : Union[int, List[int], None], optional
-
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
 
     decimals : int, optional
-
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
@@ -147,7 +144,6 @@ def fmt_number(
         `fmt_integer()` method should be considered.
 
     n_sigfig : Optional[int], optional
-
         A option to format numbers to *n* significant figures. By default, this is `None` and thus
         number values will be formatted according to the number of decimal places set via
         `decimals`. If opting to format according to the rules of significant figures, `n_sigfig`
@@ -155,30 +151,25 @@ def fmt_number(
         `drop_trailing_zeros`, and `drop_trailing_dec_mark` arguments will be ignored.
 
     drop_trailing_zeros : bool, optional
-
         A boolean value that allows for removal of trailing zeros (those redundant zeros after the
         decimal mark).
 
     drop_trailing_dec_mark : bool, optional
-
         A boolean value that determines whether decimal marks should always appear even if there are
         no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
         default trailing decimal marks are not shown.
 
     scale_by : float, optional
-
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
 
     sep_mark : str, optional
-
         The string to use as a separator between groups of digits. For example, using `sep_mark=","`
         with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
         ignored if a `locale` is supplied (i.e., is not `None`).
 
     dec_mark : str, optional
-
         The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
         `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
         `locale` is supplied (i.e., is not `None`).
@@ -202,6 +193,7 @@ def fmt_number(
         dec_mark: str = dec_mark,
         scale_by: float = scale_by,
     ):
+
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
