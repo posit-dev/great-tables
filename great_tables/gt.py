@@ -92,7 +92,7 @@ class GT(
 
     def __init__(self, data: Any, locale: str = "", **kwargs):
         # This is a bad idea ----
-        gtdata = GTData.from_data(data, locale, **kwargs)
+        gtdata = GTData.from_data(data, locale=locale, **kwargs)
         super().__init__(**gtdata.__dict__)
 
     # TODO: Refactor API methods -----

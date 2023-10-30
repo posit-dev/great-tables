@@ -1,12 +1,19 @@
-from great_tables import *
+import pytest
+
+from great_tables import GT
 import pandas as pd
 
 # Generate a gt Table object for assertion testing
 data = [{"a": 5, "b": 15}, {"a": 15, "b": 2000}]
 pd_data = pd.DataFrame(data)
-gt_tbl = gt.GT(pd_data)
 
-def test_gt_object_prerender():
+
+@pytest.fixture
+def gt_tbl():
+    return GT(pd_data)
+
+
+def test_gt_object_prerender(gt_tbl: GT):
 
     assert type(gt_tbl).__name__ == "GT"
 
@@ -24,7 +31,7 @@ def test_gt_object_prerender():
     assert type(gt_tbl._locale).__name__ == "Locale"
 
 
-def test_gt_table_render():
+def test_gt_table_render(gt_tbl: GT):
 
     # Assert that a table render process will generate a string object
     assert type(gt_tbl.render(context="html")).__name__ == "str"

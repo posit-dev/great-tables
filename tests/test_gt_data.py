@@ -17,6 +17,11 @@ def test_stub_construct_df():
     assert stub[1] == RowInfo(1)
 
 
+def test_stub_construct_df_rowname():
+    # TODO: remove groupname_col from here
+    stub = Stub(pd.DataFrame({"x": [8, 9], "y": [1, 2]}), rowname_col="x", groupname_col=None)
+
+
 def test_row_groups_construct_manual():
     groups = RowGroups(["a", "b"])
 
@@ -25,3 +30,4 @@ def test_row_groups_construct_manual():
     assert groups[1] == "b"
 
     assert isinstance(groups[:], RowGroups)
+
