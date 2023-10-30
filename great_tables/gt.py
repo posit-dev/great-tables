@@ -90,9 +90,9 @@ class GT(
     def _repr_html_(self):
         return self.render(context="html")
 
-    def __init__(self, data: Any, locale: str = ""):
+    def __init__(self, data: Any, locale: str = "", **kwargs):
         # This is a bad idea ----
-        gtdata = GTData.from_data(data, locale)
+        gtdata = GTData.from_data(data, locale, **kwargs)
         super().__init__(**gtdata.__dict__)
 
     # TODO: Refactor API methods -----
@@ -421,9 +421,7 @@ def _compile_scss(data: GT) -> str:
 
     compiled_css = cast(str, sass.compile(string=scss))
     if table_id is not None:
-        compiled_css = re.sub(
-            r"\.gt_", f"#{table_id} .gt_", compiled_css, 0, re.MULTILINE
-        )
+        compiled_css = re.sub(r"\.gt_", f"#{table_id} .gt_", compiled_css, 0, re.MULTILINE)
 
     finalized_css = f"""html {{
       {font_family_attr}
