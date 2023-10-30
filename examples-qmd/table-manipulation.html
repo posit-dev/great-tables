@@ -93,6 +93,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -185,17 +188,459 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 1  Ferrari  458 Speciale  291744
 2  Ferrari    458 Spider  263553
 3  Ferrari    458 Italia  233509
-4  Ferrari       488 GTB  245400, _body=&lt;great_tables._gt_data.Body object at 0x7fbf4c080cd0&gt;, _boxhead=Boxhead([&lt;great_tables._gt_data.ColInfo object at 0x7fbf4c0811e0&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7fbf4c0809d0&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7fbf4c0814e0&gt;]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=&lt;great_tables._gt_data.Spanners object at 0x7fbf4c0817b0&gt;, _heading=&lt;great_tables._gt_data.Heading object at 0x7fbf4c080af0&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7fbf4c081870&gt;, _source_notes=&lt;great_tables._gt_data.SourceNotes object at 0x7fbf4c0818d0&gt;, _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7fbf4c081a20&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7fbf4c081c90&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7fbf4c081cc0&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7fbf4c09db70&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7fbf4c081c60&gt;, _has_built=False)</code></pre>
+4  Ferrari       488 GTB  245400, _body=&lt;great_tables._gt_data.Body object at 0x7f9e90e40fa0&gt;, _boxhead=Boxhead([&lt;great_tables._gt_data.ColInfo object at 0x7f9e90e405b0&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f9e90e40ac0&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f9e90e401c0&gt;]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=&lt;great_tables._gt_data.Spanners object at 0x7f9e90e41180&gt;, _heading=&lt;great_tables._gt_data.Heading object at 0x7f9e90e404c0&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f9e90e41240&gt;, _source_notes=&lt;great_tables._gt_data.SourceNotes object at 0x7f9e90e412a0&gt;, _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f9e90e413f0&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f9e90e41660&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f9e90e41690&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7f9e90e5d540&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7f9e90e41630&gt;, _has_built=False)</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> gtcars <span class="op">&gt;&gt;</span> select(_.mfr, _.model, _.msrp) <span class="op">&gt;&gt;</span> _.head(<span class="dv">5</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Make `html()` work</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>gt.GT(res).tab_header(</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span>html(<span class="st">"Data listing from &lt;strong&gt;gtcars&lt;/strong&gt;"</span>),</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    subtitle<span class="op">=</span>html(<span class="st">"From &lt;span style='color:red;'&gt;gtcars&lt;/span&gt;"</span>),</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gt.GT(exibble.iloc[[<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">7</span>, <span class="dv">1</span>],], rowname_col<span class="op">=</span><span class="st">"row"</span>, groupname_col<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+
+<div style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+html {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+.gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+.gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+.gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+.gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+.gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+.gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+.gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+.gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+.gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+.gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+.gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+.gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle; }
+
+.gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+.gt_from_md > :first-child {
+  margin-top: 0; }
+
+.gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+.gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+.gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+.gt_row_group_first td {
+  border-top-width: 2px; }
+
+.gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+.gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+.gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+.gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+.gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+.gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+.gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+.gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+.gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.gt_left {
+  text-align: left; }
+
+.gt_center {
+  text-align: center; }
+
+.gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+.gt_font_normal {
+  font-weight: normal; }
+
+.gt_font_bold {
+  font-weight: bold; }
+
+.gt_font_italic {
+  font-style: italic; }
+
+.gt_super {
+  font-size: 65%; }
+
+.gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em; }
+
+.gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em; }
+
+.gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+.gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em; }
+
+.gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em; }
+
+.gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em; }
+
+</style>
+
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">num</td>
+<td data-quarto-table-cell-role="th">char</td>
+<td data-quarto-table-cell-role="th">fctr</td>
+<td data-quarto-table-cell-role="th">date</td>
+<td data-quarto-table-cell-role="th">time</td>
+<td data-quarto-table-cell-role="th">datetime</td>
+<td data-quarto-table-cell-role="th">currency</td>
+<td data-quarto-table-cell-role="th">row</td>
+<td data-quarto-table-cell-role="th">group</td>
+</tr>
+</tbody>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row">5550.0</td>
+<td class="gt_row">nan</td>
+<td class="gt_row">five</td>
+<td class="gt_row">2015-05-15</td>
+<td class="gt_row">17:55</td>
+<td class="gt_row">2018-05-05 04:00</td>
+<td class="gt_row">1325.81</td>
+<td class="gt_row">row_5</td>
+<td class="gt_row">grp_b</td>
+</tr>
+<tr class="even">
+<td class="gt_row">444.4</td>
+<td class="gt_row">durian</td>
+<td class="gt_row">four</td>
+<td class="gt_row">2015-04-15</td>
+<td class="gt_row">16:50</td>
+<td class="gt_row">2018-04-04 15:55</td>
+<td class="gt_row">65100.0</td>
+<td class="gt_row">row_4</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">8880000.0</td>
+<td class="gt_row">honeydew</td>
+<td class="gt_row">eight</td>
+<td class="gt_row">2015-08-15</td>
+<td class="gt_row">20:20</td>
+<td class="gt_row">nan</td>
+<td class="gt_row">0.44</td>
+<td class="gt_row">row_8</td>
+<td class="gt_row">grp_b</td>
+</tr>
+<tr class="even">
+<td class="gt_row">2.222</td>
+<td class="gt_row">banana</td>
+<td class="gt_row">two</td>
+<td class="gt_row">2015-02-15</td>
+<td class="gt_row">14:40</td>
+<td class="gt_row">2018-02-02 14:33</td>
+<td class="gt_row">17.95</td>
+<td class="gt_row">row_2</td>
+<td class="gt_row">grp_a</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+        
+</div>
+</div>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> gtcars <span class="op">&gt;&gt;</span> select(_.mfr, _.model, _.msrp) <span class="op">&gt;&gt;</span> _.head(<span class="dv">5</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Make `html()` work</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>gt.GT(res).tab_header(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span>html(<span class="st">"Data listing from &lt;strong&gt;gtcars&lt;/strong&gt;"</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    subtitle<span class="op">=</span>html(<span class="st">"From &lt;span style='color:red;'&gt;gtcars&lt;/span&gt;"</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
