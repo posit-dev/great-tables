@@ -18,7 +18,7 @@ def get_row_reorder_df(groups: RowGroups, stub_df: Stub) -> list[TupleStartFinal
         return [(ii, ii) for ii in indices]
 
     # where in the group each element is
-    groups_pos = [groups.index(row.group_id) for row in stub_df]
+    groups_pos = [groups.index(row.group_id) if row.group_id is not None else -1 for row in stub_df]
     # the index that when used on the rows will sort them by the order in groups
     start_pos = list(range(len(groups_pos)))
     sort_indx = sorted(start_pos, key=lambda ii: groups_pos[ii])
