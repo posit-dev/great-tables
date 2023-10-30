@@ -268,7 +268,7 @@ class RowInfo:
 class Stub(_Sequence[RowInfo]):
     _d: list[RowInfo]
 
-    def __init__(self, data: TblData | list[RowInfo], rowname_col, groupname_col):
+    def __init__(self, data: TblData | list[RowInfo], rowname_col=None, groupname_col=None):
         if isinstance(data, list):
             self._d = list(data)
 
@@ -276,9 +276,13 @@ class Stub(_Sequence[RowInfo]):
             # Obtain a list of row indices from the data and initialize
             # the `_stub` from that
             row_indices = list(range(n_rows(data)))
+
             group_id = [None] * n_rows(data)
 
-            row_names = data[rowname_col].tolist()
+            if rowname_col is not None:
+                row_names = data[rowname_col].tolist()
+            else:
+                row_names = [None] * n_rows(data)
 
             # Obtain the column names from the data and initialize the
             # `_stub` from that

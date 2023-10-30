@@ -113,10 +113,19 @@ def _get_cell(data: DataFrameLike, row: int, column: str) -> Any:
     _raise_not_implemented(data)
 
 
-@_get_cell.register(PdDataFrame)
 @_get_cell.register(PlDataFrame)
 def _(data, row: int, column: str):
     return data[column][row]
+
+
+@_get_cell.register(PdDataFrame)
+def _(data, row, col):
+    col_ii = data.columns.get_loc(col)
+
+    if not isinstance(col_ii, int):
+        raise ValueError("Column named " + col + " matches multiple columns.")
+
+    return data.iloc[row, col_ii]
 
 
 # _set_cell ----
@@ -148,6 +157,7 @@ def _get_column_dtype(data: DataFrameLike, column: str) -> str:
 
 
 # reorder ----
+
 
 @singledispatch
 def reorder(data: DataFrameLike, rows: List[int], columns: List[str]) -> DataFrameLike:
