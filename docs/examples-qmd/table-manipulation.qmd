@@ -22,7 +22,12 @@ gt.GT(res).tab_header(
 
 
 ```{python}
-#| eval: false
+gt.GT(exibble.iloc[[4, 3, 7, 1],], rowname_col="row", groupname_col="group")
+```
+
+
+```{python}
+# | eval: false
 res = gtcars >> select(_.mfr, _.model, _.msrp) >> _.head(5)
 
 # TODO: Make `html()` work
