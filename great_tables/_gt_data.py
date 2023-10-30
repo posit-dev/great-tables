@@ -10,6 +10,61 @@ from typing import Sequence
 T = TypeVar("T")
 
 
+# GT Data ----
+from dataclasses import dataclass
+
+__GT = None
+
+
+@dataclass
+class GTData:
+    _tbl_data: TblData
+    _body: Body
+    _boxhead: Boxhead
+    _stub: Stub
+    _row_groups: RowGroups
+    _spanners: Spanners
+    _heading: Heading | None
+    _stubhead: Stubhead | None
+    _source_notes: SourceNotes
+    _footnotes: Footnotes
+    _styles: Styles
+    _locale: Locale | None
+    _formats: Formats
+    _options: Options
+    _has_built: bool = False
+
+    @classmethod
+    def from_data(
+        cls,
+        data: TblData,
+        rowname_col: str | None = None,
+        groupname_col: str | None = None,
+        locale: str | None = None,
+    ):
+        stub = Stub(data, rowname_col=rowname_col, groupname_col=groupname_col)
+
+        group_ids = set(row.group_id for row in stub if row.group_id is not None)
+        row_groups = list(group_ids)
+
+        return cls(
+            _tbl_data=data,
+            _body=Body.from_empty(data),
+            _boxhead=Boxhead(data),  # uses get_tbl_data()
+            _stub=stub,  # uses get_tbl_data
+            _row_groups=RowGroups(row_groups),
+            _spanners=Spanners(),
+            _heading=Heading(),
+            _stubhead=Stubhead(),
+            _source_notes=SourceNotes(),
+            _footnotes=Footnotes(),
+            _styles=Styles(),
+            _locale=Locale(locale),
+            _formats=[],
+            _options=Options(),
+        )
+
+
 class _Sequence(Sequence[T]):
     _d: list[T]
 
@@ -27,7 +82,6 @@ class _Sequence(Sequence[T]):
     @overload
     def __getitem__(self, ii: list[int]) -> Self[T]:
         ...
-
 
     def __getitem__(self, ii: int | slice | list[int]) -> T | Self[T]:
         if isinstance(ii, slice):
@@ -65,9 +119,7 @@ class Body:
     def __init__(self, body: Union[pd.DataFrame, TblData]):
         self.body = body
 
-    def render_formats(
-        self, data_tbl: TblData, formats: List[FormatInfo], context: Context
-    ):
+    def render_formats(self, data_tbl: TblData, formats: List[FormatInfo], context: Context):
         for fmt in formats:
             eval_func = getattr(fmt.func, context, fmt.func.default)
             if eval_func is None:
@@ -83,9 +135,7 @@ class Body:
 
     @classmethod
     def from_empty(cls, body: DataFrameLike):
-        empty_df = pd.DataFrame(
-            pd.NA, index=body.index, columns=body.columns, dtype="string"
-        )
+        empty_df = pd.DataFrame(pd.NA, index=body.index, columns=body.columns, dtype="string")
 
         return cls(empty_df)
 
@@ -218,7 +268,7 @@ class RowInfo:
 class Stub(_Sequence[RowInfo]):
     _d: list[RowInfo]
 
-    def __init__(self, data: TblData | list[RowInfo]):
+    def __init__(self, data: TblData | list[RowInfo], rowname_col, groupname_col):
         if isinstance(data, list):
             self._d = list(data)
 
@@ -226,11 +276,13 @@ class Stub(_Sequence[RowInfo]):
             # Obtain a list of row indices from the data and initialize
             # the `_stub` from that
             row_indices = list(range(n_rows(data)))
+            group_id = [None] * n_rows(data)
+
+            row_names = data[rowname_col].tolist()
 
             # Obtain the column names from the data and initialize the
-            # `_boxhead` from that
-            self._d = [RowInfo(col) for col in row_indices]
-
+            # `_stub` from that
+            self._d = [RowInfo(*i) for i in zip(row_indices, group_id, row_names)]
 
 
 # Row groups ----
@@ -744,54 +796,3 @@ class Options:
     def _set_option_value(self, option: str, value: Any):
        self._options[option].value = value
        return self
-
-
-
-
-
-# GT Data ----
-from dataclasses import dataclass
-
-__GT = None
-
-@dataclass
-class GTData:
-    _tbl_data: TblData
-    _body: Body
-    _boxhead: Boxhead
-    _stub: Stub
-    _row_groups: RowGroups
-    _spanners: Spanners
-    _heading: Heading | None
-    _stubhead: Stubhead | None
-    _source_notes: SourceNotes
-    _footnotes: Footnotes
-    _styles: Styles
-    _locale: Locale | None
-    _formats: Formats
-    _options: Options
-    _has_built: bool = False
-
-    @classmethod
-    def from_data(cls, data: TblData, locale: str | None = None):
-        stub = Stub(data)
-
-        group_ids = set(row.group_id for row in stub if row.group_id is not None)
-        row_groups = list(group_ids)
-
-        return cls(
-            _tbl_data=data,
-            _body=Body.from_empty(data),
-            _boxhead=Boxhead(data),     # uses get_tbl_data()
-            _stub=stub,           # uses get_tbl_data
-            _row_groups=RowGroups(row_groups),
-            _spanners=Spanners(),
-            _heading=Heading(),
-            _stubhead=Stubhead(),
-            _source_notes=SourceNotes(),
-            _footnotes=Footnotes(),
-            _styles=Styles(),
-            _locale=Locale(locale),
-            _formats=[],
-            _options=Options(),
-        )
