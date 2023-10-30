@@ -16,4 +16,4 @@ def test_get_row_reorder_df_no_groups():
     stub = Stub([RowInfo(0, "a"), RowInfo(1, "b")])
 
     start_end = get_row_reorder_df(groups, stub)
-    assert start_end == [(0,0), (1,1)]
+    assert start_end == [(0, 0), (1, 1)]
