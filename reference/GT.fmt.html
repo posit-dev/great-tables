@@ -421,7 +421,11 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.GT.fmt" id="toc-great_tables.GT.fmt" class="nav-link active" data-scroll-target="#great_tables.GT.fmt">GT.fmt</a></li>
+  <li><a href="#great_tables.GT.fmt" id="toc-great_tables.GT.fmt" class="nav-link active" data-scroll-target="#great_tables.GT.fmt">GT.fmt</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -436,17 +440,64 @@ ul.task-list li input[type="checkbox"] {
 <p>Set a column format with a formatter function.</p>
 <p>The <code>fmt()</code> method provides a way to execute custom formatting functionality with raw data values in a way that can consider all output contexts.</p>
 <p>Along with the <code>columns</code> and <code>rows</code> arguments that provide some precision in targeting data cells, the <code>fns</code> argument allows you to define one or more functions for manipulating the raw data.</p>
-<p>Args: fns (list): Either a single formatting function or a named list of functions.</p>
-<pre><code>columns: The columns to target. Can either be a single column name
-or a series of column names provided in a list.
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="table">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 14%">
+<col style="width: 77%">
+<col style="width: 4%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>fns</code></td>
+<td>(Union[FormatFn, FormatFns], required)</td>
+<td>Either a single formatting function or a named list of functions.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td><code>columns</code></td>
+<td>Union[str, List[str], None]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>rows</code></td>
+<td>Union[int, List[int], None]</td>
+<td>In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GTData</td>
+<td>The GTData object is returned.</td>
+</tr>
+</tbody>
+</table>
 
-rows: In conjunction with `columns`, we can specify which of their
-rows should undergo formatting. The default is all rows, resulting
-in all rows in `columns` being formatted. Alternatively, we can
-supply a list of row indices.</code></pre>
-<p>Returns: GTData: The GTData object is returned.</p>
 
-
+</section>
 </section>
 
 </main> <!-- /main -->
