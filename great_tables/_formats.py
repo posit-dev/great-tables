@@ -16,7 +16,8 @@ class FormatsAPI:
         columns: Union[str, List[str], None] = None,
         rows: Union[int, List[int], None] = None,
     ):
-        """Set a column format with a formatter function.
+        """
+        Set a column format with a formatter function.
 
         The `fmt()` method provides a way to execute custom formatting functionality with raw data
         values in a way that can consider all output contexts.
@@ -111,7 +112,8 @@ def fmt_number(
     # system: str = 'intl',
     # locale: str = None,
 ) -> GTData:
-    """Format numeric values.
+    """
+    Format numeric values.
 
     With numeric values in a **gt** table, we can perform number-based formatting so that the
     targeted values are rendered with a higher consideration for tabular presentation. Furthermore,
@@ -242,7 +244,8 @@ def fmt_integer(
     rows: Union[int, List[int], None] = None,
     scale_by: float = 1,
 ) -> GTData:
-    """Format values as integers.
+    """
+    Format values as integers.
 
     With numeric values in a gt table, we can perform number-based formatting so
     that the targeted values are always rendered as integer values.
@@ -359,9 +362,20 @@ def _value_to_decimal_notation(
 
     Returns a string value with the correct precision.
 
-    drop_trailing_zeros - if True, trailing decimal zeros will be removed.
-    preserve_integer - if True, all digits will be preserved when returning
-      values that have no decimal component.
+    Parameters
+    ----------
+
+    value: Union[int, float]
+        The number to be formatted.
+
+    n_sigfig: int
+        The number of significant digits
+
+    drop_trailing_zeros : bool
+        If True, trailing zeros in the decimal portion will be removed.
+
+    preserve_integer: bool
+        If True, all digits will be preserved when returning values that have no decimal component.
     """
     sig_digits, power, is_neg = _get_number_profile(value, n_sigfig)
 
@@ -378,7 +392,6 @@ def _value_to_scientific_notation(
     n_sigfig: int,
     delimiter: str,
     drop_trailing_zeros: bool,
-    _,
 ) -> str:
     """
     Scientific notation.
@@ -386,7 +399,20 @@ def _value_to_scientific_notation(
     Returns a string value with the correct precision and 10s exponent. The
     delimiter is placed between the decimal value and 10s exponent.
 
-    drop_trailing_zeros - if True, trailing decimal zeros will be removed.
+    Parameters
+    ----------
+
+    value: Union[int, float]
+        The number to be formatted.
+
+    n_sigfig: int
+        The number of significant digits
+
+    delimiter: str
+        The exponent symbol to use.
+
+    drop_trailing_zeros : bool
+        If True, trailing zeros in the decimal portion will be removed.
     """
 
     is_neg, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
@@ -400,11 +426,7 @@ def _value_to_scientific_notation(
 
 
 def _value_to_engineering_notation(
-    value: Union[int, float],
-    n_sigfig: int,
-    delimiter: str,
-    drop_trailing_zeros: bool,
-    _,
+    value: Union[int, float], n_sigfig: int, delimiter: str, drop_trailing_zeros: bool
 ) -> str:
     """
     Engineering notation.
@@ -413,7 +435,20 @@ def _value_to_engineering_notation(
     is divisible by three. The delimiter is placed between the decimal value and
     the exponent.
 
-    drop_trailing_zeros - if True, trailing decimal zeros will be removed.
+    Parameters
+    ----------
+
+    value: Union[int, float]
+        The number to be formatted.
+
+    n_sigfig: int
+        The number of significant digits
+
+    delimiter: str
+        The exponent symbol to use.
+
+    drop_trailing_zeros : bool
+        If True, trailing zeros in the decimal portion will be removed.
     """
 
     is_neg, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
@@ -427,6 +462,33 @@ def _value_to_engineering_notation(
         + delimiter
         + str(eng_power)
     )
+
+
+def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, int, bool]:
+    """
+    Get key components of a number for decimal number formatting.
+
+    Returns a tuple containing: (1) a string value of significant digits, (2) an
+    exponent to get the decimal mark to the proper location, and (3) a boolean
+    value that's True if the value is less than zero (i.e., negative).
+    """
+    value = float(value)
+    is_neg = value < 0
+    value = abs(value)
+
+    if value == 0:
+        sig_digits = str(("0" * n_sigfig))
+        power = -(1 - n_sigfig)
+    else:
+        power = -1 * floor(log10(value)) + n_sigfig - 1
+        value_power = value * 10.0**power
+
+        if value < 1 and floor(log10(int(round(value_power)))) > floor(log10(int(value_power))):
+            power -= 1
+
+        sig_digits = str(int(round(value * 10.0**power)))
+
+    return sig_digits, int(-power), is_neg
 
 
 def _get_sci_parts(value: Union[int, float], n_sigfig: int) -> tuple[bool, str, int, int]:
@@ -482,31 +544,6 @@ def _insert_decimal_mark(digits: str, power: int, drop_trailing_zeros: bool = Fa
         out = out.rstrip("0").rstrip(".")
 
     return out
-
-
-def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, int, bool]:
-    """
-    Returns a tuple containing: (1) a string value of significant digits, (2) an
-    exponent to get the decimal mark to the proper location, and (3) a boolean
-    value that's True if the value is less than zero (i.e., negative).
-    """
-    value = float(value)
-    is_neg = value < 0
-    value = abs(value)
-
-    if value == 0:
-        sig_digits = str(("0" * n_sigfig))
-        power = -(1 - n_sigfig)
-    else:
-        power = -1 * floor(log10(value)) + n_sigfig - 1
-        value_power = value * 10.0**power
-
-        if value < 1 and floor(log10(int(round(value_power)))) > floor(log10(int(value_power))):
-            power -= 1
-
-        sig_digits = str(int(round(value * 10.0**power)))
-
-    return sig_digits, int(-power), is_neg
 
 
 def _listify(
