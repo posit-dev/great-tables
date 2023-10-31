@@ -594,7 +594,7 @@ def test_fmt_number_drop_trailing_01(
     ],
 )
 def test_format_number_with_separator(number: Union[int, float, str], x_out: str):
-    x = _format_number_with_separator(number=number, separator=",")
+    x = _format_number_with_separator(number=number, sep_mark=",")
     assert x == x_out
 
 
@@ -642,3 +642,10 @@ def test_format_number_with_sigfig_2():
     )
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["0.00000000000000053", "9.1"]
+
+
+def test_format_number_with_sep_dec_marks():
+    df = pd.DataFrame({"x": [12345678.12345678, 1.0, 0]})
+    gt = GT(df).fmt_number(columns="x", decimals=5, sep_mark=".", dec_mark=",")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["12.345.678,12346", "1.00000", "0.00000"]
