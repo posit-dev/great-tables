@@ -201,12 +201,11 @@ def fmt_number(
         x = x * scale_by
 
         if n_sigfig:
-            x_formatted = _to_value_n_sigfig(
+            x_formatted = _value_to_decimal_notation(
                 value=x,
                 n_sigfig=n_sigfig,
-                notation="dec",
-                delimiter="e",
                 drop_trailing_zeros=drop_trailing_zeros,
+                preserve_integer=False,
             )
         else:
             # Generate a format specification using `decimals`
@@ -306,46 +305,6 @@ def fmt_integer(
     return self
 
 
-def _listify(
-    x: Union[T, List[T], None],
-    default: Callable[[], List[T]],
-) -> List[T]:
-    """
-    Convert the input into a list.
-
-    Parameters
-    ----------
-
-    x : Union[T, List[T], None]
-
-        The input value to be converted into a list. It can be a single value of type T, a list of
-        values of type T, or None.
-
-    default : Callable[[], List[T]]
-
-        A callable that returns a default list when the input value is None.
-
-    Returns
-    -------
-
-    List[T]: The converted list.
-
-    Raises:
-        None
-
-    Examples:
-        _listify(5, lambda: [1, 2, 3])  # Output: [5]
-        _listify([1, 2, 3], lambda: [4, 5, 6])  # Output: [1, 2, 3]
-        _listify(None, lambda: ['a', 'b', 'c'])  # Output: ['a', 'b', 'c']
-    """
-    if x is None:
-        return default()
-    elif not isinstance(x, list):
-        return [x]
-    else:
-        return cast(Any, x)
-
-
 def _format_number_with_separator(number: Union[int, float, str], separator: str = ",") -> str:
     # If `number` is a string, validate that is at least number-like
     if isinstance(number, str):
@@ -389,43 +348,9 @@ def _expand_exponential_to_full_string(str_number: str) -> str:
     return formatted_number
 
 
-def _to_value_n_sigfig(
-    value: Union[int, float],
-    n_sigfig: int,
-    notation: str = "dec",
-    delimiter: str = "e",
-    drop_trailing_zeros: bool = False,
-    preserve_integer: bool = False,
-) -> str:
-    """
-    Formats a value with the needed number of significant digits.
-
-    value - any type that can be converted to a float
-    n_sigfig - the number of significant digits
-    notation - the notation type: (1) 'dec' is decimal notation, (2) 'sci' is
-        scientific notation, and (3) 'eng' is engineering notation
-    delimiter - is placed between the decimal value and exponent
-    drop_trailing_zeros - if True, trailing decimal zeros will be removed.
-    preserve_integer - if True, the 'dec' notation type will preserve all digits
-      when returning values that have no decimal component.
-    """
-
-    if notation == "dec":
-        conversion_fn: function = _value_to_decimal_notation
-    elif notation == "sci":
-        conversion_fn: function = _value_to_scientific_notation
-    elif notation == "eng":
-        conversion_fn: function = _value_to_engineering_notation
-    else:
-        raise ValueError("Unknown notation: " + notation)
-
-    return conversion_fn(value, n_sigfig, delimiter, drop_trailing_zeros, preserve_integer)
-
-
 def _value_to_decimal_notation(
     value: Union[int, float],
     n_sigfig: int,
-    _,
     drop_trailing_zeros: bool,
     preserve_integer: bool,
 ) -> str:
@@ -582,3 +507,43 @@ def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, i
         sig_digits = str(int(round(value * 10.0**power)))
 
     return sig_digits, int(-power), is_neg
+
+
+def _listify(
+    x: Union[T, List[T], None],
+    default: Callable[[], List[T]],
+) -> List[T]:
+    """
+    Convert the input into a list.
+
+    Parameters
+    ----------
+
+    x : Union[T, List[T], None]
+
+        The input value to be converted into a list. It can be a single value of type T, a list of
+        values of type T, or None.
+
+    default : Callable[[], List[T]]
+
+        A callable that returns a default list when the input value is None.
+
+    Returns
+    -------
+
+    List[T]: The converted list.
+
+    Raises:
+        None
+
+    Examples:
+        _listify(5, lambda: [1, 2, 3])  # Output: [5]
+        _listify([1, 2, 3], lambda: [4, 5, 6])  # Output: [1, 2, 3]
+        _listify(None, lambda: ['a', 'b', 'c'])  # Output: ['a', 'b', 'c']
+    """
+    if x is None:
+        return default()
+    elif not isinstance(x, list):
+        return [x]
+    else:
+        return cast(Any, x)
