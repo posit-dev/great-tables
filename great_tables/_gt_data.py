@@ -44,15 +44,14 @@ class GTData:
     ):
         stub = Stub(data, rowname_col=rowname_col, groupname_col=groupname_col)
 
-        group_ids = set(row.group_id for row in stub if row.group_id is not None)
-        row_groups = list(group_ids)
+        row_groups = stub._to_row_groups()
 
         return cls(
             _tbl_data=data,
             _body=Body.from_empty(data),
             _boxhead=Boxhead(data),  # uses get_tbl_data()
             _stub=stub,  # uses get_tbl_data
-            _row_groups=RowGroups(row_groups),
+            _row_groups=row_groups,
             _spanners=Spanners(),
             _heading=Heading(),
             _stubhead=Stubhead(),
@@ -277,7 +276,10 @@ class Stub(_Sequence[RowInfo]):
             # the `_stub` from that
             row_indices = list(range(n_rows(data)))
 
-            group_id = [None] * n_rows(data)
+            if groupname_col is not None:
+                group_id = data[groupname_col].tolist()
+            else:
+                group_id = [None] * n_rows(data)
 
             if rowname_col is not None:
                 row_names = data[rowname_col].tolist()
@@ -287,6 +289,11 @@ class Stub(_Sequence[RowInfo]):
             # Obtain the column names from the data and initialize the
             # `_stub` from that
             self._d = [RowInfo(*i) for i in zip(row_indices, group_id, row_names)]
+
+    def _to_row_groups(self) -> RowGroups:
+        group_ids = set(row.group_id for row in self if row.group_id is not None)
+
+        return RowGroups(list(group_ids))
 
 
 # Row groups ----

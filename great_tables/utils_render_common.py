@@ -10,6 +10,11 @@ TupleStartFinal = Tuple[int, int]
 
 
 def get_row_reorder_df(groups: RowGroups, stub_df: Stub) -> list[TupleStartFinal]:
+    n_stub_groups = len([entry for entry in stub_df if entry.group_id is not None])
+
+    if n_stub_groups and not len(groups):
+        raise ValueError(f"Detected {n_stub_groups} but only {len(groups)} row groups.")
+
     if not len(groups):
         indices = range(len(stub_df))
 

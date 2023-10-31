@@ -5,26 +5,20 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 
-df = pd.DataFrame({"col1": [1, 2, 3], "col2": ["b", "a", "c"], "col3": [4.0, 5.0, 6.0]})
+df = pd.DataFrame(
+    {"col1": [1, 2, 3, 4], "col2": ["b", "a", "b", "a"], "col3": [4.0, 5.0, 6.0, 7.0]}
+)
 
 
-@pytest.mark.xfail(reason="`reorder()` function is not working")
 def test_body_reassemble():
     body = Body(df)
     boxhead = Boxhead(df)
-    stub_df = Stub(df, rowname_col="col2")
+    stub_df = Stub(df, groupname_col="col2")
 
-    group_ids = set(row.group_id for row in stub_df if row.group_id is not None)
-    row_groups = RowGroups(list(group_ids))
+    row_groups = stub_df._to_row_groups()
 
     body_reassembled = body_reassemble(body, row_groups, stub_df, boxhead)
 
-    compare_df = df.iloc[[1, 0, 2],]
-
-    print("compare_df")
-    print(compare_df)
-
-    print("body_reassembled.body")
-    print(body_reassembled.body)
+    compare_df = df.iloc[[0, 2, 1, 3],]
 
     assert_frame_equal(body_reassembled.body, compare_df)
