@@ -18,28 +18,32 @@ class FormatsAPI:
     ):
         """Set a column format with a formatter function.
 
-        The `fmt()` method provides a way to execute custom formatting
-        functionality with raw data values in a way that can consider all output
-        contexts.
+        The `fmt()` method provides a way to execute custom formatting functionality with raw data
+        values in a way that can consider all output contexts.
 
-        Along with the `columns` and `rows` arguments that provide some precision in
-        targeting data cells, the `fns` argument allows you to define one or more
-        functions for manipulating the raw data.
+        Along with the `columns` and `rows` arguments that provide some precision in targeting data
+        cells, the `fns` argument allows you to define one or more functions for manipulating the
+        raw data.
 
-        Args:
-            fns (list): Either a single formatting function or a named list of
-            functions.
+        Parameters
+        ----------
 
-            columns: The columns to target. Can either be a single column name
-            or a series of column names provided in a list.
+        fns : Union[FormatFn, FormatFns], required
+            Either a single formatting function or a named list of functions.
 
-            rows: In conjunction with `columns`, we can specify which of their
-            rows should undergo formatting. The default is all rows, resulting
-            in all rows in `columns` being formatted. Alternatively, we can
-            supply a list of row indices.
+        columns : Union[str, List[str], None], optional
+            The columns to target. Can either be a single column name or a series of column names
+            provided in a list.
 
-        Returns:
-            GTData: The GTData object is returned.
+        rows : Union[int, List[int], None], optional
+            In conjunction with `columns`, we can specify which of their rows should undergo
+            formatting. The default is all rows, resulting in all rows in `columns` being formatted.
+            Alternatively, we can supply a list of row indices.
+
+        Returns
+        -------
+        GTData
+            The GTData object is returned.
         """
 
         # If a single function is supplied to `fns` then
@@ -193,7 +197,6 @@ def fmt_number(
         dec_mark: str = dec_mark,
         scale_by: float = scale_by,
     ):
-
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
