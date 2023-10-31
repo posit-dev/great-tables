@@ -28,15 +28,14 @@ class FormatsAPI:
 
         Parameters
         ----------
-
-        fns : Union[FormatFn, FormatFns], required
+        fns : Union[FormatFn, FormatFns]
             Either a single formatting function or a named list of functions.
 
-        columns : Union[str, List[str], None], optional
+        columns : Union[str, List[str], None]
             The columns to target. Can either be a single column name or a series of column names
             provided in a list.
 
-        rows : Union[int, List[int], None], optional
+        rows : Union[int, List[int], None]
             In conjunction with `columns`, we can specify which of their rows should undergo
             formatting. The default is all rows, resulting in all rows in `columns` being formatted.
             Alternatively, we can supply a list of row indices.
@@ -132,7 +131,6 @@ def fmt_number(
 
     Parameters
     ----------
-
     columns : Union[str, List[str], None], optional
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
@@ -266,20 +264,16 @@ def fmt_integer(
 
     Parameters
     ----------
-
     columns : Union[str, List[str], None], optional
-
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
 
     rows : Union[int, List[int], None], optional
-
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
 
     scale_by : float, optional
-
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
