@@ -218,7 +218,9 @@ def fmt_number(
 
             # Add grouping separators (default is ',')
             if use_seps is True:
-                x_formatted = _format_number_with_separator(x_formatted, separator=sep_mark)
+                x_formatted = _format_number_with_separator(
+                    number=x_formatted, sep_mark=sep_mark, dec_mark=dec_mark
+                )
 
             # Drop any trailing zeros if option is taken
             if drop_trailing_zeros is True:
@@ -308,7 +310,9 @@ def fmt_integer(
     return self
 
 
-def _format_number_with_separator(number: Union[int, float, str], separator: str = ",") -> str:
+def _format_number_with_separator(
+    number: Union[int, float, str], sep_mark: str = ",", dec_mark: str = "."
+) -> str:
     # If `number` is a string, validate that is at least number-like
     if isinstance(number, str):
         float(number)
@@ -331,13 +335,13 @@ def _format_number_with_separator(number: Union[int, float, str], separator: str
     count = 0
     for digit in reversed(integer_part):
         if count and count % 3 == 0:
-            formatted_integer = separator + formatted_integer
+            formatted_integer = sep_mark + formatted_integer
         formatted_integer = digit + formatted_integer
         count += 1
 
     # Obtain the decimal part
     decimal_part = number_parts[1] if len(number_parts) > 1 else ""
-    formatted_decimal = "." + decimal_part if decimal_part else ""
+    formatted_decimal = dec_mark + decimal_part if decimal_part else ""
 
     # Combine the integer and decimal parts
     formatted_number = formatted_integer + formatted_decimal
