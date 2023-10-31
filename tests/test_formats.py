@@ -645,7 +645,7 @@ def test_format_number_with_sigfig_2():
 
 
 def test_format_number_with_sep_dec_marks():
-    df = pd.DataFrame({"x": [12345678.12345678, 1.0, 0]})
+    df = pd.DataFrame({"x": [12345678.12345678, 1.0, 0, -12345678.12345678]})
     gt = GT(df).fmt_number(columns="x", decimals=5, sep_mark=".", dec_mark=",")
     x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == ["12.345.678,12346", "1.00000", "0.00000"]
+    assert x == ["12.345.678,12346", "1,00000", "0,00000", "-12.345.678,12346"]
