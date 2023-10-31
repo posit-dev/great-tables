@@ -15,7 +15,7 @@ website:
       - href: changelog.qmd
     right:
       - icon: github
-        href: https://github.com/rstudio/gt-python/
+        href: https://github.com/posit-dev/great_tables
 
 
 format:
@@ -52,11 +52,11 @@ quartodoc:
         - GT.tab_stubhead
     - title: Formatting column data
       contents:
-        - GT.fmt_engineering
-        - GT.fmt_integer
         - GT.fmt_number
+        - GT.fmt_integer
         - GT.fmt_percent
         - GT.fmt_scientific
+        - GT.fmt_engineering
         - GT.fmt
     - title: Text transformation
     - title: Modifying columns
