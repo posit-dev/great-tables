@@ -22,7 +22,7 @@ gt.GT(res).tab_header(
 
 
 ```{python}
-gt.GT(exibble.iloc[[4, 3, 7, 1],], rowname_col="row", groupname_col=None)
+gt.GT(exibble.iloc[[4, 3, 7, 1],], groupname_col="group")
 ```
 
 
