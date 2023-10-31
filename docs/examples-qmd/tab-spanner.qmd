@@ -1,0 +1,141 @@
+---
+output: html
+jupyter: python3
+execute:
+  eval: false
+---
+
+```{python}
+#| eval: true
+from siuba import *
+import great_tables as gt
+
+```
+
+```{python}
+df = (
+    gt.gtcars
+    >> select(~_.mfr, ~_.trim, _.bdy_style, ~_.drivetrain, ~_.trsmn, ~_.ctry_origin)
+    >> head(n = 10)
+)
+
+
+(gt.GT(df, rowname_col = "model")
+     .tab_spanner(
+        label = "performance",
+        columns = ["hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"]
+     )
+)
+```
+
+
+```{python}
+#| eval: false
+
+df2 = (
+    gt.towny
+    >> arrange(-_.population_2021)
+    >> head(n = 5)
+    >> select(_.name, _.latitude, _.longitude, _.endswith("2016"), _.endswith("2021"))
+)
+
+(gt.GT(df2)
+    .tab_spanner(label = "Population", columns=_.startswith("pop"))
+    .tab_spanner(label = "Density", columns = _.startswith("den"))
+    .tab_spanner(label = gt.md("*Location*"), columns = _.endswith("itude"), id="loc")
+)
+```
+
+
+```{python}
+exibble_narrow = gt.exibble >> head(n = 3)
+
+
+(gt.GT(exibble_narrow)
+  .tab_spanner(label = "Row Information", columns = _["row", "group"])
+  # TODO: tidyselect numeric columns
+  .tab_spanner(label = "Numeric Values", columns = ["num", "currency"], id = "num_spanner")
+  .tab_spanner(label = "Text Values", columns = ["char", "fctr"], id = "text_spanner")
+  .tab_spanner(label = "Numbers and Text", spanners = ["num_spanner", "text_spanner"])
+)
+```
+
+
+
+```{python}
+exibble_narrow_gt = (gt.GT(exibble_narrow)
+    .tab_spanner(label = "Numeric Values", columns = ["num", "currency"], id = "num_spanner")
+    .tab_spanner(label = "Text Values", columns = ("char", "fctr"), id = "text_spanner")
+    .tab_spanner(
+        label = "Text, Dates, Times, Datetimes",
+        # TODO: what is the RE flag name?
+        columns = _.contains("date|time", re = True),
+        spanners = "text_spanner"
+    )
+)
+
+exibble_narrow_gt
+```
+
+
+
+```{python}
+(exibble_narrow_gt
+    .tab_spanner(
+        label = "Date and Time Columns",
+        columns = _.contains("date|time"),
+        id = "date_time_spanner"
+    )
+)
+```
+
+
+```{python}
+(exibble_narrow_gt
+    .tab_spanner(
+        label = "Date and Time Columns",
+        columns = _.contains("date|time"),
+        level = 1,
+        id = "date_time_spanner"
+    )
+)
+```
+
+```{python}
+lil_towny = (gt.towny
+    >> select(
+    _.name, _.endswith("2001"), _.endswith("2006"), _.contains("2001_2006")
+    )
+    >> filter(_.population_2001 > 100000)
+    >> arrange(-_.pop_change_2001_2006_pct)
+    >> head(n = 10)
+)
+
+(gt.GT(lil_towny)
+  .fmt_integer() |>
+  .fmt_percent(columns = _.contains("change"), decimals = 1)
+  .tab_spanner(
+    label = "Population",
+    columns = _.startswith("population")
+  )
+  .tab_spanner(
+    label = "Density, {{*persons* km^-2}}",
+    columns = _.startswith("density")
+  )
+  .cols_label(
+    {
+        _.endswith("01"):  "2001",
+        _.endswith("06"):  "2006",
+        _.contains("change"): md("Population Change,<br>2001 to 2006")
+    }
+  )
+  .cols_width(
+    {_.everything(): px(120)}
+    # Alternatively, we could do this syntax:
+    # _.everything().label(px(120))
+  )
+)
+
+
+```
+
