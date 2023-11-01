@@ -173,6 +173,11 @@ def fmt_number(
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
 
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
     sep_mark : str
         The string to use as a separator between groups of digits. For example, using `sep_mark=","`
         with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
