@@ -293,9 +293,10 @@ class Stub(_Sequence[RowInfo]):
             self._d = [RowInfo(*i) for i in zip(row_indices, group_id, row_names)]
 
     def _to_row_groups(self) -> RowGroups:
-        group_ids = set(row.group_id for row in self if row.group_id is not None)
+        # get unique group_ids, using dict as an ordered set
+        group_ids = list({row.group_id: True for row in self if row.group_id is not None})
 
-        return RowGroups(list(group_ids))
+        return RowGroups(group_ids)
 
 
 # Row groups ----
