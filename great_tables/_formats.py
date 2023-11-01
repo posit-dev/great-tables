@@ -107,7 +107,7 @@ def fmt_number(
     # pattern: str = '{x}'
     sep_mark: str = ",",
     dec_mark: str = ".",
-    # force_sign: bool = False,
+    force_sign: bool = False,
     # system: str = 'intl',
     # locale: str = None,
 ) -> GTData:
@@ -192,10 +192,11 @@ def fmt_number(
         n_sigfig: Optional[int] = n_sigfig,
         drop_trailing_zeros: bool = drop_trailing_zeros,
         drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
-        use_seps: bool = use_seps,  # TODO: not yet implemented
+        use_seps: bool = use_seps,
+        scale_by: float = scale_by,
         sep_mark: str = sep_mark,
         dec_mark: str = dec_mark,
-        scale_by: float = scale_by,
+        force_sign: bool = force_sign,
     ):
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
@@ -209,6 +210,7 @@ def fmt_number(
             use_seps=use_seps,
             sep_mark=sep_mark,
             dec_mark=dec_mark,
+            force_sign=force_sign,
         )
 
         return x_formatted
@@ -293,6 +295,7 @@ def _value_to_decimal_notation(
     use_seps: bool = True,
     sep_mark: str = ",",
     dec_mark: str = ".",
+    force_sign: bool = False,
 ) -> str:
     """
     Decimal notation.
@@ -300,6 +303,8 @@ def _value_to_decimal_notation(
     Returns a string value with the correct precision or fixed number of decimal places (with
     optional formatting of the decimal part).
     """
+
+    is_positive = value > 0
 
     if n_sigfig:
         # If there is a value provided to `n_sigfig` then number formatting proceeds through the
@@ -335,6 +340,10 @@ def _value_to_decimal_notation(
     if drop_trailing_dec_mark is False and not dec_mark in result:
         result = result + dec_mark
 
+    # Force the positive sign to be present if the `force_sign` option is taken
+    if is_positive and force_sign:
+        result = "+" + result
+
     return result
 
 
@@ -350,10 +359,10 @@ def _value_to_scientific_notation(
     placed between the decimal value and 10s exponent.
     """
 
-    is_neg, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
+    is_negative, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
 
     result = (
-        ("-" if is_neg else "")
+        ("-" if is_negative else "")
         + _insert_decimal_mark(digits=sig_digits, power=dot_power)
         + exp_style
         + str(ten_power)
@@ -370,13 +379,13 @@ def _value_to_engineering_notation(value: Union[int, float], n_sigfig: int, exp_
     The `exp_style` text is placed between the decimal value and the exponent.
     """
 
-    is_neg, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
+    is_negative, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
 
     eng_power = int(3 * floor(ten_power / 3))
     eng_dot = dot_power + ten_power - eng_power
 
     result = (
-        ("-" if is_neg else "")
+        ("-" if is_negative else "")
         + _insert_decimal_mark(digits=sig_digits, power=eng_dot)
         + exp_style
         + str(eng_power)
@@ -393,9 +402,9 @@ def _format_number_n_sigfig(
     dec_mark: str = ".",
     preserve_integer: bool = False,
 ) -> str:
-    sig_digits, power, is_neg = _get_number_profile(value, n_sigfig)
+    sig_digits, power, is_negative = _get_number_profile(value, n_sigfig)
 
-    formatted_value = ("-" if is_neg else "") + _insert_decimal_mark(
+    formatted_value = ("-" if is_negative else "") + _insert_decimal_mark(
         digits=sig_digits, power=power, dec_mark="."
     )
 
@@ -441,6 +450,8 @@ def _format_number_fixed_decimals(
     if isinstance(value, str):
         value = float(value)
 
+    is_negative = value < 0
+
     fmt_spec = f".{decimals}f"
 
     # Get the formatted `x` value
@@ -455,7 +466,7 @@ def _format_number_fixed_decimals(
 
     # Split number at `.` and obtain the integer and decimal parts
     number_parts = value_str.split(".")
-    integer_part = number_parts[0]
+    integer_part = number_parts[0].lstrip("-")
     decimal_part = number_parts[1] if len(number_parts) > 1 else ""
 
     # Initialize formatted representations of integer and decimal parts
@@ -472,6 +483,10 @@ def _format_number_fixed_decimals(
             count += 1
     else:
         formatted_integer = integer_part
+
+    # Add back the negative sign if the number is negative
+    if is_negative:
+        formatted_integer = "-" + formatted_integer
 
     # Combine the integer and decimal parts
     result = formatted_integer + formatted_decimal
@@ -499,7 +514,7 @@ def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, i
     value that's True if the value is less than zero (i.e., negative).
     """
     value = float(value)
-    is_neg = value < 0
+    is_negative = value < 0
     value = abs(value)
 
     if value == 0:
@@ -514,7 +529,7 @@ def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, i
 
         sig_digits = str(int(round(value * 10.0**power)))
 
-    return sig_digits, int(-power), is_neg
+    return sig_digits, int(-power), is_negative
 
 
 def _get_sci_parts(value: Union[int, float], n_sigfig: int) -> tuple[bool, str, int, int]:
@@ -523,12 +538,12 @@ def _get_sci_parts(value: Union[int, float], n_sigfig: int) -> tuple[bool, str, 
     """
 
     value = float(value)
-    sig_digits, power, is_neg = _get_number_profile(value, n_sigfig)
+    sig_digits, power, is_negative = _get_number_profile(value, n_sigfig)
 
     dot_power = -(n_sigfig - 1)
     ten_power = power + n_sigfig - 1
 
-    return is_neg, sig_digits, dot_power, ten_power
+    return is_negative, sig_digits, dot_power, ten_power
 
 
 def _insert_decimal_mark(digits: str, power: int, dec_mark: str = ".") -> str:
