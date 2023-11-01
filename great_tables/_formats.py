@@ -151,8 +151,8 @@ def fmt_number(
         A option to format numbers to *n* significant figures. By default, this is `None` and thus
         number values will be formatted according to the number of decimal places set via
         `decimals`. If opting to format according to the rules of significant figures, `n_sigfig`
-        must be a number greater than or equal to `1`. Any values passed to the `decimals`,
-        `drop_trailing_zeros`, and `drop_trailing_dec_mark` arguments will be ignored.
+        must be a number greater than or equal to `1`. Any values passed to the `decimals` and
+        `drop_trailing_zeros` arguments will be ignored.
 
     drop_trailing_zeros : bool, optional
         A boolean value that allows for removal of trailing zeros (those redundant zeros after the
@@ -200,36 +200,17 @@ def fmt_number(
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
-        if n_sigfig:
-            x_formatted = _value_to_decimal_notation(
-                value=x,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                preserve_integer=False,
-            )
-        else:
-            # Generate a format specification using `decimals`
-            fmt_spec = f".{decimals}f"
-
-            # Get the formatted `x` value
-            x_formatted = format(x, fmt_spec)
-
-            # Add grouping separators (default is ',')
-            if use_seps is True:
-                x_formatted = _format_number_with_separator(
-                    number=x_formatted, use_seps=use_seps, sep_mark=sep_mark, dec_mark=dec_mark
-                )
-
-            # Drop any trailing zeros if option is taken
-            if drop_trailing_zeros is True:
-                x_formatted = x_formatted.rstrip("0")
-
-            # Drop the trailing decimal mark if it is present
-            if drop_trailing_dec_mark is True:
-                x_formatted = x_formatted.rstrip(".")
-
-            if drop_trailing_dec_mark is False and not "." in x_formatted:
-                x_formatted = x_formatted + "."
+        x_formatted = _value_to_decimal_notation(
+            value=x,
+            decimals=decimals,
+            n_sigfig=n_sigfig,
+            drop_trailing_zeros=drop_trailing_zeros,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            preserve_integer=False,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
+        )
 
         return x_formatted
 
@@ -304,57 +285,16 @@ def fmt_integer(
     return self
 
 
-def _format_number_with_separator(
-    number: Union[int, float, str], use_seps: bool = True, sep_mark: str = ",", dec_mark: str = "."
-) -> str:
-    # If `number` is a string, validate that is at least number-like
-    if isinstance(number, str):
-        float(number)
-
-    if isinstance(number, (int, float)):
-        number = repr(number)
-
-    # Very small or very large numbers can be represented in exponential
-    # notation but we don't want that; we need the string value to be fully
-    # expanded with zeros so if an 'e' is detected we'll use a helper function
-    # to ensure it's back to a number
-    if "e" in number or "E" in number:
-        number = _expand_exponential_to_full_string(str_number=number)
-
-    # Split number at `.` and obtain the integer and decimal parts
-    number_parts = number.split(".")
-    integer_part = number_parts[0]
-    decimal_part = number_parts[1] if len(number_parts) > 1 else ""
-
-    # Initialize formatted representations of integer and decimal parts
-    formatted_integer = ""
-    formatted_decimal = dec_mark + decimal_part if decimal_part else ""
-
-    # Insert grouping separators within the integer part
-    count = 0
-    for digit in reversed(integer_part):
-        if count and count % 3 == 0:
-            formatted_integer = sep_mark + formatted_integer
-        formatted_integer = digit + formatted_integer
-        count += 1
-
-    # Combine the integer and decimal parts
-    formatted_number = formatted_integer + formatted_decimal
-
-    return formatted_number
-
-
-def _expand_exponential_to_full_string(str_number: str) -> str:
-    decimal_number = Decimal(str_number)
-    formatted_number = "{:f}".format(decimal_number)
-    return formatted_number
-
-
 def _value_to_decimal_notation(
     value: Union[int, float],
-    n_sigfig: int,
-    drop_trailing_zeros: bool,
-    preserve_integer: bool,
+    decimals: int = 2,
+    n_sigfig: Optional[int] = None,
+    drop_trailing_zeros: bool = False,
+    drop_trailing_dec_mark: bool = True,
+    preserve_integer: bool = False,
+    use_seps: bool = True,
+    sep_mark: str = ",",
+    dec_mark: str = ".",
 ) -> str:
     """
     Decimal notation.
@@ -376,12 +316,34 @@ def _value_to_decimal_notation(
     preserve_integer: bool
         If True, all digits will be preserved when returning values that have no decimal component.
     """
-    sig_digits, power, is_neg = _get_number_profile(value, n_sigfig)
 
-    result = ("-" if is_neg else "") + _insert_decimal_mark(sig_digits, power, drop_trailing_zeros)
+    if n_sigfig:
+        sig_digits, power, is_neg = _get_number_profile(value, n_sigfig)
 
-    if preserve_integer and not "." in result:
-        result = "{:0.0f}".format(value)
+        result = ("-" if is_neg else "") + _insert_decimal_mark(
+            digits=sig_digits, power=power, dec_mark=dec_mark
+        )
+
+        if preserve_integer and not "." in result:
+            result = "{:0.0f}".format(value)
+
+    else:
+        result = _format_number_fixed_decimals(
+            value=value, decimals=decimals, use_seps=use_seps, sep_mark=sep_mark, dec_mark=dec_mark
+        )
+
+        # Drop any trailing zeros if option is taken (this purposefully doesn't apply to numbers
+        # formatted to a specific number of significant digits)
+        if drop_trailing_zeros is True:
+            result = result.rstrip("0")
+
+    # Drop the trailing decimal mark if it is present
+    if drop_trailing_dec_mark is True:
+        result = result.rstrip(dec_mark)
+
+    # Add in a trailing decimal mark under specific circumstances
+    if drop_trailing_dec_mark is False and not dec_mark in result:
+        result = result + dec_mark
 
     return result
 
@@ -390,7 +352,6 @@ def _value_to_scientific_notation(
     value: Union[int, float],
     n_sigfig: int,
     exp_style: str,
-    drop_trailing_zeros: bool,
 ) -> str:
     """
     Scientific notation.
@@ -416,17 +377,17 @@ def _value_to_scientific_notation(
 
     is_neg, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
 
-    return (
+    result = (
         ("-" if is_neg else "")
-        + _insert_decimal_mark(sig_digits, dot_power, drop_trailing_zeros)
+        + _insert_decimal_mark(digits=sig_digits, power=dot_power)
         + exp_style
         + str(ten_power)
     )
 
+    return result
 
-def _value_to_engineering_notation(
-    value: Union[int, float], n_sigfig: int, exp_style: str, drop_trailing_zeros: bool
-) -> str:
+
+def _value_to_engineering_notation(value: Union[int, float], n_sigfig: int, exp_style: str) -> str:
     """
     Engineering notation.
 
@@ -454,12 +415,69 @@ def _value_to_engineering_notation(
     eng_power = int(3 * floor(ten_power / 3))
     eng_dot = dot_power + ten_power - eng_power
 
-    return (
+    result = (
         ("-" if is_neg else "")
-        + _insert_decimal_mark(sig_digits, eng_dot, drop_trailing_zeros)
+        + _insert_decimal_mark(digits=sig_digits, power=eng_dot)
         + exp_style
         + str(eng_power)
     )
+
+    return result
+
+
+def _format_number_fixed_decimals(
+    value: Union[int, float, str],
+    decimals: int,
+    use_seps: bool = True,
+    sep_mark: str = ",",
+    dec_mark: str = ".",
+) -> str:
+    # If `number` is a string, cast it into a float
+    if isinstance(value, str):
+        value = float(value)
+
+    fmt_spec = f".{decimals}f"
+
+    # Get the formatted `x` value
+    value = format(value, fmt_spec)
+
+    # Very small or very large numbers can be represented in exponential
+    # notation but we don't want that; we need the string value to be fully
+    # expanded with zeros so if an 'e' is detected we'll use a helper function
+    # to ensure it's back to a number
+    if "e" in value or "E" in value:
+        value = _expand_exponential_to_full_string(str_number=value)
+
+    # Split number at `.` and obtain the integer and decimal parts
+    number_parts = value.split(".")
+    integer_part = number_parts[0]
+    decimal_part = number_parts[1] if len(number_parts) > 1 else ""
+
+    # Initialize formatted representations of integer and decimal parts
+    formatted_integer = ""
+    formatted_decimal = dec_mark + decimal_part if decimal_part else ""
+
+    # Insert grouping separators within the integer part
+    if use_seps:
+        count = 0
+        for digit in reversed(integer_part):
+            if count and count % 3 == 0:
+                formatted_integer = sep_mark + formatted_integer
+            formatted_integer = digit + formatted_integer
+            count += 1
+    else:
+        formatted_integer = integer_part
+
+    # Combine the integer and decimal parts
+    formatted_number = formatted_integer + formatted_decimal
+
+    return formatted_number
+
+
+def _expand_exponential_to_full_string(str_number: str) -> str:
+    decimal_number = Decimal(str_number)
+    formatted_number = "{:f}".format(decimal_number)
+    return formatted_number
 
 
 def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, int, bool]:
@@ -503,7 +521,7 @@ def _get_sci_parts(value: Union[int, float], n_sigfig: int) -> tuple[bool, str, 
     return is_neg, sig_digits, dot_power, ten_power
 
 
-def _insert_decimal_mark(digits: str, power: int, drop_trailing_zeros: bool = False) -> str:
+def _insert_decimal_mark(digits: str, power: int, dec_mark: str = ".") -> str:
     """
     Places the decimal mark in the correct location within the digits.
 
@@ -530,16 +548,13 @@ def _insert_decimal_mark(digits: str, power: int, drop_trailing_zeros: bool = Fa
         n_sigfig = len(digits)
 
         if power < n_sigfig:
-            out = digits[:-power] + "." + digits[-power:]
+            out = digits[:-power] + dec_mark + digits[-power:]
 
         else:
-            out = "0." + "0" * (power - n_sigfig) + digits
+            out = "0" + dec_mark + "0" * (power - n_sigfig) + digits
 
     else:
-        out = digits + ("." if digits[-1] == "0" and len(digits) > 1 else "")
-
-    if drop_trailing_zeros and "." in out:
-        out = out.rstrip("0").rstrip(".")
+        out = digits + (dec_mark if digits[-1] == "0" and len(digits) > 1 else "")
 
     return out
 
