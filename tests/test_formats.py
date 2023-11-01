@@ -631,6 +631,31 @@ def test_fmt_number_force_sign(force_sign: bool, x_out: str):
     assert x == x_out
 
 
+@pytest.mark.parametrize(
+    "pattern, x_out",
+    [
+        ("{x}", ["-234.65", "0.00", "25,342.00"]),
+        ("a{x}b", ["a-234.65b", "a0.00b", "a25,342.00b"]),
+        (
+            "  a {x} b {x} c  ",
+            ["  a -234.65 b -234.65 c  ", "  a 0.00 b 0.00 c  ", "  a 25,342.00 b 25,342.00 c  "],
+        ),
+        ("{x}{x}", ["-234.65-234.65", "0.000.00", "25,342.0025,342.00"]),
+        (
+            "#4$!|-_+%^&$*#{x}",
+            ["#4$!|-_+%^&$*#-234.65", "#4$!|-_+%^&$*#0.00", "#4$!|-_+%^&$*#25,342.00"],
+        ),
+        ("{xx}{{x}}{xx}", ["{xx}{-234.65}{xx}", "{xx}{0.00}{xx}", "{xx}{25,342.00}{xx}"]),
+    ],
+)
+def test_fmt_number_pattern(pattern: str, x_out: str):
+    df = pd.DataFrame({"x": [-234.654, 0, 25342]})
+
+    gt = GT(df).fmt_number(columns="x", decimals=2, pattern=pattern)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
 # Test `_format_number_fixed_decimals()` util function
 @pytest.mark.parametrize(
     "value, x_out",

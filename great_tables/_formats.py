@@ -104,7 +104,7 @@ def fmt_number(
     # accounting: bool = False,
     scale_by: float = 1,
     # suffixing: bool = False,
-    # pattern: str = '{x}'
+    pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign: bool = False,
@@ -223,6 +223,10 @@ def fmt_number(
             dec_mark=dec_mark,
             force_sign=force_sign,
         )
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
 
         return x_formatted
 
