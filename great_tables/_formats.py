@@ -301,6 +301,9 @@ def _value_to_decimal_notation(
     optional formatting of the decimal part).
     """
 
+    # It there is a value provided to `n_sigfig` then number formatting proceeds through the
+    # significant digits pathway, which ignores `decimals` and any removal of trailing zero values
+    # in the decimal portion of the value
     if n_sigfig:
         result = _format_number_n_sigfig(
             value=value,
