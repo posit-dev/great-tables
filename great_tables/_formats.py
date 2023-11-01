@@ -217,7 +217,7 @@ def fmt_number(
             # Add grouping separators (default is ',')
             if use_seps is True:
                 x_formatted = _format_number_with_separator(
-                    number=x_formatted, sep_mark=sep_mark, dec_mark=dec_mark
+                    number=x_formatted, use_seps=use_seps, sep_mark=sep_mark, dec_mark=dec_mark
                 )
 
             # Drop any trailing zeros if option is taken
@@ -305,7 +305,7 @@ def fmt_integer(
 
 
 def _format_number_with_separator(
-    number: Union[int, float, str], sep_mark: str = ",", dec_mark: str = "."
+    number: Union[int, float, str], use_seps: bool = True, sep_mark: str = ",", dec_mark: str = "."
 ) -> str:
     # If `number` is a string, validate that is at least number-like
     if isinstance(number, str):
@@ -321,21 +321,22 @@ def _format_number_with_separator(
     if "e" in number or "E" in number:
         number = _expand_exponential_to_full_string(str_number=number)
 
+    # Split number at `.` and obtain the integer and decimal parts
     number_parts = number.split(".")
-
-    # Obtain the integer part
     integer_part = number_parts[0]
+    decimal_part = number_parts[1] if len(number_parts) > 1 else ""
+
+    # Initialize formatted representations of integer and decimal parts
+    formatted_decimal = dec_mark + decimal_part if decimal_part else ""
     formatted_integer = ""
+
+    # Insert grouping separators within the integer part
     count = 0
     for digit in reversed(integer_part):
         if count and count % 3 == 0:
             formatted_integer = sep_mark + formatted_integer
         formatted_integer = digit + formatted_integer
         count += 1
-
-    # Obtain the decimal part
-    decimal_part = number_parts[1] if len(number_parts) > 1 else ""
-    formatted_decimal = dec_mark + decimal_part if decimal_part else ""
 
     # Combine the integer and decimal parts
     formatted_number = formatted_integer + formatted_decimal
@@ -388,14 +389,14 @@ def _value_to_decimal_notation(
 def _value_to_scientific_notation(
     value: Union[int, float],
     n_sigfig: int,
-    delimiter: str,
+    exp_style: str,
     drop_trailing_zeros: bool,
 ) -> str:
     """
     Scientific notation.
 
-    Returns a string value with the correct precision and 10s exponent. The
-    delimiter is placed between the decimal value and 10s exponent.
+    Returns a string value with the correct precision and 10s exponent. The `exp_style` text is
+    placed between the decimal value and 10s exponent.
 
     Parameters
     ----------
@@ -406,7 +407,7 @@ def _value_to_scientific_notation(
     n_sigfig: int
         The number of significant digits
 
-    delimiter: str
+    exp_style: str
         The exponent symbol to use.
 
     drop_trailing_zeros : bool
@@ -418,20 +419,19 @@ def _value_to_scientific_notation(
     return (
         ("-" if is_neg else "")
         + _insert_decimal_mark(sig_digits, dot_power, drop_trailing_zeros)
-        + delimiter
+        + exp_style
         + str(ten_power)
     )
 
 
 def _value_to_engineering_notation(
-    value: Union[int, float], n_sigfig: int, delimiter: str, drop_trailing_zeros: bool
+    value: Union[int, float], n_sigfig: int, exp_style: str, drop_trailing_zeros: bool
 ) -> str:
     """
     Engineering notation.
 
-    Returns a string value with the correct precision and an exponent that
-    is divisible by three. The delimiter is placed between the decimal value and
-    the exponent.
+    Returns a string value with the correct precision and an exponent that is divisible by three.
+    The `exp_style` text is placed between the decimal value and the exponent.
 
     Parameters
     ----------
@@ -457,7 +457,7 @@ def _value_to_engineering_notation(
     return (
         ("-" if is_neg else "")
         + _insert_decimal_mark(sig_digits, eng_dot, drop_trailing_zeros)
-        + delimiter
+        + exp_style
         + str(eng_power)
     )
 
