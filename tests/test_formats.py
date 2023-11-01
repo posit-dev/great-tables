@@ -555,6 +555,67 @@ def test_fmt_number_drop_trailing_01(
     assert x == x_out
 
 
+@pytest.mark.parametrize(
+    "n_sigfig, use_seps, sep_mark, dec_mark, x_out",
+    [
+        (1, True, ",", ".", ["1,000,000", "-5,000"]),
+        (1, True, ".", ",", ["1.000.000", "-5.000"]),
+        (1, True, "  ", "/", ["1  000  000", "-5  000"]),
+        (1, True, "", "", ["1000000", "-5000"]),
+        (1, False, ",", ".", ["1000000", "-5000"]),
+        (1, False, ".", ",", ["1000000", "-5000"]),
+        (1, False, "  ", "/", ["1000000", "-5000"]),
+        (1, False, "", "", ["1000000", "-5000"]),
+        (3, True, ",", ".", ["1,230,000", "-5,430"]),
+        (3, True, ".", ",", ["1.230.000", "-5.430"]),
+        (3, True, "  ", "/", ["1  230  000", "-5  430"]),
+        (3, True, "", "", ["1230000", "-5430"]),
+        (3, False, ",", ".", ["1230000", "-5430"]),
+        (3, False, ".", ",", ["1230000", "-5430"]),
+        (3, False, "  ", "/", ["1230000", "-5430"]),
+        (3, False, "", "", ["1230000", "-5430"]),
+        (5, True, ",", ".", ["1,234,600", "-5,432.4"]),
+        (5, True, ".", ",", ["1.234.600", "-5.432,4"]),
+        (5, True, "  ", "/", ["1  234  600", "-5  432/4"]),
+        (5, True, "", "", ["1234600", "-54324"]),
+        (5, False, ",", ".", ["1234600", "-5432.4"]),
+        (5, False, ".", ",", ["1234600", "-5432,4"]),
+        (5, False, "  ", "/", ["1234600", "-5432/4"]),
+        (5, False, "", "", ["1234600", "-54324"]),
+        (7, True, ",", ".", ["1,234,567", "-5,432.370"]),
+        (7, True, ".", ",", ["1.234.567", "-5.432,370"]),
+        (7, True, "  ", "/", ["1  234  567", "-5  432/370"]),
+        (7, True, "", "", ["1234567", "-5432370"]),
+        (7, False, ",", ".", ["1234567", "-5432.370"]),
+        (7, False, ".", ",", ["1234567", "-5432,370"]),
+        (7, False, "  ", "/", ["1234567", "-5432/370"]),
+        (7, False, "", "", ["1234567", "-5432370"]),
+        (9, True, ",", ".", ["1,234,567.00", "-5,432.37000"]),
+        (9, True, ".", ",", ["1.234.567,00", "-5.432,37000"]),
+        (9, True, "  ", "/", ["1  234  567/00", "-5  432/37000"]),
+        (9, True, "", "", ["123456700", "-543237000"]),
+        (9, False, ",", ".", ["1234567.00", "-5432.37000"]),
+        (9, False, ".", ",", ["1234567,00", "-5432,37000"]),
+        (9, False, "  ", "/", ["1234567/00", "-5432/37000"]),
+        (9, False, "", "", ["123456700", "-543237000"]),
+    ],
+)
+def test_fmt_number_n_sigfig_seps(
+    n_sigfig: int, use_seps: bool, sep_mark: str, dec_mark: str, x_out: str
+):
+    df = pd.DataFrame({"x": [1234567, -5432.37]})
+
+    gt = GT(df).fmt_number(
+        columns="x",
+        n_sigfig=n_sigfig,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+    )
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
 # Test `_format_number_fixed_decimals()` util function
 @pytest.mark.parametrize(
     "value, x_out",
@@ -588,7 +649,7 @@ def test_fmt_number_drop_trailing_01(
         (0.00000000446453, "0.00"),
     ],
 )
-def test_format_number_fixed_decimals(value: Union[int, float, str], x_out: str):
+def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
     x = _format_number_fixed_decimals(value=value, decimals=2, sep_mark=",")
     assert x == x_out
 
