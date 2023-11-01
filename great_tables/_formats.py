@@ -206,7 +206,6 @@ def fmt_number(
             n_sigfig=n_sigfig,
             drop_trailing_zeros=drop_trailing_zeros,
             drop_trailing_dec_mark=drop_trailing_dec_mark,
-            preserve_integer=False,
             use_seps=use_seps,
             sep_mark=sep_mark,
             dec_mark=dec_mark,
@@ -291,7 +290,6 @@ def _value_to_decimal_notation(
     n_sigfig: Optional[int] = None,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
-    preserve_integer: bool = False,
     use_seps: bool = True,
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -299,33 +297,19 @@ def _value_to_decimal_notation(
     """
     Decimal notation.
 
-    Returns a string value with the correct precision.
-
-    Parameters
-    ----------
-
-    value: Union[int, float]
-        The number to be formatted.
-
-    n_sigfig: int
-        The number of significant digits
-
-    drop_trailing_zeros : bool
-        If True, trailing zeros in the decimal portion will be removed.
-
-    preserve_integer: bool
-        If True, all digits will be preserved when returning values that have no decimal component.
+    Returns a string value with the correct precision or fixed number of decimal places (with
+    optional formatting of the decimal part).
     """
 
     if n_sigfig:
-        sig_digits, power, is_neg = _get_number_profile(value, n_sigfig)
-
-        result = ("-" if is_neg else "") + _insert_decimal_mark(
-            digits=sig_digits, power=power, dec_mark=dec_mark
+        result = _format_number_n_sigfig(
+            value=value,
+            n_sigfig=n_sigfig,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
+            preserve_integer=False,
         )
-
-        if preserve_integer and not "." in result:
-            result = "{:0.0f}".format(value)
 
     else:
         result = _format_number_fixed_decimals(
@@ -358,21 +342,6 @@ def _value_to_scientific_notation(
 
     Returns a string value with the correct precision and 10s exponent. The `exp_style` text is
     placed between the decimal value and 10s exponent.
-
-    Parameters
-    ----------
-
-    value: Union[int, float]
-        The number to be formatted.
-
-    n_sigfig: int
-        The number of significant digits
-
-    exp_style: str
-        The exponent symbol to use.
-
-    drop_trailing_zeros : bool
-        If True, trailing zeros in the decimal portion will be removed.
     """
 
     is_neg, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
@@ -393,21 +362,6 @@ def _value_to_engineering_notation(value: Union[int, float], n_sigfig: int, exp_
 
     Returns a string value with the correct precision and an exponent that is divisible by three.
     The `exp_style` text is placed between the decimal value and the exponent.
-
-    Parameters
-    ----------
-
-    value: Union[int, float]
-        The number to be formatted.
-
-    n_sigfig: int
-        The number of significant digits
-
-    delimiter: str
-        The exponent symbol to use.
-
-    drop_trailing_zeros : bool
-        If True, trailing zeros in the decimal portion will be removed.
     """
 
     is_neg, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
@@ -425,8 +379,52 @@ def _value_to_engineering_notation(value: Union[int, float], n_sigfig: int, exp_
     return result
 
 
+def _format_number_n_sigfig(
+    value: Union[int, float],
+    n_sigfig: int,
+    use_seps: bool = True,
+    sep_mark: str = ",",
+    dec_mark: str = ".",
+    preserve_integer: bool = False,
+) -> str:
+    sig_digits, power, is_neg = _get_number_profile(value, n_sigfig)
+
+    formatted_value = ("-" if is_neg else "") + _insert_decimal_mark(
+        digits=sig_digits, power=power, dec_mark="."
+    )
+
+    # Get integer and decimal parts
+    # Split number at `.` and obtain the integer and decimal parts
+    number_parts = formatted_value.split(".")
+    integer_part = number_parts[0]
+    decimal_part = number_parts[1] if len(number_parts) > 1 else ""
+
+    # Initialize formatted representations of integer and decimal parts
+    formatted_integer = ""
+    formatted_decimal = dec_mark + decimal_part if decimal_part else ""
+
+    if preserve_integer and not "." in formatted_value:
+        formatted_value = "{:0.0f}".format(value)
+
+    # Insert grouping separators within the integer part
+    if use_seps:
+        count = 0
+        for digit in reversed(integer_part):
+            if count and count % 3 == 0:
+                formatted_integer = sep_mark + formatted_integer
+            formatted_integer = digit + formatted_integer
+            count += 1
+    else:
+        formatted_integer = integer_part
+
+    # Combine the integer and decimal parts
+    result = formatted_integer + formatted_decimal
+
+    return result
+
+
 def _format_number_fixed_decimals(
-    value: Union[int, float, str],
+    value: Union[int, float],
     decimals: int,
     use_seps: bool = True,
     sep_mark: str = ",",
