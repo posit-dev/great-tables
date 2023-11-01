@@ -616,6 +616,21 @@ def test_fmt_number_n_sigfig_seps(
     assert x == x_out
 
 
+@pytest.mark.parametrize(
+    "force_sign, x_out",
+    [
+        (False, ["-234.654", "-0.001", "-0.100", "0.000", "12,354.300", "9,939,293,923.230"]),
+        (True, ["-234.654", "-0.001", "-0.100", "0.000", "+12,354.300", "+9,939,293,923.230"]),
+    ],
+)
+def test_fmt_number_force_sign(force_sign: bool, x_out: str):
+    df = pd.DataFrame({"x": [-234.654, -0.000634, -0.1, 0, 12354.3, 9939293923.23]})
+
+    gt = GT(df).fmt_number(columns="x", decimals=3, force_sign=force_sign)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
 # Test `_format_number_fixed_decimals()` util function
 @pytest.mark.parametrize(
     "value, x_out",
