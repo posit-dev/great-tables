@@ -301,10 +301,10 @@ def _value_to_decimal_notation(
     optional formatting of the decimal part).
     """
 
-    # It there is a value provided to `n_sigfig` then number formatting proceeds through the
-    # significant digits pathway, which ignores `decimals` and any removal of trailing zero values
-    # in the decimal portion of the value
     if n_sigfig:
+        # If there is a value provided to `n_sigfig` then number formatting proceeds through the
+        # significant digits pathway, which ignores `decimals` and any removal of trailing zero values
+        # in the decimal portion of the value
         result = _format_number_n_sigfig(
             value=value,
             n_sigfig=n_sigfig,
@@ -315,14 +315,17 @@ def _value_to_decimal_notation(
         )
 
     else:
+        # If there is nothing provided to `n_sigfig` then the conventional decimal number formatting
+        # pathway is taken; this formats to a specific number of decimal places and removal of
+        # trailing zero values can be undertaken
         result = _format_number_fixed_decimals(
-            value=value, decimals=decimals, use_seps=use_seps, sep_mark=sep_mark, dec_mark=dec_mark
+            value=value,
+            decimals=decimals,
+            drop_trailing_zeros=drop_trailing_zeros,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
         )
-
-        # Drop any trailing zeros if option is taken (this purposefully doesn't apply to numbers
-        # formatted to a specific number of significant digits)
-        if drop_trailing_zeros is True:
-            result = result.rstrip("0")
 
     # Drop the trailing decimal mark if it is present
     if drop_trailing_dec_mark is True:
@@ -429,6 +432,7 @@ def _format_number_n_sigfig(
 def _format_number_fixed_decimals(
     value: Union[int, float],
     decimals: int,
+    drop_trailing_zeros: bool = False,
     use_seps: bool = True,
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -440,17 +444,17 @@ def _format_number_fixed_decimals(
     fmt_spec = f".{decimals}f"
 
     # Get the formatted `x` value
-    value = format(value, fmt_spec)
+    value_str = format(value, fmt_spec)
 
     # Very small or very large numbers can be represented in exponential
     # notation but we don't want that; we need the string value to be fully
     # expanded with zeros so if an 'e' is detected we'll use a helper function
     # to ensure it's back to a number
-    if "e" in value or "E" in value:
-        value = _expand_exponential_to_full_string(str_number=value)
+    if "e" in value_str or "E" in value_str:
+        value_str = _expand_exponential_to_full_string(str_number=value_str)
 
     # Split number at `.` and obtain the integer and decimal parts
-    number_parts = value.split(".")
+    number_parts = value_str.split(".")
     integer_part = number_parts[0]
     decimal_part = number_parts[1] if len(number_parts) > 1 else ""
 
@@ -470,9 +474,14 @@ def _format_number_fixed_decimals(
         formatted_integer = integer_part
 
     # Combine the integer and decimal parts
-    formatted_number = formatted_integer + formatted_decimal
+    result = formatted_integer + formatted_decimal
 
-    return formatted_number
+    # Drop any trailing zeros if option is taken (this purposefully doesn't apply to numbers
+    # formatted to a specific number of significant digits)
+    if drop_trailing_zeros is True:
+        result = result.rstrip("0")
+
+    return result
 
 
 def _expand_exponential_to_full_string(str_number: str) -> str:
