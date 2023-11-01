@@ -188,11 +188,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 1  Ferrari  458 Speciale  291744
 2  Ferrari    458 Spider  263553
 3  Ferrari    458 Italia  233509
-4  Ferrari       488 GTB  245400, _body=&lt;great_tables._gt_data.Body object at 0x7f26a0438f40&gt;, _boxhead=Boxhead([&lt;great_tables._gt_data.ColInfo object at 0x7f26a0438550&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f26a0438a60&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f26a0438160&gt;]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=&lt;great_tables._gt_data.Spanners object at 0x7f26a0439120&gt;, _heading=&lt;great_tables._gt_data.Heading object at 0x7f26a0438460&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f26a04391e0&gt;, _source_notes=&lt;great_tables._gt_data.SourceNotes object at 0x7f26a0439240&gt;, _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f26a0439390&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f26a0439600&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f26a0439630&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7f26a04554e0&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7f26a04395d0&gt;, _has_built=False)</code></pre>
+4  Ferrari       488 GTB  245400, _body=&lt;great_tables._gt_data.Body object at 0x7f0201649180&gt;, _boxhead=Boxhead([&lt;great_tables._gt_data.ColInfo object at 0x7f0201648640&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f0201648c70&gt;, &lt;great_tables._gt_data.ColInfo object at 0x7f02016489d0&gt;]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=&lt;great_tables._gt_data.Spanners object at 0x7f02016491e0&gt;, _heading=&lt;great_tables._gt_data.Heading object at 0x7f0201649330&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f02016484f0&gt;, _source_notes=&lt;great_tables._gt_data.SourceNotes object at 0x7f02016491b0&gt;, _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f0201649450&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f0201649690&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f02016496c0&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7f0201661570&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7f0201649660&gt;, _has_built=False)</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gt.GT(exibble.iloc[[<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">7</span>, <span class="dv">1</span>],], rowname_col<span class="op">=</span><span class="st">"row"</span>, groupname_col<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gt.GT(exibble.iloc[[<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">7</span>, <span class="dv">1</span>],], groupname_col<span class="op">=</span><span class="st">"group"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 
 <div style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
@@ -593,17 +593,6 @@ html {
 <td class="gt_row">grp_b</td>
 </tr>
 <tr class="even">
-<td class="gt_row">444.4</td>
-<td class="gt_row">durian</td>
-<td class="gt_row">four</td>
-<td class="gt_row">2015-04-15</td>
-<td class="gt_row">16:50</td>
-<td class="gt_row">2018-04-04 15:55</td>
-<td class="gt_row">65100.0</td>
-<td class="gt_row">row_4</td>
-<td class="gt_row">grp_a</td>
-</tr>
-<tr class="odd">
 <td class="gt_row">8880000.0</td>
 <td class="gt_row">honeydew</td>
 <td class="gt_row">eight</td>
@@ -613,6 +602,17 @@ html {
 <td class="gt_row">0.44</td>
 <td class="gt_row">row_8</td>
 <td class="gt_row">grp_b</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">444.4</td>
+<td class="gt_row">durian</td>
+<td class="gt_row">four</td>
+<td class="gt_row">2015-04-15</td>
+<td class="gt_row">16:50</td>
+<td class="gt_row">2018-04-04 15:55</td>
+<td class="gt_row">65100.0</td>
+<td class="gt_row">row_4</td>
+<td class="gt_row">grp_a</td>
 </tr>
 <tr class="even">
 <td class="gt_row">2.222</td>
