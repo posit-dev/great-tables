@@ -327,8 +327,8 @@ def _format_number_with_separator(
     decimal_part = number_parts[1] if len(number_parts) > 1 else ""
 
     # Initialize formatted representations of integer and decimal parts
-    formatted_decimal = dec_mark + decimal_part if decimal_part else ""
     formatted_integer = ""
+    formatted_decimal = dec_mark + decimal_part if decimal_part else ""
 
     # Insert grouping separators within the integer part
     count = 0
