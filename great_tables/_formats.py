@@ -80,16 +80,183 @@ class FormatsAPI:
         # TODO: Not implemented yet
         return self
 
-    def fmt_percent(
-        self,
-        columns: Union[str, List[str], None] = None,
-        rows: Union[int, List[int], None] = None,
-        decimals: int = 2,
-        drop_trailing_zeros: bool = False,
-        drop_trailing_dec_mark: bool = True,
+
+def fmt_percent(
+    self: GTData,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    decimals: int = 2,
+    drop_trailing_zeros: bool = False,
+    drop_trailing_dec_mark: bool = True,
+    scale_values: bool = True,
+    use_seps: bool = True,
+    # accounting: bool = False,
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    dec_mark: str = ".",
+    force_sign: bool = False,
+    incl_space: bool = False,
+    placement: str = "right",
+    # system: str = "intl",
+    # locale: str = None,
+) -> GTData:
+    """
+    Format values as a percentage.
+
+    With numeric values in a **gt** table, we can perform percentage-based formatting. It is assumed
+    the input numeric values are proportional values and, in this case, the values will be
+    automatically multiplied by `100` before decorating with a percent sign (the other case is
+    accommodated though setting `scale_values` to `False`). For more control over percentage
+    formatting, we can use the following options:
+
+    - percent sign placement: the percent sign can be placed after or before the values and a space
+    can be inserted between the symbol and the value.
+    - decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice
+    of the decimal symbol
+    - digit grouping separators: options to enable/disable digit separators and provide a choice of
+    separator symbol
+    - value scaling toggle: choose to disable automatic value scaling in the situation that values
+    are already scaled coming in (and just require the percent symbol)
+    - pattern: option to use a text pattern for decoration of the formatted values
+    - locale-based formatting: providing a locale ID will result in number formatting specific to
+    the chosen locale
+
+    Parameters
+    ----------
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    rows : Union[int, List[int], None]
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+
+    decimals : int
+        The `decimals` values corresponds to the exact number of decimal places to use. A value such
+        as `2.34` can, for example, be formatted with `0` decimal places and it would result in
+        `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
+        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
+        `fmt_integer()` method should be considered.
+
+    drop_trailing_zeros : bool
+        A boolean value that allows for removal of trailing zeros (those redundant zeros after the
+        decimal mark).
+
+    drop_trailing_dec_mark : bool
+        A boolean value that determines whether decimal marks should always appear even if there are
+        no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
+        default trailing decimal marks are not shown.
+
+    scale_values : bool
+        Should the values be scaled through multiplication by 100? By default this scaling is
+        performed since the expectation is that incoming values are usually proportional. Setting to
+        `False` signifies that the values are already scaled and require only the percent sign when
+        formatted.
+
+    use_seps : bool
+        The `use_seps` option allows for the use of digit group separators. The type of digit group
+        separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
+        setting is `True` by default.
+
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    sep_mark : str
+        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
+        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
+        ignored if a `locale` is supplied (i.e., is not `None`).
+
+    dec_mark : str
+        The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
+        `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
+        `locale` is supplied (i.e., is not `None`).
+
+    force_sign : bool
+        Should the positive sign be shown for positive values (effectively showing a sign for all
+        values except zero)? If so, use `True` for this option. The default is `False`, where only
+        negative numbers will display a minus sign. This option is disregarded when using accounting
+        notation with `accounting = True`.
+
+    incl_space : bool
+        An option for whether to include a space between the value and the percent sign. The default
+        is to not introduce a space character.
+
+    placement : str
+        This option governs the placement of the percent sign. This can be either be `"right"` (the
+        default) or `"left"`.
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
+    """
+
+    if scale_values:
+        scale_by = 100.0
+    else:
+        scale_by = 1.0
+
+    # Generate a function that will operate on single `x` values in the table body
+    def fmt_percent_fn(
+        x: float,
+        decimals: int = decimals,
+        drop_trailing_zeros: bool = drop_trailing_zeros,
+        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
+        use_seps: bool = use_seps,
+        scale_by: float = scale_by,
+        sep_mark: str = sep_mark,
+        dec_mark: str = dec_mark,
+        force_sign: bool = force_sign,
+        placement: str = placement,
+        incl_space: bool = incl_space,
     ):
-        # TODO: Not implemented yet
-        return self
+        # Scale `x` value by a defined `scale_by` value
+        x = x * scale_by
+
+        is_negative = x < 0
+        is_positive = x > 0
+
+        x_formatted = _value_to_decimal_notation(
+            value=x,
+            decimals=decimals,
+            n_sigfig=None,
+            drop_trailing_zeros=drop_trailing_zeros,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
+            force_sign=force_sign,
+        )
+
+        # Create a percent pattern for affixing the percent sign
+        space_character = " " if incl_space else ""
+        percent_pattern = (
+            f"{{x}}{space_character}%" if placement == "right" else f"%{space_character}{{x}}"
+        )
+
+        if is_negative and placement == "left":
+            x_formatted = x_formatted.replace("-", "")
+            x_formatted = percent_pattern.replace("{x}", x_formatted)
+            x_formatted = "-" + x_formatted
+        elif is_positive and force_sign and placement == "left":
+            x_formatted = x_formatted.replace("+", "")
+            x_formatted = percent_pattern.replace("{x}", x_formatted)
+            x_formatted = "+" + x_formatted
+        else:
+            x_formatted = percent_pattern.replace("{x}", x_formatted)
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    FormatsAPI.fmt(self, fns=fmt_percent_fn, columns=columns, rows=rows)
+
+    return self
 
 
 def fmt_number(
@@ -108,7 +275,7 @@ def fmt_number(
     sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign: bool = False,
-    # system: str = 'intl',
+    # system: str = "intl",
     # locale: str = None,
 ) -> GTData:
     """
@@ -200,8 +367,7 @@ def fmt_number(
         The GTData object is returned.
     """
 
-    # Generate a function that will operate on single `x` values in
-    # the table body
+    # Generate a function that will operate on single `x` values in the table body
     def fmt_number_fn(
         x: float,
         decimals: int = decimals,

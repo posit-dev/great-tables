@@ -11,6 +11,162 @@ from great_tables._formats import (
 
 
 @pytest.mark.parametrize(
+    "scale_values, placement, incl_space, force_sign, x_out",
+    [
+        (
+            True,
+            "right",
+            False,
+            False,
+            [
+                "0.05%",
+                "0.46%",
+                "4.56%",
+                "45.60%",
+                "456.00%",
+                "4,560.00%",
+                "45,600.00%",
+                "-4.68%",
+                "0.00%",
+            ],
+        ),
+        (
+            False,
+            "right",
+            False,
+            False,
+            ["0.00%", "0.00%", "0.05%", "0.46%", "4.56%", "45.60%", "456.00%", "-0.05%", "0.00%"],
+        ),
+        (
+            False,
+            "left",
+            False,
+            False,
+            ["%0.00", "%0.00", "%0.05", "%0.46", "%4.56", "%45.60", "%456.00", "-%0.05", "%0.00"],
+        ),
+        (
+            False,
+            "right",
+            True,
+            False,
+            [
+                "0.00 %",
+                "0.00 %",
+                "0.05 %",
+                "0.46 %",
+                "4.56 %",
+                "45.60 %",
+                "456.00 %",
+                "-0.05 %",
+                "0.00 %",
+            ],
+        ),
+        (
+            False,
+            "left",
+            True,
+            False,
+            [
+                "% 0.00",
+                "% 0.00",
+                "% 0.05",
+                "% 0.46",
+                "% 4.56",
+                "% 45.60",
+                "% 456.00",
+                "-% 0.05",
+                "% 0.00",
+            ],
+        ),
+        (
+            False,
+            "left",
+            True,
+            True,
+            [
+                "+% 0.00",
+                "+% 0.00",
+                "+% 0.05",
+                "+% 0.46",
+                "+% 4.56",
+                "+% 45.60",
+                "+% 456.00",
+                "-% 0.05",
+                "% 0.00",
+            ],
+        ),
+        (
+            False,
+            "left",
+            False,
+            True,
+            [
+                "+%0.00",
+                "+%0.00",
+                "+%0.05",
+                "+%0.46",
+                "+%4.56",
+                "+%45.60",
+                "+%456.00",
+                "-%0.05",
+                "%0.00",
+            ],
+        ),
+        (
+            False,
+            "right",
+            True,
+            True,
+            [
+                "+0.00 %",
+                "+0.00 %",
+                "+0.05 %",
+                "+0.46 %",
+                "+4.56 %",
+                "+45.60 %",
+                "+456.00 %",
+                "-0.05 %",
+                "0.00 %",
+            ],
+        ),
+        (
+            False,
+            "right",
+            False,
+            True,
+            [
+                "+0.00%",
+                "+0.00%",
+                "+0.05%",
+                "+0.46%",
+                "+4.56%",
+                "+45.60%",
+                "+456.00%",
+                "-0.05%",
+                "0.00%",
+            ],
+        ),
+    ],
+)
+def test_fmt_percent_basic_0(
+    scale_values: bool, placement: str, incl_space: bool, force_sign: bool, x_out: str
+):
+    df = pd.DataFrame({"x": [0.000456, 0.00456, 0.0456, 0.456, 4.56, 45.6, 456, -0.0468, 0]})
+
+    # Expect that values in `x` are formatted correctly when varying the
+    # number of fixed decimal places (`decimals`)
+    gt = GT(df).fmt_percent(
+        columns="x",
+        scale_values=scale_values,
+        force_sign=force_sign,
+        placement=placement,
+        incl_space=incl_space,
+    )
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+@pytest.mark.parametrize(
     "decimals, x_out",
     [
         (0, ["1", "1", "1", "1", "1", "1", "1", "1", "1"]),
