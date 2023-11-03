@@ -538,6 +538,7 @@ def _value_to_scientific_notation(
     decimals: int = 2,
     n_sigfig: Optional[int] = None,
     exp_style: str = "x10n",
+    dec_mark: str = ".",
 ) -> str:
     """
     Scientific notation.
@@ -556,7 +557,7 @@ def _value_to_scientific_notation(
 
     result = (
         ("-" if is_negative else "")
-        + _insert_decimal_mark(digits=sig_digits, power=dot_power)
+        + _insert_decimal_mark(digits=sig_digits, power=dot_power, dec_mark=dec_mark)
         + exp_style
         + str(ten_power)
     )
