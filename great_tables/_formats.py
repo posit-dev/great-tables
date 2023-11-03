@@ -535,8 +535,9 @@ def _value_to_decimal_notation(
 
 def _value_to_scientific_notation(
     value: Union[int, float],
-    n_sigfig: int,
-    exp_style: str,
+    decimals: int = 2,
+    n_sigfig: Optional[int] = None,
+    exp_style: str = "x10n",
 ) -> str:
     """
     Scientific notation.
@@ -544,6 +545,12 @@ def _value_to_scientific_notation(
     Returns a string value with the correct precision and 10s exponent. The `exp_style` text is
     placed between the decimal value and 10s exponent.
     """
+
+    # Transform value of `decimals` to `n_sigfig`
+    if n_sigfig:
+        pass
+    else:
+        n_sigfig = decimals + 1
 
     is_negative, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
 
