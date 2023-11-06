@@ -1029,3 +1029,6 @@ def _context_minus_mark() -> str:
 def _replace_minus(string: str, minus_mark: str) -> str:
     return _str_replace(string, "-", minus_mark)
 
+
+def _str_replace(string: str, pattern: str, replace: str):
+    return string.replace(pattern, replace)
