@@ -996,6 +996,11 @@ def _has_positive_value(value: Union[int, float]) -> bool:
 def _has_zero_value(value: Union[int, float]) -> bool:
     return value == 0
 
+
+def _has_sci_order_zero(value: Union[int, float]) -> bool:
+    return (value >= 1 and value < 10) or (value <= -1 and value > -10) or value == 0
+
+
 def _context_exp_marks() -> List[str]:
     return [" \u00D7 10<sup style='font-size: 65%;'>", "</sup>"]
 
