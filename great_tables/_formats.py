@@ -419,7 +419,7 @@ def fmt_scientific(
         drop_trailing_zeros: bool = drop_trailing_zeros,
         drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
         scale_by: float = scale_by,
-        exp_style: str = "x10n",
+        exp_style: str = exp_style,
         sep_mark: str = sep_mark,
         dec_mark: str = dec_mark,
         force_sign_m: bool = force_sign_m,
