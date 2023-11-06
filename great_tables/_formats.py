@@ -1057,17 +1057,18 @@ def _context_exp_marks() -> List[str]:
 
 
 def _context_exp_str(exp_style: str) -> str:
-    # Set default value for `exp_str`
-    exp_str = "E"
-
-    # For the 'low-ten' style, use a specialized `exp_str` string value
     if exp_style == "low-ten":
+        # For the 'low-ten' style, use a specialized `exp_str` string value
         exp_str = "<sub style='font-size: 65%;'>10</sub>"
 
-    # If there is a single letter (or a letter and a '1') then
-    # use that letter as the `exp_str` value
-    if re.search("^[a-zA-Z]{1}1?$", exp_style):
+    elif _str_detect(exp_style, "^[a-zA-Z]{1}1?$"):
+        # If there is a single letter (or a letter and a '1') then
+        # use that letter as the `exp_str` value
         exp_str = exp_style[0]
+
+    else:
+        # Use `E` if none of the above conditions are met
+        exp_str = "E"
 
     return exp_str
 
