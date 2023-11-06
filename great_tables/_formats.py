@@ -420,8 +420,7 @@ def fmt_scientific(
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
-        # Determine properties of the value
-        is_negative = _has_negative_value(value=x)
+        # Determine whether the value is positive
         is_positive = _has_positive_value(value=x)
 
         minus_mark = _context_minus_mark()
