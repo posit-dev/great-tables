@@ -422,15 +422,38 @@ def fmt_scientific(
 
         # Define the marks by context
         exp_marks = _context_exp_marks()
-        minus_mark = context_minus_mark()
+        minus_mark = _context_minus_mark()
 
-        x_formatted = _value_to_scientific_notation(
+        x_sci_notn = _value_to_scientific_notation(
             value=x,
             decimals=decimals,
             n_sigfig=n_sigfig,
-            exp_style=exp_style,
             dec_mark=dec_mark,
         )
+
+        sci_parts = x_sci_notn.split("E")
+
+        m_part = sci_parts[0]
+        n_part = sci_parts[1]
+
+        if exp_style == "x10n":
+            if force_sign_n:
+                n_part = n_part.replace("^", "+")
+
+            if drop_trailing_zeros:
+                m_part = m_part.rstrip("0")
+
+            if drop_trailing_dec_mark:
+                m_part = m_part.rstrip(".")
+
+            # TODO: implement minus sign replacement
+            # m_part = _replace_minus(m_part)
+            # n_part = _replace_minus(n_part)
+
+            x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
+
+        else:
+            x_formatted = x_sci_notn
 
         return x_formatted
 
@@ -682,14 +705,13 @@ def _value_to_scientific_notation(
     value: Union[int, float],
     decimals: int = 2,
     n_sigfig: Optional[int] = None,
-    exp_style: str = "x10n",
     dec_mark: str = ".",
 ) -> str:
     """
     Scientific notation.
 
-    Returns a string value with the correct precision and 10s exponent. The `exp_style` text is
-    placed between the decimal value and 10s exponent.
+    Returns a string value with the correct precision and 10s exponent. An 'E' is placed between
+    the decimal value and 10s exponent.
     """
 
     # Transform value of `decimals` to `n_sigfig`
@@ -703,7 +725,7 @@ def _value_to_scientific_notation(
     result = (
         ("-" if is_negative else "")
         + _insert_decimal_mark(digits=sig_digits, power=dot_power, dec_mark=dec_mark)
-        + exp_style
+        + "E"
         + str(ten_power)
     )
 
