@@ -985,6 +985,9 @@ def _listify(
         return cast(Any, x)
 
 
+def _has_negative_value(value: Union[int, float]) -> bool:
+    return value < 0
+
 def _context_exp_marks() -> List[str]:
     return [" \u00D7 10<sup style='font-size: 65%;'>", "</sup>"]
 
