@@ -420,8 +420,10 @@ def fmt_scientific(
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
-        # Define the marks by context
-        exp_marks = _context_exp_marks()
+        # Determine properties of the value
+        is_negative = _has_negative_value(value=x)
+        is_positive = _has_positive_value(value=x)
+
         minus_mark = _context_minus_mark()
 
         x_sci_notn = _value_to_scientific_notation(
@@ -437,8 +439,9 @@ def fmt_scientific(
         n_part = sci_parts[1]
 
         if exp_style == "x10n":
-            if force_sign_n:
-                n_part = n_part.replace("^", "+")
+            # Determine which values don't require the (x 10^n)
+            # for scientific formatting since their order would be zero
+            small_pos = _has_sci_order_zero(value=x)
 
             if drop_trailing_zeros:
                 m_part = m_part.rstrip("0")
@@ -446,11 +449,27 @@ def fmt_scientific(
             if drop_trailing_dec_mark:
                 m_part = m_part.rstrip(".")
 
-            # TODO: implement minus sign replacement
-            # m_part = _replace_minus(m_part)
-            # n_part = _replace_minus(n_part)
+            # Force the positive sign to be present if the `force_sign_m` option is taken
+            if is_positive and force_sign_m:
+                m_part = "+" + m_part
 
-            x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
+            # Force the positive sign to be present if the `force_sign_n` option is taken
+            if force_sign_n and not _str_detect(n_part, "-"):
+                n_part = "+" + n_part
+
+            # TODO: implement minus sign replacement
+            m_part = _replace_minus(m_part, minus_mark=minus_mark)
+            n_part = _replace_minus(n_part, minus_mark=minus_mark)
+
+            if small_pos:
+                # Create the formatted string based on only the `m_part`
+                x_formatted = m_part
+            else:
+                # Define the marks by context
+                exp_marks = _context_exp_marks()
+
+                # Create the formatted string based on `exp_marks` and the two `sci_parts`
+                x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
 
         else:
             x_formatted = x_sci_notn
