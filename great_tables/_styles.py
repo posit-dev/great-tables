@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from ._gt_data import GTData
+from ._locations import Loc
 
 from dataclasses import dataclass
 from typing import Optional, Literal
@@ -59,102 +60,6 @@ class CellStyleBorders(CellStyle):
     style: str
     # TODO: this can include objects like px(1)
     weight: str
-
-
-# Locations ============================================================================
-# TODO: these are called cells_* in gt. I prefixed them with Loc just to keep things
-# straight while going through helpers.R, but no strong opinion on naming!
-
-
-@dataclass
-class Loc:
-    """A location."""
-
-
-@dataclass
-class LocTitle(Loc):
-    """A location for targeting the table title and subtitle."""
-
-    groups: Literal["title", "subtitle"]
-
-
-@dataclass
-class LocStubhead(Loc):
-    groups: Literal["stubhead"] = "stubhead"
-
-
-@dataclass
-class LocColumnSpanners(Loc):
-    """A location for column spanners."""
-
-    # TODO: these can also be tidy selectors
-    ids: list[str]
-
-
-@dataclass
-class LocColumnLabels(Loc):
-    # TODO: these can be tidyselectors
-    columns: list[str]
-
-
-@dataclass
-class LocRowGroups(Loc):
-    # TODO: these can be tidyselectors
-    groups: list[str]
-
-
-@dataclass
-class LocStub(Loc):
-    # TODO: these can be tidyselectors
-    # TODO: can this take integers?
-    rows: list[str]
-
-
-@dataclass
-class LocBody(Loc):
-    # TODO: these can be tidyselectors
-    columns: list[str]
-    rows: list[str]
-
-
-@dataclass
-class LocSummary(Loc):
-    # TODO: these can be tidyselectors
-    groups: list[str]
-    columns: list[str]
-    rows: list[str]
-
-
-@dataclass
-class LocGrandSummary(Loc):
-    # TODO: these can be tidyselectors
-    columns: list[str]
-    rows: list[str]
-
-
-@dataclass
-class LocStubSummary(Loc):
-    # TODO: these can be tidyselectors
-    groups: list[str]
-    rows: list[str]
-
-
-@dataclass
-class LocStubGrandSummary(Loc):
-    rows: list[str]
-
-
-@dataclass
-class LocFootnotes(Loc):
-    groups: Literal["footnotes"] = "footnotes"
-
-
-@dataclass
-class LocSourceNotes(Loc):
-    # This dataclass in R has a `groups` field, which is a literal value.
-    # In python, we can use an isinstance check to determine we're seeing an
-    # instance of this class
-    groups: Literal["source_notes"] = "source_notes"
 
 
 def tab_style(data: GTData, style: list[CellStyle] | CellStyle, locations: Loc):

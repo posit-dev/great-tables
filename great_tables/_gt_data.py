@@ -67,7 +67,7 @@ class GTData:
 class _Sequence(Sequence[T]):
     _d: list[T]
 
-    def __init__(self, data: Any):
+    def __init__(self, data: list[T]):
         self._d = data
 
     @overload
@@ -322,11 +322,9 @@ import pandas as pd
 
 @dataclass
 class SpannerInfo:
-    # TODO: I made spanner_level mandatory, so it could always be types int.
-    # does gt ever need set this to None?
-    spanner_level: int
-    spanner_label: list[str] = field(default_factory=lambda: [])
-    spanner_id: list[str] = field(default_factory=lambda: [])
+    spanner_id: str
+    spanner_level: int | None = None
+    spanner_label: str | None = None
     vars: list[str] = field(default_factory=lambda: [])
     gather: Optional[bool] = None
     built: Optional[str] = None
