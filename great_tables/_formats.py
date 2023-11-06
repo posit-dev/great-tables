@@ -64,14 +64,6 @@ class FormatsAPI:
         return x
 
     # TODO: transition to static methods ----
-    def fmt_scientific(
-        self,
-        columns: Union[str, List[str], None] = None,
-        rows: Union[int, List[int], None] = None,
-    ):
-        # TODO: Not implemented yet
-        return self
-
     def fmt_engineering(
         self,
         columns: Union[str, List[str], None] = None,
@@ -290,6 +282,154 @@ def fmt_integer(
         return x_formatted
 
     FormatsAPI.fmt(self, fns=fmt_integer_fn, columns=columns, rows=rows)
+
+    return self
+
+
+def fmt_scientific(
+    self: GTData,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    decimals: int = 2,
+    n_sigfig: Optional[int] = None,
+    drop_trailing_zeros: bool = False,
+    drop_trailing_dec_mark: bool = True,
+    scale_by: float = 1,
+    exp_style: str = "x10n",
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    dec_mark: str = ".",
+    force_sign_m: bool = False,
+    force_sign_n: bool = False,
+    # locale: str = None,
+) -> GTData:
+    """
+    Format values to scientific notation.
+
+    With numeric values in a **gt** table, we can perform formatting so that the targeted values are
+    rendered in scientific notation, where extremely large or very small numbers can be expressed in
+    a more practical fashion. Here, numbers are written in the form of a mantissa (`m`) and an
+    exponent (`n`) with the construction *m* x 10^*n* or *m*E*n*. The mantissa component is a number
+    between `1` and `10`. For instance, `2.5 x 10^9` can be used to represent the value
+    2,500,000,000 in scientific notation. In a similar way, 0.00000012 can be expressed as
+    `1.2 x 10^-7`. Due to its ability to describe numbers more succinctly and its ease of
+    calculation, scientific notation is widely employed in scientific and technical domains.
+
+    We have fine control over the formatting task, with the following options:
+
+    - decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice
+    of the decimal symbol
+    - scaling: we can choose to scale targeted values by a multiplier value
+    - pattern: option to use a text pattern for decoration of the formatted values
+    - locale-based formatting: providing a locale ID will result in formatting specific to the
+    chosen locale
+
+    Parameters
+    ----------
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    rows : Union[int, List[int], None]
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+
+    decimals : int
+        The `decimals` values corresponds to the exact number of decimal places to use. A value such
+        as `2.34` can, for example, be formatted with `0` decimal places and it would result in
+        `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
+        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
+        `fmt_integer()` method should be considered.
+
+    n_sigfig : Optional[int]
+        A option to format numbers to *n* significant figures. By default, this is `None` and thus
+        number values will be formatted according to the number of decimal places set via
+        `decimals`. If opting to format according to the rules of significant figures, `n_sigfig`
+        must be a number greater than or equal to `1`. Any values passed to the `decimals` and
+        `drop_trailing_zeros` arguments will be ignored.
+
+    drop_trailing_zeros : bool
+        A boolean value that allows for removal of trailing zeros (those redundant zeros after the
+        decimal mark).
+
+    drop_trailing_dec_mark : bool
+        A boolean value that determines whether decimal marks should always appear even if there are
+        no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
+        default trailing decimal marks are not shown.
+
+    scale_by : float
+        All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
+        Since the `default` value is `1`, no values will be changed unless a different multiplier
+        value is supplied.
+
+    exp_style : str
+        Style of formatting to use for the scientific notation formatting. By default this is
+        `"x10n"` but other options include using a single letter (e.g., `"e"`, `"E"`, etc.), a
+        letter followed by a `"1"` to signal a minimum digit width of one, or `"low-ten"` for using
+        a stylized `"10"` marker.
+
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    sep_mark : str
+        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
+        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
+        ignored if a `locale` is supplied (i.e., is not `None`).
+
+    dec_mark : str
+        The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
+        `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
+        `locale` is supplied (i.e., is not `None`).
+
+    force_sign_m : bool
+        Should the plus sign be shown for positive values of the mantissa (first component)? This
+        would effectively show a sign for all values except zero on the first numeric component of
+        the notation. If so, use `True` (the default for this is `False`), where only negative
+        numbers will display a sign.
+
+    force_sign_n : bool
+        Should the plus sign be shown for positive values of the exponent (second component)? This
+        would effectively show a sign for all values except zero on the second numeric component of
+        the notation. If so, use `True` (the default for this is `False`), where only negative
+        numbers will display a sign.
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
+    """
+
+    # Generate a function that will operate on single `x` values in the table body
+    def fmt_scientific_fn(
+        x: float,
+        decimals: int = decimals,
+        n_sigfig: Optional[int] = n_sigfig,
+        drop_trailing_zeros: bool = drop_trailing_zeros,
+        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
+        scale_by: float = scale_by,
+        exp_style: str = "x10n",
+        sep_mark: str = sep_mark,
+        dec_mark: str = dec_mark,
+        force_sign_m: bool = force_sign_m,
+        force_sign_n: bool = force_sign_n,
+    ):
+        # Scale `x` value by a defined `scale_by` value
+        x = x * scale_by
+
+        x_formatted = _value_to_scientific_notation(
+            value=x,
+            decimals=decimals,
+            n_sigfig=n_sigfig,
+            exp_style=exp_style,
+            dec_mark=dec_mark,
+        )
+
+        return x_formatted
+
+    FormatsAPI.fmt(self, fns=fmt_scientific_fn, columns=columns, rows=rows)
 
     return self
 
