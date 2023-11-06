@@ -457,7 +457,7 @@ def fmt_scientific(
             if force_sign_n and not _str_detect(n_part, "-"):
                 n_part = "+" + n_part
 
-            # TODO: implement minus sign replacement
+            # Implement minus sign replacement for `m_part` and `n_part`
             m_part = _replace_minus(m_part, minus_mark=minus_mark)
             n_part = _replace_minus(n_part, minus_mark=minus_mark)
 
