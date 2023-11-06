@@ -17,7 +17,7 @@ from great_tables._tbl_data import TblDataAPI
 from great_tables._body import body_reassemble
 from great_tables._boxhead import BoxheadAPI
 from great_tables._footnotes import FootnotesAPI
-from great_tables._formats import FormatsAPI, fmt_number, fmt_percent, fmt_integer
+from great_tables._formats import FormatsAPI, fmt_number, fmt_percent, fmt_integer, fmt_scientific
 from great_tables._heading import HeadingAPI
 from great_tables._locale import LocaleAPI
 from great_tables._options import OptionsAPI
@@ -94,6 +94,7 @@ class GT(
     fmt_number = fmt_number
     fmt_percent = fmt_percent
     fmt_integer = fmt_integer
+    fmt_scientific = fmt_scientific
 
     # -----
 
