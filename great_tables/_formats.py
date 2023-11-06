@@ -1032,3 +1032,7 @@ def _replace_minus(string: str, minus_mark: str) -> str:
 
 def _str_replace(string: str, pattern: str, replace: str):
     return string.replace(pattern, replace)
+
+
+def _str_detect(string: str, pattern: str):
+    return re.search(pattern, string)
