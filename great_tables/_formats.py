@@ -4,6 +4,7 @@ from math import floor, log10
 from typing import Any, Callable, TypeVar, Union, List, cast, Optional
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
+import re
 
 T = TypeVar("T")
 
@@ -418,6 +419,10 @@ def fmt_scientific(
     ):
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
+
+        # Define the marks by context
+        exp_marks = _context_exp_marks()
+        minus_mark = context_minus_mark()
 
         x_formatted = _value_to_scientific_notation(
             value=x,
@@ -956,3 +961,27 @@ def _listify(
         return [x]
     else:
         return cast(Any, x)
+
+
+def _context_exp_marks() -> List[str]:
+    return [" \u00D7 10<sup style='font-size: 65%;'>", "</sup>"]
+
+
+def _context_exp_str(exp_style: str) -> str:
+    # Set default value for `exp_str`
+    exp_str = "E"
+
+    # For the 'low-ten' style, use a specialized `exp_str` string value
+    if exp_style == "low-ten":
+        exp_str = "<sub style='font-size: 65%;'>10</sub>"
+
+    # If there is a single letter (or a letter and a '1') then
+    # use that letter as the `exp_str` value
+    if re.search("^[a-zA-Z]{1}1?$", exp_style):
+        exp_str = exp_style[0]
+
+    return exp_str
+
+
+def _context_minus_mark() -> str:
+    return "\u2212"
