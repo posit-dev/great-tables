@@ -1,14 +1,29 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NewType, Union, List, Dict
+from typing import TYPE_CHECKING, NewType, Union, List, Dict, Optional
 
 from ._gt_data import Spanners
 
 if TYPE_CHECKING:
-    from ._gt_data import Boxhead
+    from ._gt_data import GTData, Boxhead
 
 
 SpannerMatrix = List[Dict[str, Union[str, None]]]
+
+
+def tab_spanner(
+    data: GTData,
+    label: str,
+    columns: Optional[list[str]] = None,
+    spanners: Optional[list[str]] = None,
+    level: Optional[int] = None,
+    id: Optional[str] = None,
+    gather: bool = True,
+    replace: bool = False,
+):
+    crnt_spanner_ids = [span.spanner_id for span in data._spanners]
+    column_names = resolve_cols_c(columns)
+    raise NotImplementedError()
 
 
 def spanners_print_matrix(

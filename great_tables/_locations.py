@@ -130,6 +130,32 @@ def resolve_vector_l(expr: list[str], candidates: list[str], item_label: str) ->
     return [candidate in set_expr for candidate in candidates]
 
 
+def resolve_cols_c(
+    expr: list[str],
+    data: GTData,
+    strict: bool = True,
+    excl_stub: bool = True,
+    excl_group: bool = True,
+    null_means: Literal["everything", "nothing"] = "everything",
+) -> list[str]:
+    selected = resolve_cols_i(expr, data, strict, excl_stub, excl_group, null_means)
+    return [name_pos[0] for name_pos in selected]
+
+
+def resolve_cols_i(
+    expr: list[str],
+    data: GTData,
+    strict: bool = True,
+    excl_stub: bool = True,
+    excl_group: bool = True,
+    null_means: Literal["everything", "nothing"] = "everything",
+) -> list[tuple[str, int]]:
+    """Return a tuple of (column name, position) pairs, selected by expr."""
+
+    # TODO: special handling of "stub()"
+    raise NotImplementedError()
+
+
 # Resolve generic ======================================================================
 
 
