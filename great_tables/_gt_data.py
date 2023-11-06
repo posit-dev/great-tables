@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import overload, TypeVar
 from typing_extensions import Self
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 
 # Note that we replace with with collections.abc after python 3.8
 from typing import Sequence
@@ -52,7 +52,7 @@ class GTData:
             _boxhead=Boxhead(data),  # uses get_tbl_data()
             _stub=stub,  # uses get_tbl_data
             _row_groups=row_groups,
-            _spanners=Spanners(),
+            _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=Stubhead(),
             _source_notes=SourceNotes(),
@@ -320,29 +320,41 @@ __Spanners = None
 import pandas as pd
 
 
-class Spanners:
-    def __init__(self):
-        # The `spanners` DataFrame is used to handle spanner ID
-        # and text, the spanner level, the association to column names,
-        # whether the spanner is to gather columns, and the built
-        # form of the spanner label (depending on the output context)
-        # 0: `vars` (empty list, str)
-        # 1: `spanner_label` (empty list, str)
-        # 2: `spanner_id` (empty, str)
-        # 3: `spanner_level` (empty, int)
-        # 4: `gather` (empty, bool)
-        # 5: `built` (empty, str)
+@dataclass
+class SpannerInfo:
+    # TODO: I made spanner_level mandatory, so it could always be types int.
+    # does gt ever need set this to None?
+    spanner_level: int
+    spanner_label: list[str] = field(default_factory=lambda: [])
+    spanner_id: list[str] = field(default_factory=lambda: [])
+    vars: list[str] = field(default_factory=lambda: [])
+    gather: Optional[bool] = None
+    built: Optional[str] = None
 
-        self._spanners: pd.DataFrame = pd.DataFrame(
-            columns=[
-                "vars",
-                "spanner_label",
-                "spanner_id",
-                "spanner_level",
-                "gather",
-                "built",
-            ]
-        )
+
+class Spanners(_Sequence[SpannerInfo]):
+    _d: list[SpannerInfo]
+
+    # The `spanners` DataFrame is used to handle spanner ID
+    # and text, the spanner level, the association to column names,
+    # whether the spanner is to gather columns, and the built
+    # form of the spanner label (depending on the output context)
+    # 0: `vars` (empty list, str)
+    # 1: `spanner_label` (empty list, str)
+    # 2: `spanner_id` (empty, str)
+    # 3: `spanner_level` (empty, int)
+    # 4: `gather` (empty, bool)
+    # 5: `built` (empty, str)
+
+    def relevel(self, levels: list[int]) -> Self:
+        if len(levels) != len(self):
+            raise ValueError(
+                "New levels must be same length as spanners."
+                f" Received {len(levels)}, but have {len(self)} spanners."
+            )
+
+        new_spans = [replace(span, spanner_level=lvl) for span, lvl in zip(self, levels)]
+        return self.__class__(new_spans)
 
 
 # Heading ---
