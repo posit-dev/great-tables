@@ -198,6 +198,9 @@ def fmt_number(
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
+        # Determine whether the value is positive
+        is_negative = _has_negative_value(value=x)
+
         x_formatted = _value_to_decimal_notation(
             value=x,
             decimals=decimals,
@@ -209,6 +212,11 @@ def fmt_number(
             dec_mark=dec_mark,
             force_sign=force_sign,
         )
+
+        # Implement minus sign replacement for `x_formatted`
+        if is_negative:
+            minus_mark = _context_minus_mark()
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
         # Use a supplied pattern specification to decorate the formatted value
         if pattern != "{x}":
@@ -647,6 +655,11 @@ def fmt_percent(
             x_formatted = "+" + x_formatted
         else:
             x_formatted = percent_pattern.replace("{x}", x_formatted)
+
+        # Implement minus sign replacement for `x_formatted`
+        if is_negative:
+            minus_mark = _context_minus_mark()
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
         # Use a supplied pattern specification to decorate the formatted value
         if pattern != "{x}":
