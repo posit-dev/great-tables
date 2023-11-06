@@ -1067,4 +1067,4 @@ def _str_replace(string: str, pattern: str, replace: str):
 
 
 def _str_detect(string: str, pattern: str):
-    return re.search(pattern, string)
+    return re.match(pattern, string)
