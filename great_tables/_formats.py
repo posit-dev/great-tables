@@ -445,20 +445,20 @@ def fmt_scientific(
         m_part = sci_parts[0]
         n_part = sci_parts[1]
 
+        if drop_trailing_zeros:
+            m_part = m_part.rstrip("0")
+
+        if drop_trailing_dec_mark:
+            m_part = m_part.rstrip(".")
+
+        # Force the positive sign to be present if the `force_sign_m` option is taken
+        if is_positive and force_sign_m:
+            m_part = "+" + m_part
+
         if exp_style == "x10n":
             # Determine which values don't require the (x 10^n)
             # for scientific formatting since their order would be zero
             small_pos = _has_sci_order_zero(value=x)
-
-            if drop_trailing_zeros:
-                m_part = m_part.rstrip("0")
-
-            if drop_trailing_dec_mark:
-                m_part = m_part.rstrip(".")
-
-            # Force the positive sign to be present if the `force_sign_m` option is taken
-            if is_positive and force_sign_m:
-                m_part = "+" + m_part
 
             # Force the positive sign to be present if the `force_sign_n` option is taken
             if force_sign_n and not _str_detect(n_part, "-"):
@@ -479,7 +479,26 @@ def fmt_scientific(
                 x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
 
         else:
-            x_formatted = x_sci_notn
+            exp_str = _context_exp_str(exp_style=exp_style)
+
+            n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
+
+            # The `n_part` will be extracted here and it must be padded to
+            # the defined minimum number of decimal places
+            if _str_detect(n_part, "-"):
+                n_part = _str_replace(n_part, "-", "")
+                n_part = n_part.ljust(n_min_width, "0")
+                n_part = "-" + n_part
+            else:
+                n_part = n_part.ljust(n_min_width, "0")
+                if force_sign_n:
+                    n_part = "+" + n_part
+
+            # Implement minus sign replacement for `m_part` and `n_part`
+            m_part = _replace_minus(m_part, minus_mark=minus_mark)
+            n_part = _replace_minus(n_part, minus_mark=minus_mark)
+
+            x_formatted = m_part + exp_str + n_part
 
         return x_formatted
 
