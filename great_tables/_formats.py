@@ -597,8 +597,9 @@ def fmt_percent(
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
-        is_negative = x < 0
-        is_positive = x > 0
+        # Determine properties of the value
+        is_negative = _has_negative_value(value=x)
+        is_positive = _has_positive_value(value=x)
 
         x_formatted = _value_to_decimal_notation(
             value=x,
