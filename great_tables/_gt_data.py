@@ -508,7 +508,7 @@ class Locale:
 # Formats ----
 __Formats = None
 
-from typing import Any, Callable, TypeVar, Union, List, cast, Optional, Tuple
+from typing import Any, Callable, TypeVar, Union, List, Optional, Tuple
 
 from ._tbl_data import n_rows
 
