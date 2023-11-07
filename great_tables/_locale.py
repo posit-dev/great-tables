@@ -70,3 +70,17 @@ def _get_locales_data() -> pd.DataFrame:
     }
     __x_locales: pd.DataFrame = pd.read_csv(_x_locales_fname, dtype=_x_locales_dtype)
     return __x_locales
+
+
+def _get_default_locales_data() -> pd.DataFrame:
+    _x_default_locales_fname = pkg_resources.resource_filename(
+        "great_tables.data", "x_default_locales.csv"
+    )
+    _x_default_locales_dtype = {
+        "default_locale": "object",
+        "base_locale": "object",
+    }
+    __x_default_locales: pd.DataFrame = pd.read_csv(
+        _x_default_locales_fname, dtype=_x_default_locales_dtype
+    )
+    return __x_default_locales
