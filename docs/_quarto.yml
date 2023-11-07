@@ -15,7 +15,7 @@ website:
       - href: changelog.qmd
     right:
       - icon: github
-        href: https://github.com/posit-dev/great_tables
+        href: https://github.com/posit-dev/great-tables
 
 
 format:
