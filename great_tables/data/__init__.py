@@ -24,19 +24,19 @@ _gtcars_fname = pkg_resources.resource_filename(DATA_MOD, "gtcars.csv")
 _gtcars_dtype = {
     "mfr": "object",
     "model": "object",
-    "year": "Int64",
+    "year": "float64",
     "trim": "object",
     "bdy_style": "object",
-    "hp": "Int64",
-    "hp_rpm": "Int64",
-    "trq": "Int64",
-    "trq_rpm": "Int64",
-    "mpg_c": "Int64",
-    "mpg_h": "Int64",
+    "hp": "float64",
+    "hp_rpm": "float64",
+    "trq": "float64",
+    "trq_rpm": "float64",
+    "mpg_c": "float64",
+    "mpg_h": "float64",
     "drivetrain": "object",
     "trsmn": "object",
     "ctry_origin": "object",
-    "msrp": "Int64",
+    "msrp": "float64",
 }
 
 _sp500_fname = pkg_resources.resource_filename(DATA_MOD, "sp500.csv")
