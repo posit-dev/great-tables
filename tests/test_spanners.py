@@ -1,7 +1,7 @@
 import pytest
 
 from great_tables._spanners import spanners_print_matrix, empty_spanner_matrix
-from great_tables._gt_data import Spanners, SpannerInfo, Boxhead, ColInfo
+from great_tables._gt_data import Spanners, SpannerInfo, Boxhead, ColInfo, ColInfoTypeEnum
 
 
 @pytest.fixture
@@ -21,7 +21,7 @@ def boxhead():
             ColInfo(var="col1"),
             ColInfo(var="col2"),
             ColInfo(var="col3"),
-            ColInfo(var="col4", visible=False),
+            ColInfo(var="col4", type=ColInfoTypeEnum.hidden),
         ]
     )
 

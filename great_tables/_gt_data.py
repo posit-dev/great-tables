@@ -158,34 +158,35 @@ class ColumnAlignment(Enum):
     Justify = auto()
 
 
+class ColInfoTypeEnum(Enum):
+    default = auto()
+    stub = auto()
+    row_group = auto()
+    hidden = auto()
+
+
+@dataclass
 class ColInfo:
     # TODO: Make var readonly
     var: str
-    visible: bool
-    column_label: str
-    column_align: Optional[ColumnAlignment]
-    column_width: Optional[str]
+    type: ColInfoTypeEnum = ColInfoTypeEnum.default
+    column_label: Optional[str] = None
+    column_align: Optional[ColumnAlignment] = None
+    column_width: Optional[str] = None
 
     # The components of the boxhead are:
     # `var` (obtained from column names)
     # `column_label` (obtained from column names)
-    # `visible` = True
     # `column_align` = None
     # `column_width` = None
 
-    def __init__(
-        self,
-        var: str,
-        visible: bool = True,
-        column_label: Optional[str] = None,
-        column_align: Optional[ColumnAlignment] = None,
-        column_width: Optional[str] = None,
-    ):
-        self.var = var
-        self.visible = visible
-        self.column_label = column_label or var
-        self.column_align = column_align
-        self.column_width = column_width
+    def __post_init__(self):
+        if self.column_label is None:
+            self.column_label = self.var
+
+    @property
+    def visible(self) -> bool:
+        return self.type != ColInfoTypeEnum.hidden
 
 
 class Boxhead(_Sequence[ColInfo]):
