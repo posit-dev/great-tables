@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables – md</title>
+<title>great_tables – data.towny</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/html.html" rel="next">
-<link href="../reference/GT.cols_label.html" rel="prev">
+<link href="../reference/data.metro.html" rel="next">
+<link href="../reference/data.exibble.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -124,7 +124,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/md.html">Helper functions</a></li><li class="breadcrumb-item"><a href="../reference/md.html">md</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/data.countrypops.html">Built in datasets</a></li><li class="breadcrumb-item"><a href="../reference/data.towny.html">data.towny</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
     </div>
@@ -281,7 +281,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/md.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/md.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">md</span></a>
   </div>
 </li>
@@ -411,7 +411,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/data.towny.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/data.towny.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">data.towny</span></a>
   </div>
 </li>
@@ -439,7 +439,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.md" id="toc-great_tables.md" class="nav-link active" data-scroll-target="#great_tables.md">md</a></li>
+  <li><a href="#great_tables.data.towny" id="toc-great_tables.data.towny" class="nav-link active" data-scroll-target="#great_tables.data.towny">data.towny</a></li>
   </ul>
 </nav>
     </div>
@@ -448,13 +448,12 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="great_tables.md" class="level1">
-<h1>md</h1>
-<p><code>md(text)</code></p>
-<p>Interpret input text as Markdown-formatted text.</p>
-<p>Markdown! It’s a wonderful thing. We can use it in certain places (e.g., footnotes, source notes, the table title, etc.) and expect it to render to HTML as Markdown does. There is the <code>html()</code> helper that allows you to ferry in HTML but this function <code>md()</code>… it’s almost like a two-for-one deal (you get to use Markdown plus any HTML fragments at the same time).</p>
-<p>Args: text (str): The text that is understood to contain Markdown formatting.</p>
-<p>Returns: Text: An instance of the Text class is returned, where the text <code>type</code> is ‘markdown’.</p>
+<section id="great_tables.data.towny" class="level1">
+<h1>data.towny</h1>
+<p><code>data.towny</code></p>
+<p>Populations of all municipalities in Ontario from 1996 to 2021</p>
+<p>A dataset containing census population data from six census years (1996 to 2021) for all 414 of Ontario’s local municipalities. The Municipal Act of Ontario (2001) defines a local municipality as “a single-tier municipality or a lower-tier municipality”. There are 173 single-tier municipalities and 241 lower-tier municipalities representing 99 percent of Ontario’s population and 17 percent of its land use.</p>
+<p>In the towny dataset we include information specific to each municipality such as location (in the latitude and longitude columns), their website URLs, their classifications, and land area sizes according to 2021 boundaries. Additionally, there are computed columns containing population density values for each census year and population change values from adjacent census years.</p>
 
 
 </section>
@@ -695,13 +694,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/GT.cols_label.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">GT.cols_label</span>
+      <a href="../reference/data.exibble.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">data.exibble</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/html.html" class="pagination-link">
-        <span class="nav-page-text">html</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/data.metro.html" class="pagination-link">
+        <span class="nav-page-text">data.metro</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
