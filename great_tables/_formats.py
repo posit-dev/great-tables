@@ -93,7 +93,7 @@ def fmt_number(
     dec_mark: str = ".",
     force_sign: bool = False,
     # system: str = "intl",
-    # locale: str = None,
+    locale: Union[str, None] = None,
 ) -> GTData:
     """
     Format numeric values.
