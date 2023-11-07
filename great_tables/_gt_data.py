@@ -34,6 +34,9 @@ class GTData:
     _options: Options
     _has_built: bool = False
 
+    def replace(self, **kwargs: Any) -> Self:
+        return replace(self, **kwargs)
+
     @classmethod
     def from_data(
         cls,
@@ -201,6 +204,9 @@ class Boxhead(_Sequence[ColInfo]):
             column_names = get_column_names(data)
             self._d = [ColInfo(col) for col in column_names]
 
+    def vars_from_type(self, type: ColInfoTypeEnum) -> List[str]:
+        return [x.var for x in self._d if x.type == type]
+
     # Get a list of columns
     def _get_columns(self) -> List[str]:
         return [x.var for x in self._d]
@@ -324,8 +330,10 @@ import pandas as pd
 @dataclass
 class SpannerInfo:
     spanner_id: str
-    spanner_level: int | None = None
+    spanner_level: int
     spanner_label: str | None = None
+    spanner_units: str | None = None
+    spanner_pattern: str | None = None
     vars: list[str] = field(default_factory=lambda: [])
     gather: Optional[bool] = None
     built: Optional[str] = None
@@ -344,6 +352,11 @@ class Spanners(_Sequence[SpannerInfo]):
     # 3: `spanner_level` (empty, int)
     # 4: `gather` (empty, bool)
     # 5: `built` (empty, str)
+    @classmethod
+    def from_ids(cls, ids: list[str]):
+        """Construct an object from a list of spanner_ids"""
+
+        return cls([SpannerInfo(id, ii) for ii, id in enumerate(ids)])
 
     def relevel(self, levels: list[int]) -> Self:
         if len(levels) != len(self):
@@ -354,6 +367,24 @@ class Spanners(_Sequence[SpannerInfo]):
 
         new_spans = [replace(span, spanner_level=lvl) for span, lvl in zip(self, levels)]
         return self.__class__(new_spans)
+
+    def next_level(self, column_names: list[str]) -> int:
+        """Return the next available spanner level.
+
+        Spanners whose columns do not overlap are put on the same level.
+        """
+
+        if not len(self):
+            return 0
+
+        overlapping_levels = [
+            s.spanner_level for s in self if any(v in column_names for v in s.vars)
+        ]
+
+        return max(overlapping_levels, default=-1) + 1
+
+    def append_entry(self, span: SpannerInfo):
+        self.__class__(self._d + [span])
 
 
 # Heading ---

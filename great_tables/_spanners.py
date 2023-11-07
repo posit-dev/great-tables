@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NewType, Union, List, Dict, Optional
+import itertools
 
-from ._gt_data import Spanners
+from typing import TYPE_CHECKING, Union, List, Dict, Optional
+
+from ._gt_data import Spanners, SpannerInfo
+from ._locations import resolve_cols_c
 
 if TYPE_CHECKING:
     from ._gt_data import GTData, Boxhead
@@ -22,7 +25,68 @@ def tab_spanner(
     replace: bool = False,
 ):
     crnt_spanner_ids = [span.spanner_id for span in data._spanners]
-    column_names = resolve_cols_c(columns)
+
+    # validations ----
+    if level is not None and level < 0:
+        raise ValueError(f"Level may not be negative. Received {level}.")
+    if id in crnt_spanner_ids:
+        raise ValueError(f"Spanner id {id} already exists.")
+
+    # select columns ----
+
+    if columns is None:
+        # TODO: null_means is unimplemented
+        raise NotImplementedError()
+
+    column_names = resolve_cols_c(columns, data, null_means="nothing")
+
+    # select spanner ids ----
+    # TODO: this supports tidyselect
+    # TODO: could we use something like resolve_vector_l
+    if spanners is not None:
+        assert set(spanners).issubset(set(crnt_spanner_ids))
+        spanner_ids = spanners
+    else:
+        spanner_ids = crnt_spanner_ids
+
+    if not len(column_names) and not len(spanner_ids):
+        return data
+
+    # get column names associated with selected spanners ----
+    _vars = [span.vars for span in data._spanners if span.spanner_id in spanner_ids]
+    column_names = list({k: True for k in itertools.chain(*_vars)})
+
+    # get spanner level ----
+    if level is None:
+        level = data._spanners.next_level(column_names)
+
+    # get spanner units and labels ----
+    # TODO: walk through this with Rich
+    spanner_units = None
+    spanner_pattern = None
+
+    new_span = SpannerInfo(
+        spanner_id=id,
+        spanner_level=level,
+        vars=column_names,
+        spanner_units=spanner_units,
+        spanner_pattern=spanner_pattern,
+        spanner_label=label,
+        gather=gather,
+    )
+
+    spanners = data._spanners.append_entry(new_span)
+
+    new_data = data.replace(_spanners=spanners)
+
+    if gather and not len(spanner_ids) and level == 0:
+        return cols_move(new_data, columns=column_names, after=column_names[1])
+
+    return new_data
+
+
+def cols_move(data: GTData, columns: list[str], after: str):
+    # TODO:
     raise NotImplementedError()
 
 

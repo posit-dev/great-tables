@@ -8,7 +8,7 @@ def test_resolve_column_spanners_simple():
     # note that this essentially a no-op
     ids = ["a", "b", "c"]
 
-    spanners = Spanners([SpannerInfo(spanner_id=id) for id in ids])
+    spanners = Spanners.from_ids(ids)
     loc = LocColumnSpanners(ids=["a", "c"])
 
     new_loc = resolve(loc, spanners)
@@ -21,7 +21,7 @@ def test_resolve_column_spanners_error_missing():
     # note that this essentially a no-op
     ids = ["a", "b", "c"]
 
-    spanners = Spanners([SpannerInfo(spanner_id=id) for id in ids])
+    spanners = Spanners.from_ids(ids)
     loc = LocColumnSpanners(ids=["a", "d"])
 
     with pytest.raises(ValueError):

@@ -7,7 +7,11 @@ from typing import TYPE_CHECKING, Literal, get_origin, get_type_hints
 # note that types like Spanners are only used in annotations for concretes of the
 # resolve generic, but we need to import at runtime, due to singledispatch looking
 # up annotations
-from ._gt_data import GTData, Spanners
+from ._gt_data import GTData, Spanners, ColInfoTypeEnum
+
+
+if TYPE_CHECKING:
+    from ._gt_data import TblData
 
 
 # Locations ============================================================================
@@ -152,8 +156,46 @@ def resolve_cols_i(
 ) -> list[tuple[str, int]]:
     """Return a tuple of (column name, position) pairs, selected by expr."""
 
-    # TODO: special handling of "stub()"
-    raise NotImplementedError()
+    if isinstance(data, GTData):
+        stub_var = data._boxhead.vars_from_type(ColInfoTypeEnum.stub)
+
+        # TODO: special handling of "stub()"
+        if "stub()" in expr:
+            if len(stub_var):
+                return [(stub_var[0], 1)]
+
+            return []
+
+        if not excl_stub:
+            # In most cases we would want to exclude the column that
+            # represents the stub but that isn't always the case (e.g.,
+            # when considering the stub for column sizing); the `excl_stub`
+            # argument will determine whether the stub column is obtained
+            # for exclusion or not (if FALSE, we get NULL which removes the
+            # stub, if present, from `cols_excl`)
+            stub_var = None
+
+        if not excl_group:
+            # The columns that represent the group rows are usually
+            # always excluded but in certain cases (i.e., `rows_add()`)
+            # we may want to include this column
+            _group_vars = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
+            group_var = _group_vars[0] if len(_group_vars) else None
+        else:
+            group_var = None
+
+        cols_excl = [stub_var, group_var]
+
+        tbl_data = data._tbl_data
+    else:
+        # TODO: is this path used? In the R program, cols_excl isn't set, so it seems
+        # like it must not get used.
+        tbl_data = data._tbl_data
+        cols_excl = []
+
+
+def eval_select(expr: list[str], data: TblData, strict: bool = True) -> list[str]:
+    """Return a list of column names selected by expr."""
 
 
 # Resolve generic ======================================================================

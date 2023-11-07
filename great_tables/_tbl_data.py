@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Union, TYPE_CHECKING
+from typing import Any, List, Union, Callable, TYPE_CHECKING
 from ._databackend import AbstractBackend
 from functools import singledispatch
 
@@ -11,6 +11,9 @@ if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
 
+    # the class behind selectors
+    from polars.selectors import _selector_proxy_
+
     PdDataFrame = pd.DataFrame
     PlDataFrame = pl.DataFrame
 
@@ -19,6 +22,10 @@ if TYPE_CHECKING:
 
 else:
     from abc import ABC
+
+    # we just need this as a static type hint, but singledispatch tries to resolve
+    # any hints at runtime. So we need some value for it.
+    from typing import Any as _selector_proxy_
 
     class PdDataFrame(AbstractBackend):
         _backends = [("pandas", "DataFrame")]
@@ -176,3 +183,44 @@ def _(data: PdDataFrame, rows: List[int], columns: List[str]) -> PdDataFrame:
 @reorder.register
 def _(data: PlDataFrame, rows: List[int], columns: List[str]) -> PlDataFrame:
     return data[rows, columns]
+
+
+# eval_select ----
+
+
+@singledispatch
+def eval_select(data: DataFrameLike, expr: Any, strict: bool = True) -> list[str]:
+    """Return a list of column names selected by expr."""
+
+    raise NotImplementedError(f"Unsupported type: {type(expr)}")
+
+
+@eval_select.register
+def _(data: PdDataFrame, expr: Union[list[str], Callable[[str], bool]]) -> list[str]:
+    if isinstance(expr, list):
+        # TODO: should prohibit duplicate names in expr?
+        return [col for col in expr if col in data.columns]
+    elif callable(expr):
+        # TODO: currently, we call on each string, but we could be calling on
+        # pd.DataFrame.columns instead (which would let us use pandas .str methods)
+        return [col for col in data.columns if expr(col)]
+
+    raise NotImplementedError(f"Unsupported selection expr: {expr}")
+
+
+@eval_select.register
+def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict=True) -> list[str]:
+    # TODO: how to annotate type of a polars selector?
+    # Seems to be polars.selectors._selector_proxy_.
+    from polars import Expr
+    from polars import selectors
+
+    # just in case _selector_proxy_ gets renamed or something
+    # it inherits from Expr, so we can just use that in a pinch
+    cls_selector = getattr(selectors, "_selector_proxy_", Expr)
+
+    if not isinstance(expr, (list, cls_selector)):
+        raise TypeError(f"Unsupported selection expr type: {type(expr)}")
+
+    # I don't think there's a way to get the columns w/o running the selection
+    return data.select(expr).columns
