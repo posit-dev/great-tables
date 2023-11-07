@@ -4,7 +4,9 @@ from math import floor, log10
 from typing import Any, Callable, TypeVar, Union, List, cast, Optional
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
+from ._locale import _get_locales_data
 import re
+import pandas as pd
 
 T = TypeVar("T")
 
