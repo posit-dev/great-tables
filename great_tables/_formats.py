@@ -187,6 +187,9 @@ def fmt_number(
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
     # that might be set globally
+    _validate_locale(locale=locale)
+
+    # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
