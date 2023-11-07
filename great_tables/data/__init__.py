@@ -298,10 +298,7 @@ symptoms such as nosebleeds, gastrointestinal bleeding, and hematoma.
 """
 
 
-DATA_MOD_PRIVATE = "great_tables._private_data"
-
-
-_x_locales_fname = pkg_resources.resource_filename(DATA_MOD_PRIVATE, "x_locales.csv")
+_x_locales_fname = pkg_resources.resource_filename(DATA_MOD, "x_locales.csv")
 _x_locales_dtype = {
     "country_name": "object",
     "country_code_2": "object",
