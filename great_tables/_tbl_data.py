@@ -189,14 +189,14 @@ def _(data: PlDataFrame, rows: List[int], columns: List[str]) -> PlDataFrame:
 
 
 @singledispatch
-def eval_select(data: DataFrameLike, expr: Any, strict: bool = True) -> list[str]:
+def eval_select(data: DataFrameLike, expr: Any, strict: bool = True) -> List[str]:
     """Return a list of column names selected by expr."""
 
     raise NotImplementedError(f"Unsupported type: {type(expr)}")
 
 
 @eval_select.register
-def _(data: PdDataFrame, expr: Union[list[str], Callable[[str], bool]]) -> list[str]:
+def _(data: PdDataFrame, expr: Union[List[str], Callable[[str], bool]]) -> List[str]:
     if isinstance(expr, list):
         # TODO: should prohibit duplicate names in expr?
         return [col for col in expr if col in data.columns]
@@ -209,7 +209,7 @@ def _(data: PdDataFrame, expr: Union[list[str], Callable[[str], bool]]) -> list[
 
 
 @eval_select.register
-def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict=True) -> list[str]:
+def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) -> List[str]:
     # TODO: how to annotate type of a polars selector?
     # Seems to be polars.selectors._selector_proxy_.
     from polars import Expr

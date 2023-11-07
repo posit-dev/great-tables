@@ -61,7 +61,7 @@ def tab_spanner(
         level = data._spanners.next_level(column_names)
 
     # get spanner units and labels ----
-    # TODO: walk through this with Rich
+    # TODO: grep units from {{.*}}, may need to switch delimiters
     spanner_units = None
     spanner_pattern = None
 
@@ -80,7 +80,7 @@ def tab_spanner(
     new_data = data.replace(_spanners=spanners)
 
     if gather and not len(spanner_ids) and level == 0:
-        return cols_move(new_data, columns=column_names, after=column_names[1])
+        return cols_move(new_data, columns=column_names, after=column_names[0])
 
     return new_data
 
@@ -154,3 +154,23 @@ def empty_spanner_matrix(
         return [], vars
 
     return [{var: var for var in vars}], vars
+
+
+def seq_groups(seq: list[str]):
+    # TODO: 0-length sequence
+    if len(seq) == 0:
+        raise StopIteration
+    elif len(seq) == 1:
+        yield seq[0], 1
+    else:
+        crnt_ttl = 1
+        for crnt_el, next_el in zip(seq[:-1], seq[1:]):
+            if crnt_el == next_el:
+                crnt_ttl += 1
+            else:
+                yield crnt_el, crnt_ttl
+                crnt_ttl = 1
+
+        # final step has same elements, so we need to yield one last time
+        if crnt_el == next_el:
+            yield crnt_el, crnt_ttl
