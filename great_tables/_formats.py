@@ -67,13 +67,6 @@ class FormatsAPI:
         return x
 
     # TODO: transition to static methods ----
-    def fmt_engineering(
-        self,
-        columns: Union[str, List[str], None] = None,
-        rows: Union[int, List[int], None] = None,
-    ):
-        # TODO: Not implemented yet
-        return self
 
 
 def fmt_number(
@@ -251,6 +244,7 @@ def fmt_integer(
     pattern: str = "{x}",
     sep_mark: str = ",",
     force_sign: bool = False,
+    locale: Union[str, None] = None,  # not implemented yet
 ) -> GTData:
     """
     Format values as integers.
@@ -368,7 +362,7 @@ def fmt_scientific(
     dec_mark: str = ".",
     force_sign_m: bool = False,
     force_sign_n: bool = False,
-    # locale: str = None,
+    locale: Union[str, None] = None,  # not implemented yet
 ) -> GTData:
     """
     Format values to scientific notation.
@@ -565,6 +559,26 @@ def fmt_scientific(
     return self
 
 
+def fmt_engineering(
+    self: GTData,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    decimals: int = 2,
+    drop_trailing_zeros: bool = False,
+    drop_trailing_dec_mark: bool = True,
+    scale_by: float = 1,
+    exp_style: str = "x10n",
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    dec_mark: str = ".",
+    force_sign_m: bool = False,
+    force_sign_n: bool = False,
+    locale: Union[str, None] = None,  # not implemented yet
+):
+    # TODO: Not implemented yet
+    return self
+
+
 def fmt_percent(
     self: GTData,
     columns: Union[str, List[str], None] = None,
@@ -582,7 +596,7 @@ def fmt_percent(
     incl_space: bool = False,
     placement: str = "right",
     # system: str = "intl",
-    # locale: str = None,
+    locale: Union[str, None] = None,  # not implemented yet
 ) -> GTData:
     """
     Format values as a percentage.
