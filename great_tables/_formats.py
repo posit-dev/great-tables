@@ -1143,3 +1143,33 @@ def _str_replace(string: str, pattern: str, replace: str):
 
 def _str_detect(string: str, pattern: str):
     return re.match(pattern, string)
+
+
+def _filter_pd_df_to_row(pd_df: pd.DataFrame, column: str, filter_expr: str) -> pd.DataFrame:
+    filtered_pd_df = pd_df[pd_df[column] == filter_expr]
+    if len(filtered_pd_df) != 1:
+        raise Exception(
+            "Internal Error, the filtered table doesn't result in a table of exactly one row."
+        )
+    return filtered_pd_df
+
+
+def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] = None) -> str:
+    # If `use_seps` is False, then force `sep_mark` to be an empty string
+    if not use_seps:
+        return ""
+
+    # If `locale` is NULL then return the default `sep_mark`
+    if locale is None:
+        return default
+
+    # Get the correct `group_sep` value from the `gt:::locales` lookup table
+    pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
+
+    sep_mark = pd_df_row.iloc[0]["group"]
+
+    # Replace any `""` or "\u00a0" with `" "` since an empty string actually
+    # signifies a space character, and, we want to normalize to a simple space
+    sep_mark = " " if sep_mark == "" or sep_mark == "\u00a0" else sep_mark
+
+    return sep_mark
