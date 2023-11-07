@@ -1166,7 +1166,7 @@ def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] 
     if locale is None:
         return default
 
-    # Get the correct `group_sep` value from the `gt:::locales` lookup table
+    # Get the correct `group` value from the locales lookup table
     pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
 
     sep_mark = pd_df_row.iloc[0]["group"]
