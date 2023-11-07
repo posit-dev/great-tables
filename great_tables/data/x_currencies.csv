@@ -1,0 +1,173 @@
+curr_code,curr_number,exponent,curr_name,symbol
+AED,784,2,United Arab Emirates dirham,DH
+AFN,971,2,Afghan afghani,&#1547;
+ALL,8,2,Albanian lek,Lek
+AMD,51,2,Armenian dram,AMD
+ANG,532,2,Netherlands Antillean guilder,NA&#402;
+AOA,973,2,Angolan kwanza,Kz
+ARS,32,2,Argentine peso,$
+AUD,36,2,Australian dollar,$
+AWG,533,2,Aruban florin,&#402;
+AZN,944,2,Azerbaijani manat,&#8380;
+BAM,977,2,Bosnia and Herzegovina convertible mark,KM
+BBD,52,2,Barbados dollar,$
+BDT,50,2,Bangladeshi taka,&#2547;
+BGN,975,2,Bulgarian lev,‌&#1083;&#1074;
+BHD,48,3,Bahraini dinar,BD
+BIF,108,0,Burundian franc,FBu
+BMD,60,2,Bermudian dollar,$
+BND,96,2,Brunei dollar,B$
+BOB,68,2,Boliviano,$b
+BOV,984,2,Bolivian Mvdol,BOV
+BRL,986,2,Brazilian real,R$
+BSD,44,2,Bahamian dollar,$
+BTN,64,2,Bhutanese ngultrum,Nu.
+BWP,72,2,Botswana pula,P
+BYR,974,0,Belarusian ruble,p.
+BZD,84,2,Belize dollar,BZ$
+CAD,124,2,Canadian dollar,$
+CDF,976,2,Congolese franc,FC
+CHE,947,2,WIR Bank,CHE
+CHF,756,2,Swiss franc,SFr.
+CHW,948,2,WIR Bank,CHW
+CLF,990,4,Unidad de Fomento,UF
+CLP,152,0,Chilean peso,$
+CNY,156,2,Renminbi,&#165;
+COP,170,2,Colombian peso,$
+COU,970,2,Unidad de Valor Real,COU
+CRC,188,2,Costa Rican colon,&#8353
+CUC,931,2,Cuban convertible peso,&#8369;
+CUP,192,2,Cuban peso,&#8369;
+CVE,132,0,Cape Verde escudo,$
+CZK,203,2,Czech koruna,K&#269;
+DJF,262,0,Djiboutian franc,Fdj
+DKK,208,2,Danish krone,kr.
+DOP,214,2,Dominican peso,RD$
+DZD,12,2,Algerian dinar,DA
+EGP,818,2,Egyptian pound,E&#163;
+ERN,232,2,Eritrean nakfa,Nfk
+ETB,230,2,Ethiopian birr,Br
+EUR,978,2,Euro,&#8364;
+FJD,242,2,Fiji dollar,FJ$
+FKP,238,2,Falkland Islands pound,FK&#163;
+GBP,826,2,Pound sterling,&#163;
+GEL,981,2,Georgian lari,GEL
+GHS,936,2,Ghanaian cedi,&#8373;
+GIP,292,2,Gibraltar pound,&#163;
+GMD,270,2,Gambian dalasi,D
+GNF,324,0,Guinean franc,FG
+GTQ,320,2,Guatemalan quetzal,Q
+GYD,328,2,Guyana dollar,GY$
+HKD,344,2,Hong Kong dollar,HK$
+HNL,340,2,Honduran lempira,L
+HRK,191,2,Croatian kuna,kn
+HTG,332,2,Haitian gourde,G
+HUF,348,2,Hungarian forint,Ft
+IDR,360,2,Indonesian rupiah,Rp
+ILS,376,2,Israeli new shekel,&#8362;
+IMP,,2,Isle of Man pound,M&#163;
+INR,356,2,Indian rupee,&#8377;
+IQD,368,3,Iraqi dinar,ID
+IRR,364,2,Iranian rial,&#65020;
+ISK,352,0,Icelandic krona,kr
+JMD,388,2,Jamaican dollar,$
+JOD,400,3,Jordanian dinar,JD
+JPY,392,0,Japanese yen,&#165;
+KES,404,2,Kenyan shilling,KSh
+KGS,417,2,Kyrgyzstani som,K.S.
+KHR,116,2,Cambodian riel,&#6107;
+KMF,174,0,Comoro franc,CF
+KPW,408,2,North Korean won,&#8361;
+KRW,410,0,South Korean won,&#8361;
+KWD,414,3,Kuwaiti dinar,K.D.
+KYD,136,2,Cayman Islands dollar,CI$
+KZT,398,2,Kazakhstani tenge,&#8376;
+LAK,418,2,Lao kip,&#8365;
+LBP,422,2,Lebanese pound,L&#163;
+LKR,144,2,Sri Lankan rupee,Rs
+LRD,430,2,Liberian dollar,L$
+LSL,426,2,Lesotho loti,L
+LYD,434,3,Libyan dinar,LD
+MAD,504,2,Moroccan dirham,Dh
+MDL,498,2,Moldovan leu,MDL
+MGA,969,1,Malagasy ariary,Ar
+MKD,807,2,Macedonian denar,&#1076;&#1077;&#1085;
+MMK,104,2,Myanmar kyat,K
+MNT,496,2,Mongolian togrog,&#8366;
+MOP,446,1,Macanese pataca,MOP$
+MRO,478,1,Mauritanian ouguiya,UM
+MUR,480,2,Mauritian rupee,Rs
+MVR,462,2,Maldivian rufiyaa,Rf
+MWK,454,2,Malawian kwacha,MK
+MXN,484,2,Mexican peso,Mex$
+MXV,979,2,Mexican Unidad de Inversion,MXV
+MYR,458,2,Malaysian ringgit,RM
+MZN,943,2,Mozambican metical,MT
+NAD,516,2,Namibian dollar,N$
+NGN,566,2,Nigerian naira,&#8358;
+NIO,558,2,Nicaraguan cordoba,C$
+NOK,578,2,Norwegian krone,kr
+NPR,524,2,Nepalese rupee,Rps
+NZD,554,2,New Zealand dollar,$
+OMR,512,3,Omani rial,RO
+PAB,590,2,Panamanian balboa,B/.
+PEN,604,2,Peruvian Sol,S/
+PGK,598,2,Papua New Guinean kina,K
+PHP,608,2,Philippine peso,&#8369;
+PKR,586,2,Pakistani rupee,Re.
+PLN,985,2,Polish zloty,z&#322;
+PYG,600,0,Paraguayan guarani,&#8370;
+QAR,634,2,Qatari riyal,QR
+RON,946,2,Romanian Leu,RON
+RSD,941,2,Serbian dinar,d.
+RUB,643,2,Russian ruble,&#8381;
+RWF,646,0,Rwandan franc,FRw
+SAR,682,2,Saudi riyal,SR
+SBD,90,2,Solomon Islands dollar,SI$
+SCR,690,2,Seychelles rupee,SR
+SDG,938,2,Sudanese pound,SDG
+SEK,752,2,Swedish krona,kr
+SGD,702,2,Singapore dollar,S$
+SHP,654,2,Saint Helena pound,&#163;
+SLL,694,2,Sierra Leonean leone,Le
+SOS,706,2,Somali shilling,Sh.So.
+SRD,968,2,Surinamese dollar,$
+SSP,728,2,South Sudanese pound,SSP
+STD,678,2,Ṣo Tom̩ and Principe dobra,Db
+SYP,760,2,Syrian pound,S&#163;
+SZL,748,2,Swazi lilangeni,L
+THB,764,2,Thai baht,&#3647;
+TJS,972,2,Tajikistani somoni,TJS
+TMT,934,2,Turkmenistani manat,T
+TND,788,3,Tunisian dinar,DT
+TOP,776,2,Tongan pa'anga,T$
+TRY,949,2,Turkish lira,&#8378;
+TTD,780,2,Trinidad and Tobago dollar,TT$
+TWD,901,2,New Taiwan dollar,NT$
+TZS,834,2,Tanzanian shilling,TSh
+UAH,980,2,Ukrainian hryvnia,&#8372;
+UGX,800,0,Ugandan shilling,USh
+USD,840,2,United States dollar,$
+USN,997,2,United States dollar,$
+USS,998,2,United States dollar,$
+UYI,940,0,Uruguay Peso en Unidades Indexadas,UYI
+UYU,858,2,Uruguayan peso,$U
+UZS,860,2,Uzbekistan som,&#1083;&#1074;
+VEF,937,2,Venezuelan bolivar,Bs.
+VND,704,0,Vietnamese dong,&#8363;
+VUV,548,0,Vanuatu vatu,VT
+WST,882,2,Samoan tala,WS$
+XAF,950,0,Central African CFA franc,FCFA
+XAG,961,NA,Silver,Ag
+XAU,959,NA,Gold,Au
+XCD,951,2,East Caribbean dollar,$
+XDR,960,NA,Special drawing rights,XDR
+XOF,952,0,West African CFA franc,F
+XPD,964,NA,Palladium,Pd
+XPF,953,0,CFP franc,F
+XPT,962,NA,Platinum,Pt
+XSU,994,NA,XSU,XSU
+XUA,965,NA,XUA,XUA
+YER,886,2,Yemeni rial,&#65020;
+ZAR,710,2,South African rand,R
+ZMW,967,2,Zambian kwacha,K
