@@ -1235,3 +1235,37 @@ def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
         raise TypeError(f"Variable type mismatch. Expected str, got {type(dec_mark)}.")
 
     return dec_mark
+
+
+def _get_locales_list() -> List[str]:
+    locales = _get_locales_data()
+    locale_list = locales["locale"].tolist()
+    locale_list: Any
+    if not isinstance(locale_list[0], str):
+        raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
+    return locale_list
+
+
+def _get_default_locales_list() -> List[str]:
+    default_locales = _get_default_locales_data()
+    default_locale_list = default_locales["default_locale"].tolist()
+    default_locale_list: Any
+    if not isinstance(default_locale_list[0], str):
+        raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
+    return default_locale_list
+
+
+def _validate_locale(locale: Union[str, None] = None):
+    if locale is None:
+        return
+
+    locales_list = _get_locales_list()
+    default_locales_list = _get_default_locales_list()
+
+    supplied_locale = _str_replace(locale, "_", "-")
+
+    # Stop if the `locale` provided isn't a valid one
+    if supplied_locale not in locales_list and supplied_locale not in default_locales_list:
+        raise ValueError("The supplied `locale` is not available in the list of supported locales.")
+
+    return
