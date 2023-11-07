@@ -192,6 +192,8 @@ def fmt_number(
         The GTData object is returned.
     """
 
+    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+
     # Generate a function that will operate on single `x` values in the table body
     def fmt_number_fn(
         x: float,
