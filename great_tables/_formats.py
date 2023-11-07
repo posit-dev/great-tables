@@ -1169,7 +1169,13 @@ def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] 
     # Get the correct `group` value from the locales lookup table
     pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
 
+    # Obtain a single cell value from the single row in `pd_df_row` that is below
+    # the column named 'group'; this could potentially be of any type but we expect
+    # it to be a string (and we'll check for that here)
+    sep_mark: Any
     sep_mark = pd_df_row.iloc[0]["group"]
+    if not isinstance(sep_mark, str):
+        raise TypeError(f"Variable type mismatch. Expected str, got {type(sep_mark)}.")
 
     # Replace any `""` or "\u00a0" with `" "` since an empty string actually
     # signifies a space character, and, we want to normalize to a simple space
@@ -1186,6 +1192,12 @@ def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
     # Get the correct `decimal` value row from the locales lookup table
     pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
 
+    # Obtain a single cell value from the single row in `pd_df_row` that is below
+    # the column named 'decimal'; this could potentially be of any type but we expect
+    # it to be a string (and we'll check for that here)
+    dec_mark: Any
     dec_mark = pd_df_row.iloc[0]["decimal"]
+    if not isinstance(dec_mark, str):
+        raise TypeError(f"Variable type mismatch. Expected str, got {type(dec_mark)}.")
 
     return dec_mark
