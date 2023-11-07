@@ -233,7 +233,11 @@ def fmt_integer(
     self: GTData,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
+    use_seps: bool = True,
     scale_by: float = 1,
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    force_sign: bool = False,
 ) -> GTData:
     """
     Format values as integers.
@@ -255,19 +259,40 @@ def fmt_integer(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None], optional
+    columns : Union[str, List[str], None]
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
 
-    rows : Union[int, List[int], None], optional
+    rows : Union[int, List[int], None]
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
 
-    scale_by : float, optional
+    use_seps : bool
+        The `use_seps` option allows for the use of digit group separators. The type of digit group
+        separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
+        setting is `True` by default.
+
+    scale_by : float
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    sep_mark : str
+        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
+        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
+        ignored if a `locale` is supplied (i.e., is not `None`).
+
+    force_sign : bool
+        Should the positive sign be shown for positive values (effectively showing a sign for all
+        values except zero)? If so, use `True` for this option. The default is `False`, where only
+        negative numbers will display a minus sign. This option is disregarded when using accounting
+        notation with `accounting = True`.
 
     Returns
     -------
@@ -284,9 +309,29 @@ def fmt_integer(
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
-        x = round(x)
+        # Determine whether the value is positive
+        is_negative = _has_negative_value(value=x)
 
-        x_formatted = f"{x}"
+        x_formatted = _value_to_decimal_notation(
+            value=x,
+            decimals=0,
+            n_sigfig=None,
+            drop_trailing_zeros=False,
+            drop_trailing_dec_mark=True,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark="not used",
+            force_sign=force_sign,
+        )
+
+        # Implement minus sign replacement for `x_formatted`
+        if is_negative:
+            minus_mark = _context_minus_mark()
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
 
         return x_formatted
 
