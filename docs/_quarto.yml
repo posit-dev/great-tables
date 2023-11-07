@@ -94,9 +94,6 @@ quartodoc:
         - data.sp500
         - data.pizzaplace
         - data.exibble
-        # - data.towny
-        # - data.metro
-        # - data.illness
-        # - data.rx_adsl
-        # - data.rx_addv
-
+        - data.towny
+        - data.metro
+        - data.illness
