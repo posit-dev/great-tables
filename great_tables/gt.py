@@ -23,10 +23,9 @@ from great_tables._locale import LocaleAPI
 from great_tables._options import OptionsAPI
 from great_tables._row_groups import RowGroupsAPI
 from great_tables._source_notes import SourceNotesAPI
-from great_tables._spanners import SpannersAPI
+from great_tables._spanners import tab_spanner
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import StubheadAPI
-from great_tables._styles import StylesAPI
 
 
 # from ._helpers import random_id
@@ -57,12 +56,10 @@ class GT(
     TblDataAPI,
     BoxheadAPI,
     RowGroupsAPI,
-    SpannersAPI,
     HeadingAPI,
     StubheadAPI,
     SourceNotesAPI,
     FootnotesAPI,
-    StylesAPI,
     LocaleAPI,
     FormatsAPI,
     OptionsAPI,
@@ -95,6 +92,7 @@ class GT(
     fmt_percent = fmt_percent
     fmt_integer = fmt_integer
     fmt_scientific = fmt_scientific
+    tab_spanner = tab_spanner
 
     # -----
 

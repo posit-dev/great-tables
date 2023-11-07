@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import overload, TypeVar
 from typing_extensions import Self
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 
 # Note that we replace with with collections.abc after python 3.8
 from typing import Sequence
@@ -34,6 +34,9 @@ class GTData:
     _options: Options
     _has_built: bool = False
 
+    def replace(self, **kwargs: Any) -> Self:
+        return replace(self, **kwargs)
+
     @classmethod
     def from_data(
         cls,
@@ -52,7 +55,7 @@ class GTData:
             _boxhead=Boxhead(data),  # uses get_tbl_data()
             _stub=stub,  # uses get_tbl_data
             _row_groups=row_groups,
-            _spanners=Spanners(),
+            _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=Stubhead(),
             _source_notes=SourceNotes(),
@@ -67,7 +70,7 @@ class GTData:
 class _Sequence(Sequence[T]):
     _d: list[T]
 
-    def __init__(self, data: Any):
+    def __init__(self, data: list[T]):
         self._d = data
 
     @overload
@@ -158,34 +161,35 @@ class ColumnAlignment(Enum):
     Justify = auto()
 
 
+class ColInfoTypeEnum(Enum):
+    default = auto()
+    stub = auto()
+    row_group = auto()
+    hidden = auto()
+
+
+@dataclass
 class ColInfo:
     # TODO: Make var readonly
     var: str
-    visible: bool
-    column_label: str
-    column_align: Optional[ColumnAlignment]
-    column_width: Optional[str]
+    type: ColInfoTypeEnum = ColInfoTypeEnum.default
+    column_label: Optional[str] = None
+    column_align: Optional[ColumnAlignment] = None
+    column_width: Optional[str] = None
 
     # The components of the boxhead are:
     # `var` (obtained from column names)
     # `column_label` (obtained from column names)
-    # `visible` = True
     # `column_align` = None
     # `column_width` = None
 
-    def __init__(
-        self,
-        var: str,
-        visible: bool = True,
-        column_label: Optional[str] = None,
-        column_align: Optional[ColumnAlignment] = None,
-        column_width: Optional[str] = None,
-    ):
-        self.var = var
-        self.visible = visible
-        self.column_label = column_label or var
-        self.column_align = column_align
-        self.column_width = column_width
+    def __post_init__(self):
+        if self.column_label is None:
+            self.column_label = self.var
+
+    @property
+    def visible(self) -> bool:
+        return self.type != ColInfoTypeEnum.hidden
 
 
 class Boxhead(_Sequence[ColInfo]):
@@ -199,6 +203,9 @@ class Boxhead(_Sequence[ColInfo]):
             # `_boxhead` from that
             column_names = get_column_names(data)
             self._d = [ColInfo(col) for col in column_names]
+
+    def vars_from_type(self, type: ColInfoTypeEnum) -> List[str]:
+        return [x.var for x in self._d if x.type == type]
 
     # Get a list of columns
     def _get_columns(self) -> List[str]:
@@ -320,29 +327,64 @@ __Spanners = None
 import pandas as pd
 
 
-class Spanners:
-    def __init__(self):
-        # The `spanners` DataFrame is used to handle spanner ID
-        # and text, the spanner level, the association to column names,
-        # whether the spanner is to gather columns, and the built
-        # form of the spanner label (depending on the output context)
-        # 0: `vars` (empty list, str)
-        # 1: `spanner_label` (empty list, str)
-        # 2: `spanner_id` (empty, str)
-        # 3: `spanner_level` (empty, int)
-        # 4: `gather` (empty, bool)
-        # 5: `built` (empty, str)
+@dataclass
+class SpannerInfo:
+    spanner_id: str
+    spanner_level: int
+    spanner_label: str | None = None
+    spanner_units: str | None = None
+    spanner_pattern: str | None = None
+    vars: list[str] = field(default_factory=lambda: [])
+    gather: Optional[bool] = None
+    built: Optional[str] = None
 
-        self._spanners: pd.DataFrame = pd.DataFrame(
-            columns=[
-                "vars",
-                "spanner_label",
-                "spanner_id",
-                "spanner_level",
-                "gather",
-                "built",
-            ]
-        )
+
+class Spanners(_Sequence[SpannerInfo]):
+    _d: list[SpannerInfo]
+
+    # The `spanners` DataFrame is used to handle spanner ID
+    # and text, the spanner level, the association to column names,
+    # whether the spanner is to gather columns, and the built
+    # form of the spanner label (depending on the output context)
+    # 0: `vars` (empty list, str)
+    # 1: `spanner_label` (empty list, str)
+    # 2: `spanner_id` (empty, str)
+    # 3: `spanner_level` (empty, int)
+    # 4: `gather` (empty, bool)
+    # 5: `built` (empty, str)
+    @classmethod
+    def from_ids(cls, ids: list[str]):
+        """Construct an object from a list of spanner_ids"""
+
+        return cls([SpannerInfo(id, ii) for ii, id in enumerate(ids)])
+
+    def relevel(self, levels: list[int]) -> Self:
+        if len(levels) != len(self):
+            raise ValueError(
+                "New levels must be same length as spanners."
+                f" Received {len(levels)}, but have {len(self)} spanners."
+            )
+
+        new_spans = [replace(span, spanner_level=lvl) for span, lvl in zip(self, levels)]
+        return self.__class__(new_spans)
+
+    def next_level(self, column_names: list[str]) -> int:
+        """Return the next available spanner level.
+
+        Spanners whose columns do not overlap are put on the same level.
+        """
+
+        if not len(self):
+            return 0
+
+        overlapping_levels = [
+            s.spanner_level for s in self if any(v in column_names for v in s.vars)
+        ]
+
+        return max(overlapping_levels, default=-1) + 1
+
+    def append_entry(self, span: SpannerInfo):
+        self.__class__(self._d + [span])
 
 
 # Heading ---
