@@ -193,6 +193,7 @@ def fmt_number(
     """
 
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_number_fn(
@@ -1175,3 +1176,16 @@ def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] 
     sep_mark = " " if sep_mark == "" or sep_mark == "\u00a0" else sep_mark
 
     return sep_mark
+
+
+def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
+    # If `locale` is NULL then return the default `dec_mark`
+    if locale is None:
+        return default
+
+    # Get the correct `decimal` value row from the locales lookup table
+    pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
+
+    dec_mark = pd_df_row.iloc[0]["decimal"]
+
+    return dec_mark
