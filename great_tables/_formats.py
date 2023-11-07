@@ -185,6 +185,8 @@ def fmt_number(
         The GTData object is returned.
     """
 
+    # Stop if `locale` does not have a valid value; normalize locale and resolve one
+    # that might be set globally
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
@@ -306,6 +308,10 @@ def fmt_integer(
     GTData
         The GTData object is returned.
     """
+
+    # Stop if `locale` does not have a valid value; normalize locale and resolve one
+    # that might be set globally
+    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
 
     # Generate a function that will operate on single `x` values in
     # the table body
@@ -462,6 +468,15 @@ def fmt_scientific(
     GTData
         The GTData object is returned.
     """
+
+    # Set a default value for `use_seps`; these separators are only used for very
+    # large exponent values
+    use_seps = True
+
+    # Stop if `locale` does not have a valid value; normalize locale and resolve one
+    # that might be set globally
+    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_scientific_fn(
@@ -691,6 +706,11 @@ def fmt_percent(
     GTData
         The GTData object is returned.
     """
+
+    # Stop if `locale` does not have a valid value; normalize locale and resolve one
+    # that might be set globally
+    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     if scale_values:
         scale_by = 100.0
