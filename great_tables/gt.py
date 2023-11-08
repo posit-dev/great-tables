@@ -31,7 +31,7 @@ from great_tables._locale import LocaleAPI
 from great_tables._options import OptionsAPI
 from great_tables._row_groups import RowGroupsAPI
 from great_tables._source_notes import SourceNotesAPI
-from great_tables._spanners import tab_spanner
+from great_tables._spanners import tab_spanner, cols_move
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import StubheadAPI
 
@@ -102,6 +102,7 @@ class GT(
     fmt_scientific = fmt_scientific
     fmt_currency = fmt_currency
     tab_spanner = tab_spanner
+    cols_move = cols_move
 
     # -----
 
