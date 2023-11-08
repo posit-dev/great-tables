@@ -1415,13 +1415,11 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
     if locale is None:
         return None
 
-    default_locales_list = _get_default_locales_list()
-
     # Replace any underscores with hyphens
     supplied_locale = _str_replace(locale, "_", "-")
 
     # Resolve any default locales into their base names (e.g., 'en-US' -> 'en')
-    if supplied_locale in default_locales_list:
+    if supplied_locale in _get_default_locales_list():
         default_locales = _get_default_locales_data()
         resolved_locale = default_locales[
             default_locales["default_locale"] == supplied_locale
