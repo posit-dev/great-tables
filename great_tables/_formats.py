@@ -867,6 +867,9 @@ def fmt_currency(
         is_negative = _has_negative_value(value=x)
         is_positive = _has_positive_value(value=x)
 
+        # currency_symbol = "$"
+        currency_symbol = _get_currency_str(currency=currency)
+
         x_formatted = _value_to_decimal_notation(
             value=x,
             decimals=decimals,
