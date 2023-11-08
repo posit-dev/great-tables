@@ -392,6 +392,10 @@ def _stub_group_names_has_column(data: GT) -> bool:
 
     return row_group_as_column
 
+
+def _row_groups_get(data: GT) -> List[str]:
+    return data._row_groups._d
+
 def _create_source_notes_component(data: GT) -> str:
     source_notes = data._source_notes.source_notes
 
