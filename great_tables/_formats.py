@@ -188,6 +188,7 @@ def fmt_number(
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
     # that might be set globally
     _validate_locale(locale=locale)
+    locale = _normalize_locale(locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -1295,7 +1296,7 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
     supplied_locale = _str_replace(locale, "_", "-")
 
     # Resolve any default locales into their base names (e.g., 'en-US' -> 'en')
-    if locale in default_locales_list:
+    if supplied_locale in default_locales_list:
         default_locales = _get_default_locales_data()
         resolved_locale = default_locales[
             default_locales["default_locale"] == supplied_locale
