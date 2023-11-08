@@ -374,6 +374,24 @@ def _get_stub_components(data: GT):
 
     return stub_components
 
+
+# Determine whether the table should have row group labels set within a column in the stub
+def _stub_group_names_has_column(data: GT) -> bool:
+    # If there aren't any row groups then the result is always False
+    if len(_row_groups_get(data=data)) < 1:
+        return False
+
+    # Given that there are row groups, we need to look at the option `row_group_as_column` to
+    # determine whether they populate a column located in the stub; if set as True then that's
+    # the return value
+    row_group_as_column = data._options._get_option_value(option="row_group_as_column")
+
+    row_group_as_column: Any
+    if not isinstance(row_group_as_column, bool):
+        raise TypeError("Variable type mismatch. Expected bool, got something entirely different.")
+
+    return row_group_as_column
+
 def _create_source_notes_component(data: GT) -> str:
     source_notes = data._source_notes.source_notes
 
