@@ -1282,3 +1282,30 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
         raise ValueError("The supplied `locale` is not available in the list of supported locales.")
 
     return
+
+
+def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
+    # Return None if the locale isn't specified
+    if locale is None:
+        return None
+
+    default_locales_list = _get_default_locales_list()
+
+    # Replace any underscores with hyphens
+    supplied_locale = _str_replace(locale, "_", "-")
+
+    # Resolve any default locales into their base names (e.g., 'en-US' -> 'en')
+    if locale in default_locales_list:
+        default_locales = _get_default_locales_data()
+        resolved_locale = default_locales[
+            default_locales["default_locale"] == supplied_locale
+        ].iloc[0]["base_locale"]
+        resolved_locale: Any
+        if not isinstance(resolved_locale, str):
+            raise TypeError(
+                "Variable type mismatch. Expected str, got something entirely different."
+            )
+    else:
+        resolved_locale = supplied_locale
+
+    return resolved_locale
