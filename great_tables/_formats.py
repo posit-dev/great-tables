@@ -1460,3 +1460,20 @@ def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
 
     return currency_code
 
+
+def _get_currency_str(currency: str) -> str:
+    # Get the correct 'curr_code' value row from the `__x_currencies` lookup table
+    pd_df_row = _filter_pd_df_to_row(
+        pd_df=_get_currencies_data(), column="curr_code", filter_expr=currency
+    )
+
+    # Extract the 'symbol' cell value from this 1-row DataFrame
+    currency_str = pd_df_row.iloc[0]["symbol"]
+
+    # Ensure that `currency_str` is of the type 'str'
+    currency_str: Any
+    if not isinstance(currency_str, str):
+        raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
+
+    return currency_str
+
