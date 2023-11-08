@@ -17,8 +17,8 @@ SpannerMatrix = List[Dict[str, Union[str, None]]]
 def tab_spanner(
     data: GTData,
     label: str,
-    columns: Optional[list[str]] = None,
-    spanners: Optional[list[str]] = None,
+    columns: Union[list[str], str, None] = None,
+    spanners: Union[list[str], str, None] = None,
     level: Optional[int] = None,
     id: Optional[str] = None,
     gather: bool = True,
@@ -55,10 +55,17 @@ def tab_spanner(
     replace:
         Replace existing spanners.
     """
+
     crnt_spanner_ids = [span.spanner_id for span in data._spanners]
 
     if id is None:
         id = label
+
+    if isinstance(columns, str):
+        columns = [columns]
+
+    if isinstance(spanners, str):
+        spanners = [spanners]
 
     # validations ----
     if level is not None and level < 0:

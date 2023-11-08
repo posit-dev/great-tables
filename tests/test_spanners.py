@@ -71,12 +71,27 @@ def test_empty_spanner_matrix_arg_omit_columns_row():
     assert mat == []
 
 
-def test_tab_spanners_simple():
+def test_tab_spanners_with_columns():
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
     src_gt = GT(df)
 
-    dst_span = Spanners([SpannerInfo("a_spanner", 0, "a_spanner", vars=["b", "a"])])
+    dst_span = SpannerInfo("a_spanner", 0, "a_spanner", vars=["b", "a"])
 
     new_gt = tab_spanner(src_gt, "a_spanner", columns=["b", "a"], gather=False)
     assert len(new_gt._spanners)
-    assert new_gt._spanners == dst_span
+    assert new_gt._spanners[0] == dst_span
+
+
+def test_tab_spanners_with_spanner_ids():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    src_gt = GT(df)
+
+    # we'll be testing for this second spanner added
+    dst_span = SpannerInfo("b_spanner", 1, "b_spanner", vars=["c", "b", "a"])
+
+    gt_with_span = tab_spanner(src_gt, "a_spanner", columns=["b", "a"], gather=False)
+
+    new_gt = tab_spanner(gt_with_span, "b_spanner", spanners="a_spanner", columns=["c"])
+
+    assert len(new_gt._spanners) == 2
+    assert new_gt._spanners[1] == dst_span
