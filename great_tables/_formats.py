@@ -1437,8 +1437,8 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
     return resolved_locale
 
 
-def _get_locale_currency_code(locale: Union[str, None] = None) -> Union[str, None]:
     # If `locale` is NULL then return `"USD"`
+def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
     if locale is None:
         return "USD"
 
