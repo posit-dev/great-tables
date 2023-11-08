@@ -207,6 +207,15 @@ class Boxhead(_Sequence[ColInfo]):
     def vars_from_type(self, type: ColInfoTypeEnum) -> List[str]:
         return [x.var for x in self._d if x.type == type]
 
+    def reorder(self, vars: List[str]) -> Self:
+        boxh_vars = [col.var for col in self]
+        if set(vars) != set(boxh_vars):
+            raise ValueError("Reordering vars must contain all boxhead vars.")
+
+        new_order = [boxh_vars.index(var) for var in vars]
+
+        return self[new_order]
+
     # Get a list of columns
     def _get_columns(self) -> List[str]:
         return [x.var for x in self._d]

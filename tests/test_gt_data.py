@@ -1,6 +1,6 @@
 import pandas as pd
 
-from great_tables._gt_data import Stub, RowInfo
+from great_tables._gt_data import Stub, RowInfo, Boxhead, ColInfo
 from great_tables._gt_data import RowGroups
 
 
@@ -31,3 +31,9 @@ def test_row_groups_construct_manual():
 
     assert isinstance(groups[:], RowGroups)
 
+
+def test_boxhead_reorder():
+    boxh = Boxhead([ColInfo("a"), ColInfo("b"), ColInfo("c")])
+    new_boxh = boxh.reorder(["b", "a", "c"])
+
+    assert new_boxh == Boxhead([ColInfo("b"), ColInfo("a"), ColInfo("c")])

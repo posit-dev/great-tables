@@ -130,8 +130,29 @@ def tab_spanner(
 
 
 def cols_move(data: GTData, columns: list[str], after: str):
-    # TODO:
-    raise NotImplementedError()
+    sel_cols = resolve_cols_c(columns, data)
+
+    sel_after = resolve_cols_c([after], data)
+
+    vars = [col.var for col in data._boxhead]
+
+    if len(after) > 1:
+        raise ValueError(f"Only 1 value should be supplied to `after`, recieved argument: {after}")
+    elif after not in vars:
+        raise ValueError(f"Column {after} not found in table.")
+
+    if not len(columns):
+        raise Exception("No columns selected.")
+    elif not all([col in vars for col in columns]):
+        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+
+    moving_columns = [col for col in columns if col not in after]
+    other_columns = [col for col in vars if col not in moving_columns]
+
+    indx = other_columns.index(after)
+    final_vars = [*other_columns[: indx + 1], *moving_columns, *other_columns[indx + 1 :]]
+
+    return final_vars
 
 
 def spanners_print_matrix(
