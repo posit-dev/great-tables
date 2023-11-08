@@ -799,6 +799,121 @@ def fmt_percent(
     return self
 
 
+def fmt_currency(
+    self: GTData,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    currency: Optional[int] = None,
+    use_subunits: bool = True,
+    decimals: int = 2,
+    drop_trailing_dec_mark: bool = True,
+    use_seps: bool = True,
+    # accounting: bool = False,
+    scale_by: float = 1,
+    # suffixing: bool = False,
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    dec_mark: str = ".",
+    force_sign: bool = False,
+    placement: str = "left",
+    incl_space: bool = False,
+    # system: str = "intl",
+    locale: Union[str, None] = None,
+) -> GTData:
+    # Stop if `locale` does not have a valid value; normalize locale and resolve one
+    # that might be set globally
+    _validate_locale(locale=locale)
+    locale = _normalize_locale(locale=locale)
+
+    # Use locale-based marks if a locale ID is provided
+    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
+
+    # Resolve the currency either from direct input in `currency` or through a locale
+    # TODO: requires implementation of `_get_locale_currency_code()`
+    if currency is None:
+        currency_symbol = _get_locale_currency_code(locale=locale)
+    else:
+        currency_symbol = "$"
+
+    # Stop if `currency` does not have a valid value
+    # TODO: requires implementation of `_validate_currency()`
+    # _validate_currency(currency=currency)
+
+    # Get the number of decimal places
+    # TODO: requires implementation of `_get_currency_decimals()`
+    # decimals = _get_currency_decimals(
+    #     currency=currency, decimals=decimals, use_subunits=use_subunits
+    # )
+
+    # Generate a function that will operate on single `x` values in the table body
+    def fmt_currency_fn(
+        x: float,
+        currency_symbol: str = currency_symbol,
+        decimals: int = decimals,
+        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
+        use_seps: bool = use_seps,
+        scale_by: float = scale_by,
+        sep_mark: str = sep_mark,
+        dec_mark: str = dec_mark,
+        force_sign: bool = force_sign,
+        placement: str = placement,
+        incl_space: bool = incl_space,
+    ):
+        # Scale `x` value by a defined `scale_by` value
+        x = x * scale_by
+
+        # Determine properties of the value
+        is_negative = _has_negative_value(value=x)
+        is_positive = _has_positive_value(value=x)
+
+        x_formatted = _value_to_decimal_notation(
+            value=x,
+            decimals=decimals,
+            n_sigfig=None,
+            drop_trailing_zeros=False,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
+            force_sign=force_sign,
+        )
+
+        # Create a currency pattern for affixing the currency symbol
+        space_character = " " if incl_space else ""
+        currency_pattern = (
+            f"{{x}}{space_character}{currency_symbol}"
+            if placement == "right"
+            else f"{currency_symbol}{space_character}{{x}}"
+        )
+
+        if is_negative and placement == "left":
+            x_formatted = x_formatted.replace("-", "")
+            x_formatted = currency_pattern.replace("{x}", x_formatted)
+            x_formatted = "-" + x_formatted
+        elif is_positive and force_sign and placement == "left":
+            x_formatted = x_formatted.replace("+", "")
+            x_formatted = currency_pattern.replace("{x}", x_formatted)
+            x_formatted = "+" + x_formatted
+        else:
+            x_formatted = currency_pattern.replace("{x}", x_formatted)
+
+        # Implement minus sign replacement for `x_formatted`
+        if is_negative:
+            minus_mark = _context_minus_mark()
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    FormatsAPI.fmt(self, fns=fmt_currency_fn, columns=columns, rows=rows)
+
+    return self
+
+
 def _value_to_decimal_notation(
     value: Union[int, float],
     decimals: int = 2,
