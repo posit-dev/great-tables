@@ -146,13 +146,14 @@ def cols_move(data: GTData, columns: list[str], after: str):
     elif not all([col in vars for col in columns]):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
 
-    moving_columns = [col for col in columns if col not in after]
+    moving_columns = [col for col in sel_cols if col not in sel_after]
     other_columns = [col for col in vars if col not in moving_columns]
 
     indx = other_columns.index(after)
     final_vars = [*other_columns[: indx + 1], *moving_columns, *other_columns[indx + 1 :]]
 
-    return final_vars
+    new_boxhead = data._boxhead.reorder(final_vars)
+    return data._replace(_boxhead=new_boxhead)
 
 
 def spanners_print_matrix(

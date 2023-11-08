@@ -1,7 +1,12 @@
 import pandas as pd
 import pytest
 
-from great_tables._spanners import spanners_print_matrix, empty_spanner_matrix, tab_spanner
+from great_tables._spanners import (
+    spanners_print_matrix,
+    empty_spanner_matrix,
+    tab_spanner,
+    cols_move,
+)
 from great_tables._gt_data import Spanners, SpannerInfo, Boxhead, ColInfo, ColInfoTypeEnum
 from great_tables import GT
 
@@ -95,3 +100,11 @@ def test_tab_spanners_with_spanner_ids():
 
     assert len(new_gt._spanners) == 2
     assert new_gt._spanners[1] == dst_span
+
+
+def test_cols_move():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    src_gt = GT(df)
+
+    new_gt = cols_move(src_gt, columns=["a"], after="b")
+    assert [col.var for col in new_gt._boxhead] == ["b", "a", "c"]

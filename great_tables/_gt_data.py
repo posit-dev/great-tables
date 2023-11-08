@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+
 from typing import overload, TypeVar
 from typing_extensions import Self
 from dataclasses import dataclass, field, replace
@@ -33,6 +35,13 @@ class GTData:
     _formats: Formats
     _options: Options
     _has_built: bool = False
+
+    def _replace(self, **kwargs) -> Self:
+        # TODO: may want to validate that kwargs should be an attribute on GT
+        new_obj = copy.copy(self)
+        new_obj.__dict__.update(kwargs)
+
+        return new_obj
 
     @classmethod
     def from_data(

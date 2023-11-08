@@ -95,13 +95,6 @@ class GT(
         gtdata = GTData.from_data(data, locale=locale, **kwargs)
         super().__init__(**gtdata.__dict__)
 
-    def _replace(self, **kwargs) -> Self:
-        # TODO: may want to validate that kwargs should be an attribute on GT
-        new_obj = copy.copy(self)
-        new_obj.__dict__.update(kwargs)
-
-        return new_obj
-
     # TODO: Refactor API methods -----
     fmt_number = fmt_number
     fmt_percent = fmt_percent
