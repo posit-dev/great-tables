@@ -1313,3 +1313,22 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
         resolved_locale = supplied_locale
 
     return resolved_locale
+
+
+def _get_locale_currency_code(locale: Union[str, None] = None) -> Union[str, None]:
+    # If `locale` is NULL then return `"USD"`
+    if locale is None:
+        return "USD"
+
+    # Get the correct `decimal` value row from the locales lookup table
+    pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
+    currency_code = pd_df_row.iloc[0]["currency_code"]
+    currency_code: Any
+    if not isinstance(currency_code, str):
+        raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
+
+    if currency_code == "":
+        currency_code = "USD"
+
+    return currency_code
+
