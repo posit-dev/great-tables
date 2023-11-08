@@ -832,9 +832,9 @@ def fmt_currency(
     # Resolve the currency either from direct input in `currency` or through a locale
     # TODO: requires implementation of `_get_locale_currency_code()`
     if currency is None:
-        currency_symbol = _get_locale_currency_code(locale=locale)
+        currency_resolved = _get_locale_currency_code(locale=locale)
     else:
-        currency_symbol = "$"
+        currency_resolved = "USD"
 
     # Stop if `currency` does not have a valid value
     # TODO: requires implementation of `_validate_currency()`
