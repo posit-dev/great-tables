@@ -25,6 +25,7 @@ from great_tables._formats import (
     fmt_integer,
     fmt_scientific,
     fmt_currency,
+    fmt_engineering,
 )
 from great_tables._heading import HeadingAPI
 from great_tables._locale import LocaleAPI
@@ -101,6 +102,8 @@ class GT(
     fmt_integer = fmt_integer
     fmt_scientific = fmt_scientific
     fmt_currency = fmt_currency
+    fmt_engineering = fmt_engineering
+
     tab_spanner = tab_spanner
     cols_move = cols_move
 
