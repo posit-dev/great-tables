@@ -1303,7 +1303,6 @@ def _context_minus_mark() -> str:
     return "\u2212"
 
 
-# Define the `replace_minus()` function
 def _replace_minus(string: str, minus_mark: str) -> str:
     return _str_replace(string, "-", minus_mark)
 
