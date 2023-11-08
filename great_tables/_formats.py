@@ -849,7 +849,7 @@ def fmt_currency(
     # Generate a function that will operate on single `x` values in the table body
     def fmt_currency_fn(
         x: float,
-        currency_symbol: str = currency_symbol,
+        currency: str = currency_resolved,
         decimals: int = decimals,
         drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
         use_seps: bool = use_seps,
