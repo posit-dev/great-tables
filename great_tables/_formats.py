@@ -623,7 +623,7 @@ def fmt_percent(
     incl_space: bool = False,
     placement: str = "right",
     # system: str = "intl",
-    locale: Union[str, None] = None,  # not implemented yet
+    locale: Union[str, None] = None,
 ) -> GTData:
     """
     Format values as a percentage.
