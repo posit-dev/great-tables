@@ -93,7 +93,7 @@ def _get_currencies_data() -> pd.DataFrame:
         "curr_number": "object",
         "exponent": "object",
         "curr_name": "object",
-        "symbol": "symbol",
+        "symbol": "object",
     }
     __x_currencies: pd.DataFrame = pd.read_csv(_x_currencies_fname, dtype=_x_currencies_dtype)
     return __x_currencies
