@@ -1373,6 +1373,8 @@ def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
 def _get_locales_list() -> List[str]:
     locales = _get_locales_data()
     locale_list = locales["locale"].tolist()
+
+    # Ensure that `locale_list` is of the type 'str'
     locale_list: Any
     if not isinstance(locale_list[0], str):
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
@@ -1382,9 +1384,12 @@ def _get_locales_list() -> List[str]:
 def _get_default_locales_list() -> List[str]:
     default_locales = _get_default_locales_data()
     default_locale_list = default_locales["default_locale"].tolist()
+
+    # Ensure that `default_locale_list` is of the type 'str'
     default_locale_list: Any
     if not isinstance(default_locale_list[0], str):
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
+
     return default_locale_list
 
 
