@@ -1424,6 +1424,8 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
         resolved_locale = default_locales[
             default_locales["default_locale"] == supplied_locale
         ].iloc[0]["base_locale"]
+
+        # Ensure that `resolved_locale` is of the type 'str'
         resolved_locale: Any
         if not isinstance(resolved_locale, str):
             raise TypeError(
