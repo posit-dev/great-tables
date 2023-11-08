@@ -250,7 +250,7 @@ def fmt_integer(
     pattern: str = "{x}",
     sep_mark: str = ",",
     force_sign: bool = False,
-    locale: Union[str, None] = None,  # not implemented yet
+    locale: Union[str, None] = None,
 ) -> GTData:
     """
     Format values as integers.
