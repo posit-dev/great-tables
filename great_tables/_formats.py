@@ -174,10 +174,6 @@ def fmt_number(
     locale : str
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
-        We can use the [info_locales()] function as a useful reference for all of the locales that
-        are supported. A locale ID can be also set in the initial [gt()] function call (where it
-        would be used automatically by any function with a `locale` argument) but a `locale` value
-        provided here will override that global locale.
 
     Returns
     -------
@@ -306,6 +302,10 @@ def fmt_integer(
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
+
+    locale : str
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
@@ -470,6 +470,10 @@ def fmt_scientific(
         would effectively show a sign for all values except zero on the second numeric component of
         the notation. If so, use `True` (the default for this is `False`), where only negative
         numbers will display a sign.
+
+    locale : str
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
@@ -712,6 +716,10 @@ def fmt_percent(
     placement : str
         This option governs the placement of the percent sign. This can be either be `"right"` (the
         default) or `"left"`.
+
+    locale : str
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
