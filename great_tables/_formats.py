@@ -1267,7 +1267,6 @@ def _get_default_locales_list() -> List[str]:
     return default_locale_list
 
 
-def _validate_locale(locale: Union[str, None] = None):
 def _validate_locale(locale: Union[str, None] = None) -> None:
     if locale is None:
         return
