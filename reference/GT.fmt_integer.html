@@ -474,6 +474,7 @@ ul.task-list li input[type="checkbox"] {
 <p>pattern : str A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</p>
 <p>sep_mark : str The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
 <p>force_sign : bool Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with <code>accounting = True</code>.</p>
+<p>locale : str An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</p>
 </section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
