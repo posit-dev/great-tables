@@ -830,7 +830,6 @@ def fmt_currency(
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     # Resolve the currency either from direct input in `currency` or through a locale
-    # TODO: requires implementation of `_get_locale_currency_code()`
     if currency is None:
         currency_resolved = _get_locale_currency_code(locale=locale)
     else:
