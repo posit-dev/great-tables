@@ -820,6 +820,107 @@ def fmt_currency(
     # system: str = "intl",
     locale: Union[str, None] = None,
 ) -> GTData:
+    """
+    Format values as currencies.
+
+    With numeric values in a **gt** table, we can perform currency-based formatting with the
+    `fmt_currency()` method. This supports both automatic formatting with a three-letter currency
+    code. We have fine control over the conversion from numeric values to currency values, where we
+    could take advantage of the following options:
+
+    - the currency: providing a currency code or common currency name will procure the correct
+    currency symbol and number of currency subunits
+    - currency symbol placement: the currency symbol can be placed before or after the values
+    - decimals/subunits: choice of the number of decimal places, and a choice of the decimal symbol,
+    and an option on whether to include or exclude the currency subunits (the decimal portion)
+    - digit grouping separators: options to enable/disable digit separators and provide a choice of
+    separator symbol
+    - scaling: we can choose to scale targeted values by a multiplier value
+    - pattern: option to use a text pattern for decoration of the formatted currency values
+    - locale-based formatting: providing a locale ID will result in currency formatting specific to
+    the chosen locale; it will also retrieve the locale's currency if none is explicitly given
+
+    Parameters
+    ----------
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    rows : Union[int, List[int], None]
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+
+    currency : Union[str, None]
+        The currency to use for the numeric value. This input can be supplied as a 3-letter currency
+        code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency).
+
+    use_subunits: bool
+        An option for whether the subunits portion of a currency value should be displayed. For
+        example, with an input value of `273.81`, the default formatting will produce `"$273.81"`.
+        Removing the subunits (with `use_subunits = False`) will give us `"$273"`.
+
+    decimals : int
+        The `decimals` values corresponds to the exact number of decimal places to use. A value such
+        as `2.34` can, for example, be formatted with `0` decimal places and it would result in
+        `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
+        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
+        `fmt_integer()` method should be considered.
+
+    drop_trailing_dec_mark : bool
+        A boolean value that determines whether decimal marks should always appear even if there are
+        no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
+        default trailing decimal marks are not shown.
+
+    use_seps : bool
+        The `use_seps` option allows for the use of digit group separators. The type of digit group
+        separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
+        setting is `True` by default.
+
+    scale_by : float
+        All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
+        Since the `default` value is `1`, no values will be changed unless a different multiplier
+        value is supplied.
+
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    sep_mark : str
+        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
+        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
+        ignored if a `locale` is supplied (i.e., is not `None`).
+
+    dec_mark : str
+        The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
+        `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
+        `locale` is supplied (i.e., is not `None`).
+
+    force_sign : bool
+        Should the positive sign be shown for positive values (effectively showing a sign for all
+        values except zero)? If so, use `True` for this option. The default is `False`, where only
+        negative numbers will display a minus sign. This option is disregarded when using accounting
+        notation with `accounting = True`.
+
+    placement : str
+        This option governs the placement of the percent sign. This can be either be `"right"` (the
+        default) or `"left"`.
+
+    incl_space : bool
+        An option for whether to include a space between the value and the percent sign. The default
+        is to not introduce a space character.
+
+    locale : str
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
+    """
+
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
     # that might be set globally
     _validate_locale(locale=locale)
