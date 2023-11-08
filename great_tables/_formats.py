@@ -600,7 +600,7 @@ def fmt_engineering(
     dec_mark: str = ".",
     force_sign_m: bool = False,
     force_sign_n: bool = False,
-    locale: Union[str, None] = None,  # not implemented yet
+    locale: Union[str, None] = None,
 ):
     # TODO: Not implemented yet
     return self
