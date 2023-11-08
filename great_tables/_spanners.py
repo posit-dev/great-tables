@@ -17,14 +17,55 @@ SpannerMatrix = List[Dict[str, Union[str, None]]]
 def tab_spanner(
     data: GTData,
     label: str,
-    columns: Optional[list[str]] = None,
-    spanners: Optional[list[str]] = None,
+    columns: Union[list[str], str, None] = None,
+    spanners: Union[list[str], str, None] = None,
     level: Optional[int] = None,
     id: Optional[str] = None,
     gather: bool = True,
     replace: bool = False,
 ):
+    """Insert a spanner in the column labels part of a gt table.
+
+    This part of the table contains, at a minimum, column labels and, optionally, an
+    unlimited number of levels for spanners. A spanner will occupy space over any number
+    of contiguous column labels and it will have an associated label and ID value. This
+    function allows for mapping to be defined by column names, existing spanner ID values,
+    or a mixture of both.
+
+    The spanners are placed in the order of calling tab_spanner() so if a later call uses
+    the same columns in its definition (or even a subset) as the first invocation, the
+    second spanner will be overlaid atop the first. Options exist for forcibly inserting a
+    spanner underneath other (with level as space permits) and with replace, which allows
+    for full or partial spanner replacement.
+
+    Parameters
+    ----------
+    label:
+        Spanner label text.
+    columns:
+        Columns to target.
+    spanners:
+        Spanners to target.
+    level:
+        Spanner level for insertion.
+    id:
+        Spanner ID.
+    gather:
+        Gather columns together.
+    replace:
+        Replace existing spanners.
+    """
+
     crnt_spanner_ids = [span.spanner_id for span in data._spanners]
+
+    if id is None:
+        id = label
+
+    if isinstance(columns, str):
+        columns = [columns]
+
+    if isinstance(spanners, str):
+        spanners = [spanners]
 
     # validations ----
     if level is not None and level < 0:
@@ -38,7 +79,7 @@ def tab_spanner(
         # TODO: null_means is unimplemented
         raise NotImplementedError()
 
-    column_names = resolve_cols_c(columns, data, null_means="nothing")
+    selected_column_names = resolve_cols_c(columns, data, null_means="nothing")
 
     # select spanner ids ----
     # TODO: this supports tidyselect
@@ -49,12 +90,16 @@ def tab_spanner(
     else:
         spanner_ids = crnt_spanner_ids
 
-    if not len(column_names) and not len(spanner_ids):
+    if not len(selected_column_names) and not len(spanner_ids):
         return data
 
     # get column names associated with selected spanners ----
     _vars = [span.vars for span in data._spanners if span.spanner_id in spanner_ids]
-    column_names = list({k: True for k in itertools.chain(*_vars)})
+    spanner_column_names = list({k: True for k in itertools.chain(*_vars)})
+
+    column_names = list({k: True for k in [*selected_column_names, *spanner_column_names]})
+
+    # combine columns names and those from spanners ----
 
     # get spanner level ----
     if level is None:
@@ -72,12 +117,11 @@ def tab_spanner(
         spanner_units=spanner_units,
         spanner_pattern=spanner_pattern,
         spanner_label=label,
-        gather=gather,
     )
 
     spanners = data._spanners.append_entry(new_span)
 
-    new_data = data.replace(_spanners=spanners)
+    new_data = data._replace(_spanners=spanners)
 
     if gather and not len(spanner_ids) and level == 0:
         return cols_move(new_data, columns=column_names, after=column_names[0])
@@ -86,8 +130,30 @@ def tab_spanner(
 
 
 def cols_move(data: GTData, columns: list[str], after: str):
-    # TODO:
-    raise NotImplementedError()
+    sel_cols = resolve_cols_c(columns, data)
+
+    sel_after = resolve_cols_c([after], data)
+
+    vars = [col.var for col in data._boxhead]
+
+    if len(after) > 1:
+        raise ValueError(f"Only 1 value should be supplied to `after`, recieved argument: {after}")
+    elif after not in vars:
+        raise ValueError(f"Column {after} not found in table.")
+
+    if not len(columns):
+        raise Exception("No columns selected.")
+    elif not all([col in vars for col in columns]):
+        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+
+    moving_columns = [col for col in sel_cols if col not in sel_after]
+    other_columns = [col for col in vars if col not in moving_columns]
+
+    indx = other_columns.index(after)
+    final_vars = [*other_columns[: indx + 1], *moving_columns, *other_columns[indx + 1 :]]
+
+    new_boxhead = data._boxhead.reorder(final_vars)
+    return data._replace(_boxhead=new_boxhead)
 
 
 def spanners_print_matrix(

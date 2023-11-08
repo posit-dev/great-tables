@@ -1,6 +1,7 @@
 import pytest
 
 from great_tables import GT
+from great_tables._gt_data import RowGroups
 import pandas as pd
 
 # Generate a gt Table object for assertion testing
@@ -13,8 +14,14 @@ def gt_tbl():
     return GT(pd_data)
 
 
-def test_gt_object_prerender(gt_tbl: GT):
+def test_gt_replace(gt_tbl: GT):
+    row_groups = RowGroups(["x"])
+    new_gt_tbl = gt_tbl._replace(_row_groups=row_groups)
 
+    assert new_gt_tbl._row_groups is row_groups
+
+
+def test_gt_object_prerender(gt_tbl: GT):
     assert type(gt_tbl).__name__ == "GT"
 
     # Assert that certain private variables exist with a
@@ -32,13 +39,14 @@ def test_gt_object_prerender(gt_tbl: GT):
 
 
 def test_gt_table_render(gt_tbl: GT):
-
     # Assert that a table render process will generate a string object
     assert type(gt_tbl.render(context="html")).__name__ == "str"
 
     assert (
         type(
-            gt_tbl.tab_header(title="Title of Table", subtitle="The Subtitle").render(context="html")
+            gt_tbl.tab_header(title="Title of Table", subtitle="The Subtitle").render(
+                context="html"
+            )
         ).__name__
         == "str"
     )

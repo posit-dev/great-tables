@@ -3,21 +3,23 @@ import polars as pl
 import polars.testing
 import pytest
 
-from great_tables._tbl_data import _get_cell, _get_column_dtype, _set_cell, get_column_names, DataFrameLike, reorder
+from great_tables._tbl_data import (
+    _get_cell,
+    _get_column_dtype,
+    _set_cell,
+    get_column_names,
+    DataFrameLike,
+    reorder,
+    eval_select,
+)
 
 
-params_frames = [
-    pytest.param(pd.DataFrame, id="pandas"),
-    pytest.param(pl.DataFrame, id="polars")
-]
+params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars")]
+
 
 @pytest.fixture(params=params_frames, scope="function")
 def df(request) -> pd.DataFrame:
-    return request.param({
-        'col1': [1, 2, 3],
-        'col2': ['a', 'b', 'c'],
-        'col3': [4.0, 5.0, 6.0]
-    })
+    return request.param({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
 
 
 def assert_frame_equal(src, target):
@@ -30,7 +32,7 @@ def assert_frame_equal(src, target):
 
 
 def test_get_column_names(df: DataFrameLike):
-    expected = ['col1', 'col2', 'col3']
+    expected = ["col1", "col2", "col3"]
     assert get_column_names(df) == expected
 
 
@@ -39,16 +41,12 @@ def test_get_column_dtypes(df: DataFrameLike):
 
 
 def test_get_cell(df: DataFrameLike):
-    assert _get_cell(df, 1, 'col2') == 'b'
+    assert _get_cell(df, 1, "col2") == "b"
 
 
 def test_set_cell(df: DataFrameLike):
-    expected = df.__class__({
-        'col1': [1, 2, 3],
-        'col2': ['a', 'x', 'c'],
-        'col3': [4.0, 5.0, 6.0]
-    })
-    _set_cell(df, 1, 'col2', 'x')
+    expected = df.__class__({"col1": [1, 2, 3], "col2": ["a", "x", "c"], "col3": [4.0, 5.0, 6.0]})
+    _set_cell(df, 1, "col2", "x")
     assert_frame_equal(df, expected)
 
 
@@ -60,3 +58,8 @@ def test_reorder(df: DataFrameLike):
         dst.index = pd.Index([0, 2])
 
     assert_frame_equal(res, dst)
+
+
+def test_eval_select_with_list(df: DataFrameLike):
+    sel = eval_select(df, ["col2", "col1"])
+    assert sel == [("col2", 1), ("col1", 0)]

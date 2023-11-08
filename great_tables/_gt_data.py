@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+
 from typing import overload, TypeVar
 from typing_extensions import Self
 from dataclasses import dataclass, field, replace
@@ -34,8 +36,12 @@ class GTData:
     _options: Options
     _has_built: bool = False
 
-    def replace(self, **kwargs: Any) -> Self:
-        return replace(self, **kwargs)
+    def _replace(self, **kwargs) -> Self:
+        # TODO: may want to validate that kwargs should be an attribute on GT
+        new_obj = copy.copy(self)
+        new_obj.__dict__.update(kwargs)
+
+        return new_obj
 
     @classmethod
     def from_data(
@@ -98,6 +104,9 @@ class _Sequence(Sequence[T]):
 
     def __repr__(self):
         return f"{type(self).__name__}({self._d.__repr__()})"
+
+    def __eq__(self, other: Any) -> bool:
+        return (type(self) is type(other)) and (self._d == other._d)
 
 
 # Body ----
@@ -206,6 +215,15 @@ class Boxhead(_Sequence[ColInfo]):
 
     def vars_from_type(self, type: ColInfoTypeEnum) -> List[str]:
         return [x.var for x in self._d if x.type == type]
+
+    def reorder(self, vars: List[str]) -> Self:
+        boxh_vars = [col.var for col in self]
+        if set(vars) != set(boxh_vars):
+            raise ValueError("Reordering vars must contain all boxhead vars.")
+
+        new_order = [boxh_vars.index(var) for var in vars]
+
+        return self[new_order]
 
     # Get a list of columns
     def _get_columns(self) -> List[str]:
@@ -335,23 +353,12 @@ class SpannerInfo:
     spanner_units: str | None = None
     spanner_pattern: str | None = None
     vars: list[str] = field(default_factory=lambda: [])
-    gather: Optional[bool] = None
     built: Optional[str] = None
 
 
 class Spanners(_Sequence[SpannerInfo]):
     _d: list[SpannerInfo]
 
-    # The `spanners` DataFrame is used to handle spanner ID
-    # and text, the spanner level, the association to column names,
-    # whether the spanner is to gather columns, and the built
-    # form of the spanner label (depending on the output context)
-    # 0: `vars` (empty list, str)
-    # 1: `spanner_label` (empty list, str)
-    # 2: `spanner_id` (empty, str)
-    # 3: `spanner_level` (empty, int)
-    # 4: `gather` (empty, bool)
-    # 5: `built` (empty, str)
     @classmethod
     def from_ids(cls, ids: list[str]):
         """Construct an object from a list of spanner_ids"""
@@ -383,8 +390,8 @@ class Spanners(_Sequence[SpannerInfo]):
 
         return max(overlapping_levels, default=-1) + 1
 
-    def append_entry(self, span: SpannerInfo):
-        self.__class__(self._d + [span])
+    def append_entry(self, span: SpannerInfo) -> Self:
+        return self.__class__(self._d + [span])
 
 
 # Heading ---

@@ -1,7 +1,14 @@
+import pandas as pd
 import pytest
 
-from great_tables._spanners import spanners_print_matrix, empty_spanner_matrix
+from great_tables._spanners import (
+    spanners_print_matrix,
+    empty_spanner_matrix,
+    tab_spanner,
+    cols_move,
+)
 from great_tables._gt_data import Spanners, SpannerInfo, Boxhead, ColInfo, ColInfoTypeEnum
+from great_tables import GT
 
 
 @pytest.fixture
@@ -67,3 +74,47 @@ def test_empty_spanner_matrix_arg_omit_columns_row():
 
     assert vars == ["a", "b"]
     assert mat == []
+
+
+def test_tab_spanners_with_columns():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    src_gt = GT(df)
+
+    dst_span = SpannerInfo("a_spanner", 0, "a_spanner", vars=["b", "a"])
+
+    new_gt = tab_spanner(src_gt, "a_spanner", columns=["b", "a"], gather=False)
+    assert len(new_gt._spanners)
+    assert new_gt._spanners[0] == dst_span
+
+
+def test_tab_spanners_with_spanner_ids():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    src_gt = GT(df)
+
+    # we'll be testing for this second spanner added
+    dst_span = SpannerInfo("b_spanner", 1, "b_spanner", vars=["c", "b", "a"])
+
+    gt_with_span = tab_spanner(src_gt, "a_spanner", columns=["b", "a"], gather=False)
+
+    new_gt = tab_spanner(gt_with_span, "b_spanner", spanners="a_spanner", columns=["c"])
+
+    assert len(new_gt._spanners) == 2
+    assert new_gt._spanners[1] == dst_span
+
+
+def test_tab_spanners_with_gather():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    src_gt = GT(df)
+
+    new_gt = tab_spanner(src_gt, "a_spanner", columns=["a", "c"], gather=True)
+
+    assert len(new_gt._spanners) == 1
+    assert [col.var for col in new_gt._boxhead] == ["a", "c", "b"]
+
+
+def test_cols_move():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    src_gt = GT(df)
+
+    new_gt = cols_move(src_gt, columns=["a"], after="b")
+    assert [col.var for col in new_gt._boxhead] == ["b", "a", "c"]
