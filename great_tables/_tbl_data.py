@@ -199,13 +199,14 @@ def eval_select(data: DataFrameLike, expr: Any, strict: bool = True) -> _NamePos
 
 @eval_select.register
 def _(data: PdDataFrame, expr: Union[List[str], Callable[[str], bool]], strict=True) -> _NamePos:
+    col_pos = {k: ii for ii, k in enumerate(data.columns)}
     if isinstance(expr, list):
         # TODO: should prohibit duplicate names in expr?
-        return [(col, ii) for ii, col in enumerate(expr) if col in data.columns]
+        return [(col, col_pos[col]) for col in expr if col in data.columns]
     elif callable(expr):
         # TODO: currently, we call on each string, but we could be calling on
         # pd.DataFrame.columns instead (which would let us use pandas .str methods)
-        return [(col, ii) for ii, col in enumerate(data.columns) if expr(col)]
+        return [(col, col_pos[col]) for col in data.columns if expr(col)]
 
     raise NotImplementedError(f"Unsupported selection expr: {expr}")
 
@@ -217,6 +218,8 @@ def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) 
     from polars import Expr
     from polars import selectors
 
+    col_pos = {k: ii for ii, k in enumerate(data.columns)}
+
     # just in case _selector_proxy_ gets renamed or something
     # it inherits from Expr, so we can just use that in a pinch
     cls_selector = getattr(selectors, "_selector_proxy_", Expr)
@@ -225,4 +228,4 @@ def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) 
         raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
     # I don't think there's a way to get the columns w/o running the selection
-    return [(col, ii) for ii, col in enumerate(data.select(expr).columns)]
+    return [(col, col_pos[col]) for col in data.select(expr).columns]
