@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Union, Callable, TYPE_CHECKING
+from typing import Any, List, Union, Callable, Tuple, TYPE_CHECKING
 from ._databackend import AbstractBackend
 from functools import singledispatch
 
@@ -187,29 +187,31 @@ def _(data: PlDataFrame, rows: List[int], columns: List[str]) -> PlDataFrame:
 
 # eval_select ----
 
+_NamePos = List[Tuple[str, int]]
+
 
 @singledispatch
-def eval_select(data: DataFrameLike, expr: Any, strict: bool = True) -> List[str]:
+def eval_select(data: DataFrameLike, expr: Any, strict: bool = True) -> _NamePos:
     """Return a list of column names selected by expr."""
 
     raise NotImplementedError(f"Unsupported type: {type(expr)}")
 
 
 @eval_select.register
-def _(data: PdDataFrame, expr: Union[List[str], Callable[[str], bool]]) -> List[str]:
+def _(data: PdDataFrame, expr: Union[List[str], Callable[[str], bool]], strict=True) -> _NamePos:
     if isinstance(expr, list):
         # TODO: should prohibit duplicate names in expr?
-        return [col for col in expr if col in data.columns]
+        return [(col, ii) for ii, col in enumerate(expr) if col in data.columns]
     elif callable(expr):
         # TODO: currently, we call on each string, but we could be calling on
         # pd.DataFrame.columns instead (which would let us use pandas .str methods)
-        return [col for col in data.columns if expr(col)]
+        return [(col, ii) for ii, col in enumerate(data.columns) if expr(col)]
 
     raise NotImplementedError(f"Unsupported selection expr: {expr}")
 
 
 @eval_select.register
-def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) -> List[str]:
+def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) -> _NamePos:
     # TODO: how to annotate type of a polars selector?
     # Seems to be polars.selectors._selector_proxy_.
     from polars import Expr
@@ -223,4 +225,4 @@ def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) 
         raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
     # I don't think there's a way to get the columns w/o running the selection
-    return data.select(expr).columns
+    return [(col, ii) for ii, col in enumerate(data.select(expr).columns)]

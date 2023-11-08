@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any, List, cast
+from typing_extensions import Self
 import pkg_resources
 
 import sass
@@ -93,6 +94,13 @@ class GT(
         # This is a bad idea ----
         gtdata = GTData.from_data(data, locale=locale, **kwargs)
         super().__init__(**gtdata.__dict__)
+
+    def _replace(self, **kwargs) -> Self:
+        # TODO: may want to validate that kwargs should be an attribute on GT
+        new_obj = copy.copy(self)
+        new_obj.__dict__.update(kwargs)
+
+        return new_obj
 
     # TODO: Refactor API methods -----
     fmt_number = fmt_number

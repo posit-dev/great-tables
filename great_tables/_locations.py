@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Literal, get_origin, get_type_hints
 # resolve generic, but we need to import at runtime, due to singledispatch looking
 # up annotations
 from ._gt_data import GTData, Spanners, ColInfoTypeEnum
+from ._tbl_data import eval_select
 
 
 if TYPE_CHECKING:
@@ -193,9 +194,8 @@ def resolve_cols_i(
         tbl_data = data._tbl_data
         cols_excl = []
 
-
-def eval_select(expr: list[str], data: TblData, strict: bool = True) -> list[str]:
-    """Return a list of column names selected by expr."""
+    selected = eval_select(tbl_data, expr, strict)
+    return [name_pos for name_pos in selected if name_pos[0] not in cols_excl]
 
 
 # Resolve generic ======================================================================

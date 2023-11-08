@@ -1,7 +1,9 @@
+import pandas as pd
 import pytest
 
-from great_tables._spanners import spanners_print_matrix, empty_spanner_matrix
+from great_tables._spanners import spanners_print_matrix, empty_spanner_matrix, tab_spanner
 from great_tables._gt_data import Spanners, SpannerInfo, Boxhead, ColInfo, ColInfoTypeEnum
+from great_tables import GT
 
 
 @pytest.fixture
@@ -67,3 +69,14 @@ def test_empty_spanner_matrix_arg_omit_columns_row():
 
     assert vars == ["a", "b"]
     assert mat == []
+
+
+def test_tab_spanners_simple():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    src_gt = GT(df)
+
+    dst_span = Spanners([SpannerInfo("a_spanner", 0, "a_spanner", vars=["b", "a"])])
+
+    new_gt = tab_spanner(src_gt, "a_spanner", columns=["b", "a"], gather=False)
+    assert len(new_gt._spanners)
+    assert new_gt._spanners == dst_span

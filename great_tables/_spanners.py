@@ -24,7 +24,41 @@ def tab_spanner(
     gather: bool = True,
     replace: bool = False,
 ):
+    """Insert a spanner in the column labels part of a gt table.
+
+    This part of the table contains, at a minimum, column labels and, optionally, an
+    unlimited number of levels for spanners. A spanner will occupy space over any number
+    of contiguous column labels and it will have an associated label and ID value. This
+    function allows for mapping to be defined by column names, existing spanner ID values,
+    or a mixture of both.
+
+    The spanners are placed in the order of calling tab_spanner() so if a later call uses
+    the same columns in its definition (or even a subset) as the first invocation, the
+    second spanner will be overlaid atop the first. Options exist for forcibly inserting a
+    spanner underneath other (with level as space permits) and with replace, which allows
+    for full or partial spanner replacement.
+
+    Parameters
+    ----------
+    label:
+        Spanner label text.
+    columns:
+        Columns to target.
+    spanners:
+        Spanners to target.
+    level:
+        Spanner level for insertion.
+    id:
+        Spanner ID.
+    gather:
+        Gather columns together.
+    replace:
+        Replace existing spanners.
+    """
     crnt_spanner_ids = [span.spanner_id for span in data._spanners]
+
+    if id is None:
+        id = label
 
     # validations ----
     if level is not None and level < 0:
@@ -38,7 +72,7 @@ def tab_spanner(
         # TODO: null_means is unimplemented
         raise NotImplementedError()
 
-    column_names = resolve_cols_c(columns, data, null_means="nothing")
+    selected_column_names = resolve_cols_c(columns, data, null_means="nothing")
 
     # select spanner ids ----
     # TODO: this supports tidyselect
@@ -49,12 +83,16 @@ def tab_spanner(
     else:
         spanner_ids = crnt_spanner_ids
 
-    if not len(column_names) and not len(spanner_ids):
+    if not len(selected_column_names) and not len(spanner_ids):
         return data
 
     # get column names associated with selected spanners ----
     _vars = [span.vars for span in data._spanners if span.spanner_id in spanner_ids]
-    column_names = list({k: True for k in itertools.chain(*_vars)})
+    spanner_column_names = list({k: True for k in itertools.chain(*_vars)})
+
+    column_names = list({k: True for k in [*selected_column_names, *spanner_column_names]})
+
+    # combine columns names and those from spanners ----
 
     # get spanner level ----
     if level is None:
@@ -72,12 +110,11 @@ def tab_spanner(
         spanner_units=spanner_units,
         spanner_pattern=spanner_pattern,
         spanner_label=label,
-        gather=gather,
     )
 
     spanners = data._spanners.append_entry(new_span)
 
-    new_data = data.replace(_spanners=spanners)
+    new_data = data._replace(_spanners=spanners)
 
     if gather and not len(spanner_ids) and level == 0:
         return cols_move(new_data, columns=column_names, after=column_names[0])
