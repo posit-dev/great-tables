@@ -1442,13 +1442,19 @@ def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
     if locale is None:
         return "USD"
 
-    # Get the correct `decimal` value row from the locales lookup table
+    # Get the correct 'locale' value row from the `__x_locales` lookup table
     pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
+
+    # Extract the 'currency_code' cell value from this 1-row DataFrame
     currency_code = pd_df_row.iloc[0]["currency_code"]
+
+    # Ensure that `currency_code` is of the type 'str'
     currency_code: Any
     if not isinstance(currency_code, str):
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
 
+    # If the field isn't populated, we'll obtain an empty string; in such a case we fall
+    # back to using the 'USD' currency code
     if currency_code == "":
         currency_code = "USD"
 
