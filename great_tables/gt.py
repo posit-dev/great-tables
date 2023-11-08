@@ -353,6 +353,27 @@ def _stub_rownames_has_column(data: GT) -> bool:
     return "row_id" in _get_stub_components(data=data)
 
 
+# Determine whether the table has any row labels or row groups defined and provide
+# a simple list that contains at a maximum two components
+def _get_stub_components(data: GT):
+    # TODO: we should be using `row_id` instead of `rowname`
+    # Obtain the object that describes the table stub
+    tbl_stub = data._stub
+
+    # Get separate lists of `group_id` and `row_id` values from the `_stub` object
+    group_id_vals = [tbl_stub[i].group_id for i in range(len(tbl_stub))]
+    rowname_vals = [tbl_stub[i].rowname for i in range(len(tbl_stub))]
+
+    stub_components: list[str] = []
+
+    if any(x is not None for x in group_id_vals):
+        stub_components.append("group_id")
+
+    if any(x is not None for x in rowname_vals):
+        stub_components.append("row_id")
+
+    return stub_components
+
 def _create_source_notes_component(data: GT) -> str:
     source_notes = data._source_notes.source_notes
 
