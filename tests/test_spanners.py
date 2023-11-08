@@ -102,6 +102,16 @@ def test_tab_spanners_with_spanner_ids():
     assert new_gt._spanners[1] == dst_span
 
 
+def test_tab_spanners_with_gather():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    src_gt = GT(df)
+
+    new_gt = tab_spanner(src_gt, "a_spanner", columns=["a", "c"], gather=True)
+
+    assert len(new_gt._spanners) == 1
+    assert [col.var for col in new_gt._boxhead] == ["a", "c", "b"]
+
+
 def test_cols_move():
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
     src_gt = GT(df)
