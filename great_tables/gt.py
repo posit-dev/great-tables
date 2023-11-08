@@ -347,6 +347,12 @@ def _get_stub_layout(data: GT) -> List[str]:
 
     return stub_layout
 
+
+# Determine whether the table should have row labels set within a column in the stub
+def _stub_rownames_has_column(data: GT) -> bool:
+    return "row_id" in _get_stub_components(data=data)
+
+
 def _create_source_notes_component(data: GT) -> str:
     source_notes = data._source_notes.source_notes
 
