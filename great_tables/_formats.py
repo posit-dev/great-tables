@@ -1275,6 +1275,7 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
     locales_list = _get_locales_list()
     default_locales_list = _get_default_locales_list()
 
+    # Replace any underscores with hyphens
     supplied_locale = _str_replace(locale, "_", "-")
 
     # Stop if the `locale` provided isn't a valid one
