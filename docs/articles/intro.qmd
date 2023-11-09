@@ -102,3 +102,9 @@ In the future, you'll be able to export to a file using gtsave().
 
 ![](/assets/gt_workflow_diagram.svg)
 
+
+## Datasets
+
+`great_tables` includes a bunch of datasets that you can format to your heart's content.
+
+* TODO: list datasets, with links to reference.
