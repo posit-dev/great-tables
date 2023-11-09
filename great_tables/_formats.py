@@ -944,17 +944,10 @@ def fmt_currency(
         # If not providing a `currency` code, we can obtain the currency code from the locale
         currency_resolved = _get_locale_currency_code(locale=locale)
     else:
-        currency_resolved = "USD"
-
-    # Stop if `currency` does not have a valid value
-    # TODO: requires implementation of `_validate_currency()`
-    # _validate_currency(currency=currency)
-
-    # Get the number of decimal places
-    # TODO: requires implementation of `_get_currency_decimals()`
-    # decimals = _get_currency_decimals(
-    #     currency=currency, decimals=decimals, use_subunits=use_subunits
-    # )
+        # Cast the `currency` value to a string
+        currency_resolved = str(currency)
+        # Stop if `currency_resolved` does not have a valid value
+        _validate_currency(currency=currency_resolved)
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_currency_fn(
