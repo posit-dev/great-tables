@@ -136,7 +136,7 @@ def cols_move(data: GTData, columns: list[str], after: str):
 
     vars = [col.var for col in data._boxhead]
 
-    if len(after) > 1:
+    if len(sel_after) > 1:
         raise ValueError(f"Only 1 value should be supplied to `after`, recieved argument: {after}")
     elif after not in vars:
         raise ValueError(f"Column {after} not found in table.")
