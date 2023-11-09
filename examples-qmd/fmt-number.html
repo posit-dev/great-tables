@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables – fmt-number</title>
+<title>great_tables - fmt_number</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,6 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../examples-qmd/GT.html" rel="next">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -100,7 +101,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="nav-fixed">
+<body class="nav-sidebar floating nav-fixed">
 
 
 <div id="quarto-search-results"></div>
@@ -118,10 +119,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../articles/intro.html" rel="" target="">
- <span class="menu-text">Intro</span></a>
-  </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-articles" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
  <span class="menu-text">Articles</span>
@@ -137,6 +134,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../reference/index.html" rel="" target="">
  <span class="menu-text">Function reference</span></a>
   </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-development" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Development</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-development">    
+        <li>
+    <a class="dropdown-item" href="../examples-qmd/fmt-number.html" rel="" target="">
+ <span class="dropdown-text">examples</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../changelog.html" rel="" target="">
  <span class="menu-text">Changelog</span></a>
@@ -154,10 +162,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../examples-qmd/fmt-number.html">fmt_number</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../examples-qmd/fmt-number.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">fmt_number</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../examples-qmd/GT.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GT</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../examples-qmd/intro-old.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Original GT Intro</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../examples-qmd/tab-spanner.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">tab_spanner</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../examples-qmd/table-manipulation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">table manipulation</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
@@ -165,7 +220,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">fmt_number</h1>
+</div>
 
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
 
 <div class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables <span class="im">as</span> gt</span>
@@ -174,13 +244,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Use the exibble dataset to create a gt table. With the <code>fmt_number()</code> method, we’ll format the num column to have three decimal places (with <code>decimals=3</code>) and omit the use of digit separators (with <code>use_seps=False</code>).</p>
 <div class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gt.GT(exibble).fmt_number(columns<span class="op">=</span><span class="st">'num'</span>, decimals<span class="op">=</span><span class="dv">3</span>).cols_label(char <span class="op">=</span> <span class="st">"character"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/great_tables/_tbl_data.py:149: SettingWithCopyWarning: 
-A value is trying to be set on a copy of a slice from a DataFrame
-
-See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  data[column][row] = value</code></pre>
-</div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 
 <div style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
@@ -667,20 +730,20 @@ html {
 </div>
 <p>Use a modified version of the countrypops dataset to create a gt table with row labels. Format all columns to use large-number suffixing (e.g., where <code>'10,000,000'</code> becomes <code>'10M'</code>) with the <code>suffixing=True</code> option.</p>
 <div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> siuba <span class="im">import</span> <span class="op">*</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> (countrypops</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> select(_.country_code_3, _.year, _.population)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> <span class="bu">filter</span>(_.country_code_3.isin([<span class="st">'CHN'</span>, <span class="st">'IND'</span>, <span class="st">'USA'</span>, <span class="st">'PAK'</span>, <span class="st">'IDN'</span>]))</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> <span class="bu">filter</span>(_.year <span class="op">&gt;</span> <span class="dv">1975</span>, _.year <span class="op">%</span> <span class="dv">5</span> <span class="op">==</span> <span class="dv">0</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> spread(_.year, _.population)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> arrange(<span class="op">-</span>_[<span class="dv">2015</span>])</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: implement `suffixing`</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>(gt.GT(res)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>   .fmt_integer(columns<span class="op">=</span><span class="dv">1980</span>, scale_by<span class="op">=</span><span class="dv">1</span><span class="op">/</span><span class="dv">10000</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>   .fmt_number(columns<span class="op">=</span><span class="dv">1985</span>)</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> siuba <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> (countrypops</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> select(_.country_code_3, _.year, _.population)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> <span class="bu">filter</span>(_.country_code_3.isin([<span class="st">'CHN'</span>, <span class="st">'IND'</span>, <span class="st">'USA'</span>, <span class="st">'PAK'</span>, <span class="st">'IDN'</span>]))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> <span class="bu">filter</span>(_.year <span class="op">&gt;</span> <span class="dv">1975</span>, _.year <span class="op">%</span> <span class="dv">5</span> <span class="op">==</span> <span class="dv">0</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> spread(_.year, _.population)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> arrange(<span class="op">-</span>_[<span class="dv">2015</span>])</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: implement `suffixing`</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>(gt.GT(res)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>   .fmt_integer(columns<span class="op">=</span><span class="dv">1980</span>, scale_by<span class="op">=</span><span class="dv">1</span><span class="op">/</span><span class="dv">10000</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>   .fmt_number(columns<span class="op">=</span><span class="dv">1985</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-error">
 <pre><code>TypeError: Invalid value '98,124' for dtype Int64</code></pre>
 </div>
@@ -697,33 +760,33 @@ html {
 2  1154638713  1240613620  1322866505  1396387127  
 4   295516599   309327143   320738994   331511512  
 1   228805144   244016173   259091970   271857970  
-3   174372098   194454498   210969298   227196741  , _body=&lt;great_tables._gt_data.Body object at 0x7fc73d15b310&gt;, _boxhead=Boxhead([ColInfo(var='country_code_3', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='country_code_3', column_align=None, column_width=None), ColInfo(var=1980, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1980, column_align=None, column_width=None), ColInfo(var=1985, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1985, column_align=None, column_width=None), ColInfo(var=1990, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1990, column_align=None, column_width=None), ColInfo(var=1995, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1995, column_align=None, column_width=None), ColInfo(var=2000, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2000, column_align=None, column_width=None), ColInfo(var=2005, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2005, column_align=None, column_width=None), ColInfo(var=2010, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2010, column_align=None, column_width=None), ColInfo(var=2015, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2015, column_align=None, column_width=None), ColInfo(var=2020, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2020, column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7fc73cff71c0&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7fc73cff64a0&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7fc73cff6710&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7fc73cff5e10&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7fc73cff63e0&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7fc73d043580&gt;, &lt;great_tables._gt_data.FormatInfo object at 0x7fc73d043700&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7fc73cff5d20&gt;, _has_built=False)</code></pre>
+3   174372098   194454498   210969298   227196741  , _body=&lt;great_tables._gt_data.Body object at 0x7f189dfb3880&gt;, _boxhead=Boxhead([ColInfo(var='country_code_3', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='country_code_3', column_align=None, column_width=None), ColInfo(var=1980, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1980, column_align=None, column_width=None), ColInfo(var=1985, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1985, column_align=None, column_width=None), ColInfo(var=1990, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1990, column_align=None, column_width=None), ColInfo(var=1995, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1995, column_align=None, column_width=None), ColInfo(var=2000, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2000, column_align=None, column_width=None), ColInfo(var=2005, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2005, column_align=None, column_width=None), ColInfo(var=2010, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2010, column_align=None, column_width=None), ColInfo(var=2015, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2015, column_align=None, column_width=None), ColInfo(var=2020, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2020, column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f18a45074c0&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f18a45067a0&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f18a4506a10&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f18a4506110&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f18a45066e0&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7f18a4543880&gt;, &lt;great_tables._gt_data.FormatInfo object at 0x7f18a4543a00&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7f18a4506020&gt;, _has_built=False)</code></pre>
 </div>
 </div>
 <p>In a variation of the previous table, we can combine large-number suffixing with a declaration of the number of significant digits to use. With things like population figures, <code>n_sigfig=3</code> is a very good option.</p>
 <div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#countrypops |&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::select(country_code_3, year, population) |&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::filter(country_code_3 %in% c('CHN', 'IND', 'USA', 'PAK', 'IDN')) |&gt;</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::filter(year &gt; 1975 &amp; year %% 5 == 0) |&gt;</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  tidyr::spread(year, population) |&gt;</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::arrange(desc(`2015`)) |&gt;</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  gt(rowname_col='country_code_3') |&gt;</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  fmt_number(suffixing=True, n_sigfig=3)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#countrypops |&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::select(country_code_3, year, population) |&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::filter(country_code_3 %in% c('CHN', 'IND', 'USA', 'PAK', 'IDN')) |&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::filter(year &gt; 1975 &amp; year %% 5 == 0) |&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  tidyr::spread(year, population) |&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::arrange(desc(`2015`)) |&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  gt(rowname_col='country_code_3') |&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  fmt_number(suffixing=True, n_sigfig=3)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>There can be cases where you want to show numbers to a large number of decimal places but also drop the unnecessary trailing zeros for low-precision values. Let’s take a portion of the towny dataset and format the latitude and longitude columns with <code>fmt_number()</code>. We’ll have up to 5 digits displayed as decimal values, but we’ll also unconditionally drop any runs of trailing zeros in the decimal part with <code>drop_trailing_zeros=True</code>.</p>
 <div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>towny <span class="op">|&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  dplyr::select(name, latitude, longitude) <span class="op">|&gt;</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  dplyr::slice_head(n<span class="op">=</span><span class="dv">10</span>) <span class="op">|&gt;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  gt() <span class="op">|&gt;</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  fmt_number(decimals<span class="op">=</span><span class="dv">5</span>, drop_trailing_zeros<span class="op">=</span><span class="va">True</span>) <span class="op">|&gt;</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># replace -name with [latitude, longitude]</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">## cols_merge(columns=-name, pattern='{1}, {2}') |&gt;</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  cols_label(</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    name<span class="op">~</span><span class="st">'Municipality'</span>,</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    latitude<span class="op">=</span><span class="st">'Location'</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>towny <span class="op">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  dplyr::select(name, latitude, longitude) <span class="op">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  dplyr::slice_head(n<span class="op">=</span><span class="dv">10</span>) <span class="op">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  gt() <span class="op">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  fmt_number(decimals<span class="op">=</span><span class="dv">5</span>, drop_trailing_zeros<span class="op">=</span><span class="va">True</span>) <span class="op">|&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># replace -name with [latitude, longitude]</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">## cols_merge(columns=-name, pattern='{1}, {2}') |&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  cols_label(</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    name<span class="op">~</span><span class="st">'Municipality'</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    latitude<span class="op">=</span><span class="st">'Location'</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
@@ -962,6 +1025,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../examples-qmd/GT.html" class="pagination-link">
+        <span class="nav-page-text">GT</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 
