@@ -1,4 +1,5 @@
 ---
+title: table manipulation
 output: html
 jupyter: python3
 ---
