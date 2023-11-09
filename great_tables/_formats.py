@@ -1602,3 +1602,18 @@ def _validate_currency(currency: str) -> None:
 
     return
 
+
+def _get_currency_decimals(currency: str, decimals: Optional[int], use_subunits: bool) -> int:
+    # Get the number of decimal places
+
+    if decimals is not None:
+        return decimals
+
+    if decimals is None and use_subunits:
+        decimals = _get_currency_exponent(currency=currency)
+    elif decimals is None and not use_subunits:
+        decimals = 0
+
+    assert decimals is not None
+    return decimals
+
