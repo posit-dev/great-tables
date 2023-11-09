@@ -39,7 +39,7 @@ from great_tables._stubhead import StubheadAPI
 
 # from ._helpers import random_id
 # from ._body import Body
-from ._text import StringBuilder
+from ._text import StringBuilder, _process_text
 from ._utils import _as_css_font_family_attr, _unique_set
 from ._tbl_data import n_rows, _get_cell
 
