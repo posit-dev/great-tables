@@ -1482,6 +1482,14 @@ def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
 
 
 def _get_locales_list() -> List[str]:
+    """
+    Returns a list of locales as strings.
+
+    Raises:
+        TypeError: If the first element of the locale list is not a string.
+    """
+
+    # Get the 'locales' dataset and obtain from that a list of locales
     locales = _get_locales_data()
     locale_list = locales["locale"].tolist()
 
