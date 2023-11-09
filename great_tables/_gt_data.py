@@ -246,6 +246,36 @@ class Boxhead(_Sequence[ColInfo]):
         visible_columns = [x.var for x in self._d if x.visible is True]
         return visible_columns
 
+    # Get a list of visible column labels
+    def _get_visible_column_labels(self) -> List[str]:
+        visible_column_labels = [x.column_label for x in self._d if x.visible is True]
+        return visible_column_labels
+
+    def _get_visible_alignments(self) -> List[str]:
+        # Get the column alignments and also the alignment class names
+        boxh = self._boxhead
+
+        # Filter boxh to only include visible columns
+        alignments = [x.align for x in boxh if x.visible]
+
+        return alignments
+
+    # Get the alignment for a specific var value
+    def _get_boxhead_get_alignment_by_var(self, var: str) -> str:
+        # Get the column alignments and also the alignment class names
+        boxh = self._boxhead
+
+        # Filter boxh to only include visible columns
+        alignments = [x.align for x in boxh if x.visible]
+
+        # Get the index of the var in the boxh
+        var_index = boxh.index(var)
+
+        # Get the alignment for the var
+        alignment = alignments[var_index]
+
+        return alignment
+
     # Get the number of columns for the visible (not hidden) data; this
     # excludes the number of columns required for the table stub
     def _get_number_of_visible_data_columns(self) -> int:
