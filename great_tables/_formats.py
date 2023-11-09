@@ -1524,6 +1524,18 @@ def _get_default_locales_list() -> List[str]:
 
 
 def _validate_locale(locale: Union[str, None] = None) -> None:
+    """
+    Validates the given locale string against a list of supported locales.
+
+    Args:
+        locale (str or None): The locale string to validate. If None, the function returns without
+        doing anything.
+
+    Raises:
+        ValueError: If the supplied `locale` is not available in the list of supported locales.
+    """
+
+    # If `locale` is None then return without doing anything (nothing to validate)
     if locale is None:
         return
 
