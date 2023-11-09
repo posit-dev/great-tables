@@ -1,0 +1,63 @@
+---
+title: Original GT Intro
+jupyter: python3
+---
+
+```{python}
+from great_tables import GT, md
+from great_tables.data import islands
+```
+
+```{python}
+islands
+```
+
+```{python}
+# Create a display table showing ten of
+# the largest islands in the world
+gt_tbl = GT(islands)
+
+# Show the gt Table
+gt_tbl
+```
+
+
+```{python}
+gt_tbl2 = (
+    gt_tbl
+    .tab_header(
+        title = "Large Landmasses of the World",
+        subtitle = "The top ten largest are presented"
+    )
+)
+
+gt_tbl2
+```
+
+
+```{python}
+# TODO: md
+(
+    GT(islands.head(2))
+    .tab_header(
+        title = md("**Large Landmasses of the World**"),
+        subtitle = md("The **top two** largest are presented")
+    )
+)
+```
+
+
+```{python}
+gt_tbl3 = (
+    gt_tbl2
+    .tab_source_note(source_note = "Source: The World Almanac and Book of Facts, 1975, page 406.")
+    .tab_source_note(source_note = md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley."))
+)
+
+gt_tbl3
+```
+
+
+```{python}
+gt_tbl
+```
