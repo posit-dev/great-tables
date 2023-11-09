@@ -53,7 +53,7 @@ def _process_text(x: Union[Text, str, None]) -> str:
 
     if type == "from_markdown":
         x_out = _md_html(text)
-    if type == "html":
+    elif type == "html":
         x_out = text
     else:
         # TODO: Perform HTML escaping
