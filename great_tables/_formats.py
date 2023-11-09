@@ -813,7 +813,7 @@ def fmt_currency(
     rows: Union[int, List[int], None] = None,
     currency: Optional[int] = None,
     use_subunits: bool = True,
-    decimals: int = 2,
+    decimals: Optional[int] = None,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
     # accounting: bool = False,
