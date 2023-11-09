@@ -528,9 +528,9 @@ def fmt_scientific(
         m_part = sci_parts[0]
         n_part = sci_parts[1]
 
+        # Remove trailing zeros and decimal marks from the `m_part`
         if drop_trailing_zeros:
             m_part = m_part.rstrip("0")
-
         if drop_trailing_dec_mark:
             m_part = m_part.rstrip(".")
 
@@ -539,8 +539,11 @@ def fmt_scientific(
             m_part = "+" + m_part
 
         if exp_style == "x10n":
-            # Determine which values don't require the (x 10^n)
-            # for scientific formatting since their order would be zero
+            # Define the exponent string based on the `exp_style` that is the default
+            # ('x10n'); this is styled as 'x 10^n' instead of using a fixed symbol like 'E'
+
+            # Determine which values don't require the (x 10^n) for scientific formatting
+            # since their order would be zero
             small_pos = _has_sci_order_zero(value=x)
 
             # Force the positive sign to be present if the `force_sign_n` option is taken
@@ -552,16 +555,20 @@ def fmt_scientific(
             n_part = _replace_minus(n_part, minus_mark=minus_mark)
 
             if small_pos:
-                # Create the formatted string based on only the `m_part`
+                # If the value is small enough to not require the (x 10^n) notation, then
+                # the formatted value is based on only the `m_part`
                 x_formatted = m_part
             else:
-                # Define the marks by context
+                # Get the set of exponent marks, which are used to decorate the `n_part`
                 exp_marks = _context_exp_marks()
 
                 # Create the formatted string based on `exp_marks` and the two `sci_parts`
                 x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
 
         else:
+            # Define the exponent string based on the `exp_style` that's not the default
+            # value of 'x10n'
+
             exp_str = _context_exp_str(exp_style=exp_style)
 
             n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
