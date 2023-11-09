@@ -179,6 +179,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>gt.GT(res).tab_header(</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"Data listing from **gtcars**"</span>, subtitle<span class="op">=</span><span class="st">"`gtcars` is an R dataset"</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>).fmt_number(columns<span class="op">=</span><span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">2</span>, scale_by<span class="op">=</span><span class="dv">1</span> <span class="op">/</span> <span class="dv">10000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/great_tables/_tbl_data.py:149: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  data[column][row] = value</code></pre>
+</div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 
 <div style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
@@ -599,7 +606,7 @@ html {
 </div>
 </div>
 <div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gt.GT(exibble.iloc[[<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">7</span>, <span class="dv">1</span>],], groupname_col<span class="op">=</span><span class="st">"group"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>gt.GT(exibble.iloc[[<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">7</span>, <span class="dv">1</span>],], groupname_col<span class="op">=</span><span class="st">"group"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 
 <div style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
@@ -1041,13 +1048,13 @@ html {
 </div>
 </div>
 <div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> gtcars <span class="op">&gt;&gt;</span> select(_.mfr, _.model, _.msrp) <span class="op">&gt;&gt;</span> _.head(<span class="dv">5</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Make `html()` work</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>gt.GT(res).tab_header(</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span>html(<span class="st">"Data listing from &lt;strong&gt;gtcars&lt;/strong&gt;"</span>),</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    subtitle<span class="op">=</span>html(<span class="st">"From &lt;span style='color:red;'&gt;gtcars&lt;/span&gt;"</span>),</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> gtcars <span class="op">&gt;&gt;</span> select(_.mfr, _.model, _.msrp) <span class="op">&gt;&gt;</span> _.head(<span class="dv">5</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Make `html()` work</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>gt.GT(res).tab_header(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span>html(<span class="st">"Data listing from &lt;strong&gt;gtcars&lt;/strong&gt;"</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    subtitle<span class="op">=</span>html(<span class="st">"From &lt;span style='color:red;'&gt;gtcars&lt;/span&gt;"</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
