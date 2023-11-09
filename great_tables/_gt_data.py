@@ -425,12 +425,7 @@ __Sourcenotes = None
 from typing import List
 
 
-class SourceNotes:
-    source_notes: List[str] = []
-
-    def __init__(self):
-        pass
-
+SourceNotes = list[str]
 
 # Footnotes ----
 __Footnotes = None
