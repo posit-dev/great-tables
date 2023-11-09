@@ -40,7 +40,9 @@ def _md_html(x: str) -> str:
     return re.sub(r"^<p>|</p>\n$", "", str)
 
 
-def _process_text(x: Union[Text, str]) -> str:
+def _process_text(x: Union[Text, str, None]) -> str:
+    if x is None:
+        return ""
 
     if isinstance(x, str):
         text = x
@@ -51,7 +53,7 @@ def _process_text(x: Union[Text, str]) -> str:
 
     if type == "from_markdown":
         x_out = _md_html(text)
-    if type == "html":
+    elif type == "html":
         x_out = text
     else:
         # TODO: Perform HTML escaping

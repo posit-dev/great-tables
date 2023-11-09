@@ -834,9 +834,6 @@ class Options:
     def _get_all_options_keys(self) -> List[Union[str, None]]:
         return [x.parameter for x in self._options.values()]
 
-    #def __setattr__(self, __name: str, __value: Any) -> None:
-    #    self._options[__name].value = __value
-
     def __getattr__(self, __name: str) -> OptionsInfo:
         return self._options[__name]
         # use this like

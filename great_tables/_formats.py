@@ -528,9 +528,9 @@ def fmt_scientific(
         m_part = sci_parts[0]
         n_part = sci_parts[1]
 
+        # Remove trailing zeros and decimal marks from the `m_part`
         if drop_trailing_zeros:
             m_part = m_part.rstrip("0")
-
         if drop_trailing_dec_mark:
             m_part = m_part.rstrip(".")
 
@@ -539,8 +539,11 @@ def fmt_scientific(
             m_part = "+" + m_part
 
         if exp_style == "x10n":
-            # Determine which values don't require the (x 10^n)
-            # for scientific formatting since their order would be zero
+            # Define the exponent string based on the `exp_style` that is the default
+            # ('x10n'); this is styled as 'x 10^n' instead of using a fixed symbol like 'E'
+
+            # Determine which values don't require the (x 10^n) for scientific formatting
+            # since their order would be zero
             small_pos = _has_sci_order_zero(value=x)
 
             # Force the positive sign to be present if the `force_sign_n` option is taken
@@ -552,16 +555,20 @@ def fmt_scientific(
             n_part = _replace_minus(n_part, minus_mark=minus_mark)
 
             if small_pos:
-                # Create the formatted string based on only the `m_part`
+                # If the value is small enough to not require the (x 10^n) notation, then
+                # the formatted value is based on only the `m_part`
                 x_formatted = m_part
             else:
-                # Define the marks by context
+                # Get the set of exponent marks, which are used to decorate the `n_part`
                 exp_marks = _context_exp_marks()
 
                 # Create the formatted string based on `exp_marks` and the two `sci_parts`
                 x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
 
         else:
+            # Define the exponent string based on the `exp_style` that's not the default
+            # value of 'x10n'
+
             exp_str = _context_exp_str(exp_style=exp_style)
 
             n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
@@ -813,7 +820,7 @@ def fmt_currency(
     rows: Union[int, List[int], None] = None,
     currency: Optional[int] = None,
     use_subunits: bool = True,
-    decimals: int = 2,
+    decimals: Optional[int] = None,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
     # accounting: bool = False,
@@ -869,11 +876,12 @@ def fmt_currency(
         Removing the subunits (with `use_subunits = False`) will give us `"$273"`.
 
     decimals : int
-        The `decimals` values corresponds to the exact number of decimal places to use. A value such
-        as `2.34` can, for example, be formatted with `0` decimal places and it would result in
-        `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
-        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-        `fmt_integer()` method should be considered.
+        The `decimals` values corresponds to the exact number of decimal places to use. This value
+        is optional as a currency has an intrinsic number of decimal places (i.e., the subunits).
+        A value such as `2.34` can, for example, be formatted with `0` decimal places and if the
+        currency used is `"USD"` it would result in `"$2"`. With `4` decimal places, the formatted
+        value becomes `"$2.3400"`. The trailing zeros can be removed with
+        `drop_trailing_zeros=True`.
 
     drop_trailing_dec_mark : bool
         A boolean value that determines whether decimal marks should always appear even if there are
@@ -912,12 +920,12 @@ def fmt_currency(
         notation with `accounting = True`.
 
     placement : str
-        This option governs the placement of the percent sign. This can be either be `"right"` (the
-        default) or `"left"`.
+        The placement of the currency symbol. This can be either be `"left"` (as in `"$450"`) or
+        `"right"` (which yields `"450$"`).
 
     incl_space : bool
-        An option for whether to include a space between the value and the percent sign. The default
-        is to not introduce a space character.
+        An option for whether to include a space between the value and the currency symbol. The
+        default is to not introduce a space character.
 
     locale : str
         An optional locale identifier that can be used for formatting values according the locale's
@@ -940,19 +948,19 @@ def fmt_currency(
 
     # Resolve the currency either from direct input in `currency` or through a locale
     if currency is None:
+        # If not providing a `currency` code, we can obtain the currency code from the locale
         currency_resolved = _get_locale_currency_code(locale=locale)
     else:
-        currency_resolved = "USD"
+        # Cast the `currency` value to a string
+        currency_resolved = str(currency)
+        # Stop if `currency_resolved` does not have a valid value
+        _validate_currency(currency=currency_resolved)
 
-    # Stop if `currency` does not have a valid value
-    # TODO: requires implementation of `_validate_currency()`
-    # _validate_currency(currency=currency)
-
-    # Get the number of decimal places
-    # TODO: requires implementation of `_get_currency_decimals()`
-    # decimals = _get_currency_decimals(
-    #     currency=currency, decimals=decimals, use_subunits=use_subunits
-    # )
+    # Get the number of decimal places for the currency; this takes into account whether
+    # the currency uses subunits or not and whether decimals are explicitly set
+    decimals = _get_currency_decimals(
+        currency=currency_resolved, decimals=decimals, use_subunits=use_subunits
+    )
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_currency_fn(
@@ -975,9 +983,11 @@ def fmt_currency(
         is_negative = _has_negative_value(value=x)
         is_positive = _has_positive_value(value=x)
 
-        # currency_symbol = "$"
+        # Get the currency symbol on the basis of a valid currency code
         currency_symbol = _get_currency_str(currency=currency)
 
+        # Format the value to decimal notation; this is done before the currency symbol is
+        # affixed to the value
         x_formatted = _value_to_decimal_notation(
             value=x,
             decimals=decimals,
@@ -1479,6 +1489,14 @@ def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
 
 
 def _get_locales_list() -> List[str]:
+    """
+    Returns a list of locales as strings.
+
+    Raises:
+        TypeError: If the first element of the locale list is not a string.
+    """
+
+    # Get the 'locales' dataset and obtain from that a list of locales
     locales = _get_locales_data()
     locale_list = locales["locale"].tolist()
 
@@ -1490,6 +1508,17 @@ def _get_locales_list() -> List[str]:
 
 
 def _get_default_locales_list() -> List[str]:
+    """
+    Returns a list of default locales.
+
+    The function retrieves the default locales data and extracts the default locale list.
+    It ensures that the list is of type 'str' and raises a TypeError if not.
+
+    Returns:
+        A list of default locales as strings.
+    """
+
+    # Get the 'default locales' dataset and obtain from that a list of default locales
     default_locales = _get_default_locales_data()
     default_locale_list = default_locales["default_locale"].tolist()
 
@@ -1502,6 +1531,18 @@ def _get_default_locales_list() -> List[str]:
 
 
 def _validate_locale(locale: Union[str, None] = None) -> None:
+    """
+    Validates the given locale string against a list of supported locales.
+
+    Args:
+        locale (str or None): The locale string to validate. If None, the function returns without
+        doing anything.
+
+    Raises:
+        ValueError: If the supplied `locale` is not available in the list of supported locales.
+    """
+
+    # If `locale` is None then return without doing anything (nothing to validate)
     if locale is None:
         return
 
@@ -1519,7 +1560,20 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
 
 
 def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
-    # Return None if the locale isn't specified
+    """
+    Normalize the given locale string by replacing any underscores with hyphens and resolving any default locales into their base names.
+
+    Args:
+        locale (str or None): The locale string to normalize. If None, returns None.
+
+    Returns:
+        str or None: The normalized locale string, or None if the input was None.
+
+    Raises:
+        TypeError: If the resolved locale is not of type 'str'.
+    """
+
+    # If `locale` is None then return None (we don't need to normalize anything here)
     if locale is None:
         return None
 
@@ -1546,6 +1600,22 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
 
 
 def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
+    """
+    Given a locale, returns the corresponding currency code. If no locale is provided,
+    returns the currency code for the United States ('USD').
+
+    Args:
+        locale (str or None): A string representing the locale for which to retrieve the
+            currency code. If None, the currency code for the United States ('USD') is returned.
+
+    Returns:
+        str: A string representing the currency code for the specified locale.
+
+    Raises:
+        TypeError: If the currency code is not a string.
+
+    """
+
     # If `locale` is None then return `"USD"`
     if locale is None:
         return "USD"
@@ -1570,6 +1640,19 @@ def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
 
 
 def _get_currency_str(currency: str) -> str:
+    """
+    Given a currency code, returns the corresponding currency symbol as a string.
+
+    Args:
+        currency (str): The currency code to look up.
+
+    Returns:
+        str: The currency symbol corresponding to the given currency code.
+
+    Raises:
+        TypeError: If the currency symbol is not of type 'str'.
+    """
+
     # Get the correct 'curr_code' value row from the `__x_currencies` lookup table
     pd_df_row = _filter_pd_df_to_row(
         pd_df=_get_currencies_data(), column="curr_code", filter_expr=currency
@@ -1585,3 +1668,99 @@ def _get_currency_str(currency: str) -> str:
 
     return currency_str
 
+
+def _validate_currency(currency: str) -> None:
+    """
+    Validates if the provided currency is available in the list of supported currencies.
+
+    Args:
+    - currency (str): The currency code to validate
+
+    Raises:
+    - ValueError: If the `currency` provided isn't a valid one
+
+    Returns:
+    - None
+    """
+
+    # Get the currencies data
+    currencies = _get_currencies_data()
+
+    # Get the `curr_code` column from currencies DataFrame as a list
+    curr_code_list: List[str] = currencies["curr_code"].tolist()
+
+    # Stop if the `currency` provided isn't a valid one
+    if currency not in curr_code_list:
+        raise ValueError(
+            "The supplied `currency` is not available in the list of supported currencies."
+        )
+
+    return
+
+
+def _get_currency_decimals(currency: str, decimals: Optional[int], use_subunits: bool) -> int:
+    """
+    Returns the number of decimal places to use for a given currency.
+
+    If `decimals` is not None, it is returned. Otherwise, if `use_subunits` is True,
+    the number of decimal places is determined by the currency's exponent. Otherwise,
+    the number of decimal places is 0.
+
+    Args:
+        currency (str): The currency code.
+        decimals (Optional[int]): The number of decimal places to use, if specified.
+        use_subunits (bool): Whether to use subunits for the currency.
+
+    Returns:
+        int: The number of decimal places to use.
+    """
+
+    # If `decimals` is not None, return it
+    if decimals is not None:
+        return decimals
+
+    # If `decimals` is None, then we need to determine the number of decimal places
+    if decimals is None and use_subunits:
+        # Get the number of decimal places from the currency's exponent
+        decimals = _get_currency_exponent(currency=currency)
+    elif decimals is None and not use_subunits:
+        # If `use_subunits` is False, then the number of decimal places is 0
+        decimals = 0
+
+    # Assert that `decimals` is not None and then return it
+    assert decimals is not None
+    return decimals
+
+
+def _get_currency_exponent(currency: str) -> int:
+    """
+    Given a currency code, returns the exponent associated with that` currency.
+    If the currency code is not found, returns 2 as a default value.
+
+    Args:
+        currency (str): The currency code to look up.
+
+    Returns:
+        int: The exponent associated with the currency code.
+    """
+    currencies = _get_currencies_data()
+
+    # get the curr_code column from currencies df as a list
+    curr_code_list: List[str] = currencies["curr_code"].tolist()
+
+    if currency in curr_code_list:
+        exponent = currencies[currencies["curr_code"] == currency].iloc[0]["exponent"]
+
+        # Cast exponent variable as an integer value (it is a str currently)
+        exponent = int(exponent)
+
+        # Ensure that `exponent` is of the type 'int'
+        exponent: Any
+        if not isinstance(exponent, int):
+            raise TypeError(
+                "Variable type mismatch. Expected int, got something entirely different."
+            )
+    else:
+        exponent = 2
+
+    return exponent

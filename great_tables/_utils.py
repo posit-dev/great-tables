@@ -4,17 +4,11 @@ import json
 
 
 def heading_has_title(title: Optional[str]) -> bool:
-    if title is None:
-        return False
-    else:
-        return True
+    return title is not None
 
 
 def heading_has_subtitle(subtitle: Optional[str]) -> bool:
-    if subtitle is None:
-        return False
-    else:
-        return True
+    return subtitle is not None
 
 
 def _match_arg(x: str, lst: List[str]) -> str:
@@ -59,9 +53,7 @@ def _assert_str_in_set(x: str, set: List[str]):
 
 def _assert_list_is_subset(x: List[Any], set: List[Any]):
     if not (all(x in x for x in set)):
-        raise AssertionError(
-            "The `x` list is not a strict subset of the defined `set`."
-        )
+        raise AssertionError("The `x` list is not a strict subset of the defined `set`.")
 
 
 def _str_scalar_to_list(x: str):
