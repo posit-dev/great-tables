@@ -40,7 +40,7 @@ def _md_html(x: str) -> str:
     return re.sub(r"^<p>|</p>\n$", "", str)
 
 
-def _process_text(x: Union[Text, str]) -> str:
+def _process_text(x: Union[Text, str, None]) -> str:
 
     if isinstance(x, str):
         text = x
