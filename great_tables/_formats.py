@@ -1726,6 +1726,16 @@ def _get_currency_decimals(currency: str, decimals: Optional[int], use_subunits:
 
 
 def _get_currency_exponent(currency: str) -> int:
+    """
+    Given a currency code, returns the exponent associated with that` currency.
+    If the currency code is not found, returns 2 as a default value.
+
+    Args:
+        currency (str): The currency code to look up.
+
+    Returns:
+        int: The exponent associated with the currency code.
+    """
     currencies = _get_currencies_data()
 
     # get the curr_code column from currencies df as a list
