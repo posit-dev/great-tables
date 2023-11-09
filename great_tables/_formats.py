@@ -1679,7 +1679,7 @@ def _validate_currency(currency: str) -> None:
     # Get the currencies data
     currencies = _get_currencies_data()
 
-    # get the curr_code column from currencies df as a list
+    # Get the `curr_code` column from currencies DataFrame as a list
     curr_code_list: List[str] = currencies["curr_code"].tolist()
 
     if currency not in curr_code_list:
