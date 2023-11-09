@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables</title>
+<title>great_tables - Original GT Intro</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,6 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../examples-qmd/tab-spanner.html" rel="next">
+<link href="../examples-qmd/GT.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -100,7 +102,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="nav-fixed">
+<body class="nav-sidebar floating nav-fixed">
 
 
 <div id="quarto-search-results"></div>
@@ -161,34 +163,67 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../examples-qmd/intro-old.html">Original GT Intro</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../examples-qmd/fmt-number.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">fmt_number</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../examples-qmd/GT.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GT</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../examples-qmd/intro-old.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Original GT Intro</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../examples-qmd/tab-spanner.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">tab_spanner</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../examples-qmd/table-manipulation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">table manipulation</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#installing" id="toc-installing" class="nav-link active" data-scroll-target="#installing">Installing</a></li>
-  <li><a href="#basic-use" id="toc-basic-use" class="nav-link" data-scroll-target="#basic-use">Basic use</a>
-  <ul class="collapse">
-  <li><a href="#formatting-columns" id="toc-formatting-columns" class="nav-link" data-scroll-target="#formatting-columns">Formatting columns</a></li>
-  <li><a href="#titles-and-notes" id="toc-titles-and-notes" class="nav-link" data-scroll-target="#titles-and-notes">Titles and notes</a></li>
-  <li><a href="#row-and-group-names" id="toc-row-and-group-names" class="nav-link" data-scroll-target="#row-and-group-names">Row and group names</a></li>
-  <li><a href="#column-spanners" id="toc-column-spanners" class="nav-link" data-scroll-target="#column-spanners">Column spanners</a></li>
-  </ul></li>
-  <li><a href="#anatomy-of-a-table" id="toc-anatomy-of-a-table" class="nav-link" data-scroll-target="#anatomy-of-a-table">Anatomy of a table</a></li>
-  </ul>
-</nav>
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">great_tables</h1>
+<h1 class="title">Original GT Intro</h1>
 </div>
 
 
@@ -203,521 +238,278 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<p><code>great_tables</code> is a Python package for making publication-quality tables.</p>
-<p>It provides robust functionality for customizing table structure and presentation, including:</p>
-<ul>
-<li>🔬 Formatting for decimals, percentages, currencies, into various notations (e.g.&nbsp;scientific).</li>
-<li>🎶 Table titles, subtitles and notes.</li>
-<li>䷖ Clean presentation of row names and groupings.</li>
-<li>📚 Multi-level column spanners.</li>
-</ul>
-<section id="installing" class="level2">
-<h2 class="anchored" data-anchor-id="installing">Installing</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install great_tables</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
-<section id="basic-use" class="level2">
-<h2 class="anchored" data-anchor-id="basic-use">Basic use</h2>
 <div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, md</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> exibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, md</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> islands</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gt_ex <span class="op">=</span> GT(exibble)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>gt_ex</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>islands</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
+<div>
 
-<div style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>
-html {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-}
 
-.gt_table {
-  display: table;
-  border-collapse: collapse;
-  margin-left: auto;
-  margin-right: auto;
-  color: #333333;
-  font-size: 16px;
-  font-weight: normal;
-  font-style: normal;
-  background-color: #FFFFFF;
-  width: auto;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #A8A8A8;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #A8A8A8;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3; }
-
-.gt_heading {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-bottom-color: #FFFFFF;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3; }
-
-.gt_title {
-  color: #333333;
-  font-size: 125%;
-  font-weight: initial;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-color: #FFFFFF;
-  border-bottom-width: 0; }
-
-.gt_subtitle {
-  color: #333333;
-  font-size: 85%;
-  font-weight: initial;
-  padding-top: 0;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-color: #FFFFFF;
-  border-top-width: 0; }
-
-.gt_bottom_border {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3; }
-
-.gt_col_headings {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3; }
-
-.gt_col_heading {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow-x: hidden; }
-
-.gt_column_spanner_outer {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 4px;
-  padding-right: 4px; }
-
-.gt_column_spanner_outer:first-child {
-  padding-left: 0; }
-
-.gt_column_spanner_outer:last-child {
-  padding-right: 0; }
-
-.gt_column_spanner {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  overflow-x: hidden;
-  display: inline-block;
-  width: 100%; }
-
-.gt_group_heading {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle; }
-
-.gt_empty_group_heading {
-  padding: 0.5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: middle; }
-
-.gt_from_md > :first-child {
-  margin-top: 0; }
-
-.gt_from_md > :last-child {
-  margin-bottom: 0; }
-
-.gt_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 10px;
-  border-top-style: solid;
-  border-top-width: 1px;
-  border-top-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  overflow-x: hidden; }
-
-.gt_stub {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 5px;
-  padding-right: 5px; }
-
-.gt_stub_row_group {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 5px;
-  padding-right: 5px;
-  vertical-align: top; }
-
-.gt_row_group_first td {
-  border-top-width: 2px; }
-
-.gt_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px; }
-
-.gt_first_summary_row {
-  border-top-style: solid;
-  border-top-color: #D3D3D3; }
-
-.gt_first_summary_row.thick {
-  border-top-width: 2px; }
-
-.gt_last_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3; }
-
-.gt_grand_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px; }
-
-.gt_first_grand_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: double;
-  border-top-width: 6px;
-  border-top-color: #D3D3D3; }
-
-.gt_striped {
-  background-color: rgba(128, 128, 128, 0.05); }
-
-.gt_table_body {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3; }
-
-.gt_footnotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3; }
-
-.gt_footnote {
-  margin: 0px;
-  font-size: 90%;
-  padding-left: 4px;
-  padding-right: 4px;
-  padding-left: 5px;
-  padding-right: 5px; }
-
-.gt_sourcenotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3; }
-
-.gt_sourcenote {
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px; }
-
-.gt_left {
-  text-align: left; }
-
-.gt_center {
-  text-align: center; }
-
-.gt_right {
-  text-align: right;
-  font-variant-numeric: tabular-nums; }
-
-.gt_font_normal {
-  font-weight: normal; }
-
-.gt_font_bold {
-  font-weight: bold; }
-
-.gt_font_italic {
-  font-style: italic; }
-
-.gt_super {
-  font-size: 65%; }
-
-.gt_two_val_uncert {
-  display: inline-block;
-  line-height: 1em;
-  text-align: right;
-  font-size: 60%;
-  vertical-align: -0.25em;
-  margin-left: 0.1em; }
-
-.gt_footnote_marks {
-  font-style: italic;
-  font-weight: normal;
-  font-size: 75%;
-  vertical-align: 0.4em; }
-
-.gt_asterisk {
-  font-size: 100%;
-  vertical-align: 0; }
-
-.gt_slash_mark {
-  font-size: 0.7em;
-  line-height: 0.7em;
-  vertical-align: 0.15em; }
-
-.gt_fraction_numerator {
-  font-size: 0.6em;
-  line-height: 0.6em;
-  vertical-align: 0.45em; }
-
-.gt_fraction_denominator {
-  font-size: 0.6em;
-  line-height: 0.6em;
-  vertical-align: -0.05em; }
-
-</style>
-
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">name</th>
+<th data-quarto-table-cell-role="th">size</th>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">num</td>
-<td data-quarto-table-cell-role="th">char</td>
-<td data-quarto-table-cell-role="th">fctr</td>
-<td data-quarto-table-cell-role="th">date</td>
-<td data-quarto-table-cell-role="th">time</td>
-<td data-quarto-table-cell-role="th">datetime</td>
-<td data-quarto-table-cell-role="th">currency</td>
-<td data-quarto-table-cell-role="th">row</td>
-<td data-quarto-table-cell-role="th">group</td>
-</tr>
-</tbody>
-<tbody class="gt_table_body">
-<tr class="odd">
-<td class="gt_row">0.1111</td>
-<td class="gt_row">apricot</td>
-<td class="gt_row">one</td>
-<td class="gt_row">2015-01-15</td>
-<td class="gt_row">13:35</td>
-<td class="gt_row">2018-01-01 02:22</td>
-<td class="gt_row">49.95</td>
-<td class="gt_row">row_1</td>
-<td class="gt_row">grp_a</td>
+<td data-quarto-table-cell-role="th">0</td>
+<td>Africa</td>
+<td>11506</td>
 </tr>
 <tr class="even">
-<td class="gt_row">2.222</td>
-<td class="gt_row">banana</td>
-<td class="gt_row">two</td>
-<td class="gt_row">2015-02-15</td>
-<td class="gt_row">14:40</td>
-<td class="gt_row">2018-02-02 14:33</td>
-<td class="gt_row">17.95</td>
-<td class="gt_row">row_2</td>
-<td class="gt_row">grp_a</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>Antarctica</td>
+<td>5500</td>
 </tr>
 <tr class="odd">
-<td class="gt_row">33.33</td>
-<td class="gt_row">coconut</td>
-<td class="gt_row">three</td>
-<td class="gt_row">2015-03-15</td>
-<td class="gt_row">15:45</td>
-<td class="gt_row">2018-03-03 03:44</td>
-<td class="gt_row">1.39</td>
-<td class="gt_row">row_3</td>
-<td class="gt_row">grp_a</td>
+<td data-quarto-table-cell-role="th">2</td>
+<td>Asia</td>
+<td>16988</td>
 </tr>
 <tr class="even">
-<td class="gt_row">444.4</td>
-<td class="gt_row">durian</td>
-<td class="gt_row">four</td>
-<td class="gt_row">2015-04-15</td>
-<td class="gt_row">16:50</td>
-<td class="gt_row">2018-04-04 15:55</td>
-<td class="gt_row">65100.0</td>
-<td class="gt_row">row_4</td>
-<td class="gt_row">grp_a</td>
+<td data-quarto-table-cell-role="th">3</td>
+<td>Australia</td>
+<td>2968</td>
 </tr>
 <tr class="odd">
-<td class="gt_row">5550.0</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">five</td>
-<td class="gt_row">2015-05-15</td>
-<td class="gt_row">17:55</td>
-<td class="gt_row">2018-05-05 04:00</td>
-<td class="gt_row">1325.81</td>
-<td class="gt_row">row_5</td>
-<td class="gt_row">grp_b</td>
+<td data-quarto-table-cell-role="th">4</td>
+<td>Axel Heiberg</td>
+<td>16</td>
 </tr>
 <tr class="even">
-<td class="gt_row">nan</td>
-<td class="gt_row">fig</td>
-<td class="gt_row">six</td>
-<td class="gt_row">2015-06-15</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">2018-06-06 16:11</td>
-<td class="gt_row">13.255</td>
-<td class="gt_row">row_6</td>
-<td class="gt_row">grp_b</td>
+<td data-quarto-table-cell-role="th">5</td>
+<td>Baffin</td>
+<td>184</td>
 </tr>
 <tr class="odd">
-<td class="gt_row">777000.0</td>
-<td class="gt_row">grapefruit</td>
-<td class="gt_row">seven</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">19:10</td>
-<td class="gt_row">2018-07-07 05:22</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">row_7</td>
-<td class="gt_row">grp_b</td>
+<td data-quarto-table-cell-role="th">6</td>
+<td>Banks</td>
+<td>23</td>
 </tr>
 <tr class="even">
-<td class="gt_row">8880000.0</td>
-<td class="gt_row">honeydew</td>
-<td class="gt_row">eight</td>
-<td class="gt_row">2015-08-15</td>
-<td class="gt_row">20:20</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">0.44</td>
-<td class="gt_row">row_8</td>
-<td class="gt_row">grp_b</td>
+<td data-quarto-table-cell-role="th">7</td>
+<td>Borneo</td>
+<td>280</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>Britain</td>
+<td>84</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>Celebes</td>
+<td>73</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>Celon</td>
+<td>25</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>Cuba</td>
+<td>43</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>Devon</td>
+<td>21</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13</td>
+<td>Ellesmere</td>
+<td>82</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">14</td>
+<td>Europe</td>
+<td>3745</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">15</td>
+<td>Greenland</td>
+<td>840</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">16</td>
+<td>Hainan</td>
+<td>13</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17</td>
+<td>Hispaniola</td>
+<td>30</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">18</td>
+<td>Hokkaido</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">19</td>
+<td>Honshu</td>
+<td>89</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">20</td>
+<td>Iceland</td>
+<td>40</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">21</td>
+<td>Ireland</td>
+<td>33</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">22</td>
+<td>Java</td>
+<td>49</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">23</td>
+<td>Kyushu</td>
+<td>14</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">24</td>
+<td>Luzon</td>
+<td>42</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">25</td>
+<td>Madagascar</td>
+<td>227</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">26</td>
+<td>Melville</td>
+<td>16</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">27</td>
+<td>Mindanao</td>
+<td>36</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">28</td>
+<td>Moluccas</td>
+<td>29</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">29</td>
+<td>New Britain</td>
+<td>15</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">30</td>
+<td>New Guinea</td>
+<td>306</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">31</td>
+<td>New Zealand (N)</td>
+<td>44</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">32</td>
+<td>New Zealand (S)</td>
+<td>58</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">33</td>
+<td>Newfoundland</td>
+<td>43</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">34</td>
+<td>North America</td>
+<td>9390</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">35</td>
+<td>Novaya Zemlya</td>
+<td>32</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">36</td>
+<td>Prince of Wales</td>
+<td>13</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">37</td>
+<td>Sakhalin</td>
+<td>29</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">38</td>
+<td>South America</td>
+<td>6795</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">39</td>
+<td>Southampton</td>
+<td>16</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">40</td>
+<td>Spitsbergen</td>
+<td>15</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">41</td>
+<td>Sumatra</td>
+<td>183</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">42</td>
+<td>Taiwan</td>
+<td>14</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">43</td>
+<td>Tasmania</td>
+<td>26</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">44</td>
+<td>Tierra del Fuego</td>
+<td>19</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">45</td>
+<td>Timor</td>
+<td>13</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">46</td>
+<td>Vancouver</td>
+<td>12</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">47</td>
+<td>Victoria</td>
+<td>82</td>
 </tr>
 </tbody>
 </table>
 
-
-</div>
-        
 </div>
 </div>
-<section id="formatting-columns" class="level3">
-<h3 class="anchored" data-anchor-id="formatting-columns">Formatting columns</h3>
+</div>
 <div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>gt_ex.fmt_number(</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span><span class="st">"num"</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    decimals<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    scale_by<span class="op">=</span><span class="dv">1</span><span class="op">/</span><span class="dv">1000</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    pattern<span class="op">=</span><span class="st">"</span><span class="sc">{x}</span><span class="st">K"</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a display table showing ten of</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># the largest islands in the world</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>gt_tbl <span class="op">=</span> GT(islands)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the gt Table</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>gt_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 
 <div style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
@@ -1094,105 +886,202 @@ html {
 <table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">num</td>
-<td data-quarto-table-cell-role="th">char</td>
-<td data-quarto-table-cell-role="th">fctr</td>
-<td data-quarto-table-cell-role="th">date</td>
-<td data-quarto-table-cell-role="th">time</td>
-<td data-quarto-table-cell-role="th">datetime</td>
-<td data-quarto-table-cell-role="th">currency</td>
-<td data-quarto-table-cell-role="th">row</td>
-<td data-quarto-table-cell-role="th">group</td>
+<td data-quarto-table-cell-role="th">name</td>
+<td data-quarto-table-cell-role="th">size</td>
 </tr>
 </tbody>
 <tbody class="gt_table_body">
 <tr class="odd">
-<td class="gt_row">0.0K</td>
-<td class="gt_row">apricot</td>
-<td class="gt_row">one</td>
-<td class="gt_row">2015-01-15</td>
-<td class="gt_row">13:35</td>
-<td class="gt_row">2018-01-01 02:22</td>
-<td class="gt_row">49.95</td>
-<td class="gt_row">row_1</td>
-<td class="gt_row">grp_a</td>
+<td class="gt_row">Africa</td>
+<td class="gt_row">11506</td>
 </tr>
 <tr class="even">
-<td class="gt_row">0.0K</td>
-<td class="gt_row">banana</td>
-<td class="gt_row">two</td>
-<td class="gt_row">2015-02-15</td>
-<td class="gt_row">14:40</td>
-<td class="gt_row">2018-02-02 14:33</td>
-<td class="gt_row">17.95</td>
-<td class="gt_row">row_2</td>
-<td class="gt_row">grp_a</td>
+<td class="gt_row">Antarctica</td>
+<td class="gt_row">5500</td>
 </tr>
 <tr class="odd">
-<td class="gt_row">0.0K</td>
-<td class="gt_row">coconut</td>
-<td class="gt_row">three</td>
-<td class="gt_row">2015-03-15</td>
-<td class="gt_row">15:45</td>
-<td class="gt_row">2018-03-03 03:44</td>
-<td class="gt_row">1.39</td>
-<td class="gt_row">row_3</td>
-<td class="gt_row">grp_a</td>
+<td class="gt_row">Asia</td>
+<td class="gt_row">16988</td>
 </tr>
 <tr class="even">
-<td class="gt_row">0.4K</td>
-<td class="gt_row">durian</td>
-<td class="gt_row">four</td>
-<td class="gt_row">2015-04-15</td>
-<td class="gt_row">16:50</td>
-<td class="gt_row">2018-04-04 15:55</td>
-<td class="gt_row">65100.0</td>
-<td class="gt_row">row_4</td>
-<td class="gt_row">grp_a</td>
+<td class="gt_row">Australia</td>
+<td class="gt_row">2968</td>
 </tr>
 <tr class="odd">
-<td class="gt_row">5.5K</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">five</td>
-<td class="gt_row">2015-05-15</td>
-<td class="gt_row">17:55</td>
-<td class="gt_row">2018-05-05 04:00</td>
-<td class="gt_row">1325.81</td>
-<td class="gt_row">row_5</td>
-<td class="gt_row">grp_b</td>
+<td class="gt_row">Axel Heiberg</td>
+<td class="gt_row">16</td>
 </tr>
 <tr class="even">
-<td class="gt_row">nanK</td>
-<td class="gt_row">fig</td>
-<td class="gt_row">six</td>
-<td class="gt_row">2015-06-15</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">2018-06-06 16:11</td>
-<td class="gt_row">13.255</td>
-<td class="gt_row">row_6</td>
-<td class="gt_row">grp_b</td>
+<td class="gt_row">Baffin</td>
+<td class="gt_row">184</td>
 </tr>
 <tr class="odd">
-<td class="gt_row">777.0K</td>
-<td class="gt_row">grapefruit</td>
-<td class="gt_row">seven</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">19:10</td>
-<td class="gt_row">2018-07-07 05:22</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">row_7</td>
-<td class="gt_row">grp_b</td>
+<td class="gt_row">Banks</td>
+<td class="gt_row">23</td>
 </tr>
 <tr class="even">
-<td class="gt_row">8,880.0K</td>
-<td class="gt_row">honeydew</td>
-<td class="gt_row">eight</td>
-<td class="gt_row">2015-08-15</td>
-<td class="gt_row">20:20</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">0.44</td>
-<td class="gt_row">row_8</td>
-<td class="gt_row">grp_b</td>
+<td class="gt_row">Borneo</td>
+<td class="gt_row">280</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Britain</td>
+<td class="gt_row">84</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Celebes</td>
+<td class="gt_row">73</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Celon</td>
+<td class="gt_row">25</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Cuba</td>
+<td class="gt_row">43</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Devon</td>
+<td class="gt_row">21</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Ellesmere</td>
+<td class="gt_row">82</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Europe</td>
+<td class="gt_row">3745</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Greenland</td>
+<td class="gt_row">840</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Hainan</td>
+<td class="gt_row">13</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Hispaniola</td>
+<td class="gt_row">30</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Hokkaido</td>
+<td class="gt_row">30</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Honshu</td>
+<td class="gt_row">89</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Iceland</td>
+<td class="gt_row">40</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Ireland</td>
+<td class="gt_row">33</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Java</td>
+<td class="gt_row">49</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Kyushu</td>
+<td class="gt_row">14</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Luzon</td>
+<td class="gt_row">42</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Madagascar</td>
+<td class="gt_row">227</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Melville</td>
+<td class="gt_row">16</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Mindanao</td>
+<td class="gt_row">36</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Moluccas</td>
+<td class="gt_row">29</td>
+</tr>
+<tr class="even">
+<td class="gt_row">New Britain</td>
+<td class="gt_row">15</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">New Guinea</td>
+<td class="gt_row">306</td>
+</tr>
+<tr class="even">
+<td class="gt_row">New Zealand (N)</td>
+<td class="gt_row">44</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">New Zealand (S)</td>
+<td class="gt_row">58</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Newfoundland</td>
+<td class="gt_row">43</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">North America</td>
+<td class="gt_row">9390</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Novaya Zemlya</td>
+<td class="gt_row">32</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Prince of Wales</td>
+<td class="gt_row">13</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Sakhalin</td>
+<td class="gt_row">29</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">South America</td>
+<td class="gt_row">6795</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Southampton</td>
+<td class="gt_row">16</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Spitsbergen</td>
+<td class="gt_row">15</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Sumatra</td>
+<td class="gt_row">183</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Taiwan</td>
+<td class="gt_row">14</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Tasmania</td>
+<td class="gt_row">26</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Tierra del Fuego</td>
+<td class="gt_row">19</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Timor</td>
+<td class="gt_row">13</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Vancouver</td>
+<td class="gt_row">12</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Victoria</td>
+<td class="gt_row">82</td>
 </tr>
 </tbody>
 </table>
@@ -1202,20 +1091,16 @@ html {
         
 </div>
 </div>
-</section>
-<section id="titles-and-notes" class="level3">
-<h3 class="anchored" data-anchor-id="titles-and-notes">Titles and notes</h3>
 <div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    gt_ex</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        title <span class="op">=</span> <span class="st">"An example table"</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        subtitle <span class="op">=</span> md(<span class="st">"It's **pretty great**"</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    .tab_source_note(</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Source: great tables"</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>gt_tbl2 <span class="op">=</span> (</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    gt_tbl</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        title <span class="op">=</span> <span class="st">"Large Landmasses of the World"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        subtitle <span class="op">=</span> <span class="st">"The top ten largest are presented"</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>gt_tbl2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 
 <div style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
@@ -1590,119 +1475,210 @@ html {
 </style>
 <table class="gt_table">
 <thead class="gt_header">  <tr>
-    <th colspan="9" class="gt_heading gt_title gt_font_normal">An example table
+    <th colspan="2" class="gt_heading gt_title gt_font_normal">Large Landmasses of the World
   </th></tr>
   <tr>
-    <th colspan="9" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">It's <strong>pretty great</strong>
+    <th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">The top ten largest are presented
   </th></tr></thead>
 <tbody><tr>
-  <th>num</th>
-  <th>char</th>
-  <th>fctr</th>
-  <th>date</th>
-  <th>time</th>
-  <th>datetime</th>
-  <th>currency</th>
-  <th>row</th>
-  <th>group</th>
+  <th>name</th>
+  <th>size</th>
 </tr>
 </tbody><tbody class="gt_table_body">
 <tr>
-  <td class="gt_row">0.0K</td>
-  <td class="gt_row">apricot</td>
-  <td class="gt_row">one</td>
-  <td class="gt_row">2015-01-15</td>
-  <td class="gt_row">13:35</td>
-  <td class="gt_row">2018-01-01 02:22</td>
-  <td class="gt_row">49.95</td>
-  <td class="gt_row">row_1</td>
-  <td class="gt_row">grp_a</td>
+  <td class="gt_row">Africa</td>
+  <td class="gt_row">11506</td>
 </tr>
 <tr>
-  <td class="gt_row">0.0K</td>
-  <td class="gt_row">banana</td>
-  <td class="gt_row">two</td>
-  <td class="gt_row">2015-02-15</td>
-  <td class="gt_row">14:40</td>
-  <td class="gt_row">2018-02-02 14:33</td>
-  <td class="gt_row">17.95</td>
-  <td class="gt_row">row_2</td>
-  <td class="gt_row">grp_a</td>
+  <td class="gt_row">Antarctica</td>
+  <td class="gt_row">5500</td>
 </tr>
 <tr>
-  <td class="gt_row">0.0K</td>
-  <td class="gt_row">coconut</td>
-  <td class="gt_row">three</td>
-  <td class="gt_row">2015-03-15</td>
-  <td class="gt_row">15:45</td>
-  <td class="gt_row">2018-03-03 03:44</td>
-  <td class="gt_row">1.39</td>
-  <td class="gt_row">row_3</td>
-  <td class="gt_row">grp_a</td>
+  <td class="gt_row">Asia</td>
+  <td class="gt_row">16988</td>
 </tr>
 <tr>
-  <td class="gt_row">0.4K</td>
-  <td class="gt_row">durian</td>
-  <td class="gt_row">four</td>
-  <td class="gt_row">2015-04-15</td>
-  <td class="gt_row">16:50</td>
-  <td class="gt_row">2018-04-04 15:55</td>
-  <td class="gt_row">65100.0</td>
-  <td class="gt_row">row_4</td>
-  <td class="gt_row">grp_a</td>
+  <td class="gt_row">Australia</td>
+  <td class="gt_row">2968</td>
 </tr>
 <tr>
-  <td class="gt_row">5.5K</td>
-  <td class="gt_row">nan</td>
-  <td class="gt_row">five</td>
-  <td class="gt_row">2015-05-15</td>
-  <td class="gt_row">17:55</td>
-  <td class="gt_row">2018-05-05 04:00</td>
-  <td class="gt_row">1325.81</td>
-  <td class="gt_row">row_5</td>
-  <td class="gt_row">grp_b</td>
+  <td class="gt_row">Axel Heiberg</td>
+  <td class="gt_row">16</td>
 </tr>
 <tr>
-  <td class="gt_row">nanK</td>
-  <td class="gt_row">fig</td>
-  <td class="gt_row">six</td>
-  <td class="gt_row">2015-06-15</td>
-  <td class="gt_row">nan</td>
-  <td class="gt_row">2018-06-06 16:11</td>
-  <td class="gt_row">13.255</td>
-  <td class="gt_row">row_6</td>
-  <td class="gt_row">grp_b</td>
+  <td class="gt_row">Baffin</td>
+  <td class="gt_row">184</td>
 </tr>
 <tr>
-  <td class="gt_row">777.0K</td>
-  <td class="gt_row">grapefruit</td>
-  <td class="gt_row">seven</td>
-  <td class="gt_row">nan</td>
-  <td class="gt_row">19:10</td>
-  <td class="gt_row">2018-07-07 05:22</td>
-  <td class="gt_row">nan</td>
-  <td class="gt_row">row_7</td>
-  <td class="gt_row">grp_b</td>
+  <td class="gt_row">Banks</td>
+  <td class="gt_row">23</td>
 </tr>
 <tr>
-  <td class="gt_row">8,880.0K</td>
-  <td class="gt_row">honeydew</td>
-  <td class="gt_row">eight</td>
-  <td class="gt_row">2015-08-15</td>
-  <td class="gt_row">20:20</td>
-  <td class="gt_row">nan</td>
-  <td class="gt_row">0.44</td>
-  <td class="gt_row">row_8</td>
-  <td class="gt_row">grp_b</td>
+  <td class="gt_row">Borneo</td>
+  <td class="gt_row">280</td>
+</tr>
+<tr>
+  <td class="gt_row">Britain</td>
+  <td class="gt_row">84</td>
+</tr>
+<tr>
+  <td class="gt_row">Celebes</td>
+  <td class="gt_row">73</td>
+</tr>
+<tr>
+  <td class="gt_row">Celon</td>
+  <td class="gt_row">25</td>
+</tr>
+<tr>
+  <td class="gt_row">Cuba</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">Devon</td>
+  <td class="gt_row">21</td>
+</tr>
+<tr>
+  <td class="gt_row">Ellesmere</td>
+  <td class="gt_row">82</td>
+</tr>
+<tr>
+  <td class="gt_row">Europe</td>
+  <td class="gt_row">3745</td>
+</tr>
+<tr>
+  <td class="gt_row">Greenland</td>
+  <td class="gt_row">840</td>
+</tr>
+<tr>
+  <td class="gt_row">Hainan</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Hispaniola</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Hokkaido</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Honshu</td>
+  <td class="gt_row">89</td>
+</tr>
+<tr>
+  <td class="gt_row">Iceland</td>
+  <td class="gt_row">40</td>
+</tr>
+<tr>
+  <td class="gt_row">Ireland</td>
+  <td class="gt_row">33</td>
+</tr>
+<tr>
+  <td class="gt_row">Java</td>
+  <td class="gt_row">49</td>
+</tr>
+<tr>
+  <td class="gt_row">Kyushu</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Luzon</td>
+  <td class="gt_row">42</td>
+</tr>
+<tr>
+  <td class="gt_row">Madagascar</td>
+  <td class="gt_row">227</td>
+</tr>
+<tr>
+  <td class="gt_row">Melville</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Mindanao</td>
+  <td class="gt_row">36</td>
+</tr>
+<tr>
+  <td class="gt_row">Moluccas</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">New Britain</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">New Guinea</td>
+  <td class="gt_row">306</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (N)</td>
+  <td class="gt_row">44</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (S)</td>
+  <td class="gt_row">58</td>
+</tr>
+<tr>
+  <td class="gt_row">Newfoundland</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">North America</td>
+  <td class="gt_row">9390</td>
+</tr>
+<tr>
+  <td class="gt_row">Novaya Zemlya</td>
+  <td class="gt_row">32</td>
+</tr>
+<tr>
+  <td class="gt_row">Prince of Wales</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Sakhalin</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">South America</td>
+  <td class="gt_row">6795</td>
+</tr>
+<tr>
+  <td class="gt_row">Southampton</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Spitsbergen</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">Sumatra</td>
+  <td class="gt_row">183</td>
+</tr>
+<tr>
+  <td class="gt_row">Taiwan</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Tasmania</td>
+  <td class="gt_row">26</td>
+</tr>
+<tr>
+  <td class="gt_row">Tierra del Fuego</td>
+  <td class="gt_row">19</td>
+</tr>
+<tr>
+  <td class="gt_row">Timor</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Vancouver</td>
+  <td class="gt_row">12</td>
+</tr>
+<tr>
+  <td class="gt_row">Victoria</td>
+  <td class="gt_row">82</td>
 </tr>
 </tbody>
-  <tfoot class="gt_sourcenotes">
-  
-  <tr>
-    <td class="gt_sourcenote" colspan="9">Source: great tables</td>
-  </tr>
 
-</tfoot>
 
 </table>
 
@@ -1710,26 +1686,15 @@ html {
         
 </div>
 </div>
-</section>
-<section id="row-and-group-names" class="level3">
-<h3 class="anchored" data-anchor-id="row-and-group-names">Row and group names</h3>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Warning
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>This is not implemented yet!</p>
-</div>
-</div>
 <div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>gt_ex <span class="op">=</span> GT(exibble, rowname_col<span class="op">=</span><span class="st">"row"</span>, groupname_col<span class="op">=</span><span class="st">"group"</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>gt_ex</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: md</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    GT(islands.head(<span class="dv">2</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        title <span class="op">=</span> md(<span class="st">"**Large Landmasses of the World**"</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        subtitle <span class="op">=</span> md(<span class="st">"The **top two** largest are presented"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
 
 <div style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
@@ -2102,141 +2067,43 @@ html {
   vertical-align: -0.05em; }
 
 </style>
+<table class="gt_table">
+<thead class="gt_header">  <tr>
+    <th colspan="2" class="gt_heading gt_title gt_font_normal"><strong>Large Landmasses of the World</strong>
+  </th></tr>
+  <tr>
+    <th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">The <strong>top two</strong> largest are presented
+  </th></tr></thead>
+<tbody><tr>
+  <th>name</th>
+  <th>size</th>
+</tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td class="gt_row">Africa</td>
+  <td class="gt_row">11506</td>
+</tr>
+<tr>
+  <td class="gt_row">Antarctica</td>
+  <td class="gt_row">5500</td>
+</tr>
+</tbody>
 
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">num</td>
-<td data-quarto-table-cell-role="th">char</td>
-<td data-quarto-table-cell-role="th">fctr</td>
-<td data-quarto-table-cell-role="th">date</td>
-<td data-quarto-table-cell-role="th">time</td>
-<td data-quarto-table-cell-role="th">datetime</td>
-<td data-quarto-table-cell-role="th">currency</td>
-<td data-quarto-table-cell-role="th">row</td>
-<td data-quarto-table-cell-role="th">group</td>
-</tr>
-</tbody>
-<tbody class="gt_table_body">
-<tr class="odd">
-<td class="gt_row">0.1111</td>
-<td class="gt_row">apricot</td>
-<td class="gt_row">one</td>
-<td class="gt_row">2015-01-15</td>
-<td class="gt_row">13:35</td>
-<td class="gt_row">2018-01-01 02:22</td>
-<td class="gt_row">49.95</td>
-<td class="gt_row">row_1</td>
-<td class="gt_row">grp_a</td>
-</tr>
-<tr class="even">
-<td class="gt_row">2.222</td>
-<td class="gt_row">banana</td>
-<td class="gt_row">two</td>
-<td class="gt_row">2015-02-15</td>
-<td class="gt_row">14:40</td>
-<td class="gt_row">2018-02-02 14:33</td>
-<td class="gt_row">17.95</td>
-<td class="gt_row">row_2</td>
-<td class="gt_row">grp_a</td>
-</tr>
-<tr class="odd">
-<td class="gt_row">33.33</td>
-<td class="gt_row">coconut</td>
-<td class="gt_row">three</td>
-<td class="gt_row">2015-03-15</td>
-<td class="gt_row">15:45</td>
-<td class="gt_row">2018-03-03 03:44</td>
-<td class="gt_row">1.39</td>
-<td class="gt_row">row_3</td>
-<td class="gt_row">grp_a</td>
-</tr>
-<tr class="even">
-<td class="gt_row">444.4</td>
-<td class="gt_row">durian</td>
-<td class="gt_row">four</td>
-<td class="gt_row">2015-04-15</td>
-<td class="gt_row">16:50</td>
-<td class="gt_row">2018-04-04 15:55</td>
-<td class="gt_row">65100.0</td>
-<td class="gt_row">row_4</td>
-<td class="gt_row">grp_a</td>
-</tr>
-<tr class="odd">
-<td class="gt_row">5550.0</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">five</td>
-<td class="gt_row">2015-05-15</td>
-<td class="gt_row">17:55</td>
-<td class="gt_row">2018-05-05 04:00</td>
-<td class="gt_row">1325.81</td>
-<td class="gt_row">row_5</td>
-<td class="gt_row">grp_b</td>
-</tr>
-<tr class="even">
-<td class="gt_row">nan</td>
-<td class="gt_row">fig</td>
-<td class="gt_row">six</td>
-<td class="gt_row">2015-06-15</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">2018-06-06 16:11</td>
-<td class="gt_row">13.255</td>
-<td class="gt_row">row_6</td>
-<td class="gt_row">grp_b</td>
-</tr>
-<tr class="odd">
-<td class="gt_row">777000.0</td>
-<td class="gt_row">grapefruit</td>
-<td class="gt_row">seven</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">19:10</td>
-<td class="gt_row">2018-07-07 05:22</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">row_7</td>
-<td class="gt_row">grp_b</td>
-</tr>
-<tr class="even">
-<td class="gt_row">8880000.0</td>
-<td class="gt_row">honeydew</td>
-<td class="gt_row">eight</td>
-<td class="gt_row">2015-08-15</td>
-<td class="gt_row">20:20</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">0.44</td>
-<td class="gt_row">row_8</td>
-<td class="gt_row">grp_b</td>
-</tr>
-</tbody>
+
 </table>
-
 
 </div>
         
 </div>
 </div>
-</section>
-<section id="column-spanners" class="level3">
-<h3 class="anchored" data-anchor-id="column-spanners">Column spanners</h3>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Warning
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>this is not implemented yet!</p>
-</div>
-</div>
 <div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    gt_ex</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(<span class="st">"Basic"</span>, [<span class="st">"num"</span>, <span class="st">"char"</span>, <span class="st">"fct"</span>])</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(<span class="st">"Dates"</span>, [<span class="st">"date"</span>, <span class="st">"datetime"</span>])</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(<span class="st">"Misc"</span>, [<span class="st">"currency"</span>, <span class="st">"row"</span>, <span class="st">"group"</span>])</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>gt_tbl3 <span class="op">=</span> (</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    gt_tbl2</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    .tab_source_note(source_note <span class="op">=</span> <span class="st">"Source: The World Almanac and Book of Facts, 1975, page 406."</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    .tab_source_note(source_note <span class="op">=</span> md(<span class="st">"Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley."</span>))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>gt_tbl3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
 
 <div style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
@@ -2609,142 +2476,819 @@ html {
   vertical-align: -0.05em; }
 
 </style>
+<table class="gt_table">
+<thead class="gt_header">  <tr>
+    <th colspan="2" class="gt_heading gt_title gt_font_normal">Large Landmasses of the World
+  </th></tr>
+  <tr>
+    <th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">The top ten largest are presented
+  </th></tr></thead>
+<tbody><tr>
+  <th>name</th>
+  <th>size</th>
+</tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td class="gt_row">Africa</td>
+  <td class="gt_row">11506</td>
+</tr>
+<tr>
+  <td class="gt_row">Antarctica</td>
+  <td class="gt_row">5500</td>
+</tr>
+<tr>
+  <td class="gt_row">Asia</td>
+  <td class="gt_row">16988</td>
+</tr>
+<tr>
+  <td class="gt_row">Australia</td>
+  <td class="gt_row">2968</td>
+</tr>
+<tr>
+  <td class="gt_row">Axel Heiberg</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Baffin</td>
+  <td class="gt_row">184</td>
+</tr>
+<tr>
+  <td class="gt_row">Banks</td>
+  <td class="gt_row">23</td>
+</tr>
+<tr>
+  <td class="gt_row">Borneo</td>
+  <td class="gt_row">280</td>
+</tr>
+<tr>
+  <td class="gt_row">Britain</td>
+  <td class="gt_row">84</td>
+</tr>
+<tr>
+  <td class="gt_row">Celebes</td>
+  <td class="gt_row">73</td>
+</tr>
+<tr>
+  <td class="gt_row">Celon</td>
+  <td class="gt_row">25</td>
+</tr>
+<tr>
+  <td class="gt_row">Cuba</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">Devon</td>
+  <td class="gt_row">21</td>
+</tr>
+<tr>
+  <td class="gt_row">Ellesmere</td>
+  <td class="gt_row">82</td>
+</tr>
+<tr>
+  <td class="gt_row">Europe</td>
+  <td class="gt_row">3745</td>
+</tr>
+<tr>
+  <td class="gt_row">Greenland</td>
+  <td class="gt_row">840</td>
+</tr>
+<tr>
+  <td class="gt_row">Hainan</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Hispaniola</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Hokkaido</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Honshu</td>
+  <td class="gt_row">89</td>
+</tr>
+<tr>
+  <td class="gt_row">Iceland</td>
+  <td class="gt_row">40</td>
+</tr>
+<tr>
+  <td class="gt_row">Ireland</td>
+  <td class="gt_row">33</td>
+</tr>
+<tr>
+  <td class="gt_row">Java</td>
+  <td class="gt_row">49</td>
+</tr>
+<tr>
+  <td class="gt_row">Kyushu</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Luzon</td>
+  <td class="gt_row">42</td>
+</tr>
+<tr>
+  <td class="gt_row">Madagascar</td>
+  <td class="gt_row">227</td>
+</tr>
+<tr>
+  <td class="gt_row">Melville</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Mindanao</td>
+  <td class="gt_row">36</td>
+</tr>
+<tr>
+  <td class="gt_row">Moluccas</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">New Britain</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">New Guinea</td>
+  <td class="gt_row">306</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (N)</td>
+  <td class="gt_row">44</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (S)</td>
+  <td class="gt_row">58</td>
+</tr>
+<tr>
+  <td class="gt_row">Newfoundland</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">North America</td>
+  <td class="gt_row">9390</td>
+</tr>
+<tr>
+  <td class="gt_row">Novaya Zemlya</td>
+  <td class="gt_row">32</td>
+</tr>
+<tr>
+  <td class="gt_row">Prince of Wales</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Sakhalin</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">South America</td>
+  <td class="gt_row">6795</td>
+</tr>
+<tr>
+  <td class="gt_row">Southampton</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Spitsbergen</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">Sumatra</td>
+  <td class="gt_row">183</td>
+</tr>
+<tr>
+  <td class="gt_row">Taiwan</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Tasmania</td>
+  <td class="gt_row">26</td>
+</tr>
+<tr>
+  <td class="gt_row">Tierra del Fuego</td>
+  <td class="gt_row">19</td>
+</tr>
+<tr>
+  <td class="gt_row">Timor</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Vancouver</td>
+  <td class="gt_row">12</td>
+</tr>
+<tr>
+  <td class="gt_row">Victoria</td>
+  <td class="gt_row">82</td>
+</tr>
+</tbody>
+  <tfoot class="gt_sourcenotes">
+  
+  <tr>
+    <td class="gt_sourcenote" colspan="2">Source: The World Almanac and Book of Facts, 1975, page 406.</td>
+  </tr>
 
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">num</td>
-<td data-quarto-table-cell-role="th">char</td>
-<td data-quarto-table-cell-role="th">fctr</td>
-<td data-quarto-table-cell-role="th">date</td>
-<td data-quarto-table-cell-role="th">time</td>
-<td data-quarto-table-cell-role="th">datetime</td>
-<td data-quarto-table-cell-role="th">currency</td>
-<td data-quarto-table-cell-role="th">row</td>
-<td data-quarto-table-cell-role="th">group</td>
-</tr>
-</tbody>
-<tbody class="gt_table_body">
-<tr class="odd">
-<td class="gt_row">0.1111</td>
-<td class="gt_row">apricot</td>
-<td class="gt_row">one</td>
-<td class="gt_row">2015-01-15</td>
-<td class="gt_row">13:35</td>
-<td class="gt_row">2018-01-01 02:22</td>
-<td class="gt_row">49.95</td>
-<td class="gt_row">row_1</td>
-<td class="gt_row">grp_a</td>
-</tr>
-<tr class="even">
-<td class="gt_row">2.222</td>
-<td class="gt_row">banana</td>
-<td class="gt_row">two</td>
-<td class="gt_row">2015-02-15</td>
-<td class="gt_row">14:40</td>
-<td class="gt_row">2018-02-02 14:33</td>
-<td class="gt_row">17.95</td>
-<td class="gt_row">row_2</td>
-<td class="gt_row">grp_a</td>
-</tr>
-<tr class="odd">
-<td class="gt_row">33.33</td>
-<td class="gt_row">coconut</td>
-<td class="gt_row">three</td>
-<td class="gt_row">2015-03-15</td>
-<td class="gt_row">15:45</td>
-<td class="gt_row">2018-03-03 03:44</td>
-<td class="gt_row">1.39</td>
-<td class="gt_row">row_3</td>
-<td class="gt_row">grp_a</td>
-</tr>
-<tr class="even">
-<td class="gt_row">444.4</td>
-<td class="gt_row">durian</td>
-<td class="gt_row">four</td>
-<td class="gt_row">2015-04-15</td>
-<td class="gt_row">16:50</td>
-<td class="gt_row">2018-04-04 15:55</td>
-<td class="gt_row">65100.0</td>
-<td class="gt_row">row_4</td>
-<td class="gt_row">grp_a</td>
-</tr>
-<tr class="odd">
-<td class="gt_row">5550.0</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">five</td>
-<td class="gt_row">2015-05-15</td>
-<td class="gt_row">17:55</td>
-<td class="gt_row">2018-05-05 04:00</td>
-<td class="gt_row">1325.81</td>
-<td class="gt_row">row_5</td>
-<td class="gt_row">grp_b</td>
-</tr>
-<tr class="even">
-<td class="gt_row">nan</td>
-<td class="gt_row">fig</td>
-<td class="gt_row">six</td>
-<td class="gt_row">2015-06-15</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">2018-06-06 16:11</td>
-<td class="gt_row">13.255</td>
-<td class="gt_row">row_6</td>
-<td class="gt_row">grp_b</td>
-</tr>
-<tr class="odd">
-<td class="gt_row">777000.0</td>
-<td class="gt_row">grapefruit</td>
-<td class="gt_row">seven</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">19:10</td>
-<td class="gt_row">2018-07-07 05:22</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">row_7</td>
-<td class="gt_row">grp_b</td>
-</tr>
-<tr class="even">
-<td class="gt_row">8880000.0</td>
-<td class="gt_row">honeydew</td>
-<td class="gt_row">eight</td>
-<td class="gt_row">2015-08-15</td>
-<td class="gt_row">20:20</td>
-<td class="gt_row">nan</td>
-<td class="gt_row">0.44</td>
-<td class="gt_row">row_8</td>
-<td class="gt_row">grp_b</td>
-</tr>
-</tbody>
+
+  <tr>
+    <td class="gt_sourcenote" colspan="2"><great_tables._text.text object="" at="" 0x7fd3489756c0=""></great_tables._text.text></td>
+  </tr>
+
+</tfoot>
+
 </table>
-
 
 </div>
         
 </div>
 </div>
-</section>
-</section>
-<section id="anatomy-of-a-table" class="level2">
-<h2 class="anchored" data-anchor-id="anatomy-of-a-table">Anatomy of a table</h2>
-<p>The <code>great_table</code> philosophy: we can construct a wide variety of useful tables with a cohesive set of table parts. These include the <em>table header</em>, the <em>stub</em>, the <em>column labels</em> and <em>spanner column labels</em>, the <em>table body</em>, and the <em>table footer</em>.</p>
-<p><img src="../assets/gt_parts_of_a_table.svg" class="img-fluid"></p>
-<p>It all begins with <strong>table data</strong> (currently must be a pandas DataFrame). You then decide how to compose your <code>great_tables</code> table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in a jupyter notebook or Quarto document.</p>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Warning
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>In the future, you’ll be able to export to a file using gtsave().</p>
-</div>
-</div>
-<p><img src="../assets/gt_workflow_diagram.svg" class="img-fluid"></p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>gt_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+
+<div style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+html {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+.gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+.gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+.gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+.gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+.gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+.gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+.gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+.gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+.gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+.gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+.gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+.gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle; }
+
+.gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+.gt_from_md > :first-child {
+  margin-top: 0; }
+
+.gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+.gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+.gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+.gt_row_group_first td {
+  border-top-width: 2px; }
+
+.gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+.gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+.gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+.gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+.gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+.gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+.gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+.gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+.gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.gt_left {
+  text-align: left; }
+
+.gt_center {
+  text-align: center; }
+
+.gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+.gt_font_normal {
+  font-weight: normal; }
+
+.gt_font_bold {
+  font-weight: bold; }
+
+.gt_font_italic {
+  font-style: italic; }
+
+.gt_super {
+  font-size: 65%; }
+
+.gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em; }
+
+.gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em; }
+
+.gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+.gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em; }
+
+.gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em; }
+
+.gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em; }
+
+</style>
+<table class="gt_table">
+<thead class="gt_header">  <tr>
+    <th colspan="2" class="gt_heading gt_title gt_font_normal">Large Landmasses of the World
+  </th></tr>
+  <tr>
+    <th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">The top ten largest are presented
+  </th></tr></thead>
+<tbody><tr>
+  <th>name</th>
+  <th>size</th>
+</tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td class="gt_row">Africa</td>
+  <td class="gt_row">11506</td>
+</tr>
+<tr>
+  <td class="gt_row">Antarctica</td>
+  <td class="gt_row">5500</td>
+</tr>
+<tr>
+  <td class="gt_row">Asia</td>
+  <td class="gt_row">16988</td>
+</tr>
+<tr>
+  <td class="gt_row">Australia</td>
+  <td class="gt_row">2968</td>
+</tr>
+<tr>
+  <td class="gt_row">Axel Heiberg</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Baffin</td>
+  <td class="gt_row">184</td>
+</tr>
+<tr>
+  <td class="gt_row">Banks</td>
+  <td class="gt_row">23</td>
+</tr>
+<tr>
+  <td class="gt_row">Borneo</td>
+  <td class="gt_row">280</td>
+</tr>
+<tr>
+  <td class="gt_row">Britain</td>
+  <td class="gt_row">84</td>
+</tr>
+<tr>
+  <td class="gt_row">Celebes</td>
+  <td class="gt_row">73</td>
+</tr>
+<tr>
+  <td class="gt_row">Celon</td>
+  <td class="gt_row">25</td>
+</tr>
+<tr>
+  <td class="gt_row">Cuba</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">Devon</td>
+  <td class="gt_row">21</td>
+</tr>
+<tr>
+  <td class="gt_row">Ellesmere</td>
+  <td class="gt_row">82</td>
+</tr>
+<tr>
+  <td class="gt_row">Europe</td>
+  <td class="gt_row">3745</td>
+</tr>
+<tr>
+  <td class="gt_row">Greenland</td>
+  <td class="gt_row">840</td>
+</tr>
+<tr>
+  <td class="gt_row">Hainan</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Hispaniola</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Hokkaido</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Honshu</td>
+  <td class="gt_row">89</td>
+</tr>
+<tr>
+  <td class="gt_row">Iceland</td>
+  <td class="gt_row">40</td>
+</tr>
+<tr>
+  <td class="gt_row">Ireland</td>
+  <td class="gt_row">33</td>
+</tr>
+<tr>
+  <td class="gt_row">Java</td>
+  <td class="gt_row">49</td>
+</tr>
+<tr>
+  <td class="gt_row">Kyushu</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Luzon</td>
+  <td class="gt_row">42</td>
+</tr>
+<tr>
+  <td class="gt_row">Madagascar</td>
+  <td class="gt_row">227</td>
+</tr>
+<tr>
+  <td class="gt_row">Melville</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Mindanao</td>
+  <td class="gt_row">36</td>
+</tr>
+<tr>
+  <td class="gt_row">Moluccas</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">New Britain</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">New Guinea</td>
+  <td class="gt_row">306</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (N)</td>
+  <td class="gt_row">44</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (S)</td>
+  <td class="gt_row">58</td>
+</tr>
+<tr>
+  <td class="gt_row">Newfoundland</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">North America</td>
+  <td class="gt_row">9390</td>
+</tr>
+<tr>
+  <td class="gt_row">Novaya Zemlya</td>
+  <td class="gt_row">32</td>
+</tr>
+<tr>
+  <td class="gt_row">Prince of Wales</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Sakhalin</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">South America</td>
+  <td class="gt_row">6795</td>
+</tr>
+<tr>
+  <td class="gt_row">Southampton</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Spitsbergen</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">Sumatra</td>
+  <td class="gt_row">183</td>
+</tr>
+<tr>
+  <td class="gt_row">Taiwan</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Tasmania</td>
+  <td class="gt_row">26</td>
+</tr>
+<tr>
+  <td class="gt_row">Tierra del Fuego</td>
+  <td class="gt_row">19</td>
+</tr>
+<tr>
+  <td class="gt_row">Timor</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Vancouver</td>
+  <td class="gt_row">12</td>
+</tr>
+<tr>
+  <td class="gt_row">Victoria</td>
+  <td class="gt_row">82</td>
+</tr>
+</tbody>
 
 
-</section>
+</table>
+
+</div>
+        
+</div>
+</div>
+
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -2980,6 +3524,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../examples-qmd/GT.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">GT</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../examples-qmd/tab-spanner.html" class="pagination-link">
+        <span class="nav-page-text">tab_spanner</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 
