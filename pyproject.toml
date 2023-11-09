@@ -37,6 +37,7 @@ classifiers = [
 ]
 dependencies = [
     "commonmark>=0.9.1",
+    "htmltools>=0.4.1",
     "importlib-metadata",
     "typing_extensions>=3.10.0.0",
     "packaging>=20.9",
