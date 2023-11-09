@@ -41,6 +41,8 @@ def _md_html(x: str) -> str:
 
 
 def _process_text(x: Union[Text, str, None]) -> str:
+    if x is None:
+        return ""
 
     if isinstance(x, str):
         text = x
