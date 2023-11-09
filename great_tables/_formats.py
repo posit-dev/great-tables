@@ -976,6 +976,7 @@ def fmt_currency(
         is_negative = _has_negative_value(value=x)
         is_positive = _has_positive_value(value=x)
 
+        # Get the currency symbol on the basis of a valid currency code
         currency_symbol = _get_currency_str(currency=currency)
 
         x_formatted = _value_to_decimal_notation(
