@@ -1692,8 +1692,23 @@ def _validate_currency(currency: str) -> None:
 
 
 def _get_currency_decimals(currency: str, decimals: Optional[int], use_subunits: bool) -> int:
-    # Get the number of decimal places
+    """
+    Returns the number of decimal places to use for a given currency.
 
+    If `decimals` is not None, it is returned. Otherwise, if `use_subunits` is True,
+    the number of decimal places is determined by the currency's exponent. Otherwise,
+    the number of decimal places is 0.
+
+    Args:
+        currency (str): The currency code.
+        decimals (Optional[int]): The number of decimal places to use, if specified.
+        use_subunits (bool): Whether to use subunits for the currency.
+
+    Returns:
+        int: The number of decimal places to use.
+    """
+
+    # If `decimals` is not None, return it
     if decimals is not None:
         return decimals
 
