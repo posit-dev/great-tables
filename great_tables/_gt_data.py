@@ -425,7 +425,7 @@ __Sourcenotes = None
 from typing import List
 
 
-SourceNotes = list[str]
+SourceNotes = List[str]
 
 # Footnotes ----
 __Footnotes = None
