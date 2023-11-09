@@ -1593,6 +1593,22 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
 
 
 def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
+    """
+    Given a locale, returns the corresponding currency code. If no locale is provided,
+    returns the currency code for the United States ('USD').
+
+    Args:
+        locale (str or None): A string representing the locale for which to retrieve the
+            currency code. If None, the currency code for the United States ('USD') is returned.
+
+    Returns:
+        str: A string representing the currency code for the specified locale.
+
+    Raises:
+        TypeError: If the currency code is not a string.
+
+    """
+
     # If `locale` is None then return `"USD"`
     if locale is None:
         return "USD"
