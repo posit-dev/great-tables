@@ -949,6 +949,12 @@ def fmt_currency(
         # Stop if `currency_resolved` does not have a valid value
         _validate_currency(currency=currency_resolved)
 
+    # Get the number of decimal places for the currency; this takes into account whether
+    # the currency uses subunits or not and whether decimals are explicitly set
+    decimals = _get_currency_decimals(
+        currency=currency_resolved, decimals=decimals, use_subunits=use_subunits
+    )
+
     # Generate a function that will operate on single `x` values in the table body
     def fmt_currency_fn(
         x: float,
