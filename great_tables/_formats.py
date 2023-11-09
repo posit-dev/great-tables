@@ -941,6 +941,7 @@ def fmt_currency(
 
     # Resolve the currency either from direct input in `currency` or through a locale
     if currency is None:
+        # If not providing a `currency` code, we can obtain the currency code from the locale
         currency_resolved = _get_locale_currency_code(locale=locale)
     else:
         currency_resolved = "USD"
