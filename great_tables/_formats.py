@@ -1633,6 +1633,19 @@ def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
 
 
 def _get_currency_str(currency: str) -> str:
+    """
+    Given a currency code, returns the corresponding currency symbol as a string.
+
+    Args:
+        currency (str): The currency code to look up.
+
+    Returns:
+        str: The currency symbol corresponding to the given currency code.
+
+    Raises:
+        TypeError: If the currency symbol is not of type 'str'.
+    """
+
     # Get the correct 'curr_code' value row from the `__x_currencies` lookup table
     pd_df_row = _filter_pd_df_to_row(
         pd_df=_get_currencies_data(), column="curr_code", filter_expr=currency
