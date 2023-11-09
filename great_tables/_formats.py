@@ -1501,6 +1501,17 @@ def _get_locales_list() -> List[str]:
 
 
 def _get_default_locales_list() -> List[str]:
+    """
+    Returns a list of default locales.
+
+    The function retrieves the default locales data and extracts the default locale list.
+    It ensures that the list is of type 'str' and raises a TypeError if not.
+
+    Returns:
+        A list of default locales as strings.
+    """
+
+    # Get the 'default locales' dataset and obtain from that a list of default locales
     default_locales = _get_default_locales_data()
     default_locale_list = default_locales["default_locale"].tolist()
 
