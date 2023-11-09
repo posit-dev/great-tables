@@ -1682,6 +1682,7 @@ def _validate_currency(currency: str) -> None:
     # Get the `curr_code` column from currencies DataFrame as a list
     curr_code_list: List[str] = currencies["curr_code"].tolist()
 
+    # Stop if the `currency` provided isn't a valid one
     if currency not in curr_code_list:
         raise ValueError(
             "The supplied `currency` is not available in the list of supported currencies."
