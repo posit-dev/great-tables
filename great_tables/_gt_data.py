@@ -64,7 +64,7 @@ class GTData:
             _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=Stubhead(),
-            _source_notes=SourceNotes(),
+            _source_notes=[],
             _footnotes=Footnotes(),
             _styles=Styles(),
             _locale=Locale(locale),
