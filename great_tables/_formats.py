@@ -1712,11 +1712,15 @@ def _get_currency_decimals(currency: str, decimals: Optional[int], use_subunits:
     if decimals is not None:
         return decimals
 
+    # If `decimals` is None, then we need to determine the number of decimal places
     if decimals is None and use_subunits:
+        # Get the number of decimal places from the currency's exponent
         decimals = _get_currency_exponent(currency=currency)
     elif decimals is None and not use_subunits:
+        # If `use_subunits` is False, then the number of decimal places is 0
         decimals = 0
 
+    # Assert that `decimals` is not None and then return it
     assert decimals is not None
     return decimals
 
