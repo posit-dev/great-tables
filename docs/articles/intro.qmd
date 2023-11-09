@@ -1,3 +1,104 @@
---- 
-title: Intro
 ---
+title: great_tables
+jupyter: python3
+aliases:
+  - ../index.html
+---
+
+`great_tables` is a Python package for making publication-quality tables.
+
+It provides robust functionality for customizing table structure and presentation, including:
+
+* 🔬 Formatting for decimals, percentages, currencies, into various notations (e.g. scientific).
+* 🎶 Table titles, subtitles and notes.
+* ䷖ Clean presentation of row names and groupings.
+* 📚 Multi-level column spanners.
+
+## Installing
+
+```{.bash}
+pip install great_tables
+```
+
+## Basic use
+
+```{python}
+from great_tables import GT, md
+from great_tables.data import exibble
+```
+
+```{python}
+gt_ex = GT(exibble)
+
+gt_ex
+```
+
+### Formatting columns
+
+```{python}
+gt_ex.fmt_number(
+    columns="num",
+    decimals=1,
+    scale_by=1/1000,
+    pattern="{x}K"
+)
+```
+
+
+### Titles and notes
+
+```{python}
+(
+    gt_ex
+    .tab_header(
+        title = "An example table",
+        subtitle = md("It's **pretty great**")
+    )
+    .tab_source_note(
+        "Source: great tables"
+    )
+)
+```
+
+### Row and group names
+
+::: {.callout-warning}
+This is not implemented yet!
+:::
+
+```{python}
+gt_ex = GT(exibble, rowname_col="row", groupname_col="group")
+
+gt_ex
+```
+
+### Column spanners
+
+:::{.callout-warning}
+this is not implemented yet!
+:::
+
+```{python}
+(
+    gt_ex
+    .tab_spanner("Basic", ["num", "char", "fct"])
+    .tab_spanner("Dates", ["date", "datetime"])
+    .tab_spanner("Misc", ["currency", "row", "group"])
+)
+```
+
+## Anatomy of a table
+
+The `great_table` philosophy: we can construct a wide variety of useful tables with a cohesive set of table parts.
+These include the *table header*, the *stub*, the *column labels* and *spanner column labels*, the *table body*, and the *table footer*.
+
+![](/assets/gt_parts_of_a_table.svg)
+
+It all begins with **table data** (currently must be a pandas DataFrame). You then decide how to compose your `great_tables` table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in a jupyter notebook or Quarto document.
+
+:::{.callout-warning}
+In the future, you'll be able to export to a file using gtsave().
+:::
+
+![](/assets/gt_workflow_diagram.svg)
+
