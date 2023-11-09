@@ -979,6 +979,8 @@ def fmt_currency(
         # Get the currency symbol on the basis of a valid currency code
         currency_symbol = _get_currency_str(currency=currency)
 
+        # Format the value to decimal notation; this is done before the currency symbol is
+        # affixed to the value
         x_formatted = _value_to_decimal_notation(
             value=x,
             decimals=decimals,
