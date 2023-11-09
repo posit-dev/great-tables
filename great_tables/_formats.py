@@ -869,11 +869,12 @@ def fmt_currency(
         Removing the subunits (with `use_subunits = False`) will give us `"$273"`.
 
     decimals : int
-        The `decimals` values corresponds to the exact number of decimal places to use. A value such
-        as `2.34` can, for example, be formatted with `0` decimal places and it would result in
-        `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
-        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-        `fmt_integer()` method should be considered.
+        The `decimals` values corresponds to the exact number of decimal places to use. This value
+        is optional as a currency has an intrinsic number of decimal places (i.e., the subunits).
+        A value such as `2.34` can, for example, be formatted with `0` decimal places and if the
+        currency used is `"USD"` it would result in `"$2"`. With `4` decimal places, the formatted
+        value becomes `"$2.3400"`. The trailing zeros can be removed with
+        `drop_trailing_zeros=True`.
 
     drop_trailing_dec_mark : bool
         A boolean value that determines whether decimal marks should always appear even if there are
