@@ -143,8 +143,6 @@ _illness_dtype = {
     "norm_u": "float64",
 }
 
-_islands_fname = pkg_resources.resource_filename(DATA_MOD, "11-islands.csv")
-
 countrypops: pd.DataFrame = pd.read_csv(_countrypops_fname, dtype=_countrypops_dtype)  # type: ignore
 countrypops.__doc__ = """
 Yearly populations of countries from 1960 to 2022
@@ -298,8 +296,6 @@ remained stable during their illness, unfortunately, the patient's condition did
 not improve. On days 7 and 8, the patient's health declined further, with
 symptoms such as nosebleeds, gastrointestinal bleeding, and hematoma.
 """
-
-islands: pd.DataFrame = pd.read_csv(_islands_fname)  # type: ignore
 
 
 _x_locales_fname = pkg_resources.resource_filename(DATA_MOD, "x_locales.csv")
