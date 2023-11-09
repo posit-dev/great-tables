@@ -1553,7 +1553,20 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
 
 
 def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
-    # Return None if the locale isn't specified
+    """
+    Normalize the given locale string by replacing any underscores with hyphens and resolving any default locales into their base names.
+
+    Args:
+        locale (str or None): The locale string to normalize. If None, returns None.
+
+    Returns:
+        str or None: The normalized locale string, or None if the input was None.
+
+    Raises:
+        TypeError: If the resolved locale is not of type 'str'.
+    """
+
+    # If `locale` is None then return None (we don't need to normalize anything here)
     if locale is None:
         return None
 
