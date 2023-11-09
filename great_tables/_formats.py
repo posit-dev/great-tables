@@ -1617,3 +1617,26 @@ def _get_currency_decimals(currency: str, decimals: Optional[int], use_subunits:
     assert decimals is not None
     return decimals
 
+
+def _get_currency_exponent(currency: str) -> int:
+    currencies = _get_currencies_data()
+
+    # get the curr_code column from currencies df as a list
+    curr_code_list: List[str] = currencies["curr_code"].tolist()
+
+    if currency in curr_code_list:
+        exponent = currencies[currencies["curr_code"] == currency].iloc[0]["exponent"]
+
+        # Cast exponent variable as an integer value (it is a str currently)
+        exponent = int(exponent)
+
+        # Ensure that `exponent` is of the type 'int'
+        exponent: Any
+        if not isinstance(exponent, int):
+            raise TypeError(
+                "Variable type mismatch. Expected int, got something entirely different."
+            )
+    else:
+        exponent = 2
+
+    return exponent
