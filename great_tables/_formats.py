@@ -1663,6 +1663,20 @@ def _get_currency_str(currency: str) -> str:
 
 
 def _validate_currency(currency: str) -> None:
+    """
+    Validates if the provided currency is available in the list of supported currencies.
+
+    Args:
+    - currency (str): The currency code to validate
+
+    Raises:
+    - ValueError: If the `currency` provided isn't a valid one
+
+    Returns:
+    - None
+    """
+
+    # Get the currencies data
     currencies = _get_currencies_data()
 
     # get the curr_code column from currencies df as a list
