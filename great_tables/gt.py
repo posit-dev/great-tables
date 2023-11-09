@@ -256,12 +256,18 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
 def _create_heading_component(data: GT) -> StringBuilder:
     result = StringBuilder()
 
+    title = data._heading.title
+    subtitle = data._heading.subtitle
+
+    has_title = _utils.heading_has_title(title=title)
+    has_subtitle = _utils.heading_has_subtitle(subtitle=subtitle)
+
     # If there is no title or heading component, then return an empty string
-    if _utils.heading_has_title(title=data._heading.title) is False:
+    if not has_title and not has_subtitle:
         return result
 
-    title = data._heading.title
-    subtitle_defined = _utils.heading_has_subtitle(subtitle=data._heading.subtitle)
+    title = _process_text(title)
+    subtitle = _process_text(subtitle)
 
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
@@ -273,9 +279,7 @@ def _create_heading_component(data: GT) -> StringBuilder:
   </tr>"""
     )
 
-    if subtitle_defined:
-        subtitle = data._heading.subtitle
-
+    if has_subtitle:
         subtitle_row = f"""  <tr>
     <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}
   </tr>"""
