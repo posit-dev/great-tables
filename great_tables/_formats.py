@@ -913,12 +913,12 @@ def fmt_currency(
         notation with `accounting = True`.
 
     placement : str
-        This option governs the placement of the percent sign. This can be either be `"right"` (the
-        default) or `"left"`.
+        The placement of the currency symbol. This can be either be `"left"` (as in `"$450"`) or
+        `"right"` (which yields `"450$"`).
 
     incl_space : bool
-        An option for whether to include a space between the value and the percent sign. The default
-        is to not introduce a space character.
+        An option for whether to include a space between the value and the currency symbol. The
+        default is to not introduce a space character.
 
     locale : str
         An optional locale identifier that can be used for formatting values according the locale's
