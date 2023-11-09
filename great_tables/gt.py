@@ -31,7 +31,7 @@ from great_tables._heading import HeadingAPI
 from great_tables._locale import LocaleAPI
 from great_tables._options import OptionsAPI
 from great_tables._row_groups import RowGroupsAPI
-from great_tables._source_notes import SourceNotesAPI
+from great_tables._source_notes import tab_source_note
 from great_tables._spanners import tab_spanner, cols_move
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import StubheadAPI
@@ -67,7 +67,6 @@ class GT(
     RowGroupsAPI,
     HeadingAPI,
     StubheadAPI,
-    SourceNotesAPI,
     FootnotesAPI,
     LocaleAPI,
     FormatsAPI,
@@ -91,9 +90,17 @@ class GT(
     def _repr_html_(self):
         return self.render(context="html")
 
-    def __init__(self, data: Any, locale: str = "", **kwargs):
+    def __init__(
+        self,
+        data: Any,
+        locale: str = "",
+        rowname_col: str | None = None,
+        groupname_col: str | None = None,
+    ):
         # This is a bad idea ----
-        gtdata = GTData.from_data(data, locale=locale, **kwargs)
+        gtdata = GTData.from_data(
+            data, locale=locale, rowname_col=rowname_col, groupname_col=groupname_col
+        )
         super().__init__(**gtdata.__dict__)
 
     # TODO: Refactor API methods -----
@@ -105,6 +112,7 @@ class GT(
     fmt_engineering = fmt_engineering
 
     tab_spanner = tab_spanner
+    tab_source_note = tab_source_note
     cols_move = cols_move
 
     # -----
@@ -120,7 +128,7 @@ class GT(
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         built = copy.copy(self)
-        built._body = self._body.__class__(self._tbl_data)
+        built._body = self._body.__class__(self._tbl_data.copy())
         built._render_formats(context)
         # built._body = _migrate_unformatted_to_output(body)
 
@@ -405,8 +413,9 @@ def _stub_group_names_has_column(data: GT) -> bool:
 def _row_groups_get(data: GT) -> List[str]:
     return data._row_groups._d
 
+
 def _create_source_notes_component(data: GT) -> str:
-    source_notes = data._source_notes.source_notes
+    source_notes = data._source_notes
 
     # If there are no source notes, then return an empty string
     if source_notes == []:

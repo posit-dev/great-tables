@@ -64,7 +64,7 @@ class GTData:
             _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=Stubhead(),
-            _source_notes=SourceNotes(),
+            _source_notes=[],
             _footnotes=Footnotes(),
             _styles=Styles(),
             _locale=Locale(locale),
@@ -425,12 +425,7 @@ __Sourcenotes = None
 from typing import List
 
 
-class SourceNotes:
-    source_notes: List[str] = []
-
-    def __init__(self):
-        pass
-
+SourceNotes = List[str]
 
 # Footnotes ----
 __Footnotes = None
