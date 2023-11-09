@@ -1588,3 +1588,17 @@ def _get_currency_str(currency: str) -> str:
 
     return currency_str
 
+
+def _validate_currency(currency: str) -> None:
+    currencies = _get_currencies_data()
+
+    # get the curr_code column from currencies df as a list
+    curr_code_list: List[str] = currencies["curr_code"].tolist()
+
+    if currency not in curr_code_list:
+        raise ValueError(
+            "The supplied `currency` is not available in the list of supported currencies."
+        )
+
+    return
+
