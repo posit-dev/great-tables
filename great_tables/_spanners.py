@@ -136,10 +136,12 @@ def cols_move(data: GTData, columns: list[str], after: str):
 
     vars = [col.var for col in data._boxhead]
 
-    if len(sel_after) > 1:
-        raise ValueError(f"Only 1 value should be supplied to `after`, recieved argument: {after}")
-    elif after not in vars:
+    if not len(sel_after):
         raise ValueError(f"Column {after} not found in table.")
+    elif len(sel_after) > 1:
+        raise ValueError(
+            f"Only 1 value should be supplied to `after`, recieved argument: {sel_after}"
+        )
 
     if not len(columns):
         raise Exception("No columns selected.")
