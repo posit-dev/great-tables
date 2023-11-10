@@ -9,9 +9,9 @@ helps, and credit will always be given.
 
 If you are reporting a bug, please include:
 
-* Your operating system name and version.
-* Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
+- Your operating system name and version.
+- Any details about your local setup that might be helpful in troubleshooting.
+- Detailed steps to reproduce the bug.
 
 ### Fix Bugs
 
@@ -26,34 +26,34 @@ and "help wanted" is open to whoever wants to implement it.
 ### Write Documentation
 
 You can never have enough documentation! Please feel free to contribute to any
-part of the documentation, such as the official docs, docstrings, or even 
+part of the documentation, such as the official docs, docstrings, or even
 on the web in blog posts, articles, and such.
 
 ### Submit Feedback
 
 If you are proposing a feature:
 
-* Explain in detail how it would work.
-* Keep the scope as narrow as possible, to make it easier to implement.
-* Remember that this is a volunteer-driven project, and that contributions
-  are welcome :)
+- Explain in detail how it would work.
+- Keep the scope as narrow as possible, to make it easier to implement.
+- Remember that this is a volunteer-driven project, and that contributions
+  are welcome :D
 
 ## Get Started!
 
-Ready to contribute? Here's how to set up `gt` for local development.
+Ready to contribute? Here's how to set up `great_tables` for local development.
 
-1. Download a copy of `gt` locally.
-2. Install `gt` using `poetry`:
+1. Download a copy of `great_tables` locally.
+2. Install `great_tables` using `pip`:
 
-    ```console
-    $ poetry install
-    ```
+   ```console
+   $ pip install great_tables
+   ```
 
 3. Use `git` (or similar) to create a branch for local development and make your changes:
 
-    ```console
-    $ git checkout -b name-of-your-bugfix-or-feature
-    ```
+   ```console
+   $ git checkout -b name-of-your-bugfix-or-feature
+   ```
 
 4. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
 
@@ -69,5 +69,5 @@ Before you submit a pull request, check that it meets these guidelines:
 
 ## Code of Conduct
 
-Please note that the `gt` project is released with a 
+Please note that the `great_tables` project is released with a
 Code of Conduct. By contributing to this project you agree to abide by its terms.
