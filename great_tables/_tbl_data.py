@@ -145,8 +145,10 @@ def _set_cell(data: DataFrameLike, row: int, column: str, value: Any):
 
 @_set_cell.register(PdDataFrame)
 def _(data, row: int, column: str, value: Any):
-    # TODO: should this use data.loc?
-    data[column][row] = value
+    # TODO: This assumes column names are unique
+    # if this is violated, get_loc will return a mask
+    col_indx = data.columns.get_loc(column)
+    data.iloc[row, col_indx] = value
 
 
 @_set_cell.register(PlDataFrame)

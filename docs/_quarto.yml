@@ -7,15 +7,21 @@ website:
   page-navigation: true
   navbar:
     left:
-      - href: articles/intro.qmd
       - text: Articles
         menu:
           - articles/case-study-gtcars.qmd
       - href: reference/index.qmd
+      - text: Development
+        menu:
+          - sidebar:examples
       - href: changelog.qmd
     right:
       - icon: github
         href: https://github.com/posit-dev/great-tables
+  sidebar:
+    - id: examples
+      contents: examples-qmd/*
+
 
 
 format:
