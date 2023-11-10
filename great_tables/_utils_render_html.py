@@ -469,12 +469,17 @@ def rtl_modern_unicode_charset() -> str:
 
     # The combination of these RTL character sets
     rtl_modern_unicode_charset = (
-        hebrew_unicode_charset + "|" +
-        arabic_unicode_charset + "|" +
-        syriac_unicode_charset + "|" +
-        thaana_unicode_charset + "|" +
-        samaritan_unicode_charset + "|" +
-        mandaic_unicode_charset
+        hebrew_unicode_charset
+        + "|"
+        + arabic_unicode_charset
+        + "|"
+        + syriac_unicode_charset
+        + "|"
+        + thaana_unicode_charset
+        + "|"
+        + samaritan_unicode_charset
+        + "|"
+        + mandaic_unicode_charset
     )
 
     return rtl_modern_unicode_charset
