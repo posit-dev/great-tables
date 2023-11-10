@@ -8,7 +8,7 @@ assignees: rich-iannone
 
 ## Prework
 
-- [ ] Read and abide by **gt**'s [code of conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) and [contributing guidelines](https://github.com/posit-dev/great_tables/blob/main/.github/CONTRIBUTING.md).
+- [ ] Read and abide by the **great_tables** [code of conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) and [contributing guidelines](https://github.com/posit-dev/great_tables/blob/main/.github/CONTRIBUTING.md).
 - [ ] Search for duplicates among the [existing issues](https://github.com/posit-dev/great_tables/issues) (both open and closed).
 
 ## Proposal
