@@ -11,7 +11,7 @@
 
 _Absolutely Delightful Table-making in Python_
 
-With **great_tables** anyone can make wonderful-looking tables in Python. The **gt** philosophy is that we can construct a wide variety of useful tables by working with a cohesive set of table parts. You can mix and match things like a _header_ and _footer_, attach a _stub_ (which contains row labels), arrange _spanner labels_ over top of the _column labels_, and much more.
+With **great_tables** anyone can make wonderful-looking tables in Python. The philosophy here is that we can construct a wide variety of useful tables by working with a cohesive set of table parts. You can mix and match things like a _header_ and _footer_, attach a _stub_ (which contains row labels), arrange _spanner labels_ over top of the _column labels_, and much more. Not only that, but you can format the cell values in a variety of awesome ways.
 
 ## Installation
 
@@ -25,7 +25,7 @@ Interested in contributing to **great_tables**? Check out the contributing guide
 
 ## Code of Conduct
 
-Please note that the gt project is released with a [contributor code of conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).<br>By participating in this project you agree to abide by its terms.
+Please note that the **great_tables** project is released with a [contributor code of conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).<br>By participating in this project you agree to abide by its terms.
 
 ## 📄 License
 
