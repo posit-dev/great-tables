@@ -1,2 +1,2 @@
-include gt/css/*.scss
-include gt/data/*.csv
+include great_tables/css/*.scss
+include great_tables/data/*.csv
