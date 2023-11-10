@@ -35,6 +35,7 @@ from great_tables._source_notes import tab_source_note
 from great_tables._spanners import tab_spanner, cols_move
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import StubheadAPI
+from great_tables._utils_render_html import create_columns_component_h
 
 
 # from ._helpers import random_id
