@@ -253,20 +253,20 @@ class Boxhead(_Sequence[ColInfo]):
 
     def _get_visible_alignments(self) -> List[str]:
         # Get the column alignments and also the alignment class names
-        boxh = self._boxhead
+        boxh = self._d
 
         # Filter boxh to only include visible columns
-        alignments = [x.align for x in boxh if x.visible]
+        alignments = [x.column_align for x in boxh if x.visible]
 
         return alignments
 
     # Get the alignment for a specific var value
     def _get_boxhead_get_alignment_by_var(self, var: str) -> str:
         # Get the column alignments and also the alignment class names
-        boxh = self._boxhead
+        boxh = self._d
 
         # Filter boxh to only include visible columns
-        alignments = [x.align for x in boxh if x.visible]
+        alignments = [x.column_align for x in boxh if x.visible]
 
         # Get the index of the var in the boxh
         var_index = boxh.index(var)
