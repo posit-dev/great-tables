@@ -1,4 +1,5 @@
 from typing import Union, List
+import html
 
 import commonmark
 import re
@@ -56,7 +57,10 @@ def _process_text(x: Union[Text, str, None]) -> str:
     elif type == "html":
         x_out = text
     else:
-        # TODO: Perform HTML escaping
-        x_out = text
+        x_out = _html_escape(text)
 
     return x_out
+
+
+def _html_escape(x: str) -> str:
+    return html.escape(x)
