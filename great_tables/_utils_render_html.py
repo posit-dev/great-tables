@@ -1,7 +1,7 @@
 from great_tables._spanners import spanners_print_matrix
 from ._gt_data import GTData
 from typing import List, Any
-from htmltools import tags, HTML
+from htmltools import tags, HTML, TagList
 from itertools import groupby
 import pandas as pd
 
@@ -25,7 +25,7 @@ def create_columns_component_h(data: GTData) -> str:
 
     # TODO: The body component of the table is only needed for determining RTL alignment
     # is needed in the corresponding column labels
-    body = data._body
+    # body = data._body
 
     # Get vector representation of stub layout
     stub_layout = _get_stub_layout(data=data)
@@ -33,21 +33,22 @@ def create_columns_component_h(data: GTData) -> str:
     # Determine the finalized number of spanner rows
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
 
+    print(spanner_row_count)
     # Get the column alignments and also the alignment class names
-    col_alignment = boxhead._get_visible_alignments()
+    col_alignment = data._boxhead._get_visible_alignments()
 
-    # TODO: Modify alignments for RTL support
+    # TODO: Modify alignments for RTL support, skip this for now
     # Detect any RTL script characters within the visible columns;
     # this creates a vector the same length as `col_alignment`
-    rtl_detect = [
-        any(char in rtl_modern_unicode_charset() for char in str(body[x])) for x in range(len(body))
-    ]
-
+    # rtl_detect = [
+    #     any(char in rtl_modern_unicode_charset() for char in str(body[x])) for x in range(len(body))
+    # ]
+    #
     # For any columns containing characters from RTL scripts; we
     # will transform a 'left' alignment to a 'right' alignment
-    for i in range(len(rtl_detect)):
-        if rtl_detect[i] and col_alignment[i] != "center":
-            col_alignment[i] = "right"
+    # for i in range(len(rtl_detect)):
+    #     if rtl_detect[i] and col_alignment[i] != "center":
+    #         col_alignment[i] = "right"
 
     # Get the column headings
     headings_vars = boxhead._get_visible_columns()
@@ -133,17 +134,19 @@ def create_columns_component_h(data: GTData) -> str:
             )
         )
 
-    table_col_headings = tags.tr(class_="gt_col_headings", contents=table_col_headings)
+    table_col_headings = tags.tr(class_="gt_col_headings", contents=str(table_col_headings))
 
     #
     # Create the spanners in the case where there *are* spanners ---------------------------------
     #
 
     if spanner_row_count > 0:
-        spanners = spanners_print_matrix(spanners=spanners, boxhead=boxhead, include_hidden=False)
+        spanners = spanners_print_matrix(
+            spanners=data._spanners, boxhead=boxhead, include_hidden=False
+        )
 
         spanner_ids = spanners_print_matrix(
-            spanners=spanners, boxhead=boxhead, include_hidden=False, ids=True
+            spanners=data._spanners, boxhead=boxhead, include_hidden=False, ids=True
         )
 
         level_1_index = len(spanners) - 1
@@ -189,7 +192,9 @@ def create_columns_component_h(data: GTData) -> str:
 
         # NOTE: Run-length encoding treats missing values as distinct from each other; in other
         # words, each missing value starts a new run of length 1
-        spanners_rle = [(k, len(list(g))) for k, g in groupby(list(spanner_ids[level_1_index, :]))]
+
+        spanner_ids_level_1_index = spanner_ids[level_1_index]
+        spanners_rle = [(k, len(list(g))) for k, g in groupby(list(spanner_ids_level_1_index))]
 
         # The `sig_cells` vector contains the indices of spanners' elements where the value is
         # either None, or, is different than the previous value; because None values are
@@ -462,6 +467,20 @@ def rtl_modern_unicode_charset() -> str:
     return rtl_modern_unicode_charset
 
 
+def _collapse_list_elements(lst, separator=""):
+    """
+    Concatenates all elements of a list into a single string, separated by a given separator.
+
+    Args:
+        lst (list): The list to be collapsed.
+        separator (str, optional): The separator to be used. Defaults to "".
+
+    Returns:
+        str: The collapsed string.
+    """
+    return separator.join(lst)
+
+
 def _insert_into_list(lst: List[Any], el: Any) -> List[Any]:
     """
     Inserts an element into the beginning of a list and returns the updated list.
@@ -497,6 +516,8 @@ def _get_spanners_matrix_height(
         include_hidden=include_hidden,
         omit_columns_row=omit_columns_row,
     )
+
+    print(spanners_matrix)
 
     return len(spanners_matrix)
 
