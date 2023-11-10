@@ -1,9 +1,7 @@
 from great_tables._spanners import spanners_print_matrix
 from ._gt_data import GTData
-from great_tables.gt_data._options import _get_option_value
-from great_tables.gt_data._boxhead.BoxheadAPI import _get_boxhead_get_alignment_by_var
 from typing import List, Any
-from htmltools import Tag, TagAttrs, TagAttrValue, TagChild, css, tags, HTML
+from htmltools import tags, HTML
 from itertools import groupby
 import pandas as pd
 
@@ -14,7 +12,7 @@ def create_columns_component_h(data: GTData) -> str:
     """
 
     # Should the column labels be hidden?
-    column_labels_hidden: bool = _get_option_value(data=data, option="column_labels_hidden")
+    column_labels_hidden: bool = data._options._get_option_value(option="column_labels_hidden")
 
     if column_labels_hidden:
         return ""
@@ -48,7 +46,7 @@ def create_columns_component_h(data: GTData) -> str:
     # For any columns containing characters from RTL scripts; we
     # will transform a 'left' alignment to a 'right' alignment
     for i in range(len(rtl_detect)):
-        if (rtl_detect[i] and col_alignment[i] != "center"):
+        if rtl_detect[i] and col_alignment[i] != "center":
             col_alignment[i] = "right"
 
     # Get the column headings
@@ -113,7 +111,6 @@ def create_columns_component_h(data: GTData) -> str:
     # Create the headings in the case where there are no spanners at all -------------------------
     #
     for i in range(len(headings_vars)):
-
         # NOTE: Ignore styles for now
         # styles_column = subset(column_style_attrs, colnum == i)
         #
@@ -143,19 +140,11 @@ def create_columns_component_h(data: GTData) -> str:
     #
 
     if spanner_row_count > 0:
-
-        spanners = spanners_print_matrix(
-            spanners = spanners,
-            boxhead = boxhead,
-            include_hidden = False
-          )
+        spanners = spanners_print_matrix(spanners=spanners, boxhead=boxhead, include_hidden=False)
 
         spanner_ids = spanners_print_matrix(
-            spanners = spanners,
-            boxhead = boxhead,
-            include_hidden = False,
-            ids = True
-          )
+            spanners=spanners, boxhead=boxhead, include_hidden=False, ids=True
+        )
 
         level_1_index = len(spanners) - 1
 
@@ -170,7 +159,6 @@ def create_columns_component_h(data: GTData) -> str:
 
         # Create the cell for the stubhead label
         if len(stub_layout) > 0:
-
             # NOTE: Ignore styles for now
             # if len(stubhead_style_attrs) > 0:
             #     stubhead_style = stubhead_style_attrs.html_style
@@ -199,7 +187,6 @@ def create_columns_component_h(data: GTData) -> str:
             headings_vars.pop(0)
             headings_labels.pop(0)
 
-
         # NOTE: Run-length encoding treats missing values as distinct from each other; in other
         # words, each missing value starts a new run of length 1
         spanners_rle = [(k, len(list(g))) for k, g in groupby(list(spanner_ids[level_1_index, :]))]
@@ -207,14 +194,20 @@ def create_columns_component_h(data: GTData) -> str:
         # The `sig_cells` vector contains the indices of spanners' elements where the value is
         # either None, or, is different than the previous value; because None values are
         # distinct, every element that is None will be present in `sig_cells`
-        sig_cells = [1] + [i+1 for i, (k, _) in enumerate(spanners_rle[:-1]) if k is None or k != spanners_rle[i-1][0]]
+        sig_cells = [1] + [
+            i + 1
+            for i, (k, _) in enumerate(spanners_rle[:-1])
+            if k is None or k != spanners_rle[i - 1][0]
+        ]
 
         # `colspans` matches `spanners` in length; each element is the number of columns that the
         # <th> at that position should span; if 0, then skip the <th> at that position
-        colspans = [spanners_rle[j][1] if (j+1) in sig_cells else 0 for j in range(len(spanner_ids[level_1_index, :]))]
+        colspans = [
+            spanners_rle[j][1] if (j + 1) in sig_cells else 0
+            for j in range(len(spanner_ids[level_1_index, :]))
+        ]
 
         for i, _ in enumerate(headings_vars):
-
             if spanner_ids[level_1_index][i] == {}:
                 # NOTE: Ignore styles for now
                 # styles_heading = filter(
@@ -226,7 +219,9 @@ def create_columns_component_h(data: GTData) -> str:
                 heading_style = None
 
                 # Get the alignment for the current column
-                first_set_alignment = boxhead._get_boxhead_get_alignment_by_var(var=headings_vars[i])
+                first_set_alignment = boxhead._get_boxhead_get_alignment_by_var(
+                    var=headings_vars[i]
+                )
 
                 level_1_spanners.append(
                     tags.th(
@@ -234,7 +229,7 @@ def create_columns_component_h(data: GTData) -> str:
                             [
                                 "gt_col_heading",
                                 "gt_columns_bottom_border",
-                                f"gt_{first_set_alignment}"
+                                f"gt_{first_set_alignment}",
                             ]
                         ),
                         rowspan=2,
@@ -242,16 +237,14 @@ def create_columns_component_h(data: GTData) -> str:
                         style=heading_style,
                         scope="col",
                         id=headings_labels[i],
-                        contents=HTML(headings_labels[i])
-                            )
+                        contents=HTML(headings_labels[i]),
                     )
+                )
 
             elif spanner_ids[level_1_index][i] is not None:
-
                 # If colspans[i] == 0, it means that a previous cell's
                 # `colspan` will cover us
                 if colspans[i] > 0:
-
                     # NOTE: Ignore styles for now
                     # FIXME: this needs to be rewritten
                     # styles_spanners = filter(
@@ -271,18 +264,17 @@ def create_columns_component_h(data: GTData) -> str:
                     level_1_spanners.append(
                         tags.th(
                             class_=" ".join(
-                                [
-                                    "gt_center",
-                                    "gt_columns_top_border",
-                                    "gt_column_spanner_outer"
-                                ]
+                                ["gt_center", "gt_columns_top_border", "gt_column_spanner_outer"]
                             ),
                             rowspan=1,
                             colspan=colspans[i],
                             style=spanner_style,
                             scope="colgroup" if colspans[i] > 1 else "col",
                             id=str(spanners[level_1_index][i]),
-                            contents=tags.span(class_="gt_column_spanner", contents=HTML(spanners[level_1_index][i]))
+                            contents=tags.span(
+                                class_="gt_column_spanner",
+                                contents=HTML(spanners[level_1_index][i]),
+                            ),
                         )
                     )
 
@@ -290,17 +282,17 @@ def create_columns_component_h(data: GTData) -> str:
         remaining_headings = headings_vars[~(headings_vars.isin(solo_headings))]
 
         remaining_headings_labels = boxhead
-        remaining_headings_labels = remaining_headings_labels[remaining_headings_labels["var"].isin(remaining_headings)]
+        remaining_headings_labels = remaining_headings_labels[
+            remaining_headings_labels["var"].isin(remaining_headings)
+        ]
         remaining_headings_labels = remaining_headings_labels["column_label"].tolist()
 
         col_alignment = col_alignment[1:][~(headings_vars.isin(solo_headings))]
 
         if len(remaining_headings) > 0:
-
             spanned_column_labels = []
 
             for j in range(len(remaining_headings)):
-
                 # Skip styles for now
                 # styles_remaining = styles_tbl[
                 #     (styles_tbl["locname"] == "columns_columns") &
@@ -314,7 +306,9 @@ def create_columns_component_h(data: GTData) -> str:
                 # )
                 remaining_style = None
 
-                remaining_alignment = boxhead._get_boxhead_get_alignment_by_var(var=remaining_headings[j])
+                remaining_alignment = boxhead._get_boxhead_get_alignment_by_var(
+                    var=remaining_headings[j]
+                )
 
                 spanned_column_labels.append(
                     tags.th(
@@ -322,7 +316,7 @@ def create_columns_component_h(data: GTData) -> str:
                             [
                                 "gt_col_heading",
                                 "gt_columns_bottom_border",
-                                f"gt_{remaining_alignment}"
+                                f"gt_{remaining_alignment}",
                             ]
                         ),
                         rowspan=1,
@@ -330,36 +324,27 @@ def create_columns_component_h(data: GTData) -> str:
                         style=remaining_style,
                         scope="col",
                         id=remaining_headings_labels[j],
-                        contents=HTML(remaining_headings_labels[j])
+                        contents=HTML(remaining_headings_labels[j]),
                     )
                 )
 
             table_col_headings = tags.tagList(
-                tags.tr(
-                  class = "gt_col_headings gt_spanner_row",
-                  level_1_spanners
-                ),
-                tags.tr(
-                  class = "gt_col_headings",
-                  spanned_column_labels
-                )
-              )
+                tags.tr(level_1_spanners, class_="gt_col_headings gt_spanner_row"),
+                tags.tr(spanned_column_labels, class_="gt_col_headings"),
+            )
 
         else:
-        # Create the `table_col_headings` HTML component
+            # Create the `table_col_headings` HTML component
             table_col_headings = tags.tr(
-                class_="gt_col_headings gt_spanner_row",
-                contents=level_1_spanners
+                class_="gt_col_headings gt_spanner_row", contents=level_1_spanners
             )
 
     if _get_spanners_matrix_height(data=data) > 2:
-
         higher_spanner_rows_idx = seq_len(nrow(spanner_ids) - 2)
 
         higher_spanner_rows = tags.tagList()
 
         for i in higher_spanner_rows_idx:
-
             spanner_ids_row = spanner_ids[i]
             spanners_row = spanners[i]
             spanners_vars = list(set(spanner_ids_row[~np.isnan(spanner_ids_row)].tolist()))
@@ -369,16 +354,21 @@ def create_columns_component_h(data: GTData) -> str:
 
             spanners_rle = [(k, len(list(g))) for k, g in groupby(list(spanner_ids_row))]
 
-            sig_cells = [1] + [i+1 for i, (k, _) in enumerate(spanners_rle[:-1]) if k is None or k != spanners_rle[i-1][0]]
+            sig_cells = [1] + [
+                i + 1
+                for i, (k, _) in enumerate(spanners_rle[:-1])
+                if k is None or k != spanners_rle[i - 1][0]
+            ]
 
-            colspans = [spanners_rle[j][1] if (j+1) in sig_cells else 0 for j in range(len(spanner_ids_row))]
+            colspans = [
+                spanners_rle[j][1] if (j + 1) in sig_cells else 0
+                for j in range(len(spanner_ids_row))
+            ]
 
             level_i_spanners = []
 
             for j in range(len(colspans)):
-
                 if colspans[j] > 0:
-
                     # Skip styles for now
                     # styles_spanners = styles_tbl[
                     #     (styles_tbl["locname"] == "columns_groups") &
@@ -393,56 +383,43 @@ def create_columns_component_h(data: GTData) -> str:
                     spanner_style = None
 
                     level_i_spanners.append(
-                      tags.th(
-                        class = paste(
-                          c(
-                            "gt_center",
-                            "gt_columns_top_border",
-                            "gt_column_spanner_outer"
-                          ),
-                          collapse = " "
-                        ),
-                        rowspan = 1,
-                        colspan = colspans[j],
-                        style = spanner_style,
-                        scope = ifelse(colspans[j] > 1, "colgroup", "col"),
-                        id = spanners_row[j],
-                        if (spanner_ids_row[j] != "") {
-                          tags.span(
-                            class = "gt_column_spanner",
-                            HTML(spanners_row[j])
-                          )
-                        }
-                      )
+                        tags.th(
+                            class_=" ".join(
+                                ["gt_center", "gt_columns_top_border", "gt_column_spanner_outer"]
+                            ),
+                            rowspan=1,
+                            colspan=colspans[j],
+                            style=spanner_style,
+                            scope="colgroup" if colspans[j] > 1 else "col",
+                            contents=tags.tagList(
+                                tags.span(contents=HTML(spanners_row[j])),
+                                tags.span(
+                                    class_="gt_column_spanner_inner", contents=HTML("&nbsp;")
+                                ),
+                            ),
+                        )
                     )
 
             if len(stub_layout) > 0 and i == 1:
-
-                level_i_spanners = tags.tagList(
-                    tags.th(
-                      rowspan = max(higher_spanner_rows_idx),
-                      colspan = len(stub_layout),
-                      scope = ifelse(length(stub_layout) > 1, "colgroup", "col")
-                    ),
-                    level_i_spanners
-                  )
+                level_i_spanners = tags.th(
+                    rowspan=max(list(higher_spanner_rows_idx)),
+                    colspan=len(stub_layout),
+                    scope="colgroup" if len(stub_layout) > 1 else "col",
+                    contents=tags.tagList(level_i_spanners),
+                )
 
             higher_spanner_rows = tags.tagList(
-                  higher_spanner_rows,
-                  tags.tagList(
-                    tags.tr(
-                      class_="gt_col_headings gt_spanner_row",
-                      level_i_spanners
-                    )
-                  )
-                )
+                higher_spanner_rows,
+                tags.tagList(tags.tr(level_i_spanners, class_="gt_col_headings gt_spanner_row")),
+            )
 
         table_col_headings = tags.tagList(
             higher_spanner_rows,
             table_col_headings,
-            )
+        )
 
-    table_col_headings
+    return str(table_col_headings)
+
 
 def rtl_modern_unicode_charset() -> str:
     """
@@ -483,6 +460,7 @@ def rtl_modern_unicode_charset() -> str:
     )
 
     return rtl_modern_unicode_charset
+
 
 def _insert_into_list(lst: List[Any], el: Any) -> List[Any]:
     """
