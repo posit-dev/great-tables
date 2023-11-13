@@ -3,18 +3,16 @@ from typing import Optional, Union, List, Any, cast
 from great_tables import _utils
 
 default_fonts_list = [
-    "-apple-system",
-    "BlinkMacSystemFont",
+    "system-ui",
     "Segoe UI",
     "Roboto",
-    "Oxygen",
-    "Ubuntu",
-    "Cantarell",
-    "Helvetica Neue",
-    "Fira Sans",
-    "Droid Sans",
+    "Helvetica",
     "Arial",
     "sans-serif",
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    "Noto Color Emoji",
 ]
 
 
