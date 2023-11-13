@@ -241,6 +241,13 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self
 
+    # Set column alignments
+    def _set_column_align(self, column: str, align: str):
+        for x in self._d:
+            if x.var == column:
+                x.column_align = ColumnAlignment[align.capitalize()]
+
+        return self
     # Get a list of visible columns
     def _get_visible_columns(self) -> List[str]:
         visible_columns = [x.var for x in self._d if x.visible is True]
