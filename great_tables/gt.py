@@ -32,7 +32,7 @@ from great_tables._locale import LocaleAPI
 from great_tables._options import OptionsAPI
 from great_tables._row_groups import RowGroupsAPI
 from great_tables._source_notes import tab_source_note
-from great_tables._spanners import tab_spanner, cols_move, cols_move_to_start
+from great_tables._spanners import tab_spanner, cols_move, cols_move_to_start, cols_move_to_end
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import StubheadAPI
 from great_tables._utils_render_html import create_columns_component_h
@@ -116,6 +116,7 @@ class GT(
     tab_source_note = tab_source_note
     cols_move = cols_move
     cols_move_to_start = cols_move_to_start
+    cols_move_to_end = cols_move_to_end
 
     # -----
 
