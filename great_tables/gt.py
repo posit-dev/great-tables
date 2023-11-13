@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, cast
+from typing import Any, List, Optional, cast
 from typing_extensions import Self
 import pkg_resources
 
@@ -37,6 +37,7 @@ from great_tables._spanners import tab_spanner, cols_move, cols_move_to_start, c
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import StubheadAPI
 from great_tables._utils_render_html import create_columns_component_h
+from great_tables._helpers import random_id
 
 
 # from ._helpers import random_id
@@ -199,24 +200,27 @@ class GT(
 </table>
 """
 
-        # Get a string of compiled CSS
-        css = _compile_scss(data=self)
-
         # Obtain the `table_id` value (might be set, might be None)
         table_id = self._options._options["table_id"].value
 
-        # Obtain options set for overflow and container dimensions
-        overflow_x = self._options._options["container_overflow_x"].value
-        overflow_y = self._options._options["container_overflow_y"].value
-        width = self._options._options["container_width"].value
-        height = self._options._options["container_height"].value
-
         if table_id is None:
-            id_attr_str = ""
+            id = random_id()
         else:
-            id_attr_str = f'id="{table_id}"'
+            id = table_id
 
-        finalized_table = f"""<div {id_attr_str} style="overflow-x:{overflow_x};overflow-y:{overflow_y};width:{width};height:{height};">
+        # Compile the SCSS as CSS
+        css = _compile_scss(data=self, id=id)
+
+        # Obtain options set for overflow and container dimensions
+
+        container_padding_x = self._options._get_option_value("container_padding_x")
+        container_padding_y = self._options._get_option_value("container_padding_y")
+        container_overflow_x = self._options._get_option_value("container_overflow_x")
+        container_overflow_y = self._options._get_option_value("container_overflow_y")
+        container_width = self._options._get_option_value("container_width")
+        container_height = self._options._get_option_value("container_height")
+
+        finalized_table = f"""<div id="{id}" style="padding-left:{container_padding_x};padding-right:{container_padding_x};padding-top:{container_padding_y};padding-bottom:{container_padding_y};overflow-x:{container_overflow_x};overflow-y:{container_overflow_y};width:{container_width};height:{container_height};">
 <style>
 {css}
 </style>
@@ -323,11 +327,27 @@ def _create_heading_component(data: GT) -> StringBuilder:
 
 
 def _create_column_labels_component(data: GT) -> str:
-    column_names = data._boxhead._get_column_labels()
+    column_names = data._boxhead._get_visible_column_labels()
+    alignments = data._boxhead._get_visible_alignments()
 
-    th_cells = "".join([f"  <th>{x}</th>\n" for x in column_names])
+    # Replace None values in `alignments` with "left"
+    alignments = ["left" if x == "None" else x for x in alignments]
 
-    column_names_str = f"<tr>\n{th_cells}</tr>"
+    if len(column_names) != len(alignments):
+        raise ValueError("Number of column names and alignments must be equal.")
+
+    # Use column_names and alignments to create the <th> cells, need a loop here since we need to
+    # add the alignment and map through the column_names:
+    th_cells: List[str] = []
+    for i in range(len(column_names)):
+        th_cells.append(
+            f'<th class="gt_col_heading gt_columns_bottom_border gt_{alignments[i]}">{column_names[i]}</th>'
+        )
+
+    # Join the <th> cells into a string and separate each with a newline
+    th_cells = "\n".join(th_cells)
+
+    column_names_str = f'<thead><tr class="gt_col_headings">\n{th_cells}</tr></thead>'
 
     return column_names_str
 
@@ -504,7 +524,7 @@ def _create_footnotes_component(data: GT):
 
 
 # TODO: Port the SCSS compilation routine from the R implementation here
-def _compile_scss(data: GT) -> str:
+def _compile_scss(data: GT, id: Optional[str]) -> str:
     # Obtain the SCSS options dictionary
     gt_options_dict = data._options._options
 
@@ -516,8 +536,11 @@ def _compile_scss(data: GT) -> str:
     ]
     scss_params_str = "\n".join(scss_params) + "\n"
 
+    # Determine whether the table has an ID
+    has_id = id is not None
+
     # Obtain the `table_id` value (might be set, might be None)
-    table_id = gt_options_dict["table_id"].value
+    # table_id = data._options._get_option_value(option="table_id")
 
     # TODO: need to implement a function to normalize color (`html_color()`)
 
@@ -529,6 +552,14 @@ def _compile_scss(data: GT) -> str:
         font_family_attr = _as_css_font_family_attr(fonts=font_list)
     else:
         font_family_attr = ""
+
+    gt_table_open_str = f"#{id} table" if has_id else ".gt_table"
+
+    gt_table_class_str = f"""{gt_table_open_str} {{
+          {font_family_attr}
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }}"""
 
     gt_styles_default_file = open(
         pkg_resources.resource_filename("great_tables", "css/gt_styles_default.scss")
@@ -545,13 +576,10 @@ def _compile_scss(data: GT) -> str:
     scss = scss_params_str + gt_colors + gt_styles_default
 
     compiled_css = cast(str, sass.compile(string=scss))
-    if table_id is not None:
-        compiled_css = re.sub(r"\.gt_", f"#{table_id} .gt_", compiled_css, 0, re.MULTILINE)
 
-    finalized_css = f"""html {{
-      {font_family_attr}
-}}
+    if has_id:
+        compiled_css = re.sub(r"\.gt_", f"#{id} .gt_", compiled_css, 0, re.MULTILINE)
 
-{compiled_css}"""
+    finalized_css = f"{gt_table_class_str}\n\n{compiled_css}"
 
     return finalized_css
