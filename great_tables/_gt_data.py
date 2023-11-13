@@ -248,6 +248,11 @@ class Boxhead(_Sequence[ColInfo]):
                 x.column_align = ColumnAlignment[align.capitalize()]
 
         return self
+
+    # Get a list of column widths
+    def _get_column_widths(self) -> List[str | None]:
+        return [x.column_width for x in self._d]
+
     # Get a list of visible columns
     def _get_visible_columns(self) -> List[str]:
         visible_columns = [x.var for x in self._d if x.visible is True]
