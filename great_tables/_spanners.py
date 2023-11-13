@@ -230,6 +230,49 @@ def cols_move_to_start(data: GTData, columns: Union[str, list[str]]) -> GTData:
     return data._replace(_boxhead=new_boxhead)
 
 
+def cols_move_to_end(data: GTData, columns: Union[str, list[str]]) -> GTData:
+    """Move one or more columns to the end.
+
+    We can easily move set of columns to the beginning of the column series and we only need to
+    specify which `columns`. It's possible to do this upstream of **gt_tables**, however, it is
+    easier with this function and it presents less possibility for error. The ordering of the
+    `columns` that are moved to the end is preserved (same with the ordering of all other columns in
+    the table).
+
+    Parameters
+    ----------
+    columns : Union[List[str]]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
+    """
+
+    # If `columns` is a string, convert it to a list
+    if isinstance(columns, str):
+        columns = [columns]
+
+    sel_cols = resolve_cols_c(columns, data)
+
+    vars = [col.var for col in data._boxhead]
+
+    if not len(columns):
+        raise Exception("No columns selected.")
+    elif not all([col in vars for col in columns]):
+        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+
+    moving_columns = [col for col in sel_cols]
+    other_columns = [col for col in vars if col not in moving_columns]
+
+    final_vars = [*other_columns, *moving_columns]
+
+    new_boxhead = data._boxhead.reorder(final_vars)
+    return data._replace(_boxhead=new_boxhead)
+
+
 def spanners_print_matrix(
     spanners: Spanners,
     boxhead: Boxhead,
