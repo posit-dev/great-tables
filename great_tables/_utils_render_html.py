@@ -1,7 +1,7 @@
 from great_tables._spanners import spanners_print_matrix
 from ._gt_data import GTData
-from typing import List, Any
-from htmltools import tags, HTML, TagList
+from typing import List, Dict, Any
+from htmltools import tags, HTML
 from itertools import groupby
 import pandas as pd
 
