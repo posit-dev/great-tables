@@ -705,10 +705,6 @@ class Options:
         self._options: dict[str, OptionsInfo] = dict(
            (v.parameter, v) for v in [
             #           parameter                            scss    category            type        value
-            OptionsInfo("container_width",                   False,  "container",        "px",       "auto"),
-            OptionsInfo("container_height",                  False,  "container",        "px",       "auto"),
-            OptionsInfo("container_overflow_x",              False,  "container",        "overflow", "auto"),
-            OptionsInfo("container_overflow_y",              False,  "container",        "overflow", "auto"),
             OptionsInfo("table_id",                          False,  "table",            "value",    None),
             OptionsInfo("table_caption",                     False,  "table",            "value",    None),
             OptionsInfo("table_width",                        True,  "table",            "px",       "auto"),
@@ -861,6 +857,12 @@ class Options:
             OptionsInfo("row_striping_background_color",      True,  "row",              "value",    "rgba(128,128,128,0.05)"),
             OptionsInfo("row_striping_include_stub",         False,  "row",              "boolean",  False),
             OptionsInfo("row_striping_include_table_body",   False,  "row",              "boolean",  False),
+            OptionsInfo("container_width",                   False,  "container",        "px",       "auto"),
+            OptionsInfo("container_height",                  False,  "container",        "px",       "auto"),
+            OptionsInfo("container_padding_x",               False,  "container",        "px",       "0px"),
+            OptionsInfo("container_padding_y",               False,  "container",        "px",       "10px"),
+            OptionsInfo("container_overflow_x",              False,  "container",        "overflow", "auto"),
+            OptionsInfo("container_overflow_y",              False,  "container",        "overflow", "auto"),
             OptionsInfo("page_orientation",                  False,  "page",             "value",    "portrait"),
             OptionsInfo("page_numbering",                    False,  "page",             "boolean",  False),
             OptionsInfo("page_header_use_tbl_headings",      False,  "page",             "boolean",  False),
@@ -873,6 +875,8 @@ class Options:
             OptionsInfo("page_margin_bottom",                False,  "page",             "value",    "1.0in"),
             OptionsInfo("page_header_height",                False,  "page",             "value",    "0.5in"),
             OptionsInfo("page_footer_height",                False,  "page",             "value",    "0.5in"),
+            OptionsInfo("quarto_disable_processing",         False,  "quarto",           "logical",  False),
+            OptionsInfo("quarto_use_bootstrap",              False,  "quarto",           "logical",  False),
         ])
 # fmt: on
 
