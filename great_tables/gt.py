@@ -26,6 +26,7 @@ from great_tables._formats import (
     fmt_scientific,
     fmt_currency,
     fmt_engineering,
+    fmt_markdown,
 )
 from great_tables._heading import HeadingAPI
 from great_tables._locale import LocaleAPI
@@ -111,6 +112,7 @@ class GT(
     fmt_scientific = fmt_scientific
     fmt_currency = fmt_currency
     fmt_engineering = fmt_engineering
+    fmt_markdown = fmt_markdown
 
     tab_spanner = tab_spanner
     tab_source_note = tab_source_note
