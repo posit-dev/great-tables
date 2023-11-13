@@ -129,7 +129,7 @@ def tab_spanner(
     return new_data
 
 
-def cols_move(data: GTData, columns: list[str], after: str) -> GTData:
+def cols_move(data: GTData, columns: Union[str, list[str]], after: str) -> GTData:
     """Move one or more columns.
 
     On those occasions where you need to move columns this way or that way, we can make use of the
@@ -154,6 +154,10 @@ def cols_move(data: GTData, columns: list[str], after: str) -> GTData:
     GTData
         The GTData object is returned.
     """
+
+    # If `columns` is a string, convert it to a list
+    if isinstance(columns, str):
+        columns = [columns]
 
     sel_cols = resolve_cols_c(columns, data)
 
