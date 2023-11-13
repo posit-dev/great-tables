@@ -603,3 +603,38 @@ def _row_groups_get(data: GTData) -> List[str]:
 
 def _summary_exists(data: GTData):
     return False
+
+
+# The `_rle()` function here is loose port of the R function `rle()`, it returns a dictionary having
+# two lists, one for the `lengths` and one for the `values`. The `lengths` comprise an integer list
+# containing the length of each run, the values are a list containing the value of each run. The
+# `lengths` and `values` lists are the same length. Any value in the input list that is None
+# *won't* be treated as unique (i.e., each having a run length of 1) unlike the R implementation.
+def _rle(x: List[Any]) -> Dict[str, List[int]]:
+    """Run length encoding
+
+    The `_rle()` function here is loose port of the R function `rle()`, it returns a dictionary
+    with two lists, one for the `lengths` and one for the `values`. The `lengths` comprise an
+    integer list containing the length of each run, the values are a list containing the value of
+    each run. The `lengths` and `values` lists are the same length. Unlike the R implementation, any
+    value in the input list that is None *won't* be treated as unique (i.e., each having a run
+    length of 1).
+
+    Parameters
+    ----------
+    x : List[Any]
+        A list of values to be run-length encoded.
+
+    Returns
+    -------
+    Dict[str, List[int]]
+        A dictionary containing two lists, one for the `lengths` and one for the `values`.
+    """
+    lengths: List[int] = []
+    values: List[Any] = []
+
+    for k, g in groupby(x):
+        lengths.append(len(list(g)))
+        values.append(k)
+
+    return {"lengths": lengths, "values": values}
