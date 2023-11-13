@@ -49,6 +49,7 @@ class GTData:
         data: TblData,
         rowname_col: str | None = None,
         groupname_col: str | None = None,
+        auto_align: bool = True,
         locale: str | None = None,
     ):
         stub = Stub(data, rowname_col=rowname_col, groupname_col=groupname_col)

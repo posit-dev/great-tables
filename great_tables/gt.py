@@ -96,13 +96,18 @@ class GT(
     def __init__(
         self,
         data: Any,
-        locale: str = "",
+        locale: str = "",  # TODO: Should probably have a default of None
         rowname_col: str | None = None,
         groupname_col: str | None = None,
+        auto_align: bool = True,
     ):
         # This is a bad idea ----
         gtdata = GTData.from_data(
-            data, locale=locale, rowname_col=rowname_col, groupname_col=groupname_col
+            data,
+            locale=locale,
+            rowname_col=rowname_col,
+            groupname_col=groupname_col,
+            auto_align=auto_align,  # TODO: use this to generate default alignments based on column dtypes
         )
         super().__init__(**gtdata.__dict__)
 
