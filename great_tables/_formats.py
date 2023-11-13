@@ -5,6 +5,7 @@ from typing import Any, Callable, TypeVar, Union, List, cast, Optional
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
+from ._text import _md_html
 import re
 import pandas as pd
 
@@ -1031,6 +1032,47 @@ def fmt_currency(
         return x_formatted
 
     FormatsAPI.fmt(self, fns=fmt_currency_fn, columns=columns, rows=rows)
+
+    return self
+
+
+def fmt_markdown(
+    self: GTData,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+) -> GTData:
+    """
+    Format Markdown text.
+
+    Any Markdown-formatted text in the incoming cells will be transformed during render when using
+    the `fmt_markdown()` method.
+
+    Parameters
+    ----------
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    rows : Union[int, List[int], None]
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
+    """
+
+    # Generate a function that will operate on single `x` values in the table body
+    def fmt_markdown_fn(x: Any) -> str:
+        x_str: str = str(x)
+
+        x_formatted = _md_html(x_str)
+
+        return x_formatted
+
+    FormatsAPI.fmt(self, fns=fmt_markdown_fn, columns=columns, rows=rows)
 
     return self
 
