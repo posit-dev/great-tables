@@ -130,6 +130,31 @@ def tab_spanner(
 
 
 def cols_move(data: GTData, columns: list[str], after: str) -> GTData:
+    """Move one or more columns.
+
+    On those occasions where you need to move columns this way or that way, we can make use of the
+    `cols_move()` method. While it's true that the movement of columns can be done upstream of
+    **great_tables**, it is much easier and less error prone to use the function provided here. The
+    movement procedure here takes one or more specified columns (in the `columns` argument) and
+    places them to the right of a different column (the `after` argument). The ordering of the
+    `columns` to be moved is preserved, as is the ordering of all other columns in the table.
+
+    Parameters
+    ----------
+    columns : Union[List[str]]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    after : str
+        The column after which the `columns` should be placed. This can be any column name that
+        exists in the table.
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
+    """
+
     sel_cols = resolve_cols_c(columns, data)
 
     sel_after = resolve_cols_c([after], data)
