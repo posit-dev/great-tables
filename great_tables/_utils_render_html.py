@@ -1,7 +1,7 @@
 from great_tables._spanners import spanners_print_matrix
 from ._gt_data import GTData
 from typing import List, Dict, Any
-from htmltools import tags, HTML
+from htmltools import tags, HTML, css
 from itertools import groupby
 import pandas as pd
 
@@ -638,3 +638,53 @@ def _rle(x: List[Any]) -> Dict[str, List[int]]:
         values.append(k)
 
     return {"lengths": lengths, "values": values}
+
+
+# Get the attributes needed for the <table> tag
+def _get_table_defs(data: GTData):
+    # Get the `table-layout` value, which is set in `_options`
+    table_layout = data._options._get_option_value(option="table_layout")
+    table_style = f"table-layout: {table_layout};"
+
+    # Get the number of columns that have a width set
+    n_column_width = len(data._boxhead._get_column_widths())
+
+    # In the case that column widths are not set for any columns,
+    # there should not be a `<colgroup>` tag requirement
+    if n_column_width < 1:
+        return dict(table_style=None, table_colgroups=None)
+
+    # Get the table's width (which or may not have been set)
+    table_width = data._options._get_option_value(option="table_width")
+
+    # Get all the widths for the columns as a list where None values mean
+    # that the width is not set for that column
+    # TODO: ensure that the stub column is set first in the list
+    widths = data._boxhead._get_column_widths()
+
+    # If all of the widths are defined as px values for all columns,
+    # then ensure that the width values are strictly respected as
+    # absolute width values (even if a table width has already been set)
+    if (
+        all(isinstance(width, str) and width is not None and "px" in width for width in widths)
+        and table_width == "auto"
+    ):
+        table_width = "0px"
+
+    if (
+        all(isinstance(width, str) and width is not None and "%" in width for width in widths)
+        and table_width == "auto"
+    ):
+        table_width = "100%"
+
+    if table_width != "auto":
+        table_style = f"{table_style}; width: {table_width}"
+
+    # Stop function if all length dimensions (where provided)
+    # don't conform to accepted CSS length definitions
+    # TODO: skipping this for now as the method/function doesn't exist
+    # validate_css_lengths(widths)
+    # Create the `<colgroup>` tag
+    table_colgroups = tags.colgroup([tags.col(style=css(width=width)) for width in widths])
+
+    return dict(table_style=table_style, table_colgroups=table_colgroups)
