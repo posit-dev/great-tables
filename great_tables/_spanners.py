@@ -129,7 +129,7 @@ def tab_spanner(
     return new_data
 
 
-def cols_move(data: GTData, columns: list[str], after: str):
+def cols_move(data: GTData, columns: list[str], after: str) -> GTData:
     sel_cols = resolve_cols_c(columns, data)
 
     sel_after = resolve_cols_c([after], data)
