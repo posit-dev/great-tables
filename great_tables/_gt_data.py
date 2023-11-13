@@ -448,6 +448,9 @@ class Stubhead:
     def __init__(self):
         pass
 
+    def _has_stubhead_label(self) -> bool:
+        return self.stubhead is not None
+
 
 # Sourcenotes ----
 __Sourcenotes = None
