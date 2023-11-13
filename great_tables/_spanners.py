@@ -188,7 +188,7 @@ def cols_move(data: GTData, columns: Union[str, list[str]], after: str) -> GTDat
 
 
 def cols_move_to_start(data: GTData, columns: Union[str, list[str]]) -> GTData:
-    """Move one or more columns to the start of the table.
+    """Move one or more columns to the start.
 
     We can easily move set of columns to the beginning of the column series and we only need to
     specify which `columns`. It's possible to do this upstream of **gt_tables**, however, it is
