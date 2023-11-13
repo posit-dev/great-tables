@@ -230,7 +230,7 @@ class Boxhead(_Sequence[ColInfo]):
         return [x.var for x in self._d]
 
     # Get a list of column labels
-    def _get_column_labels(self) -> List[str]:
+    def _get_column_labels(self) -> List[str | None]:
         return [x.column_label for x in self._d]
 
     # Set column label
@@ -247,7 +247,7 @@ class Boxhead(_Sequence[ColInfo]):
         return visible_columns
 
     # Get a list of visible column labels
-    def _get_visible_column_labels(self) -> List[str]:
+    def _get_visible_column_labels(self) -> List[str | None]:
         visible_column_labels = [x.column_label for x in self._d if x.visible is True]
         return visible_column_labels
 
