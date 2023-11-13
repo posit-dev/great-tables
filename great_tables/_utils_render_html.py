@@ -63,8 +63,8 @@ def create_columns_component_h(data: GTData) -> str:
     # column_style_attrs = subset(styles_tbl, locname == "columns_columns")
 
     # If columns are present in the stub, then replace with a set stubhead label or nothing
-    if len(stub_layout) > 0 and len(stubh.label) > 0:
-        headings_labels = _insert_into_list(headings_labels, stubh.label)
+    if len(stub_layout) > 0 and len(stubh.stubhead) > 0:
+        headings_labels = _insert_into_list(headings_labels, stubh.stubhead)
         headings_vars = _insert_into_list(headings_vars, "::stub")
     elif len(stub_layout) > 0:
         headings_labels = _insert_into_list(headings_labels, "")
