@@ -256,7 +256,7 @@ class Boxhead(_Sequence[ColInfo]):
         boxh = self._d
 
         # Filter boxh to only include visible columns
-        alignments = [x.column_align for x in boxh if x.visible]
+        alignments = [str(x.column_align) for x in boxh if x.visible]
 
         return alignments
 
