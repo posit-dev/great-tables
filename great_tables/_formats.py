@@ -632,8 +632,8 @@ def fmt_percent(
     sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign: bool = False,
-    incl_space: bool = False,
     placement: str = "right",
+    incl_space: bool = False,
     # system: str = "intl",
     locale: Union[str, None] = None,
 ) -> GTData:
@@ -717,13 +717,13 @@ def fmt_percent(
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
 
-    incl_space : bool
-        An option for whether to include a space between the value and the percent sign. The default
-        is to not introduce a space character.
-
     placement : str
         This option governs the placement of the percent sign. This can be either be `"right"` (the
         default) or `"left"`.
+
+    incl_space : bool
+        An option for whether to include a space between the value and the percent sign. The default
+        is to not introduce a space character.
 
     locale : str
         An optional locale identifier that can be used for formatting values according the locale's
