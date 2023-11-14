@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import itertools
 
-from typing import TYPE_CHECKING, Union, List, Dict, Optional
+from typing import TYPE_CHECKING, Union, List, Dict, Optional, Any
 
 from ._gt_data import Spanners, SpannerInfo
 from ._locations import resolve_cols_c
@@ -313,7 +313,6 @@ def spanners_print_matrix(
     label_matrix: SpannerMatrix = [
         {var_name: None for var_name in vars} for _ in range(spanner_height)
     ]
-    print(spanner_reprs)
 
     for span_ii, span in enumerate(crnt_spans):
         for var in span.vars:
@@ -348,12 +347,16 @@ def seq_groups(seq: list[str]):
     else:
         crnt_ttl = 1
         for crnt_el, next_el in zip(seq[:-1], seq[1:]):
-            if crnt_el == next_el:
+            if is_equal(crnt_el, next_el):
                 crnt_ttl += 1
             else:
                 yield crnt_el, crnt_ttl
                 crnt_ttl = 1
 
         # final step has same elements, so we need to yield one last time
-        if crnt_el == next_el:
+        if is_equal(crnt_el, next_el):
             yield crnt_el, crnt_ttl
+
+
+def is_equal(x: Any, y: Any) -> bool:
+    return x is not None and x == y

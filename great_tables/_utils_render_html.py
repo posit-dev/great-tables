@@ -33,9 +33,11 @@ def create_columns_component_h(data: GTData) -> str:
     # Determine the finalized number of spanner rows
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
 
-    print(spanner_row_count)
     # Get the column alignments and also the alignment class names
     col_alignment = data._boxhead._get_visible_alignments()
+
+    # Replace None values in `col_alignment` with "left"
+    col_alignment = ["left" if x == "None" else x for x in col_alignment]
 
     # TODO: Modify alignments for RTL support, skip this for now
     # Detect any RTL script characters within the visible columns;
@@ -78,7 +80,7 @@ def create_columns_component_h(data: GTData) -> str:
 
     # If there are no spanners, then we have to create the cells for the stubhead label
     # (if present) and for the column headings
-    if spanner_row_count < 1:
+    if spanner_row_count == 0:
         # Create the cell for the stubhead label
         if len(stub_layout) > 0:
             stubhead_style = None
@@ -88,14 +90,8 @@ def create_columns_component_h(data: GTData) -> str:
 
             table_col_headings.append(
                 tags.th(
-                    class_=" ".join(
-                        [
-                            "gt_col_heading",
-                            "gt_columns_bottom_border",
-                            f"gt_{stubhead_label_alignment}",
-                        ]
-                    ),
-                    rowspan=1,
+                    class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
+                    rowspan="1",
                     colspan=len(stub_layout),
                     style=stubhead_style,
                     scope="colgroup" if len(stub_layout) > 1 else "col",
@@ -104,43 +100,44 @@ def create_columns_component_h(data: GTData) -> str:
                 )
             )
 
-        # Remove the first element from `headings_vars` and `headings_labels`
-        headings_vars.pop(0)
-        headings_labels.pop(0)
+            # Remove the first element from `headings_vars` and `headings_labels`
+            headings_vars.pop(0)
+            headings_labels.pop(0)
 
-    #
-    # Create the headings in the case where there are no spanners at all -------------------------
-    #
-    for i in range(len(headings_vars)):
-        # NOTE: Ignore styles for now
-        # styles_column = subset(column_style_attrs, colnum == i)
         #
-        # Convert the code above this comment from R to valid python
-        # if len(styles_column) > 0:
-        #    column_style = styles_column[0].html_style
-        column_style = None
+        # Create the headings in the case where there are no spanners at all -------------------------
+        #
+        for i in range(len(headings_vars)):
+            # NOTE: Ignore styles for now
+            # styles_column = subset(column_style_attrs, colnum == i)
+            #
+            # Convert the code above this comment from R to valid python
+            # if len(styles_column) > 0:
+            #    column_style = styles_column[0].html_style
+            column_style = None
 
-        table_col_headings.append(
-            tags.th(
-                class_=" ".join(
-                    ["gt_col_heading", "gt_columns_bottom_border", f"gt_{col_alignment[i]}"]
-                ),
-                rowspan=1,
-                colspan=1,
-                style=column_style,
-                scope="col",
-                id=headings_labels[i],
-                contents=HTML(headings_labels[i]),
+            table_col_headings.append(
+                tags.th(
+                    HTML(headings_labels[i]),
+                    class_=f"gt_col_heading gt_columns_bottom_border gt_{str(col_alignment[i])}",
+                    rowspan=1,
+                    colspan=1,
+                    style=column_style,
+                    scope="col",
+                    id=str(headings_labels[i]),
+                )
             )
-        )
 
-    table_col_headings = tags.tr(class_="gt_col_headings", contents=str(table_col_headings))
+        # Join the <th> cells into a string and separate each with a newline
+        th_cells = "\n".join([str(tag) for tag in table_col_headings])
+
+        table_col_headings = tags.tr(HTML(th_cells), class_="gt_col_headings")
 
     #
-    # Create the spanners in the case where there *are* spanners ---------------------------------
+    # Create the spanners and column labels in the case where there *are* spanners -------------
     #
 
-    if spanner_row_count > 0:
+    if spanner_row_count >= 1:
         spanners = spanners_print_matrix(
             spanners=data._spanners, boxhead=boxhead, include_hidden=False
         )
@@ -276,9 +273,11 @@ def create_columns_component_h(data: GTData) -> str:
                             style=spanner_style,
                             scope="colgroup" if colspans[i] > 1 else "col",
                             id=str(spanners[level_1_index][i]),
-                            contents=tags.span(
-                                class_="gt_column_spanner",
-                                contents=HTML(spanners[level_1_index][i]),
+                            contents=str(
+                                tags.span(
+                                    class_="gt_column_spanner",
+                                    contents=HTML(spanners[level_1_index][i]),
+                                )
                             ),
                         )
                     )
@@ -510,14 +509,12 @@ def _get_spanners_matrix_height(
     Returns:
         int: The height of the spanners matrix.
     """
-    spanners_matrix = spanners_print_matrix(
+    spanners_matrix, _ = spanners_print_matrix(
         spanners=data._spanners,
         boxhead=data._boxhead,
         include_hidden=include_hidden,
         omit_columns_row=omit_columns_row,
     )
-
-    print(spanners_matrix)
 
     return len(spanners_matrix)
 
@@ -603,41 +600,6 @@ def _row_groups_get(data: GTData) -> List[str]:
 
 def _summary_exists(data: GTData):
     return False
-
-
-# The `_rle()` function here is loose port of the R function `rle()`, it returns a dictionary having
-# two lists, one for the `lengths` and one for the `values`. The `lengths` comprise an integer list
-# containing the length of each run, the values are a list containing the value of each run. The
-# `lengths` and `values` lists are the same length. Any value in the input list that is None
-# *won't* be treated as unique (i.e., each having a run length of 1) unlike the R implementation.
-def _rle(x: List[Any]) -> Dict[str, List[int]]:
-    """Run length encoding
-
-    The `_rle()` function here is loose port of the R function `rle()`, it returns a dictionary
-    with two lists, one for the `lengths` and one for the `values`. The `lengths` comprise an
-    integer list containing the length of each run, the values are a list containing the value of
-    each run. The `lengths` and `values` lists are the same length. Unlike the R implementation, any
-    value in the input list that is None *won't* be treated as unique (i.e., each having a run
-    length of 1).
-
-    Parameters
-    ----------
-    x : List[Any]
-        A list of values to be run-length encoded.
-
-    Returns
-    -------
-    Dict[str, List[int]]
-        A dictionary containing two lists, one for the `lengths` and one for the `values`.
-    """
-    lengths: List[int] = []
-    values: List[Any] = []
-
-    for k, g in groupby(x):
-        lengths.append(len(list(g)))
-        values.append(k)
-
-    return {"lengths": lengths, "values": values}
 
 
 # Get the attributes needed for the <table> tag

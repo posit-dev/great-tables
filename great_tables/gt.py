@@ -191,7 +191,7 @@ class GT(
     # =============================================================================
     def _render_as_html(self) -> str:
         heading_component = _create_heading_component(self)
-        column_labels_component = _create_column_labels_component(self)
+        column_labels_component = create_columns_component_h(self)
         body_component = _create_body_component(self)
         source_notes_component = _create_source_notes_component(self)
         footnotes_component = _create_footnotes_component(self)
@@ -329,32 +329,6 @@ def _create_heading_component(data: GT) -> StringBuilder:
         result.append(f"\n{subtitle_row}")
 
     return StringBuilder('<thead class="gt_header">', result, "</thead>")
-
-
-def _create_column_labels_component(data: GT) -> str:
-    column_names = data._boxhead._get_visible_column_labels()
-    alignments = data._boxhead._get_visible_alignments()
-
-    # Replace None values in `alignments` with "left"
-    alignments = ["left" if x == "None" else x for x in alignments]
-
-    if len(column_names) != len(alignments):
-        raise ValueError("Number of column names and alignments must be equal.")
-
-    # Use column_names and alignments to create the <th> cells, need a loop here since we need to
-    # add the alignment and map through the column_names:
-    th_cells: List[str] = []
-    for i in range(len(column_names)):
-        th_cells.append(
-            f'<th class="gt_col_heading gt_columns_bottom_border gt_{alignments[i]}">{column_names[i]}</th>'
-        )
-
-    # Join the <th> cells into a string and separate each with a newline
-    th_cells = "\n".join(th_cells)
-
-    column_names_str = f'<thead><tr class="gt_col_headings">\n{th_cells}</tr></thead>'
-
-    return column_names_str
 
 
 def _create_body_component(data: GT):
