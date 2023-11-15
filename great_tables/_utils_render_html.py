@@ -146,7 +146,7 @@ def create_columns_component_h(data: GTData) -> str:
             spanners=data._spanners, boxhead=boxhead, include_hidden=False, ids=True
         )
 
-        level_1_index = len(spanners) - 1
+        level_1_index = 0
 
         # A list of <th> elements that will go in the first level; this
         # includes spanner labels and column labels for solo columns (don't
