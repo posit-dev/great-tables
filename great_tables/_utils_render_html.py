@@ -186,13 +186,12 @@ def create_columns_component_h(data: GTData) -> str:
 
         # `colspans` matches `spanners` in length; each element is the number of columns that the
         # <th> at that position should span; if 0, then skip the <th> at that position
-        colspans = [
-            spanners_rle[j][1] if (j + 1) in sig_cells else 0
-            for j in range(len(spanner_ids[level_1_index, :]))
-        ]
+        group_spans = [[x[1]] + [0] * (x[1] - 1) for x in spanners_rle]
 
-        for i, _ in enumerate(headings_vars):
-            if spanner_ids[level_1_index][i] == {}:
+        colspans = list(chain(*group_spans))
+
+        for ii, (span_key, h_var) in enumerate(zip(spanner_col_names, headings_vars)):
+            if spanner_ids[level_1_index][span_key] is None:
                 # NOTE: Ignore styles for now
                 # styles_heading = filter(
                 #     lambda x: x.get('locname') == "columns_columns" and x.get('colname') == headings_vars[i],
