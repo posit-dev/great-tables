@@ -168,19 +168,13 @@ def create_columns_component_h(data: GTData) -> str:
 
             level_1_spanners.append(
                 tags.th(
-                    class_=" ".join(
-                        [
-                            "gt_col_heading",
-                            "gt_columns_bottom_border",
-                            f"gt_{stubhead_label_alignment}",
-                        ]
-                    ),
+                    HTML(stub_label),
+                    class_=f"gt_col_heading gt_columns_bottom_border gt_{str(stubhead_label_alignment)}",
                     rowspan=2,
                     colspan=len(stub_layout),
                     style=stubhead_style,
                     scope="colgroup" if len(stub_layout) > 1 else "col",
-                    id=headings_labels[0],
-                    contents=HTML(headings_labels[0]),
+                    id=stub_label,
                 )
             )
 
