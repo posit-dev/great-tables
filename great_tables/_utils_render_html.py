@@ -113,9 +113,6 @@ def create_columns_component_h(data: GTData) -> str:
             #    column_style = styles_column[0].html_style
             column_style = None
 
-            print(label)
-            print(var_)
-
             table_col_headings.append(
                 tags.th(
                     HTML(label),
