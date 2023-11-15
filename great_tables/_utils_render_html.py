@@ -216,10 +216,10 @@ def create_columns_component_h(data: GTData) -> str:
                     )
                 )
 
-            elif spanner_ids[level_1_index][i] is not None:
+            elif spanner_ids[level_1_index][span_key] is not None:
                 # If colspans[i] == 0, it means that a previous cell's
                 # `colspan` will cover us
-                if colspans[i] > 0:
+                if colspans[ii] > 0:
                     # NOTE: Ignore styles for now
                     # FIXME: this needs to be rewritten
                     # styles_spanners = filter(
