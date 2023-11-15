@@ -304,7 +304,7 @@ def create_columns_component_h(data: GTData) -> str:
     if _get_spanners_matrix_height(data=data) > 2:
         higher_spanner_rows_idx = seq_len(nrow(spanner_ids) - 2)
 
-        higher_spanner_rows = tags.tagList()
+        higher_spanner_rows = TagList()
 
         for i in higher_spanner_rows_idx:
             spanner_ids_row = spanner_ids[i]
