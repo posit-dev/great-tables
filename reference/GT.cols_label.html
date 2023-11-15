@@ -448,6 +448,7 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#great_tables.GT.cols_label" id="toc-great_tables.GT.cols_label" class="nav-link active" data-scroll-target="#great_tables.GT.cols_label">GT.cols_label</a>
   <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   </ul></li>
   </ul>
@@ -462,8 +463,41 @@ ul.task-list li input[type="checkbox"] {
 <h1>GT.cols_label</h1>
 <p><code>GT.cols_label(**kwargs)</code></p>
 <p>Relabel one or more columns.</p>
-<p>Column labels can be modified from their default values (the names of the columns from the input table data). When you create a gt table object using <code>gt.GT()</code>, column names effectively become the column labels. While this serves as a good first approximation, column names aren’t often appealing as column labels in a gt output table. The <code>cols_label()</code> method provides the flexibility to relabel one or more columns and we even have the option to use the <code>md()</code> or <code>html()</code> helpers for rendering column labels from Markdown or using HTML.</p>
-<p>It’s important to note that while columns can be freely relabeled, we continue to refer to columns by their original column names. Column names in a data frame must be unique whereas column labels in gt have no requirement for uniqueness (which is useful for labeling columns as, say, measurement units that may be repeated several times—usually under different spanner column labels). Thus, we can still easily distinguish between columns in other gt method calls (e.g., in all of the <code>fmt*()</code> methods) even though we may lose distinguishability in column labels once they have been relabeled.</p>
+<p>Column labels can be modified from their default values (the names of the columns from the input table data). When you create a table object using <code>gt.GT()</code>, column names effectively become the column labels. While this serves as a good first approximation, column names aren’t often appealing as column labels in an output table. The <code>cols_label()</code> method provides the flexibility to relabel one or more columns and we even have the option to use the <code>md()</code> or <code>html()</code> helpers for rendering column labels from Markdown or using HTML.</p>
+<p>It’s important to note that while columns can be freely relabeled, we continue to refer to columns by their names for targeting purposes. Column names in the input data table must be unique whereas column labels in <strong>great_tables</strong> have no requirement for uniqueness (which is useful for labeling columns as, say, measurement units that may be repeated several times—usually under different spanner labels). Thus, we can still easily distinguish between columns in other method calls (e.g., in all of the <code>fmt*()</code> methods) even though we may lose distinguishability in column labels once they have been relabeled.</p>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="table">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 8%">
+<col style="width: 84%">
+<col style="width: 3%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>columns</code></td>
+<td>Union[str, List[str], None]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td><code>**kwargs</code></td>
+<td>str</td>
+<td>The column names and new labels. The column names are provided as keyword arguments and the new labels are provided as the values for those keyword arguments. For example, <code>cols_label(col1="Column 1", col2="Column 2")</code> would relabel columns <code>col1</code> and <code>col2</code> with the labels <code>"Column 1"</code> and <code>"Column 2"</code>, respectively.</td>
+<td><code>{}</code></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
 <table class="table">
@@ -475,8 +509,8 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>GT</td>
-<td>Result of the table operation.</td>
+<td>GTData</td>
+<td>The GTData object is returned.</td>
 </tr>
 </tbody>
 </table>
