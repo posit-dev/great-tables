@@ -299,9 +299,7 @@ def create_columns_component_h(data: GTData) -> str:
 
         else:
             # Create the `table_col_headings` HTML component
-            table_col_headings = tags.tr(
-                class_="gt_col_headings gt_spanner_row", contents=level_1_spanners
-            )
+            table_col_headings = tags.tr(level_1_spanners, class_="gt_col_headings gt_spanner_row")
 
     if _get_spanners_matrix_height(data=data) > 2:
         higher_spanner_rows_idx = seq_len(nrow(spanner_ids) - 2)
