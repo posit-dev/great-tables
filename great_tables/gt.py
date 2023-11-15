@@ -26,6 +26,7 @@ from great_tables._formats import (
     fmt_scientific,
     fmt_currency,
     fmt_engineering,
+    fmt_bytes,
     fmt_markdown,
 )
 from great_tables._heading import HeadingAPI
@@ -118,6 +119,7 @@ class GT(
     fmt_scientific = fmt_scientific
     fmt_currency = fmt_currency
     fmt_engineering = fmt_engineering
+    fmt_bytes = fmt_bytes
     fmt_markdown = fmt_markdown
 
     tab_spanner = tab_spanner
