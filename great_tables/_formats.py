@@ -1,6 +1,5 @@
 from __future__ import annotations
 from decimal import Decimal
-from math import floor, log10
 from typing import Any, Callable, TypeVar, Union, List, cast, Optional
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
@@ -8,6 +7,7 @@ from ._locale import _get_locales_data, _get_default_locales_data, _get_currenci
 from ._text import _md_html
 import re
 import pandas as pd
+import math
 
 T = TypeVar("T")
 
