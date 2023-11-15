@@ -199,8 +199,9 @@ def create_columns_component_h(data: GTData) -> str:
                 # heading_style = next(styles_heading, {}).get('html_style', None)
                 heading_style = None
 
-                # Get the alignment for the current column
-                first_set_alignment = boxhead._get_boxhead_get_alignment_by_var(var=h_var)
+                # Get the alignment for the current column from the `col_alignment` list
+                # by using the `h_var` value to obtain the index of the alignment value
+                first_set_alignment = col_alignment[headings_vars.index(h_var)]
 
                 level_1_spanners.append(
                     tags.th(
