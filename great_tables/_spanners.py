@@ -356,6 +356,8 @@ def seq_groups(seq: list[str]):
         # final step has same elements, so we need to yield one last time
         if is_equal(crnt_el, next_el):
             yield crnt_el, crnt_ttl
+        else:
+            yield next_el, 1
 
 
 def is_equal(x: Any, y: Any) -> bool:
