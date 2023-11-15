@@ -346,19 +346,15 @@ def create_columns_component_h(data: GTData) -> str:
 
                     level_i_spanners.append(
                         tags.th(
-                            class_=" ".join(
-                                ["gt_center", "gt_columns_top_border", "gt_column_spanner_outer"]
+                            TagList(
+                                tags.span(HTML(span_label)),
+                                tags.span(HTML("&nbsp;"), class_="gt_column_spanner_inner"),
                             ),
+                            class_="gt_center gt_columns_top_border gt_column_spanner_outer",
                             rowspan=1,
                             colspan=colspans[j],
                             style=spanner_style,
                             scope="colgroup" if colspans[j] > 1 else "col",
-                            contents=tags.tagList(
-                                tags.span(contents=HTML(spanners_row[j])),
-                                tags.span(
-                                    class_="gt_column_spanner_inner", contents=HTML("&nbsp;")
-                                ),
-                            ),
                         )
                     )
 
