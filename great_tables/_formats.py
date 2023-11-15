@@ -2064,7 +2064,7 @@ def _round_rhu(x, digits=0):
     """
 
     # Multiply the number by 10^digits to move the decimal point to the right
-    z = x * 10 ** digits
+    z = x * 10**digits
 
     # Add 0.5 + 2.220446049250313e-16 to the number to ensure that the number is rounded up
     z += 0.5 + math.sqrt(2.220446049250313e-16)
@@ -2073,6 +2073,6 @@ def _round_rhu(x, digits=0):
     z = math.trunc(z)
 
     # Divide the number by 10^digits to move the decimal point back to the original position
-    z /= 10 ** digits
+    z /= 10**digits
 
     return z
