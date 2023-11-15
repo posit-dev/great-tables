@@ -1035,6 +1035,221 @@ def fmt_currency(
     return self
 
 
+def fmt_bytes(
+    self: GTData,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    standard: str = "decimal",
+    decimals: int = 1,
+    n_sigfig: Optional[int] = None,
+    drop_trailing_zeros: bool = True,
+    drop_trailing_dec_mark: bool = True,
+    use_seps: bool = True,
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    dec_mark: str = ".",
+    force_sign: bool = False,
+    incl_space: bool = True,
+    locale: Union[str, None] = None,
+) -> GTData:
+    """
+    Format values as bytes.
+
+    With numeric values in a table, we can transform those to values of bytes with human readable
+    units. The `fmt_bytes()` method allows for the formatting of byte sizes to either of two common
+    representations: (1) with decimal units (powers of 1000, examples being `"kB"` and `"MB"`), and
+    (2) with binary units (powers of 1024, examples being `"KiB"` and `"MiB"`). It is assumed the
+    input numeric values represent the number of bytes and automatic truncation of values will
+    occur. The numeric values will be scaled to be in the range of 1 to <1000 and then decorated
+    with the correct unit symbol according to the standard chosen. For more control over the
+    formatting of byte sizes, we can use the following options:
+
+    - decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice
+    of the decimal symbol
+    - digit grouping separators: options to enable/disable digit separators and provide a choice of
+    separator symbol
+    - pattern: option to use a text pattern for decoration of the formatted values
+    - locale-based formatting: providing a locale ID will result in number formatting specific to
+    the chosen locale
+
+    Parameters
+    ----------
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    rows : Union[int, List[int], None]
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+
+    standard: str
+        The form of expressing large byte sizes is divided between: (1) decimal units (powers of
+        1000; e.g., `"kB"` and `"MB"`), and (2) binary units (powers of 1024; e.g., `"KiB"` and
+        `"MiB"`). The default is to use decimal units with the `"decimal"` option. The alternative
+        is to use binary units with the `"binary"` option.
+
+    decimals : int
+        This corresponds to the exact number of decimal places to use. A value such as `2.34` can,
+        for example, be formatted with `0` decimal places and it would result in `"2"`. With `4`
+        decimal places, the formatted value becomes `"2.3400"`. The trailing zeros can be removed
+        with `drop_trailing_zeros=True`.
+
+    drop_trailing_zeros : bool
+        A boolean value that allows for removal of trailing zeros (those redundant zeros after the
+        decimal mark).
+
+    drop_trailing_dec_mark : bool
+        A boolean value that determines whether decimal marks should always appear even if there are
+        no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
+        default trailing decimal marks are not shown.
+
+    use_seps : bool
+        The `use_seps` option allows for the use of digit group separators. The type of digit group
+        separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
+        setting is `True` by default.
+
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    sep_mark : str
+        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
+        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
+        ignored if a `locale` is supplied (i.e., is not `None`).
+
+    dec_mark : str
+        The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
+        `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
+        `locale` is supplied (i.e., is not `None`).
+
+    force_sign : bool
+        Should the positive sign be shown for positive values (effectively showing a sign for all
+        values except zero)? If so, use `True` for this option. The default is `False`, where only
+        negative numbers will display a minus sign. This option is disregarded when using accounting
+        notation with `accounting = True`.
+
+    incl_space : bool
+        An option for whether to include a space between the value and the currency symbol. The
+        default is to not introduce a space character.
+
+    locale : str
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
+    """
+
+    # Stop if `locale` does not have a valid value; normalize locale and resolve one
+    # that might be set globally
+    _validate_locale(locale=locale)
+    locale = _normalize_locale(locale=locale)
+
+    # Use locale-based marks if a locale ID is provided
+    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
+
+    # Stop if `n_sigfig` does not have a valid value
+    if n_sigfig is not None:
+        _validate_n_sigfig(n_sigfig=n_sigfig)
+
+    # Get the `base` value and the `byte_units` list based on the `standard` value
+    if standard == "decimal":
+        # This is the 'decimal' standard (the default)
+        base = 1000
+        byte_units = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+    else:
+        # This is the 'binary' standard
+        base = 1024
+        byte_units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+
+    # Generate a function that will operate on single `x` values in the table body
+    def fmt_bytes_fn(
+        x: float,
+        base: int = base,
+        byte_units: str = byte_units,
+        decimals: int = decimals,
+        n_sigfig: Optional[int] = n_sigfig,
+        drop_trailing_zeros: bool = drop_trailing_zeros,
+        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
+        use_seps: bool = use_seps,
+        sep_mark: str = sep_mark,
+        dec_mark: str = dec_mark,
+        force_sign: bool = force_sign,
+        incl_space: bool = incl_space,
+    ):
+        # Truncate all byte values by casting to an integer; this is done because bytes
+        # are always whole numbers
+        x = int(x)
+
+        # Determine properties of the value
+        is_negative = _has_negative_value(value=x)
+        is_positive = _has_positive_value(value=x)
+
+        # Determine the power index for the value
+        if x == 0:
+            # If the value is zero, then the power index is 1; otherwise, we'd get
+            # an error when trying to calculate the log of zero
+            num_power_idx = 1
+        else:
+            # Otherwise, we can calculate the power index by taking the log of the value
+            # and dividing by the log of the base; we add 1 to the result to account for
+            # the fact that the power index is 1-based (i.e., the first element in the
+            # `byte_units` list is at index 0) --- the final statement ensures that the
+            # power index is always at least 1
+            num_power_idx = math.floor(math.log(abs(x), base)) + 1
+            num_power_idx = max(1, min(len(byte_units), num_power_idx))
+
+        # The `units_str` is obtained by indexing the `byte_units` list with the `num_power_idx`
+        # value; this is the string that will be affixed to the formatted value
+        units_str = byte_units[num_power_idx - 1]
+
+        # Scale `x` value by a defined `base` value, this is done by dividing by the
+        # `base` value raised to the power index minus 1 (we subtract 1 because the
+        # power index is 1-based)
+        x = x / base ** (num_power_idx - 1)
+
+        # Format the value to decimal notation; this is done before the `byte_units` text
+        # is affixed to the value
+        x_formatted = _value_to_decimal_notation(
+            value=x,
+            decimals=decimals,
+            n_sigfig=n_sigfig,
+            drop_trailing_zeros=drop_trailing_zeros,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
+            force_sign=force_sign,
+        )
+
+        # Create a `bytes_pattern` object for affixing the `units_str`, which is the
+        # string that represents the byte units
+        space_character = " " if incl_space else ""
+        bytes_pattern = f"{{x}}{space_character}{units_str}"
+
+        x_formatted = bytes_pattern.replace("{x}", x_formatted)
+
+        # Implement minus sign replacement for `x_formatted`
+        if is_negative:
+            minus_mark = _context_minus_mark()
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    FormatsAPI.fmt(self, fns=fmt_bytes_fn, columns=columns, rows=rows)
+
+    return self
+
+
 def fmt_markdown(
     self: GTData,
     columns: Union[str, List[str], None] = None,
