@@ -251,16 +251,13 @@ def create_columns_component_h(data: GTData) -> str:
                         )
                     )
 
-        solo_headings = headings_vars[pd.isna(spanner_ids[level_1_index])]
-        remaining_headings = headings_vars[~(headings_vars.isin(solo_headings))]
-
-        remaining_headings_labels = boxhead
-        remaining_headings_labels = remaining_headings_labels[
-            remaining_headings_labels["var"].isin(remaining_headings)
+        remaining_headings = [k for k, v in spanner_ids[level_1_index].items() if v is not None]
+        remaining_headings_labels = [
+            entry.column_label for entry in boxhead if entry.var in remaining_headings
         ]
-        remaining_headings_labels = remaining_headings_labels["column_label"].tolist()
-
-        col_alignment = col_alignment[1:][~(headings_vars.isin(solo_headings))]
+        col_alignment = [
+            entry.defaulted_align for entry in boxhead if entry.var in remaining_headings
+        ]
 
         if len(remaining_headings) > 0:
             spanned_column_labels = []
