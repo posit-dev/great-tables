@@ -2049,3 +2049,30 @@ def _validate_n_sigfig(n_sigfig: int) -> None:
         raise ValueError("The value for `n_sigfig` must be greater than or equal to `1`.")
 
     return
+
+
+def _round_rhu(x, digits=0):
+    """
+    Rounds a number using the 'Round-Half-Up' (R-H-U) algorithm.
+
+    Args:
+        x (float): The number to round.
+        digits (int): The number of digits to round to.
+
+    Returns:
+        float: The rounded number.
+    """
+
+    # Multiply the number by 10^digits to move the decimal point to the right
+    z = x * 10 ** digits
+
+    # Add 0.5 + 2.220446049250313e-16 to the number to ensure that the number is rounded up
+    z += 0.5 + math.sqrt(2.220446049250313e-16)
+
+    # Truncate the number to remove the decimal places
+    z = math.trunc(z)
+
+    # Divide the number by 10^digits to move the decimal point back to the original position
+    z /= 10 ** digits
+
+    return z
