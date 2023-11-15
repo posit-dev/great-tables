@@ -101,10 +101,6 @@ def create_columns_component_h(data: GTData) -> str:
                 )
             )
 
-            # Remove the first element from `headings_vars` and `headings_labels`
-            headings_vars.pop(0)
-            headings_labels.pop(0)
-
         #
         # Create the headings in the case where there are no spanners at all -------------------------
         #
