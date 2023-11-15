@@ -1,8 +1,9 @@
-from great_tables._spanners import spanners_print_matrix
+from great_tables._spanners import spanners_print_matrix, seq_groups
 from ._gt_data import GTData
 from typing import List, Dict, Any
-from htmltools import tags, HTML, css
-from itertools import groupby
+from htmltools import tags, HTML, css, TagList
+from itertools import groupby, accumulate, chain
+from functools import reduce
 import pandas as pd
 
 
