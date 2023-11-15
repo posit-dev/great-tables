@@ -316,7 +316,6 @@ def spanners_print_matrix(
 
     for span_ii, span in enumerate(crnt_spans):
         for var in span.vars:
-            print(var)
             label_matrix[span.spanner_level][var] = spanner_reprs[span_ii]
 
     # reverse order , so if you were to print it out, level 0 would appear on the bottom
