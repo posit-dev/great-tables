@@ -283,15 +283,16 @@ class Boxhead(_Sequence[ColInfo]):
         boxh = self._d
 
         # Filter boxh to only include visible columns
-        alignments = [x.column_align for x in boxh if x.visible]
+        alignment = [x.column_align for x in boxh if x.visible if x.var == var]
 
-        # Get the index of the var in the boxh
-        var_index = boxh.index(var)
+        # Check for length of alignment and raise error if not 1
+        if len(alignment) != 1:
+            raise ValueError("Alignment must be length 1.")
 
-        # Get the alignment for the var
-        alignment = alignments[var_index]
+        if len(alignment) == 0:
+            raise ValueError(f"The `var` used ({var}) doesn't exist in the boxhead.")
 
-        return alignment
+        return str(alignment[0])
 
     # Get the number of columns for the visible (not hidden) data; this
     # excludes the number of columns required for the table stub
