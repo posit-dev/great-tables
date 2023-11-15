@@ -282,13 +282,8 @@ def create_columns_component_h(data: GTData) -> str:
 
                 spanned_column_labels.append(
                     tags.th(
-                        class_=" ".join(
-                            [
-                                "gt_col_heading",
-                                "gt_columns_bottom_border",
-                                f"gt_{remaining_alignment}",
-                            ]
-                        ),
+                        HTML(remaining_headings_labels[j]),
+                        class_=f"gt_col_heading gt_columns_bottom_border gt_{remaining_alignment}",
                         rowspan=1,
                         colspan=1,
                         style=remaining_style,
