@@ -178,9 +178,6 @@ def create_columns_component_h(data: GTData) -> str:
                 )
             )
 
-            headings_vars.pop(0)
-            headings_labels.pop(0)
-
         # NOTE: Run-length encoding treats missing values as distinct from each other; in other
         # words, each missing value starts a new run of length 1
 
