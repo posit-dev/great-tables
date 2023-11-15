@@ -2076,3 +2076,40 @@ def _round_rhu(x, digits=0):
     z /= 10**digits
 
     return z
+
+
+def _as_roman(x: int) -> str:
+    """
+    Converts an integer to a Roman numeral string.
+
+    Args:
+        x (int): The integer to convert.
+
+    Returns:
+        str: The Roman numeral string representation of the integer.
+    """
+
+    roman_key_value_list = [
+        (1000, "M"),
+        (900, "CM"),
+        (500, "D"),
+        (400, "CD"),
+        (100, "C"),
+        (90, "XC"),
+        (50, "L"),
+        (40, "XL"),
+        (10, "X"),
+        (9, "IX"),
+        (5, "V"),
+        (4, "IV"),
+        (1, "I"),
+    ]
+
+    out = ""
+    while x > 0:
+        for i, r in roman_key_value_list:
+            while x >= i:
+                out += r
+                x -= i
+    return out
+
