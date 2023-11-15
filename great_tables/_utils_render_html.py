@@ -142,7 +142,7 @@ def create_columns_component_h(data: GTData) -> str:
             spanners=data._spanners, boxhead=boxhead, include_hidden=False
         )
 
-        spanner_ids = spanners_print_matrix(
+        spanner_ids, spanner_col_names = spanners_print_matrix(
             spanners=data._spanners, boxhead=boxhead, include_hidden=False, ids=True
         )
 
