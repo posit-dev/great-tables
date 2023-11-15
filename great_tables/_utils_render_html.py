@@ -329,8 +329,8 @@ def create_columns_component_h(data: GTData) -> str:
 
             level_i_spanners = []
 
-            for j in range(len(colspans)):
-                if colspans[j] > 0:
+            for colspan, span_label in zip(colspans, spanners_row.values()):
+                if colspan > 0:
                     # Skip styles for now
                     # styles_spanners = styles_tbl[
                     #     (styles_tbl["locname"] == "columns_groups") &
