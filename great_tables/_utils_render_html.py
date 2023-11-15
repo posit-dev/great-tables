@@ -67,11 +67,11 @@ def create_columns_component_h(data: GTData) -> str:
 
     # If columns are present in the stub, then replace with a set stubhead label or nothing
     if len(stub_layout) > 0 and len(stubh.stubhead) > 0:
-        headings_labels = _insert_into_list(headings_labels, stubh.stubhead)
-        headings_vars = _insert_into_list(headings_vars, "::stub")
-    elif len(stub_layout) > 0:
-        headings_labels = _insert_into_list(headings_labels, "")
-        headings_vars = _insert_into_list(headings_vars, "::stub")
+        stub_label = stubh.stubhead
+        stub_var = "::stub"
+    else:
+        stub_label = ""
+        stub_var = "::stub"
 
     # Set a default alignment for the stubhead label
     stubhead_label_alignment = "left"
