@@ -360,18 +360,18 @@ def create_columns_component_h(data: GTData) -> str:
 
             if len(stub_layout) > 0 and i == 1:
                 level_i_spanners = tags.th(
+                    TagList(level_i_spanners),
                     rowspan=max(list(higher_spanner_rows_idx)),
                     colspan=len(stub_layout),
                     scope="colgroup" if len(stub_layout) > 1 else "col",
-                    contents=tags.tagList(level_i_spanners),
                 )
 
-            higher_spanner_rows = tags.tagList(
+            higher_spanner_rows = TagList(
                 higher_spanner_rows,
-                tags.tagList(tags.tr(level_i_spanners, class_="gt_col_headings gt_spanner_row")),
+                TagList(tags.tr(level_i_spanners, class_="gt_col_headings gt_spanner_row")),
             )
 
-        table_col_headings = tags.tagList(
+        table_col_headings = TagList(
             higher_spanner_rows,
             table_col_headings,
         )
