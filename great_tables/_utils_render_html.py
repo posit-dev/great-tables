@@ -238,20 +238,16 @@ def create_columns_component_h(data: GTData) -> str:
 
                     level_1_spanners.append(
                         tags.th(
-                            class_=" ".join(
-                                ["gt_center", "gt_columns_top_border", "gt_column_spanner_outer"]
+                            tags.span(
+                                HTML(spanners[level_1_index][span_key]),
+                                class_="gt_column_spanner",
                             ),
+                            class_="gt_col_heading gt_columns_bottom_border gt_column_spanner_outer",
                             rowspan=1,
-                            colspan=colspans[i],
+                            colspan=colspans[ii],
                             style=spanner_style,
-                            scope="colgroup" if colspans[i] > 1 else "col",
-                            id=str(spanners[level_1_index][i]),
-                            contents=str(
-                                tags.span(
-                                    class_="gt_column_spanner",
-                                    contents=HTML(spanners[level_1_index][i]),
-                                )
-                            ),
+                            scope="colgroup" if colspans[ii] > 1 else "col",
+                            id=str(spanners[level_1_index][span_key]),
                         )
                     )
 
