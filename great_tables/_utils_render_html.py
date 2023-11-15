@@ -206,19 +206,13 @@ def create_columns_component_h(data: GTData) -> str:
 
                 level_1_spanners.append(
                     tags.th(
-                        class_=" ".join(
-                            [
-                                "gt_col_heading",
-                                "gt_columns_bottom_border",
-                                f"gt_{first_set_alignment}",
-                            ]
-                        ),
+                        HTML(h_var),
+                        class_=f"gt_col_heading gt_columns_bottom_border gt_{str(first_set_alignment)}",
                         rowspan=2,
                         colspan=1,
                         style=heading_style,
                         scope="col",
-                        id=headings_labels[i],
-                        contents=HTML(headings_labels[i]),
+                        id=h_var,
                     )
                 )
 
