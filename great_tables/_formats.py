@@ -2199,3 +2199,18 @@ def _as_roman(x: int) -> str:
                 x -= i
     return out
 
+
+def _validate_case(case=str):
+    """
+    Validates the case argument for the `fmt_roman()` method.
+
+    Args:
+        case (str): The case argument to validate.
+
+    Raises:
+        ValueError: If the case argument is not 'upper' or 'lower'.
+    """
+    if case not in ["upper", "lower"]:
+        raise ValueError(f"The `case` argument must be either 'upper' or 'lower' (not '{case}').")
+
+    return
