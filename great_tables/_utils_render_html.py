@@ -118,13 +118,13 @@ def create_columns_component_h(data: GTData) -> str:
 
             table_col_headings.append(
                 tags.th(
-                    HTML(headings_labels[i]),
-                    class_=f"gt_col_heading gt_columns_bottom_border gt_{str(col_alignment[i])}",
+                    HTML(label),
+                    class_=f"gt_col_heading gt_columns_bottom_border gt_{str(alignment)}",
                     rowspan=1,
                     colspan=1,
                     style=column_style,
                     scope="col",
-                    id=str(headings_labels[i]),
+                    id=str(label),
                 )
             )
 
