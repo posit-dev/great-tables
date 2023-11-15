@@ -68,8 +68,10 @@ def create_columns_component_h(data: GTData) -> str:
     # If columns are present in the stub, then replace with a set stubhead label or nothing
     if len(stub_layout) > 0 and len(stubh.stubhead) > 0:
         stub_label = stubh.stubhead
+        stub_var = "::stub"
     else:
         stub_label = ""
+        stub_var = None
 
     # Set a default alignment for the stubhead label
     stubhead_label_alignment = "left"
@@ -99,12 +101,11 @@ def create_columns_component_h(data: GTData) -> str:
                 )
             )
 
-        # Create the headings in the case where there are no spanners at all --------------------
-        col_entries = [
-            (stub_label, stubhead_label_alignment),
-            *zip(headings_vars, headings_labels, col_alignment),
-        ]
-        for label, alignment in col_entries:
+        #
+        # Create the headings in the case where there are no spanners at all -------------------------
+        col_entries = [*zip(headings_vars, headings_labels, col_alignment)]
+
+        for var_, label, alignment in col_entries:
             # NOTE: Ignore styles for now
             # styles_column = subset(column_style_attrs, colnum == i)
             #
