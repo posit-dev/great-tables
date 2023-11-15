@@ -289,7 +289,6 @@ def create_columns_component_h(data: GTData) -> str:
                         style=remaining_style,
                         scope="col",
                         id=remaining_headings_labels[j],
-                        contents=HTML(remaining_headings_labels[j]),
                     )
                 )
 
