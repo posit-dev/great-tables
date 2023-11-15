@@ -292,7 +292,7 @@ def create_columns_component_h(data: GTData) -> str:
                     )
                 )
 
-            table_col_headings = tags.tagList(
+            table_col_headings = TagList(
                 tags.tr(level_1_spanners, class_="gt_col_headings gt_spanner_row"),
                 tags.tr(spanned_column_labels, class_="gt_col_headings"),
             )
