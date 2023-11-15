@@ -181,17 +181,8 @@ def create_columns_component_h(data: GTData) -> str:
         # NOTE: Run-length encoding treats missing values as distinct from each other; in other
         # words, each missing value starts a new run of length 1
 
-        spanner_ids_level_1_index = spanner_ids[level_1_index]
-        spanners_rle = [(k, len(list(g))) for k, g in groupby(list(spanner_ids_level_1_index))]
-
-        # The `sig_cells` vector contains the indices of spanners' elements where the value is
-        # either None, or, is different than the previous value; because None values are
-        # distinct, every element that is None will be present in `sig_cells`
-        sig_cells = [1] + [
-            i + 1
-            for i, (k, _) in enumerate(spanners_rle[:-1])
-            if k is None or k != spanners_rle[i - 1][0]
-        ]
+        spanner_ids_level_1_index = list(spanner_ids[level_1_index].values())
+        spanners_rle = list(seq_groups(seq=list(spanner_ids_level_1_index)))
 
         # `colspans` matches `spanners` in length; each element is the number of columns that the
         # <th> at that position should span; if 0, then skip the <th> at that position
