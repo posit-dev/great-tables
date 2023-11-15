@@ -239,7 +239,7 @@ def create_columns_component_h(data: GTData) -> str:
                     level_1_spanners.append(
                         tags.th(
                             tags.span(
-                                HTML(spanners[level_1_index][span_key]),
+                                HTML(spanner_ids_level_1_index[ii]),
                                 class_="gt_column_spanner",
                             ),
                             class_="gt_col_heading gt_columns_bottom_border gt_column_spanner_outer",
@@ -247,7 +247,7 @@ def create_columns_component_h(data: GTData) -> str:
                             colspan=colspans[ii],
                             style=spanner_style,
                             scope="colgroup" if colspans[ii] > 1 else "col",
-                            id=str(spanners[level_1_index][span_key]),
+                            id=str(spanner_ids_level_1_index[ii]),
                         )
                     )
 
