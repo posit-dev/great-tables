@@ -201,6 +201,10 @@ class ColInfo:
     def visible(self) -> bool:
         return self.type != ColInfoTypeEnum.hidden
 
+    @property
+    def defaulted_align(self) -> str:
+        return "left" if self.column_align is None else str(self.column_align)
+
 
 class Boxhead(_Sequence[ColInfo]):
     _d: List[ColInfo]
