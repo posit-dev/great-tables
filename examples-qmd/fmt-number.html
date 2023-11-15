@@ -94,6 +94,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -241,47 +244,508 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Use the exibble dataset to create a gt table. With the <code>fmt_number()</code> method, we’ll format the num column to have three decimal places (with <code>decimals=3</code>) and omit the use of digit separators (with <code>use_seps=False</code>).</p>
 <div class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gt.GT(exibble).fmt_number(columns<span class="op">=</span><span class="st">'num'</span>, decimals<span class="op">=</span><span class="dv">3</span>).cols_label(char <span class="op">=</span> <span class="st">"character"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ValueError: too many values to unpack (expected 2)</code></pre>
-</div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-<pre><code>GT(_tbl_data=            num        char   fctr        date   time          datetime  \
-0  1.111000e-01     apricot    one  2015-01-15  13:35  2018-01-01 02:22   
-1  2.222000e+00      banana    two  2015-02-15  14:40  2018-02-02 14:33   
-2  3.333000e+01     coconut  three  2015-03-15  15:45  2018-03-03 03:44   
-3  4.444000e+02      durian   four  2015-04-15  16:50  2018-04-04 15:55   
-4  5.550000e+03         NaN   five  2015-05-15  17:55  2018-05-05 04:00   
-5           NaN         fig    six  2015-06-15    NaN  2018-06-06 16:11   
-6  7.770000e+05  grapefruit  seven         NaN  19:10  2018-07-07 05:22   
-7  8.880000e+06    honeydew  eight  2015-08-15  20:20               NaN   
 
-    currency    row  group  
-0     49.950  row_1  grp_a  
-1     17.950  row_2  grp_a  
-2      1.390  row_3  grp_a  
-3  65100.000  row_4  grp_a  
-4   1325.810  row_5  grp_b  
-5     13.255  row_6  grp_b  
-6        NaN  row_7  grp_b  
-7      0.440  row_8  grp_b  , _body=&lt;great_tables._gt_data.Body object at 0x7fb0e0238ac0&gt;, _boxhead=Boxhead([ColInfo(var='num', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='num', column_align=None, column_width=None), ColInfo(var='char', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='character', column_align=None, column_width=None), ColInfo(var='fctr', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='fctr', column_align=None, column_width=None), ColInfo(var='date', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='date', column_align=None, column_width=None), ColInfo(var='time', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='time', column_align=None, column_width=None), ColInfo(var='datetime', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='datetime', column_align=None, column_width=None), ColInfo(var='currency', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='currency', column_align=None, column_width=None), ColInfo(var='row', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='row', column_align=None, column_width=None), ColInfo(var='group', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='group', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=5, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=6, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=7, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7fb0e0239510&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7fb0e0239540&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7fb0e0239570&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7fb0e02395a0&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7fb0e02395d0&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7fb0e00ad7b0&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7fb0e0239630&gt;, _has_built=False)</code></pre>
+<div id="srbhtpuxqd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#srbhtpuxqd table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#srbhtpuxqd .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+#srbhtpuxqd .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+#srbhtpuxqd .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+#srbhtpuxqd .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+#srbhtpuxqd .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#srbhtpuxqd .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+#srbhtpuxqd .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+#srbhtpuxqd .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+#srbhtpuxqd .gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+#srbhtpuxqd .gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+#srbhtpuxqd .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+#srbhtpuxqd .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle; }
+
+#srbhtpuxqd .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+#srbhtpuxqd .gt_from_md > :first-child {
+  margin-top: 0; }
+
+#srbhtpuxqd .gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+#srbhtpuxqd .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+#srbhtpuxqd .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#srbhtpuxqd .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+#srbhtpuxqd .gt_row_group_first td {
+  border-top-width: 2px; }
+
+#srbhtpuxqd .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#srbhtpuxqd .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+#srbhtpuxqd .gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+#srbhtpuxqd .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#srbhtpuxqd .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#srbhtpuxqd .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+#srbhtpuxqd .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+#srbhtpuxqd .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#srbhtpuxqd .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+#srbhtpuxqd .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#srbhtpuxqd .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+#srbhtpuxqd .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#srbhtpuxqd .gt_left {
+  text-align: left; }
+
+#srbhtpuxqd .gt_center {
+  text-align: center; }
+
+#srbhtpuxqd .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+#srbhtpuxqd .gt_font_normal {
+  font-weight: normal; }
+
+#srbhtpuxqd .gt_font_bold {
+  font-weight: bold; }
+
+#srbhtpuxqd .gt_font_italic {
+  font-style: italic; }
+
+#srbhtpuxqd .gt_super {
+  font-size: 65%; }
+
+#srbhtpuxqd .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em; }
+
+#srbhtpuxqd .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em; }
+
+#srbhtpuxqd .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+#srbhtpuxqd .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em; }
+
+#srbhtpuxqd .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em; }
+
+#srbhtpuxqd .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em; }
+
+</style>
+
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd gt_col_headings">
+<td id="num" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">num</td>
+<td id="character" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">character</td>
+<td id="fctr" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">fctr</td>
+<td id="date" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">date</td>
+<td id="time" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">time</td>
+<td id="datetime" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">datetime</td>
+<td id="currency" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">currency</td>
+<td id="row" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">row</td>
+<td id="group" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">group</td>
+</tr>
+</tbody>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row">0.111</td>
+<td class="gt_row">apricot</td>
+<td class="gt_row">one</td>
+<td class="gt_row">2015-01-15</td>
+<td class="gt_row">13:35</td>
+<td class="gt_row">2018-01-01 02:22</td>
+<td class="gt_row">49.95</td>
+<td class="gt_row">row_1</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="even">
+<td class="gt_row">2.222</td>
+<td class="gt_row">banana</td>
+<td class="gt_row">two</td>
+<td class="gt_row">2015-02-15</td>
+<td class="gt_row">14:40</td>
+<td class="gt_row">2018-02-02 14:33</td>
+<td class="gt_row">17.95</td>
+<td class="gt_row">row_2</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">33.330</td>
+<td class="gt_row">coconut</td>
+<td class="gt_row">three</td>
+<td class="gt_row">2015-03-15</td>
+<td class="gt_row">15:45</td>
+<td class="gt_row">2018-03-03 03:44</td>
+<td class="gt_row">1.39</td>
+<td class="gt_row">row_3</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="even">
+<td class="gt_row">444.400</td>
+<td class="gt_row">durian</td>
+<td class="gt_row">four</td>
+<td class="gt_row">2015-04-15</td>
+<td class="gt_row">16:50</td>
+<td class="gt_row">2018-04-04 15:55</td>
+<td class="gt_row">65100.0</td>
+<td class="gt_row">row_4</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">5,550.000</td>
+<td class="gt_row">nan</td>
+<td class="gt_row">five</td>
+<td class="gt_row">2015-05-15</td>
+<td class="gt_row">17:55</td>
+<td class="gt_row">2018-05-05 04:00</td>
+<td class="gt_row">1325.81</td>
+<td class="gt_row">row_5</td>
+<td class="gt_row">grp_b</td>
+</tr>
+<tr class="even">
+<td class="gt_row">nan</td>
+<td class="gt_row">fig</td>
+<td class="gt_row">six</td>
+<td class="gt_row">2015-06-15</td>
+<td class="gt_row">nan</td>
+<td class="gt_row">2018-06-06 16:11</td>
+<td class="gt_row">13.255</td>
+<td class="gt_row">row_6</td>
+<td class="gt_row">grp_b</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">777,000.000</td>
+<td class="gt_row">grapefruit</td>
+<td class="gt_row">seven</td>
+<td class="gt_row">nan</td>
+<td class="gt_row">19:10</td>
+<td class="gt_row">2018-07-07 05:22</td>
+<td class="gt_row">nan</td>
+<td class="gt_row">row_7</td>
+<td class="gt_row">grp_b</td>
+</tr>
+<tr class="even">
+<td class="gt_row">8,880,000.000</td>
+<td class="gt_row">honeydew</td>
+<td class="gt_row">eight</td>
+<td class="gt_row">2015-08-15</td>
+<td class="gt_row">20:20</td>
+<td class="gt_row">nan</td>
+<td class="gt_row">0.44</td>
+<td class="gt_row">row_8</td>
+<td class="gt_row">grp_b</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+        
 </div>
 </div>
 <p>Use a modified version of the countrypops dataset to create a gt table with row labels. Format all columns to use large-number suffixing (e.g., where <code>'10,000,000'</code> becomes <code>'10M'</code>) with the <code>suffixing=True</code> option.</p>
 <div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> siuba <span class="im">import</span> <span class="op">*</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> (countrypops</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> select(_.country_code_3, _.year, _.population)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> <span class="bu">filter</span>(_.country_code_3.isin([<span class="st">'CHN'</span>, <span class="st">'IND'</span>, <span class="st">'USA'</span>, <span class="st">'PAK'</span>, <span class="st">'IDN'</span>]))</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> <span class="bu">filter</span>(_.year <span class="op">&gt;</span> <span class="dv">1975</span>, _.year <span class="op">%</span> <span class="dv">5</span> <span class="op">==</span> <span class="dv">0</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> spread(_.year, _.population)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> arrange(<span class="op">-</span>_[<span class="dv">2015</span>])</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: implement `suffixing`</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>(gt.GT(res)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>   .fmt_integer(columns<span class="op">=</span><span class="dv">1980</span>, scale_by<span class="op">=</span><span class="dv">1</span><span class="op">/</span><span class="dv">10000</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>   .fmt_number(columns<span class="op">=</span><span class="dv">1985</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> siuba <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> (countrypops</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> select(_.country_code_3, _.year, _.population)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> <span class="bu">filter</span>(_.country_code_3.isin([<span class="st">'CHN'</span>, <span class="st">'IND'</span>, <span class="st">'USA'</span>, <span class="st">'PAK'</span>, <span class="st">'IDN'</span>]))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> <span class="bu">filter</span>(_.year <span class="op">&gt;</span> <span class="dv">1975</span>, _.year <span class="op">%</span> <span class="dv">5</span> <span class="op">==</span> <span class="dv">0</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> spread(_.year, _.population)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>   <span class="op">&gt;&gt;</span> arrange(<span class="op">-</span>_[<span class="dv">2015</span>])</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: implement `suffixing`</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>(gt.GT(res)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>   .fmt_integer(columns<span class="op">=</span><span class="dv">1980</span>, scale_by<span class="op">=</span><span class="dv">1</span><span class="op">/</span><span class="dv">10000</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>   .fmt_number(columns<span class="op">=</span><span class="dv">1985</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-error">
 <pre><code>TypeError: Invalid value '98,124' for dtype Int64</code></pre>
 </div>
@@ -298,33 +762,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 2  1154638713  1240613620  1322866505  1396387127  
 4   295516599   309327143   320738994   331511512  
 1   228805144   244016173   259091970   271857970  
-3   174372098   194454498   210969298   227196741  , _body=&lt;great_tables._gt_data.Body object at 0x7fb0e0171180&gt;, _boxhead=Boxhead([ColInfo(var='country_code_3', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='country_code_3', column_align=None, column_width=None), ColInfo(var=1980, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1980, column_align=None, column_width=None), ColInfo(var=1985, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1985, column_align=None, column_width=None), ColInfo(var=1990, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1990, column_align=None, column_width=None), ColInfo(var=1995, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1995, column_align=None, column_width=None), ColInfo(var=2000, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2000, column_align=None, column_width=None), ColInfo(var=2005, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2005, column_align=None, column_width=None), ColInfo(var=2010, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2010, column_align=None, column_width=None), ColInfo(var=2015, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2015, column_align=None, column_width=None), ColInfo(var=2020, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2020, column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7fb0d04bed10&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7fb0d04bda20&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7fb0d04bdc90&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7fb0d04bd390&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7fb0d04bd960&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7fb0d04f3250&gt;, &lt;great_tables._gt_data.FormatInfo object at 0x7fb0d04f33d0&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7fb0d04bd2a0&gt;, _has_built=False)</code></pre>
+3   174372098   194454498   210969298   227196741  , _body=&lt;great_tables._gt_data.Body object at 0x7f5691301c00&gt;, _boxhead=Boxhead([ColInfo(var='country_code_3', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='country_code_3', column_align=None, column_width=None), ColInfo(var=1980, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1980, column_align=None, column_width=None), ColInfo(var=1985, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1985, column_align=None, column_width=None), ColInfo(var=1990, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1990, column_align=None, column_width=None), ColInfo(var=1995, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1995, column_align=None, column_width=None), ColInfo(var=2000, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2000, column_align=None, column_width=None), ColInfo(var=2005, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2005, column_align=None, column_width=None), ColInfo(var=2010, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2010, column_align=None, column_width=None), ColInfo(var=2015, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2015, column_align=None, column_width=None), ColInfo(var=2020, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2020, column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f5654473b50&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f5654472860&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f5654472ad0&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f56544721d0&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f56544727a0&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7f5654cbc0d0&gt;, &lt;great_tables._gt_data.FormatInfo object at 0x7f5654cbc250&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7f56544720e0&gt;, _has_built=False)</code></pre>
 </div>
 </div>
 <p>In a variation of the previous table, we can combine large-number suffixing with a declaration of the number of significant digits to use. With things like population figures, <code>n_sigfig=3</code> is a very good option.</p>
 <div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#countrypops |&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::select(country_code_3, year, population) |&gt;</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::filter(country_code_3 %in% c('CHN', 'IND', 'USA', 'PAK', 'IDN')) |&gt;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::filter(year &gt; 1975 &amp; year %% 5 == 0) |&gt;</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  tidyr::spread(year, population) |&gt;</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::arrange(desc(`2015`)) |&gt;</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  gt(rowname_col='country_code_3') |&gt;</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  fmt_number(suffixing=True, n_sigfig=3)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#countrypops |&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::select(country_code_3, year, population) |&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::filter(country_code_3 %in% c('CHN', 'IND', 'USA', 'PAK', 'IDN')) |&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::filter(year &gt; 1975 &amp; year %% 5 == 0) |&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  tidyr::spread(year, population) |&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  dplyr::arrange(desc(`2015`)) |&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  gt(rowname_col='country_code_3') |&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  fmt_number(suffixing=True, n_sigfig=3)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>There can be cases where you want to show numbers to a large number of decimal places but also drop the unnecessary trailing zeros for low-precision values. Let’s take a portion of the towny dataset and format the latitude and longitude columns with <code>fmt_number()</code>. We’ll have up to 5 digits displayed as decimal values, but we’ll also unconditionally drop any runs of trailing zeros in the decimal part with <code>drop_trailing_zeros=True</code>.</p>
 <div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>towny <span class="op">|&gt;</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  dplyr::select(name, latitude, longitude) <span class="op">|&gt;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  dplyr::slice_head(n<span class="op">=</span><span class="dv">10</span>) <span class="op">|&gt;</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  gt() <span class="op">|&gt;</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  fmt_number(decimals<span class="op">=</span><span class="dv">5</span>, drop_trailing_zeros<span class="op">=</span><span class="va">True</span>) <span class="op">|&gt;</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># replace -name with [latitude, longitude]</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">## cols_merge(columns=-name, pattern='{1}, {2}') |&gt;</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  cols_label(</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    name<span class="op">~</span><span class="st">'Municipality'</span>,</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    latitude<span class="op">=</span><span class="st">'Location'</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>towny <span class="op">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  dplyr::select(name, latitude, longitude) <span class="op">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  dplyr::slice_head(n<span class="op">=</span><span class="dv">10</span>) <span class="op">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  gt() <span class="op">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  fmt_number(decimals<span class="op">=</span><span class="dv">5</span>, drop_trailing_zeros<span class="op">=</span><span class="va">True</span>) <span class="op">|&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># replace -name with [latitude, longitude]</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">## cols_merge(columns=-name, pattern='{1}, {2}') |&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  cols_label(</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    name<span class="op">~</span><span class="st">'Municipality'</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    latitude<span class="op">=</span><span class="st">'Location'</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 

@@ -93,6 +93,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -223,90 +226,1427 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gt_ex <span class="op">=</span> GT(exibble.head(<span class="dv">6</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>gt_ex</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ValueError: too many values to unpack (expected 2)</code></pre>
-</div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-<pre><code>GT(_tbl_data=         num     char   fctr        date   time          datetime   currency  \
-0     0.1111  apricot    one  2015-01-15  13:35  2018-01-01 02:22     49.950   
-1     2.2220   banana    two  2015-02-15  14:40  2018-02-02 14:33     17.950   
-2    33.3300  coconut  three  2015-03-15  15:45  2018-03-03 03:44      1.390   
-3   444.4000   durian   four  2015-04-15  16:50  2018-04-04 15:55  65100.000   
-4  5550.0000      NaN   five  2015-05-15  17:55  2018-05-05 04:00   1325.810   
-5        NaN      fig    six  2015-06-15    NaN  2018-06-06 16:11     13.255   
 
-     row  group  
-0  row_1  grp_a  
-1  row_2  grp_a  
-2  row_3  grp_a  
-3  row_4  grp_a  
-4  row_5  grp_b  
-5  row_6  grp_b  , _body=&lt;great_tables._gt_data.Body object at 0x7f65fc1ec790&gt;, _boxhead=Boxhead([ColInfo(var='num', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='num', column_align=None, column_width=None), ColInfo(var='char', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='char', column_align=None, column_width=None), ColInfo(var='fctr', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='fctr', column_align=None, column_width=None), ColInfo(var='date', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='date', column_align=None, column_width=None), ColInfo(var='time', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='time', column_align=None, column_width=None), ColInfo(var='datetime', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='datetime', column_align=None, column_width=None), ColInfo(var='currency', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='currency', column_align=None, column_width=None), ColInfo(var='row', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='row', column_align=None, column_width=None), ColInfo(var='group', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='group', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=5, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f65fc1ed3f0&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f65fc1ed420&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f65fc1ed450&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f65fc1ed480&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f65fc1ed4b0&gt;, _formats=[], _options=&lt;great_tables._gt_data.Options object at 0x7f65fc1ed510&gt;, _has_built=False)</code></pre>
+<div id="sdzyjagivo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#sdzyjagivo table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#sdzyjagivo .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+#sdzyjagivo .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+#sdzyjagivo .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+#sdzyjagivo .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+#sdzyjagivo .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#sdzyjagivo .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+#sdzyjagivo .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+#sdzyjagivo .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+#sdzyjagivo .gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+#sdzyjagivo .gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+#sdzyjagivo .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+#sdzyjagivo .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle; }
+
+#sdzyjagivo .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+#sdzyjagivo .gt_from_md > :first-child {
+  margin-top: 0; }
+
+#sdzyjagivo .gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+#sdzyjagivo .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+#sdzyjagivo .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#sdzyjagivo .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+#sdzyjagivo .gt_row_group_first td {
+  border-top-width: 2px; }
+
+#sdzyjagivo .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#sdzyjagivo .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+#sdzyjagivo .gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+#sdzyjagivo .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#sdzyjagivo .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#sdzyjagivo .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+#sdzyjagivo .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+#sdzyjagivo .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#sdzyjagivo .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+#sdzyjagivo .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#sdzyjagivo .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+#sdzyjagivo .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#sdzyjagivo .gt_left {
+  text-align: left; }
+
+#sdzyjagivo .gt_center {
+  text-align: center; }
+
+#sdzyjagivo .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+#sdzyjagivo .gt_font_normal {
+  font-weight: normal; }
+
+#sdzyjagivo .gt_font_bold {
+  font-weight: bold; }
+
+#sdzyjagivo .gt_font_italic {
+  font-style: italic; }
+
+#sdzyjagivo .gt_super {
+  font-size: 65%; }
+
+#sdzyjagivo .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em; }
+
+#sdzyjagivo .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em; }
+
+#sdzyjagivo .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+#sdzyjagivo .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em; }
+
+#sdzyjagivo .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em; }
+
+#sdzyjagivo .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em; }
+
+</style>
+
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd gt_col_headings">
+<td id="num" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">num</td>
+<td id="char" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">char</td>
+<td id="fctr" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">fctr</td>
+<td id="date" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">date</td>
+<td id="time" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">time</td>
+<td id="datetime" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">datetime</td>
+<td id="currency" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">currency</td>
+<td id="row" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">row</td>
+<td id="group" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">group</td>
+</tr>
+</tbody>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row">0.1111</td>
+<td class="gt_row">apricot</td>
+<td class="gt_row">one</td>
+<td class="gt_row">2015-01-15</td>
+<td class="gt_row">13:35</td>
+<td class="gt_row">2018-01-01 02:22</td>
+<td class="gt_row">49.95</td>
+<td class="gt_row">row_1</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="even">
+<td class="gt_row">2.222</td>
+<td class="gt_row">banana</td>
+<td class="gt_row">two</td>
+<td class="gt_row">2015-02-15</td>
+<td class="gt_row">14:40</td>
+<td class="gt_row">2018-02-02 14:33</td>
+<td class="gt_row">17.95</td>
+<td class="gt_row">row_2</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">33.33</td>
+<td class="gt_row">coconut</td>
+<td class="gt_row">three</td>
+<td class="gt_row">2015-03-15</td>
+<td class="gt_row">15:45</td>
+<td class="gt_row">2018-03-03 03:44</td>
+<td class="gt_row">1.39</td>
+<td class="gt_row">row_3</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="even">
+<td class="gt_row">444.4</td>
+<td class="gt_row">durian</td>
+<td class="gt_row">four</td>
+<td class="gt_row">2015-04-15</td>
+<td class="gt_row">16:50</td>
+<td class="gt_row">2018-04-04 15:55</td>
+<td class="gt_row">65100.0</td>
+<td class="gt_row">row_4</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">5550.0</td>
+<td class="gt_row">nan</td>
+<td class="gt_row">five</td>
+<td class="gt_row">2015-05-15</td>
+<td class="gt_row">17:55</td>
+<td class="gt_row">2018-05-05 04:00</td>
+<td class="gt_row">1325.81</td>
+<td class="gt_row">row_5</td>
+<td class="gt_row">grp_b</td>
+</tr>
+<tr class="even">
+<td class="gt_row">nan</td>
+<td class="gt_row">fig</td>
+<td class="gt_row">six</td>
+<td class="gt_row">2015-06-15</td>
+<td class="gt_row">nan</td>
+<td class="gt_row">2018-06-06 16:11</td>
+<td class="gt_row">13.255</td>
+<td class="gt_row">row_6</td>
+<td class="gt_row">grp_b</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+        
 </div>
 </div>
 <section id="formatting-columns" class="level3">
 <h3 class="anchored" data-anchor-id="formatting-columns">Formatting columns</h3>
 <div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>gt_ex.fmt_number(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span><span class="st">"num"</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    decimals<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    scale_by<span class="op">=</span><span class="dv">1</span><span class="op">/</span><span class="dv">1000</span>,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    pattern<span class="op">=</span><span class="st">"</span><span class="sc">{x}</span><span class="st">K"</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ValueError: too many values to unpack (expected 2)</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>gt_ex.fmt_number(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span><span class="st">"num"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    decimals<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    scale_by<span class="op">=</span><span class="dv">1</span><span class="op">/</span><span class="dv">1000</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    pattern<span class="op">=</span><span class="st">"</span><span class="sc">{x}</span><span class="st">K"</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<pre><code>GT(_tbl_data=         num     char   fctr        date   time          datetime   currency  \
-0     0.1111  apricot    one  2015-01-15  13:35  2018-01-01 02:22     49.950   
-1     2.2220   banana    two  2015-02-15  14:40  2018-02-02 14:33     17.950   
-2    33.3300  coconut  three  2015-03-15  15:45  2018-03-03 03:44      1.390   
-3   444.4000   durian   four  2015-04-15  16:50  2018-04-04 15:55  65100.000   
-4  5550.0000      NaN   five  2015-05-15  17:55  2018-05-05 04:00   1325.810   
-5        NaN      fig    six  2015-06-15    NaN  2018-06-06 16:11     13.255   
 
-     row  group  
-0  row_1  grp_a  
-1  row_2  grp_a  
-2  row_3  grp_a  
-3  row_4  grp_a  
-4  row_5  grp_b  
-5  row_6  grp_b  , _body=&lt;great_tables._gt_data.Body object at 0x7f65fc1ec790&gt;, _boxhead=Boxhead([ColInfo(var='num', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='num', column_align=None, column_width=None), ColInfo(var='char', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='char', column_align=None, column_width=None), ColInfo(var='fctr', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='fctr', column_align=None, column_width=None), ColInfo(var='date', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='date', column_align=None, column_width=None), ColInfo(var='time', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='time', column_align=None, column_width=None), ColInfo(var='datetime', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='datetime', column_align=None, column_width=None), ColInfo(var='currency', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='currency', column_align=None, column_width=None), ColInfo(var='row', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='row', column_align=None, column_width=None), ColInfo(var='group', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='group', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=5, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f65fc1ed3f0&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f65fc1ed420&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f65fc1ed450&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f65fc1ed480&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f65fc1ed4b0&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7f65edfc6800&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7f65fc1ed510&gt;, _has_built=False)</code></pre>
+<div id="ubmxrgprcg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#ubmxrgprcg table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#ubmxrgprcg .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+#ubmxrgprcg .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+#ubmxrgprcg .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+#ubmxrgprcg .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+#ubmxrgprcg .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#ubmxrgprcg .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+#ubmxrgprcg .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+#ubmxrgprcg .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+#ubmxrgprcg .gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+#ubmxrgprcg .gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+#ubmxrgprcg .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+#ubmxrgprcg .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle; }
+
+#ubmxrgprcg .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+#ubmxrgprcg .gt_from_md > :first-child {
+  margin-top: 0; }
+
+#ubmxrgprcg .gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+#ubmxrgprcg .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+#ubmxrgprcg .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#ubmxrgprcg .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+#ubmxrgprcg .gt_row_group_first td {
+  border-top-width: 2px; }
+
+#ubmxrgprcg .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#ubmxrgprcg .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+#ubmxrgprcg .gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+#ubmxrgprcg .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#ubmxrgprcg .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#ubmxrgprcg .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+#ubmxrgprcg .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+#ubmxrgprcg .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#ubmxrgprcg .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+#ubmxrgprcg .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#ubmxrgprcg .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+#ubmxrgprcg .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#ubmxrgprcg .gt_left {
+  text-align: left; }
+
+#ubmxrgprcg .gt_center {
+  text-align: center; }
+
+#ubmxrgprcg .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+#ubmxrgprcg .gt_font_normal {
+  font-weight: normal; }
+
+#ubmxrgprcg .gt_font_bold {
+  font-weight: bold; }
+
+#ubmxrgprcg .gt_font_italic {
+  font-style: italic; }
+
+#ubmxrgprcg .gt_super {
+  font-size: 65%; }
+
+#ubmxrgprcg .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em; }
+
+#ubmxrgprcg .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em; }
+
+#ubmxrgprcg .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+#ubmxrgprcg .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em; }
+
+#ubmxrgprcg .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em; }
+
+#ubmxrgprcg .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em; }
+
+</style>
+
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd gt_col_headings">
+<td id="num" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">num</td>
+<td id="char" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">char</td>
+<td id="fctr" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">fctr</td>
+<td id="date" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">date</td>
+<td id="time" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">time</td>
+<td id="datetime" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">datetime</td>
+<td id="currency" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">currency</td>
+<td id="row" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">row</td>
+<td id="group" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">group</td>
+</tr>
+</tbody>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row">0.0K</td>
+<td class="gt_row">apricot</td>
+<td class="gt_row">one</td>
+<td class="gt_row">2015-01-15</td>
+<td class="gt_row">13:35</td>
+<td class="gt_row">2018-01-01 02:22</td>
+<td class="gt_row">49.95</td>
+<td class="gt_row">row_1</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="even">
+<td class="gt_row">0.0K</td>
+<td class="gt_row">banana</td>
+<td class="gt_row">two</td>
+<td class="gt_row">2015-02-15</td>
+<td class="gt_row">14:40</td>
+<td class="gt_row">2018-02-02 14:33</td>
+<td class="gt_row">17.95</td>
+<td class="gt_row">row_2</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">0.0K</td>
+<td class="gt_row">coconut</td>
+<td class="gt_row">three</td>
+<td class="gt_row">2015-03-15</td>
+<td class="gt_row">15:45</td>
+<td class="gt_row">2018-03-03 03:44</td>
+<td class="gt_row">1.39</td>
+<td class="gt_row">row_3</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="even">
+<td class="gt_row">0.4K</td>
+<td class="gt_row">durian</td>
+<td class="gt_row">four</td>
+<td class="gt_row">2015-04-15</td>
+<td class="gt_row">16:50</td>
+<td class="gt_row">2018-04-04 15:55</td>
+<td class="gt_row">65100.0</td>
+<td class="gt_row">row_4</td>
+<td class="gt_row">grp_a</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">5.5K</td>
+<td class="gt_row">nan</td>
+<td class="gt_row">five</td>
+<td class="gt_row">2015-05-15</td>
+<td class="gt_row">17:55</td>
+<td class="gt_row">2018-05-05 04:00</td>
+<td class="gt_row">1325.81</td>
+<td class="gt_row">row_5</td>
+<td class="gt_row">grp_b</td>
+</tr>
+<tr class="even">
+<td class="gt_row">nanK</td>
+<td class="gt_row">fig</td>
+<td class="gt_row">six</td>
+<td class="gt_row">2015-06-15</td>
+<td class="gt_row">nan</td>
+<td class="gt_row">2018-06-06 16:11</td>
+<td class="gt_row">13.255</td>
+<td class="gt_row">row_6</td>
+<td class="gt_row">grp_b</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+        
 </div>
 </div>
 </section>
 <section id="titles-and-notes" class="level3">
 <h3 class="anchored" data-anchor-id="titles-and-notes">Titles and notes</h3>
 <div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    gt_ex</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        title <span class="op">=</span> <span class="st">"An example table"</span>,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        subtitle <span class="op">=</span> md(<span class="st">"It's **pretty great**"</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    .tab_source_note(</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Source: great tables"</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ValueError: too many values to unpack (expected 2)</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    gt_ex</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        title <span class="op">=</span> <span class="st">"An example table"</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        subtitle <span class="op">=</span> md(<span class="st">"It's **pretty great**"</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    .tab_source_note(</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Source: great tables"</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<pre><code>GT(_tbl_data=         num     char   fctr        date   time          datetime   currency  \
-0     0.1111  apricot    one  2015-01-15  13:35  2018-01-01 02:22     49.950   
-1     2.2220   banana    two  2015-02-15  14:40  2018-02-02 14:33     17.950   
-2    33.3300  coconut  three  2015-03-15  15:45  2018-03-03 03:44      1.390   
-3   444.4000   durian   four  2015-04-15  16:50  2018-04-04 15:55  65100.000   
-4  5550.0000      NaN   five  2015-05-15  17:55  2018-05-05 04:00   1325.810   
-5        NaN      fig    six  2015-06-15    NaN  2018-06-06 16:11     13.255   
 
-     row  group  
-0  row_1  grp_a  
-1  row_2  grp_a  
-2  row_3  grp_a  
-3  row_4  grp_a  
-4  row_5  grp_b  
-5  row_6  grp_b  , _body=&lt;great_tables._gt_data.Body object at 0x7f65fc1ec790&gt;, _boxhead=Boxhead([ColInfo(var='num', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='num', column_align=None, column_width=None), ColInfo(var='char', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='char', column_align=None, column_width=None), ColInfo(var='fctr', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='fctr', column_align=None, column_width=None), ColInfo(var='date', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='date', column_align=None, column_width=None), ColInfo(var='time', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='time', column_align=None, column_width=None), ColInfo(var='datetime', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='datetime', column_align=None, column_width=None), ColInfo(var='currency', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='currency', column_align=None, column_width=None), ColInfo(var='row', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='row', column_align=None, column_width=None), ColInfo(var='group', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='group', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=5, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f65fc1ed3f0&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f65fc1ed420&gt;, _source_notes=['Source: great tables'], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f65fc1ed450&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f65fc1ed480&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f65fc1ed4b0&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7f65edfc6800&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7f65fc1ed510&gt;, _has_built=False)</code></pre>
+<div id="ggpbnvurao" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+:where(#ggpbnvurao) table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+:where(#ggpbnvurao) .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+:where(#ggpbnvurao) .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+:where(#ggpbnvurao) .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+:where(#ggpbnvurao) .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+:where(#ggpbnvurao) .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#ggpbnvurao) .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+:where(#ggpbnvurao) .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+:where(#ggpbnvurao) .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+:where(#ggpbnvurao) .gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+:where(#ggpbnvurao) .gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+:where(#ggpbnvurao) .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+:where(#ggpbnvurao) .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle; }
+
+:where(#ggpbnvurao) .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+:where(#ggpbnvurao) .gt_from_md > :first-child {
+  margin-top: 0; }
+
+:where(#ggpbnvurao) .gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+:where(#ggpbnvurao) .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+:where(#ggpbnvurao) .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#ggpbnvurao) .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+:where(#ggpbnvurao) .gt_row_group_first td {
+  border-top-width: 2px; }
+
+:where(#ggpbnvurao) .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#ggpbnvurao) .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+:where(#ggpbnvurao) .gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+:where(#ggpbnvurao) .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#ggpbnvurao) .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#ggpbnvurao) .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+:where(#ggpbnvurao) .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+:where(#ggpbnvurao) .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#ggpbnvurao) .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+:where(#ggpbnvurao) .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#ggpbnvurao) .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+:where(#ggpbnvurao) .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#ggpbnvurao) .gt_left {
+  text-align: left; }
+
+:where(#ggpbnvurao) .gt_center {
+  text-align: center; }
+
+:where(#ggpbnvurao) .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+:where(#ggpbnvurao) .gt_font_normal {
+  font-weight: normal; }
+
+:where(#ggpbnvurao) .gt_font_bold {
+  font-weight: bold; }
+
+:where(#ggpbnvurao) .gt_font_italic {
+  font-style: italic; }
+
+:where(#ggpbnvurao) .gt_super {
+  font-size: 65%; }
+
+:where(#ggpbnvurao) .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em; }
+
+:where(#ggpbnvurao) .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em; }
+
+:where(#ggpbnvurao) .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+:where(#ggpbnvurao) .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em; }
+
+:where(#ggpbnvurao) .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em; }
+
+:where(#ggpbnvurao) .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em; }
+
+</style>
+<table class="gt_table">
+<thead class="gt_header">  <tr>
+    <th colspan="9" class="gt_heading gt_title gt_font_normal">An example table
+  </th></tr>
+  <tr>
+    <th colspan="9" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">It's <strong>pretty great</strong>
+  </th></tr></thead>
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="num">num</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="date">date</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="time">time</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="datetime">datetime</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="row">row</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group">group</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td class="gt_row">0.0K</td>
+  <td class="gt_row">apricot</td>
+  <td class="gt_row">one</td>
+  <td class="gt_row">2015-01-15</td>
+  <td class="gt_row">13:35</td>
+  <td class="gt_row">2018-01-01 02:22</td>
+  <td class="gt_row">49.95</td>
+  <td class="gt_row">row_1</td>
+  <td class="gt_row">grp_a</td>
+</tr>
+<tr>
+  <td class="gt_row">0.0K</td>
+  <td class="gt_row">banana</td>
+  <td class="gt_row">two</td>
+  <td class="gt_row">2015-02-15</td>
+  <td class="gt_row">14:40</td>
+  <td class="gt_row">2018-02-02 14:33</td>
+  <td class="gt_row">17.95</td>
+  <td class="gt_row">row_2</td>
+  <td class="gt_row">grp_a</td>
+</tr>
+<tr>
+  <td class="gt_row">0.0K</td>
+  <td class="gt_row">coconut</td>
+  <td class="gt_row">three</td>
+  <td class="gt_row">2015-03-15</td>
+  <td class="gt_row">15:45</td>
+  <td class="gt_row">2018-03-03 03:44</td>
+  <td class="gt_row">1.39</td>
+  <td class="gt_row">row_3</td>
+  <td class="gt_row">grp_a</td>
+</tr>
+<tr>
+  <td class="gt_row">0.4K</td>
+  <td class="gt_row">durian</td>
+  <td class="gt_row">four</td>
+  <td class="gt_row">2015-04-15</td>
+  <td class="gt_row">16:50</td>
+  <td class="gt_row">2018-04-04 15:55</td>
+  <td class="gt_row">65100.0</td>
+  <td class="gt_row">row_4</td>
+  <td class="gt_row">grp_a</td>
+</tr>
+<tr>
+  <td class="gt_row">5.5K</td>
+  <td class="gt_row">nan</td>
+  <td class="gt_row">five</td>
+  <td class="gt_row">2015-05-15</td>
+  <td class="gt_row">17:55</td>
+  <td class="gt_row">2018-05-05 04:00</td>
+  <td class="gt_row">1325.81</td>
+  <td class="gt_row">row_5</td>
+  <td class="gt_row">grp_b</td>
+</tr>
+<tr>
+  <td class="gt_row">nanK</td>
+  <td class="gt_row">fig</td>
+  <td class="gt_row">six</td>
+  <td class="gt_row">2015-06-15</td>
+  <td class="gt_row">nan</td>
+  <td class="gt_row">2018-06-06 16:11</td>
+  <td class="gt_row">13.255</td>
+  <td class="gt_row">row_6</td>
+  <td class="gt_row">grp_b</td>
+</tr>
+</tbody>
+  <tfoot class="gt_sourcenotes">
+  
+  <tr>
+    <td class="gt_sourcenote" colspan="9">Source: great tables</td>
+  </tr>
+
+</tfoot>
+
+</table>
+
+</div>
+        
 </div>
 </div>
 </section>
@@ -326,9 +1666,9 @@ Warning
 </div>
 </div>
 <div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>gt_ex <span class="op">=</span> GT(exibble.head(<span class="dv">6</span>), rowname_col<span class="op">=</span><span class="st">"row"</span>, groupname_col<span class="op">=</span><span class="st">"group"</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>gt_ex</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>gt_ex <span class="op">=</span> GT(exibble.head(<span class="dv">6</span>), rowname_col<span class="op">=</span><span class="st">"row"</span>, groupname_col<span class="op">=</span><span class="st">"group"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>gt_ex</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-error">
 <pre><code>AttributeError: 'Stubhead' object has no attribute 'stubhead'</code></pre>
 </div>
@@ -347,7 +1687,7 @@ Warning
 2  row_3  grp_a  
 3  row_4  grp_a  
 4  row_5  grp_b  
-5  row_6  grp_b  , _body=&lt;great_tables._gt_data.Body object at 0x7f65ed52db70&gt;, _boxhead=Boxhead([ColInfo(var='num', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='num', column_align=None, column_width=None), ColInfo(var='char', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='char', column_align=None, column_width=None), ColInfo(var='fctr', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='fctr', column_align=None, column_width=None), ColInfo(var='date', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='date', column_align=None, column_width=None), ColInfo(var='time', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='time', column_align=None, column_width=None), ColInfo(var='datetime', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='datetime', column_align=None, column_width=None), ColInfo(var='currency', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='currency', column_align=None, column_width=None), ColInfo(var='row', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='row', column_align=None, column_width=None), ColInfo(var='group', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='group', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id='grp_a', rowname='row_1', group_label=None, built=False), RowInfo(rownum_i=1, group_id='grp_a', rowname='row_2', group_label=None, built=False), RowInfo(rownum_i=2, group_id='grp_a', rowname='row_3', group_label=None, built=False), RowInfo(rownum_i=3, group_id='grp_a', rowname='row_4', group_label=None, built=False), RowInfo(rownum_i=4, group_id='grp_b', rowname='row_5', group_label=None, built=False), RowInfo(rownum_i=5, group_id='grp_b', rowname='row_6', group_label=None, built=False)]), _row_groups=RowGroups(['grp_a', 'grp_b']), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f65ed52e920&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f65ed52e740&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f65ed52e980&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f65ed52ec20&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f65ed52e5f0&gt;, _formats=[], _options=&lt;great_tables._gt_data.Options object at 0x7f65ed52eb00&gt;, _has_built=False)</code></pre>
+5  row_6  grp_b  , _body=&lt;great_tables._gt_data.Body object at 0x7fb30c1cdcc0&gt;, _boxhead=Boxhead([ColInfo(var='num', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='num', column_align=None, column_width=None), ColInfo(var='char', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='char', column_align=None, column_width=None), ColInfo(var='fctr', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='fctr', column_align=None, column_width=None), ColInfo(var='date', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='date', column_align=None, column_width=None), ColInfo(var='time', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='time', column_align=None, column_width=None), ColInfo(var='datetime', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='datetime', column_align=None, column_width=None), ColInfo(var='currency', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='currency', column_align=None, column_width=None), ColInfo(var='row', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='row', column_align=None, column_width=None), ColInfo(var='group', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='group', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id='grp_a', rowname='row_1', group_label=None, built=False), RowInfo(rownum_i=1, group_id='grp_a', rowname='row_2', group_label=None, built=False), RowInfo(rownum_i=2, group_id='grp_a', rowname='row_3', group_label=None, built=False), RowInfo(rownum_i=3, group_id='grp_a', rowname='row_4', group_label=None, built=False), RowInfo(rownum_i=4, group_id='grp_b', rowname='row_5', group_label=None, built=False), RowInfo(rownum_i=5, group_id='grp_b', rowname='row_6', group_label=None, built=False)]), _row_groups=RowGroups(['grp_a', 'grp_b']), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7fb30c1cf040&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7fb30c1cf070&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7fb30c1cf0a0&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7fb30c1cf0d0&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7fb30c1cf100&gt;, _formats=[], _options=&lt;great_tables._gt_data.Options object at 0x7fb30c1cf160&gt;, _has_built=False)</code></pre>
 </div>
 </div>
 </section>
@@ -367,12 +1707,12 @@ Warning
 </div>
 </div>
 <div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    gt_ex</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(<span class="st">"Basic"</span>, [<span class="st">"num"</span>, <span class="st">"char"</span>, <span class="st">"fct"</span>])</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(<span class="st">"Dates"</span>, [<span class="st">"date"</span>, <span class="st">"datetime"</span>])</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(<span class="st">"Misc"</span>, [<span class="st">"currency"</span>, <span class="st">"row"</span>, <span class="st">"group"</span>])</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    gt_ex</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(<span class="st">"Basic"</span>, [<span class="st">"num"</span>, <span class="st">"char"</span>, <span class="st">"fct"</span>])</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(<span class="st">"Dates"</span>, [<span class="st">"date"</span>, <span class="st">"datetime"</span>])</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(<span class="st">"Misc"</span>, [<span class="st">"currency"</span>, <span class="st">"row"</span>, <span class="st">"group"</span>])</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-error">
 <pre><code>AttributeError: 'Stubhead' object has no attribute 'stubhead'</code></pre>
 </div>
@@ -391,7 +1731,7 @@ Warning
 2  row_3  grp_a  
 3  row_4  grp_a  
 4  row_5  grp_b  
-5  row_6  grp_b  , _body=&lt;great_tables._gt_data.Body object at 0x7f65ed52db70&gt;, _boxhead=Boxhead([ColInfo(var='num', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='num', column_align=None, column_width=None), ColInfo(var='char', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='char', column_align=None, column_width=None), ColInfo(var='fctr', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='fctr', column_align=None, column_width=None), ColInfo(var='date', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='date', column_align=None, column_width=None), ColInfo(var='time', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='time', column_align=None, column_width=None), ColInfo(var='datetime', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='datetime', column_align=None, column_width=None), ColInfo(var='currency', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='currency', column_align=None, column_width=None), ColInfo(var='row', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='row', column_align=None, column_width=None), ColInfo(var='group', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='group', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id='grp_a', rowname='row_1', group_label=None, built=False), RowInfo(rownum_i=1, group_id='grp_a', rowname='row_2', group_label=None, built=False), RowInfo(rownum_i=2, group_id='grp_a', rowname='row_3', group_label=None, built=False), RowInfo(rownum_i=3, group_id='grp_a', rowname='row_4', group_label=None, built=False), RowInfo(rownum_i=4, group_id='grp_b', rowname='row_5', group_label=None, built=False), RowInfo(rownum_i=5, group_id='grp_b', rowname='row_6', group_label=None, built=False)]), _row_groups=RowGroups(['grp_a', 'grp_b']), _spanners=Spanners([SpannerInfo(spanner_id='Basic', spanner_level=0, spanner_label='Basic', spanner_units=None, spanner_pattern=None, vars=['num', 'char'], built=None), SpannerInfo(spanner_id='Dates', spanner_level=1, spanner_label='Dates', spanner_units=None, spanner_pattern=None, vars=['date', 'datetime', 'num', 'char'], built=None), SpannerInfo(spanner_id='Misc', spanner_level=2, spanner_label='Misc', spanner_units=None, spanner_pattern=None, vars=['currency', 'row', 'group', 'num', 'char', 'date', 'datetime'], built=None)]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f65ed52e920&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f65ed52e740&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f65ed52e980&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f65ed52ec20&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f65ed52e5f0&gt;, _formats=[], _options=&lt;great_tables._gt_data.Options object at 0x7f65ed52eb00&gt;, _has_built=False)</code></pre>
+5  row_6  grp_b  , _body=&lt;great_tables._gt_data.Body object at 0x7fb30c1cdcc0&gt;, _boxhead=Boxhead([ColInfo(var='num', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='num', column_align=None, column_width=None), ColInfo(var='char', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='char', column_align=None, column_width=None), ColInfo(var='fctr', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='fctr', column_align=None, column_width=None), ColInfo(var='date', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='date', column_align=None, column_width=None), ColInfo(var='time', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='time', column_align=None, column_width=None), ColInfo(var='datetime', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='datetime', column_align=None, column_width=None), ColInfo(var='currency', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='currency', column_align=None, column_width=None), ColInfo(var='row', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='row', column_align=None, column_width=None), ColInfo(var='group', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='group', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id='grp_a', rowname='row_1', group_label=None, built=False), RowInfo(rownum_i=1, group_id='grp_a', rowname='row_2', group_label=None, built=False), RowInfo(rownum_i=2, group_id='grp_a', rowname='row_3', group_label=None, built=False), RowInfo(rownum_i=3, group_id='grp_a', rowname='row_4', group_label=None, built=False), RowInfo(rownum_i=4, group_id='grp_b', rowname='row_5', group_label=None, built=False), RowInfo(rownum_i=5, group_id='grp_b', rowname='row_6', group_label=None, built=False)]), _row_groups=RowGroups(['grp_a', 'grp_b']), _spanners=Spanners([SpannerInfo(spanner_id='Basic', spanner_level=0, spanner_label='Basic', spanner_units=None, spanner_pattern=None, vars=['num', 'char'], built=None), SpannerInfo(spanner_id='Dates', spanner_level=1, spanner_label='Dates', spanner_units=None, spanner_pattern=None, vars=['date', 'datetime', 'num', 'char'], built=None), SpannerInfo(spanner_id='Misc', spanner_level=2, spanner_label='Misc', spanner_units=None, spanner_pattern=None, vars=['currency', 'row', 'group', 'num', 'char', 'date', 'datetime'], built=None)]), _heading=&lt;great_tables._gt_data.Heading object at 0x7fb30c1cf040&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7fb30c1cf070&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7fb30c1cf0a0&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7fb30c1cf0d0&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7fb30c1cf100&gt;, _formats=[], _options=&lt;great_tables._gt_data.Options object at 0x7fb30c1cf160&gt;, _has_built=False)</code></pre>
 </div>
 </div>
 </section>

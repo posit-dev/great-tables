@@ -510,262 +510,2783 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the gt Table</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>gt_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ValueError: too many values to unpack (expected 2)</code></pre>
-</div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<pre><code>GT(_tbl_data=                name   size
-0             Africa  11506
-1         Antarctica   5500
-2               Asia  16988
-3          Australia   2968
-4       Axel Heiberg     16
-5             Baffin    184
-6              Banks     23
-7             Borneo    280
-8            Britain     84
-9            Celebes     73
-10             Celon     25
-11              Cuba     43
-12             Devon     21
-13         Ellesmere     82
-14            Europe   3745
-15         Greenland    840
-16            Hainan     13
-17        Hispaniola     30
-18          Hokkaido     30
-19            Honshu     89
-20           Iceland     40
-21           Ireland     33
-22              Java     49
-23            Kyushu     14
-24             Luzon     42
-25        Madagascar    227
-26          Melville     16
-27          Mindanao     36
-28          Moluccas     29
-29       New Britain     15
-30        New Guinea    306
-31   New Zealand (N)     44
-32   New Zealand (S)     58
-33      Newfoundland     43
-34     North America   9390
-35     Novaya Zemlya     32
-36   Prince of Wales     13
-37          Sakhalin     29
-38     South America   6795
-39       Southampton     16
-40       Spitsbergen     15
-41           Sumatra    183
-42            Taiwan     14
-43          Tasmania     26
-44  Tierra del Fuego     19
-45             Timor     13
-46         Vancouver     12
-47          Victoria     82, _body=&lt;great_tables._gt_data.Body object at 0x7f8e4c2924a0&gt;, _boxhead=Boxhead([ColInfo(var='name', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='name', column_align=None, column_width=None), ColInfo(var='size', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='size', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=5, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=6, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=7, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=8, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=9, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=10, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=11, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=12, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=13, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=14, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=15, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=16, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=17, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=18, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=19, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=20, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=21, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=22, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=23, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=24, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=25, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=26, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=27, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=28, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=29, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=30, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=31, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=32, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=33, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=34, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=35, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=36, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=37, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=38, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=39, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=40, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=41, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=42, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=43, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=44, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=45, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=46, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=47, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f8e4c292830&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f8e4c292800&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f8e4c2928c0&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f8e4c292860&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f8e4c292890&gt;, _formats=[], _options=&lt;great_tables._gt_data.Options object at 0x7f8e4c292920&gt;, _has_built=False)</code></pre>
+
+<div id="swjreuderp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#swjreuderp table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#swjreuderp .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+#swjreuderp .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+#swjreuderp .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+#swjreuderp .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+#swjreuderp .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#swjreuderp .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+#swjreuderp .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+#swjreuderp .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+#swjreuderp .gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+#swjreuderp .gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+#swjreuderp .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+#swjreuderp .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle; }
+
+#swjreuderp .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+#swjreuderp .gt_from_md > :first-child {
+  margin-top: 0; }
+
+#swjreuderp .gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+#swjreuderp .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+#swjreuderp .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#swjreuderp .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+#swjreuderp .gt_row_group_first td {
+  border-top-width: 2px; }
+
+#swjreuderp .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#swjreuderp .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+#swjreuderp .gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+#swjreuderp .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#swjreuderp .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#swjreuderp .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+#swjreuderp .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+#swjreuderp .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#swjreuderp .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+#swjreuderp .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#swjreuderp .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+#swjreuderp .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#swjreuderp .gt_left {
+  text-align: left; }
+
+#swjreuderp .gt_center {
+  text-align: center; }
+
+#swjreuderp .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+#swjreuderp .gt_font_normal {
+  font-weight: normal; }
+
+#swjreuderp .gt_font_bold {
+  font-weight: bold; }
+
+#swjreuderp .gt_font_italic {
+  font-style: italic; }
+
+#swjreuderp .gt_super {
+  font-size: 65%; }
+
+#swjreuderp .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em; }
+
+#swjreuderp .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em; }
+
+#swjreuderp .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+#swjreuderp .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em; }
+
+#swjreuderp .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em; }
+
+#swjreuderp .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em; }
+
+</style>
+
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd gt_col_headings">
+<td id="name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">name</td>
+<td id="size" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">size</td>
+</tr>
+</tbody>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row">Africa</td>
+<td class="gt_row">11506</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Antarctica</td>
+<td class="gt_row">5500</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Asia</td>
+<td class="gt_row">16988</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Australia</td>
+<td class="gt_row">2968</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Axel Heiberg</td>
+<td class="gt_row">16</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Baffin</td>
+<td class="gt_row">184</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Banks</td>
+<td class="gt_row">23</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Borneo</td>
+<td class="gt_row">280</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Britain</td>
+<td class="gt_row">84</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Celebes</td>
+<td class="gt_row">73</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Celon</td>
+<td class="gt_row">25</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Cuba</td>
+<td class="gt_row">43</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Devon</td>
+<td class="gt_row">21</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Ellesmere</td>
+<td class="gt_row">82</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Europe</td>
+<td class="gt_row">3745</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Greenland</td>
+<td class="gt_row">840</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Hainan</td>
+<td class="gt_row">13</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Hispaniola</td>
+<td class="gt_row">30</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Hokkaido</td>
+<td class="gt_row">30</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Honshu</td>
+<td class="gt_row">89</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Iceland</td>
+<td class="gt_row">40</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Ireland</td>
+<td class="gt_row">33</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Java</td>
+<td class="gt_row">49</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Kyushu</td>
+<td class="gt_row">14</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Luzon</td>
+<td class="gt_row">42</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Madagascar</td>
+<td class="gt_row">227</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Melville</td>
+<td class="gt_row">16</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Mindanao</td>
+<td class="gt_row">36</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Moluccas</td>
+<td class="gt_row">29</td>
+</tr>
+<tr class="even">
+<td class="gt_row">New Britain</td>
+<td class="gt_row">15</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">New Guinea</td>
+<td class="gt_row">306</td>
+</tr>
+<tr class="even">
+<td class="gt_row">New Zealand (N)</td>
+<td class="gt_row">44</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">New Zealand (S)</td>
+<td class="gt_row">58</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Newfoundland</td>
+<td class="gt_row">43</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">North America</td>
+<td class="gt_row">9390</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Novaya Zemlya</td>
+<td class="gt_row">32</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Prince of Wales</td>
+<td class="gt_row">13</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Sakhalin</td>
+<td class="gt_row">29</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">South America</td>
+<td class="gt_row">6795</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Southampton</td>
+<td class="gt_row">16</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Spitsbergen</td>
+<td class="gt_row">15</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Sumatra</td>
+<td class="gt_row">183</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Taiwan</td>
+<td class="gt_row">14</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Tasmania</td>
+<td class="gt_row">26</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Tierra del Fuego</td>
+<td class="gt_row">19</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Timor</td>
+<td class="gt_row">13</td>
+</tr>
+<tr class="odd">
+<td class="gt_row">Vancouver</td>
+<td class="gt_row">12</td>
+</tr>
+<tr class="even">
+<td class="gt_row">Victoria</td>
+<td class="gt_row">82</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+        
 </div>
 </div>
 <div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>gt_tbl2 <span class="op">=</span> (</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    gt_tbl</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        title <span class="op">=</span> <span class="st">"Large Landmasses of the World"</span>,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        subtitle <span class="op">=</span> <span class="st">"The top ten largest are presented"</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>gt_tbl2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ValueError: too many values to unpack (expected 2)</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>gt_tbl2 <span class="op">=</span> (</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    gt_tbl</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        title <span class="op">=</span> <span class="st">"Large Landmasses of the World"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        subtitle <span class="op">=</span> <span class="st">"The top ten largest are presented"</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>gt_tbl2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<pre><code>GT(_tbl_data=                name   size
-0             Africa  11506
-1         Antarctica   5500
-2               Asia  16988
-3          Australia   2968
-4       Axel Heiberg     16
-5             Baffin    184
-6              Banks     23
-7             Borneo    280
-8            Britain     84
-9            Celebes     73
-10             Celon     25
-11              Cuba     43
-12             Devon     21
-13         Ellesmere     82
-14            Europe   3745
-15         Greenland    840
-16            Hainan     13
-17        Hispaniola     30
-18          Hokkaido     30
-19            Honshu     89
-20           Iceland     40
-21           Ireland     33
-22              Java     49
-23            Kyushu     14
-24             Luzon     42
-25        Madagascar    227
-26          Melville     16
-27          Mindanao     36
-28          Moluccas     29
-29       New Britain     15
-30        New Guinea    306
-31   New Zealand (N)     44
-32   New Zealand (S)     58
-33      Newfoundland     43
-34     North America   9390
-35     Novaya Zemlya     32
-36   Prince of Wales     13
-37          Sakhalin     29
-38     South America   6795
-39       Southampton     16
-40       Spitsbergen     15
-41           Sumatra    183
-42            Taiwan     14
-43          Tasmania     26
-44  Tierra del Fuego     19
-45             Timor     13
-46         Vancouver     12
-47          Victoria     82, _body=&lt;great_tables._gt_data.Body object at 0x7f8e4c2924a0&gt;, _boxhead=Boxhead([ColInfo(var='name', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='name', column_align=None, column_width=None), ColInfo(var='size', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='size', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=5, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=6, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=7, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=8, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=9, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=10, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=11, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=12, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=13, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=14, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=15, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=16, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=17, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=18, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=19, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=20, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=21, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=22, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=23, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=24, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=25, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=26, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=27, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=28, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=29, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=30, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=31, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=32, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=33, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=34, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=35, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=36, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=37, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=38, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=39, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=40, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=41, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=42, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=43, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=44, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=45, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=46, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=47, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f8e4c292830&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f8e4c292800&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f8e4c2928c0&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f8e4c292860&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f8e4c292890&gt;, _formats=[], _options=&lt;great_tables._gt_data.Options object at 0x7f8e4c292920&gt;, _has_built=False)</code></pre>
+
+<div id="sxlemovwmn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+:where(#sxlemovwmn) table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+:where(#sxlemovwmn) .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+:where(#sxlemovwmn) .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+:where(#sxlemovwmn) .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+:where(#sxlemovwmn) .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+:where(#sxlemovwmn) .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#sxlemovwmn) .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+:where(#sxlemovwmn) .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+:where(#sxlemovwmn) .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+:where(#sxlemovwmn) .gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+:where(#sxlemovwmn) .gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+:where(#sxlemovwmn) .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+:where(#sxlemovwmn) .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle; }
+
+:where(#sxlemovwmn) .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+:where(#sxlemovwmn) .gt_from_md > :first-child {
+  margin-top: 0; }
+
+:where(#sxlemovwmn) .gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+:where(#sxlemovwmn) .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+:where(#sxlemovwmn) .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#sxlemovwmn) .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+:where(#sxlemovwmn) .gt_row_group_first td {
+  border-top-width: 2px; }
+
+:where(#sxlemovwmn) .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#sxlemovwmn) .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+:where(#sxlemovwmn) .gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+:where(#sxlemovwmn) .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#sxlemovwmn) .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#sxlemovwmn) .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+:where(#sxlemovwmn) .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+:where(#sxlemovwmn) .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#sxlemovwmn) .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+:where(#sxlemovwmn) .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#sxlemovwmn) .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+:where(#sxlemovwmn) .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#sxlemovwmn) .gt_left {
+  text-align: left; }
+
+:where(#sxlemovwmn) .gt_center {
+  text-align: center; }
+
+:where(#sxlemovwmn) .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+:where(#sxlemovwmn) .gt_font_normal {
+  font-weight: normal; }
+
+:where(#sxlemovwmn) .gt_font_bold {
+  font-weight: bold; }
+
+:where(#sxlemovwmn) .gt_font_italic {
+  font-style: italic; }
+
+:where(#sxlemovwmn) .gt_super {
+  font-size: 65%; }
+
+:where(#sxlemovwmn) .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em; }
+
+:where(#sxlemovwmn) .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em; }
+
+:where(#sxlemovwmn) .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+:where(#sxlemovwmn) .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em; }
+
+:where(#sxlemovwmn) .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em; }
+
+:where(#sxlemovwmn) .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em; }
+
+</style>
+<table class="gt_table">
+<thead class="gt_header">  <tr>
+    <th colspan="2" class="gt_heading gt_title gt_font_normal">Large Landmasses of the World
+  </th></tr>
+  <tr>
+    <th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">The top ten largest are presented
+  </th></tr></thead>
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="name">name</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="size">size</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td class="gt_row">Africa</td>
+  <td class="gt_row">11506</td>
+</tr>
+<tr>
+  <td class="gt_row">Antarctica</td>
+  <td class="gt_row">5500</td>
+</tr>
+<tr>
+  <td class="gt_row">Asia</td>
+  <td class="gt_row">16988</td>
+</tr>
+<tr>
+  <td class="gt_row">Australia</td>
+  <td class="gt_row">2968</td>
+</tr>
+<tr>
+  <td class="gt_row">Axel Heiberg</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Baffin</td>
+  <td class="gt_row">184</td>
+</tr>
+<tr>
+  <td class="gt_row">Banks</td>
+  <td class="gt_row">23</td>
+</tr>
+<tr>
+  <td class="gt_row">Borneo</td>
+  <td class="gt_row">280</td>
+</tr>
+<tr>
+  <td class="gt_row">Britain</td>
+  <td class="gt_row">84</td>
+</tr>
+<tr>
+  <td class="gt_row">Celebes</td>
+  <td class="gt_row">73</td>
+</tr>
+<tr>
+  <td class="gt_row">Celon</td>
+  <td class="gt_row">25</td>
+</tr>
+<tr>
+  <td class="gt_row">Cuba</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">Devon</td>
+  <td class="gt_row">21</td>
+</tr>
+<tr>
+  <td class="gt_row">Ellesmere</td>
+  <td class="gt_row">82</td>
+</tr>
+<tr>
+  <td class="gt_row">Europe</td>
+  <td class="gt_row">3745</td>
+</tr>
+<tr>
+  <td class="gt_row">Greenland</td>
+  <td class="gt_row">840</td>
+</tr>
+<tr>
+  <td class="gt_row">Hainan</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Hispaniola</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Hokkaido</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Honshu</td>
+  <td class="gt_row">89</td>
+</tr>
+<tr>
+  <td class="gt_row">Iceland</td>
+  <td class="gt_row">40</td>
+</tr>
+<tr>
+  <td class="gt_row">Ireland</td>
+  <td class="gt_row">33</td>
+</tr>
+<tr>
+  <td class="gt_row">Java</td>
+  <td class="gt_row">49</td>
+</tr>
+<tr>
+  <td class="gt_row">Kyushu</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Luzon</td>
+  <td class="gt_row">42</td>
+</tr>
+<tr>
+  <td class="gt_row">Madagascar</td>
+  <td class="gt_row">227</td>
+</tr>
+<tr>
+  <td class="gt_row">Melville</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Mindanao</td>
+  <td class="gt_row">36</td>
+</tr>
+<tr>
+  <td class="gt_row">Moluccas</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">New Britain</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">New Guinea</td>
+  <td class="gt_row">306</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (N)</td>
+  <td class="gt_row">44</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (S)</td>
+  <td class="gt_row">58</td>
+</tr>
+<tr>
+  <td class="gt_row">Newfoundland</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">North America</td>
+  <td class="gt_row">9390</td>
+</tr>
+<tr>
+  <td class="gt_row">Novaya Zemlya</td>
+  <td class="gt_row">32</td>
+</tr>
+<tr>
+  <td class="gt_row">Prince of Wales</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Sakhalin</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">South America</td>
+  <td class="gt_row">6795</td>
+</tr>
+<tr>
+  <td class="gt_row">Southampton</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Spitsbergen</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">Sumatra</td>
+  <td class="gt_row">183</td>
+</tr>
+<tr>
+  <td class="gt_row">Taiwan</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Tasmania</td>
+  <td class="gt_row">26</td>
+</tr>
+<tr>
+  <td class="gt_row">Tierra del Fuego</td>
+  <td class="gt_row">19</td>
+</tr>
+<tr>
+  <td class="gt_row">Timor</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Vancouver</td>
+  <td class="gt_row">12</td>
+</tr>
+<tr>
+  <td class="gt_row">Victoria</td>
+  <td class="gt_row">82</td>
+</tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
 </div>
 </div>
 <div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: md</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    GT(islands.head(<span class="dv">2</span>))</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        title <span class="op">=</span> md(<span class="st">"**Large Landmasses of the World**"</span>),</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        subtitle <span class="op">=</span> md(<span class="st">"The **top two** largest are presented"</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ValueError: too many values to unpack (expected 2)</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: md</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    GT(islands.head(<span class="dv">2</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        title <span class="op">=</span> md(<span class="st">"**Large Landmasses of the World**"</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        subtitle <span class="op">=</span> md(<span class="st">"The **top two** largest are presented"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
-<pre><code>GT(_tbl_data=         name   size
-0      Africa  11506
-1  Antarctica   5500, _body=&lt;great_tables._gt_data.Body object at 0x7f8e3dc3e1d0&gt;, _boxhead=Boxhead([ColInfo(var='name', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='name', column_align=None, column_width=None), ColInfo(var='size', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='size', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f8e3dc3ddb0&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f8e3dc3eb00&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f8e3dc3ece0&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f8e3dc3e830&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f8e3dc3e5f0&gt;, _formats=[], _options=&lt;great_tables._gt_data.Options object at 0x7f8e3dc3e920&gt;, _has_built=False)</code></pre>
+
+<div id="qexbjwalzd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+:where(#qexbjwalzd) table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+:where(#qexbjwalzd) .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+:where(#qexbjwalzd) .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+:where(#qexbjwalzd) .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+:where(#qexbjwalzd) .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+:where(#qexbjwalzd) .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#qexbjwalzd) .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+:where(#qexbjwalzd) .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+:where(#qexbjwalzd) .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+:where(#qexbjwalzd) .gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+:where(#qexbjwalzd) .gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+:where(#qexbjwalzd) .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+:where(#qexbjwalzd) .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle; }
+
+:where(#qexbjwalzd) .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+:where(#qexbjwalzd) .gt_from_md > :first-child {
+  margin-top: 0; }
+
+:where(#qexbjwalzd) .gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+:where(#qexbjwalzd) .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+:where(#qexbjwalzd) .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#qexbjwalzd) .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+:where(#qexbjwalzd) .gt_row_group_first td {
+  border-top-width: 2px; }
+
+:where(#qexbjwalzd) .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#qexbjwalzd) .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+:where(#qexbjwalzd) .gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+:where(#qexbjwalzd) .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#qexbjwalzd) .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#qexbjwalzd) .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+:where(#qexbjwalzd) .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+:where(#qexbjwalzd) .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#qexbjwalzd) .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+:where(#qexbjwalzd) .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#qexbjwalzd) .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+:where(#qexbjwalzd) .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#qexbjwalzd) .gt_left {
+  text-align: left; }
+
+:where(#qexbjwalzd) .gt_center {
+  text-align: center; }
+
+:where(#qexbjwalzd) .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+:where(#qexbjwalzd) .gt_font_normal {
+  font-weight: normal; }
+
+:where(#qexbjwalzd) .gt_font_bold {
+  font-weight: bold; }
+
+:where(#qexbjwalzd) .gt_font_italic {
+  font-style: italic; }
+
+:where(#qexbjwalzd) .gt_super {
+  font-size: 65%; }
+
+:where(#qexbjwalzd) .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em; }
+
+:where(#qexbjwalzd) .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em; }
+
+:where(#qexbjwalzd) .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+:where(#qexbjwalzd) .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em; }
+
+:where(#qexbjwalzd) .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em; }
+
+:where(#qexbjwalzd) .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em; }
+
+</style>
+<table class="gt_table">
+<thead class="gt_header">  <tr>
+    <th colspan="2" class="gt_heading gt_title gt_font_normal"><strong>Large Landmasses of the World</strong>
+  </th></tr>
+  <tr>
+    <th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">The <strong>top two</strong> largest are presented
+  </th></tr></thead>
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="name">name</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="size">size</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td class="gt_row">Africa</td>
+  <td class="gt_row">11506</td>
+</tr>
+<tr>
+  <td class="gt_row">Antarctica</td>
+  <td class="gt_row">5500</td>
+</tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
 </div>
 </div>
 <div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>gt_tbl3 <span class="op">=</span> (</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    gt_tbl2</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    .tab_source_note(source_note <span class="op">=</span> <span class="st">"Source: The World Almanac and Book of Facts, 1975, page 406."</span>)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    .tab_source_note(source_note <span class="op">=</span> md(<span class="st">"Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley."</span>))</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>gt_tbl3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ValueError: too many values to unpack (expected 2)</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>gt_tbl3 <span class="op">=</span> (</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    gt_tbl2</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    .tab_source_note(source_note <span class="op">=</span> <span class="st">"Source: The World Almanac and Book of Facts, 1975, page 406."</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    .tab_source_note(source_note <span class="op">=</span> md(<span class="st">"Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley."</span>))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>gt_tbl3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
-<pre><code>GT(_tbl_data=                name   size
-0             Africa  11506
-1         Antarctica   5500
-2               Asia  16988
-3          Australia   2968
-4       Axel Heiberg     16
-5             Baffin    184
-6              Banks     23
-7             Borneo    280
-8            Britain     84
-9            Celebes     73
-10             Celon     25
-11              Cuba     43
-12             Devon     21
-13         Ellesmere     82
-14            Europe   3745
-15         Greenland    840
-16            Hainan     13
-17        Hispaniola     30
-18          Hokkaido     30
-19            Honshu     89
-20           Iceland     40
-21           Ireland     33
-22              Java     49
-23            Kyushu     14
-24             Luzon     42
-25        Madagascar    227
-26          Melville     16
-27          Mindanao     36
-28          Moluccas     29
-29       New Britain     15
-30        New Guinea    306
-31   New Zealand (N)     44
-32   New Zealand (S)     58
-33      Newfoundland     43
-34     North America   9390
-35     Novaya Zemlya     32
-36   Prince of Wales     13
-37          Sakhalin     29
-38     South America   6795
-39       Southampton     16
-40       Spitsbergen     15
-41           Sumatra    183
-42            Taiwan     14
-43          Tasmania     26
-44  Tierra del Fuego     19
-45             Timor     13
-46         Vancouver     12
-47          Victoria     82, _body=&lt;great_tables._gt_data.Body object at 0x7f8e4c2924a0&gt;, _boxhead=Boxhead([ColInfo(var='name', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='name', column_align=None, column_width=None), ColInfo(var='size', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='size', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=5, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=6, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=7, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=8, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=9, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=10, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=11, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=12, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=13, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=14, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=15, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=16, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=17, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=18, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=19, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=20, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=21, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=22, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=23, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=24, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=25, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=26, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=27, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=28, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=29, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=30, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=31, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=32, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=33, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=34, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=35, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=36, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=37, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=38, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=39, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=40, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=41, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=42, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=43, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=44, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=45, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=46, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=47, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f8e4c292830&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f8e4c292800&gt;, _source_notes=['Source: The World Almanac and Book of Facts, 1975, page 406.', &lt;great_tables._text.Text object at 0x7f8e3dc93820&gt;], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f8e4c2928c0&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f8e4c292860&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f8e4c292890&gt;, _formats=[], _options=&lt;great_tables._gt_data.Options object at 0x7f8e4c292920&gt;, _has_built=False)</code></pre>
+
+<div id="quufwvevhn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+:where(#quufwvevhn) table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+:where(#quufwvevhn) .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+:where(#quufwvevhn) .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+:where(#quufwvevhn) .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+:where(#quufwvevhn) .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+:where(#quufwvevhn) .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#quufwvevhn) .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+:where(#quufwvevhn) .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+:where(#quufwvevhn) .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+:where(#quufwvevhn) .gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+:where(#quufwvevhn) .gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+:where(#quufwvevhn) .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+:where(#quufwvevhn) .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle; }
+
+:where(#quufwvevhn) .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+:where(#quufwvevhn) .gt_from_md > :first-child {
+  margin-top: 0; }
+
+:where(#quufwvevhn) .gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+:where(#quufwvevhn) .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+:where(#quufwvevhn) .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#quufwvevhn) .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+:where(#quufwvevhn) .gt_row_group_first td {
+  border-top-width: 2px; }
+
+:where(#quufwvevhn) .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#quufwvevhn) .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+:where(#quufwvevhn) .gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+:where(#quufwvevhn) .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#quufwvevhn) .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#quufwvevhn) .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+:where(#quufwvevhn) .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+:where(#quufwvevhn) .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#quufwvevhn) .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+:where(#quufwvevhn) .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#quufwvevhn) .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+:where(#quufwvevhn) .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#quufwvevhn) .gt_left {
+  text-align: left; }
+
+:where(#quufwvevhn) .gt_center {
+  text-align: center; }
+
+:where(#quufwvevhn) .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+:where(#quufwvevhn) .gt_font_normal {
+  font-weight: normal; }
+
+:where(#quufwvevhn) .gt_font_bold {
+  font-weight: bold; }
+
+:where(#quufwvevhn) .gt_font_italic {
+  font-style: italic; }
+
+:where(#quufwvevhn) .gt_super {
+  font-size: 65%; }
+
+:where(#quufwvevhn) .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em; }
+
+:where(#quufwvevhn) .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em; }
+
+:where(#quufwvevhn) .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+:where(#quufwvevhn) .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em; }
+
+:where(#quufwvevhn) .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em; }
+
+:where(#quufwvevhn) .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em; }
+
+</style>
+<table class="gt_table">
+<thead class="gt_header">  <tr>
+    <th colspan="2" class="gt_heading gt_title gt_font_normal">Large Landmasses of the World
+  </th></tr>
+  <tr>
+    <th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">The top ten largest are presented
+  </th></tr></thead>
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="name">name</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="size">size</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td class="gt_row">Africa</td>
+  <td class="gt_row">11506</td>
+</tr>
+<tr>
+  <td class="gt_row">Antarctica</td>
+  <td class="gt_row">5500</td>
+</tr>
+<tr>
+  <td class="gt_row">Asia</td>
+  <td class="gt_row">16988</td>
+</tr>
+<tr>
+  <td class="gt_row">Australia</td>
+  <td class="gt_row">2968</td>
+</tr>
+<tr>
+  <td class="gt_row">Axel Heiberg</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Baffin</td>
+  <td class="gt_row">184</td>
+</tr>
+<tr>
+  <td class="gt_row">Banks</td>
+  <td class="gt_row">23</td>
+</tr>
+<tr>
+  <td class="gt_row">Borneo</td>
+  <td class="gt_row">280</td>
+</tr>
+<tr>
+  <td class="gt_row">Britain</td>
+  <td class="gt_row">84</td>
+</tr>
+<tr>
+  <td class="gt_row">Celebes</td>
+  <td class="gt_row">73</td>
+</tr>
+<tr>
+  <td class="gt_row">Celon</td>
+  <td class="gt_row">25</td>
+</tr>
+<tr>
+  <td class="gt_row">Cuba</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">Devon</td>
+  <td class="gt_row">21</td>
+</tr>
+<tr>
+  <td class="gt_row">Ellesmere</td>
+  <td class="gt_row">82</td>
+</tr>
+<tr>
+  <td class="gt_row">Europe</td>
+  <td class="gt_row">3745</td>
+</tr>
+<tr>
+  <td class="gt_row">Greenland</td>
+  <td class="gt_row">840</td>
+</tr>
+<tr>
+  <td class="gt_row">Hainan</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Hispaniola</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Hokkaido</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Honshu</td>
+  <td class="gt_row">89</td>
+</tr>
+<tr>
+  <td class="gt_row">Iceland</td>
+  <td class="gt_row">40</td>
+</tr>
+<tr>
+  <td class="gt_row">Ireland</td>
+  <td class="gt_row">33</td>
+</tr>
+<tr>
+  <td class="gt_row">Java</td>
+  <td class="gt_row">49</td>
+</tr>
+<tr>
+  <td class="gt_row">Kyushu</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Luzon</td>
+  <td class="gt_row">42</td>
+</tr>
+<tr>
+  <td class="gt_row">Madagascar</td>
+  <td class="gt_row">227</td>
+</tr>
+<tr>
+  <td class="gt_row">Melville</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Mindanao</td>
+  <td class="gt_row">36</td>
+</tr>
+<tr>
+  <td class="gt_row">Moluccas</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">New Britain</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">New Guinea</td>
+  <td class="gt_row">306</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (N)</td>
+  <td class="gt_row">44</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (S)</td>
+  <td class="gt_row">58</td>
+</tr>
+<tr>
+  <td class="gt_row">Newfoundland</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">North America</td>
+  <td class="gt_row">9390</td>
+</tr>
+<tr>
+  <td class="gt_row">Novaya Zemlya</td>
+  <td class="gt_row">32</td>
+</tr>
+<tr>
+  <td class="gt_row">Prince of Wales</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Sakhalin</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">South America</td>
+  <td class="gt_row">6795</td>
+</tr>
+<tr>
+  <td class="gt_row">Southampton</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Spitsbergen</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">Sumatra</td>
+  <td class="gt_row">183</td>
+</tr>
+<tr>
+  <td class="gt_row">Taiwan</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Tasmania</td>
+  <td class="gt_row">26</td>
+</tr>
+<tr>
+  <td class="gt_row">Tierra del Fuego</td>
+  <td class="gt_row">19</td>
+</tr>
+<tr>
+  <td class="gt_row">Timor</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Vancouver</td>
+  <td class="gt_row">12</td>
+</tr>
+<tr>
+  <td class="gt_row">Victoria</td>
+  <td class="gt_row">82</td>
+</tr>
+</tbody>
+  <tfoot class="gt_sourcenotes">
+  
+  <tr>
+    <td class="gt_sourcenote" colspan="2">Source: The World Almanac and Book of Facts, 1975, page 406.</td>
+  </tr>
+
+
+  <tr>
+    <td class="gt_sourcenote" colspan="2"><great_tables._text.text object="" at="" 0x7f294d662a40=""></great_tables._text.text></td>
+  </tr>
+
+</tfoot>
+
+</table>
+
+</div>
+        
 </div>
 </div>
 <div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>gt_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ValueError: too many values to unpack (expected 2)</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>gt_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
-<pre><code>GT(_tbl_data=                name   size
-0             Africa  11506
-1         Antarctica   5500
-2               Asia  16988
-3          Australia   2968
-4       Axel Heiberg     16
-5             Baffin    184
-6              Banks     23
-7             Borneo    280
-8            Britain     84
-9            Celebes     73
-10             Celon     25
-11              Cuba     43
-12             Devon     21
-13         Ellesmere     82
-14            Europe   3745
-15         Greenland    840
-16            Hainan     13
-17        Hispaniola     30
-18          Hokkaido     30
-19            Honshu     89
-20           Iceland     40
-21           Ireland     33
-22              Java     49
-23            Kyushu     14
-24             Luzon     42
-25        Madagascar    227
-26          Melville     16
-27          Mindanao     36
-28          Moluccas     29
-29       New Britain     15
-30        New Guinea    306
-31   New Zealand (N)     44
-32   New Zealand (S)     58
-33      Newfoundland     43
-34     North America   9390
-35     Novaya Zemlya     32
-36   Prince of Wales     13
-37          Sakhalin     29
-38     South America   6795
-39       Southampton     16
-40       Spitsbergen     15
-41           Sumatra    183
-42            Taiwan     14
-43          Tasmania     26
-44  Tierra del Fuego     19
-45             Timor     13
-46         Vancouver     12
-47          Victoria     82, _body=&lt;great_tables._gt_data.Body object at 0x7f8e4c2924a0&gt;, _boxhead=Boxhead([ColInfo(var='name', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='name', column_align=None, column_width=None), ColInfo(var='size', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='size', column_align=None, column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=5, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=6, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=7, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=8, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=9, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=10, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=11, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=12, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=13, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=14, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=15, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=16, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=17, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=18, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=19, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=20, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=21, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=22, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=23, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=24, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=25, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=26, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=27, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=28, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=29, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=30, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=31, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=32, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=33, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=34, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=35, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=36, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=37, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=38, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=39, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=40, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=41, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=42, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=43, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=44, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=45, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=46, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=47, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=RowGroups([]), _spanners=Spanners([]), _heading=&lt;great_tables._gt_data.Heading object at 0x7f8e4c292830&gt;, _stubhead=&lt;great_tables._gt_data.Stubhead object at 0x7f8e4c292800&gt;, _source_notes=[], _footnotes=&lt;great_tables._gt_data.Footnotes object at 0x7f8e4c2928c0&gt;, _styles=&lt;great_tables._gt_data.Styles object at 0x7f8e4c292860&gt;, _locale=&lt;great_tables._gt_data.Locale object at 0x7f8e4c292890&gt;, _formats=[], _options=&lt;great_tables._gt_data.Options object at 0x7f8e4c292920&gt;, _has_built=False)</code></pre>
+
+<div id="silubcmaek" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+:where(#silubcmaek) table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+:where(#silubcmaek) .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+:where(#silubcmaek) .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+:where(#silubcmaek) .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+:where(#silubcmaek) .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+:where(#silubcmaek) .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#silubcmaek) .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+:where(#silubcmaek) .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+:where(#silubcmaek) .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+:where(#silubcmaek) .gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+:where(#silubcmaek) .gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+:where(#silubcmaek) .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+:where(#silubcmaek) .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle; }
+
+:where(#silubcmaek) .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+:where(#silubcmaek) .gt_from_md > :first-child {
+  margin-top: 0; }
+
+:where(#silubcmaek) .gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+:where(#silubcmaek) .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+:where(#silubcmaek) .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#silubcmaek) .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+:where(#silubcmaek) .gt_row_group_first td {
+  border-top-width: 2px; }
+
+:where(#silubcmaek) .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#silubcmaek) .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+:where(#silubcmaek) .gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+:where(#silubcmaek) .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#silubcmaek) .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#silubcmaek) .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+:where(#silubcmaek) .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+:where(#silubcmaek) .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+:where(#silubcmaek) .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+:where(#silubcmaek) .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#silubcmaek) .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+:where(#silubcmaek) .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+:where(#silubcmaek) .gt_left {
+  text-align: left; }
+
+:where(#silubcmaek) .gt_center {
+  text-align: center; }
+
+:where(#silubcmaek) .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+:where(#silubcmaek) .gt_font_normal {
+  font-weight: normal; }
+
+:where(#silubcmaek) .gt_font_bold {
+  font-weight: bold; }
+
+:where(#silubcmaek) .gt_font_italic {
+  font-style: italic; }
+
+:where(#silubcmaek) .gt_super {
+  font-size: 65%; }
+
+:where(#silubcmaek) .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em; }
+
+:where(#silubcmaek) .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em; }
+
+:where(#silubcmaek) .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+:where(#silubcmaek) .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em; }
+
+:where(#silubcmaek) .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em; }
+
+:where(#silubcmaek) .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em; }
+
+</style>
+<table class="gt_table">
+<thead class="gt_header">  <tr>
+    <th colspan="2" class="gt_heading gt_title gt_font_normal">Large Landmasses of the World
+  </th></tr>
+  <tr>
+    <th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">The top ten largest are presented
+  </th></tr></thead>
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="name">name</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="size">size</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td class="gt_row">Africa</td>
+  <td class="gt_row">11506</td>
+</tr>
+<tr>
+  <td class="gt_row">Antarctica</td>
+  <td class="gt_row">5500</td>
+</tr>
+<tr>
+  <td class="gt_row">Asia</td>
+  <td class="gt_row">16988</td>
+</tr>
+<tr>
+  <td class="gt_row">Australia</td>
+  <td class="gt_row">2968</td>
+</tr>
+<tr>
+  <td class="gt_row">Axel Heiberg</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Baffin</td>
+  <td class="gt_row">184</td>
+</tr>
+<tr>
+  <td class="gt_row">Banks</td>
+  <td class="gt_row">23</td>
+</tr>
+<tr>
+  <td class="gt_row">Borneo</td>
+  <td class="gt_row">280</td>
+</tr>
+<tr>
+  <td class="gt_row">Britain</td>
+  <td class="gt_row">84</td>
+</tr>
+<tr>
+  <td class="gt_row">Celebes</td>
+  <td class="gt_row">73</td>
+</tr>
+<tr>
+  <td class="gt_row">Celon</td>
+  <td class="gt_row">25</td>
+</tr>
+<tr>
+  <td class="gt_row">Cuba</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">Devon</td>
+  <td class="gt_row">21</td>
+</tr>
+<tr>
+  <td class="gt_row">Ellesmere</td>
+  <td class="gt_row">82</td>
+</tr>
+<tr>
+  <td class="gt_row">Europe</td>
+  <td class="gt_row">3745</td>
+</tr>
+<tr>
+  <td class="gt_row">Greenland</td>
+  <td class="gt_row">840</td>
+</tr>
+<tr>
+  <td class="gt_row">Hainan</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Hispaniola</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Hokkaido</td>
+  <td class="gt_row">30</td>
+</tr>
+<tr>
+  <td class="gt_row">Honshu</td>
+  <td class="gt_row">89</td>
+</tr>
+<tr>
+  <td class="gt_row">Iceland</td>
+  <td class="gt_row">40</td>
+</tr>
+<tr>
+  <td class="gt_row">Ireland</td>
+  <td class="gt_row">33</td>
+</tr>
+<tr>
+  <td class="gt_row">Java</td>
+  <td class="gt_row">49</td>
+</tr>
+<tr>
+  <td class="gt_row">Kyushu</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Luzon</td>
+  <td class="gt_row">42</td>
+</tr>
+<tr>
+  <td class="gt_row">Madagascar</td>
+  <td class="gt_row">227</td>
+</tr>
+<tr>
+  <td class="gt_row">Melville</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Mindanao</td>
+  <td class="gt_row">36</td>
+</tr>
+<tr>
+  <td class="gt_row">Moluccas</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">New Britain</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">New Guinea</td>
+  <td class="gt_row">306</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (N)</td>
+  <td class="gt_row">44</td>
+</tr>
+<tr>
+  <td class="gt_row">New Zealand (S)</td>
+  <td class="gt_row">58</td>
+</tr>
+<tr>
+  <td class="gt_row">Newfoundland</td>
+  <td class="gt_row">43</td>
+</tr>
+<tr>
+  <td class="gt_row">North America</td>
+  <td class="gt_row">9390</td>
+</tr>
+<tr>
+  <td class="gt_row">Novaya Zemlya</td>
+  <td class="gt_row">32</td>
+</tr>
+<tr>
+  <td class="gt_row">Prince of Wales</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Sakhalin</td>
+  <td class="gt_row">29</td>
+</tr>
+<tr>
+  <td class="gt_row">South America</td>
+  <td class="gt_row">6795</td>
+</tr>
+<tr>
+  <td class="gt_row">Southampton</td>
+  <td class="gt_row">16</td>
+</tr>
+<tr>
+  <td class="gt_row">Spitsbergen</td>
+  <td class="gt_row">15</td>
+</tr>
+<tr>
+  <td class="gt_row">Sumatra</td>
+  <td class="gt_row">183</td>
+</tr>
+<tr>
+  <td class="gt_row">Taiwan</td>
+  <td class="gt_row">14</td>
+</tr>
+<tr>
+  <td class="gt_row">Tasmania</td>
+  <td class="gt_row">26</td>
+</tr>
+<tr>
+  <td class="gt_row">Tierra del Fuego</td>
+  <td class="gt_row">19</td>
+</tr>
+<tr>
+  <td class="gt_row">Timor</td>
+  <td class="gt_row">13</td>
+</tr>
+<tr>
+  <td class="gt_row">Vancouver</td>
+  <td class="gt_row">12</td>
+</tr>
+<tr>
+  <td class="gt_row">Victoria</td>
+  <td class="gt_row">82</td>
+</tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
 </div>
 </div>
 
