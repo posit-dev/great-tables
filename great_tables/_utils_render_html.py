@@ -138,7 +138,7 @@ def create_columns_component_h(data: GTData) -> str:
     #
 
     if spanner_row_count >= 1:
-        spanners = spanners_print_matrix(
+        spanners, _ = spanners_print_matrix(
             spanners=data._spanners, boxhead=boxhead, include_hidden=False
         )
 
