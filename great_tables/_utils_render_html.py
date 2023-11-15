@@ -103,8 +103,11 @@ def create_columns_component_h(data: GTData) -> str:
 
         #
         # Create the headings in the case where there are no spanners at all -------------------------
-        #
-        for i in range(len(headings_vars)):
+        col_entries = [
+            (stub_var, stub_label, stubhead_label_alignment),
+            *zip(headings_vars, headings_labels, col_alignment),
+        ]
+        for var_, label, alignment in col_entries:
             # NOTE: Ignore styles for now
             # styles_column = subset(column_style_attrs, colnum == i)
             #
