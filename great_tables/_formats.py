@@ -1393,7 +1393,7 @@ def _value_to_engineering_notation(value: Union[int, float], n_sigfig: int, exp_
 
     is_negative, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
 
-    eng_power = int(3 * floor(ten_power / 3))
+    eng_power = int(3 * math.floor(ten_power / 3))
     eng_dot = dot_power + ten_power - eng_power
 
     result = (
@@ -1533,10 +1533,12 @@ def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, i
         sig_digits = str(("0" * n_sigfig))
         power = -(1 - n_sigfig)
     else:
-        power = -1 * floor(log10(value)) + n_sigfig - 1
+        power = -1 * math.floor(math.log10(value)) + n_sigfig - 1
         value_power = value * 10.0**power
 
-        if value < 1 and floor(log10(int(round(value_power)))) > floor(log10(int(value_power))):
+        if value < 1 and math.floor(math.log10(int(round(value_power)))) > math.floor(
+            math.log10(int(value_power))
+        ):
             power -= 1
 
         sig_digits = str(int(round(value * 10.0**power)))
