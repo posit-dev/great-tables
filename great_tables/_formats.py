@@ -1805,3 +1805,30 @@ def _get_currency_exponent(currency: str) -> int:
         exponent = 2
 
     return exponent
+
+
+def _validate_n_sigfig(n_sigfig: int) -> None:
+    """
+    Validates the input for the number of significant figures.
+
+    Args:
+        n_sigfig (int): The number of significant figures to validate.
+
+    Raises:
+        ValueError: If the length of `n_sigfig` is not 1, or if the value is `None` or less than 1.
+        TypeError: If the input for `n_sigfig` is not an integer.
+
+    Returns:
+        None
+    """
+
+    if len(str(n_sigfig)) != 1:
+        raise ValueError("The length of `n_sigfig` must be 1.")
+    if n_sigfig is None:
+        raise ValueError("The value for `n_sigfig` must not be `None`.")
+    if not isinstance(n_sigfig, int):
+        raise TypeError("Any input for `n_sigfig` must be an integer.")
+    if n_sigfig < 1:
+        raise ValueError("The value for `n_sigfig` must be greater than or equal to `1`.")
+
+    return
