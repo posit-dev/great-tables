@@ -3,17 +3,21 @@ from __future__ import annotations
 from dataclasses import dataclass, fields
 from functools import singledispatch
 from typing import TYPE_CHECKING, Literal, get_origin, get_type_hints
+from typing_extensions import TypeAlias
 
 # note that types like Spanners are only used in annotations for concretes of the
 # resolve generic, but we need to import at runtime, due to singledispatch looking
 # up annotations
-from ._gt_data import GTData, Spanners, ColInfoTypeEnum
+from ._gt_data import GTData, FootnoteInfo, Spanners, ColInfoTypeEnum, StyleInfo, FootnotePlacement
 from ._tbl_data import eval_select
 
 
 if TYPE_CHECKING:
     from ._gt_data import TblData
 
+# Misc Types ===========================================================================
+
+PlacementOptions: TypeAlias = Literal["auto", "left", "right"]
 
 # Locations ============================================================================
 # TODO: these are called cells_* in gt. I prefixed them with Loc just to keep things
@@ -217,3 +221,56 @@ def _(loc: LocColumnSpanners, spanners: Spanners) -> LocColumnSpanners:
 
     # Create a list object
     return LocColumnSpanners(ids=resolved_spanners)
+
+
+# Style generic ========================================================================
+
+
+@singledispatch
+def set_style(loc: Loc, data: GTData, style: list[str]):
+    """Set style for location."""
+    raise NotImplementedError(f"Unsupported location type: {type(loc)}")
+
+
+@set_style.register
+def _(loc: LocTitle, data: GTData, style: list[str]):
+    if loc.groups == "title":
+        info = StyleInfo(locname="title", locnum=1, styles=style)
+    elif loc.groups == "subtitle":
+        info = StyleInfo(locname="subtitle", locnum=2, styles=style)
+    else:
+        raise ValueError(f"Unknown title group: {loc.groups}")
+
+    data._styles.append(info)
+
+
+# Set footnote generic =================================================================
+
+
+@singledispatch
+def set_footnote(loc: Loc, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
+    """Set footnote for location."""
+    raise NotImplementedError(f"Unsupported location type: {type(loc)}")
+
+
+@set_footnote.register(type(None))
+def _(loc: None, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
+    place = FootnotePlacement[placement]
+    info = FootnoteInfo(locname="none", locnum=0, footnotes=[footnote], placement=place)
+
+    return data._replace(_footnotes=data._footnotes + [info])
+
+
+@set_footnote.register
+def _(loc: LocTitle, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
+    # TODO: note that footnote here is annotated as a string, but I think that in R it
+    # can be a list of strings.
+    place = FootnotePlacement[placement]
+    if loc.groups == "title":
+        info = FootnoteInfo(locname="title", locnum=1, footnotes=[footnote], placement=place)
+    elif loc.groups == "subtitle":
+        info = FootnoteInfo(locname="subtitle", locnum=2, footnotes=[footnote], placement=place)
+    else:
+        raise ValueError(f"Unknown title group: {loc.groups}")
+
+    return data._replace(_footnotes=data._footnotes + [info])
