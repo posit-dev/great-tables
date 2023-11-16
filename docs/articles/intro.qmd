@@ -25,6 +25,7 @@ pip install great_tables
 ```{python}
 from great_tables import GT, md
 from great_tables.data import exibble
+
 ```
 
 ```{python}
@@ -36,12 +37,7 @@ gt_ex
 ### Formatting columns
 
 ```{python}
-gt_ex.fmt_number(
-    columns="num",
-    decimals=1,
-    scale_by=1/1000,
-    pattern="{x}K"
-)
+gt_ex.fmt_number(columns="num", decimals=1, scale_by=1 / 1000, pattern="{x}K")
 ```
 
 
@@ -49,14 +45,9 @@ gt_ex.fmt_number(
 
 ```{python}
 (
-    gt_ex
-    .tab_header(
-        title = "An example table",
-        subtitle = md("It's **pretty great**")
-    )
-    .tab_source_note(
-        "Source: great tables"
-    )
+    gt_ex.tab_header(
+        title="An example table", subtitle=md("It's **pretty great**")
+    ).tab_source_note("Source: great tables")
 )
 ```
 
@@ -67,7 +58,7 @@ This is not implemented yet!
 :::
 
 ```{python}
-gt_ex = GT(exibble.head(6), rowname_col="row", groupname_col="group")
+gt_ex = GT(exibble.head(6))
 
 gt_ex
 ```
@@ -80,8 +71,7 @@ this is not implemented yet!
 
 ```{python}
 (
-    gt_ex
-    .tab_spanner("Basic", ["num", "char", "fct"])
+    gt_ex.tab_spanner("Basic", ["num", "char", "fctr"])
     .tab_spanner("Dates", ["date", "datetime"])
     .tab_spanner("Misc", ["currency", "row", "group"])
 )
