@@ -591,6 +591,10 @@ def fmt_scientific(
 
             x_formatted = m_part + exp_str + n_part
 
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
         return x_formatted
 
     FormatsAPI.fmt(self, fns=fmt_scientific_fn, columns=columns, rows=rows)
