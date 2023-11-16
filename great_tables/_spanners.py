@@ -88,7 +88,7 @@ def tab_spanner(
         assert set(spanners).issubset(set(crnt_spanner_ids))
         spanner_ids = spanners
     else:
-        spanner_ids = crnt_spanner_ids
+        spanner_ids = []
 
     if not len(selected_column_names) and not len(spanner_ids):
         return data
@@ -307,7 +307,7 @@ def spanners_print_matrix(
 
     spanner_height = len(_lvls)
     # TODO: span.built can be None. When does it get set?
-    spanner_reprs = [span.spanner_id if ids else span.built for span in crnt_spans]
+    spanner_reprs = [span.spanner_id if ids else span.built_label() for span in crnt_spans]
 
     # Create a matrix with dimension spanner_height x vars (e.g. presented columns)
     label_matrix: SpannerMatrix = [

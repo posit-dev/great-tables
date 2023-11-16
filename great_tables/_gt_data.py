@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import copy
+import re
 
 from typing import overload, TypeVar
-from typing_extensions import Self
+from typing_extensions import Self, TypeAlias
 from dataclasses import dataclass, field, replace
 
 # Note that we replace with with collections.abc after python 3.8
@@ -27,7 +28,7 @@ class GTData:
     _row_groups: RowGroups
     _spanners: Spanners
     _heading: Heading | None
-    _stubhead: Stubhead | None
+    _stubhead: Stubhead
     _source_notes: SourceNotes
     _footnotes: Footnotes
     _styles: Styles
@@ -53,18 +54,19 @@ class GTData:
         locale: str | None = None,
     ):
         stub = Stub(data, rowname_col=rowname_col, groupname_col=groupname_col)
+        boxhead = Boxhead(data, auto_align=auto_align)
 
         row_groups = stub._to_row_groups()
 
         return cls(
             _tbl_data=data,
             _body=Body.from_empty(data),
-            _boxhead=Boxhead(data),  # uses get_tbl_data()
+            _boxhead=boxhead,  # uses get_tbl_data()
             _stub=stub,  # uses get_tbl_data
             _row_groups=row_groups,
             _spanners=Spanners([]),
             _heading=Heading(),
-            _stubhead=Stubhead(),
+            _stubhead=None,
             _source_notes=[],
             _footnotes=Footnotes(),
             _styles=Styles(),
@@ -207,7 +209,7 @@ class ColInfo:
 class Boxhead(_Sequence[ColInfo]):
     _d: List[ColInfo]
 
-    def __init__(self, data: TblData | list[ColInfo]):
+    def __init__(self, data: TblData | list[ColInfo], auto_align: bool = True):
         if isinstance(data, list):
             self._d = data
         else:
@@ -215,6 +217,79 @@ class Boxhead(_Sequence[ColInfo]):
             # `_boxhead` from that
             column_names = get_column_names(data)
             self._d = [ColInfo(col) for col in column_names]
+        if not isinstance(data, list) and auto_align:
+            self.align_from_data(data=data)
+
+    def align_from_data(self, data: TblData):
+        """Updates align attribute in entries based on data types."""
+
+        # TODO: validate that data columns and ColInfo list correspond
+        if len(get_column_names(data)) != len(self._d):
+            raise ValueError("Number of data columns must match length of Boxhead")
+
+        if any(
+            col_info.var != col_name for col_info, col_name in zip(self._d, get_column_names(data))
+        ):
+            raise ValueError("Column names must match between data and Boxhead")
+
+        # Obtain a list of column classes for each of the column names by iterating
+        # through each of the columns and obtaining the type of the column from
+        # a Pandas DataFrame or a Polars DataFrame
+        col_classes = []
+        for col in get_column_names(data):
+            dtype = data[col].dtype
+
+            if dtype == "object":
+                # Check whether all values in 'object' columns are strings that
+                # for all intents and purpose are 'number-like'
+
+                import pandas as pd
+
+                col_vals = data[col].to_list()
+
+                # Detect whether all non-NA values in the column are 'number-like'
+                # through use of a regular expression
+                number_like_matches = []
+
+                for val in col_vals:
+                    if isinstance(val, str):
+                        number_like_matches.append(re.match("^[0-9 -/:\\.]*$", val))
+
+                # If all values in the column are 'number-like', then set the
+                # dtype to 'character-numeric'
+                if all(number_like_matches):
+                    dtype = "character-numeric"
+
+            col_classes.append(dtype)
+
+        # Get a list of `align` values by translating the column classes
+        align = []
+
+        for col_class in col_classes:
+            # Use a switch statement to translate the column classes to
+            # alignment values 'left', 'right', or 'center'
+            if col_class == "character-numeric":
+                align.append("right")
+            elif col_class == "object":
+                align.append("left")
+            elif col_class == "Date":
+                align.append("right")
+            elif col_class == "boolean":
+                align.append("center")
+            elif col_class == "factor":
+                align.append("center")
+            elif col_class == "list":
+                align.append("center")
+            elif col_class == "float64":
+                align.append("right")
+            elif col_class == "integer":
+                align.append("right")
+            else:
+                align.append("center")
+
+        # Set the alignment for each column in the boxhead
+        for col, alignment in zip(self._d, align):
+            col.column_align = alignment
 
     def vars_from_type(self, type: ColInfoTypeEnum) -> List[str]:
         return [x.var for x in self._d if x.type == type]
@@ -401,6 +476,13 @@ class SpannerInfo:
     vars: list[str] = field(default_factory=lambda: [])
     built: Optional[str] = None
 
+    def built_label(self) -> str:
+        """Return a list of spanner labels that have been built."""
+        label = self.built if self.built is not None else self.spanner_label
+        if label is None:
+            raise ValueError("Spanner label must be a string and not None.")
+        return label
+
 
 class Spanners(_Sequence[SpannerInfo]):
     _d: list[SpannerInfo]
@@ -457,15 +539,7 @@ __Stubhead = None
 
 from typing import Optional
 
-
-class Stubhead:
-    stubhead: Optional[str]
-
-    def __init__(self):
-        pass
-
-    def _has_stubhead_label(self) -> bool:
-        return self.stubhead is not None
+Stubhead: TypeAlias = Optional[str]
 
 
 # Sourcenotes ----

@@ -109,7 +109,7 @@ class GT(
             locale=locale,
             rowname_col=rowname_col,
             groupname_col=groupname_col,
-            auto_align=auto_align,  # TODO: use this to generate default alignments based on column dtypes
+            auto_align=auto_align,
         )
         super().__init__(**gtdata.__dict__)
 

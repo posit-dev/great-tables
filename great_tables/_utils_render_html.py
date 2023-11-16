@@ -64,8 +64,8 @@ def create_columns_component_h(data: GTData) -> str:
     # column_style_attrs = subset(styles_tbl, locname == "columns_columns")
 
     # If columns are present in the stub, then replace with a set stubhead label or nothing
-    if len(stub_layout) > 0 and len(stubh.stubhead) > 0:
-        stub_label = stubh.stubhead
+    if len(stub_layout) > 0 and stubh is not None:
+        stub_label = stubh
         stub_var = "::stub"
     else:
         stub_label = ""
