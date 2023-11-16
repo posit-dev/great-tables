@@ -161,8 +161,6 @@ import pandas as pd
 
 from ._tbl_data import TblData, get_column_names
 
-from ._utils import _assert_list_is_subset
-
 
 class ColumnAlignment(Enum):
     Left = auto()
