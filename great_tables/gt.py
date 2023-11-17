@@ -115,8 +115,8 @@ class GT(
 
     # TODO: Refactor API methods -----
     fmt_number = fmt_number
-    fmt_percent = fmt_percent
     fmt_integer = fmt_integer
+    fmt_percent = fmt_percent
     fmt_scientific = fmt_scientific
     fmt_currency = fmt_currency
     fmt_engineering = fmt_engineering
