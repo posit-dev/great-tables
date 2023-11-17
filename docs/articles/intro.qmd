@@ -3,6 +3,7 @@ title: great_tables
 jupyter: python3
 aliases:
   - ../index.html
+html-table-processing: none
 ---
 
 `great_tables` is a Python package for making publication-quality tables.
