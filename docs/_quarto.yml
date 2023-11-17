@@ -48,26 +48,34 @@ quartodoc:
     - title: Table Creation
       contents:
         - GT
-        # TODO: not sure where this function is
         # - gt_preview
     - title: Creating or modifying parts of a table
       contents:
         - GT.tab_header
-        - GT.tab_options
-        - GT.tab_source_note
+        - GT.tab_spanner
         - GT.tab_stubhead
+        - GT.tab_source_note
+        - GT.tab_options
     - title: Formatting column data
       contents:
         - GT.fmt_number
         - GT.fmt_integer
         - GT.fmt_percent
         - GT.fmt_scientific
+        - GT.fmt_currency
         - GT.fmt_engineering
+        - GT.fmt_bytes
+        - GT.fmt_roman
+        - GT.fmt_markdown
         - GT.fmt
     - title: Text transformation
     - title: Modifying columns
       contents:
+        - GT.cols_align
         - GT.cols_label
+        - GT.cols_move
+        - GT.cols_move_to_start
+        - GT.cols_move_to_end
     - title: Adding or modifying rows
     - title: Removing parts of a table
     - title: Helper functions
@@ -102,4 +110,5 @@ quartodoc:
         - data.exibble
         - data.towny
         - data.metro
+        - data.constants
         - data.illness
