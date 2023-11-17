@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables – gt.opt_footnote_marks</title>
+<title>great_tables – gt.cols_move_to_start</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/GT.opt_row_striping.html" rel="next">
-<link href="../reference/GT.opt_all_caps.html" rel="prev">
+<link href="../reference/GT.cols_move_to_end.html" rel="next">
+<link href="../reference/GT.cols_move.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -131,7 +131,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/GT.opt_align_table_header.html">Table options</a></li><li class="breadcrumb-item"><a href="../reference/GT.opt_footnote_marks.html">GT.opt_footnote_marks</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/GT.cols_align.html">Modifying columns</a></li><li class="breadcrumb-item"><a href="../reference/GT.cols_move_to_start.html">GT.cols_move_to_start</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
     </div>
@@ -311,7 +311,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/GT.cols_move_to_start.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/GT.cols_move_to_start.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">GT.cols_move_to_start</span></a>
   </div>
 </li>
@@ -393,7 +393,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/GT.opt_footnote_marks.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/GT.opt_footnote_marks.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">GT.opt_footnote_marks</span></a>
   </div>
 </li>
@@ -506,7 +506,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.GT.opt_footnote_marks" id="toc-great_tables.GT.opt_footnote_marks" class="nav-link active" data-scroll-target="#great_tables.GT.opt_footnote_marks">GT.opt_footnote_marks</a>
+  <li><a href="#great_tables.GT.cols_move_to_start" id="toc-great_tables.GT.cols_move_to_start" class="nav-link active" data-scroll-target="#great_tables.GT.cols_move_to_start">GT.cols_move_to_start</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
@@ -519,62 +519,18 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="great_tables.GT.opt_footnote_marks" class="level1">
-<h1>GT.opt_footnote_marks</h1>
-<p><code>GT.opt_footnote_marks(marks='numbers')</code></p>
-<p>Option to modify the set of footnote marks.</p>
-<p>Alter the footnote marks for any footnotes that may be present in the table. Either a list of marks can be provided (including Unicode characters), or, a specific keyword could be used to signify a preset sequence. This function serves as a shortcut for using <code>tab_options(footnotes_marks = &lt;marks&gt;)</code></p>
-<p>We can supply a list of strings will represent the series of marks. The series of footnote marks is recycled when its usage goes beyond the length of the set. At each cycle, the marks are simply doubled, tripled, and so on (e.g., <code>*</code> -&gt; <code>**</code> -&gt; <code>***</code>). The option exists for providing keywords for certain types of footnote marks. The keywords are:</p>
-<ul>
-<li><code>"numbers"</code>: numeric marks, they begin from 1 and these marks are not subject to recycling behavior</li>
-<li><code>"letters"</code>: lowercase alphabetic marks. Same as using the <code>gt.letters()</code> function which produces a list of 26 lowercase letters from the Roman alphabet</li>
-<li><code>"LETTERS"</code>: uppercase alphabetic marks. Same as using the <code>gt.LETTERS()</code> function which produces a list of 26 uppercase letters from the Roman alphabet</li>
-<li><code>"standard"</code>: symbolic marks, four symbols in total</li>
-<li><code>"extended"</code>: symbolic marks, extends the standard set by adding two more symbols, making six</li>
-</ul>
+<section id="great_tables.GT.cols_move_to_start" class="level1">
+<h1>GT.cols_move_to_start</h1>
+<p><code>GT.cols_move_to_start</code></p>
+<p>Move one or more columns to the start.</p>
+<p>We can easily move set of columns to the beginning of the column series and we only need to specify which <code>columns</code>. It’s possible to do this upstream of <strong>gt_tables</strong>, however, it is easier with this function and it presents less possibility for error. The ordering of the <code>columns</code> that are moved to the start is preserved (same with the ordering of all other columns in the table).</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="table">
-<colgroup>
-<col style="width: 2%">
-<col style="width: 6%">
-<col style="width: 88%">
-<col style="width: 2%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>marks</code></td>
-<td>Union[str, List[str]]</td>
-<td>Either a list of strings that will represent the series of marks or a keyword string that represents a preset sequence of marks. The valid keywords are: <code>"numbers"</code> (for numeric marks), <code>"letters"</code> and <code>"LETTERS"</code> (for lowercase and uppercase alphabetic marks), <code>"standard"</code> (for a traditional set of four symbol marks), and <code>"extended"</code> (which adds two more symbols to the standard set).</td>
-<td><code>'numbers'</code></td>
-</tr>
-</tbody>
-</table>
+<p>columns : Union[List[str]] The columns to target. Can either be a single column name or a series of column names provided in a list.</p>
 </section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<table class="table">
-<thead>
-<tr class="header">
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>GT</td>
-<td>Result of the table operation.</td>
-</tr>
-</tbody>
-</table>
+<p>GTData The GTData object is returned.</p>
 
 
 </section>
@@ -816,13 +772,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/GT.opt_all_caps.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">GT.opt_all_caps</span>
+      <a href="../reference/GT.cols_move.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">GT.cols_move</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/GT.opt_row_striping.html" class="pagination-link">
-        <span class="nav-page-text">GT.opt_row_striping</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/GT.cols_move_to_end.html" class="pagination-link">
+        <span class="nav-page-text">GT.cols_move_to_end</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
