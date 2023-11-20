@@ -126,10 +126,10 @@ class GT(
     def __init__(
         self,
         data: Any,
-        locale: str = "",  # TODO: Should probably have a default of None
         rowname_col: str | None = None,
         groupname_col: str | None = None,
         auto_align: bool = True,
+        locale: str = "",  # TODO: Should probably have a default of None
     ):
         # This is a bad idea ----
         gtdata = GTData.from_data(
