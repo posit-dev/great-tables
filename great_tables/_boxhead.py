@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import pandas as pd
-from typing import Union, Optional
+from typing import Optional
+from ._gt_data import GTData
 
 from ._utils import _assert_list_is_subset
 
