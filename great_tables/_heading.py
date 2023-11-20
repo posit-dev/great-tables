@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Optional, Union, List
+from ._gt_data import GTData
 
 
 class HeadingAPI:
@@ -8,7 +9,7 @@ class HeadingAPI:
         title: str,
         subtitle: Optional[str] = None,
         preheader: Optional[Union[str, List[str]]] = None,
-    ):
+    ) -> GTData:
         """
         Add a table header.
 
@@ -32,8 +33,8 @@ class HeadingAPI:
 
         Returns
         -------
-        GT
-            Result of the table operation.
+        GTData
+            The GTData object is returned.
 
         Examples
         --------
