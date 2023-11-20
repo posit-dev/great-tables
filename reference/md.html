@@ -506,7 +506,11 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.md" id="toc-great_tables.md" class="nav-link active" data-scroll-target="#great_tables.md">md</a></li>
+  <li><a href="#great_tables.md" id="toc-great_tables.md" class="nav-link active" data-scroll-target="#great_tables.md">md</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -520,10 +524,56 @@ ul.task-list li input[type="checkbox"] {
 <p><code>md(text)</code></p>
 <p>Interpret input text as Markdown-formatted text.</p>
 <p>Markdown! It’s a wonderful thing. We can use it in certain places (e.g., footnotes, source notes, the table title, etc.) and expect it to render to HTML as Markdown does. There is the <code>html()</code> helper that allows you to ferry in HTML but this function <code>md()</code>… it’s almost like a two-for-one deal (you get to use Markdown plus any HTML fragments at the same time).</p>
-<p>Args: text (str): The text that is understood to contain Markdown formatting.</p>
-<p>Returns: Text: An instance of the Text class is returned, where the text <code>type</code> is ‘markdown’.</p>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 68%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>text</code></td>
+<td>str</td>
+<td>The text that is understood to contain Markdown formatting.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<table class="table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._text.Text</td>
+<td>An instance of the Text class is returned, where the text <code>type</code> is <code>"from_markdown"</code>.</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

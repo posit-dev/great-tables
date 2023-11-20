@@ -524,15 +524,15 @@ ul.task-list li input[type="checkbox"] {
 <h1>GT.tab_source_note</h1>
 <p><code>GT.tab_source_note(data, source_note)</code></p>
 <p>Add a source note citation.</p>
-<p>Add a source note to the footer part of the gt table. A source note is useful for citing the data included in the table. Several can be added to the footer, simply use multiple calls of <code>tab_source_note()</code> and they will be inserted in the order provided. We can use Markdown formatting for the note, or, if the table is intended for HTML output, we can include HTML formatting.</p>
+<p>Add a source note to the footer part of the gt table. A source note is useful for citing the data included in the table. Several can be added to the footer, simply use the <code>tab_source_note()</code> multiple time and they will be inserted in the order provided. We can use Markdown formatting for the note, or, if the table is intended for HTML output, we can include HTML formatting.</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
 <col style="width: 7%">
-<col style="width: 3%">
+<col style="width: 4%">
 <col style="width: 82%">
-<col style="width: 5%">
+<col style="width: 6%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -546,7 +546,7 @@ ul.task-list li input[type="checkbox"] {
 <tr class="odd">
 <td><code>source_note</code></td>
 <td>str</td>
-<td>Text to be used in the source note. We can optionally use the <code>md()</code> or <code>html()</code> helper functions to style the text as Markdown or to retain HTML elements in the text.</td>
+<td>Text to be used in the source note. We can optionally use the <code>md()</code> or <code>html()</code> helpers to style the text as Markdown or to retain HTML elements in the text.</td>
 <td><em>required</em></td>
 </tr>
 </tbody>
@@ -563,8 +563,8 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>great_tables.gt.GT</td>
-<td>Result of the table operation.</td>
+<td>great_tables._gt_data.GTData</td>
+<td>The GTData object is returned.</td>
 </tr>
 </tbody>
 </table>

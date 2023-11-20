@@ -509,6 +509,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#great_tables.GT.tab_spanner" id="toc-great_tables.GT.tab_spanner" class="nav-link active" data-scroll-target="#great_tables.GT.tab_spanner">GT.tab_spanner</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -523,15 +524,15 @@ ul.task-list li input[type="checkbox"] {
 <p><code>GT.tab_spanner(data, label, columns=None, spanners=None, level=None, id=None, gather=True, replace=False)</code></p>
 <p>Insert a spanner in the column labels part of a gt table.</p>
 <p>This part of the table contains, at a minimum, column labels and, optionally, an unlimited number of levels for spanners. A spanner will occupy space over any number of contiguous column labels and it will have an associated label and ID value. This function allows for mapping to be defined by column names, existing spanner ID values, or a mixture of both.</p>
-<p>The spanners are placed in the order of calling tab_spanner() so if a later call uses the same columns in its definition (or even a subset) as the first invocation, the second spanner will be overlaid atop the first. Options exist for forcibly inserting a spanner underneath other (with level as space permits) and with replace, which allows for full or partial spanner replacement.</p>
+<p>The spanners are placed in the order of calling <code>tab_spanner()</code> so if a later call uses the same columns in its definition (or even a subset) as the first invocation, the second spanner will be overlaid atop the first. Options exist for forcibly inserting a spanner underneath others (with <code>level</code> as space permits) and with <code>replace</code>, which allows for full or partial spanner replacement.</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 12%">
-<col style="width: 42%">
-<col style="width: 31%">
-<col style="width: 12%">
+<col style="width: 1%">
+<col style="width: 6%">
+<col style="width: 90%">
+<col style="width: 1%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -545,44 +546,61 @@ ul.task-list li input[type="checkbox"] {
 <tr class="odd">
 <td><code>label</code></td>
 <td>str</td>
-<td>Spanner label text.</td>
+<td>The text to use for the spanner label. We can optionally use the [md()] and [html()] helpers to style the text as Markdown or to retain HTML elements in the text.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
 <td><code>columns</code></td>
-<td>typing.Union[list[str], str, None]</td>
-<td>Columns to target.</td>
+<td>typing.Union[str, typing.List[str], None]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>spanners</code></td>
 <td>typing.Union[list[str], str, None]</td>
-<td>Spanners to target.</td>
+<td>The spanners that should be spanned over, should they already be defined. One or more spanner ID values (in quotes) can be supplied here. This argument works in tandem with the <code>columns</code> argument.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>level</code></td>
 <td>typing.Optional[int]</td>
-<td>Spanner level for insertion.</td>
+<td>An explicit level to which the spanner should be placed. If not provided, <strong>great_tables</strong> will choose the level based on the inputs provided within <code>columns</code> and <code>spanners</code>, placing the spanner label where it will fit. The first spanner level (right above the column labels) is <code>0</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>id</code></td>
 <td>typing.Optional[str]</td>
-<td>Spanner ID.</td>
+<td>The ID for the spanner. When accessing a spanner through the <code>spanners</code> argument of <code>tab_spanner()</code> or <code>cells_column_spanners()</code> (when using <code>tab_style()</code> or <code>tab_footnote()</code>) the <code>id</code> value is used as the reference (and not the <code>label</code>). If an <code>id</code> is not explicitly provided here, it will be taken from the <code>label</code> value. It is advisable to set an explicit <code>id</code> value if you plan to access this cell in a later function call and the label text is complicated (e.g., contains markup, is lengthy, or both). Finally, when providing an <code>id</code> value you must ensure that it is unique across all ID values set for spanner labels (the function will stop if <code>id</code> isn’t unique).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>gather</code></td>
 <td>bool</td>
-<td>Gather columns together.</td>
+<td>An option to move the specified <code>columns</code> such that they are unified under the spanner. Ordering of the moved-into-place columns will be preserved in all cases. By default, this is set to <code>True</code>.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="odd">
 <td><code>replace</code></td>
 <td>bool</td>
-<td>Replace existing spanners.</td>
+<td>Should new spanners be allowed to partially or fully replace existing spanners? (This is a possibility if setting spanners at an already populated <code>level</code>.) By default, this is set to <code>False</code> and an error will occur if some replacement is attempted.</td>
 <td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._gt_data.GTData</td>
+<td>The GTData object is returned.</td>
 </tr>
 </tbody>
 </table>
