@@ -53,7 +53,7 @@ homepage = "https://github.com/posit-dev/great_tables"
 [project.optional-dependencies]
 dev = [
     "jupyter",
-    "quartodoc>=0.7.1"; python_version >= '3.9'",
+    "quartodoc>=0.7.1; python_version >= '3.9'",
     "polars",
     "pytest>=3",
     "siuba",
