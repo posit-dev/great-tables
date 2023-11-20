@@ -76,12 +76,41 @@ class GT(
     OptionsAPI,
 ):
     """
-    Create a gt Table object.
+    Create a **great_tables** object.
 
     The `GT()` class creates a **great_tables** object when provided with tabular data. Using this
     is the first step in a typical **great_tables** workflow. Once we have this object, we can
     perform numerous transformations before rendering to a display table.
 
+    There are a few data ingest options we can consider at this stage. We can choose to create a
+    table stub containing row labels through the use of the `rowname_col` argument. Further to this,
+    stub row groups can be created with the `groupname_col` argument. Both arguments take the name
+    of a column in the input table data. Typically, the data in the `groupname_col` column will
+    consist of categorical text whereas the data in the `rowname_col` column will contain unique
+    labels (could be unique across the entire table or unique within the different row groups).
+
+    Parameters
+    ----------
+    data : Union[FormatFn, FormatFns]
+        A DataFrame object.
+    rowname_col : str | None
+        The column name in the input `data` table to use as row labels to be placed in the table
+        stub.
+    groupname_col : str | None
+        The column name in the input `data` table to use as group labels for generation of row
+        groups.
+    auto_align : bool
+        Optionally have column data be aligned depending on the content contained in each column of
+        the input `data`.
+    locale : str
+        An optional locale identifier that can be set as the default locale for all functions that
+        take a `locale` argument. Examples include `"en"` for English (United States) and `"fr"`
+        for French (France).
+
+    Returns
+    -------
+    GTData
+        A GTData object is returned.
 
     Examples
     --------
