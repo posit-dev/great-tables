@@ -521,17 +521,58 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="great_tables.GT.cols_move" class="level1">
 <h1>GT.cols_move</h1>
-<p><code>GT.cols_move</code></p>
+<p><code>GT.cols_move(data, columns, after)</code></p>
 <p>Move one or more columns.</p>
 <p>On those occasions where you need to move columns this way or that way, we can make use of the <code>cols_move()</code> method. While it’s true that the movement of columns can be done upstream of <strong>great_tables</strong>, it is much easier and less error prone to use the function provided here. The movement procedure here takes one or more specified columns (in the <code>columns</code> argument) and places them to the right of a different column (the <code>after</code> argument). The ordering of the <code>columns</code> to be moved is preserved, as is the ordering of all other columns in the table.</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<p>columns : Union[List[str]] The columns to target. Can either be a single column name or a series of column names provided in a list.</p>
-<p>after : str The column after which the <code>columns</code> should be placed. This can be any column name that exists in the table.</p>
+<table class="table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 21%">
+<col style="width: 65%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>columns</code></td>
+<td>typing.Union[typing.List[str]]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td><code>after</code></td>
+<td>str</td>
+<td>The column after which the <code>columns</code> should be placed. This can be any column name that exists in the table.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<p>GTData The GTData object is returned.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._gt_data.GTData</td>
+<td>The GTData object is returned.</td>
+</tr>
+</tbody>
+</table>
 
 
 </section>

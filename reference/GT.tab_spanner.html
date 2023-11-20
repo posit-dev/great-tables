@@ -520,13 +520,72 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="great_tables.GT.tab_spanner" class="level1">
 <h1>GT.tab_spanner</h1>
-<p><code>GT.tab_spanner</code></p>
+<p><code>GT.tab_spanner(data, label, columns=None, spanners=None, level=None, id=None, gather=True, replace=False)</code></p>
 <p>Insert a spanner in the column labels part of a gt table.</p>
 <p>This part of the table contains, at a minimum, column labels and, optionally, an unlimited number of levels for spanners. A spanner will occupy space over any number of contiguous column labels and it will have an associated label and ID value. This function allows for mapping to be defined by column names, existing spanner ID values, or a mixture of both.</p>
 <p>The spanners are placed in the order of calling tab_spanner() so if a later call uses the same columns in its definition (or even a subset) as the first invocation, the second spanner will be overlaid atop the first. Options exist for forcibly inserting a spanner underneath other (with level as space permits) and with replace, which allows for full or partial spanner replacement.</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<p>label: Spanner label text. columns: Columns to target. spanners: Spanners to target. level: Spanner level for insertion. id: Spanner ID. gather: Gather columns together. replace: Replace existing spanners.</p>
+<table class="table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 42%">
+<col style="width: 31%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>label</code></td>
+<td>str</td>
+<td>Spanner label text.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td><code>columns</code></td>
+<td>typing.Union[list[str], str, None]</td>
+<td>Columns to target.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>spanners</code></td>
+<td>typing.Union[list[str], str, None]</td>
+<td>Spanners to target.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>level</code></td>
+<td>typing.Optional[int]</td>
+<td>Spanner level for insertion.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>id</code></td>
+<td>typing.Optional[str]</td>
+<td>Spanner ID.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>gather</code></td>
+<td>bool</td>
+<td>Gather columns together.</td>
+<td><code>True</code></td>
+</tr>
+<tr class="odd">
+<td><code>replace</code></td>
+<td>bool</td>
+<td>Replace existing spanners.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 
 
 </section>

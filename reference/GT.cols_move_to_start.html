@@ -521,16 +521,52 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="great_tables.GT.cols_move_to_start" class="level1">
 <h1>GT.cols_move_to_start</h1>
-<p><code>GT.cols_move_to_start</code></p>
+<p><code>GT.cols_move_to_start(data, columns)</code></p>
 <p>Move one or more columns to the start.</p>
 <p>We can easily move set of columns to the beginning of the column series and we only need to specify which <code>columns</code>. It’s possible to do this upstream of <strong>gt_tables</strong>, however, it is easier with this function and it presents less possibility for error. The ordering of the <code>columns</code> that are moved to the start is preserved (same with the ordering of all other columns in the table).</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<p>columns : Union[List[str]] The columns to target. Can either be a single column name or a series of column names provided in a list.</p>
+<table class="table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 21%">
+<col style="width: 64%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>columns</code></td>
+<td>typing.Union[typing.List[str]]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<p>GTData The GTData object is returned.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._gt_data.GTData</td>
+<td>The GTData object is returned.</td>
+</tr>
+</tbody>
+</table>
 
 
 </section>

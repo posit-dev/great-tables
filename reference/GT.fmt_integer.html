@@ -521,7 +521,7 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="great_tables.GT.fmt_integer" class="level1">
 <h1>GT.fmt_integer</h1>
-<p><code>GT.fmt_integer</code></p>
+<p><code>GT.fmt_integer(self, columns=None, rows=None, use_seps=True, scale_by=1, pattern='{x}', sep_mark=',', force_sign=False, locale=None)</code></p>
 <p>Format values as integers.</p>
 <p>With numeric values in a gt table, we can perform number-based formatting so that the targeted values are always rendered as integer values.</p>
 <p>We can have fine control over integer formatting with the following options:</p>
@@ -534,11 +534,89 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<p>columns : Union[str, List[str], None] The columns to target. Can either be a single column name or a series of column names provided in a list. rows : Union[int, List[int], None] In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices. use_seps : bool The <code>use_seps</code> option allows for the use of digit group separators. The type of digit group separator is set by <code>sep_mark</code> and overridden if a locale ID is provided to <code>locale</code>. This setting is <code>True</code> by default. scale_by : float All numeric values will be multiplied by the <code>scale_by</code> value before undergoing formatting. Since the <code>default</code> value is <code>1</code>, no values will be changed unless a different multiplier value is supplied. pattern : str A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals. sep_mark : str The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>). force_sign : bool Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with <code>accounting = True</code>. locale : str An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</p>
+<table class="table">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 12%">
+<col style="width: 81%">
+<col style="width: 2%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>columns</code></td>
+<td>typing.Union[str, typing.List[str], None]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>rows</code></td>
+<td>typing.Union[int, typing.List[int], None]</td>
+<td>In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>use_seps</code></td>
+<td>bool</td>
+<td>The <code>use_seps</code> option allows for the use of digit group separators. The type of digit group separator is set by <code>sep_mark</code> and overridden if a locale ID is provided to <code>locale</code>. This setting is <code>True</code> by default.</td>
+<td><code>True</code></td>
+</tr>
+<tr class="even">
+<td><code>scale_by</code></td>
+<td>float</td>
+<td>All numeric values will be multiplied by the <code>scale_by</code> value before undergoing formatting. Since the <code>default</code> value is <code>1</code>, no values will be changed unless a different multiplier value is supplied.</td>
+<td><code>1</code></td>
+</tr>
+<tr class="odd">
+<td><code>pattern</code></td>
+<td>str</td>
+<td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
+<td><code>'{x}'</code></td>
+</tr>
+<tr class="even">
+<td><code>sep_mark</code></td>
+<td>str</td>
+<td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
+<td><code>','</code></td>
+</tr>
+<tr class="odd">
+<td><code>force_sign</code></td>
+<td>bool</td>
+<td>Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with <code>accounting = True</code>.</td>
+<td><code>False</code></td>
+</tr>
+<tr class="even">
+<td><code>locale</code></td>
+<td>str</td>
+<td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<p>GTData The GTData object is returned.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._gt_data.GTData</td>
+<td>The GTData object is returned.</td>
+</tr>
+</tbody>
+</table>
 
 
 </section>

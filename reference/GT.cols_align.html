@@ -528,10 +528,10 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 6%">
-<col style="width: 20%">
-<col style="width: 66%">
-<col style="width: 6%">
+<col style="width: 5%">
+<col style="width: 15%">
+<col style="width: 74%">
+<col style="width: 5%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -543,16 +543,16 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>columns</code></td>
-<td>Union[str, List[str], None]</td>
-<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
 <td><code>align</code></td>
 <td>str</td>
 <td>The alignment to apply. Must be one of <code>"left"</code>, <code>"center"</code>, or <code>"right"</code>.</td>
 <td><code>'left'</code></td>
+</tr>
+<tr class="even">
+<td><code>columns</code></td>
+<td>Union[str, List[str], None]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list. If <code>None</code>, the alignment is applied to all columns.</td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table>
@@ -568,7 +568,7 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>GTData</td>
+<td>great_tables._gt_data.GTData</td>
 <td>The GTData object is returned.</td>
 </tr>
 </tbody>

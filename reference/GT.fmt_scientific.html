@@ -521,7 +521,7 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="great_tables.GT.fmt_scientific" class="level1">
 <h1>GT.fmt_scientific</h1>
-<p><code>GT.fmt_scientific</code></p>
+<p><code>GT.fmt_scientific(self, columns=None, rows=None, decimals=2, n_sigfig=None, drop_trailing_zeros=False, drop_trailing_dec_mark=True, scale_by=1, exp_style='x10n', pattern='{x}', sep_mark=',', dec_mark='.', force_sign_m=False, force_sign_n=False, locale=None)</code></p>
 <p>Format values to scientific notation.</p>
 <p>With numeric values in a <strong>gt</strong> table, we can perform formatting so that the targeted values are rendered in scientific notation, where extremely large or very small numbers can be expressed in a more practical fashion. Here, numbers are written in the form of a mantissa (<code>m</code>) and an exponent (<code>n</code>) with the construction <em>m</em> x 10^<em>n</em> or <em>m</em>E<em>n</em>. The mantissa component is a number between <code>1</code> and <code>10</code>. For instance, <code>2.5 x 10^9</code> can be used to represent the value 2,500,000,000 in scientific notation. In a similar way, 0.00000012 can be expressed as <code>1.2 x 10^-7</code>. Due to its ability to describe numbers more succinctly and its ease of calculation, scientific notation is widely employed in scientific and technical domains.</p>
 <p>We have fine control over the formatting task, with the following options:</p>
@@ -533,24 +533,125 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<p>columns : Union[str, List[str], None] The columns to target. Can either be a single column name or a series of column names provided in a list.</p>
-<p>rows : Union[int, List[int], None] In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</p>
-<p>decimals : int The <code>decimals</code> values corresponds to the exact number of decimal places to use. A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and it would result in <code>"2"</code>. With <code>4</code> decimal places, the formatted value becomes <code>"2.3400"</code>. The trailing zeros can be removed with <code>drop_trailing_zeros=True</code>. If you always need <code>decimals = 0</code>, the <code>fmt_integer()</code> method should be considered.</p>
-<p>n_sigfig : Optional[int] A option to format numbers to <em>n</em> significant figures. By default, this is <code>None</code> and thus number values will be formatted according to the number of decimal places set via <code>decimals</code>. If opting to format according to the rules of significant figures, <code>n_sigfig</code> must be a number greater than or equal to <code>1</code>. Any values passed to the <code>decimals</code> and <code>drop_trailing_zeros</code> arguments will be ignored.</p>
-<p>drop_trailing_zeros : bool A boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).</p>
-<p>drop_trailing_dec_mark : bool A boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., <code>23</code> becomes <code>23.</code> if <code>False</code>). By default trailing decimal marks are not shown.</p>
-<p>scale_by : float All numeric values will be multiplied by the <code>scale_by</code> value before undergoing formatting. Since the <code>default</code> value is <code>1</code>, no values will be changed unless a different multiplier value is supplied.</p>
-<p>exp_style : str Style of formatting to use for the scientific notation formatting. By default this is <code>"x10n"</code> but other options include using a single letter (e.g., <code>"e"</code>, <code>"E"</code>, etc.), a letter followed by a <code>"1"</code> to signal a minimum digit width of one, or <code>"low-ten"</code> for using a stylized <code>"10"</code> marker.</p>
-<p>pattern : str A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</p>
-<p>sep_mark : str The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
-<p>dec_mark : str The string to be used as the decimal mark. For example, using <code>dec_mark=","</code> with the value <code>0.152</code> would result in a formatted value of <code>"0,152"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
-<p>force_sign_m : bool Should the plus sign be shown for positive values of the mantissa (first component)? This would effectively show a sign for all values except zero on the first numeric component of the notation. If so, use <code>True</code> (the default for this is <code>False</code>), where only negative numbers will display a sign.</p>
-<p>force_sign_n : bool Should the plus sign be shown for positive values of the exponent (second component)? This would effectively show a sign for all values except zero on the second numeric component of the notation. If so, use <code>True</code> (the default for this is <code>False</code>), where only negative numbers will display a sign.</p>
-<p>locale : str An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</p>
+<table class="table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 9%">
+<col style="width: 82%">
+<col style="width: 2%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>columns</code></td>
+<td>typing.Union[str, typing.List[str], None]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>rows</code></td>
+<td>typing.Union[int, typing.List[int], None]</td>
+<td>In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>decimals</code></td>
+<td>int</td>
+<td>The <code>decimals</code> values corresponds to the exact number of decimal places to use. A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and it would result in <code>"2"</code>. With <code>4</code> decimal places, the formatted value becomes <code>"2.3400"</code>. The trailing zeros can be removed with <code>drop_trailing_zeros=True</code>. If you always need <code>decimals = 0</code>, the <code>fmt_integer()</code> method should be considered.</td>
+<td><code>2</code></td>
+</tr>
+<tr class="even">
+<td><code>n_sigfig</code></td>
+<td>typing.Optional[int]</td>
+<td>A option to format numbers to <em>n</em> significant figures. By default, this is <code>None</code> and thus number values will be formatted according to the number of decimal places set via <code>decimals</code>. If opting to format according to the rules of significant figures, <code>n_sigfig</code> must be a number greater than or equal to <code>1</code>. Any values passed to the <code>decimals</code> and <code>drop_trailing_zeros</code> arguments will be ignored.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>drop_trailing_zeros</code></td>
+<td>bool</td>
+<td>A boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).</td>
+<td><code>False</code></td>
+</tr>
+<tr class="even">
+<td><code>drop_trailing_dec_mark</code></td>
+<td>bool</td>
+<td>A boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., <code>23</code> becomes <code>23.</code> if <code>False</code>). By default trailing decimal marks are not shown.</td>
+<td><code>True</code></td>
+</tr>
+<tr class="odd">
+<td><code>scale_by</code></td>
+<td>float</td>
+<td>All numeric values will be multiplied by the <code>scale_by</code> value before undergoing formatting. Since the <code>default</code> value is <code>1</code>, no values will be changed unless a different multiplier value is supplied.</td>
+<td><code>1</code></td>
+</tr>
+<tr class="even">
+<td><code>exp_style</code></td>
+<td>str</td>
+<td>Style of formatting to use for the scientific notation formatting. By default this is <code>"x10n"</code> but other options include using a single letter (e.g., <code>"e"</code>, <code>"E"</code>, etc.), a letter followed by a <code>"1"</code> to signal a minimum digit width of one, or <code>"low-ten"</code> for using a stylized <code>"10"</code> marker.</td>
+<td><code>'x10n'</code></td>
+</tr>
+<tr class="odd">
+<td><code>pattern</code></td>
+<td>str</td>
+<td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
+<td><code>'{x}'</code></td>
+</tr>
+<tr class="even">
+<td><code>sep_mark</code></td>
+<td>str</td>
+<td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
+<td><code>','</code></td>
+</tr>
+<tr class="odd">
+<td><code>dec_mark</code></td>
+<td>str</td>
+<td>The string to be used as the decimal mark. For example, using <code>dec_mark=","</code> with the value <code>0.152</code> would result in a formatted value of <code>"0,152"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
+<td><code>'.'</code></td>
+</tr>
+<tr class="even">
+<td><code>force_sign_m</code></td>
+<td>bool</td>
+<td>Should the plus sign be shown for positive values of the mantissa (first component)? This would effectively show a sign for all values except zero on the first numeric component of the notation. If so, use <code>True</code> (the default for this is <code>False</code>), where only negative numbers will display a sign.</td>
+<td><code>False</code></td>
+</tr>
+<tr class="odd">
+<td><code>force_sign_n</code></td>
+<td>bool</td>
+<td>Should the plus sign be shown for positive values of the exponent (second component)? This would effectively show a sign for all values except zero on the second numeric component of the notation. If so, use <code>True</code> (the default for this is <code>False</code>), where only negative numbers will display a sign.</td>
+<td><code>False</code></td>
+</tr>
+<tr class="even">
+<td><code>locale</code></td>
+<td>str</td>
+<td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<p>GTData The GTData object is returned.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._gt_data.GTData</td>
+<td>The GTData object is returned.</td>
+</tr>
+</tbody>
+</table>
 
 
 </section>

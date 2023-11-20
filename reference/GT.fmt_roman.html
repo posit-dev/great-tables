@@ -521,16 +521,70 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="great_tables.GT.fmt_roman" class="level1">
 <h1>GT.fmt_roman</h1>
-<p><code>GT.fmt_roman</code></p>
+<p><code>GT.fmt_roman(self, columns=None, rows=None, case='upper', pattern='{x}')</code></p>
 <p>Format values as Roman numerals.</p>
 <p>With numeric values in a <strong>gt</strong> table we can transform those to Roman numerals, rounding values as necessary.</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<p>columns (Union[str, List[str], None]) The columns to target. Can either be a single column name or a series of column names provided in a list. rows (Union[int, List[int], None]) In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices. case (str) Should Roman numerals should be rendered as uppercase (<code>"upper"</code>) or lowercase (<code>"lower"</code>) letters? By default, this is set to <code>"upper"</code>. pattern (str) A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</p>
+<table class="table">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 15%">
+<col style="width: 77%">
+<col style="width: 3%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>columns</code></td>
+<td>typing.Union[str, typing.List[str], None]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>rows</code></td>
+<td>typing.Union[int, typing.List[int], None]</td>
+<td>In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>case</code></td>
+<td>str</td>
+<td>Should Roman numerals should be rendered as uppercase (<code>"upper"</code>) or lowercase (<code>"lower"</code>) letters? By default, this is set to <code>"upper"</code>.</td>
+<td><code>'upper'</code></td>
+</tr>
+<tr class="even">
+<td><code>pattern</code></td>
+<td>str</td>
+<td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
+<td><code>'{x}'</code></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<p>GTData The GTData object is returned.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._gt_data.GTData</td>
+<td>The GTData object is returned.</td>
+</tr>
+</tbody>
+</table>
 
 
 </section>

@@ -521,7 +521,7 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="great_tables.GT.fmt_bytes" class="level1">
 <h1>GT.fmt_bytes</h1>
-<p><code>GT.fmt_bytes</code></p>
+<p><code>GT.fmt_bytes(self, columns=None, rows=None, standard='decimal', decimals=1, n_sigfig=None, drop_trailing_zeros=True, drop_trailing_dec_mark=True, use_seps=True, pattern='{x}', sep_mark=',', dec_mark='.', force_sign=False, incl_space=True, locale=None)</code></p>
 <p>Format values as bytes.</p>
 <p>With numeric values in a table, we can transform those to values of bytes with human readable units. The <code>fmt_bytes()</code> method allows for the formatting of byte sizes to either of two common representations: (1) with decimal units (powers of 1000, examples being <code>"kB"</code> and <code>"MB"</code>), and (2) with binary units (powers of 1024, examples being <code>"KiB"</code> and <code>"MiB"</code>). It is assumed the input numeric values represent the number of bytes and automatic truncation of values will occur. The numeric values will be scaled to be in the range of 1 to &lt;1000 and then decorated with the correct unit symbol according to the standard chosen. For more control over the formatting of byte sizes, we can use the following options:</p>
 <ul>
@@ -532,23 +532,119 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<p>columns : Union[str, List[str], None] The columns to target. Can either be a single column name or a series of column names provided in a list.</p>
-<p>rows : Union[int, List[int], None] In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</p>
-<p>standard: str The form of expressing large byte sizes is divided between: (1) decimal units (powers of 1000; e.g., <code>"kB"</code> and <code>"MB"</code>), and (2) binary units (powers of 1024; e.g., <code>"KiB"</code> and <code>"MiB"</code>). The default is to use decimal units with the <code>"decimal"</code> option. The alternative is to use binary units with the <code>"binary"</code> option.</p>
-<p>decimals : int This corresponds to the exact number of decimal places to use. A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and it would result in <code>"2"</code>. With <code>4</code> decimal places, the formatted value becomes <code>"2.3400"</code>. The trailing zeros can be removed with <code>drop_trailing_zeros=True</code>.</p>
-<p>drop_trailing_zeros : bool A boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).</p>
-<p>drop_trailing_dec_mark : bool A boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., <code>23</code> becomes <code>23.</code> if <code>False</code>). By default trailing decimal marks are not shown.</p>
-<p>use_seps : bool The <code>use_seps</code> option allows for the use of digit group separators. The type of digit group separator is set by <code>sep_mark</code> and overridden if a locale ID is provided to <code>locale</code>. This setting is <code>True</code> by default.</p>
-<p>pattern : str A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</p>
-<p>sep_mark : str The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
-<p>dec_mark : str The string to be used as the decimal mark. For example, using <code>dec_mark=","</code> with the value <code>0.152</code> would result in a formatted value of <code>"0,152"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
-<p>force_sign : bool Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with <code>accounting = True</code>.</p>
-<p>incl_space : bool An option for whether to include a space between the value and the currency symbol. The default is to not introduce a space character.</p>
-<p>locale : str An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</p>
+<table class="table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 11%">
+<col style="width: 78%">
+<col style="width: 3%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>columns</code></td>
+<td>typing.Union[str, typing.List[str], None]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>rows</code></td>
+<td>typing.Union[int, typing.List[int], None]</td>
+<td>In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>standard</code></td>
+<td>str</td>
+<td>The form of expressing large byte sizes is divided between: (1) decimal units (powers of 1000; e.g., <code>"kB"</code> and <code>"MB"</code>), and (2) binary units (powers of 1024; e.g., <code>"KiB"</code> and <code>"MiB"</code>). The default is to use decimal units with the <code>"decimal"</code> option. The alternative is to use binary units with the <code>"binary"</code> option.</td>
+<td><code>'decimal'</code></td>
+</tr>
+<tr class="even">
+<td><code>decimals</code></td>
+<td>int</td>
+<td>This corresponds to the exact number of decimal places to use. A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and it would result in <code>"2"</code>. With <code>4</code> decimal places, the formatted value becomes <code>"2.3400"</code>. The trailing zeros can be removed with <code>drop_trailing_zeros=True</code>.</td>
+<td><code>1</code></td>
+</tr>
+<tr class="odd">
+<td><code>drop_trailing_zeros</code></td>
+<td>bool</td>
+<td>A boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).</td>
+<td><code>True</code></td>
+</tr>
+<tr class="even">
+<td><code>drop_trailing_dec_mark</code></td>
+<td>bool</td>
+<td>A boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., <code>23</code> becomes <code>23.</code> if <code>False</code>). By default trailing decimal marks are not shown.</td>
+<td><code>True</code></td>
+</tr>
+<tr class="odd">
+<td><code>use_seps</code></td>
+<td>bool</td>
+<td>The <code>use_seps</code> option allows for the use of digit group separators. The type of digit group separator is set by <code>sep_mark</code> and overridden if a locale ID is provided to <code>locale</code>. This setting is <code>True</code> by default.</td>
+<td><code>True</code></td>
+</tr>
+<tr class="even">
+<td><code>pattern</code></td>
+<td>str</td>
+<td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
+<td><code>'{x}'</code></td>
+</tr>
+<tr class="odd">
+<td><code>sep_mark</code></td>
+<td>str</td>
+<td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
+<td><code>','</code></td>
+</tr>
+<tr class="even">
+<td><code>dec_mark</code></td>
+<td>str</td>
+<td>The string to be used as the decimal mark. For example, using <code>dec_mark=","</code> with the value <code>0.152</code> would result in a formatted value of <code>"0,152"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
+<td><code>'.'</code></td>
+</tr>
+<tr class="odd">
+<td><code>force_sign</code></td>
+<td>bool</td>
+<td>Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with <code>accounting = True</code>.</td>
+<td><code>False</code></td>
+</tr>
+<tr class="even">
+<td><code>incl_space</code></td>
+<td>bool</td>
+<td>An option for whether to include a space between the value and the currency symbol. The default is to not introduce a space character.</td>
+<td><code>True</code></td>
+</tr>
+<tr class="odd">
+<td><code>locale</code></td>
+<td>str</td>
+<td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<p>GTData The GTData object is returned.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._gt_data.GTData</td>
+<td>The GTData object is returned.</td>
+</tr>
+</tbody>
+</table>
 
 
 </section>

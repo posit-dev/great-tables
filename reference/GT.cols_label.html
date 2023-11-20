@@ -530,8 +530,8 @@ ul.task-list li input[type="checkbox"] {
 <table class="table">
 <colgroup>
 <col style="width: 3%">
-<col style="width: 8%">
-<col style="width: 84%">
+<col style="width: 2%">
+<col style="width: 91%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -544,12 +544,6 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>columns</code></td>
-<td>Union[str, List[str], None]</td>
-<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
 <td><code>**kwargs</code></td>
 <td>str</td>
 <td>The column names and new labels. The column names are provided as keyword arguments and the new labels are provided as the values for those keyword arguments. For example, <code>cols_label(col1="Column 1", col2="Column 2")</code> would relabel columns <code>col1</code> and <code>col2</code> with the labels <code>"Column 1"</code> and <code>"Column 2"</code>, respectively.</td>
@@ -569,7 +563,7 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>GTData</td>
+<td>great_tables._gt_data.GTData</td>
 <td>The GTData object is returned.</td>
 </tr>
 </tbody>

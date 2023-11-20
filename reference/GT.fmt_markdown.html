@@ -521,17 +521,58 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="great_tables.GT.fmt_markdown" class="level1">
 <h1>GT.fmt_markdown</h1>
-<p><code>GT.fmt_markdown</code></p>
+<p><code>GT.fmt_markdown(self, columns=None, rows=None)</code></p>
 <p>Format Markdown text.</p>
 <p>Any Markdown-formatted text in the incoming cells will be transformed during render when using the <code>fmt_markdown()</code> method.</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<p>columns : Union[str, List[str], None] The columns to target. Can either be a single column name or a series of column names provided in a list.</p>
-<p>rows : Union[int, List[int], None] In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</p>
+<table class="table">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 16%">
+<col style="width: 76%">
+<col style="width: 3%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>columns</code></td>
+<td>typing.Union[str, typing.List[str], None]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>rows</code></td>
+<td>typing.Union[int, typing.List[int], None]</td>
+<td>In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<p>GTData The GTData object is returned.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._gt_data.GTData</td>
+<td>The GTData object is returned.</td>
+</tr>
+</tbody>
+</table>
 
 
 </section>

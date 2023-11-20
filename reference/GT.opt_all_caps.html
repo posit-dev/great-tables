@@ -529,9 +529,9 @@ ul.task-list li input[type="checkbox"] {
 <table class="table">
 <colgroup>
 <col style="width: 4%">
-<col style="width: 9%">
-<col style="width: 71%">
-<col style="width: 14%">
+<col style="width: 13%">
+<col style="width: 68%">
+<col style="width: 13%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -550,7 +550,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td><code>locations</code></td>
-<td>Union[str, List[str]]</td>
+<td>typing.Union[str, typing.List[str]]</td>
 <td>Which locations should undergo this text transformation? By default it includes all of the <code>"column_labels"</code>, the <code>"stub"</code>, and the <code>"row_group"</code> locations. However, we could just choose one or two of those.</td>
 <td><code>['column_labels', 'stub', 'row_group']</code></td>
 </tr>
@@ -568,7 +568,7 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>GT</td>
+<td>great_tables.gt.GT</td>
 <td>Result of the table operation.</td>
 </tr>
 </tbody>
