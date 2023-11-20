@@ -78,6 +78,11 @@ class GT(
     """
     Create a gt Table object.
 
+    The `GT()` class creates a **great_tables** object when provided with tabular data. Using this
+    is the first step in a typical **great_tables** workflow. Once we have this object, we can
+    perform numerous transformations before rendering to a display table.
+
+
     Examples
     --------
         >>> from gt import *
