@@ -335,10 +335,6 @@ def _create_heading_component(data: GT) -> StringBuilder:
     return StringBuilder('<thead class="gt_header">', result, "</thead>")
 
 
-def _row_groups_get(data: GT) -> List[str]:
-    return data._row_groups._d
-
-
 def _create_source_notes_component(data: GT) -> str:
     source_notes = data._source_notes
 
