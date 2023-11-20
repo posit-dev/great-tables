@@ -227,7 +227,13 @@ class GT(
         source_notes_component = _create_source_notes_component(self)
         footnotes_component = _create_footnotes_component(self)
 
-        html_table = f"""<table class=\"gt_table\">
+        # Determine whether Quarto processing of the table is enabled
+        quarto_disable_processing = self._options._get_option_value("quarto_disable_processing")
+        quarto_use_bootstrap = self._options._get_option_value("quarto_use_bootstrap")
+        quarto_disable_processing = str(quarto_disable_processing).lower()
+        quarto_use_bootstrap = str(quarto_use_bootstrap).lower()
+
+        html_table = f"""<table class=\"gt_table\" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">
 {heading_component.make_string()}
 {column_labels_component}
 {body_component}
