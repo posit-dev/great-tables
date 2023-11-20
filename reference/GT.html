@@ -466,6 +466,8 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#great_tables.GT" id="toc-great_tables.GT" class="nav-link active" data-scroll-target="#great_tables.GT">GT</a>
   <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   </ul></li>
   </ul>
@@ -479,8 +481,77 @@ ul.task-list li input[type="checkbox"] {
 <section id="great_tables.GT" class="level1">
 <h1>GT</h1>
 <p><code>GT(self, data, locale='', rowname_col=None, groupname_col=None, auto_align=True)</code></p>
-<p>Create a gt Table object.</p>
+<p>Create a <strong>great_tables</strong> object.</p>
 <p>The <code>GT()</code> class creates a <strong>great_tables</strong> object when provided with tabular data. Using this is the first step in a typical <strong>great_tables</strong> workflow. Once we have this object, we can perform numerous transformations before rendering to a display table.</p>
+<p>There are a few data ingest options we can consider at this stage. We can choose to create a table stub containing row labels through the use of the <code>rowname_col</code> argument. Further to this, stub row groups can be created with the <code>groupname_col</code> argument. Both arguments take the name of a column in the input table data. Typically, the data in the <code>groupname_col</code> column will consist of categorical text whereas the data in the <code>rowname_col</code> column will contain unique labels (could be unique across the entire table or unique within the different row groups).</p>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 11%">
+<col style="width: 77%">
+<col style="width: 4%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>data</code></td>
+<td>Union[FormatFn, FormatFns]</td>
+<td>A DataFrame object.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td><code>rowname_col</code></td>
+<td>str | None</td>
+<td>The column name in the input <code>data</code> table to use as row labels to be placed in the table stub.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>groupname_col</code></td>
+<td>str | None</td>
+<td>The column name in the input <code>data</code> table to use as group labels for generation of row groups.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>auto_align</code></td>
+<td>bool</td>
+<td>Optionally have column data be aligned depending on the content contained in each column of the input <code>data</code>.</td>
+<td><code>True</code></td>
+</tr>
+<tr class="odd">
+<td><code>locale</code></td>
+<td>str</td>
+<td>An optional locale identifier that can be set as the default locale for all functions that take a <code>locale</code> argument. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
+<td><code>''</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._gt_data.GTData</td>
+<td>A GTData object is returned.</td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="examples" class="level2">
 <h2 class="anchored" data-anchor-id="examples">Examples</h2>
 <pre><code>&gt;&gt;&gt; from gt import *
