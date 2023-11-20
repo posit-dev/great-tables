@@ -1,5 +1,6 @@
 from great_tables._spanners import spanners_print_matrix, seq_groups
 from ._gt_data import GTData
+from ._tbl_data import n_rows, _get_cell
 from typing import List, Any
 from htmltools import tags, HTML, css, TagList
 from itertools import groupby, chain
