@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import re
 
-from typing import overload, TypeVar
+from typing import overload, TypeVar, Optional
 from typing_extensions import Self, TypeAlias
 from dataclasses import dataclass, field, replace
 
@@ -117,9 +117,7 @@ __Body = None
 
 from typing import Union, List, Any
 import pandas as pd
-from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell, copy_data
-
-# from ._formats import FormatInfo
+from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell
 
 
 # TODO: it seems like this could just be a DataFrameLike object?
@@ -388,8 +386,6 @@ class Boxhead(_Sequence[ColInfo]):
 # Stub ----
 __Stub = None
 
-from typing import Optional
-
 from ._tbl_data import TblData, n_rows
 
 
@@ -447,8 +443,6 @@ class Stub(_Sequence[RowInfo]):
 
 # Row groups ----
 __RowGroups = None
-
-from typing import Optional
 
 
 class RowGroups(_Sequence[str]):
