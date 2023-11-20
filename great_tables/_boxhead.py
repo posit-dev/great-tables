@@ -29,10 +29,6 @@ class BoxheadAPI:
 
         Parameters
         ----------
-        columns : Union[str, List[str], None]
-            The columns to target. Can either be a single column name or a series of column names
-            provided in a list.
-
         **kwargs : str
             The column names and new labels. The column names are provided as keyword arguments
             and the new labels are provided as the values for those keyword arguments. For example,
@@ -75,12 +71,11 @@ class BoxheadAPI:
 
         Parameters
         ----------
-        columns : Union[str, List[str], None]
-            The columns to target. Can either be a single column name or a series of column names
-            provided in a list.
-
         align : str
             The alignment to apply. Must be one of `"left"`, `"center"`, or `"right"`.
+        columns : Union[str, List[str], None]
+            The columns to target. Can either be a single column name or a series of column names
+            provided in a list. If `None`, the alignment is applied to all columns.
 
         Returns
         -------
