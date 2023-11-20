@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Any, List, Optional, cast
-from typing_extensions import Self
 import pkg_resources
 
 import sass
