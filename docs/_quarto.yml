@@ -1,7 +1,6 @@
 project:
   type: website
 
-
 website:
   title: great_tables
   page-navigation: true
@@ -22,19 +21,15 @@ website:
     - id: examples
       contents: examples-qmd/*
 
-
-
 format:
   html:
     theme: cosmo
     # css: styles.css
     toc: true
 
-
 # tell quarto to read the generated sidebar
 metadata-files:
   - _sidebar.yml
-
 
 quartodoc:
   # the name used to import the package
@@ -48,7 +43,6 @@ quartodoc:
     - title: Table Creation
       contents:
         - GT
-        # - gt_preview
     - title: Creating or modifying parts of a table
       contents:
         - GT.tab_header
@@ -63,12 +57,10 @@ quartodoc:
         - GT.fmt_percent
         - GT.fmt_scientific
         - GT.fmt_currency
-        - GT.fmt_engineering
         - GT.fmt_bytes
         - GT.fmt_roman
         - GT.fmt_markdown
         - GT.fmt
-    - title: Text transformation
     - title: Modifying columns
       contents:
         - GT.cols_align
@@ -76,30 +68,18 @@ quartodoc:
         - GT.cols_move
         - GT.cols_move_to_start
         - GT.cols_move_to_end
-    - title: Adding or modifying rows
-    - title: Removing parts of a table
     - title: Helper functions
       contents:
         - md
         - html
         - px
         - pct
-        # - from_column
-        # - currency
-        # - nanoplot_options
-        # - adjust_luminance
-    - title: Image addition utilities
     - title: Table options
       contents:
         - GT.opt_align_table_header
         - GT.opt_all_caps
         - GT.opt_footnote_marks
         - GT.opt_row_striping
-    - title: Informational tables for reference
-    - title: Shiny
-    - title: Export and extraction functions
-    - title: Working with table groups
-    - title: Vector formatting
     - title: Built in datasets
       contents:
         - data.countrypops
