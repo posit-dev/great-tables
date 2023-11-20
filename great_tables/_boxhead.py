@@ -64,7 +64,7 @@ class BoxheadAPI:
 
         return self
 
-    def cols_align(self, align: str = "left", columns: Optional[str] = None):
+    def cols_align(self, align: str = "left", columns: Optional[str] = None) -> GTData:
         """
         Set the alignment of one or more columns.
 
