@@ -335,36 +335,6 @@ def _create_heading_component(data: GT) -> StringBuilder:
     return StringBuilder('<thead class="gt_header">', result, "</thead>")
 
 
-def _get_stub_layout(data: GT) -> List[str]:
-    # Determine which stub components are potentially present as columns
-    stub_rownames_is_column = _stub_rownames_has_column(data=data)
-    stub_groupnames_is_column = _stub_group_names_has_column(data=data)
-
-    # Get the potential total number of columns in the table stub
-    n_stub_cols = stub_rownames_is_column + stub_groupnames_is_column
-
-    # Resolve the layout of the stub (i.e., the roles of columns if present)
-    if n_stub_cols == 0:
-        # If summary rows are present, we will use the `rowname` column
-        # for the summary row labels
-        if _summary_exists(data=data):
-            stub_layout = ["rowname"]
-        else:
-            stub_layout = []
-
-    else:
-        stub_layout = [
-            label
-            for label, condition in [
-                ("group_label", stub_groupnames_is_column),
-                ("rowname", stub_rownames_is_column),
-            ]
-            if condition
-        ]
-
-    return stub_layout
-
-
 # Determine whether the table should have row labels set within a column in the stub
 def _stub_rownames_has_column(data: GT) -> bool:
     return "row_id" in _get_stub_components(data=data)
