@@ -91,7 +91,7 @@ class GT(
 
     Parameters
     ----------
-    data : Union[FormatFn, FormatFns]
+    data : Any
         A DataFrame object.
     rowname_col : str | None
         The column name in the input `data` table to use as row labels to be placed in the table
