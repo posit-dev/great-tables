@@ -335,11 +335,6 @@ def _create_heading_component(data: GT) -> StringBuilder:
     return StringBuilder('<thead class="gt_header">', result, "</thead>")
 
 
-# Determine whether the table should have row labels set within a column in the stub
-def _stub_rownames_has_column(data: GT) -> bool:
-    return "row_id" in _get_stub_components(data=data)
-
-
 # Determine whether the table should have row group labels set within a column in the stub
 def _stub_group_names_has_column(data: GT) -> bool:
     # If there aren't any row groups then the result is always False
