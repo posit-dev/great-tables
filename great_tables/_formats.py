@@ -1269,20 +1269,20 @@ def fmt_roman(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns (Union[str, List[str], None])
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
 
-    rows : Union[int, List[int], None]
+    rows (Union[int, List[int], None])
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
 
-    case : str
+    case (str)
         Should Roman numerals should be rendered as uppercase (`"upper"`) or lowercase (`"lower"`)
         letters? By default, this is set to `"upper"`.
 
-    pattern : str
+    pattern (str)
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
