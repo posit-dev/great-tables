@@ -376,6 +376,46 @@ def create_columns_component_h(data: GTData) -> str:
     return str(table_col_headings)
 
 
+def create_body_component_h(data: GTData) -> str:
+    import pandas as pd
+
+    # for now, just coerce everything in the original data to a string
+    # so we can fill in the body data with it
+    _str_orig_data = data._tbl_data.applymap(lambda x: str(x) if not pd.isna(x) else x)
+
+    tbl_data = data._body.body.fillna(_str_orig_data)
+
+    # Get the column alignments and also the alignment class names
+    col_alignment = data._boxhead._get_visible_alignments()
+
+    # Replace None values in `col_alignment` with "left"
+    col_alignment = ["left" if x == "None" else x for x in col_alignment]
+
+    # Get the visible column var names
+    column_names = data._boxhead._get_visible_columns()
+
+    body_rows: List[str] = []
+
+    for i in range(n_rows(tbl_data)):
+        body_cells: List[str] = []
+
+        for name in column_names:
+            cell_content: Any = _get_cell(tbl_data, i, name)
+            cell_str: str = str(cell_content)
+
+            # Get alignment for the current column from the `col_alignment` list
+            # by using the `name` value to obtain the index of the alignment value
+            cell_alignment = col_alignment[column_names.index(name)]
+
+            body_cells.append(f'  <td class="gt_row gt_{cell_alignment}">' + cell_str + "</td>")
+
+        body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
+
+    all_body_rows = "\n".join(body_rows)
+
+    return f'<tbody class="gt_table_body">\n{all_body_rows}\n</tbody>'
+
+
 def rtl_modern_unicode_charset() -> str:
     """
     Returns a string containing a regular expression that matches all characters
