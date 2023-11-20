@@ -80,10 +80,6 @@ class GT(
     """
     Create a gt Table object.
 
-    Methods
-    -------
-        render: Renders and returns the HTML table.
-
     Examples
     --------
         >>> from gt import *
