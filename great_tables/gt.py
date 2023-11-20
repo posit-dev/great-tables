@@ -335,35 +335,6 @@ def _create_heading_component(data: GT) -> StringBuilder:
     return StringBuilder('<thead class="gt_header">', result, "</thead>")
 
 
-def _create_body_component(data: GT):
-    import pandas as pd
-
-    # for now, just coerce everything in the original data to a string
-    # so we can fill in the body data with it
-    _str_orig_data = data._tbl_data.applymap(lambda x: str(x) if not pd.isna(x) else x)
-
-    tbl_data = data._body.body.fillna(_str_orig_data)
-
-    column_names = data._boxhead._get_visible_columns()
-
-    body_rows: List[str] = []
-
-    for i in range(n_rows(tbl_data)):
-        body_cells: List[str] = []
-
-        for name in column_names:
-            cell_content: Any = _get_cell(tbl_data, i, name)
-            cell_str: str = str(cell_content)
-
-            body_cells.append('  <td class="gt_row">' + cell_str + "</td>")
-
-        body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
-
-    all_body_rows = "\n".join(body_rows)
-
-    return f'<tbody class="gt_table_body">\n{all_body_rows}\n</tbody>'
-
-
 def _get_stub_layout(data: GT) -> List[str]:
     # Determine which stub components are potentially present as columns
     stub_rownames_is_column = _stub_rownames_has_column(data=data)
