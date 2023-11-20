@@ -77,14 +77,11 @@ def fmt_number(
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
-    # accounting: bool = False,
     scale_by: float = 1,
-    # suffixing: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign: bool = False,
-    # system: str = "intl",
     locale: Union[str, None] = None,
 ) -> GTData:
     """
