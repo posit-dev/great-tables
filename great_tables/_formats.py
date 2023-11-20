@@ -565,26 +565,6 @@ def fmt_scientific(
     return self
 
 
-def fmt_engineering(
-    self: GTData,
-    columns: Union[str, List[str], None] = None,
-    rows: Union[int, List[int], None] = None,
-    decimals: int = 2,
-    drop_trailing_zeros: bool = False,
-    drop_trailing_dec_mark: bool = True,
-    scale_by: float = 1,
-    exp_style: str = "x10n",
-    pattern: str = "{x}",
-    sep_mark: str = ",",
-    dec_mark: str = ".",
-    force_sign_m: bool = False,
-    force_sign_n: bool = False,
-    locale: Union[str, None] = None,
-) -> GTData:
-    # TODO: Not implemented yet
-    return self
-
-
 def fmt_percent(
     self: GTData,
     columns: Union[str, List[str], None] = None,
