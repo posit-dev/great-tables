@@ -8,7 +8,7 @@ from ._utils import _assert_list_is_subset
 
 
 class BoxheadAPI:
-    def cols_label(self, **kwargs: str):
+    def cols_label(self, **kwargs: str) -> GTData:
         """
         Relabel one or more columns.
 
