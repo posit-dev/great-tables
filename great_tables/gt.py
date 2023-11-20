@@ -196,7 +196,7 @@ class GT(
     def _render_as_html(self) -> str:
         heading_component = _create_heading_component(self)
         column_labels_component = create_columns_component_h(self)
-        body_component = _create_body_component(self)
+        body_component = create_body_component_h(self)
         source_notes_component = _create_source_notes_component(self)
         footnotes_component = _create_footnotes_component(self)
 
