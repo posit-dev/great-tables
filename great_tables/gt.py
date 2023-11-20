@@ -24,7 +24,6 @@ from great_tables._formats import (
     fmt_integer,
     fmt_scientific,
     fmt_currency,
-    fmt_engineering,
     fmt_bytes,
     fmt_roman,
     fmt_markdown,
@@ -114,7 +113,6 @@ class GT(
     fmt_percent = fmt_percent
     fmt_scientific = fmt_scientific
     fmt_currency = fmt_currency
-    fmt_engineering = fmt_engineering
     fmt_bytes = fmt_bytes
     fmt_roman = fmt_roman
     fmt_markdown = fmt_markdown
