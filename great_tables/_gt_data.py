@@ -6,6 +6,7 @@ import re
 from typing import overload, TypeVar, Optional
 from typing_extensions import Self, TypeAlias
 from dataclasses import dataclass, field, replace
+from ._utils import _str_detect
 
 # Note that we replace with with collections.abc after python 3.8
 from typing import Sequence
@@ -264,24 +265,24 @@ class Boxhead(_Sequence[ColInfo]):
         align = []
 
         for col_class in col_classes:
-            # Use a switch statement to translate the column classes to
-            # alignment values 'left', 'right', or 'center'
+            # Ensure that `col_class` is lowercase
+            col_class = str(col_class).lower()
+
+            # Translate the column classes to an alignment value of 'left', 'right', or 'center'
             if col_class == "character-numeric":
                 align.append("right")
             elif col_class == "object":
                 align.append("left")
-            elif col_class == "Date":
+            elif _str_detect(col_class, "int") or _str_detect(col_class, "float"):
                 align.append("right")
-            elif col_class == "boolean":
+            elif _str_detect(col_class, "date"):
+                align.append("right")
+            elif _str_detect(col_class, "bool"):
                 align.append("center")
             elif col_class == "factor":
                 align.append("center")
             elif col_class == "list":
                 align.append("center")
-            elif col_class == "float64":
-                align.append("right")
-            elif col_class == "integer":
-                align.append("right")
             else:
                 align.append("center")
 
