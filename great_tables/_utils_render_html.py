@@ -561,7 +561,7 @@ def _stub_group_names_has_column(data: GTData) -> bool:
 
 
 def _row_groups_get(data: GTData) -> List[str]:
-    return data._row_groups._d
+    return data._row_groups
 
 
 def _summary_exists(data: GTData):
