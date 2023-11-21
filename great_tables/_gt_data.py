@@ -27,6 +27,7 @@ class GTData:
     _boxhead: Boxhead
     _stub: Stub
     _row_groups: RowGroups
+    _group_rows: GroupRows
     _spanners: Spanners
     _heading: Heading | None
     _stubhead: Stubhead
@@ -60,6 +61,7 @@ class GTData:
         )
 
         row_groups = stub._to_row_groups()
+        group_rows = GroupRows(data, group_key=groupname_col).reorder(row_groups)
 
         return cls(
             _tbl_data=data,
@@ -67,6 +69,7 @@ class GTData:
             _boxhead=boxhead,  # uses get_tbl_data()
             _stub=stub,  # uses get_tbl_data
             _row_groups=row_groups,
+            _group_rows=group_rows,
             _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=None,
@@ -480,21 +483,64 @@ class Stub(_Sequence[RowInfo]):
         # get unique group_ids, using dict as an ordered set
         group_ids = list({row.group_id: True for row in self if row.group_id is not None})
 
-        return RowGroups(group_ids)
+        return group_ids
 
 
 # Row groups ----
 __RowGroups = None
 
+RowGroups: TypeAlias = List[str]
 
-class RowGroups(_Sequence[str]):
-    _d: list[str]
+# Group rows ----
+__GroupRows = None
 
-    def __init__(self, group_ids: Optional[list[str]] = None):
-        if group_ids is None:
+
+@dataclass
+class GroupRowInfo:
+    group_id: str
+    group_label: str | None = None
+    indices: list[int] = field(default_factory=lambda: [])
+    # row_start: int | None = None
+    # row_end: int | None = None
+    has_summary_rows: bool = False
+    summary_row_side: str | None = None
+
+
+class MISSING_GROUP:
+    """Represent a category of all missing group levels in data."""
+
+
+class GroupRows(_Sequence[GroupRowInfo]):
+    _d: list[GroupRowInfo]
+
+    def __init__(self, data: list[GroupRowInfo] | DataFrameLike, group_key: Optional[str] = None):
+        if isinstance(data, list):
+            self._d = data
+
+        elif group_key is None:
             self._d = []
+
+        # otherwise, instantiate from a table of data
         else:
-            self._d = group_ids
+            from ._tbl_data import group_splits
+
+            self._d = []
+            for grp_key, ind in group_splits(data, group_key=group_key).items():
+                self._d.append(GroupRowInfo(grp_key, indices=ind))
+
+    def reorder(self, group_ids: list[str | MISSING_GROUP]) -> Self:
+        # TODO: validate all group_ids are in data
+        non_missing = [g for g in group_ids if not isinstance(g, MISSING_GROUP)]
+        crnt_order = {grp.group_id: ii for ii, grp in enumerate(self)}
+
+        set_gids = set(group_ids)
+        missing_groups = [grp.group_id for grp in self if grp.group_id not in set_gids]
+        reordered = [
+            *[self[crnt_order[g]] for g in non_missing],
+            *[self[crnt_order[g]] for g in missing_groups],
+        ]
+
+        return self.__class__(reordered)
 
 
 # Spanners ----
