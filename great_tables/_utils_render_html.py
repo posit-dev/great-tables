@@ -113,10 +113,13 @@ def create_columns_component_h(data: GTData) -> str:
             #    column_style = styles_column[0].html_style
             column_style = None
 
+            # Ensure that alignment is a scalar value
+            alignment = alignment[0]
+
             table_col_headings.append(
                 tags.th(
                     HTML(label),
-                    class_=f"gt_col_heading gt_columns_bottom_border gt_{str(alignment)}",
+                    class_=f"gt_col_heading gt_columns_bottom_border gt_{alignment}",
                     rowspan=1,
                     colspan=1,
                     style=column_style,
