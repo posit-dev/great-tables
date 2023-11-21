@@ -52,21 +52,15 @@ gt_ex.fmt_number(columns="num", decimals=1, scale_by=1 / 1000, pattern="{x}K")
 )
 ```
 
-### Row and group names
-
-::: {.callout-warning}
-This is not implemented yet!
-:::
+### Row names in the stub
 
 ```{python}
-gt_ex = GT(exibble.head(6))
+gt_ex = GT(exibble.head(6), rowname_col="row")
 
 gt_ex
 ```
 
 ### Column spanners
-
-
 
 ```{python}
 (
