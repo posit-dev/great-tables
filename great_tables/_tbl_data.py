@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Union, Callable, Tuple, TYPE_CHECKING
+from typing import Any, Dict, List, Union, Callable, Tuple, TYPE_CHECKING
 from ._databackend import AbstractBackend
 from functools import singledispatch
 
@@ -185,6 +185,18 @@ def _(data: PdDataFrame, rows: List[int], columns: List[str]) -> PdDataFrame:
 @reorder.register
 def _(data: PlDataFrame, rows: List[int], columns: List[str]) -> PlDataFrame:
     return data[rows, columns]
+
+
+# group_splits ----
+@singledispatch
+def group_splits(data: DataFrameLike, group_key: str) -> Dict[Any, List[int]]:
+    raise NotImplementedError(f"Unsupported data type: {type(data)}")
+
+
+@group_splits.register
+def _(data: PdDataFrame, group_key: str) -> Dict[Any, List[int]]:
+    g_df = data.groupby(group_key)
+    return {k: list(v) for k, v in g_df.grouper.indices.items()}
 
 
 # eval_select ----
