@@ -15,7 +15,7 @@ def gt_tbl():
 
 
 def test_gt_replace(gt_tbl: GT):
-    row_groups = RowGroups(["x"])
+    row_groups = ["x"]
     new_gt_tbl = gt_tbl._replace(_row_groups=row_groups)
 
     assert new_gt_tbl._row_groups is row_groups
@@ -28,10 +28,10 @@ def test_gt_object_prerender(gt_tbl: GT):
     # GT object and that they have the expected names
     assert type(gt_tbl._boxhead).__name__ == "Boxhead"
     assert type(gt_tbl._stub).__name__ == "Stub"
-    assert type(gt_tbl._row_groups).__name__ == "RowGroups"
     assert type(gt_tbl._spanners).__name__ == "Spanners"
     assert type(gt_tbl._heading).__name__ == "Heading"
     assert isinstance(gt_tbl._source_notes, list)
+    assert isinstance(gt_tbl._row_groups, list)
     assert type(gt_tbl._footnotes).__name__ == "Footnotes"
     assert type(gt_tbl._styles).__name__ == "Styles"
     assert type(gt_tbl._locale).__name__ == "Locale"
