@@ -1093,7 +1093,6 @@ def fmt_bytes(
 
         # Determine properties of the value
         is_negative = _has_negative_value(value=x)
-        is_positive = _has_positive_value(value=x)
 
         # Determine the power index for the value
         if x == 0:
