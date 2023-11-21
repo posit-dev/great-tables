@@ -113,9 +113,6 @@ def create_columns_component_h(data: GTData) -> str:
             #    column_style = styles_column[0].html_style
             column_style = None
 
-            # Ensure that alignment is a scalar value
-            alignment = alignment[0]
-
             table_col_headings.append(
                 tags.th(
                     HTML(label),
