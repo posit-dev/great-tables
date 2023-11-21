@@ -5,7 +5,7 @@ from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
 from ._text import _md_html
-import re
+from ._utils import _str_detect, _str_replace
 import pandas as pd
 import math
 
@@ -1667,15 +1667,17 @@ def _context_minus_mark() -> str:
 
 
 def _replace_minus(string: str, minus_mark: str) -> str:
+    """
+    Replaces all occurrences of the minus sign '-' in the given string with the specified minus mark.
+
+    Args:
+        string (str): The input string.
+        minus_mark (str): The mark to replace the minus sign with.
+
+    Returns:
+        str: The modified string with the minus sign replaced.
+    """
     return _str_replace(string, "-", minus_mark)
-
-
-def _str_replace(string: str, pattern: str, replace: str) -> str:
-    return string.replace(pattern, replace)
-
-
-def _str_detect(string: str, pattern: str) -> bool:
-    return bool(re.match(pattern, string))
 
 
 def _filter_pd_df_to_row(pd_df: pd.DataFrame, column: str, filter_expr: str) -> pd.DataFrame:
