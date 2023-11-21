@@ -363,7 +363,10 @@ class Boxhead(_Sequence[ColInfo]):
         if len(alignment) == 0:
             raise ValueError(f"The `var` used ({var}) doesn't exist in the boxhead.")
 
-        return str(alignment)
+        # Convert the single alignment value in the list to a string
+        alignment = str(alignment[0])
+
+        return alignment
 
     # Get the number of columns for the visible (not hidden) data; this
     # excludes the number of columns required for the table stub
