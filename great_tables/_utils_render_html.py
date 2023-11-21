@@ -34,7 +34,7 @@ def create_columns_component_h(data: GTData) -> str:
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
 
     # Get the column alignments and also the alignment class names
-    col_alignment = data._boxhead._get_visible_alignments()
+    col_alignment = data._boxhead._get_default_alignments()
 
     # Replace None values in `col_alignment` with "left"
     col_alignment = ["left" if x == "None" else x for x in col_alignment]
@@ -53,8 +53,10 @@ def create_columns_component_h(data: GTData) -> str:
     #         col_alignment[i] = "right"
 
     # Get the column headings
-    headings_vars = boxhead._get_visible_columns()
-    headings_labels = boxhead._get_visible_column_labels()
+    headings_vars = boxhead._get_default_columns()
+    headings_labels = boxhead._get_default_column_labels()
+
+    print(headings_vars)
 
     # TODO: Skipping styles for now
     # Get the style attrs for the stubhead label
@@ -386,27 +388,27 @@ def create_body_component_h(data: GTData) -> str:
 
     tbl_data = data._body.body.fillna(_str_orig_data)
 
-    # Get the column alignments and also the alignment class names
-    col_alignment = data._boxhead._get_visible_alignments()
+    # Get the default column alignments
+    col_alignment = data._boxhead._get_default_alignments()
 
-    # Replace None values in `col_alignment` with "left"
+    # Replace any 'None' values in `col_alignment` with "left"
     col_alignment = ["left" if x == "None" else x for x in col_alignment]
 
-    # Get the visible column var names
-    column_names = data._boxhead._get_visible_columns()
+    # Get the default column vars
+    column_vars = data._boxhead._get_default_columns()
 
     body_rows: List[str] = []
 
     for i in range(n_rows(tbl_data)):
         body_cells: List[str] = []
 
-        for name in column_names:
+        for name in column_vars:
             cell_content: Any = _get_cell(tbl_data, i, name)
             cell_str: str = str(cell_content)
 
             # Get alignment for the current column from the `col_alignment` list
             # by using the `name` value to obtain the index of the alignment value
-            cell_alignment = col_alignment[column_names.index(name)]
+            cell_alignment = col_alignment[column_vars.index(name)]
 
             body_cells.append(f'  <td class="gt_row gt_{cell_alignment}">' + cell_str + "</td>")
 

@@ -331,22 +331,20 @@ class Boxhead(_Sequence[ColInfo]):
         return [x.column_width for x in self._d]
 
     # Get a list of visible columns
-    def _get_visible_columns(self) -> List[str]:
-        visible_columns = [x.var for x in self._d if x.visible is True]
-        return visible_columns
+    def _get_default_columns(self) -> List[str]:
+        default_columns = [x.var for x in self._d if x.type == ColInfoTypeEnum.default]
+        return default_columns
 
     # Get a list of visible column labels
-    def _get_visible_column_labels(self) -> List[str | None]:
-        visible_column_labels = [x.column_label for x in self._d if x.visible is True]
-        return visible_column_labels
+    def _get_default_column_labels(self) -> List[str | None]:
+        default_column_labels = [
+            x.column_label for x in self._d if x.type == ColInfoTypeEnum.default
+        ]
+        return default_column_labels
 
-    def _get_visible_alignments(self) -> List[str]:
-        # Get the column alignments and also the alignment class names
-        boxh = self._d
-
-        # Filter boxh to only include visible columns
-        alignments = [str(x.column_align) for x in boxh if x.visible]
-
+    def _get_default_alignments(self) -> List[str]:
+        # Extract alignment strings to only include 'default'-type columns
+        alignments = [str(x.column_align) for x in self._d if x.type == ColInfoTypeEnum.default]
         return alignments
 
     # Get the alignment for a specific var value
