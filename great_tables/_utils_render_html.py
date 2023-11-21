@@ -458,35 +458,6 @@ def rtl_modern_unicode_charset() -> str:
     return rtl_modern_unicode_charset
 
 
-def _collapse_list_elements(lst, separator=""):
-    """
-    Concatenates all elements of a list into a single string, separated by a given separator.
-
-    Args:
-        lst (list): The list to be collapsed.
-        separator (str, optional): The separator to be used. Defaults to "".
-
-    Returns:
-        str: The collapsed string.
-    """
-    return separator.join(lst)
-
-
-def _insert_into_list(lst: List[Any], el: Any) -> List[Any]:
-    """
-    Inserts an element into the beginning of a list and returns the updated list.
-
-    Args:
-        lst (List[Any]): The list to insert the element into.
-        el (Any): The element to insert.
-
-    Returns:
-        List[Any]: The updated list with the element inserted at the beginning.
-    """
-    lst.insert(0, el)
-    return lst
-
-
 def _get_spanners_matrix_height(
     data: GTData, include_hidden: bool = False, omit_columns_row: bool = False
 ) -> int:
