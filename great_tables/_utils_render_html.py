@@ -243,7 +243,7 @@ def create_columns_component_h(data: GTData) -> str:
                                 HTML(spanner_ids_level_1_index[ii]),
                                 class_="gt_column_spanner",
                             ),
-                            class_="gt_col_heading gt_columns_bottom_border gt_column_spanner_outer",
+                            class_="gt_center gt_columns_top_border gt_column_spanner_outer",
                             rowspan=1,
                             colspan=colspans[ii],
                             style=spanner_style,
