@@ -55,7 +55,9 @@ class GTData:
         locale: str | None = None,
     ):
         stub = Stub(data, rowname_col=rowname_col, groupname_col=groupname_col)
-        boxhead = Boxhead(data, auto_align=auto_align)
+        boxhead = Boxhead(
+            data, auto_align=auto_align, rowname_col=rowname_col, groupname_col=groupname_col
+        )
 
         row_groups = stub._to_row_groups()
 
@@ -164,10 +166,10 @@ from ._tbl_data import TblData, get_column_names
 
 
 class ColumnAlignment(Enum):
-    Left = auto()
-    Center = auto()
-    Right = auto()
-    Justify = auto()
+    left = auto()
+    center = auto()
+    right = auto()
+    justify = auto()
 
 
 class ColInfoTypeEnum(Enum):
@@ -208,7 +210,13 @@ class ColInfo:
 class Boxhead(_Sequence[ColInfo]):
     _d: List[ColInfo]
 
-    def __init__(self, data: TblData | list[ColInfo], auto_align: bool = True):
+    def __init__(
+        self,
+        data: TblData | list[ColInfo],
+        auto_align: bool = True,
+        rowname_col: Optional[str] = None,
+        groupname_col: Optional[str] = None,
+    ):
         if isinstance(data, list):
             self._d = data
         else:
@@ -218,6 +226,32 @@ class Boxhead(_Sequence[ColInfo]):
             self._d = [ColInfo(col) for col in column_names]
         if not isinstance(data, list) and auto_align:
             self.align_from_data(data=data)
+
+        if rowname_col is not None:
+            self.set_rowname_col(rowname_col)
+
+        if groupname_col is not None:
+            self.set_groupname_col(groupname_col)
+
+    def set_rowname_col(self, rowname_col: str):
+        # TODO: validate that rowname_col is in the boxhead
+        for ii, col in enumerate(self._d):
+            if col.var == rowname_col:
+                new_col = replace(col, type=ColInfoTypeEnum.stub)
+                self._d[ii] = new_col
+            elif col.type == ColInfoTypeEnum.stub:
+                new_col = replace(col, type=ColInfoTypeEnum.default)
+                self._d[ii] = new_col
+
+    def set_groupname_col(self, groupname_col: str):
+        # TODO: validate that groupname_col is in the boxhead
+        for ii, col in enumerate(self._d):
+            if col.var == groupname_col:
+                new_col = replace(col, type=ColInfoTypeEnum.row_group)
+                self._d[ii] = new_col
+            elif col.type == ColInfoTypeEnum.row_group:
+                new_col = replace(col, type=ColInfoTypeEnum.default)
+                self._d[ii] = new_col
 
     def align_from_data(self, data: TblData):
         """Updates align attribute in entries based on data types."""
@@ -322,7 +356,7 @@ class Boxhead(_Sequence[ColInfo]):
     def _set_column_align(self, column: str, align: str):
         for x in self._d:
             if x.var == column:
-                x.column_align = ColumnAlignment[align.capitalize()]
+                x.column_align = ColumnAlignment[align]
 
         return self
 
@@ -331,9 +365,15 @@ class Boxhead(_Sequence[ColInfo]):
         return [x.column_width for x in self._d]
 
     # Get a list of visible columns
-    def _get_default_columns(self) -> List[str]:
-        default_columns = [x.var for x in self._d if x.type == ColInfoTypeEnum.default]
+    def _get_default_columns(self) -> List[ColInfo]:
+        default_columns = [x for x in self._d if x.type == ColInfoTypeEnum.default]
         return default_columns
+
+    def _get_stub_column(self) -> Optional[ColInfo]:
+        stub_column = [x for x in self._d if x.type == ColInfoTypeEnum.stub]
+        if len(stub_column) == 0:
+            return None
+        return stub_column[0]
 
     # Get a list of visible column labels
     def _get_default_column_labels(self) -> List[str | None]:

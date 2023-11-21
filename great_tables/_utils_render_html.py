@@ -34,10 +34,10 @@ def create_columns_component_h(data: GTData) -> str:
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
 
     # Get the column alignments and also the alignment class names
-    col_alignment = data._boxhead._get_default_alignments()
+    # col_alignment = data._boxhead._get_default_alignments()
 
     # Replace None values in `col_alignment` with "left"
-    col_alignment = ["left" if x == "None" else x for x in col_alignment]
+    # col_alignment = ["left" if x == "None" else x for x in col_alignment]
 
     # TODO: Modify alignments for RTL support, skip this for now
     # Detect any RTL script characters within the visible columns;
@@ -53,10 +53,7 @@ def create_columns_component_h(data: GTData) -> str:
     #         col_alignment[i] = "right"
 
     # Get the column headings
-    headings_vars = boxhead._get_default_columns()
-    headings_labels = boxhead._get_default_column_labels()
-
-    print(headings_vars)
+    headings_info = boxhead._get_default_columns()
 
     # TODO: Skipping styles for now
     # Get the style attrs for the stubhead label
@@ -104,9 +101,7 @@ def create_columns_component_h(data: GTData) -> str:
 
         #
         # Create the headings in the case where there are no spanners at all -------------------------
-        col_entries = [*zip(headings_vars, headings_labels, col_alignment)]
-
-        for var_, label, alignment in col_entries:
+        for info in headings_info:
             # NOTE: Ignore styles for now
             # styles_column = subset(column_style_attrs, colnum == i)
             #
@@ -117,13 +112,13 @@ def create_columns_component_h(data: GTData) -> str:
 
             table_col_headings.append(
                 tags.th(
-                    HTML(label),
-                    class_=f"gt_col_heading gt_columns_bottom_border gt_{alignment}",
+                    HTML(info.column_label),
+                    class_=f"gt_col_heading gt_columns_bottom_border gt_{info.defaulted_align}",
                     rowspan=1,
                     colspan=1,
                     style=column_style,
                     scope="col",
-                    id=str(label),
+                    id=str(info.column_label),
                 )
             )
 
@@ -189,7 +184,7 @@ def create_columns_component_h(data: GTData) -> str:
 
         colspans = list(chain(*group_spans))
 
-        for ii, (span_key, h_var) in enumerate(zip(spanner_col_names, headings_vars)):
+        for ii, (span_key, h_info) in enumerate(zip(spanner_col_names, headings_info)):
             if spanner_ids[level_1_index][span_key] is None:
                 # NOTE: Ignore styles for now
                 # styles_heading = filter(
@@ -202,17 +197,17 @@ def create_columns_component_h(data: GTData) -> str:
 
                 # Get the alignment for the current column from the `col_alignment` list
                 # by using the `h_var` value to obtain the index of the alignment value
-                first_set_alignment = col_alignment[headings_vars.index(h_var)]
+                first_set_alignment = h_info.defaulted_align
 
                 level_1_spanners.append(
                     tags.th(
-                        HTML(h_var),
+                        HTML(h_info.column_label),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{str(first_set_alignment)}",
                         rowspan=2,
                         colspan=1,
                         style=heading_style,
                         scope="col",
-                        id=h_var,
+                        id=h_info.column_label,
                     )
                 )
 
@@ -389,26 +384,32 @@ def create_body_component_h(data: GTData) -> str:
     tbl_data = data._body.body.fillna(_str_orig_data)
 
     # Get the default column alignments
-    col_alignment = data._boxhead._get_default_alignments()
+    # col_alignment = data._boxhead._get_default_alignments()
 
     # Replace any 'None' values in `col_alignment` with "left"
-    col_alignment = ["left" if x == "None" else x for x in col_alignment]
+    # col_alignment = ["left" if x == "None" else x for x in col_alignment]
 
     # Get the default column vars
     column_vars = data._boxhead._get_default_columns()
+
+    stub_var = data._boxhead._get_stub_column()
+
+    # If there is a stub, then prepend that to the `column_vars` list
+    if stub_var is not None:
+        column_vars = [stub_var] + column_vars
 
     body_rows: List[str] = []
 
     for i in range(n_rows(tbl_data)):
         body_cells: List[str] = []
 
-        for name in column_vars:
-            cell_content: Any = _get_cell(tbl_data, i, name)
+        for colinfo in column_vars:
+            cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
             cell_str: str = str(cell_content)
 
             # Get alignment for the current column from the `col_alignment` list
             # by using the `name` value to obtain the index of the alignment value
-            cell_alignment = col_alignment[column_vars.index(name)]
+            cell_alignment = colinfo.defaulted_align
 
             body_cells.append(f'  <td class="gt_row gt_{cell_alignment}">' + cell_str + "</td>")
 
