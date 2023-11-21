@@ -370,7 +370,7 @@ class Boxhead(_Sequence[ColInfo]):
     # Get the number of columns for the visible (not hidden) data; this
     # excludes the number of columns required for the table stub
     def _get_number_of_visible_data_columns(self) -> int:
-        return len(self._get_visible_columns())
+        return len(self._get_default_columns())
 
     # Obtain the number of visible columns in the built table; this should
     # account for the size of the stub in the final, built table
