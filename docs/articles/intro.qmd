@@ -47,7 +47,7 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 
 # Create a gt table based on a subset of the `sp500` table data
 (
-    gt.GT(data=sp500_mini)
+    GT(data=sp500_mini)
     .tab_header(title="S&P 500", subtitle=f"{start_date} to {end_date}")
     .fmt_currency(columns=["open", "high", "low", "close"])
     .fmt_date(columns="date", date_style="wd_m_day_year")
