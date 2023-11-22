@@ -25,6 +25,7 @@ from ._formats_vals import (
     vals_fmt_currency,
     vals_fmt_roman,
     vals_fmt_bytes,
+    vals_fmt_date,
     vals_fmt_markdown,
 )
 
