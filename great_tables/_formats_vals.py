@@ -58,6 +58,8 @@ def vals_fmt_number(
 
     Parameters
     ----------
+    vals : Union[Any, List[Any]]
+        A list of values to be formatted.
     decimals : int
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -162,13 +164,8 @@ def vals_fmt_integer(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
-        The columns to target. Can either be a single column name or a series of column names
-        provided in a list.
-    rows : Union[int, List[int], None]
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+    vals : Union[Any, List[Any]]
+        A list of values to be formatted.
     use_seps : bool
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
