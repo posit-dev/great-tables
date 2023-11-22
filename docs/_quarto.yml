@@ -85,7 +85,6 @@ quartodoc:
         - GT.vals_fmt_number
         - GT.vals_fmt_integer
         - GT.vals_fmt_scientific
-        - GT.vals_fmt_engineering
         - GT.vals_fmt_percent
         - GT.vals_fmt_currency
         - GT.vals_fmt_roman
