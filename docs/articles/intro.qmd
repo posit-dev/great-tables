@@ -51,7 +51,7 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
     .tab_header(title="S&P 500", subtitle=f"{start_date} to {end_date}")
     .fmt_currency(columns=["open", "high", "low", "close"])
     .fmt_date(columns="date", date_style="wd_m_day_year")
-    .fmt_number(columns="volume")
+    .fmt_integer(columns="volume")
 )
 ```
 
