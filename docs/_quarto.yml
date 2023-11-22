@@ -59,6 +59,7 @@ quartodoc:
         - GT.fmt_currency
         - GT.fmt_bytes
         - GT.fmt_roman
+        - GT.fmt_date
         - GT.fmt_markdown
         - GT.fmt
     - title: Modifying columns
