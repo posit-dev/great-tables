@@ -731,6 +731,84 @@ def vals_fmt_bytes(
     return vals_fmt
 
 
+def vals_fmt_date(
+    vals: Union[Any, List[Any]],
+    date_style: str = "iso",
+    pattern: str = "{x}",
+    locale: Union[str, None] = None,
+) -> List[str]:
+    """
+    Format values as dates.
+
+    Format input values to time values using one of 41 preset date styles. Input can be in the form
+    of `date` type or as a ISO-8601 string (in the form of `YYYY-MM-DD HH:MM:SS` or `YYYY-MM-DD`).
+
+    Parameters
+    ----------
+    vals : Union[Any, List[Any]]
+        A list of values to be formatted.
+    date_style: str
+        The date style to use. By default this is the short name `"iso"` which corresponds to
+        ISO 8601 date formatting. There are 41 date styles in total and their short names can be
+        viewed using `info_date_style()`.
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    locale : str
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
+    Formatting with the `date_style` argument
+    -----------------------------------------
+
+    We need to supply a preset date style to the `date_style` argument. The date styles are numerous
+    and can handle localization to any supported locale. The following table provides a listing of
+    all date styles and their output values (corresponding to an input date of `2000-02-29`).
+
+    |    | Date Style            | Output                  |
+    |----|-----------------------|-------------------------|
+    | 1  | `"iso"`               | `"2000-02-29"`          |
+    | 2  | `"wday_month_day_year"`| `"Tuesday, February 29, 2000"`  |
+    | 3  | `"wd_m_day_year"`     | `"Tue, Feb 29, 2000"`   |
+    | 4  | `"wday_day_month_year"`| `"Tuesday 29 February 2000"`    |
+    | 5  | `"month_day_year"`    | `"February 29, 2000"`   |
+    | 6  | `"m_day_year"`        | `"Feb 29, 2000"`        |
+    | 7  | `"day_m_year"`        | `"29 Feb 2000"`         |
+    | 8  | `"day_month_year"`    | `"29 February 2000"`    |
+    | 9  | `"day_month"`         | `"29 February"`         |
+    | 10 | `"day_m"`             | `"29 Feb"`              |
+    | 11 | `"year"`              | `"2000"`                |
+    | 12 | `"month"`             | `"February"`            |
+    | 13 | `"day"`               | `"29"`                  |
+    | 14 | `"year.mn.day"`       | `"2000/02/29"`          |
+    | 15 | `"y.mn.day"`          | `"00/02/29"`            |
+    | 16 | `"year_week"`         | `"2000-W09"`            |
+    | 17 | `"year_quarter"`      | `"2000-Q1"`             |
+
+    We can use the `info_date_style()` function within the console to view a similar table of date
+    styles with example output.
+
+    Returns
+    -------
+    List[str]
+        A list of formatted values is returned.
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=vals)
+
+    gt_obj_fmt = gt_obj.fmt_date(
+        columns="x",
+        date_style=date_style,
+        pattern=pattern,
+        locale=locale,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
 def vals_fmt_markdown(
     vals: Union[Any, List[Any]],
 ) -> List[str]:
