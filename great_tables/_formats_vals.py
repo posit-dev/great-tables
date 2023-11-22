@@ -108,8 +108,8 @@ def vals_fmt_number(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    List[str]
+        A list of formatted values is returned.
     """
 
     gt_obj: GTData = _make_one_col_table(vals=vals)
@@ -125,6 +125,89 @@ def vals_fmt_number(
         pattern=pattern,
         sep_mark=sep_mark,
         dec_mark=dec_mark,
+        force_sign=force_sign,
+        locale=locale,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+def vals_fmt_integer(
+    vals: Union[Any, List[Any]],
+    use_seps: bool = True,
+    scale_by: float = 1,
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    force_sign: bool = False,
+    locale: Union[str, None] = None,
+) -> List[str]:
+    """
+    Format values as integers.
+
+    With numeric values in a list, we can perform number-based formatting so that the input values
+    are always rendered as integer values. The following major options are available:
+
+    We can have fine control over integer formatting with the following options:
+
+    - digit grouping separators: options to enable/disable digit separators and provide a choice of
+    separator symbol
+    - scaling: we can choose to scale targeted values by a multiplier value
+    - large-number suffixing: larger figures (thousands, millions, etc.) can be autoscaled and
+    decorated with the appropriate suffixes
+    - pattern: option to use a text pattern for decoration of the formatted values
+    - locale-based formatting: providing a locale ID will result in number formatting specific to
+    the chosen locale
+
+    Parameters
+    ----------
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows : Union[int, List[int], None]
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+    use_seps : bool
+        The `use_seps` option allows for the use of digit group separators. The type of digit group
+        separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
+        setting is `True` by default.
+    scale_by : float
+        All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
+        Since the `default` value is `1`, no values will be changed unless a different multiplier
+        value is supplied.
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    sep_mark : str
+        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
+        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
+        ignored if a `locale` is supplied (i.e., is not `None`).
+    force_sign : bool
+        Should the positive sign be shown for positive values (effectively showing a sign for all
+        values except zero)? If so, use `True` for this option. The default is `False`, where only
+        negative numbers will display a minus sign. This option is disregarded when using accounting
+        notation with `accounting = True`.
+    locale : str
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
+    Returns
+    -------
+    List[str]
+        A list of formatted values is returned.
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=vals)
+
+    gt_obj_fmt = gt_obj.fmt_integer(
+        columns="x",
+        use_seps=use_seps,
+        scale_by=scale_by,
+        pattern=pattern,
+        sep_mark=sep_mark,
         force_sign=force_sign,
         locale=locale,
     )
