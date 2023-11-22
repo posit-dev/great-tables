@@ -1,6 +1,6 @@
 from __future__ import annotations
 from decimal import Decimal
-from typing import Any, Callable, TypeVar, Union, List, cast, Optional
+from typing import Any, Callable, TypeVar, Union, List, cast, Optional, Dict
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
@@ -8,6 +8,8 @@ from ._text import _md_html
 from ._utils import _str_detect, _str_replace
 import pandas as pd
 import math
+from datetime import datetime, date, time
+from babel.dates import format_date, format_datetime, format_time
 
 T = TypeVar("T")
 
@@ -1233,6 +1235,222 @@ def fmt_bytes(
 
     return self
 
+
+def fmt_date(
+    self: GTData,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    date_style: str = "iso",
+    pattern: str = "{x}",
+    locale: Union[str, None] = None,
+) -> GTData:
+    """
+    Format values as dates.
+
+    Format input values to time values using one of 41 preset date styles. Input can be in the form
+    of `date` type or as a ISO-8601 string (in the form of `YYYY-MM-DD HH:MM:SS` or `YYYY-MM-DD`).
+
+    Parameters
+    ----------
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows : Union[int, List[int], None]
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+    date_style: str
+        The date style to use. By default this is the short name `"iso"` which corresponds to
+        ISO 8601 date formatting. There are 41 date styles in total and their short names can be
+        viewed using `info_date_style()`.
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    locale : str
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
+    Formatting with the `date_style` argument
+    -----------------------------------------
+
+    We need to supply a preset date style to the `date_style` argument. The date
+    styles are numerous and can handle localization to any supported locale. A
+    large segment of date styles are termed flexible date formats and this means
+    that their output will adapt to any `locale` provided. That feature makes the
+    flexible date formats a better option for locales other than `"en"` (the
+    default locale).
+
+    The following table provides a listing of all date styles and their output
+    values (corresponding to an input date of `2000-02-29`).
+
+    |    | Date Style            | Output                  |
+    |----|-----------------------|-------------------------|
+    | 1  | `"iso"`               | `"2000-02-29"`          |
+    | 2  | `"wday_month_day_year"`| `"Tuesday, February 29, 2000"`  |
+    | 3  | `"wd_m_day_year"`     | `"Tue, Feb 29, 2000"`   |
+    | 4  | `"wday_day_month_year"`| `"Tuesday 29 February 2000"`    |
+    | 5  | `"month_day_year"`    | `"February 29, 2000"`   |
+    | 6  | `"m_day_year"`        | `"Feb 29, 2000"`        |
+    | 7  | `"day_m_year"`        | `"29 Feb 2000"`         |
+    | 8  | `"day_month_year"`    | `"29 February 2000"`    |
+    | 9  | `"day_month"`         | `"29 February"`         |
+    | 10 | `"day_m"`             | `"29 Feb"`              |
+    | 11 | `"year"`              | `"2000"`                |
+    | 12 | `"month"`             | `"February"`            |
+    | 13 | `"day"`               | `"29"`                  |
+    | 14 | `"year.mn.day"`       | `"2000/02/29"`          |
+    | 15 | `"y.mn.day"`          | `"00/02/29"`            |
+    | 16 | `"year_week"`         | `"2000-W09"`            |
+    | 17 | `"year_quarter"`      | `"2000-Q1"`             |
+
+    We can use the `info_date_style()` function within the console to view a similar table of date
+    styles with example output.
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
+    """
+
+    # Stop if `locale` does not have a valid value; normalize locale and resolve one
+    # that might be set globally
+    _validate_locale(locale=locale)
+    locale = _normalize_locale(locale=locale)
+
+    # Get the date format string based on the date style
+    date_format_str = _get_date_format(date_style=date_style)
+
+    # Generate a function that will operate on single `x` values in the table body
+    def fmt_date_fn(
+        x: Any,
+        date_format_str: str = date_format_str,
+        locale: Union[str, None] = locale
+    ) -> str:
+
+        # If `x` is a string, we assume it is an ISO date string and convert it to a date object
+        if isinstance(x, str):
+
+            # Stop if `x` is not a valid ISO date string
+            _validate_iso_date_str(x=x)
+
+            # Convert the ISO date string to a date object
+            x = _iso_to_date(x)
+
+        else:
+            # Stop if `x` is not a valid date object
+            _validate_date_obj(x=x)
+
+        # Fix up the locale for `format_date()` by replacing any hyphens with underscores
+        if locale is None:
+            locale = "en_US"
+        else:
+            locale = _str_replace(locale, "-", "_")
+
+        # Format the date object to a string using Babel's `format_date()` function
+        x_formatted = format_date(x, format=date_format_str, locale=locale)
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+        return x_formatted
+
+    FormatsAPI.fmt(self, fns=fmt_date_fn, columns=columns, rows=rows)
+    return self
+
+# Transform a `date_style` to `date_format_str`
+def _get_date_format(date_style: str) -> str:
+    date_formats = _get_date_formats_dict()
+
+    # Stop if `date_style` does not have a valid value
+    _validate_date_style(date_style=date_style)
+
+    # Get the date format string based on the date style
+    date_format_str = date_formats[date_style]
+
+    return date_format_str
+
+def _validate_date_style(date_style: str) -> None:
+    # Stop if `date_style` does not have a valid value
+    if not date_style in _get_date_formats_dict():
+        raise ValueError(
+            f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}"
+        )
+
+    return
+
+def _get_date_formats_dict() -> Dict[str, str]:
+    date_formats = {
+        "iso": "y-MM-dd",
+        "wday_month_day_year": "EEEE, MMMM d, y",
+        "wd_m_day_year": "EEE, MMM d, y",
+        "wday_day_month_year": "EEEE d MMMM y",
+        "month_day_year": "MMMM d, y",
+        "m_day_year": "MMM d, y",
+        "day_m_year": "d MMM y",
+        "day_month_year": "d MMMM y",
+        "day_month": "d MMMM",
+        "day_m": "d MMM",
+        "year": "y",
+        "month": "MMMM",
+        "day": "dd",
+        "year.mn.day": "y/MM/dd",
+        "y.mn.day": "yy/MM/dd",
+        "year_week": "y-'W'ww",
+        "year_quarter": "y-'Q'Q",
+        #"yMd": None,
+        #"yMEd": None,
+        #"yMMM": None,
+        #"yMMMM": None,
+        #"yMMMd": None,
+        #"yMMMEd": None,
+        #"GyMd": None,
+        #"GyMMMd": None,
+        #"GyMMMEd": None,
+        #"yM": None,
+        #"Md": None,
+        #"MEd": None,
+        #"MMMd": None,
+        #"MMMEd": None,
+        #"MMMMd": None,
+        #"GyMMM": None,
+        #"yQQQ": None,
+        #"yQQQQ": None,
+        #"Gy": None,
+        #"y": None,
+        #"M": None,
+        #"MMM": None,
+        #"d": None,
+        #"Ed": None,
+    }
+
+    return date_formats
+
+# Convert an ISO date string to a date object
+def _iso_to_date(x: str) -> date:
+    return datetime.strptime(x, "%Y-%m-%d").date()
+
+def _validate_iso_date_str(x: str) -> None:
+    # Stop if `x` is not a valid ISO date string
+    try:
+        datetime.strptime(x, "%Y-%m-%d")
+    except ValueError:
+        raise ValueError(
+            f"Invalid ISO date string: '{x}'."
+            " The string must be in the format 'YYYY-MM-DD'."
+        )
+
+    return
+
+def _validate_date_obj(x: Any) -> None:
+    # Stop if `x` is not a valid date object
+    if not isinstance(x, date):
+        raise ValueError(
+            f"Invalid date object: '{x}'."
+            " The object must be a date object."
+        )
+
+    return
 
 def fmt_markdown(
     self: GTData,
