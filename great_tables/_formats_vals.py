@@ -577,6 +577,47 @@ def vals_fmt_currency(
     return vals_fmt
 
 
+def vals_fmt_roman(
+    vals: Union[Any, List[Any]],
+    case: str = "upper",
+    pattern: str = "{x}",
+) -> List[str]:
+    """
+    Format values as bytes.
+
+    With numeric values we can transform those to Roman numerals, rounding values as necessary.
+
+    Parameters
+    ----------
+    vals : Union[Any, List[Any]]
+        A list of values to be formatted.
+    case : str
+        Should Roman numerals should be rendered as uppercase (`"upper"`) or lowercase (`"lower"`)
+        letters? By default, this is set to `"upper"`.
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    Returns
+    -------
+    List[str]
+        A list of formatted values is returned.
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=vals)
+
+    gt_obj_fmt = gt_obj.fmt_roman(
+        columns="x",
+        case=case,
+        pattern=pattern,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
 def vals_fmt_bytes(
     vals: Union[Any, List[Any]],
     standard: str = "decimal",
