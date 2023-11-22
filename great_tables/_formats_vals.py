@@ -729,3 +729,33 @@ def vals_fmt_bytes(
     vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
 
     return vals_fmt
+
+
+def vals_fmt_markdown(
+    vals: Union[Any, List[Any]],
+) -> List[str]:
+    """
+    Format Markdown text.
+
+    Any Markdown-formatted text can be transformed to HTML when using the `fmt_markdown()` function.
+
+    Parameters
+    ----------
+    vals : Union[Any, List[Any]]
+        A list of values to be formatted.
+
+    Returns
+    -------
+    List[str]
+        A list of formatted values is returned.
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=vals)
+
+    gt_obj_fmt = gt_obj.fmt_markdown(
+        columns="x",
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
