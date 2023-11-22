@@ -235,20 +235,19 @@ def fmt_integer(
     """
     Format values as integers.
 
-    With numeric values in a gt table, we can perform number-based formatting so
-    that the targeted values are always rendered as integer values.
+    With numeric values in a gt table, we can perform number-based formatting so that the targeted
+    values are always rendered as integer values.
 
     We can have fine control over integer formatting with the following options:
 
-    - digit grouping separators: options to enable/disable digit separators
-    and provide a choice of separator symbol
+    - digit grouping separators: options to enable/disable digit separators and provide a choice of
+    separator symbol
     - scaling: we can choose to scale targeted values by a multiplier value
-    - large-number suffixing: larger figures (thousands, millions, etc.) can
-    be autoscaled and decorated with the appropriate suffixes
-    - pattern: option to use a text pattern for decoration of the formatted
-    values
-    - locale-based formatting: providing a locale ID will result in number
-    formatting specific to the chosen locale
+    - large-number suffixing: larger figures (thousands, millions, etc.) can be autoscaled and
+    decorated with the appropriate suffixes
+    - pattern: option to use a text pattern for decoration of the formatted values
+    - locale-based formatting: providing a locale ID will result in number formatting specific to
+    the chosen locale
 
     Parameters
     ----------
