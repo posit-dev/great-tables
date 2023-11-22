@@ -31,7 +31,7 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Text Processing :: Markup :: HTML",
-    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Visualization"
 ]
 dependencies = [
     "commonmark>=0.9.1",
@@ -41,7 +41,7 @@ dependencies = [
     "packaging>=20.9",
     "pandas>=1.4.2",
     "numpy>=1.22.4",
-    "libsass>=0.22.0"
+    "libsass>=0.22.0",
     "Babel>=2.13.1"
 ]
 requires-python = ">=3.7"
