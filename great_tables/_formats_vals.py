@@ -14,15 +14,14 @@ def _make_one_col_table(vals: Union[Any, List[Any]]) -> GTData:
     Returns:
         GTData: The GTData object representing the one-column table.
     """
-
-    import pandas as pd
+    from pandas import DataFrame
 
     # Upgrade a single value to a list
     if type(vals) != list:
         vals = [vals]
 
     # Convert the list to a Pandas DataFrame and then to a GTData object
-    gt_obj = GT(pd.DataFrame({"x": vals}), auto_align=False)
+    gt_obj = GT(DataFrame({"x": vals}), auto_align=False)
     return gt_obj
 
 
