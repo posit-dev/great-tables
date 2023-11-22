@@ -80,6 +80,17 @@ quartodoc:
         - GT.opt_all_caps
         - GT.opt_footnote_marks
         - GT.opt_row_striping
+    - title: Value formatting functions
+      contents:
+        - vals_fmt_number
+        - vals_fmt_integer
+        - vals_fmt_scientific
+        - vals_fmt_engineering
+        - vals_fmt_percent
+        - vals_fmt_currency
+        - vals_fmt_roman
+        - vals_fmt_bytes
+        - vals_fmt_markdown
     - title: Built in datasets
       contents:
         - data.countrypops
