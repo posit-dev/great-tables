@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables – md</title>
+<title>great_tables – vals_fmt_date</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/html.html" rel="next">
-<link href="../reference/GT.cols_move_to_end.html" rel="prev">
+<link href="../reference/vals_fmt_markdown.html" rel="next">
+<link href="../reference/vals_fmt_bytes.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -131,7 +131,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/md.html">Helper functions</a></li><li class="breadcrumb-item"><a href="../reference/md.html">md</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/vals_fmt_number.html">Value formatting functions</a></li><li class="breadcrumb-item"><a href="../reference/vals_fmt_date.html">vals_fmt_date</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
     </div>
@@ -330,7 +330,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/md.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/md.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">md</span></a>
   </div>
 </li>
@@ -442,7 +442,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/vals_fmt_date.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/vals_fmt_date.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">vals_fmt_date</span></a>
   </div>
 </li>
@@ -535,9 +535,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.md" id="toc-great_tables.md" class="nav-link active" data-scroll-target="#great_tables.md">md</a>
+  <li><a href="#great_tables.vals_fmt_date" id="toc-great_tables.vals_fmt_date" class="nav-link active" data-scroll-target="#great_tables.vals_fmt_date">vals_fmt_date</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#formatting-with-the-date_style-argument" id="toc-formatting-with-the-date_style-argument" class="nav-link" data-scroll-target="#formatting-with-the-date_style-argument">Formatting With The <code>Date_Style</code> Argument</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   </ul></li>
   </ul>
@@ -548,19 +549,19 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="great_tables.md" class="level1">
-<h1>md</h1>
-<p><code>md(text)</code></p>
-<p>Interpret input text as Markdown-formatted text.</p>
-<p>Markdown! It’s a wonderful thing. We can use it in certain places (e.g., footnotes, source notes, the table title, etc.) and expect it to render to HTML as Markdown does. There is the <code>html()</code> helper that allows you to ferry in HTML but this function <code>md()</code>… it’s almost like a two-for-one deal (you get to use Markdown plus any HTML fragments at the same time).</p>
+<section id="great_tables.vals_fmt_date" class="level1">
+<h1>vals_fmt_date</h1>
+<p><code>vals_fmt_date(vals, date_style='iso', pattern='{x}', locale=None)</code></p>
+<p>Format values as dates.</p>
+<p>Format input values to time values using one of 41 preset date styles. Input can be in the form of <code>date</code> type or as a ISO-8601 string (in the form of <code>YYYY-MM-DD HH:MM:SS</code> or <code>YYYY-MM-DD</code>).</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 68%">
-<col style="width: 13%">
+<col style="width: 4%">
+<col style="width: 17%">
+<col style="width: 74%">
+<col style="width: 3%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -572,21 +573,136 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>text</code></td>
-<td>str</td>
-<td>The text that is understood to contain Markdown formatting.</td>
+<td><code>vals</code></td>
+<td>typing.Union[typing.Any, typing.List[typing.Any]]</td>
+<td>A list of values to be formatted.</td>
 <td><em>required</em></td>
+</tr>
+<tr class="even">
+<td><code>date_style</code></td>
+<td>str</td>
+<td>The date style to use. By default this is the short name <code>"iso"</code> which corresponds to ISO 8601 date formatting. There are 41 date styles in total and their short names can be viewed using <code>info_date_style()</code>.</td>
+<td><code>'iso'</code></td>
+</tr>
+<tr class="odd">
+<td><code>pattern</code></td>
+<td>str</td>
+<td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
+<td><code>'{x}'</code></td>
+</tr>
+<tr class="even">
+<td><code>locale</code></td>
+<td>str</td>
+<td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table>
 </section>
+<section id="formatting-with-the-date_style-argument" class="level2">
+<h2 class="anchored" data-anchor-id="formatting-with-the-date_style-argument">Formatting With The <code>Date_Style</code> Argument</h2>
+<p>We need to supply a preset date style to the <code>date_style</code> argument. The date styles are numerous and can handle localization to any supported locale. The following table provides a listing of all date styles and their output values (corresponding to an input date of <code>2000-02-29</code>).</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Date Style</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><code>"iso"</code></td>
+<td><code>"2000-02-29"</code></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><code>"wday_month_day_year"</code></td>
+<td><code>"Tuesday, February 29, 2000"</code></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td><code>"wd_m_day_year"</code></td>
+<td><code>"Tue, Feb 29, 2000"</code></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><code>"wday_day_month_year"</code></td>
+<td><code>"Tuesday 29 February 2000"</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><code>"month_day_year"</code></td>
+<td><code>"February 29, 2000"</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td><code>"m_day_year"</code></td>
+<td><code>"Feb 29, 2000"</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td><code>"day_m_year"</code></td>
+<td><code>"29 Feb 2000"</code></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td><code>"day_month_year"</code></td>
+<td><code>"29 February 2000"</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td><code>"day_month"</code></td>
+<td><code>"29 February"</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td><code>"day_m"</code></td>
+<td><code>"29 Feb"</code></td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td><code>"year"</code></td>
+<td><code>"2000"</code></td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td><code>"month"</code></td>
+<td><code>"February"</code></td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td><code>"day"</code></td>
+<td><code>"29"</code></td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td><code>"year.mn.day"</code></td>
+<td><code>"2000/02/29"</code></td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td><code>"y.mn.day"</code></td>
+<td><code>"00/02/29"</code></td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td><code>"year_week"</code></td>
+<td><code>"2000-W09"</code></td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td><code>"year_quarter"</code></td>
+<td><code>"2000-Q1"</code></td>
+</tr>
+</tbody>
+</table>
+<p>We can use the <code>info_date_style()</code> function within the console to view a similar table of date styles with example output.</p>
+</section>
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
 <table class="table">
-<colgroup>
-<col style="width: 22%">
-<col style="width: 77%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>Type</th>
@@ -595,8 +711,8 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>great_tables._text.Text</td>
-<td>An instance of the Text class is returned, where the text <code>type</code> is <code>"from_markdown"</code>.</td>
+<td>typing.List[str]</td>
+<td>A list of formatted values is returned.</td>
 </tr>
 </tbody>
 </table>
@@ -841,13 +957,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/GT.cols_move_to_end.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">GT.cols_move_to_end</span>
+      <a href="../reference/vals_fmt_bytes.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">vals_fmt_bytes</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/html.html" class="pagination-link">
-        <span class="nav-page-text">html</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/vals_fmt_markdown.html" class="pagination-link">
+        <span class="nav-page-text">vals_fmt_markdown</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
