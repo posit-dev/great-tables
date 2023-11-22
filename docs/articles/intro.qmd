@@ -25,7 +25,7 @@ pip install great_tables
 
 ```{python}
 from great_tables import GT, md
-from great_tables.data import exibble
+from great_tables.data import exibble, sp500
 
 ```
 
@@ -35,10 +35,24 @@ gt_ex = GT(exibble.head(6))
 gt_ex
 ```
 
-### Formatting columns
+### Formatting columns and adding a heading
 
 ```{python}
-gt_ex.fmt_number(columns="num", decimals=1, scale_by=1 / 1000, pattern="{x}K")
+# Define the start and end dates for the data range
+start_date = "2010-06-07"
+end_date = "2010-06-14"
+
+# Filter sp500 using pandas to date between start_date and end_date
+sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
+
+# Create a gt table based on a subset of the `sp500` table data
+(
+    gt.GT(data=sp500_mini)
+    .tab_header(title="S&P 500", subtitle=f"{start_date} to {end_date}")
+    .fmt_currency(columns=["open", "high", "low", "close"])
+    .fmt_date(columns="date", date_style="wd_m_day_year")
+    .fmt_number(columns="volume")
+)
 ```
 
 
