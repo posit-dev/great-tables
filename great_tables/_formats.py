@@ -949,6 +949,89 @@ def fmt_currency(
     return self
 
 
+def fmt_roman(
+    self: GTData,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    case: str = "upper",
+    pattern: str = "{x}",
+):
+    """
+    Format values as Roman numerals.
+
+    With numeric values in a **gt** table we can transform those to Roman numerals, rounding values
+    as necessary.
+
+    Parameters
+    ----------
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows : Union[int, List[int], None]
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+    case : str
+        Should Roman numerals should be rendered as uppercase (`"upper"`) or lowercase (`"lower"`)
+        letters? By default, this is set to `"upper"`.
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
+    """
+
+    # Check that the `case` value is valid and only consists of the string 'upper' or 'lower'
+    _validate_case(case=case)
+
+    # Generate a function that will operate on single `x` values in the table body
+    def fmt_roman_fn(
+        x: float,
+        case: str = case,
+    ):
+        # Get the absolute value of `x` so that negative values are handled
+        x = abs(x)
+
+        # Round x to 0 digits with the R-H-U method of rounding (for reproducibility purposes)
+        x = _round_rhu(x, 0)
+
+        # Determine if `x` is in the range of 1 to 3899 and if it is zero
+        x_is_in_range = x > 0 and x < 3900
+        x_is_zero = x == 0
+
+        if not x_is_in_range and not x_is_zero:
+            # We cannot format a 'large' integer to roman numerals, so we return a string
+            # that indicates this
+            return "ex terminis"
+        elif x_is_zero:
+            # Zero is a special case and is handled separately with the character 'N'
+            # which stands for 'nulla' (i.e., 'nothing')
+            x_formatted = "N"
+        else:
+            # All other values are formatted with the `_as_roman()` utility function
+            x_formatted = _as_roman(x)
+
+        # Transform the case of the formatted value
+        if case == "upper":
+            pass
+        else:
+            x_formatted = x_formatted.lower()
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    FormatsAPI.fmt(self, fns=fmt_roman_fn, columns=columns, rows=rows)
+
+    return self
+
+
 def fmt_bytes(
     self: GTData,
     columns: Union[str, List[str], None] = None,
@@ -1147,89 +1230,6 @@ def fmt_bytes(
         return x_formatted
 
     FormatsAPI.fmt(self, fns=fmt_bytes_fn, columns=columns, rows=rows)
-
-    return self
-
-
-def fmt_roman(
-    self: GTData,
-    columns: Union[str, List[str], None] = None,
-    rows: Union[int, List[int], None] = None,
-    case: str = "upper",
-    pattern: str = "{x}",
-):
-    """
-    Format values as Roman numerals.
-
-    With numeric values in a **gt** table we can transform those to Roman numerals, rounding values
-    as necessary.
-
-    Parameters
-    ----------
-    columns : Union[str, List[str], None]
-        The columns to target. Can either be a single column name or a series of column names
-        provided in a list.
-    rows : Union[int, List[int], None]
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
-    case : str
-        Should Roman numerals should be rendered as uppercase (`"upper"`) or lowercase (`"lower"`)
-        letters? By default, this is set to `"upper"`.
-    pattern : str
-        A formatting pattern that allows for decoration of the formatted value. The formatted value
-        is represented by the `{x}` (which can be used multiple times, if needed) and all other
-        characters will be interpreted as string literals.
-
-    Returns
-    -------
-    GTData
-        The GTData object is returned.
-    """
-
-    # Check that the `case` value is valid and only consists of the string 'upper' or 'lower'
-    _validate_case(case=case)
-
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_roman_fn(
-        x: float,
-        case: str = case,
-    ):
-        # Get the absolute value of `x` so that negative values are handled
-        x = abs(x)
-
-        # Round x to 0 digits with the R-H-U method of rounding (for reproducibility purposes)
-        x = _round_rhu(x, 0)
-
-        # Determine if `x` is in the range of 1 to 3899 and if it is zero
-        x_is_in_range = x > 0 and x < 3900
-        x_is_zero = x == 0
-
-        if not x_is_in_range and not x_is_zero:
-            # We cannot format a 'large' integer to roman numerals, so we return a string
-            # that indicates this
-            return "ex terminis"
-        elif x_is_zero:
-            # Zero is a special case and is handled separately with the character 'N'
-            # which stands for 'nulla' (i.e., 'nothing')
-            x_formatted = "N"
-        else:
-            # All other values are formatted with the `_as_roman()` utility function
-            x_formatted = _as_roman(x)
-
-        # Transform the case of the formatted value
-        if case == "upper":
-            pass
-        else:
-            x_formatted = x_formatted.lower()
-
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
-
-        return x_formatted
-
-    FormatsAPI.fmt(self, fns=fmt_roman_fn, columns=columns, rows=rows)
 
     return self
 
