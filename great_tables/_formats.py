@@ -1274,15 +1274,9 @@ def fmt_date(
     Formatting with the `date_style` argument
     -----------------------------------------
 
-    We need to supply a preset date style to the `date_style` argument. The date
-    styles are numerous and can handle localization to any supported locale. A
-    large segment of date styles are termed flexible date formats and this means
-    that their output will adapt to any `locale` provided. That feature makes the
-    flexible date formats a better option for locales other than `"en"` (the
-    default locale).
-
-    The following table provides a listing of all date styles and their output
-    values (corresponding to an input date of `2000-02-29`).
+    We need to supply a preset date style to the `date_style` argument. The date styles are numerous
+    and can handle localization to any supported locale. The following table provides a listing of
+    all date styles and their output values (corresponding to an input date of `2000-02-29`).
 
     |    | Date Style            | Output                  |
     |----|-----------------------|-------------------------|
