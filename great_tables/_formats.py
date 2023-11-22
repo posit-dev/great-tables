@@ -573,14 +573,12 @@ def fmt_percent(
     drop_trailing_dec_mark: bool = True,
     scale_values: bool = True,
     use_seps: bool = True,
-    # accounting: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign: bool = False,
     placement: str = "right",
     incl_space: bool = False,
-    # system: str = "intl",
     locale: Union[str, None] = None,
 ) -> GTData:
     """
