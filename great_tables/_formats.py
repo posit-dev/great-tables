@@ -1363,14 +1363,14 @@ def _get_date_format(date_style: str) -> str:
 
     return date_format_str
 
+
 def _validate_date_style(date_style: str) -> None:
     # Stop if `date_style` does not have a valid value
     if not date_style in _get_date_formats_dict():
-        raise ValueError(
-            f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}"
-        )
+        raise ValueError(f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}")
 
     return
+
 
 def _get_date_formats_dict() -> Dict[str, str]:
     date_formats = {
@@ -1391,37 +1391,15 @@ def _get_date_formats_dict() -> Dict[str, str]:
         "y.mn.day": "yy/MM/dd",
         "year_week": "y-'W'ww",
         "year_quarter": "y-'Q'Q",
-        #"yMd": None,
-        #"yMEd": None,
-        #"yMMM": None,
-        #"yMMMM": None,
-        #"yMMMd": None,
-        #"yMMMEd": None,
-        #"GyMd": None,
-        #"GyMMMd": None,
-        #"GyMMMEd": None,
-        #"yM": None,
-        #"Md": None,
-        #"MEd": None,
-        #"MMMd": None,
-        #"MMMEd": None,
-        #"MMMMd": None,
-        #"GyMMM": None,
-        #"yQQQ": None,
-        #"yQQQQ": None,
-        #"Gy": None,
-        #"y": None,
-        #"M": None,
-        #"MMM": None,
-        #"d": None,
-        #"Ed": None,
     }
 
     return date_formats
 
+
 # Convert an ISO date string to a date object
 def _iso_to_date(x: str) -> date:
     return datetime.strptime(x, "%Y-%m-%d").date()
+
 
 def _validate_iso_date_str(x: str) -> None:
     # Stop if `x` is not a valid ISO date string
@@ -1429,21 +1407,19 @@ def _validate_iso_date_str(x: str) -> None:
         datetime.strptime(x, "%Y-%m-%d")
     except ValueError:
         raise ValueError(
-            f"Invalid ISO date string: '{x}'."
-            " The string must be in the format 'YYYY-MM-DD'."
+            f"Invalid ISO date string: '{x}'." " The string must be in the format 'YYYY-MM-DD'."
         )
 
     return
+
 
 def _validate_date_obj(x: Any) -> None:
     # Stop if `x` is not a valid date object
     if not isinstance(x, date):
-        raise ValueError(
-            f"Invalid date object: '{x}'."
-            " The object must be a date object."
-        )
+        raise ValueError(f"Invalid date object: '{x}'." " The object must be a date object.")
 
     return
+
 
 def fmt_markdown(
     self: GTData,
