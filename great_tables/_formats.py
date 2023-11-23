@@ -1362,7 +1362,7 @@ def fmt_time(
     """
     Format values as times.
 
-    Format input values to time values using one of 25 preset time styles. Input can be in the form
+    Format input values to time values using one of 5 preset time styles. Input can be in the form
     of `time` values, or strings in the ISO 8601 forms of `HH:MM:SS` or `YYYY-MM-DD HH:MM:SS`.
 
     Parameters
