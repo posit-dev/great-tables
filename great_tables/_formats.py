@@ -1317,14 +1317,10 @@ def fmt_date(
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_date_fn(
-        x: Any,
-        date_format_str: str = date_format_str,
-        locale: Union[str, None] = locale
+        x: Any, date_format_str: str = date_format_str, locale: Union[str, None] = locale
     ) -> str:
-
         # If `x` is a string, we assume it is an ISO date string and convert it to a date object
         if isinstance(x, str):
-
             # Stop if `x` is not a valid ISO date string
             _validate_iso_date_str(x=x)
 
@@ -1347,10 +1343,13 @@ def fmt_date(
         # Use a supplied pattern specification to decorate the formatted value
         if pattern != "{x}":
             x_formatted = pattern.replace("{x}", x_formatted)
+
         return x_formatted
 
     FormatsAPI.fmt(self, fns=fmt_date_fn, columns=columns, rows=rows)
+
     return self
+
 
 # Transform a `date_style` to `date_format_str`
 def _get_date_format(date_style: str) -> str:
