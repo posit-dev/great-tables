@@ -127,7 +127,9 @@ class GT(
     gt.GT(gt.exibble)
     ```
 
-    <img src=\"https://raw.githubusercontent.com/rstudio/gt/master/images/man_gt_1.png\" alt=\"This image of a table was generated from the first code example in the `gt()` help file.\" style=\"width:100\\%;\">
+    <img src=\"https://raw.githubusercontent.com/rstudio/gt/master/images/man_gt_1.png\"
+    alt=\"This image of a table was generated from the first code example in the help file.\"
+    style=\"width:100%;\">
     """
 
     def _repr_html_(self):
