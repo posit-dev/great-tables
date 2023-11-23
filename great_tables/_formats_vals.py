@@ -809,6 +809,72 @@ def vals_fmt_date(
     return vals_fmt
 
 
+def vals_fmt_time(
+    vals: Union[Any, List[Any]],
+    time_style: str = "iso",
+    pattern: str = "{x}",
+    locale: Union[str, None] = None,
+) -> List[str]:
+    """
+    Format values as times.
+
+    Format input values to time values using one of 5 preset time styles. Input can be in the form
+    of `time` values, or strings in the ISO 8601 forms of `HH:MM:SS` or `YYYY-MM-DD HH:MM:SS`.
+
+    Parameters
+    ----------
+    vals : Union[Any, List[Any]]
+        A list of values to be formatted.
+    time_style: str
+        The time style to use. By default this is the short name `"iso"` which corresponds to how
+        times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
+        their short names can be viewed using `info_time_style()`.
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    locale : str
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
+    Formatting with the `time_style` argument
+    -----------------------------------------
+
+    We need to supply a preset time style to the `time_style` argument. The time styles are numerous
+    and can handle localization to any supported locale. The following table provides a listing of
+    all time styles and their output values (corresponding to an input time of `14:35:00`).
+
+    |    | Time Style    | Output                          | Notes         |
+    |----|---------------|---------------------------------|---------------|
+    | 1  | `"iso"`       | `"14:35:00"`                    | ISO 8601, 24h |
+    | 2  | `"iso-short"` | `"14:35"`                       | ISO 8601, 24h |
+    | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                  | 12h           |
+    | 4  | `"h_m_p"`     | `"2:35 PM"`                     | 12h           |
+    | 5  | `"h_p"`       | `"2 PM"`                        | 12h           |
+
+    We can use the `info_time_style()` function within the console to view a similar table of time
+    styles with example output.
+
+    Returns
+    -------
+    List[str]
+        A list of formatted values is returned.
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=vals)
+
+    gt_obj_fmt = gt_obj.fmt_time(
+        columns="x",
+        time_style=time_style,
+        pattern=pattern,
+        locale=locale,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
 def vals_fmt_markdown(
     vals: Union[Any, List[Any]],
 ) -> List[str]:
