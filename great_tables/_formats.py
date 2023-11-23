@@ -244,6 +244,7 @@ def fmt_integer(
     rows: Union[int, List[int], None] = None,
     use_seps: bool = True,
     scale_by: float = 1,
+    compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     force_sign: bool = False,
@@ -326,17 +327,30 @@ def fmt_integer(
         # Determine whether the value is positive
         is_negative = _has_negative_value(value=x)
 
-        x_formatted = _value_to_decimal_notation(
-            value=x,
-            decimals=0,
-            n_sigfig=None,
-            drop_trailing_zeros=False,
-            drop_trailing_dec_mark=True,
-            use_seps=use_seps,
-            sep_mark=sep_mark,
-            dec_mark="not used",
-            force_sign=force_sign,
-        )
+        if compact:
+            x_formatted = _format_number_compactly(
+                value=x,
+                decimals=0,
+                n_sigfig=None,
+                drop_trailing_zeros=False,
+                drop_trailing_dec_mark=True,
+                use_seps=use_seps,
+                sep_mark=sep_mark,
+                dec_mark="not used",
+                force_sign=force_sign,
+            )
+        else:
+            x_formatted = _value_to_decimal_notation(
+                value=x,
+                decimals=0,
+                n_sigfig=None,
+                drop_trailing_zeros=False,
+                drop_trailing_dec_mark=True,
+                use_seps=use_seps,
+                sep_mark=sep_mark,
+                dec_mark="not used",
+                force_sign=force_sign,
+            )
 
         # Implement minus sign replacement for `x_formatted`
         if is_negative:
