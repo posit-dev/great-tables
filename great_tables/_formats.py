@@ -1158,7 +1158,7 @@ def fmt_bytes(
     def fmt_bytes_fn(
         x: float,
         base: int = base,
-        byte_units: str = byte_units,
+        byte_units: List[str] = byte_units,
         decimals: int = decimals,
         n_sigfig: Optional[int] = n_sigfig,
         drop_trailing_zeros: bool = drop_trailing_zeros,
