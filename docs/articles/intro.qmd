@@ -43,7 +43,9 @@ start_date = "2010-06-07"
 end_date = "2010-06-14"
 
 # Filter `sp500` between `start_date` and `end_date`
-sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
+sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)].drop(
+    columns="adj_close"
+)
 
 # Create a table based on a subset of the `sp500` table data
 (
@@ -52,7 +54,6 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
     .fmt_currency(columns=["open", "high", "low", "close"])
     .fmt_date(columns="date", date_style="wd_m_day_year")
     .fmt_integer(columns="volume")
-    .cols_hide(columns="adj_close")
 )
 ```
 
