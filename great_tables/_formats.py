@@ -1312,7 +1312,7 @@ def fmt_date(
     _validate_locale(locale=locale)
     locale = _normalize_locale(locale=locale)
 
-    # Get the date format string based on the date style
+    # Get the date format string based on the `date_style` value
     date_format_str = _get_date_format(date_style=date_style)
 
     # Generate a function that will operate on single `x` values in the table body
