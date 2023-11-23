@@ -640,30 +640,36 @@ ul.task-list li input[type="checkbox"] {
 <td><code>1</code></td>
 </tr>
 <tr class="odd">
+<td><code>compact</code></td>
+<td>bool</td>
+<td>A boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., <code>1230</code> becomes <code>1.23K</code>, and <code>1230000</code> becomes <code>1.23M</code>). The <code>compact</code> option is <code>False</code> by default.</td>
+<td><code>False</code></td>
+</tr>
+<tr class="even">
 <td><code>pattern</code></td>
 <td>str</td>
 <td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
 <td><code>'{x}'</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>sep_mark</code></td>
 <td>str</td>
 <td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
 <td><code>','</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>dec_mark</code></td>
 <td>str</td>
 <td>The string to be used as the decimal mark. For example, using <code>dec_mark=","</code> with the value <code>0.152</code> would result in a formatted value of <code>"0,152"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
 <td><code>'.'</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>force_sign</code></td>
 <td>bool</td>
 <td>Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with <code>accounting = True</code>.</td>
 <td><code>False</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>locale</code></td>
 <td>str</td>
 <td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
