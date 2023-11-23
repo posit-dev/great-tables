@@ -1717,6 +1717,66 @@ def _format_number_fixed_decimals(
     return result
 
 
+def _format_number_compactly(
+    value: Union[int, float],
+    decimals: int,
+    n_sigfig: Optional[int],
+    drop_trailing_zeros: bool,
+    drop_trailing_dec_mark: bool,
+    use_seps: bool,
+    sep_mark: str,
+    dec_mark: str,
+    force_sign: bool,
+) -> str:
+    # If the value is exactly zero, then we can return `0` immediately
+    if value == 0:
+        return "0"
+
+    # Stop if `n_sigfig` does not have a valid value
+    if n_sigfig is not None:
+        _validate_n_sigfig(n_sigfig=n_sigfig)
+
+    # Determine the power index for the value
+    if value == 0:
+        # If the value is zero, then the power index is 1; otherwise, we'd get
+        # an error when trying to calculate the log of zero
+        num_power_idx = 1
+    else:
+        # Determine the power index for the value and put it in the range of 0 to 5 which
+        # corresponds to the list of suffixes `["", "K", "M", "B", "T", "Q"]`
+        num_power_idx = math.floor(math.log(abs(value), 1000))
+        num_power_idx = max(0, min(5, num_power_idx))
+
+    # The `units_str` is obtained by indexing a list of suffixes with the `num_power_idx`
+    units_str = ["", "K", "M", "B", "T", "Q"][num_power_idx]
+
+    # Scale `x` value by a defined `base` value, this is done by dividing by the `base`
+    # value (`1000`) raised to the power index
+    value = value / 1000**num_power_idx
+
+    # Format the value to decimal notation; this is done before the `byte_units` text
+    # is affixed to the value
+    x_formatted = _value_to_decimal_notation(
+        value=value,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+    )
+
+    # Create a `bytes_pattern` object for affixing the `units_str`, which is the
+    # string that represents the byte units
+    suffix_pattern = f"{{x}}{units_str}"
+
+    x_formatted = suffix_pattern.replace("{x}", x_formatted)
+
+    return x_formatted
+
+
 def _expand_exponential_to_full_string(str_number: str) -> str:
     decimal_number = Decimal(str_number)
     formatted_number = "{:f}".format(decimal_number)
