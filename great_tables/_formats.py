@@ -1805,8 +1805,8 @@ def _format_number_compactly(
         force_sign=force_sign,
     )
 
-    # Create a `bytes_pattern` object for affixing the `units_str`, which is the
-    # string that represents the byte units
+    # Create a `suffix_pattern` object for affixing the `units_str`, which is the
+    # string that represents the 'K', 'M', 'B', 'T', or 'Q' suffix
     suffix_pattern = f"{{x}}{units_str}"
 
     x_formatted = suffix_pattern.replace("{x}", x_formatted)
