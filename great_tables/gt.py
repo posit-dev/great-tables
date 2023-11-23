@@ -27,6 +27,7 @@ from great_tables._formats import (
     fmt_bytes,
     fmt_roman,
     fmt_date,
+    fmt_time,
     fmt_markdown,
 )
 from great_tables._heading import HeadingAPI
@@ -151,6 +152,7 @@ class GT(
     fmt_bytes = fmt_bytes
     fmt_roman = fmt_roman
     fmt_date = fmt_date
+    fmt_time = fmt_time
     fmt_markdown = fmt_markdown
 
     tab_spanner = tab_spanner
