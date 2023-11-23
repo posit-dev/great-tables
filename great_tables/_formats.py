@@ -141,6 +141,10 @@ def fmt_number(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    compact : bool
+        A boolean value that allows for compact formatting of numeric values. Values will be scaled
+        and decorated with the appropriate suffixes (e.g., `1230` becomes `1.23K`, and `1230000`
+        becomes `1.23M`). The `compact` option is `False` by default.
     pattern : str
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -284,6 +288,10 @@ def fmt_integer(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    compact : bool
+        A boolean value that allows for compact formatting of numeric values. Values will be scaled
+        and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
+        becomes `1M`). The `compact` option is `False` by default.
     pattern : str
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
