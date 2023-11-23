@@ -1351,74 +1351,110 @@ def fmt_date(
     return self
 
 
-# Transform a `date_style` to `date_format_str`
-def _get_date_format(date_style: str) -> str:
-    date_formats = _get_date_formats_dict()
+def fmt_time(
+    self: GTData,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    time_style: str = "iso",
+    pattern: str = "{x}",
+    locale: Union[str, None] = None,
+) -> GTData:
+    """
+    Format values as times.
 
-    # Stop if `date_style` does not have a valid value
-    _validate_date_style(date_style=date_style)
+    Format input values to time values using one of 25 preset time styles. Input can be in the form
+    of `time` values, or strings in the ISO 8601 forms of `HH:MM:SS` or `YYYY-MM-DD HH:MM:SS`.
 
-    # Get the date format string based on the date style
-    date_format_str = date_formats[date_style]
+    Parameters
+    ----------
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows : Union[int, List[int], None]
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+    time_style: str
+        The time style to use. By default this is the short name `"iso"` which corresponds to how
+        times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
+        their short names can be viewed using `info_time_style()`.
+    pattern : str
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    locale : str
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
-    return date_format_str
+    Formatting with the `time_style` argument
+    -----------------------------------------
 
+    We need to supply a preset time style to the `time_style` argument. The time styles are numerous
+    and can handle localization to any supported locale. The following table provides a listing of
+    all time styles and their output values (corresponding to an input time of `14:35:00`).
 
-def _validate_date_style(date_style: str) -> None:
-    # Stop if `date_style` does not have a valid value
-    if not date_style in _get_date_formats_dict():
-        raise ValueError(f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}")
+    |    | Time Style    | Output                          | Notes         |
+    |----|---------------|---------------------------------|---------------|
+    | 1  | `"iso"`       | `"14:35:00"`                    | ISO 8601, 24h |
+    | 2  | `"iso-short"` | `"14:35"`                       | ISO 8601, 24h |
+    | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                  | 12h           |
+    | 4  | `"h_m_p"`     | `"2:35 PM"`                     | 12h           |
+    | 5  | `"h_p"`       | `"2 PM"`                        | 12h           |
 
-    return
+    We can use the `info_time_style()` function within the console to view a similar table of time
+    styles with example output.
 
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
+    """
 
-def _get_date_formats_dict() -> Dict[str, str]:
-    date_formats = {
-        "iso": "y-MM-dd",
-        "wday_month_day_year": "EEEE, MMMM d, y",
-        "wd_m_day_year": "EEE, MMM d, y",
-        "wday_day_month_year": "EEEE d MMMM y",
-        "month_day_year": "MMMM d, y",
-        "m_day_year": "MMM d, y",
-        "day_m_year": "d MMM y",
-        "day_month_year": "d MMMM y",
-        "day_month": "d MMMM",
-        "day_m": "d MMM",
-        "year": "y",
-        "month": "MMMM",
-        "day": "dd",
-        "year.mn.day": "y/MM/dd",
-        "y.mn.day": "yy/MM/dd",
-        "year_week": "y-'W'ww",
-        "year_quarter": "y-'Q'Q",
-    }
+    # Stop if `locale` does not have a valid value; normalize locale and resolve one
+    # that might be set globally
+    _validate_locale(locale=locale)
+    locale = _normalize_locale(locale=locale)
 
-    return date_formats
+    # Get the time format string based on the `time_style` value
+    time_format_str = _get_time_format(time_style=time_style)
 
+    # Generate a function that will operate on single `x` values in the table body
+    def fmt_time_fn(
+        x: Any, time_format_str: str = time_format_str, locale: Union[str, None] = locale
+    ) -> str:
+        # If `x` is a string, assume it is an ISO time string and convert it to a time object
+        if isinstance(x, str):
+            # Stop if `x` is not a valid ISO time string
+            _validate_iso_time_str(x=x)
 
-# Convert an ISO date string to a date object
-def _iso_to_date(x: str) -> date:
-    return datetime.strptime(x, "%Y-%m-%d").date()
+            # Ensure that a seconds value is present in the ISO time string
+            x = _normalize_iso_time_str(x=x)
 
+            # Convert the ISO time string to a time object
+            x = _iso_to_time(x)
 
-def _validate_iso_date_str(x: str) -> None:
-    # Stop if `x` is not a valid ISO date string
-    try:
-        datetime.strptime(x, "%Y-%m-%d")
-    except ValueError:
-        raise ValueError(
-            f"Invalid ISO date string: '{x}'." " The string must be in the format 'YYYY-MM-DD'."
-        )
+        else:
+            # Stop if `x` is not a valid time object
+            _validate_time_obj(x=x)
 
-    return
+        # Fix up the locale for `format_time()` by replacing any hyphens with underscores
+        if locale is None:
+            locale = "en_US"
+        else:
+            locale = _str_replace(locale, "-", "_")
 
+        # Format the time object to a string using Babel's `format_time()` function
+        x_formatted = format_time(x, format=time_format_str, locale=locale)
 
-def _validate_date_obj(x: Any) -> None:
-    # Stop if `x` is not a valid date object
-    if not isinstance(x, date):
-        raise ValueError(f"Invalid date object: '{x}'." " The object must be a date object.")
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
 
-    return
+        return x_formatted
+
+    FormatsAPI.fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
+
+    return self
 
 
 def fmt_markdown(
@@ -2299,5 +2335,257 @@ def _validate_case(case: str) -> None:
     """
     if case not in ["upper", "lower"]:
         raise ValueError(f"The `case` argument must be either 'upper' or 'lower' (not '{case}').")
+
+    return
+
+
+def _get_date_formats_dict() -> Dict[str, str]:
+    date_formats = {
+        "iso": "y-MM-dd",
+        "wday_month_day_year": "EEEE, MMMM d, y",
+        "wd_m_day_year": "EEE, MMM d, y",
+        "wday_day_month_year": "EEEE d MMMM y",
+        "month_day_year": "MMMM d, y",
+        "m_day_year": "MMM d, y",
+        "day_m_year": "d MMM y",
+        "day_month_year": "d MMMM y",
+        "day_month": "d MMMM",
+        "day_m": "d MMM",
+        "year": "y",
+        "month": "MMMM",
+        "day": "dd",
+        "year.mn.day": "y/MM/dd",
+        "y.mn.day": "yy/MM/dd",
+        "year_week": "y-'W'ww",
+        "year_quarter": "y-'Q'Q",
+    }
+
+    return date_formats
+
+
+def _get_time_formats_dict() -> Dict[str, str]:
+    time_formats = {
+        "iso": "HH:mm:ss",
+        "iso-short": "HH:mm",
+        "h_m_s_p": "h:mm:ss a",
+        "h_m_p": "h:mm a",
+        "h_p": "h a",
+    }
+
+    return time_formats
+
+
+def _get_date_format(date_style: str) -> str:
+    """
+    Get the date format string based on the date style.
+
+    Args:
+        date_style (str): The style of the date.
+
+    Returns:
+        str: The date format string.
+
+    Raises:
+        ValueError: If `date_style` does not have a valid value.
+    """
+    date_formats = _get_date_formats_dict()
+
+    # Stop if `date_style` does not have a valid value
+    _validate_date_style(date_style=date_style)
+
+    # Get the date format string based on the date style
+    date_format_str = date_formats[date_style]
+
+    return date_format_str
+
+
+def _get_time_format(time_style: str) -> str:
+    """
+    Get the time format string based on the given time style.
+
+    Args:
+        time_style (str): The style of the time format.
+
+    Returns:
+        str: The time format string.
+
+    Raises:
+        ValueError: If `time_style` does not have a valid value.
+    """
+    time_formats = _get_time_formats_dict()
+
+    # Stop if `time_style` does not have a valid value
+    _validate_time_style(time_style=time_style)
+
+    # Get the time format string based on the date style
+    time_format_str = time_formats[time_style]
+
+    return time_format_str
+
+
+def _validate_date_style(date_style: str) -> None:
+    """
+    Validates the given date style.
+
+    Args:
+        date_style (str): The date style to be validated.
+
+    Raises:
+        ValueError: If `date_style` is not a valid value.
+
+    Returns:
+        None
+    """
+    if not date_style in _get_date_formats_dict():
+        raise ValueError(f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}")
+
+    return
+
+
+def _validate_time_style(time_style: str) -> None:
+    """
+    Validate the time style.
+
+    Args:
+        time_style (str): The time style to validate.
+
+    Raises:
+        ValueError: If `time_style` is not a valid value.
+
+    Returns:
+        None
+    """
+    if not time_style in _get_time_formats_dict():
+        raise ValueError(f"time_style must be one of: {', '.join(_get_time_formats_dict().keys())}")
+
+    return
+
+
+def _iso_to_date(x: str) -> date:
+    """
+    Converts a string in ISO format (YYYY-MM-DD) to a date object.
+
+    Args:
+        x (str): The string to be converted.
+
+    Returns:
+        date: The converted date object.
+    """
+    return datetime.strptime(x, "%Y-%m-%d").date()
+
+
+def _iso_to_time(x: str) -> time:
+    """
+    Converts a string in ISO format to a time object.
+
+    Args:
+        x (str): The string to be converted.
+
+    Returns:
+        time: The converted time object.
+    """
+    return datetime.strptime(x, "%H:%M:%S").time()
+
+
+def _validate_iso_date_str(x: str) -> None:
+    """
+    Validates if the given string is a valid ISO date string in the format 'YYYY-MM-DD'.
+
+    Args:
+        x (str): The string to be validated.
+
+    Raises:
+        ValueError: If the string is not a valid ISO date string.
+
+    Returns:
+        None
+    """
+    try:
+        datetime.strptime(x, "%Y-%m-%d")
+    except ValueError:
+        raise ValueError(
+            f"Invalid ISO date string: '{x}'. The string must be in the format 'YYYY-MM-DD'."
+        )
+
+    return
+
+
+def _validate_iso_time_str(x: str) -> None:
+    """
+    Validates if the input string `x` is a valid ISO time string.
+
+    Args:
+        x (str): The input string to be validated.
+
+    Raises:
+        ValueError: If `x` is not a valid ISO time string (HH:MM:SS or HH:MM).
+
+    Returns:
+        None
+    """
+    try:
+        datetime.strptime(x, "%H:%M:%S")
+    except ValueError:
+        try:
+            datetime.strptime(x, "%H:%M")
+        except ValueError:
+            raise ValueError(
+                f"Invalid ISO time string: '{x}'."
+                " The string must be in the format 'HH:MM:SS' or 'HH:MM'."
+            )
+
+    return
+
+
+def _normalize_iso_time_str(x: str) -> str:
+    """
+    Normalize the input ISO time string by expanding it to include the seconds component if necessary.
+
+    Args:
+        x (str): The input ISO time string.
+
+    Returns:
+        str: The normalized ISO time string.
+    """
+    if len(x) == 5:
+        x = x + ":00"
+
+    return x
+
+
+def _validate_date_obj(x: Any) -> None:
+    """
+    Validate if the given object is a valid date object.
+
+    Args:
+        x (Any): The object to be validated.
+
+    Raises:
+        ValueError: If the object is not a valid date object.
+
+    Returns:
+        None
+    """
+    if not isinstance(x, date):
+        raise ValueError(f"Invalid date object: '{x}'. The object must be a date object.")
+
+    return
+
+
+def _validate_time_obj(x: Any) -> None:
+    """
+    Validate if the given object is a valid time object.
+
+    Args:
+        x (Any): The object to be validated.
+
+    Raises:
+        ValueError: If the object is not a valid time object.
+
+    Returns:
+        None
+    """
+    if not isinstance(x, time):
+        raise ValueError(f"Invalid time object: '{x}'. The object must be a time object.")
 
     return
