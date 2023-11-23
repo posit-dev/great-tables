@@ -80,6 +80,7 @@ def fmt_number(
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
     scale_by: float = 1,
+    compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -185,6 +186,7 @@ def fmt_number(
         drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
         use_seps: bool = use_seps,
         scale_by: float = scale_by,
+        compact: bool = compact,
         sep_mark: str = sep_mark,
         dec_mark: str = dec_mark,
         force_sign: bool = force_sign,
@@ -195,17 +197,30 @@ def fmt_number(
         # Determine whether the value is positive
         is_negative = _has_negative_value(value=x)
 
-        x_formatted = _value_to_decimal_notation(
-            value=x,
-            decimals=decimals,
-            n_sigfig=n_sigfig,
-            drop_trailing_zeros=drop_trailing_zeros,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=use_seps,
-            sep_mark=sep_mark,
-            dec_mark=dec_mark,
-            force_sign=force_sign,
-        )
+        if compact:
+            x_formatted = _format_number_compactly(
+                value=x,
+                decimals=decimals,
+                n_sigfig=n_sigfig,
+                drop_trailing_zeros=drop_trailing_zeros,
+                drop_trailing_dec_mark=drop_trailing_dec_mark,
+                use_seps=use_seps,
+                sep_mark=sep_mark,
+                dec_mark=dec_mark,
+                force_sign=force_sign,
+            )
+        else:
+            x_formatted = _value_to_decimal_notation(
+                value=x,
+                decimals=decimals,
+                n_sigfig=n_sigfig,
+                drop_trailing_zeros=drop_trailing_zeros,
+                drop_trailing_dec_mark=drop_trailing_dec_mark,
+                use_seps=use_seps,
+                sep_mark=sep_mark,
+                dec_mark=dec_mark,
+                force_sign=force_sign,
+            )
 
         # Implement minus sign replacement for `x_formatted`
         if is_negative:
