@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import itertools
+
 from dataclasses import dataclass, fields
 from functools import singledispatch
 from typing import TYPE_CHECKING, Literal, get_origin, get_type_hints
@@ -10,6 +12,7 @@ from typing_extensions import TypeAlias
 # up annotations
 from ._gt_data import GTData, FootnoteInfo, Spanners, ColInfoTypeEnum, StyleInfo, FootnotePlacement
 from ._tbl_data import eval_select
+from ._styles import CellStyle
 
 
 if TYPE_CHECKING:
@@ -22,6 +25,15 @@ PlacementOptions: TypeAlias = Literal["auto", "left", "right"]
 # Locations ============================================================================
 # TODO: these are called cells_* in gt. I prefixed them with Loc just to keep things
 # straight while going through helpers.R, but no strong opinion on naming!
+
+
+@dataclass
+class CellPos:
+    """The position of a cell in a DataFrame."""
+
+    column: int
+    row: int
+    colname: str
 
 
 @dataclass
@@ -153,7 +165,7 @@ def resolve_cols_c(
 
 def resolve_cols_i(
     expr: list[str],
-    data: GTData,
+    data: GTData | TblData,
     strict: bool = True,
     excl_stub: bool = True,
     excl_group: bool = True,
@@ -193,13 +205,58 @@ def resolve_cols_i(
 
         tbl_data = data._tbl_data
     else:
-        # TODO: is this path used? In the R program, cols_excl isn't set, so it seems
-        # like it must not get used.
-        tbl_data = data._tbl_data
+        # I am not sure if this gets used in the R program, but it's
+        # convenient for testing
+        tbl_data = data
         cols_excl = []
 
     selected = eval_select(tbl_data, expr, strict)
     return [name_pos for name_pos in selected if name_pos[0] not in cols_excl]
+
+
+# resolving rows ----
+
+
+def resolve_rows_i(
+    expr: list[str | int],
+    data: GTData | list[str],
+    null_means: Literal["everything", "nothing"] = "nothing",
+) -> list[tuple[str, int]]:
+    """Return matching row numbers, based on expr
+
+    Note that this function needs to handle 2 important cases:
+      * tidyselect: everything()
+      * filter-like: _.cyl == 4
+
+    Unlike tidyselect::eval_select, this function returns names in
+    the order they appear in the data (rather than ordered by selectors).
+
+    """
+
+    if isinstance(data, GTData):
+        row_names = [row.rowname for row in data._stub]
+    else:
+        row_names = data
+
+    if isinstance(expr, list):
+        # TODO: manually doing row selection here for now
+        target_names = set(x for x in expr if isinstance(x, str))
+        target_pos = set(
+            indx if indx >= 0 else len(row_names) + indx for indx in expr if isinstance(indx, int)
+        )
+
+        selected = [
+            (name, ii)
+            for ii, name in enumerate(row_names)
+            if (name in target_names or ii in target_pos)
+        ]
+        return selected
+
+    # TODO: identify filter-like selectors using some backend check
+    # e.g. if it's a siuba expression vs tidyselect expression, etc..
+    # TODO: how would this be handled with something like polars? May need a predicate
+    # function, similar in spirit to where()?
+    raise NotImplementedError("Currently, rows can only be selected via a list of strings")
 
 
 # Resolve generic ======================================================================
@@ -223,17 +280,31 @@ def _(loc: LocColumnSpanners, spanners: Spanners) -> LocColumnSpanners:
     return LocColumnSpanners(ids=resolved_spanners)
 
 
+@resolve.register
+def _(loc: LocBody, data: GTData) -> list[CellPos]:
+    cols = resolve_cols_i(loc.columns, data)
+    rows = resolve_rows_i(loc.rows, data)
+
+    # TODO: dplyr arranges by `Var1`, and does distinct (since you can tidyselect the same
+    # thing multiple times
+    cell_pos = [
+        CellPos(col[1], row[1], colname=col[0]) for col, row in itertools.product(cols, rows)
+    ]
+
+    return cell_pos
+
+
 # Style generic ========================================================================
 
 
 @singledispatch
-def set_style(loc: Loc, data: GTData, style: list[str]):
+def set_style(loc: Loc, data: GTData, style: list[str]) -> GTData:
     """Set style for location."""
     raise NotImplementedError(f"Unsupported location type: {type(loc)}")
 
 
 @set_style.register
-def _(loc: LocTitle, data: GTData, style: list[str]):
+def _(loc: LocTitle, data: GTData, style: list[CellStyle]) -> GTData:
     if loc.groups == "title":
         info = StyleInfo(locname="title", locnum=1, styles=style)
     elif loc.groups == "subtitle":
@@ -241,7 +312,21 @@ def _(loc: LocTitle, data: GTData, style: list[str]):
     else:
         raise ValueError(f"Unknown title group: {loc.groups}")
 
-    data._styles.append(info)
+    return data._styles.append(info)
+
+
+@set_style.register
+def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
+    positions = resolve(loc, data)
+
+    all_info: list[StyleInfo] = []
+    for col_pos in positions:
+        crnt_info = StyleInfo(
+            locname="data", locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=style
+        )
+        all_info.append(crnt_info)
+
+    return data._replace(_styles=data._styles + all_info)
 
 
 # Set footnote generic =================================================================

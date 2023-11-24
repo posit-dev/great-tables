@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from ._gt_data import GTData
-from ._locations import Loc
-
 from dataclasses import dataclass
+from functools import singledispatch
 from typing import Optional, Literal
 
 
@@ -12,6 +10,7 @@ from typing import Optional, Literal
 # but have no worked on any runtime validation, etc..
 
 
+# TODO: what goes into CellStyle?
 @dataclass
 class CellStyle:
     """A style specification."""
@@ -60,17 +59,3 @@ class CellStyleBorders(CellStyle):
     style: str
     # TODO: this can include objects like px(1)
     weight: str
-
-
-def tab_style(data: GTData, style: list[CellStyle] | CellStyle, locations: Loc):
-    """Add custom style to one or more cells
-
-    Parameters
-    ----------
-    style:
-        A style specification.
-    location:
-        A location on the table.
-    """
-
-    raise NotImplementedError()

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, List, Union, Callable, Tuple, TYPE_CHECKING
-from ._databackend import AbstractBackend
+from collections import defaultdict
 from functools import singledispatch
+from typing import Any, List, Union, Callable, Tuple, TYPE_CHECKING
+
+from ._databackend import AbstractBackend
 
 import pandas as pd
 
@@ -200,14 +202,15 @@ def eval_select(data: DataFrameLike, expr: Any, strict: bool = True) -> _NamePos
 
 
 @eval_select.register
-def _(data: PdDataFrame, expr: Union[List[str], Callable[[str], bool]], strict=True) -> _NamePos:
-    col_pos = {k: ii for ii, k in enumerate(data.columns)}
+def _(
+    data: PdDataFrame, expr: Union[List[Union[str, int]], Callable[[str], bool]], strict=True
+) -> _NamePos:
     if isinstance(expr, list):
-        # TODO: should prohibit duplicate names in expr?
-        return [(col, col_pos[col]) for col in expr if col in data.columns]
+        return _eval_select_from_list(list(data.columns), expr)
     elif callable(expr):
         # TODO: currently, we call on each string, but we could be calling on
         # pd.DataFrame.columns instead (which would let us use pandas .str methods)
+        col_pos = {k: ii for ii, k in enumerate(list(data.columns))}
         return [(col, col_pos[col]) for col in data.columns if expr(col)]
 
     raise NotImplementedError(f"Unsupported selection expr: {expr}")
@@ -231,3 +234,23 @@ def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) 
 
     # I don't think there's a way to get the columns w/o running the selection
     return [(col, col_pos[col]) for col in data.select(expr).columns]
+
+
+def _eval_select_from_list(columns: list[str], expr: list[str | int]) -> list[tuple[str, int]]:
+    col_pos = {k: ii for ii, k in enumerate(columns)}
+
+    # TODO: should prohibit duplicate names in expr?
+    res: list[tuple[str, int]] = []
+    for col in expr:
+        if isinstance(col, str):
+            if col in col_pos:
+                res.append((col, col_pos[col]))
+        elif isinstance(col, int):
+            _pos = col if col >= 0 else len(columns) + col
+            res.append((columns[col], _pos))
+        else:
+            raise TypeError(
+                f"eval_select received a list with object of type {type(col)}."
+                " Only int and str are supported."
+            )
+    return res
