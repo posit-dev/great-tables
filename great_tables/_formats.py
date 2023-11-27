@@ -182,6 +182,26 @@ def fmt_number(
     Note that a `locale` value provided here will override any global locale setting performed in
     `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
     that have a `locale` argument).
+
+    Examples
+    --------
+
+    Let's use the `exibble` dataset to create a table. With the `fmt_number()` method, we'll format
+    the `num` column to have three decimal places (with `decimals=3`) and omit the use of digit
+    separators (with `use_seps=False`).
+
+    ```{python}
+    import great_tables as gt
+
+    gt.GT(gt.exibble).fmt_number(columns="num", decimals=3, use_seps=False)
+    ```
+
+    See Also
+    --------
+    The `fmt_integer()` method might be more useful if you really need to format numeric values to
+    appear as integers (i.e., no decimals will be shown and input values are rounded as necessary).
+    Need to do numeric formatting on a vector? Take a look at the vector-formatting version of
+    this method: `vals_fmt_number()`.
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
