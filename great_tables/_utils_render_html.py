@@ -1,5 +1,6 @@
 from great_tables._spanners import spanners_print_matrix, seq_groups
 from ._gt_data import GTData
+from ._tbl_data import n_rows, _get_cell
 from typing import List, Any
 from htmltools import tags, HTML, css, TagList
 from itertools import groupby, chain
@@ -33,10 +34,10 @@ def create_columns_component_h(data: GTData) -> str:
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
 
     # Get the column alignments and also the alignment class names
-    col_alignment = data._boxhead._get_visible_alignments()
+    # col_alignment = data._boxhead._get_default_alignments()
 
     # Replace None values in `col_alignment` with "left"
-    col_alignment = ["left" if x == "None" else x for x in col_alignment]
+    # col_alignment = ["left" if x == "None" else x for x in col_alignment]
 
     # TODO: Modify alignments for RTL support, skip this for now
     # Detect any RTL script characters within the visible columns;
@@ -52,8 +53,7 @@ def create_columns_component_h(data: GTData) -> str:
     #         col_alignment[i] = "right"
 
     # Get the column headings
-    headings_vars = boxhead._get_visible_columns()
-    headings_labels = boxhead._get_visible_column_labels()
+    headings_info = boxhead._get_default_columns()
 
     # TODO: Skipping styles for now
     # Get the style attrs for the stubhead label
@@ -64,8 +64,8 @@ def create_columns_component_h(data: GTData) -> str:
     # column_style_attrs = subset(styles_tbl, locname == "columns_columns")
 
     # If columns are present in the stub, then replace with a set stubhead label or nothing
-    if len(stub_layout) > 0 and len(stubh.stubhead) > 0:
-        stub_label = stubh.stubhead
+    if len(stub_layout) > 0 and stubh is not None:
+        stub_label = stubh
         stub_var = "::stub"
     else:
         stub_label = ""
@@ -101,9 +101,7 @@ def create_columns_component_h(data: GTData) -> str:
 
         #
         # Create the headings in the case where there are no spanners at all -------------------------
-        col_entries = [*zip(headings_vars, headings_labels, col_alignment)]
-
-        for var_, label, alignment in col_entries:
+        for info in headings_info:
             # NOTE: Ignore styles for now
             # styles_column = subset(column_style_attrs, colnum == i)
             #
@@ -114,13 +112,13 @@ def create_columns_component_h(data: GTData) -> str:
 
             table_col_headings.append(
                 tags.th(
-                    HTML(label),
-                    class_=f"gt_col_heading gt_columns_bottom_border gt_{str(alignment)}",
+                    HTML(info.column_label),
+                    class_=f"gt_col_heading gt_columns_bottom_border gt_{info.defaulted_align}",
                     rowspan=1,
                     colspan=1,
                     style=column_style,
                     scope="col",
-                    id=str(label),
+                    id=str(info.column_label),
                 )
             )
 
@@ -186,7 +184,7 @@ def create_columns_component_h(data: GTData) -> str:
 
         colspans = list(chain(*group_spans))
 
-        for ii, (span_key, h_var) in enumerate(zip(spanner_col_names, headings_vars)):
+        for ii, (span_key, h_info) in enumerate(zip(spanner_col_names, headings_info)):
             if spanner_ids[level_1_index][span_key] is None:
                 # NOTE: Ignore styles for now
                 # styles_heading = filter(
@@ -199,17 +197,17 @@ def create_columns_component_h(data: GTData) -> str:
 
                 # Get the alignment for the current column from the `col_alignment` list
                 # by using the `h_var` value to obtain the index of the alignment value
-                first_set_alignment = col_alignment[headings_vars.index(h_var)]
+                first_set_alignment = h_info.defaulted_align
 
                 level_1_spanners.append(
                     tags.th(
-                        HTML(h_var),
+                        HTML(h_info.column_label),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{str(first_set_alignment)}",
                         rowspan=2,
                         colspan=1,
                         style=heading_style,
                         scope="col",
-                        id=h_var,
+                        id=h_info.column_label,
                     )
                 )
 
@@ -239,7 +237,7 @@ def create_columns_component_h(data: GTData) -> str:
                                 HTML(spanner_ids_level_1_index[ii]),
                                 class_="gt_column_spanner",
                             ),
-                            class_="gt_col_heading gt_columns_bottom_border gt_column_spanner_outer",
+                            class_="gt_center gt_columns_top_border gt_column_spanner_outer",
                             rowspan=1,
                             colspan=colspans[ii],
                             style=spanner_style,
@@ -376,6 +374,54 @@ def create_columns_component_h(data: GTData) -> str:
     return str(table_col_headings)
 
 
+def create_body_component_h(data: GTData) -> str:
+    import pandas as pd
+
+    # for now, just coerce everything in the original data to a string
+    # so we can fill in the body data with it
+    _str_orig_data = data._tbl_data.applymap(lambda x: str(x) if not pd.isna(x) else x)
+
+    tbl_data = data._body.body.fillna(_str_orig_data)
+
+    # Get the default column vars
+    column_vars = data._boxhead._get_default_columns()
+
+    stub_var = data._boxhead._get_stub_column()
+
+    # If there is a stub, then prepend that to the `column_vars` list
+    if stub_var is not None:
+        column_vars = [stub_var] + column_vars
+
+    body_rows: List[str] = []
+
+    for i in range(n_rows(tbl_data)):
+        body_cells: List[str] = []
+
+        for colinfo in column_vars:
+            cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
+            cell_str: str = str(cell_content)
+
+            # Determine whether this cell is a stub cell
+            is_stub_cell = colinfo.var == stub_var
+
+            # Get alignment for the current column from the `col_alignment` list
+            # by using the `name` value to obtain the index of the alignment value
+            cell_alignment = colinfo.defaulted_align
+
+            if is_stub_cell:
+                body_cells.append(
+                    f'  <th class="gt_row gt_{cell_alignment} gt_stub">' + cell_str + "</th>"
+                )
+            else:
+                body_cells.append(f'  <td class="gt_row gt_{cell_alignment}">' + cell_str + "</td>")
+
+        body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
+
+    all_body_rows = "\n".join(body_rows)
+
+    return f'<tbody class="gt_table_body">\n{all_body_rows}\n</tbody>'
+
+
 def rtl_modern_unicode_charset() -> str:
     """
     Returns a string containing a regular expression that matches all characters
@@ -415,35 +461,6 @@ def rtl_modern_unicode_charset() -> str:
     )
 
     return rtl_modern_unicode_charset
-
-
-def _collapse_list_elements(lst, separator=""):
-    """
-    Concatenates all elements of a list into a single string, separated by a given separator.
-
-    Args:
-        lst (list): The list to be collapsed.
-        separator (str, optional): The separator to be used. Defaults to "".
-
-    Returns:
-        str: The collapsed string.
-    """
-    return separator.join(lst)
-
-
-def _insert_into_list(lst: List[Any], el: Any) -> List[Any]:
-    """
-    Inserts an element into the beginning of a list and returns the updated list.
-
-    Args:
-        lst (List[Any]): The list to insert the element into.
-        el (Any): The element to insert.
-
-    Returns:
-        List[Any]: The updated list with the element inserted at the beginning.
-    """
-    lst.insert(0, el)
-    return lst
 
 
 def _get_spanners_matrix_height(
@@ -546,7 +563,7 @@ def _stub_group_names_has_column(data: GTData) -> bool:
 
 
 def _row_groups_get(data: GTData) -> List[str]:
-    return data._row_groups._d
+    return data._row_groups
 
 
 def _summary_exists(data: GTData):

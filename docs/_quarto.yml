@@ -1,7 +1,6 @@
 project:
   type: website
 
-
 website:
   title: great_tables
   page-navigation: true
@@ -22,19 +21,15 @@ website:
     - id: examples
       contents: examples-qmd/*
 
-
-
 format:
   html:
     theme: cosmo
     # css: styles.css
     toc: true
 
-
 # tell quarto to read the generated sidebar
 metadata-files:
   - _sidebar.yml
-
 
 quartodoc:
   # the name used to import the package
@@ -48,50 +43,57 @@ quartodoc:
     - title: Table Creation
       contents:
         - GT
-        # TODO: not sure where this function is
-        # - gt_preview
     - title: Creating or modifying parts of a table
       contents:
         - GT.tab_header
-        - GT.tab_options
-        - GT.tab_source_note
+        - GT.tab_spanner
         - GT.tab_stubhead
+        - GT.tab_source_note
+        - GT.tab_options
     - title: Formatting column data
       contents:
         - GT.fmt_number
         - GT.fmt_integer
         - GT.fmt_percent
         - GT.fmt_scientific
-        - GT.fmt_engineering
+        - GT.fmt_currency
+        - GT.fmt_bytes
+        - GT.fmt_roman
+        - GT.fmt_date
+        - GT.fmt_time
+        - GT.fmt_markdown
         - GT.fmt
-    - title: Text transformation
     - title: Modifying columns
       contents:
+        - GT.cols_align
         - GT.cols_label
-    - title: Adding or modifying rows
-    - title: Removing parts of a table
+        - GT.cols_move
+        - GT.cols_move_to_start
+        - GT.cols_move_to_end
     - title: Helper functions
       contents:
         - md
         - html
         - px
         - pct
-        # - from_column
-        # - currency
-        # - nanoplot_options
-        # - adjust_luminance
-    - title: Image addition utilities
     - title: Table options
       contents:
         - GT.opt_align_table_header
         - GT.opt_all_caps
         - GT.opt_footnote_marks
         - GT.opt_row_striping
-    - title: Informational tables for reference
-    - title: Shiny
-    - title: Export and extraction functions
-    - title: Working with table groups
-    - title: Vector formatting
+    - title: Value formatting functions
+      contents:
+        - vals_fmt_number
+        - vals_fmt_integer
+        - vals_fmt_scientific
+        - vals_fmt_percent
+        - vals_fmt_currency
+        - vals_fmt_roman
+        - vals_fmt_bytes
+        - vals_fmt_date
+        - vals_fmt_time
+        - vals_fmt_markdown
     - title: Built in datasets
       contents:
         - data.countrypops
@@ -102,4 +104,5 @@ quartodoc:
         - data.exibble
         - data.towny
         - data.metro
+        - data.constants
         - data.illness

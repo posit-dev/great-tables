@@ -4,6 +4,7 @@ output: html
 jupyter: python3
 execute:
   eval: false
+html-table-processing: none
 ---
 
 ```{python}

@@ -4,7 +4,7 @@ import pytest
 
 
 def test_get_row_reorder_df_simple():
-    groups = RowGroups(["b", "a"])
+    groups = ["b", "a"]
     stub = Stub([RowInfo(0, "a"), RowInfo(1, "b"), RowInfo(2, "a")])
 
     start_end = get_row_reorder_df(groups, stub)
@@ -13,7 +13,7 @@ def test_get_row_reorder_df_simple():
 
 
 def test_get_row_reorder_df_no_groups():
-    groups = RowGroups()
+    groups = []
     stub = Stub([RowInfo(0, "a"), RowInfo(1, "b")])
 
     with pytest.raises(ValueError):

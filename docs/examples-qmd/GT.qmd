@@ -2,6 +2,7 @@
 title: GT
 output: html
 jupyter: python3
+html-table-processing: none
 ---
 
 ```{python}
@@ -63,9 +64,7 @@ However which way you generate the initial gt table object, you can use it with 
 
 ```{python}
 # | eval: false
-gt.GT(
-    exibble, rowname_col="row", groupname_col="group", locale="fr"
-).fmt_number().fmt_date(columns="date", date_style="yMEd").fmt_datetime(
-    columns="datetime", format="EEEE, MMMM d, y", locale="en"
-)
+gt.GT(exibble, rowname_col="row", groupname_col="group", locale="fr").fmt_number().fmt_date(
+    columns="date", date_style="yMEd"
+).fmt_datetime(columns="datetime", format="EEEE, MMMM d, y", locale="en")
 ```

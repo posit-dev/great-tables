@@ -23,37 +23,60 @@ def tab_spanner(
     id: Optional[str] = None,
     gather: bool = True,
     replace: bool = False,
-):
-    """Insert a spanner in the column labels part of a gt table.
+) -> GTData:
+    """
+    Insert a spanner in the column labels part of a gt table.
 
-    This part of the table contains, at a minimum, column labels and, optionally, an
-    unlimited number of levels for spanners. A spanner will occupy space over any number
-    of contiguous column labels and it will have an associated label and ID value. This
-    function allows for mapping to be defined by column names, existing spanner ID values,
-    or a mixture of both.
+    This part of the table contains, at a minimum, column labels and, optionally, an unlimited
+    number of levels for spanners. A spanner will occupy space over any number of contiguous column
+    labels and it will have an associated label and ID value. This function allows for mapping to be
+    defined by column names, existing spanner ID values, or a mixture of both.
 
-    The spanners are placed in the order of calling tab_spanner() so if a later call uses
-    the same columns in its definition (or even a subset) as the first invocation, the
-    second spanner will be overlaid atop the first. Options exist for forcibly inserting a
-    spanner underneath other (with level as space permits) and with replace, which allows
-    for full or partial spanner replacement.
+    The spanners are placed in the order of calling `tab_spanner()` so if a later call uses the same
+    columns in its definition (or even a subset) as the first invocation, the second spanner will be
+    overlaid atop the first. Options exist for forcibly inserting a spanner underneath others (with
+    `level` as space permits) and with `replace`, which allows for full or partial spanner
+    replacement.
 
     Parameters
     ----------
-    label:
-        Spanner label text.
-    columns:
-        Columns to target.
-    spanners:
-        Spanners to target.
-    level:
-        Spanner level for insertion.
-    id:
-        Spanner ID.
-    gather:
-        Gather columns together.
-    replace:
-        Replace existing spanners.
+    label : str
+        The text to use for the spanner label. We can optionally use the [md()] and [html()] helpers
+        to style the text as Markdown or to retain HTML elements in the text.
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    spanners : Union[list[str], str, None]
+        The spanners that should be spanned over, should they already be defined. One or more
+        spanner ID values (in quotes) can be supplied here. This argument works in tandem with the
+        `columns` argument.
+    level : Optional[int]
+        An explicit level to which the spanner should be placed. If not provided, **great_tables**
+        will choose the level based on the inputs provided within `columns` and `spanners`, placing
+        the spanner label where it will fit. The first spanner level (right above the column labels)
+        is `0`.
+    id : Optional[str]
+        The ID for the spanner. When accessing a spanner through the `spanners` argument of
+        `tab_spanner()` or `cells_column_spanners()` (when using `tab_style()` or `tab_footnote()`)
+        the `id` value is used as the reference (and not the `label`). If an `id` is not explicitly
+        provided here, it will be taken from the `label` value. It is advisable to set an explicit
+        `id` value if you plan to access this cell in a later function call and the label text is
+        complicated (e.g., contains markup, is lengthy, or both). Finally, when providing an `id`
+        value you must ensure that it is unique across all ID values set for spanner labels (the
+        function will stop if `id` isn't unique).
+    gather : bool
+        An option to move the specified `columns` such that they are unified under the spanner.
+        Ordering of the moved-into-place columns will be preserved in all cases. By default, this
+        is set to `True`.
+    replace : bool
+        Should new spanners be allowed to partially or fully replace existing spanners? (This is a
+        possibility if setting spanners at an already populated `level`.) By default, this is set to
+        `False` and an error will occur if some replacement is attempted.
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
     """
 
     crnt_spanner_ids = [span.spanner_id for span in data._spanners]
@@ -88,7 +111,7 @@ def tab_spanner(
         assert set(spanners).issubset(set(crnt_spanner_ids))
         spanner_ids = spanners
     else:
-        spanner_ids = crnt_spanner_ids
+        spanner_ids = []
 
     if not len(selected_column_names) and not len(spanner_ids):
         return data
@@ -144,7 +167,6 @@ def cols_move(data: GTData, columns: Union[str, list[str]], after: str) -> GTDat
     columns : Union[List[str]]
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-
     after : str
         The column after which the `columns` should be placed. This can be any column name that
         exists in the table.
@@ -307,7 +329,7 @@ def spanners_print_matrix(
 
     spanner_height = len(_lvls)
     # TODO: span.built can be None. When does it get set?
-    spanner_reprs = [span.spanner_id if ids else span.built for span in crnt_spans]
+    spanner_reprs = [span.spanner_id if ids else span.built_label() for span in crnt_spans]
 
     # Create a matrix with dimension spanner_height x vars (e.g. presented columns)
     label_matrix: SpannerMatrix = [

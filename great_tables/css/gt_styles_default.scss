@@ -1,6 +1,17 @@
+
+thead, tbody, tfoot, tr, td, th {
+  border-style: none;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
 .gt_table {
   display: table;
   border-collapse: collapse;
+  line-height: normal;
   margin-left: $table_margin_left;
   margin-right: $table_margin_right;
   color: font-color($table_background_color);
@@ -23,16 +34,9 @@
   border-left-color: $table_border_left_color;
 }
 
-.gt_heading {
-  background-color: $heading_background_color;
-  text-align: $heading_align;
-  border-bottom-color: $table_background_color;
-  border-left-style: $heading_border_lr_style;
-  border-left-width: $heading_border_lr_width;
-  border-left-color: $heading_border_lr_color;
-  border-right-style: $heading_border_lr_style;
-  border-right-width: $heading_border_lr_width;
-  border-right-color: $heading_border_lr_color;
+.gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .gt_title {
@@ -51,12 +55,24 @@
   color: font-color($heading_background_color);
   font-size: $heading_subtitle_font_size;
   font-weight: $heading_subtitle_font_weight;
-  padding-top: 0;
-  padding-bottom: $heading_padding + 2;
+  padding-top: $heading_padding - 1;
+  padding-bottom: $heading_padding + 1;
   padding-left: $heading_padding_horizontal;
   padding-right: $heading_padding_horizontal;
   border-top-color: $table_background_color;
   border-top-width: 0;
+}
+
+.gt_heading {
+  background-color: $heading_background_color;
+  text-align: $heading_align;
+  border-bottom-color: $table_background_color;
+  border-left-style: $heading_border_lr_style;
+  border-left-width: $heading_border_lr_width;
+  border-left-color: $heading_border_lr_color;
+  border-right-style: $heading_border_lr_style;
+  border-right-width: $heading_border_lr_width;
+  border-right-color: $heading_border_lr_color;
 }
 
 .gt_bottom_border {
@@ -86,9 +102,9 @@
   font-size: $column_labels_font_size;
   font-weight: $column_labels_font_weight;
   text-transform: $column_labels_text_transform;
-  border-left-style:  $column_labels_vlines_style;
-  border-left-width:  $column_labels_vlines_width;
-  border-left-color:  $column_labels_vlines_color;
+  border-left-style: $column_labels_vlines_style;
+  border-left-width: $column_labels_vlines_width;
+  border-left-color: $column_labels_vlines_color;
   border-right-style: $column_labels_vlines_style;
   border-right-width: $column_labels_vlines_width;
   border-right-color: $column_labels_vlines_color;
@@ -130,6 +146,10 @@
   width: 100%;
 }
 
+.gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
 .gt_group_heading {
   padding-top: $row_group_padding;
   padding-bottom: $row_group_padding;
@@ -153,6 +173,7 @@
   border-right-width: $row_group_border_right_width;
   border-right-color: $row_group_border_right_color;
   vertical-align: middle;
+  text-align: left;
 }
 
 .gt_empty_group_heading {
@@ -206,7 +227,7 @@
   border-right-style: $stub_border_style;
   border-right-width: $stub_border_width;
   border-right-color: $stub_border_color;
-  padding-left:  $data_row_padding_horizontal;
+  padding-left: $data_row_padding_horizontal;
   padding-right: $data_row_padding_horizontal;
 }
 
@@ -219,12 +240,16 @@
   border-right-style: $stub_row_group_border_style;
   border-right-width: $stub_row_group_border_width;
   border-right-color: $stub_row_group_border_color;
-  padding-left:  $row_group_padding_horizontal;
+  padding-left: $row_group_padding_horizontal;
   padding-right: $row_group_padding_horizontal;
   vertical-align: top;
 }
 
 .gt_row_group_first td {
+  border-top-width: $row_group_border_top_width;
+}
+
+.gt_row_group_first th {
   border-top-width: $row_group_border_top_width;
 }
 
@@ -277,6 +302,16 @@
   border-top-color: $grand_summary_row_border_color;
 }
 
+.gt_last_grand_summary_row_top {
+  padding-top: $grand_summary_row_padding;
+  padding-bottom: $grand_summary_row_padding;
+  padding-left: $grand_summary_row_padding_horizontal;
+  padding-right: $grand_summary_row_padding_horizontal;
+  border-bottom-style: $grand_summary_row_border_style;
+  border-bottom-width: $grand_summary_row_border_width;
+  border-bottom-color: $grand_summary_row_border_color;
+}
+
 .gt_striped {
    background-color: $row_striping_background_color;
 }
@@ -296,9 +331,9 @@
   border-bottom-style: $footnotes_border_bottom_style;
   border-bottom-width: $footnotes_border_bottom_width;
   border-bottom-color: $footnotes_border_bottom_color;
-  border-left-style:  $footnotes_border_lr_style;
-  border-left-width:  $footnotes_border_lr_width;
-  border-left-color:  $footnotes_border_lr_color;
+  border-left-style: $footnotes_border_lr_style;
+  border-left-width: $footnotes_border_lr_width;
+  border-left-color: $footnotes_border_lr_color;
   border-right-style: $footnotes_border_lr_style;
   border-right-width: $footnotes_border_lr_width;
   border-right-color: $footnotes_border_lr_color;
@@ -319,9 +354,9 @@
   border-bottom-style: $source_notes_border_bottom_style;
   border-bottom-width: $source_notes_border_bottom_width;
   border-bottom-color: $source_notes_border_bottom_color;
-  border-left-style:  $source_notes_border_lr_style;
-  border-left-width:  $source_notes_border_lr_width;
-  border-left-color:  $source_notes_border_lr_color;
+  border-left-style: $source_notes_border_lr_style;
+  border-left-width: $source_notes_border_lr_width;
+  border-left-color: $source_notes_border_lr_color;
   border-right-style: $source_notes_border_lr_style;
   border-right-width: $source_notes_border_lr_width;
   border-right-color: $source_notes_border_lr_color;
@@ -364,41 +399,13 @@
   font-size: 65%;
 }
 
-.gt_two_val_uncert {
-  display: inline-block;
-  line-height: 1em;
-  text-align: right;
-  font-size: 60%;
-  vertical-align: -0.25em;
-  margin-left: 0.1em;
-}
-
 .gt_footnote_marks {
-  font-style: italic;
-  font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
+  position: initial;
 }
 
 .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
-}
-
-.gt_slash_mark {
-  font-size: 0.7em;
-  line-height: 0.7em;
-  vertical-align: 0.15em;
-}
-
-.gt_fraction_numerator {
-  font-size: 0.6em;
-  line-height: 0.6em;
-  vertical-align: 0.45em;
-}
-
-.gt_fraction_denominator {
-    font-size: 0.6em;
-    line-height: 0.6em;
-    vertical-align: -0.05em;
 }

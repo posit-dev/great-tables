@@ -1,6 +1,7 @@
 from typing import Optional, Union, List, Any
 import pandas as pd
 import json
+import re
 
 
 def heading_has_title(title: Optional[str]) -> bool:
@@ -104,3 +105,40 @@ def _object_as_dict(v: Any) -> Any:
 
 def prettify_gt_object(v: Any) -> str:
     return json.dumps(_object_as_dict(v), indent=2)
+
+
+def _collapse_list_elements(lst, separator=""):
+    """
+    Concatenates all elements of a list into a single string, separated by a given separator.
+
+    Args:
+        lst (list): The list to be collapsed.
+        separator (str, optional): The separator to be used. Defaults to "".
+
+    Returns:
+        str: The collapsed string.
+    """
+    return separator.join(lst)
+
+
+def _insert_into_list(lst: List[Any], el: Any) -> List[Any]:
+    """
+    Inserts an element into the beginning of a list and returns the updated list.
+
+    Args:
+        lst (List[Any]): The list to insert the element into.
+        el (Any): The element to insert.
+
+    Returns:
+        List[Any]: The updated list with the element inserted at the beginning.
+    """
+    lst.insert(0, el)
+    return lst
+
+
+def _str_replace(string: str, pattern: str, replace: str) -> str:
+    return string.replace(pattern, replace)
+
+
+def _str_detect(string: str, pattern: str) -> bool:
+    return bool(re.match(pattern, string))

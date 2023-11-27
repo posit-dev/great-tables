@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Any, List, Optional, cast
-from typing_extensions import Self
 import pkg_resources
 
 import sass
@@ -25,9 +24,10 @@ from great_tables._formats import (
     fmt_integer,
     fmt_scientific,
     fmt_currency,
-    fmt_engineering,
     fmt_bytes,
     fmt_roman,
+    fmt_date,
+    fmt_time,
     fmt_markdown,
 )
 from great_tables._heading import HeadingAPI
@@ -38,7 +38,7 @@ from great_tables._source_notes import tab_source_note
 from great_tables._spanners import tab_spanner, cols_move, cols_move_to_start, cols_move_to_end
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import StubheadAPI
-from great_tables._utils_render_html import create_columns_component_h
+from great_tables._utils_render_html import create_columns_component_h, create_body_component_h
 from great_tables._helpers import random_id
 
 
@@ -78,18 +78,75 @@ class GT(
     OptionsAPI,
 ):
     """
-    Create a gt Table object.
+    Create a **great_tables** object.
 
-    Methods
+    The `GT()` class creates a **great_tables** object when provided with tabular data. Using this
+    is the first step in a typical **great_tables** workflow. Once we have this object, we can
+    perform numerous transformations before rendering to a display table.
+
+    There are a few data ingest options we can consider at this stage. We can choose to create a
+    table stub containing row labels through the use of the `rowname_col` argument. Further to this,
+    stub row groups can be created with the `groupname_col` argument. Both arguments take the name
+    of a column in the input table data. Typically, the data in the `groupname_col` column will
+    consist of categorical text whereas the data in the `rowname_col` column will contain unique
+    labels (could be unique across the entire table or unique within the different row groups).
+
+    Parameters
+    ----------
+    data : Any
+        A DataFrame object.
+    rowname_col : str | None
+        The column name in the input `data` table to use as row labels to be placed in the table
+        stub.
+    groupname_col : str | None
+        The column name in the input `data` table to use as group labels for generation of row
+        groups.
+    auto_align : bool
+        Optionally have column data be aligned depending on the content contained in each column of
+        the input `data`.
+    locale : str
+        An optional locale identifier that can be set as the default locale for all functions that
+        take a `locale` argument. Examples include `"en"` for English (United States) and `"fr"`
+        for French (France).
+
+    Returns
     -------
-        render: Renders and returns the HTML table.
+    GTData
+        A GTData object is returned.
 
     Examples
     --------
-        >>> from gt import *
-        >>> x = GT([{"a": 5, "b": 10}, {"a": 15, "b": 20}])
-        >>> x
-        >>> print(x)
+
+    Let's use the `exibble` dataset for the next few examples, we'll learn how to make simple
+    output tables with the `GT()` class. The most basic thing to do is to just use `GT()` with the
+    dataset as the input.
+
+    ```{python}
+    import great_tables as gt
+
+    gt.GT(gt.exibble)
+    ```
+
+    This dataset has the `row` and `group` columns. The former contains unique values that are ideal
+    for labeling rows, and this often happens in what is called the 'stub' (a reserved area that
+    serves to label rows). With the `GT()` class, we can immediately place the contents of the `row`
+    column into the stub column. To do this, we use the `rowname_col` argument with the appropriate
+    column name.
+
+    ```{python}
+    gt.GT(gt.exibble, rowname_col=\"row\")
+    ```
+
+    This sets up a table with a stub, the row labels are placed within the stub column, and a
+    vertical dividing line has been placed on the right-hand side.
+
+    By default, values in the body of a table (and their column labels) are automatically aligned.
+    The alignment is governed by the types of values in a column. If you'd like to disable this form
+    of auto-alignment, the `auto_align=False` option can be taken.
+
+    ```{python}
+    gt.GT(gt.exibble, rowname_col=\"row\", auto_align=False)
+    ```
     """
 
     def _repr_html_(self):
@@ -98,10 +155,10 @@ class GT(
     def __init__(
         self,
         data: Any,
-        locale: str = "",  # TODO: Should probably have a default of None
         rowname_col: str | None = None,
         groupname_col: str | None = None,
         auto_align: bool = True,
+        locale: str | None = None,
     ):
         # This is a bad idea ----
         gtdata = GTData.from_data(
@@ -109,19 +166,20 @@ class GT(
             locale=locale,
             rowname_col=rowname_col,
             groupname_col=groupname_col,
-            auto_align=auto_align,  # TODO: use this to generate default alignments based on column dtypes
+            auto_align=auto_align,
         )
         super().__init__(**gtdata.__dict__)
 
     # TODO: Refactor API methods -----
     fmt_number = fmt_number
-    fmt_percent = fmt_percent
     fmt_integer = fmt_integer
+    fmt_percent = fmt_percent
     fmt_scientific = fmt_scientific
     fmt_currency = fmt_currency
-    fmt_engineering = fmt_engineering
     fmt_bytes = fmt_bytes
     fmt_roman = fmt_roman
+    fmt_date = fmt_date
+    fmt_time = fmt_time
     fmt_markdown = fmt_markdown
 
     tab_spanner = tab_spanner
@@ -196,11 +254,17 @@ class GT(
     def _render_as_html(self) -> str:
         heading_component = _create_heading_component(self)
         column_labels_component = create_columns_component_h(self)
-        body_component = _create_body_component(self)
+        body_component = create_body_component_h(self)
         source_notes_component = _create_source_notes_component(self)
         footnotes_component = _create_footnotes_component(self)
 
-        html_table = f"""<table class=\"gt_table\">
+        # Determine whether Quarto processing of the table is enabled
+        quarto_disable_processing = self._options._get_option_value("quarto_disable_processing")
+        quarto_use_bootstrap = self._options._get_option_value("quarto_use_bootstrap")
+        quarto_disable_processing = str(quarto_disable_processing).lower()
+        quarto_use_bootstrap = str(quarto_use_bootstrap).lower()
+
+        html_table = f"""<table class=\"gt_table\" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">
 {heading_component.make_string()}
 {column_labels_component}
 {body_component}
@@ -333,114 +397,6 @@ def _create_heading_component(data: GT) -> StringBuilder:
         result.append(f"\n{subtitle_row}")
 
     return StringBuilder('<thead class="gt_header">', result, "</thead>")
-
-
-def _create_body_component(data: GT):
-    import pandas as pd
-
-    # for now, just coerce everything in the original data to a string
-    # so we can fill in the body data with it
-    _str_orig_data = data._tbl_data.applymap(lambda x: str(x) if not pd.isna(x) else x)
-
-    tbl_data = data._body.body.fillna(_str_orig_data)
-
-    column_names = data._boxhead._get_visible_columns()
-
-    body_rows: List[str] = []
-
-    for i in range(n_rows(tbl_data)):
-        body_cells: List[str] = []
-
-        for name in column_names:
-            cell_content: Any = _get_cell(tbl_data, i, name)
-            cell_str: str = str(cell_content)
-
-            body_cells.append('  <td class="gt_row">' + cell_str + "</td>")
-
-        body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
-
-    all_body_rows = "\n".join(body_rows)
-
-    return f'<tbody class="gt_table_body">\n{all_body_rows}\n</tbody>'
-
-
-def _get_stub_layout(data: GT) -> List[str]:
-    # Determine which stub components are potentially present as columns
-    stub_rownames_is_column = _stub_rownames_has_column(data=data)
-    stub_groupnames_is_column = _stub_group_names_has_column(data=data)
-
-    # Get the potential total number of columns in the table stub
-    n_stub_cols = stub_rownames_is_column + stub_groupnames_is_column
-
-    # Resolve the layout of the stub (i.e., the roles of columns if present)
-    if n_stub_cols == 0:
-        # If summary rows are present, we will use the `rowname` column
-        # for the summary row labels
-        if _summary_exists(data=data):
-            stub_layout = ["rowname"]
-        else:
-            stub_layout = []
-
-    else:
-        stub_layout = [
-            label
-            for label, condition in [
-                ("group_label", stub_groupnames_is_column),
-                ("rowname", stub_rownames_is_column),
-            ]
-            if condition
-        ]
-
-    return stub_layout
-
-
-# Determine whether the table should have row labels set within a column in the stub
-def _stub_rownames_has_column(data: GT) -> bool:
-    return "row_id" in _get_stub_components(data=data)
-
-
-# Determine whether the table has any row labels or row groups defined and provide
-# a simple list that contains at a maximum two components
-def _get_stub_components(data: GT):
-    # TODO: we should be using `row_id` instead of `rowname`
-    # Obtain the object that describes the table stub
-    tbl_stub = data._stub
-
-    # Get separate lists of `group_id` and `row_id` values from the `_stub` object
-    group_id_vals = [tbl_stub[i].group_id for i in range(len(tbl_stub))]
-    rowname_vals = [tbl_stub[i].rowname for i in range(len(tbl_stub))]
-
-    stub_components: list[str] = []
-
-    if any(x is not None for x in group_id_vals):
-        stub_components.append("group_id")
-
-    if any(x is not None for x in rowname_vals):
-        stub_components.append("row_id")
-
-    return stub_components
-
-
-# Determine whether the table should have row group labels set within a column in the stub
-def _stub_group_names_has_column(data: GT) -> bool:
-    # If there aren't any row groups then the result is always False
-    if len(_row_groups_get(data=data)) < 1:
-        return False
-
-    # Given that there are row groups, we need to look at the option `row_group_as_column` to
-    # determine whether they populate a column located in the stub; if set as True then that's
-    # the return value
-    row_group_as_column = data._options._get_option_value(option="row_group_as_column")
-
-    row_group_as_column: Any
-    if not isinstance(row_group_as_column, bool):
-        raise TypeError("Variable type mismatch. Expected bool, got something entirely different.")
-
-    return row_group_as_column
-
-
-def _row_groups_get(data: GT) -> List[str]:
-    return data._row_groups._d
 
 
 def _create_source_notes_component(data: GT) -> str:

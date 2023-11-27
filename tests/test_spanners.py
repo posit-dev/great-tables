@@ -33,6 +33,18 @@ def boxhead():
     )
 
 
+def test_spanners_next_level_above_first(spanners):
+    assert spanners.next_level(["col1"]) == 1
+
+
+def test_spanners_next_level_above_second(spanners):
+    assert spanners.next_level(["col2"]) == 2
+
+
+def test_spanners_next_level_unique(spanners):
+    assert spanners.next_level(["col3"]) == 0
+
+
 def test_spanners_print_matrix(spanners, boxhead):
     mat, vars = spanners_print_matrix(spanners, boxhead)
     assert vars == ["col1", "col2", "col3"]
@@ -97,6 +109,21 @@ def test_tab_spanners_with_spanner_ids():
     gt_with_span = tab_spanner(src_gt, "a_spanner", columns=["b", "a"], gather=False)
 
     new_gt = tab_spanner(gt_with_span, "b_spanner", spanners="a_spanner", columns=["c"])
+
+    assert len(new_gt._spanners) == 2
+    assert new_gt._spanners[1] == dst_span
+
+
+def test_tab_spanners_overlap():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    src_gt = GT(df)
+
+    # we'll be testing for this second spanner added
+    dst_span = SpannerInfo("b_spanner", 0, "b_spanner", vars=["b"])
+
+    new_gt = src_gt.tab_spanner("a_spanner", columns=["a"], gather=False).tab_spanner(
+        "b_spanner", columns=["b"]
+    )
 
     assert len(new_gt._spanners) == 2
     assert new_gt._spanners[1] == dst_span

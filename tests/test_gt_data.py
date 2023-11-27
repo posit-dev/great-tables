@@ -22,16 +22,6 @@ def test_stub_construct_df_rowname():
     stub = Stub(pd.DataFrame({"x": [8, 9], "y": [1, 2]}), rowname_col="x", groupname_col=None)
 
 
-def test_row_groups_construct_manual():
-    groups = RowGroups(["a", "b"])
-
-    assert len(groups) == 2
-    assert groups[0] == "a"
-    assert groups[1] == "b"
-
-    assert isinstance(groups[:], RowGroups)
-
-
 def test_boxhead_reorder():
     boxh = Boxhead([ColInfo("a"), ColInfo("b"), ColInfo("c")])
     new_boxh = boxh.reorder(["b", "a", "c"])

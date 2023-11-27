@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import pandas as pd
-from typing import Union, Optional
+from typing import Optional
+from ._gt_data import GTData
 
 from ._utils import _assert_list_is_subset
 
 
 class BoxheadAPI:
-    def cols_label(self, **kwargs: str):
+    def cols_label(self, **kwargs: str) -> GTData:
         """
         Relabel one or more columns.
 
@@ -28,10 +29,6 @@ class BoxheadAPI:
 
         Parameters
         ----------
-        columns : Union[str, List[str], None]
-            The columns to target. Can either be a single column name or a series of column names
-            provided in a list.
-
         **kwargs : str
             The column names and new labels. The column names are provided as keyword arguments
             and the new labels are provided as the values for those keyword arguments. For example,
@@ -63,7 +60,7 @@ class BoxheadAPI:
 
         return self
 
-    def cols_align(self, align: str = "left", columns: Optional[str] = None):
+    def cols_align(self, align: str = "left", columns: Optional[str] = None) -> GTData:
         """
         Set the alignment of one or more columns.
 
@@ -74,12 +71,11 @@ class BoxheadAPI:
 
         Parameters
         ----------
-        columns : Union[str, List[str], None]
-            The columns to target. Can either be a single column name or a series of column names
-            provided in a list.
-
         align : str
             The alignment to apply. Must be one of `"left"`, `"center"`, or `"right"`.
+        columns : Union[str, List[str], None]
+            The columns to target. Can either be a single column name or a series of column names
+            provided in a list. If `None`, the alignment is applied to all columns.
 
         Returns
         -------
