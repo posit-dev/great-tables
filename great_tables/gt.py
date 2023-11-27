@@ -147,6 +147,10 @@ class GT(
     ```{python}
     gt.GT(gt.exibble, rowname_col=\"row\", auto_align=False)
     ```
+
+    What you'll get from that is center-alignment of all table body values and all column labels.
+    Note that row labels in the the stub are still left-aligned; and `auto_align` has no effect on
+    alignment within the table stub.
     """
 
     def _repr_html_(self):
