@@ -1020,6 +1020,22 @@ def fmt_currency(
     Note that a `locale` value provided here will override any global locale setting performed in
     `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
     that have a `locale` argument).
+
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a table. With the `fmt_currency()` method, we'll
+    format the `currency` column to display monetary values.
+
+    ```{python}
+    import great_tables as gt
+
+    gt.GT(gt.exibble).fmt_currency(columns=\"currency\", decimals=3, use_seps=False)
+    ```
+
+    See Also
+    --------
+    The functional version of this method, `vals_fmt_currency()`, allows you to format a single
+    numerical value (or a list of them).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
