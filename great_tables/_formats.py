@@ -330,6 +330,10 @@ def fmt_integer(
         x: float,
         scale_by: float = scale_by,
     ):
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
@@ -511,6 +515,10 @@ def fmt_scientific(
         force_sign_m: bool = force_sign_m,
         force_sign_n: bool = force_sign_n,
     ):
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
@@ -734,6 +742,10 @@ def fmt_percent(
         placement: str = placement,
         incl_space: bool = incl_space,
     ):
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
@@ -930,6 +942,10 @@ def fmt_currency(
         placement: str = placement,
         incl_space: bool = incl_space,
     ):
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
@@ -1033,6 +1049,10 @@ def fmt_roman(
         x: float,
         case: str = case,
     ):
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
         # Get the absolute value of `x` so that negative values are handled
         x = abs(x)
 
@@ -1207,6 +1227,10 @@ def fmt_bytes(
         force_sign: bool = force_sign,
         incl_space: bool = incl_space,
     ):
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
         # Truncate all byte values by casting to an integer; this is done because bytes
         # are always whole numbers
         x = int(x)
@@ -1357,6 +1381,10 @@ def fmt_date(
     def fmt_date_fn(
         x: Any, date_format_str: str = date_format_str, locale: Union[str, None] = locale
     ) -> str:
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
         # If `x` is a string, we assume it is an ISO date string and convert it to a date object
         if isinstance(x, str):
             # Stop if `x` is not a valid ISO date string
@@ -1460,6 +1488,10 @@ def fmt_time(
     def fmt_time_fn(
         x: Any, time_format_str: str = time_format_str, locale: Union[str, None] = locale
     ) -> str:
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
         # If `x` is a string, assume it is an ISO time string and convert it to a time object
         if isinstance(x, str):
             # Stop if `x` is not a valid ISO time string
@@ -1524,6 +1556,10 @@ def fmt_markdown(
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_markdown_fn(x: Any) -> str:
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
         x_str: str = str(x)
 
         x_formatted = _md_html(x_str)
