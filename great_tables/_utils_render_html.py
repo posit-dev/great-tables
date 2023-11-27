@@ -411,9 +411,7 @@ def create_body_component_h(data: GTData) -> str:
             cell_alignment = colinfo.defaulted_align
 
             if is_stub_cell:
-                body_cells.append(
-                    f'  <th class="gt_row gt_{cell_alignment} gt_stub">' + cell_str + "</th>"
-                )
+                body_cells.append(f'  <th class="gt_row gt_left gt_stub">' + cell_str + "</th>")
             else:
                 body_cells.append(f'  <td class="gt_row gt_{cell_alignment}">' + cell_str + "</td>")
 
