@@ -207,7 +207,7 @@ class ColInfo:
 
     @property
     def defaulted_align(self) -> str:
-        return "left" if self.column_align is None else str(self.column_align)
+        return "center" if self.column_align is None else str(self.column_align)
 
 
 class Boxhead(_Sequence[ColInfo]):
