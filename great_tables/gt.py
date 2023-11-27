@@ -162,11 +162,17 @@ class GT(
     formatting methods:
 
     ```{python}
-    gt.GT(gt.exibble, rowname_col=\"row\", locale=\"fr\")
-      .fmt_currency(columns=\"currency\")
-      .fmt_scientific(columns=\"num\")
-      .fmt_date(columns=\"date\", date_style=\"day_month_year\")
+    (
+        gt.GT(gt.exibble, rowname_col=\"row\", locale=\"fr\")
+          .fmt_currency(columns=\"currency\")
+          .fmt_scientific(columns=\"num\")
+          .fmt_date(columns=\"date\", date_style=\"day_month_year\")
+    )
     ```
+
+    In this example, the `fmt_currency()`, `fmt_scientific()`, and `fmt_date()` methods understand
+    that the locale for this table is `"fr"` (French), so the appropriate formatting for that locale
+    is apparent in the `currency`, `num`, and `date` columns.
 
     """
 
