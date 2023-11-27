@@ -116,7 +116,6 @@ class GT(
 
     Examples
     --------
-
     Let's use the `exibble` dataset for the next few examples, we'll learn how to make simple
     output tables with the `GT()` class. The most basic thing to do is to just use `GT()` with the
     dataset as the input.
