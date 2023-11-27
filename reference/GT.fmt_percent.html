@@ -552,6 +552,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   <li><a href="#adapting-output-to-a-specific-locale" id="toc-adapting-output-to-a-specific-locale" class="nav-link" data-scroll-target="#adapting-output-to-a-specific-locale">Adapting Output To A Specific <code>Locale</code></a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -700,6 +701,10 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="adapting-output-to-a-specific-locale">Adapting Output To A Specific <code>Locale</code></h2>
 <p>This formatting method can adapt outputs according to a provided <code>locale</code> value. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France). The use of a valid locale ID here means separator and decimal marks will be correct for the given locale. Should any values be provided in <code>sep_mark</code> or <code>dec_mark</code>, they will be overridden by the locale’s preferred values.</p>
 <p>Note that a <code>locale</code> value provided here will override any global locale setting performed in <code>GT()</code>’s own <code>locale</code> argument (it is settable there as a value received by all other methods that have a <code>locale</code> argument).</p>
+</section>
+<section id="see-also" class="level2">
+<h2 class="anchored" data-anchor-id="see-also">See Also</h2>
+<p>The functional version of this method, <code>vals_fmt_percent()</code>, allows you to format a single numerical value (or a list of them).</p>
 
 
 </section>
