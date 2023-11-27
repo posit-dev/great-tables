@@ -176,6 +176,7 @@ def fmt_number(
     # that might be set globally
     _validate_locale(locale=locale)
     locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
