@@ -170,6 +170,18 @@ def fmt_number(
     -------
     GTData
         The GTData object is returned.
+
+    Adapting output to a specific `locale`
+    --------------------------------------
+    This formatting method can adapt outputs according to a provided `locale` value. Examples
+    include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
+    locale ID here means separator and decimal marks will be correct for the given locale. Should
+    any values be provided in `sep_mark` or `dec_mark`, they will be overridden by the locale's
+    preferred values.
+
+    Note that a `locale` value provided here will override any global locale setting performed in
+    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
+    that have a `locale` argument).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -314,6 +326,17 @@ def fmt_integer(
     -------
     GTData
         The GTData object is returned.
+
+    Adapting output to a specific `locale`
+    --------------------------------------
+    This formatting method can adapt outputs according to a provided `locale` value. Examples
+    include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
+    locale ID here means separator marks will be correct for the given locale. Should any value be
+    provided in `sep_mark`, it will be overridden by the locale's preferred value.
+
+    Note that a `locale` value provided here will override any global locale setting performed in
+    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
+    that have a `locale` argument).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -486,6 +509,18 @@ def fmt_scientific(
     -------
     GTData
         The GTData object is returned.
+
+    Adapting output to a specific `locale`
+    --------------------------------------
+    This formatting method can adapt outputs according to a provided `locale` value. Examples
+    include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
+    locale ID here means separator and decimal marks will be correct for the given locale. Should
+    any values be provided in `sep_mark` or `dec_mark`, they will be overridden by the locale's
+    preferred values.
+
+    Note that a `locale` value provided here will override any global locale setting performed in
+    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
+    that have a `locale` argument).
     """
 
     # Set a default value for `use_seps`; these separators are only used for very
@@ -712,6 +747,18 @@ def fmt_percent(
     -------
     GTData
         The GTData object is returned.
+
+    Adapting output to a specific `locale`
+    --------------------------------------
+    This formatting method can adapt outputs according to a provided `locale` value. Examples
+    include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
+    locale ID here means separator and decimal marks will be correct for the given locale. Should
+    any values be provided in `sep_mark` or `dec_mark`, they will be overridden by the locale's
+    preferred values.
+
+    Note that a `locale` value provided here will override any global locale setting performed in
+    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
+    that have a `locale` argument).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -901,6 +948,19 @@ def fmt_currency(
     -------
     GTData
         The GTData object is returned.
+
+    Adapting output to a specific `locale`
+    --------------------------------------
+    This formatting method can adapt outputs according to a provided `locale` value. Examples
+    include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
+    locale ID here means separator and decimal marks will be correct for the given locale. Should
+    any values be provided in `sep_mark` or `dec_mark`, they will be overridden by the locale's
+    preferred values. In addition to number formatting, providing a `locale` value and not providing
+    a `currency` allows **great_tables** to obtain the currency code from the locale's territory.
+
+    Note that a `locale` value provided here will override any global locale setting performed in
+    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
+    that have a `locale` argument).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -1187,6 +1247,18 @@ def fmt_bytes(
     -------
     GTData
         The GTData object is returned.
+
+    Adapting output to a specific `locale`
+    --------------------------------------
+    This formatting method can adapt outputs according to a provided `locale` value. Examples
+    include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
+    locale ID here means separator and decimal marks will be correct for the given locale. Should
+    any values be provided in `sep_mark` or `dec_mark`, they will be overridden by the locale's
+    preferred values.
+
+    Note that a `locale` value provided here will override any global locale setting performed in
+    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
+    that have a `locale` argument).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -1335,7 +1407,6 @@ def fmt_date(
 
     Formatting with the `date_style` argument
     -----------------------------------------
-
     We need to supply a preset date style to the `date_style` argument. The date styles are numerous
     and can handle localization to any supported locale. The following table provides a listing of
     all date styles and their output values (corresponding to an input date of `2000-02-29`).
@@ -1367,6 +1438,14 @@ def fmt_date(
     -------
     GTData
         The GTData object is returned.
+
+    Adapting output to a specific `locale`
+    --------------------------------------
+    This formatting method can adapt outputs according to a provided `locale` value. Examples
+    include `"en"` for English (United States) and `"fr"` for French (France). Note that a `locale`
+    value provided here will override any global locale setting performed in `GT()`'s own `locale`
+    argument (it is settable there as a value received by all other methods that have a `locale`
+    argument).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -1454,7 +1533,6 @@ def fmt_time(
 
     Formatting with the `time_style` argument
     -----------------------------------------
-
     We need to supply a preset time style to the `time_style` argument. The time styles are numerous
     and can handle localization to any supported locale. The following table provides a listing of
     all time styles and their output values (corresponding to an input time of `14:35:00`).
@@ -1474,6 +1552,14 @@ def fmt_time(
     -------
     GTData
         The GTData object is returned.
+
+    Adapting output to a specific `locale`
+    --------------------------------------
+    This formatting method can adapt outputs according to a provided `locale` value. Examples
+    include `"en"` for English (United States) and `"fr"` for French (France). Note that a `locale`
+    value provided here will override any global locale setting performed in `GT()`'s own `locale`
+    argument (it is settable there as a value received by all other methods that have a `locale`
+    argument).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
