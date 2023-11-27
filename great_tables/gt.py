@@ -155,11 +155,11 @@ class GT(
     However which way you generate the initial table object, you can modify it with a huge variety
     of methods to further customize the presentation. Formatting body cells is commonly done with
     the family of formatting methods (e.g., `fmt_number()`, `fmt_date()`, etc.). The package
-    supports formatting with internationalization ('i18n' features) and so locale-aware functions
-    come with a `locale` argument. To avoid having to use that argument repeatedly, the `GT()` class
-    has its own `locale` argument. Setting a locale in that will make it available globally. Here's
-    an example of how that works in practice when setting `locale = "fr"` in `GT()` prior to using
-    formatting methods:
+    supports formatting with internationalization ('i18n' features) and so locale-aware methods
+    all come with a `locale` argument. To avoid having to use that argument repeatedly, the `GT()`
+    class has its own `locale` argument. Setting a locale in that will make it available globally.
+    Here's an example of how that works in practice when setting `locale = "fr"` in `GT()` prior to
+    using formatting methods:
 
     ```{python}
     (
