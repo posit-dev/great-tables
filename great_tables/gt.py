@@ -121,7 +121,7 @@ class GT(
     output tables with the `GT()` class. The most basic thing to do is to just use `GT()` with the
     dataset as the input.
 
-    ```python
+    ```{python}
     import great_tables as gt
 
     gt.GT(gt.exibble)
