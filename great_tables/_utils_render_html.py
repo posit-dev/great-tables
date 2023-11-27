@@ -388,6 +388,11 @@ def create_body_component_h(data: GTData) -> str:
 
     stub_var = data._boxhead._get_stub_column()
 
+    stub_layout = _get_stub_layout(data=data)
+
+    has_stub_column = "rowname" in stub_layout
+    has_two_col_stub = "group_label" in stub_layout
+
     # If there is a stub, then prepend that to the `column_vars` list
     if stub_var is not None:
         column_vars = [stub_var] + column_vars
@@ -401,8 +406,11 @@ def create_body_component_h(data: GTData) -> str:
             cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
             cell_str: str = str(cell_content)
 
-            # Determine whether this cell is a stub cell
-            is_stub_cell = colinfo.var == stub_var
+            # Determine whether the current cell is the stub cell
+            if has_stub_column:
+                is_stub_cell = colinfo.var == stub_var.var
+            else:
+                is_stub_cell = False
 
             # Get alignment for the current column from the `col_alignment` list
             # by using the `name` value to obtain the index of the alignment value
