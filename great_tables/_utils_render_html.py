@@ -383,12 +383,6 @@ def create_body_component_h(data: GTData) -> str:
 
     tbl_data = data._body.body.fillna(_str_orig_data)
 
-    # Get the default column alignments
-    # col_alignment = data._boxhead._get_default_alignments()
-
-    # Replace any 'None' values in `col_alignment` with "left"
-    # col_alignment = ["left" if x == "None" else x for x in col_alignment]
-
     # Get the default column vars
     column_vars = data._boxhead._get_default_columns()
 
