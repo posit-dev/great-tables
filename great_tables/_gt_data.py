@@ -749,9 +749,7 @@ class Locale:
     locale: Optional[str]
 
     def __init__(self, locale: Optional[str]):
-        if locale is None or locale == "":
-            locale = "en"
-        self._locale = locale
+        self._locale: Union[str, None] = locale
 
 
 # Formats ----

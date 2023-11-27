@@ -150,7 +150,7 @@ class GT(
         rowname_col: str | None = None,
         groupname_col: str | None = None,
         auto_align: bool = True,
-        locale: str = "",  # TODO: Should probably have a default of None
+        locale: str | None = None,
     ):
         # This is a bad idea ----
         gtdata = GTData.from_data(
