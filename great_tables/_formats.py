@@ -185,7 +185,6 @@ def fmt_number(
 
     Examples
     --------
-
     Let's use the `exibble` dataset to create a table. With the `fmt_number()` method, we'll format
     the `num` column to have three decimal places (with `decimals=3`) and omit the use of digit
     separators (with `use_seps=False`).
