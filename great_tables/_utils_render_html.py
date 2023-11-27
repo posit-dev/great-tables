@@ -33,12 +33,6 @@ def create_columns_component_h(data: GTData) -> str:
     # Determine the finalized number of spanner rows
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
 
-    # Get the column alignments and also the alignment class names
-    # col_alignment = data._boxhead._get_default_alignments()
-
-    # Replace None values in `col_alignment` with "left"
-    # col_alignment = ["left" if x == "None" else x for x in col_alignment]
-
     # TODO: Modify alignments for RTL support, skip this for now
     # Detect any RTL script characters within the visible columns;
     # this creates a vector the same length as `col_alignment`
