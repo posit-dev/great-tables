@@ -2162,6 +2162,22 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
     return resolved_locale
 
 
+def _resolve_locale(x: GTData, locale: Union[str, None] = None) -> Union[str, None]:
+    # Get the locale from the locale value set globally; note that this may also be None
+    # but a None value will eventually be resolved to the 'en' locale
+    locale = x._locale._locale if locale is None else locale
+
+    # An 'undetermined' locale should map back to the 'en' locale
+    if locale == "und":
+        locale = "en"
+
+    locale = _normalize_locale(locale=locale)
+
+    _validate_locale(locale=locale)
+
+    return locale
+
+
 def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
     """
     Given a locale, returns the corresponding currency code. If no locale is provided,
