@@ -138,7 +138,7 @@ class GT(
     ```
 
     This sets up a table with a stub, the row labels are placed within the stub column, and a
-    vertical dividing line has been placed on the right-hand side.<br>
+    vertical dividing line has been placed on the right-hand side.
 
     By default, values in the body of a table (and their column labels) are automatically aligned.
     The alignment is governed by the types of values in a column. If you'd like to disable this form
