@@ -4,6 +4,7 @@ import pytest
 from great_tables._locations import (
     LocColumnSpanners,
     LocBody,
+    CellPos,
     resolve,
     resolve_vector_i,
     resolve_cols_i,
@@ -48,7 +49,17 @@ def test_resolve_rows_i_ints():
 def test_resolve_loc_body():
     gt = GT(pd.DataFrame({"x": [1, 2], "y": [3, 4]}))
 
-    resolve(LocBody(["x"], [-1]), gt)
+    cells = resolve(LocBody(["x"], [-1]), gt)
+
+    assert isinstance(cells, list)
+    assert len(cells) == 1
+    assert isinstance(cells[0], CellPos)
+
+    pos = cells[0]
+
+    assert pos.column == 0
+    assert pos.row == 1
+    assert pos.colname == "x"
 
 
 def test_resolve_column_spanners_simple():

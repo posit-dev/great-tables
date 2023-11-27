@@ -263,7 +263,7 @@ def resolve_rows_i(
 
 
 @singledispatch
-def resolve(loc: Loc, *args, **kwargs) -> Loc:
+def resolve(loc: Loc, *args, **kwargs) -> "Loc | List[CellPos]":
     """Return a copy of location with lookups resolved (e.g. tidyselect on columns)."""
     raise NotImplementedError(f"Unsupported location type: {type(loc)}")
 
