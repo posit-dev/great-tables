@@ -401,11 +401,19 @@ def create_body_component_h(data: GTData) -> str:
             cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
             cell_str: str = str(cell_content)
 
+            # Determine whether this cell is a stub cell
+            is_stub_cell = colinfo.var == stub_var
+
             # Get alignment for the current column from the `col_alignment` list
             # by using the `name` value to obtain the index of the alignment value
             cell_alignment = colinfo.defaulted_align
 
-            body_cells.append(f'  <td class="gt_row gt_{cell_alignment}">' + cell_str + "</td>")
+            if is_stub_cell:
+                body_cells.append(
+                    f'  <th class="gt_row gt_{cell_alignment} gt_stub">' + cell_str + "</th>"
+                )
+            else:
+                body_cells.append(f'  <td class="gt_row gt_{cell_alignment}">' + cell_str + "</td>")
 
         body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
 
