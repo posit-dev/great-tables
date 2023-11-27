@@ -1174,6 +1174,11 @@ def fmt_roman(
     -------
     GTData
         The GTData object is returned.
+
+    See Also
+    --------
+    The functional version of this method, `vals_fmt_roman()`, allows you to format a single
+    numerical value (or a list of them).
     """
 
     # Check that the `case` value is valid and only consists of the string 'upper' or 'lower'
@@ -1334,6 +1339,11 @@ def fmt_bytes(
     Note that a `locale` value provided here will override any global locale setting performed in
     `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
     that have a `locale` argument).
+
+    See Also
+    --------
+    The functional version of this method, `vals_fmt_bytes()`, allows you to format a single
+    numerical value (or a list of them).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -1521,6 +1531,11 @@ def fmt_date(
     value provided here will override any global locale setting performed in `GT()`'s own `locale`
     argument (it is settable there as a value received by all other methods that have a `locale`
     argument).
+
+    See Also
+    --------
+    The functional version of this method, `vals_fmt_date()`, allows you to format a single
+    numerical value (or a list of them).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -1635,6 +1650,11 @@ def fmt_time(
     value provided here will override any global locale setting performed in `GT()`'s own `locale`
     argument (it is settable there as a value received by all other methods that have a `locale`
     argument).
+
+    See Also
+    --------
+    The functional version of this method, `vals_fmt_time()`, allows you to format a single
+    numerical value (or a list of them).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -1713,6 +1733,11 @@ def fmt_markdown(
     -------
     GTData
         The GTData object is returned.
+
+    See Also
+    --------
+    The functional version of this method, `vals_fmt_markdown()`, allows you to format a single
+    string value (or a list of them).
     """
 
     # Generate a function that will operate on single `x` values in the table body
