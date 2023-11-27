@@ -683,7 +683,7 @@ class StyleInfo:
     styles: Optional[List[CellStyle]] = field(default_factory=list)
 
 
-Styles: TypeAlias = list[StyleInfo]
+Styles: TypeAlias = List[StyleInfo]
 
 # Locale ----
 __Locale = None
