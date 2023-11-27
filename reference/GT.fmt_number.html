@@ -551,6 +551,7 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#adapting-output-to-a-specific-locale" id="toc-adapting-output-to-a-specific-locale" class="nav-link" data-scroll-target="#adapting-output-to-a-specific-locale">Adapting Output To A Specific <code>Locale</code></a></li>
   </ul></li>
   </ul>
 </nav>
@@ -694,6 +695,11 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
+</section>
+<section id="adapting-output-to-a-specific-locale" class="level2">
+<h2 class="anchored" data-anchor-id="adapting-output-to-a-specific-locale">Adapting Output To A Specific <code>Locale</code></h2>
+<p>This formatting method can adapt outputs according to a provided <code>locale</code> value. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France). The use of a valid locale ID here means separator and decimal marks will be correct for the given locale. Should any values be provided in <code>sep_mark</code> or <code>dec_mark</code>, they will be overridden by the locale’s preferred values.</p>
+<p>Note that a <code>locale</code> value provided here will override any global locale setting performed in <code>GT()</code>’s own <code>locale</code> argument (it is settable there as a value received by all other methods that have a <code>locale</code> argument).</p>
 
 
 </section>
