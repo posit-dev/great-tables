@@ -127,23 +127,15 @@ class GT(
     gt.GT(gt.exibble)
     ```
 
-    <img src=\"https://raw.githubusercontent.com/rstudio/gt/master/images/man_gt_1.png\"
-    alt=\"This image of a table was generated from the first code example in the help file.\"
-    style=\"width:100%;\">
-
     This dataset has the `row` and `group` columns. The former contains unique values that are ideal
     for labeling rows, and this often happens in what is called the 'stub' (a reserved area that
     serves to label rows). With the `GT()` class, we can immediately place the contents of the `row`
     column into the stub column. To do this, we use the `rowname_col` argument with the appropriate
     column name.
 
-    ```python
+    ```{python}
     gt.GT(gt.exibble, rowname_col=\"row\")
     ```
-
-    <img src=\"https://raw.githubusercontent.com/rstudio/gt/master/images/man_gt_2.png\"
-    alt=\"This image of a table was generated from the second code example in the help file.\"
-    style=\"width:100%;\">
 
     This sets up a table with a stub, the row labels are placed within the stub column, and a
     vertical dividing line has been placed on the right-hand side.
