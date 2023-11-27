@@ -31,9 +31,9 @@ def test_gt_object_prerender(gt_tbl: GT):
     assert type(gt_tbl._spanners).__name__ == "Spanners"
     assert type(gt_tbl._heading).__name__ == "Heading"
     assert isinstance(gt_tbl._source_notes, list)
+    assert isinstance(gt_tbl._footnotes, list)
+    assert isinstance(gt_tbl._styles, list)
     assert isinstance(gt_tbl._row_groups, list)
-    assert type(gt_tbl._footnotes).__name__ == "Footnotes"
-    assert type(gt_tbl._styles).__name__ == "Styles"
     assert type(gt_tbl._locale).__name__ == "Locale"
 
 

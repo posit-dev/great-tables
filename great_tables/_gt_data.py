@@ -8,6 +8,8 @@ from typing_extensions import Self, TypeAlias
 from dataclasses import dataclass, field, replace
 from ._utils import _str_detect
 
+from ._styles import CellStyle
+
 # Note that we replace with with collections.abc after python 3.8
 from typing import Sequence
 
@@ -42,6 +44,11 @@ class GTData:
     def _replace(self, **kwargs) -> Self:
         # TODO: may want to validate that kwargs should be an attribute on GT
         new_obj = copy.copy(self)
+
+        missing = {k for k in kwargs if k not in new_obj.__dict__}
+        if missing:
+            raise ValueError(f"Replacements not in data: {missing}")
+
         new_obj.__dict__.update(kwargs)
 
         return new_obj
@@ -74,8 +81,8 @@ class GTData:
             _heading=Heading(),
             _stubhead=None,
             _source_notes=[],
-            _footnotes=Footnotes(),
-            _styles=Styles(),
+            _footnotes=[],
+            _styles=[],
             _locale=Locale(locale),
             _formats=[],
             _options=Options(),
@@ -640,56 +647,24 @@ from enum import Enum, auto
 
 
 class FootnotePlacement(Enum):
-    Auto = auto()
-    Left = auto()
-    Right = auto()
+    left = auto()
+    right = auto()
+    auto = auto()
 
 
+@dataclass
 class FootnoteInfo:
-    locname: Optional[str]
-    grpname: Optional[str]
-    colname: Optional[str]
-    locnum: Optional[int]
-    rownum: Optional[int]
-    colnum: Optional[int]
-    footnotes: Optional[List[str]]
-    placement: Optional[FootnotePlacement]
-
-    # The components of a footnote declaration are:
-    # `locname` (empty, str)
-    # `grpname` (empty, str)
-    # `colname` (empty, str)
-    # `locnum` (empty, int)
-    # `rownum` (empty, int)
-    # `colnum` (empty, int)
-    # `footnotes` (empty list, str)
-    # `placement` (enum, 3 possible values)
-
-    def __init__(
-        self,
-        locname: Optional[str] = None,
-        grpname: Optional[str] = None,
-        colname: Optional[str] = None,
-        locnum: Optional[int] = None,
-        rownum: Optional[int] = None,
-        colnum: Optional[int] = None,
-        footnotes: Optional[List[str]] = None,
-        placement: Optional[FootnotePlacement] = None,
-    ):
-        self.locname = locname
-        self.grpname = grpname
-        self.colname = colname
-        self.locnum = locnum
-        self.rownum = rownum
-        self.colnum = colnum
-        self.footnotes = footnotes
-        self.placement = placement
+    locname: Optional[str] = None
+    grpname: Optional[str] = None
+    colname: Optional[str] = None
+    locnum: Optional[int] = None
+    rownum: Optional[int] = None
+    colnum: Optional[int] = None
+    footnotes: Optional[List[str]] = None
+    placement: Optional[FootnotePlacement] = None
 
 
-class Footnotes:
-    def __init__(self):
-        pass
-
+Footnotes: TypeAlias = List[FootnoteInfo]
 
 # Styles ----
 __Styles = None
@@ -697,47 +672,18 @@ __Styles = None
 from typing import List, Optional
 
 
+@dataclass
 class StyleInfo:
-    locname: Optional[str]
-    grpname: Optional[str]
-    colname: Optional[str]
-    locnum: Optional[int]
-    rownum: Optional[int]
-    colnum: Optional[int]
-    styles: Optional[List[str]]
-
-    # The components of a style declaration are:
-    # `locname` (empty, str)
-    # `grpname` (empty, str)
-    # `colname` (empty, str)
-    # `locnum` (empty, int)
-    # `rownum` (empty, int)
-    # `colnum` (empty, int)
-    # `styles` (empty list, str)
-
-    def __init__(
-        self,
-        locname: Optional[str] = None,
-        grpname: Optional[str] = None,
-        colname: Optional[str] = None,
-        locnum: Optional[int] = None,
-        rownum: Optional[int] = None,
-        colnum: Optional[int] = None,
-        styles: Optional[List[str]] = None,
-    ):
-        self.locname = locname
-        self.grpname = grpname
-        self.colname = colname
-        self.locnum = locnum
-        self.rownum = rownum
-        self.colnum = colnum
-        self.styles = styles
+    locname: str
+    locnum: int
+    grpname: Optional[str] = None
+    colname: Optional[str] = None
+    rownum: Optional[int] = None
+    colnum: Optional[int] = None
+    styles: Optional[List[CellStyle]] = field(default_factory=list)
 
 
-class Styles:
-    def __init__(self):
-        pass
-
+Styles: TypeAlias = List[StyleInfo]
 
 # Locale ----
 __Locale = None
