@@ -558,6 +558,23 @@ def fmt_scientific(
     Note that a `locale` value provided here will override any global locale setting performed in
     `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
     that have a `locale` argument).
+
+    Examples
+    --------
+    For this example, we'll use the `exibble` dataset as the input table. With the
+    `fmt_scientific()` method, we'll format the `num` column to contain values in scientific
+    formatting.
+
+    ```{python}
+    import great_tables as gt
+
+    gt.GT(gt.exibble).fmt_scientific(columns=\"num\")
+    ```
+
+    See Also
+    --------
+    The functional version of this method, `vals_fmt_scientific()`, allows you to format a single
+    numerical value (or a list of them).
     """
 
     # Set a default value for `use_seps`; these separators are only used for very
@@ -796,6 +813,11 @@ def fmt_percent(
     Note that a `locale` value provided here will override any global locale setting performed in
     `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
     that have a `locale` argument).
+
+    See Also
+    --------
+    The functional version of this method, `vals_fmt_percent()`, allows you to format a single
+    numerical value (or a list of them).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
