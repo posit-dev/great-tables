@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import itertools
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass
 from functools import singledispatch
-from typing import TYPE_CHECKING, Literal, get_origin, get_type_hints
+from typing import TYPE_CHECKING, Literal, List
 from typing_extensions import TypeAlias
 
 # note that types like Spanners are only used in annotations for concretes of the
@@ -281,7 +281,7 @@ def _(loc: LocColumnSpanners, spanners: Spanners) -> LocColumnSpanners:
 
 
 @resolve.register
-def _(loc: LocBody, data: GTData) -> list[CellPos]:
+def _(loc: LocBody, data: GTData) -> List[CellPos]:
     cols = resolve_cols_i(loc.columns, data)
     rows = resolve_rows_i(loc.rows, data)
 
@@ -298,13 +298,13 @@ def _(loc: LocBody, data: GTData) -> list[CellPos]:
 
 
 @singledispatch
-def set_style(loc: Loc, data: GTData, style: list[str]) -> GTData:
+def set_style(loc: Loc, data: GTData, style: List[str]) -> GTData:
     """Set style for location."""
     raise NotImplementedError(f"Unsupported location type: {type(loc)}")
 
 
 @set_style.register
-def _(loc: LocTitle, data: GTData, style: list[CellStyle]) -> GTData:
+def _(loc: LocTitle, data: GTData, style: List[CellStyle]) -> GTData:
     if loc.groups == "title":
         info = StyleInfo(locname="title", locnum=1, styles=style)
     elif loc.groups == "subtitle":
@@ -316,7 +316,7 @@ def _(loc: LocTitle, data: GTData, style: list[CellStyle]) -> GTData:
 
 
 @set_style.register
-def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
+def _(loc: LocBody, data: GTData, style: List[CellStyle]) -> GTData:
     positions = resolve(loc, data)
 
     all_info: list[StyleInfo] = []
