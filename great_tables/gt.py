@@ -151,6 +151,23 @@ class GT(
     What you'll get from that is center-alignment of all table body values and all column labels.
     Note that row labels in the the stub are still left-aligned; and `auto_align` has no effect on
     alignment within the table stub.
+
+    However which way you generate the initial table object, you can modify it with a huge variety
+    of methods to further customize the presentation. Formatting body cells is commonly done with
+    the family of formatting methods (e.g., `fmt_number()`, `fmt_date()`, etc.). The package
+    supports formatting with internationalization ('i18n' features) and so locale-aware functions
+    come with a `locale` argument. To avoid having to use that argument repeatedly, the `GT()` class
+    has its own `locale` argument. Setting a locale in that will make it available globally. Here's
+    an example of how that works in practice when setting `locale = "fr"` in `GT()` prior to using
+    formatting methods:
+
+    ```{python}
+    gt.GT(gt.exibble, rowname_col=\"row\", locale=\"fr\")
+      .fmt_currency(columns=\"currency\")
+      .fmt_scientific(columns=\"num\")
+      .fmt_date(columns=\"date\", date_style=\"day_month_year\")
+    ```
+
     """
 
     def _repr_html_(self):
