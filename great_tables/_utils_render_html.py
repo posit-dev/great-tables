@@ -447,7 +447,9 @@ def create_body_component_h(data: GTData) -> str:
             if i in grp_idx_to_label:
                 group_label = grp_idx_to_label[i]
 
-                group_class = "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
+                group_class = (
+                    "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
+                )
 
                 body_cells.append(
                     f"<tr class={group_class}>"
