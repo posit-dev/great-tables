@@ -149,13 +149,16 @@ class GT(
     This sets up a table with a stub, the row labels are placed within the stub column, and a
     vertical dividing line has been placed on the right-hand side.
 
-    By default, values in the body of a table (and their column labels) are automatically aligned.
-    The alignment is governed by the types of values in a column. If you'd like to disable this form
-    of auto-alignment, the `auto_align=False` option can be taken.
+    The `group` column contains categorical values that are ideal for grouping rows. We can use the
+    `groupname_col` argument to place these values into row groups.
 
     ```{python}
     gt.GT(gt.exibble, rowname_col=\"row\", groupname_col=\"group\")
     ```
+
+    By default, values in the body of a table (and their column labels) are automatically aligned.
+    The alignment is governed by the types of values in a column. If you'd like to disable this form
+    of auto-alignment, the `auto_align=False` option can be taken.
 
     ```{python}
     gt.GT(gt.exibble, rowname_col=\"row\", auto_align=False)
