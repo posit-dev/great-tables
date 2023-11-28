@@ -44,7 +44,11 @@ from great_tables._spanners import (
 )
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import StubheadAPI
-from great_tables._utils_render_html import create_columns_component_h, create_body_component_h
+from great_tables._utils_render_html import (
+    create_heading_component_h,
+    create_columns_component_h,
+    create_body_component_h,
+)
 from great_tables._helpers import random_id
 
 
@@ -285,7 +289,7 @@ class GT(
     # HTML Rendering
     # =============================================================================
     def _render_as_html(self) -> str:
-        heading_component = _create_heading_component(self)
+        heading_component = create_heading_component_h(self)
         column_labels_component = create_columns_component_h(self)
         body_component = create_body_component_h(self)
         source_notes_component = _create_source_notes_component(self)
@@ -397,41 +401,6 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
 # =============================================================================
 
 
-def _create_heading_component(data: GT) -> StringBuilder:
-    result = StringBuilder()
-
-    title = data._heading.title
-    subtitle = data._heading.subtitle
-
-    has_title = _utils.heading_has_title(title=title)
-    has_subtitle = _utils.heading_has_subtitle(subtitle=subtitle)
-
-    # If there is no title or heading component, then return an empty string
-    if not has_title and not has_subtitle:
-        return result
-
-    title = _process_text(title)
-    subtitle = _process_text(subtitle)
-
-    # Get the effective number of columns, which is number of columns
-    # that will finally be rendered accounting for the stub layout
-    n_cols_total = data._boxhead._get_effective_number_of_columns()
-
-    result.append(
-        f"""  <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}
-  </tr>"""
-    )
-
-    if has_subtitle:
-        subtitle_row = f"""  <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}
-  </tr>"""
-        result.append(f"\n{subtitle_row}")
-
-    return StringBuilder('<thead class="gt_header">', result, "</thead>")
-
-
 def _create_source_notes_component(data: GT) -> str:
     source_notes = data._source_notes
 
@@ -445,7 +414,9 @@ def _create_source_notes_component(data: GT) -> str:
 
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
-    n_cols_total = data._boxhead._get_effective_number_of_columns()
+    n_cols_total = data._boxhead._get_effective_number_of_columns(
+        stub=data._stub, row_groups=data._row_groups, options=data._options
+    )
 
     # Handle the multiline source notes case (each note takes up one line)
     if multiline:

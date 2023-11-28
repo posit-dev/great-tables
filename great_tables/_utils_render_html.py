@@ -4,6 +4,44 @@ from ._tbl_data import n_rows, _get_cell
 from typing import List, Any
 from htmltools import tags, HTML, css, TagList
 from itertools import groupby, chain
+from ._text import StringBuilder, _process_text
+
+
+def create_heading_component_h(data: GTData) -> StringBuilder:
+    result = StringBuilder()
+
+    title = data._heading.title
+    subtitle = data._heading.subtitle
+
+    has_title = title is not None
+    has_subtitle = subtitle is not None
+
+    # If there is no title or heading component, then return an empty string
+    if not has_title and not has_subtitle:
+        return result
+
+    title = _process_text(title)
+    subtitle = _process_text(subtitle)
+
+    # Get the effective number of columns, which is number of columns
+    # that will finally be rendered accounting for the stub layout
+    n_cols_total = data._boxhead._get_effective_number_of_columns(
+        stub=data._stub, row_groups=data._row_groups, options=data._options
+    )
+
+    result.append(
+        f"""  <tr>
+    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}
+  </tr>"""
+    )
+
+    if has_subtitle:
+        subtitle_row = f"""  <tr>
+    <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}
+  </tr>"""
+        result.append(f"\n{subtitle_row}")
+
+    return StringBuilder('<thead class="gt_header">', result, "</thead>")
 
 
 def create_columns_component_h(data: GTData) -> str:
@@ -28,7 +66,7 @@ def create_columns_component_h(data: GTData) -> str:
     # body = data._body
 
     # Get vector representation of stub layout
-    stub_layout = _get_stub_layout(data=data)
+    stub_layout = data._stub._get_stub_layout(row_groups=data._row_groups, options=data._options)
 
     # Determine the finalized number of spanner rows
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
@@ -377,15 +415,18 @@ def create_body_component_h(data: GTData) -> str:
 
     tbl_data = data._body.body.fillna(_str_orig_data)
 
+    grp_idx_to_label = data._group_rows.indices_map()
+
     # Get the default column vars
     column_vars = data._boxhead._get_default_columns()
 
     stub_var = data._boxhead._get_stub_column()
 
-    stub_layout = _get_stub_layout(data=data)
+    stub_layout = data._stub._get_stub_layout(row_groups=data._row_groups, options=data._options)
 
     has_stub_column = "rowname" in stub_layout
     has_two_col_stub = "group_label" in stub_layout
+    has_groups = data._row_groups is not None and len(data._row_groups) > 0
 
     # If there is a stub, then prepend that to the `column_vars` list
     if stub_var is not None:
@@ -395,6 +436,25 @@ def create_body_component_h(data: GTData) -> str:
 
     for i in range(n_rows(tbl_data)):
         body_cells: List[str] = []
+
+        if has_stub_column and has_groups and not has_two_col_stub:
+            colspan_value = data._boxhead._get_effective_number_of_columns(
+                stub=data._stub, row_groups=data._row_groups, options=data._options
+            )
+
+            # Generate a row that contains the row group label (this spans the entire row) but
+            # only if `i` indicates there should be a row group label
+            if i in grp_idx_to_label:
+                group_label = grp_idx_to_label[i]
+
+                group_class = "gt_empty_group_heading" if group_label == "" else "gt_group_heading"
+
+                body_cells.append(
+                    f"<tr class={group_class}>"
+                    f'  <th class="gt_group_heading_row" colspan="{colspan_value}">'
+                    + group_label
+                    + "</th></tr>"
+                )
 
         for colinfo in column_vars:
             cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
@@ -485,89 +545,6 @@ def _get_spanners_matrix_height(
     )
 
     return len(spanners_matrix)
-
-
-# Determine whether the table has any row labels or row groups defined and provide
-# a simple list that contains at a maximum two components
-def _get_stub_components(data: GTData):
-    # TODO: we should be using `row_id` instead of `rowname`
-    # Obtain the object that describes the table stub
-    tbl_stub = data._stub
-
-    # Get separate lists of `group_id` and `row_id` values from the `_stub` object
-    group_id_vals = [tbl_stub[i].group_id for i in range(len(tbl_stub))]
-    rowname_vals = [tbl_stub[i].rowname for i in range(len(tbl_stub))]
-
-    stub_components: list[str] = []
-
-    if any(x is not None for x in group_id_vals):
-        stub_components.append("group_id")
-
-    if any(x is not None for x in rowname_vals):
-        stub_components.append("row_id")
-
-    return stub_components
-
-
-def _get_stub_layout(data: GTData) -> List[str]:
-    # Determine which stub components are potentially present as columns
-    stub_rownames_is_column = _stub_rownames_has_column(data=data)
-    stub_groupnames_is_column = _stub_group_names_has_column(data=data)
-
-    # Get the potential total number of columns in the table stub
-    n_stub_cols = stub_rownames_is_column + stub_groupnames_is_column
-
-    # Resolve the layout of the stub (i.e., the roles of columns if present)
-    if n_stub_cols == 0:
-        # If summary rows are present, we will use the `rowname` column
-        # for the summary row labels
-        if _summary_exists(data=data):
-            stub_layout = ["rowname"]
-        else:
-            stub_layout = []
-
-    else:
-        stub_layout = [
-            label
-            for label, condition in [
-                ("group_label", stub_groupnames_is_column),
-                ("rowname", stub_rownames_is_column),
-            ]
-            if condition
-        ]
-
-    return stub_layout
-
-
-# Determine whether the table should have row labels set within a column in the stub
-def _stub_rownames_has_column(data: GTData) -> bool:
-    return "row_id" in _get_stub_components(data=data)
-
-
-# Determine whether the table should have row group labels set within a column in the stub
-def _stub_group_names_has_column(data: GTData) -> bool:
-    # If there aren't any row groups then the result is always False
-    if len(_row_groups_get(data=data)) < 1:
-        return False
-
-    # Given that there are row groups, we need to look at the option `row_group_as_column` to
-    # determine whether they populate a column located in the stub; if set as True then that's
-    # the return value
-    row_group_as_column = data._options._get_option_value(option="row_group_as_column")
-
-    row_group_as_column: Any
-    if not isinstance(row_group_as_column, bool):
-        raise TypeError("Variable type mismatch. Expected bool, got something entirely different.")
-
-    return row_group_as_column
-
-
-def _row_groups_get(data: GTData) -> List[str]:
-    return data._row_groups
-
-
-def _summary_exists(data: GTData):
-    return False
 
 
 # Get the attributes needed for the <table> tag

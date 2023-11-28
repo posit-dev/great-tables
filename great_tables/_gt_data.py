@@ -431,13 +431,16 @@ class Boxhead(_Sequence[ColInfo]):
 
     # Obtain the number of visible columns in the built table; this should
     # account for the size of the stub in the final, built table
-    def _get_effective_number_of_columns(self) -> int:
+    def _get_effective_number_of_columns(
+        self, stub: Stub, row_groups: RowGroups, options: Options
+    ) -> int:
         n_data_cols = self._get_number_of_visible_data_columns()
 
-        # TODO: Once the stub is defined in the package, we need to account
+        stub_layout = stub._get_stub_layout(row_groups=row_groups, options=options)
+        # Once the stub is defined in the package, we need to account
         # for the width of the stub at build time to fully obtain the number
         # of visible columns in the built table
-        # n_data_cols = n_data_cols + len(get_stub_layout(data=data))
+        n_data_cols = n_data_cols + len(stub_layout)
 
         return n_data_cols
 
@@ -499,6 +502,69 @@ class Stub(_Sequence[RowInfo]):
 
         return group_ids
 
+    def _get_stub_components(self) -> list[str]:
+        stub_components: list[str] = []
+
+        if any(entry.group_id is not None for entry in self):
+            stub_components.append("group_id")
+
+        if any(entry.rowname is not None for entry in self):
+            stub_components.append("row_id")
+
+        return stub_components
+
+    # Determine whether the table should have row group labels set within a column in the stub
+    def _stub_group_names_has_column(self, row_groups: RowGroups, options: Options) -> bool:
+        # If there aren't any row groups then the result is always False
+        if len(row_groups) < 1:
+            return False
+
+        # Given that there are row groups, we need to look at the option `row_group_as_column` to
+        # determine whether they populate a column located in the stub; if set as True then that's
+        # the return value
+        row_group_as_column = options._get_option_value(option="row_group_as_column")
+
+        row_group_as_column: Any
+        if not isinstance(row_group_as_column, bool):
+            raise TypeError(
+                "Variable type mismatch. Expected bool, got something entirely different."
+            )
+
+        return row_group_as_column
+
+    def _get_stub_layout(self, row_groups: RowGroups, options: Options) -> List[str]:
+        # Determine which stub components are potentially present as columns
+        stub_rownames_is_column = "row_id" in self._get_stub_components()
+        stub_groupnames_is_column = self._stub_group_names_has_column(
+            row_groups=row_groups, options=options
+        )
+
+        # Get the potential total number of columns in the table stub
+        n_stub_cols = stub_rownames_is_column + stub_groupnames_is_column
+
+        # Resolve the layout of the stub (i.e., the roles of columns if present)
+        if n_stub_cols == 0:
+            # TODO: If summary rows are present, we will use the `rowname` column
+            # # for the summary row labels
+            # if _summary_exists(data=data):
+            #     stub_layout = ["rowname"]
+            # else:
+            #     stub_layout = []
+
+            stub_layout = []
+
+        else:
+            stub_layout = [
+                label
+                for label, condition in [
+                    ("group_label", stub_groupnames_is_column),
+                    ("rowname", stub_rownames_is_column),
+                ]
+                if condition
+            ]
+
+        return stub_layout
+
 
 # Row groups ----
 __RowGroups = None
@@ -518,6 +584,11 @@ class GroupRowInfo:
     # row_end: int | None = None
     has_summary_rows: bool = False
     summary_row_side: str | None = None
+
+    def defaulted_label(self) -> str:
+        """Return a group label that has been defaulted."""
+        label = self.group_label if self.group_label is not None else self.group_id
+        return label
 
 
 class MISSING_GROUP:
@@ -555,6 +626,13 @@ class GroupRows(_Sequence[GroupRowInfo]):
         ]
 
         return self.__class__(reordered)
+
+    def indices_map(self) -> dict[int, str]:
+        list_dicts = [{ind: info.defaulted_label() for ind in info.indices} for info in self]
+        final = {}
+        for entry in list_dicts:
+            final.update(entry)
+        return final
 
 
 # Spanners ----
