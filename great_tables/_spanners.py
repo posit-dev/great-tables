@@ -295,6 +295,59 @@ def cols_move_to_end(data: GTData, columns: Union[str, list[str]]) -> GTData:
     return data._replace(_boxhead=new_boxhead)
 
 
+def cols_hide(data: GTData, columns: Union[str, list[str]]) -> GTData:
+    """Hide one or more columns.
+
+    The `cols_hide()` method allows us to hide one or more columns from appearing in the final
+    output table. While it's possible and often desirable to omit columns from the input table data
+    before introduction to the `GT()` class, there can be cases where the data in certain columns is
+    useful (as a column reference during formatting of other columns) but the final display of those
+    columns is not necessary.
+
+    Parameters
+    ----------
+    columns : Union[List[str]]
+        The columns to hide in the output display table. Can either be a single column name or a
+        series of column names provided in a list.
+
+    Returns
+    -------
+    GTData
+        The GTData object is returned.
+
+    Details
+    -------
+    The hiding of columns is internally a rendering directive, so, all columns that are 'hidden' are
+    still accessible and useful in any expression provided to a `rows` argument. Furthermore, the
+    `cols_hide()` method (as with many of the methods available in **great_tables**) can be placed
+    anywhere in a chain of calls (acting as a promise to hide columns when the timing is right).
+    However there's perhaps greater readability when placing this call closer to the end of such a
+    chain. The `cols_hide()` method quietly changes the visible state of a column and doesn't yield
+    warnings when changing the state of already-invisible columns.
+    """
+
+    # If `columns` is a string, convert it to a list
+    if isinstance(columns, str):
+        columns = [columns]
+
+    sel_cols = resolve_cols_c(columns, data)
+
+    vars = [col.var for col in data._boxhead]
+
+    if not len(columns):
+        raise Exception("No columns selected.")
+    elif not all([col in vars for col in columns]):
+        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+
+    # New boxhead with hidden columns
+    new_boxhead = data._boxhead
+
+    for col in sel_cols:
+        new_boxhead = new_boxhead.set_col_hidden(colname=col)
+
+    return data._replace(_boxhead=new_boxhead)
+
+
 def spanners_print_matrix(
     spanners: Spanners,
     boxhead: Boxhead,
