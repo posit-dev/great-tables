@@ -20,10 +20,6 @@ With **great_tables** anyone can make wonderful-looking tables in Python. The ph
 
 It all begins with **table data** in the form of a Pandas DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a **Quarto** document.
 
-<div align="center">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/gt_workflow_diagram.svg" width="800px">
-</div>
-
 The **great_tables** package is designed to be both straightforward yet powerful. The emphasis is on simple methods for the everyday display table needs (but power when you need it). Here is a brief example of how to use **gt** to create a table from the included `sp500` dataset:
 
 ```python
