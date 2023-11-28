@@ -77,6 +77,27 @@ def tab_spanner(
     -------
     GTData
         The GTData object is returned.
+
+    Examples
+    --------
+    Let's create a table using a small portion of the `gtcars` dataset. Over several columns (`hp`,
+    `hp_rpm`, `trq`, `trq_rpm`, `mpg_c`, `mpg_h`) we'll use `tab_spanner()` to add a spanner with
+    the label `"performance"`. This effectively groups together several columns related to car
+    performance under a unifying label.
+
+    ```{python}
+    import great_tables as gt
+
+    gtcars_mini = gt.gtcars[[\"model\", \"hp\", \"hp_rpm\", \"trq\", \"trq_rpm\", \"mpg_c\", \"mpg_h\"]].head(10)
+
+    (
+        gt.GT(gtcars_mini)
+        .tab_spanner(
+            label=\"performance\",
+            columns=[\"hp\", \"hp_rpm\", \"trq\", \"trq_rpm\", \"mpg_c\", \"mpg_h\"]
+        )
+    )
+    ```
     """
 
     crnt_spanner_ids = [span.spanner_id for span in data._spanners]
