@@ -558,6 +558,7 @@ ul.task-list li input[type="checkbox"] {
 <h1>Function reference</h1>
 <section id="table-creation" class="level2">
 <h2 class="anchored" data-anchor-id="table-creation">Table Creation</h2>
+<p>All tables created in <strong>great_tables</strong> begin by using <code>GT()</code>. Here we supply the input data table and some basic options for creating a stub (<code>rowname_col</code>) and row groups (<code>groupname_col</code>).</p>
 <table class="table">
 <tbody>
 <tr class="odd">
@@ -569,6 +570,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="creating-or-modifying-parts-of-a-table" class="level2">
 <h2 class="anchored" data-anchor-id="creating-or-modifying-parts-of-a-table">Creating or modifying parts of a table</h2>
+<p>A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with footnotes and source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can modify the look of table parts more generally with <code>tab_options()</code> and perform styling on targeted table locations with <code>tab_style()</code>.</p>
 <table class="table">
 <tbody>
 <tr class="odd">
@@ -596,6 +598,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="formatting-column-data" class="level2">
 <h2 class="anchored" data-anchor-id="formatting-column-data">Formatting column data</h2>
+<p>Columns of data can be formatted with the <code>fmt_*()</code> methods. We can specify the rows of these columns quite precisely with the <code>rows</code> argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the <code>fmt()</code> method and define your own formatter within.</p>
 <table class="table">
 <tbody>
 <tr class="odd">
@@ -647,6 +650,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="modifying-columns" class="level2">
 <h2 class="anchored" data-anchor-id="modifying-columns">Modifying columns</h2>
+<p>The <code>cols_*()</code> methods allow for modifications that act on entire columns. This includes alignment of the data in columns (<code>cols_align()</code>), hiding columns from view (<code>cols_hide()</code>), re-labeling the column labels (<code>cols_label()</code>), and moving columns around (the <code>cols_move*()</code> methods).</p>
 <table class="table">
 <tbody>
 <tr class="odd">
@@ -674,6 +678,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="helper-functions" class="level2">
 <h2 class="anchored" data-anchor-id="helper-functions">Helper functions</h2>
+<p>An assortment of helper functions is available in the <strong>great_tables</strong> package. The <code>md()</code> and <code>html()</code> helpers can used be during label creation with the <code>tab_header()</code>, <code>tab_footnote()</code>, <code>tab_spanner()</code>, <code>tab_stubhead_label()</code>, and <code>tab_source_note()</code> methods.</p>
 <table class="table">
 <tbody>
 <tr class="odd">
@@ -720,6 +725,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="value-formatting-functions" class="level2">
 <h2 class="anchored" data-anchor-id="value-formatting-functions">Value formatting functions</h2>
+<p>If you have single values (or lists of them) in need of formatting, we have a set of <code>vals_fmt_*()</code> functions that have been adapted from the corresponding <code>fmt_*()</code> methods.</p>
 <table class="table">
 <tbody>
 <tr class="odd">
@@ -767,6 +773,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="built-in-datasets" class="level2">
 <h2 class="anchored" data-anchor-id="built-in-datasets">Built in datasets</h2>
+<p>The <strong>great_tables</strong> package is equipped with ten datasets that come in all shapes and sizes. Use them to experiment with the package! Many examples in the internal help documents use these datasets to quickly demonstrate the awesome features of <strong>great_tables</strong>.</p>
 <table class="table">
 <tbody>
 <tr class="odd">
