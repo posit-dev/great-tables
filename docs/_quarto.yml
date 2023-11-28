@@ -10,10 +10,9 @@ website:
         menu:
           - articles/case-study-gtcars.qmd
       - href: reference/index.qmd
-      - text: Development
-        menu:
-          - sidebar:examples
+        text: Reference
       - href: changelog.qmd
+        text: Changelog
     right:
       - icon: github
         href: https://github.com/posit-dev/great-tables
