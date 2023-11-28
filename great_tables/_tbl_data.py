@@ -8,8 +8,10 @@ from typing_extensions import TypeAlias
 
 from ._databackend import AbstractBackend
 
-import pandas as pd
 
+# Define databackend types ----
+# These are resolved lazily (e.g. on isinstance checks) when run dynamically,
+# or imported directly during type checking.
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -20,6 +22,7 @@ if TYPE_CHECKING:
 
     PdDataFrame = pd.DataFrame
     PlDataFrame = pl.DataFrame
+    PlSelectExpr = _selector_proxy_
 
     DataFrameLike = Union[PdDataFrame, PlDataFrame]
     TblData = DataFrameLike
@@ -36,6 +39,9 @@ else:
 
     class PlDataFrame(AbstractBackend):
         _backends = [("polars", "DataFrame")]
+
+    class PlSelectExpr(AbstractBackend):
+        _backends = [("polars.selectors", "_selector_proxy_")]
 
     # TODO: these types are imported throughout gt, so we need to either put
     # those imports under TYPE_CHECKING, or continue to make available dynamically here.
@@ -274,6 +280,8 @@ def create_empty_frame(df: DataFrameLike) -> DataFrameLike:
 
 @create_empty_frame.register
 def _(df: PdDataFrame):
+    import pandas as pd
+
     return pd.DataFrame(pd.NA, index=df.index, columns=df.columns, dtype="string")
 
 

@@ -5,7 +5,7 @@ import itertools
 from typing import TYPE_CHECKING, Union, List, Dict, Optional, Any
 
 from ._gt_data import Spanners, SpannerInfo
-from ._locations import resolve_cols_c
+from ._locations import SelectExpr, resolve_cols_c
 
 if TYPE_CHECKING:
     from ._gt_data import GTData, Boxhead
@@ -17,7 +17,7 @@ SpannerMatrix = List[Dict[str, Union[str, None]]]
 def tab_spanner(
     data: GTData,
     label: str,
-    columns: Union[list[str], str, None] = None,
+    columns: SelectExpr = None,
     spanners: Union[list[str], str, None] = None,
     level: Optional[int] = None,
     id: Optional[str] = None,
@@ -105,10 +105,10 @@ def tab_spanner(
     if id is None:
         id = label
 
-    if isinstance(columns, str):
+    if isinstance(columns, (str, int)):
         columns = [columns]
 
-    if isinstance(spanners, str):
+    if isinstance(spanners, (str, int)):
         spanners = [spanners]
 
     # validations ----
@@ -121,7 +121,7 @@ def tab_spanner(
 
     if columns is None:
         # TODO: null_means is unimplemented
-        raise NotImplementedError()
+        raise NotImplementedError("columns must be specified")
 
     selected_column_names = resolve_cols_c(columns, data, null_means="nothing")
 
@@ -173,7 +173,7 @@ def tab_spanner(
     return new_data
 
 
-def cols_move(data: GTData, columns: Union[str, list[str]], after: str) -> GTData:
+def cols_move(data: GTData, columns: SelectExpr, after: str) -> GTData:
     """Move one or more columns.
 
     On those occasions where you need to move columns this way or that way, we can make use of the
@@ -215,9 +215,9 @@ def cols_move(data: GTData, columns: Union[str, list[str]], after: str) -> GTDat
             f"Only 1 value should be supplied to `after`, recieved argument: {sel_after}"
         )
 
-    if not len(columns):
+    if not len(sel_cols):
         raise Exception("No columns selected.")
-    elif not all([col in vars for col in columns]):
+    elif not all([col in vars for col in sel_cols]):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
 
     moving_columns = [col for col in sel_cols if col not in sel_after]
@@ -230,7 +230,7 @@ def cols_move(data: GTData, columns: Union[str, list[str]], after: str) -> GTDat
     return data._replace(_boxhead=new_boxhead)
 
 
-def cols_move_to_start(data: GTData, columns: Union[str, list[str]]) -> GTData:
+def cols_move_to_start(data: GTData, columns: SelectExpr) -> GTData:
     """Move one or more columns to the start.
 
     We can easily move set of columns to the beginning of the column series and we only need to
@@ -259,9 +259,9 @@ def cols_move_to_start(data: GTData, columns: Union[str, list[str]]) -> GTData:
 
     vars = [col.var for col in data._boxhead]
 
-    if not len(columns):
+    if not len(sel_cols):
         raise Exception("No columns selected.")
-    elif not all([col in vars for col in columns]):
+    elif not all([col in vars for col in sel_cols]):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
 
     moving_columns = [col for col in sel_cols]
@@ -273,7 +273,7 @@ def cols_move_to_start(data: GTData, columns: Union[str, list[str]]) -> GTData:
     return data._replace(_boxhead=new_boxhead)
 
 
-def cols_move_to_end(data: GTData, columns: Union[str, list[str]]) -> GTData:
+def cols_move_to_end(data: GTData, columns: SelectExpr) -> GTData:
     """Move one or more columns to the end.
 
     We can easily move set of columns to the beginning of the column series and we only need to
@@ -302,9 +302,9 @@ def cols_move_to_end(data: GTData, columns: Union[str, list[str]]) -> GTData:
 
     vars = [col.var for col in data._boxhead]
 
-    if not len(columns):
+    if not len(sel_cols):
         raise Exception("No columns selected.")
-    elif not all([col in vars for col in columns]):
+    elif not all([col in vars for col in sel_cols]):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
 
     moving_columns = [col for col in sel_cols]
@@ -316,7 +316,7 @@ def cols_move_to_end(data: GTData, columns: Union[str, list[str]]) -> GTData:
     return data._replace(_boxhead=new_boxhead)
 
 
-def cols_hide(data: GTData, columns: Union[str, list[str]]) -> GTData:
+def cols_hide(data: GTData, columns: SelectExpr) -> GTData:
     """Hide one or more columns.
 
     The `cols_hide()` method allows us to hide one or more columns from appearing in the final
@@ -355,7 +355,7 @@ def cols_hide(data: GTData, columns: Union[str, list[str]]) -> GTData:
 
     vars = [col.var for col in data._boxhead]
 
-    if not len(columns):
+    if not len(sel_cols):
         raise Exception("No columns selected.")
     elif not all([col in vars for col in columns]):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
