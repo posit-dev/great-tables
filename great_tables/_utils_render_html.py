@@ -1,7 +1,7 @@
 from great_tables._spanners import spanners_print_matrix, seq_groups
 from ._gt_data import GTData
 from ._tbl_data import n_rows, _get_cell, cast_frame_to_string
-from typing import List, Any
+from typing import List, Any, cast
 from htmltools import tags, HTML, css, TagList
 from itertools import groupby, chain
 from ._text import StringBuilder, _process_text
@@ -484,6 +484,71 @@ def create_body_component_h(data: GTData) -> str:
     all_body_rows = "\n".join(body_rows)
 
     return f'<tbody class="gt_table_body">\n{all_body_rows}\n</tbody>'
+
+
+def create_source_notes_component_h(data: GTData) -> str:
+    source_notes = data._source_notes
+
+    # If there are no source notes, then return an empty string
+    if source_notes == []:
+        return ""
+
+    # Obtain the `multiline` and `separator` options from `_options`
+    multiline = data._options.source_notes_multiline.value
+    separator = cast(str, data._options.source_notes_sep.value)
+
+    # Get the effective number of columns, which is number of columns
+    # that will finally be rendered accounting for the stub layout
+    n_cols_total = data._boxhead._get_effective_number_of_columns(
+        stub=data._stub, row_groups=data._row_groups, options=data._options
+    )
+
+    # Handle the multiline source notes case (each note takes up one line)
+    if multiline:
+        # Create the source notes component as a series of `<tr><td>` (one per
+        # source note) inside of a `<tfoot>`
+
+        source_notes_tr: List[str] = []
+
+        for note in source_notes:
+            source_notes_tr.append(
+                f"""
+  <tr>
+    <td class="gt_sourcenote" colspan="{n_cols_total}">{note}</td>
+  </tr>
+"""
+            )
+
+        source_notes_joined = "\n".join(source_notes_tr)
+
+        source_notes_component = f"""  <tfoot class="gt_sourcenotes">
+  {source_notes_joined}
+</tfoot>"""
+
+        return source_notes_component
+
+    # TODO: Perform HTML escaping on the separator text and
+    # transform space characters to non-breaking spaces
+
+    # Create the source notes component as a single `<tr><td>` inside
+    # of a `<tfoot>`
+
+    source_notes_str_joined = separator.join(source_notes)
+
+    source_notes_component = f"""<tfoot>
+  <tr class="gt_sourcenotes">
+    <td class="gt_sourcenote" colspan="{n_cols_total}">
+      <div style="padding-bottom:2px;">{source_notes_str_joined}</div>
+    </td>
+  </tr>
+</tfoot>
+    """
+
+    return source_notes_component
+
+
+def create_footnotes_component_h(data: GTData):
+    return ""
 
 
 def rtl_modern_unicode_charset() -> str:

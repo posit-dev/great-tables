@@ -47,6 +47,8 @@ from great_tables._utils_render_html import (
     create_heading_component_h,
     create_columns_component_h,
     create_body_component_h,
+    create_source_notes_component_h,
+    create_footnotes_component_h,
 )
 from great_tables._helpers import random_id
 
@@ -294,11 +296,11 @@ class GT(
     # HTML Rendering
     # =============================================================================
     def _render_as_html(self) -> str:
-        heading_component = create_heading_component_h(self)
-        column_labels_component = create_columns_component_h(self)
-        body_component = create_body_component_h(self)
-        source_notes_component = _create_source_notes_component(self)
-        footnotes_component = _create_footnotes_component(self)
+        heading_component = create_heading_component_h(data=self)
+        column_labels_component = create_columns_component_h(data=self)
+        body_component = create_body_component_h(data=self)
+        source_notes_component = create_source_notes_component_h(data=self)
+        footnotes_component = create_footnotes_component_h(data=self)
 
         # Determine whether Quarto processing of the table is enabled
         quarto_disable_processing = self._options._get_option_value("quarto_disable_processing")
@@ -406,72 +408,6 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
 # =============================================================================
 
 
-def _create_source_notes_component(data: GT) -> str:
-    source_notes = data._source_notes
-
-    # If there are no source notes, then return an empty string
-    if source_notes == []:
-        return ""
-
-    # Obtain the `multiline` and `separator` options from `_options`
-    multiline = data._options.source_notes_multiline.value
-    separator = cast(str, data._options.source_notes_sep.value)
-
-    # Get the effective number of columns, which is number of columns
-    # that will finally be rendered accounting for the stub layout
-    n_cols_total = data._boxhead._get_effective_number_of_columns(
-        stub=data._stub, row_groups=data._row_groups, options=data._options
-    )
-
-    # Handle the multiline source notes case (each note takes up one line)
-    if multiline:
-        # Create the source notes component as a series of `<tr><td>` (one per
-        # source note) inside of a `<tfoot>`
-
-        source_notes_tr: List[str] = []
-
-        for note in source_notes:
-            source_notes_tr.append(
-                f"""
-  <tr>
-    <td class="gt_sourcenote" colspan="{n_cols_total}">{note}</td>
-  </tr>
-"""
-            )
-
-        source_notes_joined = "\n".join(source_notes_tr)
-
-        source_notes_component = f"""  <tfoot class="gt_sourcenotes">
-  {source_notes_joined}
-</tfoot>"""
-
-        return source_notes_component
-
-    # TODO: Perform HTML escaping on the separator text and
-    # transform space characters to non-breaking spaces
-
-    # Create the source notes component as a single `<tr><td>` inside
-    # of a `<tfoot>`
-
-    source_notes_str_joined = separator.join(source_notes)
-
-    source_notes_component = f"""<tfoot>
-  <tr class="gt_sourcenotes">
-    <td class="gt_sourcenote" colspan="{n_cols_total}">
-      <div style="padding-bottom:2px;">{source_notes_str_joined}</div>
-    </td>
-  </tr>
-</tfoot>
-    """
-
-    return source_notes_component
-
-
-def _create_footnotes_component(data: GT):
-    return ""
-
-
-# TODO: Port the SCSS compilation routine from the R implementation here
 def _compile_scss(data: GT, id: Optional[str]) -> str:
     # Obtain the SCSS options dictionary
     gt_options_dict = data._options._options
