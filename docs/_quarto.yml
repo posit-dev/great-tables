@@ -31,18 +31,25 @@ metadata-files:
   - _sidebar.yml
 
 quartodoc:
-  # the name used to import the package
+  style: pkgdown
   package: great_tables
-
-  # write sidebar data to this file
   sidebar: _sidebar.yml
   dynamic: true
-
   sections:
     - title: Table Creation
+      desc: >
+        All tables created in **great_tables** begin by using `GT()`. Here we supply the input
+        data table and some basic options for creating a stub (`rowname_col`) and row groups
+        (`groupname_col`).
       contents:
         - GT
     - title: Creating or modifying parts of a table
+      desc: >
+        A table can contain a few useful components for conveying additional information. These
+        include a header (with a titles and subtitle), a footer (with footnotes and source notes),
+        and additional areas for labels (row group labels, column spanner labels, the stubhead
+        label). We can modify the look of table parts more generally with `tab_options()` and
+        perform styling on targeted table locations with `tab_style()`.
       contents:
         - GT.tab_header
         - GT.tab_spanner
@@ -50,6 +57,11 @@ quartodoc:
         - GT.tab_source_note
         - GT.tab_options
     - title: Formatting column data
+      desc: >
+        Columns of data can be formatted with the `fmt_*()` methods. We can specify the rows of
+        these columns quite precisely with the `rows` argument. We get to apply these methods
+        exactly once to each data cell (last call wins). Need to do custom formatting? Use the
+        `fmt()` method and define your own formatter within.
       contents:
         - GT.fmt_number
         - GT.fmt_integer
@@ -63,6 +75,11 @@ quartodoc:
         - GT.fmt_markdown
         - GT.fmt
     - title: Modifying columns
+      desc: >
+        The `cols_*()` methods allow for modifications that act on entire columns. This includes
+        alignment of the data in columns (`cols_align()`), hiding columns from view (`cols_hide()`),
+        re-labeling the column labels (`cols_label()`), and moving columns around (the
+        `cols_move*()` methods).
       contents:
         - GT.cols_align
         - GT.cols_label
@@ -70,6 +87,11 @@ quartodoc:
         - GT.cols_move_to_start
         - GT.cols_move_to_end
     - title: Helper functions
+      desc: >
+        An assortment of helper functions is available in the **great_tables** package. The `md()`
+        and `html()` helpers can used be during label creation with the `tab_header()`,
+        `tab_footnote()`, `tab_spanner()`, `tab_stubhead_label()`, and `tab_source_note()`
+        methods.
       contents:
         - md
         - html
@@ -82,6 +104,9 @@ quartodoc:
         - GT.opt_footnote_marks
         - GT.opt_row_striping
     - title: Value formatting functions
+      desc: >
+        If you have single values (or lists of them) in need of formatting, we have a set of
+        `vals_fmt_*()` functions that have been adapted from the corresponding `fmt_*()` methods.
       contents:
         - vals_fmt_number
         - vals_fmt_integer
@@ -94,6 +119,10 @@ quartodoc:
         - vals_fmt_time
         - vals_fmt_markdown
     - title: Built in datasets
+      desc: >
+        The **great_tables** package is equipped with ten datasets that come in all shapes and
+        sizes. Use them to experiment with the package! Many examples in the internal help documents
+        use these datasets to quickly demonstrate the awesome features of **great_tables**.
       contents:
         - data.countrypops
         - data.sza
