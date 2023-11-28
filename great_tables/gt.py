@@ -154,6 +154,10 @@ class GT(
     of auto-alignment, the `auto_align=False` option can be taken.
 
     ```{python}
+    gt.GT(gt.exibble, rowname_col=\"row\", groupname_col=\"group\")
+    ```
+
+    ```{python}
     gt.GT(gt.exibble, rowname_col=\"row\", auto_align=False)
     ```
 
