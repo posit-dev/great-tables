@@ -13,7 +13,10 @@ description = "Easily generate information-rich, publication-quality tables from
 readme = "README.md"
 keywords = ["tables"]
 license.file = "LICENSE"
-authors = [{ name = "Richard Iannone", email = "rich@posit.co" }]
+authors = [
+    { name = "Richard Iannone", email = "rich@posit.co" },
+    { name = "Michael Chow", email = "michael.chow@posit.co" }
+]
 dynamic = ["version"]
 classifiers = [
     "Development Status :: 3 - Alpha",
