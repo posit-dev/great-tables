@@ -11,6 +11,7 @@ from great_tables._tbl_data import (
     DataFrameLike,
     reorder,
     eval_select,
+    create_empty_frame,
 )
 
 
@@ -63,3 +64,15 @@ def test_reorder(df: DataFrameLike):
 def test_eval_select_with_list(df: DataFrameLike):
     sel = eval_select(df, ["col2", "col1"])
     assert sel == [("col2", 1), ("col1", 0)]
+
+
+def test_create_empty_frame(df: DataFrameLike):
+    res = create_empty_frame(df)
+    col = [None] * 3
+
+    if isinstance(res, pd.DataFrame):
+        dst = pd.DataFrame({"col1": col, "col2": col, "col3": col}, dtype="string")
+    else:
+        dst = pl.DataFrame({"col1": col, "col2": col, "col3": col}).cast(pl.Utf8)
+
+    assert_frame_equal(res, dst)

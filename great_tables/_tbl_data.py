@@ -4,6 +4,7 @@ from __future__ import annotations
 from collections import defaultdict
 from functools import singledispatch
 from typing import Any, Dict, List, Union, Callable, Tuple, TYPE_CHECKING
+from typing_extensions import TypeAlias
 
 from ._databackend import AbstractBackend
 
@@ -52,13 +53,6 @@ else:
 
 def _raise_not_implemented(data):
     raise NotImplementedError(f"Unsupported data type: {type(data)}")
-
-
-# classes ----
-
-
-class TblDataAPI:
-    pass
 
 
 # generic functions ----
@@ -204,7 +198,7 @@ def _(data: PdDataFrame, group_key: str) -> Dict[Any, List[int]]:
 
 # eval_select ----
 
-_NamePos = List[Tuple[str, int]]
+_NamePos: TypeAlias = List[Tuple[str, int]]
 
 
 @singledispatch
@@ -267,3 +261,61 @@ def _eval_select_from_list(columns: list[str], expr: list[str | int]) -> list[tu
                 " Only int and str are supported."
             )
     return res
+
+
+# create_empty ----
+
+
+@singledispatch
+def create_empty_frame(df: DataFrameLike) -> DataFrameLike:
+    """Return a DataFrame with the same shape, but all nan string columns"""
+    raise NotImplementedError(f"Unsupported type: {type(df)}")
+
+
+@create_empty_frame.register
+def _(df: PdDataFrame):
+    return pd.DataFrame(pd.NA, index=df.index, columns=df.columns, dtype="string")
+
+
+@create_empty_frame.register
+def _(df: PlDataFrame):
+    import polars as pl
+
+    return df.clear().cast(pl.Utf8).clear(len(df))
+
+
+@singledispatch
+def copy_frame(df: DataFrameLike) -> DataFrameLike:
+    """Return a copy of the input DataFrame"""
+    raise NotImplementedError(f"Unsupported type: {type(df)}")
+
+
+@copy_frame.register
+def _(df: PdDataFrame):
+    return df.copy()
+
+
+@copy_frame.register
+def _(df: PlDataFrame):
+    return df.clone()
+
+
+# cast_frame_to_string ----
+
+
+@singledispatch
+def cast_frame_to_string(df: DataFrameLike) -> DataFrameLike:
+    """Return a copy of the input DataFrame with all columns cast to string"""
+    raise NotImplementedError(f"Unsupported type: {type(df)}")
+
+
+@cast_frame_to_string.register
+def _(df: PdDataFrame):
+    return df.astype("string")
+
+
+@cast_frame_to_string.register
+def _(df: PlDataFrame):
+    import polars as pl
+
+    return df.cast(pl.Utf8)

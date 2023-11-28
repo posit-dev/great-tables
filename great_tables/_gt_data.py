@@ -7,6 +7,7 @@ from typing import overload, TypeVar, Optional
 from typing_extensions import Self, TypeAlias
 from dataclasses import dataclass, field, replace
 from ._utils import _str_detect
+from ._tbl_data import create_empty_frame
 
 from ._styles import CellStyle
 
@@ -160,7 +161,7 @@ class Body:
 
     @classmethod
     def from_empty(cls, body: DataFrameLike):
-        empty_df = pd.DataFrame(pd.NA, index=body.index, columns=body.columns, dtype="string")
+        empty_df = create_empty_frame(body)
 
         return cls(empty_df)
 
