@@ -10,4 +10,4 @@ Development Lead
 Contributors
 ------------
 
-TBD.
+* Michael Chow <michael.chow@posit.co>

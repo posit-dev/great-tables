@@ -108,4 +108,5 @@ Please note that the **great_tables** project is released with a [contributor co
 
 ## 🏛️ Governance
 
-This project is primarily maintained by [Rich Iannone](https://twitter.com/riannone). Other authors may occasionally assist with some of these duties.
+This project is primarily maintained by [Rich Iannone](https://twitter.com/riannone) and [Michael Chow](https://twitter.com/chowthedog).
+Other authors may occasionally assist with some of these duties.
