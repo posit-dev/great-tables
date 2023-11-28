@@ -31,7 +31,6 @@ metadata-files:
   - _sidebar.yml
 
 quartodoc:
-  style: pkgdown
   package: great_tables
   sidebar: _sidebar.yml
   dynamic: true
