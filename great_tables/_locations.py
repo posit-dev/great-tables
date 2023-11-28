@@ -4,7 +4,7 @@ import itertools
 
 from dataclasses import dataclass
 from functools import singledispatch
-from typing import TYPE_CHECKING, Literal, List
+from typing import TYPE_CHECKING, Literal, List, Callable
 from typing_extensions import TypeAlias
 
 # note that types like Spanners are only used in annotations for concretes of the
@@ -17,10 +17,12 @@ from ._styles import CellStyle
 
 if TYPE_CHECKING:
     from ._gt_data import TblData
+    from ._tbl_data import PlSelectExpr
 
 # Misc Types ===========================================================================
 
 PlacementOptions: TypeAlias = Literal["auto", "left", "right"]
+SelectExpr: TypeAlias = "list[str | int] | PlSelectExpr | str | int | Callable[[str], bool] | None"
 
 # Locations ============================================================================
 # TODO: these are called cells_* in gt. I prefixed them with Loc just to keep things
@@ -128,6 +130,11 @@ class LocSourceNotes(Loc):
 
 
 # Utils ================================================================================
+# Note that there are three kinds of functions below:
+#   * resolve_vector_* functions are largely for selecting from spanner names.
+#   * resolve_rows_* are for resolving locations for styles. These can select by name,
+#     or a predicate.
+#   * resolve_cols_* functions select columns using tidyselect.
 
 
 def resolve_vector_i(expr: list[str], candidates: list[str], item_label: str) -> list[int]:
@@ -152,7 +159,7 @@ def resolve_vector_l(expr: list[str], candidates: list[str], item_label: str) ->
 
 
 def resolve_cols_c(
-    expr: list[str],
+    expr: SelectExpr,
     data: GTData,
     strict: bool = True,
     excl_stub: bool = True,
@@ -164,7 +171,7 @@ def resolve_cols_c(
 
 
 def resolve_cols_i(
-    expr: list[str],
+    expr: SelectExpr,
     data: GTData | TblData,
     strict: bool = True,
     excl_stub: bool = True,
@@ -177,7 +184,7 @@ def resolve_cols_i(
         stub_var = data._boxhead.vars_from_type(ColInfoTypeEnum.stub)
 
         # TODO: special handling of "stub()"
-        if "stub()" in expr:
+        if isinstance(expr, list) and "stub()" in expr:
             if len(stub_var):
                 return [(stub_var[0], 1)]
 
