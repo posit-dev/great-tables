@@ -12,10 +12,10 @@
 
 _Absolutely Delightful Table-making in Python_
 
-With **great_tables** anyone can make wonderful-looking tables in Python. The philosophy here isthat we can construct a wide variety of useful tables by working with a cohesive set of table parts. You can mix and match things like a _header_ and _footer_, attach a _stub_ (which contains row labels), arrange _spanner labels_ over top of the _column labels_, and much more. Not only that, but you can format the cell values in a variety of awesome ways.
+With **great_tables** anyone can make wonderful-looking tables in Python. The philosophy here is that we can construct a wide variety of useful tables by working with a cohesive set of table components. You can mix and match things like a _header_ and _footer_, attach a _stub_ (which contains row labels), arrange _spanner labels_ over top of the _column labels_, and much more. Not only that, but you can format the cell values in a variety of awesome ways.
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/gt_parts_of_a_table.svg" width="800px">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/the_components_of_a_table.svg" width="800px">
 </div>
 
 It all begins with **table data** in the form of a Pandas DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a **Quarto** document.
