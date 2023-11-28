@@ -1,6 +1,6 @@
 from great_tables._spanners import spanners_print_matrix, seq_groups
 from ._gt_data import GTData
-from ._tbl_data import n_rows, _get_cell
+from ._tbl_data import n_rows, _get_cell, cast_frame_to_string
 from typing import List, Any
 from htmltools import tags, HTML, css, TagList
 from itertools import groupby, chain
@@ -411,9 +411,11 @@ def create_body_component_h(data: GTData) -> str:
 
     # for now, just coerce everything in the original data to a string
     # so we can fill in the body data with it
-    _str_orig_data = data._tbl_data.applymap(lambda x: str(x) if not pd.isna(x) else x)
+    _str_orig_data = cast_frame_to_string(data._tbl_data)
 
-    tbl_data = data._body.body.fillna(_str_orig_data)
+    # TODO: it seems like this is equivalent to the commented line below?
+    tbl_data = _str_orig_data
+    # tbl_data = data._body.body.fillna(_str_orig_data)
 
     grp_idx_to_label = data._group_rows.indices_map()
 

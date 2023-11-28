@@ -145,3 +145,14 @@ def test_cols_move():
 
     new_gt = cols_move(src_gt, columns=["a"], after="b")
     assert [col.var for col in new_gt._boxhead] == ["b", "a", "c"]
+
+
+def test_cols_move_polars():
+    import polars as pl
+    import polars.selectors as cs
+
+    df = pl.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    src_gt = GT(df)
+
+    new_gt = cols_move(src_gt, columns=cs.starts_with("a"), after="b")
+    assert [col.var for col in new_gt._boxhead] == ["b", "a", "c"]

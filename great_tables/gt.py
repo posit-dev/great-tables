@@ -13,7 +13,6 @@ from great_tables._gt_data import GTData
 from great_tables import _utils
 
 # Rewrite main gt imports to use relative imports of APIs ----
-from great_tables._tbl_data import TblDataAPI
 from great_tables._body import body_reassemble
 from great_tables._boxhead import BoxheadAPI
 from great_tables._footnotes import FootnotesAPI
@@ -56,7 +55,7 @@ from great_tables._helpers import random_id
 # from ._body import Body
 from ._text import StringBuilder, _process_text
 from ._utils import _as_css_font_family_attr, _unique_set
-from ._tbl_data import n_rows, _get_cell
+from ._tbl_data import n_rows, _get_cell, copy_frame
 
 
 # from ._body import Context
@@ -77,7 +76,6 @@ __all__ = ["GT"]
 # =============================================================================
 class GT(
     GTData,
-    TblDataAPI,
     BoxheadAPI,
     RowGroupsAPI,
     HeadingAPI,
@@ -245,7 +243,7 @@ class GT(
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         built = copy.copy(self)
-        built._body = self._body.__class__(self._tbl_data.copy())
+        built._body = self._body.__class__(copy_frame(self._tbl_data))
         built._render_formats(context)
         # built._body = _migrate_unformatted_to_output(body)
 
