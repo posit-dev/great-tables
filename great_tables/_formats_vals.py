@@ -583,7 +583,7 @@ def vals_fmt_roman(
     pattern: str = "{x}",
 ) -> List[str]:
     """
-    Format values as bytes.
+    Format values as Roman numerals.
 
     With numeric values we can transform those to Roman numerals, rounding values as necessary.
 
