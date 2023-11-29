@@ -26,9 +26,9 @@ def tab_source_note(data: GTData, source_note: str) -> GTData:
 
     Examples
     --------
-    With three columns from the [`gtcars`] dataset, let's create a **gt** table. We can use the
-    `tab_source_note()` function to add a source note to the table footer. Here we are citing the
-    data source but this function can be used for any text you'd prefer to display in the footer
+    With three columns from the `gtcars` dataset, let's create a new table. We can use the
+    `tab_source_note()` method to add a source note to the table footer. Here we are citing the
+    data source but this method can be used for any text you'd prefer to display in the footer
     component of the table.
 
     ```{python}
