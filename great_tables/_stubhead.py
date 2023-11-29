@@ -1,13 +1,6 @@
 from __future__ import annotations
 
 
-# class Stubhead:
-#    stubhead: Optional[str]
-#
-#    def __init__(self):
-#        pass
-
-
 class StubheadAPI:
     def tab_stubhead(self, label: str):
         """
