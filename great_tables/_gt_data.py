@@ -374,7 +374,7 @@ class Boxhead(_Sequence[ColInfo]):
     def _set_column_align(self, column: str, align: str):
         for x in self._d:
             if x.var == column:
-                x.column_align = ColumnAlignment[align]
+                x.column_align = align
 
         return self
 
