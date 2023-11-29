@@ -103,6 +103,10 @@ class BoxheadAPI:
 
         """
 
+        # Throw if `align` is not one of the three allowed values
+        if align not in ["left", "center", "right"]:
+            raise ValueError("Align must be one of 'left', 'center', or 'right'.")
+
         # Get the full list of column names for the data
         column_names = self._boxhead._get_columns()
 
