@@ -115,9 +115,15 @@ class BoxheadAPI:
         if columns is not None:
             _assert_list_is_subset(columns, column_names)
 
+        # If `columns` is `None`, set it to the full list of column names
         if columns is None:
             columns = column_names
 
+        # Upgrade to list if `columns` is a string
+        if isinstance(columns, str):
+            columns = [columns]
+
+        # Set the alignment for each column
         for column in columns:
             self._boxhead._set_column_align(column=column, align=align)
 
