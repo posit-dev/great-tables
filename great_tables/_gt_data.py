@@ -856,8 +856,7 @@ from ._tbl_data import TblData
 # Options ----
 __Options = None
 
-from typing import Optional, Union, List, Any, cast
-from great_tables import _utils
+from typing import Optional, Union, List, Any
 
 default_fonts_list = [
     "-apple-system",
