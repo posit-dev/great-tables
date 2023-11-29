@@ -32,7 +32,7 @@ class GTData:
     _row_groups: RowGroups
     _group_rows: GroupRows
     _spanners: Spanners
-    _heading: Heading | None
+    _heading: Heading
     _stubhead: Stubhead
     _source_notes: SourceNotes
     _footnotes: Footnotes
@@ -706,6 +706,7 @@ __Heading = None
 from typing import Optional, Union, List
 
 
+@dataclass
 class Heading:
     title: Optional[str] = None
     subtitle: Optional[str] = None
