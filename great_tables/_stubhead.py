@@ -1,8 +1,9 @@
 from __future__ import annotations
+from ._gt_data import GTData
 
 
 class StubheadAPI:
-    def tab_stubhead(self, label: str):
+    def tab_stubhead(self, label: str) -> GTData:
         """
         Add label text to the stubhead.
 
@@ -42,6 +43,6 @@ class StubheadAPI:
         ```
         """
 
-        self._stubhead.stubhead = label
+        self._stubhead = label
 
         return self
