@@ -77,9 +77,9 @@ Another fine venue for discussion is in the [`gt_package` *Discord server*](http
 
 [![](https://img.shields.io/badge/Discord-Chat%20with%20us-blue?style=social&logo=discord&logoColor=purple)](https://discord.com/invite/Ux7nrcXHVV)
 
-Finally, there is the [`gt_package` *X account*](https://twitter.com/gt_package). There you'll find tweets about **great_tables** (including sneak previews about in-development features) and other table-generation packages.
+Finally, there is the [`gt_package` *X account*](https://x.com/gt_package). There you'll find tweets about **great_tables** (including sneak previews about in-development features) and other table-generation packages.
 
-[![](https://img.shields.io/twitter/follow/gt_package?style=social)](https://twitter.com/gt_package)
+[![](https://img.shields.io/x/follow/gt_package?style=social)](https://x.com/gt_package)
 
 These are all great places to ask questions about how to use the package, discuss some ideas, engage with others, and much more!
 
