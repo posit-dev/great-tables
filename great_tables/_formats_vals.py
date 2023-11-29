@@ -25,8 +25,8 @@ def _make_one_col_table(vals: Union[Any, List[Any]]) -> GTData:
     return gt_obj
 
 
-def vals_fmt_number(
-    vals: Union[Any, List[Any]],
+def val_fmt_number(
+    x: Union[Any, List[Any]],
     decimals: int = 2,
     n_sigfig: Optional[int] = None,
     drop_trailing_zeros: bool = False,
@@ -58,7 +58,7 @@ def vals_fmt_number(
 
     Parameters
     ----------
-    vals : Union[Any, List[Any]]
+    x : Union[Any, List[Any]]
         A list of values to be formatted.
     decimals : int
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
@@ -114,7 +114,7 @@ def vals_fmt_number(
         A list of formatted values is returned.
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=vals)
+    gt_obj: GTData = _make_one_col_table(vals=x)
 
     gt_obj_fmt = gt_obj.fmt_number(
         columns="x",
@@ -136,8 +136,8 @@ def vals_fmt_number(
     return vals_fmt
 
 
-def vals_fmt_integer(
-    vals: Union[Any, List[Any]],
+def val_fmt_integer(
+    x: Union[Any, List[Any]],
     use_seps: bool = True,
     scale_by: float = 1,
     pattern: str = "{x}",
@@ -164,7 +164,7 @@ def vals_fmt_integer(
 
     Parameters
     ----------
-    vals : Union[Any, List[Any]]
+    x : Union[Any, List[Any]]
         A list of values to be formatted.
     use_seps : bool
         The `use_seps` option allows for the use of digit group separators. The type of digit group
@@ -197,7 +197,7 @@ def vals_fmt_integer(
         A list of formatted values is returned.
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=vals)
+    gt_obj: GTData = _make_one_col_table(vals=x)
 
     gt_obj_fmt = gt_obj.fmt_integer(
         columns="x",
@@ -214,8 +214,8 @@ def vals_fmt_integer(
     return vals_fmt
 
 
-def vals_fmt_scientific(
-    vals: Union[Any, List[Any]],
+def val_fmt_scientific(
+    x: Union[Any, List[Any]],
     decimals: int = 2,
     n_sigfig: Optional[int] = None,
     drop_trailing_zeros: bool = False,
@@ -252,7 +252,7 @@ def vals_fmt_scientific(
 
     Parameters
     ----------
-    vals : Union[Any, List[Any]]
+    x : Union[Any, List[Any]]
         A list of values to be formatted.
     decimals : int
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
@@ -314,7 +314,7 @@ def vals_fmt_scientific(
         A list of formatted values is returned.
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=vals)
+    gt_obj: GTData = _make_one_col_table(vals=x)
 
     gt_obj_fmt = gt_obj.fmt_scientific(
         columns="x",
@@ -337,8 +337,8 @@ def vals_fmt_scientific(
     return vals_fmt
 
 
-def vals_fmt_percent(
-    vals: Union[Any, List[Any]],
+def val_fmt_percent(
+    x: Union[Any, List[Any]],
     decimals: int = 2,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
@@ -375,7 +375,7 @@ def vals_fmt_percent(
 
     Parameters
     ----------
-    vals : Union[Any, List[Any]]
+    x : Union[Any, List[Any]]
         A list of values to be formatted.
     decimals : int
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
@@ -432,7 +432,7 @@ def vals_fmt_percent(
         A list of formatted values is returned.
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=vals)
+    gt_obj: GTData = _make_one_col_table(vals=x)
 
     gt_obj_fmt = gt_obj.fmt_percent(
         columns="x",
@@ -455,8 +455,8 @@ def vals_fmt_percent(
     return vals_fmt
 
 
-def vals_fmt_currency(
-    vals: Union[Any, List[Any]],
+def val_fmt_currency(
+    x: Union[Any, List[Any]],
     currency: Optional[int] = None,
     use_subunits: bool = True,
     decimals: Optional[int] = None,
@@ -474,7 +474,7 @@ def vals_fmt_currency(
     """
     Format values as currencies.
 
-    With numeric values, we can perform currency-based formatting with the `vals_fmt_currency()`
+    With numeric values, we can perform currency-based formatting with the `val_fmt_currency()`
     function. This supports both automatic formatting with a three-letter currency code. We have
     fine control over the conversion from numeric values to currency values, where we could take
     advantage of the following options:
@@ -493,7 +493,7 @@ def vals_fmt_currency(
 
     Parameters
     ----------
-    vals : Union[Any, List[Any]]
+    x : Union[Any, List[Any]]
         A list of values to be formatted.
     currency : Union[str, None]
         The currency to use for the numeric value. This input can be supplied as a 3-letter currency
@@ -553,7 +553,7 @@ def vals_fmt_currency(
         A list of formatted values is returned.
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=vals)
+    gt_obj: GTData = _make_one_col_table(vals=x)
 
     gt_obj_fmt = gt_obj.fmt_currency(
         columns="x",
@@ -577,8 +577,8 @@ def vals_fmt_currency(
     return vals_fmt
 
 
-def vals_fmt_roman(
-    vals: Union[Any, List[Any]],
+def val_fmt_roman(
+    x: Union[Any, List[Any]],
     case: str = "upper",
     pattern: str = "{x}",
 ) -> List[str]:
@@ -589,7 +589,7 @@ def vals_fmt_roman(
 
     Parameters
     ----------
-    vals : Union[Any, List[Any]]
+    x : Union[Any, List[Any]]
         A list of values to be formatted.
     case : str
         Should Roman numerals should be rendered as uppercase (`"upper"`) or lowercase (`"lower"`)
@@ -605,7 +605,7 @@ def vals_fmt_roman(
         A list of formatted values is returned.
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=vals)
+    gt_obj: GTData = _make_one_col_table(vals=x)
 
     gt_obj_fmt = gt_obj.fmt_roman(
         columns="x",
@@ -618,8 +618,8 @@ def vals_fmt_roman(
     return vals_fmt
 
 
-def vals_fmt_bytes(
-    vals: Union[Any, List[Any]],
+def val_fmt_bytes(
+    x: Union[Any, List[Any]],
     standard: str = "decimal",
     decimals: int = 1,
     n_sigfig: Optional[int] = None,
@@ -637,7 +637,7 @@ def vals_fmt_bytes(
     Format values as bytes.
 
     With numeric values in a list, we can transform those to values of bytes with human readable
-    units. The `vals_fmt_bytes()` function allows for the formatting of byte sizes to either of two
+    units. The `val_fmt_bytes()` function allows for the formatting of byte sizes to either of two
     common representations: (1) with decimal units (powers of 1000, examples being `"kB"` and
     `"MB"`), and (2) with binary units (powers of 1024, examples being `"KiB"` and `"MiB"`). It is
     assumed the input numeric values represent the number of bytes and automatic truncation of
@@ -655,7 +655,7 @@ def vals_fmt_bytes(
 
     Parameters
     ----------
-    vals : Union[Any, List[Any]]
+    x : Union[Any, List[Any]]
         A list of values to be formatted.
     standard: str
         The form of expressing large byte sizes is divided between: (1) decimal units (powers of
@@ -708,7 +708,7 @@ def vals_fmt_bytes(
         A list of formatted values is returned.
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=vals)
+    gt_obj: GTData = _make_one_col_table(vals=x)
 
     gt_obj_fmt = gt_obj.fmt_bytes(
         columns="x",
@@ -731,8 +731,8 @@ def vals_fmt_bytes(
     return vals_fmt
 
 
-def vals_fmt_date(
-    vals: Union[Any, List[Any]],
+def val_fmt_date(
+    x: Union[Any, List[Any]],
     date_style: str = "iso",
     pattern: str = "{x}",
     locale: Union[str, None] = None,
@@ -740,12 +740,12 @@ def vals_fmt_date(
     """
     Format values as dates.
 
-    Format input values to time values using one of 41 preset date styles. Input can be in the form
+    Format input values to time values using one of 17 preset date styles. Input can be in the form
     of `date` type or as a ISO-8601 string (in the form of `YYYY-MM-DD HH:MM:SS` or `YYYY-MM-DD`).
 
     Parameters
     ----------
-    vals : Union[Any, List[Any]]
+    x : Union[Any, List[Any]]
         A list of values to be formatted.
     date_style: str
         The date style to use. By default this is the short name `"iso"` which corresponds to
@@ -795,7 +795,7 @@ def vals_fmt_date(
         A list of formatted values is returned.
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=vals)
+    gt_obj: GTData = _make_one_col_table(vals=x)
 
     gt_obj_fmt = gt_obj.fmt_date(
         columns="x",
@@ -809,8 +809,8 @@ def vals_fmt_date(
     return vals_fmt
 
 
-def vals_fmt_time(
-    vals: Union[Any, List[Any]],
+def val_fmt_time(
+    x: Union[Any, List[Any]],
     time_style: str = "iso",
     pattern: str = "{x}",
     locale: Union[str, None] = None,
@@ -823,7 +823,7 @@ def vals_fmt_time(
 
     Parameters
     ----------
-    vals : Union[Any, List[Any]]
+    x : Union[Any, List[Any]]
         A list of values to be formatted.
     time_style: str
         The time style to use. By default this is the short name `"iso"` which corresponds to how
@@ -861,7 +861,7 @@ def vals_fmt_time(
         A list of formatted values is returned.
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=vals)
+    gt_obj: GTData = _make_one_col_table(vals=x)
 
     gt_obj_fmt = gt_obj.fmt_time(
         columns="x",
@@ -875,8 +875,8 @@ def vals_fmt_time(
     return vals_fmt
 
 
-def vals_fmt_markdown(
-    vals: Union[Any, List[Any]],
+def val_fmt_markdown(
+    x: Union[Any, List[Any]],
 ) -> List[str]:
     """
     Format Markdown text.
@@ -885,7 +885,7 @@ def vals_fmt_markdown(
 
     Parameters
     ----------
-    vals : Union[Any, List[Any]]
+    x : Union[Any, List[Any]]
         A list of values to be formatted.
 
     Returns
@@ -894,7 +894,7 @@ def vals_fmt_markdown(
         A list of formatted values is returned.
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=vals)
+    gt_obj: GTData = _make_one_col_table(vals=x)
 
     gt_obj_fmt = gt_obj.fmt_markdown(
         columns="x",

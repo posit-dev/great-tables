@@ -18,16 +18,16 @@ from great_tables.data import *
 # from ._heading import *
 from ._helpers import letters, LETTERS, px, pct, md, html, random_id
 from ._formats_vals import (
-    vals_fmt_number,
-    vals_fmt_integer,
-    vals_fmt_scientific,
-    vals_fmt_percent,
-    vals_fmt_currency,
-    vals_fmt_roman,
-    vals_fmt_bytes,
-    vals_fmt_date,
-    vals_fmt_time,
-    vals_fmt_markdown,
+    val_fmt_number,
+    val_fmt_integer,
+    val_fmt_scientific,
+    val_fmt_percent,
+    val_fmt_currency,
+    val_fmt_roman,
+    val_fmt_bytes,
+    val_fmt_date,
+    val_fmt_time,
+    val_fmt_markdown,
 )
 
 # from ._locale import *
