@@ -37,7 +37,7 @@ class StubheadAPI:
 
         (
             gt.GT(gtcars_mini, rowname_col=\"model\")
-            .tab_stubhead(label="car")
+            .tab_stubhead(label=\"car\")
         )
         ```
         """
