@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Optional, Union, List
-from ._gt_data import GTData
+from ._gt_data import GTData, Heading
+
+from copy import copy
 
 
 class HeadingAPI:
@@ -68,8 +70,7 @@ class HeadingAPI:
         )
         ```
         """
-        self._heading.title = title
-        self._heading.subtitle = subtitle
-        self._heading.preheader = preheader
+        result = copy(self)
+        result._heading = Heading(title=title, subtitle=subtitle, preheader=preheader)
 
-        return self
+        return result
