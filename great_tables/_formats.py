@@ -9,7 +9,7 @@ from ._utils import _str_detect, _str_replace
 import pandas as pd
 import math
 from datetime import datetime, date, time
-from babel.dates import format_date, format_datetime, format_time
+from babel.dates import format_date, format_time
 
 T = TypeVar("T")
 
