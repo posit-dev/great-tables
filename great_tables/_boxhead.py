@@ -39,6 +39,30 @@ class BoxheadAPI:
         -------
         GTData
             The GTData object is returned.
+
+
+        Examples
+        --------
+        Let's use a portion of the `countrypops` dataset to create a table. We can relabel all the
+        table's columns with the `cols_label()` method to improve its presentation. In this simple
+        case we are supplying the name of the column as the key, and the label text as the value.
+
+        ```{python}
+        import great_tables as gt
+
+        countrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Uganda\"][
+            [\"country_name\", \"year\", \"population\"]
+        ].tail(5)
+
+        (
+            gt.GT(countrypops_mini)
+                .cols_label(
+                    country_name=\"Name\",
+                    year=\"Year\",
+                    population=\"Population\"
+                )
+        )
+        ```
         """
 
         # If nothing is provided, return `data` unchanged
