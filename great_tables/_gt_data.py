@@ -830,6 +830,11 @@ class CellRectangle(CellSubset):
 
 
 class FormatInfo:
+    """Contains functions for formatting in different contexts, and columns and rows to apply to.
+
+    Note that format functions apply to individual values.
+    """
+
     func: FormatFns
     cells: CellSubset
 

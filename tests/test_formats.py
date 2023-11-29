@@ -2,12 +2,38 @@ from typing import Union
 import pandas as pd
 import pytest
 
-from great_tables import GT
+from great_tables import GT, exibble
 from great_tables.gt import _get_column_of_values
+from great_tables._utils_render_html import create_body_component_h
 from great_tables._formats import (
     _format_number_fixed_decimals,
     _expand_exponential_to_full_string,
+    FormatsAPI,
 )
+
+
+def test_format_fns():
+    df = pd.DataFrame({"x": [1, 2]})
+    gt = GT(df)
+    FormatsAPI.fmt(gt, fns=lambda x: str(x + 1), columns=["x"])
+
+    formats_fn = gt._formats[0]
+
+    res = list(map(formats_fn.func.default, df["x"]))
+    assert res == ["2", "3"]
+
+
+def test_format_snap(snapshot):
+    new_gt = (
+        GT(exibble)
+        .fmt_currency(columns="currency")
+        .fmt_scientific(columns="num")
+        .fmt_date(columns="date", date_style="day_month_year")
+        ._build_data("html")
+    )
+
+    body = create_body_component_h(new_gt)
+    assert snapshot == body
 
 
 @pytest.mark.parametrize(

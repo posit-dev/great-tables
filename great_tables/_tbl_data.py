@@ -327,3 +327,23 @@ def _(df: PlDataFrame):
     import polars as pl
 
     return df.cast(pl.Utf8)
+
+
+# replace_null_frame ----
+
+
+@singledispatch
+def replace_null_frame(df: DataFrameLike, replacement: DataFrameLike) -> DataFrameLike:
+    """Return a copy of the input DataFrame with all null values replaced with replacement"""
+    raise NotImplementedError(f"Unsupported type: {type(df)}")
+
+
+@replace_null_frame.register
+def _(df: PdDataFrame, replacement: DataFrameLike):
+    return df.fillna(replacement)
+
+
+@replace_null_frame.register
+def _(df: PlDataFrame, replacement: PlDataFrame):
+    exprs = [pl.col(name).fill_null(replacement[name]) for name in df.columns]
+    return df.select(exprs)
