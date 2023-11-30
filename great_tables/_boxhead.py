@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import pandas as pd
-from typing import Optional
+from typing import Optional, Any
 from ._gt_data import GTData
 
 from ._utils import _assert_list_is_subset
 
 
 class BoxheadAPI:
-    def cols_label(self, **kwargs: str) -> GTData:
+    def cols_label(self, **kwargs: Any) -> GTData:
         """
         Relabel one or more columns.
 
@@ -90,7 +90,7 @@ class BoxheadAPI:
 
         # Stop function if any of the column names specified are not in `cols_labels`
         # msg: "All column names provided must exist in the input `.data` table."
-        _assert_list_is_subset(mod_columns, column_names)
+        _assert_list_is_subset(mod_columns, set_list=column_names)
 
         for i in range(len(kwargs)):
             self._boxhead._set_column_label(column=mod_columns[i], label=new_labels[i])
