@@ -99,6 +99,19 @@ def tab_spanner(
         )
     )
     ```
+
+    We can also use Markdown formatting for the spanner label. In this example, we'll use
+    `gt.md("*Performance*")` to make the label italicized.
+
+    ```{python}
+    (
+        gt.GT(gtcars_mini)
+        .tab_spanner(
+            label=gt.md(\"*Performance*\"),
+            columns=[\"hp\", \"hp_rpm\", \"trq\", \"trq_rpm\", \"mpg_c\", \"mpg_h\"]
+        )
+    )
+    ```
     """
 
     crnt_spanner_ids = [span.spanner_id for span in data._spanners]
