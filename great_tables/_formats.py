@@ -1665,6 +1665,20 @@ def fmt_time(
     argument (it is settable there as a value received by all other methods that have a `locale`
     argument).
 
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `date`
+    and `time` columns). With the `fmt_time()` method, we'll format the `time` column to display
+    times formatted with the `"h_m_s_p"` time style.
+
+    ```{python}
+    import great_tables as gt
+
+    exibble_mini = gt.exibble[["date", "time"]]
+
+    gt.GT(exibble_mini).fmt_time(columns=\"time\", time_style=\"h_m_s_p\")
+    ```
+
     See Also
     --------
     The functional version of this method, `val_fmt_time()`, allows you to format a single
