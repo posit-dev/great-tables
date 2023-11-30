@@ -193,13 +193,13 @@ def create_columns_component_h(data: GTData) -> str:
 
             level_1_spanners.append(
                 tags.th(
-                    HTML(stub_label),
+                    HTML(_process_text(stub_label)),
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{str(stubhead_label_alignment)}",
                     rowspan=2,
                     colspan=len(stub_layout),
                     style=stubhead_style,
                     scope="colgroup" if len(stub_layout) > 1 else "col",
-                    id=stub_label,
+                    id=_process_text_id(stub_label),
                 )
             )
 
@@ -265,7 +265,7 @@ def create_columns_component_h(data: GTData) -> str:
                     level_1_spanners.append(
                         tags.th(
                             tags.span(
-                                HTML(spanner_ids_level_1_index[ii]),
+                                HTML(_process_text(spanner_ids_level_1_index[ii])),
                                 class_="gt_column_spanner",
                             ),
                             class_="gt_center gt_columns_top_border gt_column_spanner_outer",
@@ -273,7 +273,7 @@ def create_columns_component_h(data: GTData) -> str:
                             colspan=colspans[ii],
                             style=spanner_style,
                             scope="colgroup" if colspans[ii] > 1 else "col",
-                            id=str(spanner_ids_level_1_index[ii]),
+                            id=_process_text_id(spanner_ids_level_1_index[ii]),
                         )
                     )
 
