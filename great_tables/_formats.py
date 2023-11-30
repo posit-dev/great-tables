@@ -1340,6 +1340,18 @@ def fmt_bytes(
     `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
     that have a `locale` argument).
 
+    Examples
+    --------
+    Let's use a single column from the `exibble` dataset and create a new table. We'll format the
+    `num` column to display as byte sizes in the decimal standard through use of the `fmt_bytes()`
+    method.
+
+    ```{python}
+    import great_tables as gt
+
+    gt.GT(exibble[[\"num\"]]).fmt_bytes(columns=\"num\", standard=\"decimal\")
+    ```
+
     See Also
     --------
     The functional version of this method, `val_fmt_bytes()`, allows you to format a single
