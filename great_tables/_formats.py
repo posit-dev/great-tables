@@ -200,7 +200,7 @@ def fmt_number(
     The `fmt_integer()` method might be more useful if you really need to format numeric values to
     appear as integers (i.e., no decimals will be shown and input values are rounded as necessary).
     Need to do numeric formatting on a value or list of values? Take a look at the functional
-    version of this method: `vals_fmt_number()`.
+    version of this method: `val_fmt_number()`.
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -373,7 +373,7 @@ def fmt_integer(
     --------
     The `fmt_number()` method might be more of what you need if you'd like decimal values in your
     outputs. Need to do integer-based formatting on a value or list of values? Take a look at the
-    functional version of this method: `vals_fmt_integer()`.
+    functional version of this method: `val_fmt_integer()`.
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -573,7 +573,7 @@ def fmt_scientific(
 
     See Also
     --------
-    The functional version of this method, `vals_fmt_scientific()`, allows you to format a single
+    The functional version of this method, `val_fmt_scientific()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -816,7 +816,7 @@ def fmt_percent(
 
     See Also
     --------
-    The functional version of this method, `vals_fmt_percent()`, allows you to format a single
+    The functional version of this method, `val_fmt_percent()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1034,7 +1034,7 @@ def fmt_currency(
 
     See Also
     --------
-    The functional version of this method, `vals_fmt_currency()`, allows you to format a single
+    The functional version of this method, `val_fmt_currency()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1177,7 +1177,7 @@ def fmt_roman(
 
     See Also
     --------
-    The functional version of this method, `vals_fmt_roman()`, allows you to format a single
+    The functional version of this method, `val_fmt_roman()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1342,7 +1342,7 @@ def fmt_bytes(
 
     See Also
     --------
-    The functional version of this method, `vals_fmt_bytes()`, allows you to format a single
+    The functional version of this method, `val_fmt_bytes()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1532,9 +1532,23 @@ def fmt_date(
     argument (it is settable there as a value received by all other methods that have a `locale`
     argument).
 
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `date`
+    and `time` columns). With the `fmt_date()` function, we'll format the `date` column to display
+    dates formatted with the `"month_day_year"` date style.
+
+    ```{python}
+    import great_tables as gt
+
+    exibble_mini = gt.exibble[["date", "time"]]
+
+    gt.GT(exibble_mini).fmt_date(columns=\"date\", date_style=\"month_day_year\")
+    ```
+
     See Also
     --------
-    The functional version of this method, `vals_fmt_date()`, allows you to format a single
+    The functional version of this method, `val_fmt_date()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1653,7 +1667,7 @@ def fmt_time(
 
     See Also
     --------
-    The functional version of this method, `vals_fmt_time()`, allows you to format a single
+    The functional version of this method, `val_fmt_time()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1736,7 +1750,7 @@ def fmt_markdown(
 
     See Also
     --------
-    The functional version of this method, `vals_fmt_markdown()`, allows you to format a single
+    The functional version of this method, `val_fmt_markdown()`, allows you to format a single
     string value (or a list of them).
     """
 
