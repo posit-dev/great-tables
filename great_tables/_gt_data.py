@@ -472,7 +472,10 @@ class Stub(_Sequence[RowInfo]):
     _d: list[RowInfo]
 
     def __init__(
-        self, data: TblData | list[RowInfo], rowname_col: str = None, groupname_col: str = None
+        self,
+        data: TblData | list[RowInfo],
+        rowname_col: str | None = None,
+        groupname_col: str | None = None,
     ):
         if isinstance(data, list):
             self._d = list(data)
