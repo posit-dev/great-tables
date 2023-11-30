@@ -1185,7 +1185,7 @@ def fmt_roman(
     import pandas as pd
     import great_tables as gt
 
-    numbers_tbl = pd.DataFrame({arabic: [1, 8, 24, 85]}).assign(roman = lambda x: x.arabic)
+    numbers_tbl = pd.DataFrame({\"arabic\": [1, 8, 24, 85], \"roman\": [1, 8, 24, 85]})
 
     gt.GT(numbers_tbl, rowname_col=\"arabic\").fmt_roman(columns=\"roman\")
     ```
