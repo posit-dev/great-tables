@@ -147,18 +147,12 @@ class BoxheadAPI:
         # Get the full list of column names for the data
         column_names = self._boxhead._get_columns()
 
-        # Stop function if any of the column names specified are not in `cols_labels`
-        # msg: "All column names provided must exist in the input `.data` table."
-        if columns is not None:
-            _assert_list_is_subset(columns, column_names)
-
-        # If `columns` is `None`, set it to the full list of column names
-        if columns is None:
-            columns = column_names
-
-        # Upgrade to list if `columns` is a string
+        # Upgrade `columns` to a list if `columns` is a string and not None
         if isinstance(columns, str):
             columns = [columns]
+            _assert_list_is_subset(columns, set_list=column_names)
+        elif columns is None:
+            columns = column_names
 
         # Set the alignment for each column
         for column in columns:
