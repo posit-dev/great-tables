@@ -21,137 +21,39 @@
     "text": "I am the changelog"
   },
   {
-    "objectID": "reference/GT.opt_footnote_marks.html",
-    "href": "reference/GT.opt_footnote_marks.html",
-    "title": "GT.opt_footnote_marks",
+    "objectID": "reference/val_fmt_number.html",
+    "href": "reference/val_fmt_number.html",
+    "title": "val_fmt_number",
     "section": "",
-    "text": "GT.opt_footnote_marks(marks='numbers')\nOption to modify the set of footnote marks.\nAlter the footnote marks for any footnotes that may be present in the table. Either a list of marks can be provided (including Unicode characters), or, a specific keyword could be used to signify a preset sequence. This method serves as a shortcut for using tab_options(footnotes_marks=&lt;marks&gt;).\nWe can supply a list of strings will represent the series of marks. The series of footnote marks is recycled when its usage goes beyond the length of the set. At each cycle, the marks are simply doubled, tripled, and so on (e.g., * -&gt; ** -&gt; ***). The option exists for providing keywords for certain types of footnote marks. The keywords are:\n\n\"numbers\": numeric marks, they begin from 1 and these marks are not subject to recycling behavior\n\"letters\": lowercase alphabetic marks. Same as using the gt.letters() function which produces a list of 26 lowercase letters from the Roman alphabet\n\"LETTERS\": uppercase alphabetic marks. Same as using the gt.LETTERS() function which produces a list of 26 uppercase letters from the Roman alphabet\n\"standard\": symbolic marks, four symbols in total\n\"extended\": symbolic marks, extends the standard set by adding two more symbols, making six\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nmarks\ntyping.Union[str, typing.List[str]]\nEither a list of strings that will represent the series of marks or a keyword string that represents a preset sequence of marks. The valid keywords are: \"numbers\" (for numeric marks), \"letters\" and \"LETTERS\" (for lowercase and uppercase alphabetic marks), \"standard\" (for a traditional set of four symbol marks), and \"extended\" (which adds two more symbols to the standard set).\n'numbers'\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\nGTData\nThe GTData object is returned."
+    "text": "val_fmt_number(x, decimals=2, n_sigfig=None, drop_trailing_zeros=False, drop_trailing_dec_mark=True, use_seps=True, scale_by=1, pattern='{x}', sep_mark=',', dec_mark='.', force_sign=False, locale=None)\nFormat numeric values.\nWith numeric values in a list, we can perform number-based formatting so that the values are rendered with some level of precision. The following major options are available:\n\ndecimals: choice of the number of decimal places, option to drop trailing zeros, and a choice of the decimal symbol\ndigit grouping separators: options to enable/disable digit separators and provide a choice of separator symbol\nscaling: we can choose to scale targeted values by a multiplier value\nlarge-number suffixing: larger figures (thousands, millions, etc.) can be autoscaled and decorated with the appropriate suffixes\npattern: option to use a text pattern for decoration of the formatted values\nlocale-based formatting: providing a locale ID will result in number formatting specific to the chosen locale\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. A value such as 2.34 can, for example, be formatted with 0 decimal places and it would result in \"2\". With 4 decimal places, the formatted value becomes \"2.3400\". The trailing zeros can be removed with drop_trailing_zeros=True. If you always need decimals = 0, the fmt_integer() method should be considered.\n2\n\n\nn_sigfig\ntyping.Optional[int]\nA option to format numbers to n significant figures. By default, this is None and thus number values will be formatted according to the number of decimal places set via decimals. If opting to format according to the rules of significant figures, n_sigfig must be a number greater than or equal to 1. Any values passed to the decimals and drop_trailing_zeros arguments will be ignored.\nNone\n\n\ndrop_trailing_zeros\nbool\nA boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).\nFalse\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
   },
   {
-    "objectID": "reference/GT.opt_footnote_marks.html#parameters",
-    "href": "reference/GT.opt_footnote_marks.html#parameters",
-    "title": "GT.opt_footnote_marks",
+    "objectID": "reference/val_fmt_number.html#parameters",
+    "href": "reference/val_fmt_number.html#parameters",
+    "title": "val_fmt_number",
     "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nmarks\ntyping.Union[str, typing.List[str]]\nEither a list of strings that will represent the series of marks or a keyword string that represents a preset sequence of marks. The valid keywords are: \"numbers\" (for numeric marks), \"letters\" and \"LETTERS\" (for lowercase and uppercase alphabetic marks), \"standard\" (for a traditional set of four symbol marks), and \"extended\" (which adds two more symbols to the standard set).\n'numbers'"
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. A value such as 2.34 can, for example, be formatted with 0 decimal places and it would result in \"2\". With 4 decimal places, the formatted value becomes \"2.3400\". The trailing zeros can be removed with drop_trailing_zeros=True. If you always need decimals = 0, the fmt_integer() method should be considered.\n2\n\n\nn_sigfig\ntyping.Optional[int]\nA option to format numbers to n significant figures. By default, this is None and thus number values will be formatted according to the number of decimal places set via decimals. If opting to format according to the rules of significant figures, n_sigfig must be a number greater than or equal to 1. Any values passed to the decimals and drop_trailing_zeros arguments will be ignored.\nNone\n\n\ndrop_trailing_zeros\nbool\nA boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).\nFalse\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
   },
   {
-    "objectID": "reference/GT.opt_footnote_marks.html#returns",
-    "href": "reference/GT.opt_footnote_marks.html#returns",
-    "title": "GT.opt_footnote_marks",
+    "objectID": "reference/val_fmt_number.html#returns",
+    "href": "reference/val_fmt_number.html#returns",
+    "title": "val_fmt_number",
     "section": "",
-    "text": "Type\nDescription\n\n\n\n\nGTData\nThe GTData object is returned."
+    "text": "Type\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
   },
   {
-    "objectID": "reference/GT.fmt_time.html",
-    "href": "reference/GT.fmt_time.html",
-    "title": "GT.fmt_time",
+    "objectID": "reference/data.metro.html",
+    "href": "reference/data.metro.html",
+    "title": "data.metro",
     "section": "",
-    "text": "GT.fmt_time(self, columns=None, rows=None, time_style='iso', pattern='{x}', locale=None)\nFormat values as times.\nFormat input values to time values using one of 5 preset time styles. Input can be in the form of time values, or strings in the ISO 8601 forms of HH:MM:SS or YYYY-MM-DD HH:MM:SS."
+    "text": "data.metro\ndata.metro\nThe stations of the Paris Metro\nA dataset with information on all 308 Paris Metro stations as of February 2023. Each record represents a station, describing which Metro lines are serviced by the station, which other connections are available, and annual passenger volumes. Basic location information is provided for each station in terms where they reside on a municipal level, and, through latitude/longitude coordinates.\nThe system has 16 lines (numbered from 1 to 14, with two additional lines: 3bis and 7bis) and covers over 200 kilometers of track. The Metro runs on standard gauge tracks (1,435 mm) and operates using a variety of rolling stock, including rubber-tired trains and steel-wheeled trains (which are far more common).\nThe Metro is operated by the RATP, which also operates other transit systems in the region, including buses, trams, and the RER. The RER is an important component of the region’s transit infrastructure, and several RER stations have connectivity with the Metro. This integration allows passengers to transfer between those two systems seamlessly. The Metro also has connections to the Transilien rail network, tramway stations, several major train stations (e.g., Gare du Nord, Gare de l’Est, etc.), and many bus lines."
   },
   {
-    "objectID": "reference/GT.fmt_time.html#parameters",
-    "href": "reference/GT.fmt_time.html#parameters",
-    "title": "GT.fmt_time",
-    "section": "Parameters",
-    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone\n\n\ntime_style\nstr\nThe time style to use. By default this is the short name \"iso\" which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using info_time_style().\n'iso'\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
-  },
-  {
-    "objectID": "reference/GT.fmt_time.html#formatting-with-the-time_style-argument",
-    "href": "reference/GT.fmt_time.html#formatting-with-the-time_style-argument",
-    "title": "GT.fmt_time",
-    "section": "Formatting With The Time_Style Argument",
-    "text": "Formatting With The Time_Style Argument\nWe need to supply a preset time style to the time_style argument. The time styles are numerous and can handle localization to any supported locale. The following table provides a listing of all time styles and their output values (corresponding to an input time of 14:35:00).\n\n\n\n\nTime Style\nOutput\nNotes\n\n\n\n\n1\n\"iso\"\n\"14:35:00\"\nISO 8601, 24h\n\n\n2\n\"iso-short\"\n\"14:35\"\nISO 8601, 24h\n\n\n3\n\"h_m_s_p\"\n\"2:35:00 PM\"\n12h\n\n\n4\n\"h_m_p\"\n\"2:35 PM\"\n12h\n\n\n5\n\"h_p\"\n\"2 PM\"\n12h\n\n\n\nWe can use the info_time_style() function within the console to view a similar table of time styles with example output."
-  },
-  {
-    "objectID": "reference/GT.fmt_time.html#returns",
-    "href": "reference/GT.fmt_time.html#returns",
-    "title": "GT.fmt_time",
-    "section": "Returns",
-    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
-  },
-  {
-    "objectID": "reference/GT.fmt_time.html#adapting-output-to-a-specific-locale",
-    "href": "reference/GT.fmt_time.html#adapting-output-to-a-specific-locale",
-    "title": "GT.fmt_time",
-    "section": "Adapting Output To A Specific Locale",
-    "text": "Adapting Output To A Specific Locale\nThis formatting method can adapt outputs according to a provided locale value. Examples include \"en\" for English (United States) and \"fr\" for French (France). Note that a locale value provided here will override any global locale setting performed in GT()’s own locale argument (it is settable there as a value received by all other methods that have a locale argument)."
-  },
-  {
-    "objectID": "reference/GT.fmt_time.html#examples",
-    "href": "reference/GT.fmt_time.html#examples",
-    "title": "GT.fmt_time",
-    "section": "Examples",
-    "text": "Examples\nLet’s use the exibble dataset to create a simple, two-column table (keeping only the date and time columns). With the fmt_time() method, we’ll format the time column to display times formatted with the \"h_m_s_p\" time style.\n\nimport great_tables as gt\n\nexibble_mini = gt.exibble[[\"date\", \"time\"]]\n\ngt.GT(exibble_mini).fmt_time(columns=\"time\", time_style=\"h_m_s_p\")\n\n\n\n\n\n\ndate\ntime\n\n\n  2015-01-15\n  1:35:00 PM\n\n\n  2015-02-15\n  2:40:00 PM\n\n\n  2015-03-15\n  3:45:00 PM\n\n\n  2015-04-15\n  4:50:00 PM\n\n\n  2015-05-15\n  5:55:00 PM\n\n\n  2015-06-15\n  \n\n\n  \n  7:10:00 PM\n\n\n  2015-08-15\n  8:20:00 PM"
-  },
-  {
-    "objectID": "reference/GT.fmt_time.html#see-also",
-    "href": "reference/GT.fmt_time.html#see-also",
-    "title": "GT.fmt_time",
-    "section": "See Also",
-    "text": "See Also\nThe functional version of this method, val_fmt_time(), allows you to format a single numerical value (or a list of them)."
-  },
-  {
-    "objectID": "reference/GT.fmt_integer.html",
-    "href": "reference/GT.fmt_integer.html",
-    "title": "GT.fmt_integer",
+    "objectID": "reference/data.countrypops.html",
+    "href": "reference/data.countrypops.html",
+    "title": "data.countrypops",
     "section": "",
-    "text": "GT.fmt_integer(self, columns=None, rows=None, use_seps=True, scale_by=1, compact=False, pattern='{x}', sep_mark=',', force_sign=False, locale=None)\nFormat values as integers.\nWith numeric values in a gt table, we can perform number-based formatting so that the targeted values are always rendered as integer values.\nWe can have fine control over integer formatting with the following options:"
-  },
-  {
-    "objectID": "reference/GT.fmt_integer.html#parameters",
-    "href": "reference/GT.fmt_integer.html#parameters",
-    "title": "GT.fmt_integer",
-    "section": "Parameters",
-    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\ncompact\nbool\nA boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., 1230 becomes 1K, and 1230000 becomes 1M). The compact option is False by default.\nFalse\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
-  },
-  {
-    "objectID": "reference/GT.fmt_integer.html#returns",
-    "href": "reference/GT.fmt_integer.html#returns",
-    "title": "GT.fmt_integer",
-    "section": "Returns",
-    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
-  },
-  {
-    "objectID": "reference/GT.fmt_integer.html#adapting-output-to-a-specific-locale",
-    "href": "reference/GT.fmt_integer.html#adapting-output-to-a-specific-locale",
-    "title": "GT.fmt_integer",
-    "section": "Adapting Output To A Specific Locale",
-    "text": "Adapting Output To A Specific Locale\nThis formatting method can adapt outputs according to a provided locale value. Examples include \"en\" for English (United States) and \"fr\" for French (France). The use of a valid locale ID here means separator marks will be correct for the given locale. Should any value be provided in sep_mark, it will be overridden by the locale’s preferred value.\nNote that a locale value provided here will override any global locale setting performed in GT()’s own locale argument (it is settable there as a value received by all other methods that have a locale argument)."
-  },
-  {
-    "objectID": "reference/GT.fmt_integer.html#examples",
-    "href": "reference/GT.fmt_integer.html#examples",
-    "title": "GT.fmt_integer",
-    "section": "Examples",
-    "text": "Examples\nFor this example, we’ll use the exibble dataset as the input table. With the fmt_integer() method, we’ll format the num column as integer values having no digit separators (with the use_seps=False option).\n\nimport great_tables as gt\n\ngt.GT(gt.exibble).fmt_integer(columns=\"num\", use_seps=False)\n\n\n\n\n\n\nnum\nchar\nfctr\ndate\ntime\ndatetime\ncurrency\nrow\ngroup\n\n\n  0\n  apricot\n  one\n  2015-01-15\n  13:35\n  2018-01-01 02:22\n  49.95\n  row_1\n  grp_a\n\n\n  2\n  banana\n  two\n  2015-02-15\n  14:40\n  2018-02-02 14:33\n  17.95\n  row_2\n  grp_a\n\n\n  33\n  coconut\n  three\n  2015-03-15\n  15:45\n  2018-03-03 03:44\n  1.39\n  row_3\n  grp_a\n\n\n  444\n  durian\n  four\n  2015-04-15\n  16:50\n  2018-04-04 15:55\n  65100.0\n  row_4\n  grp_a\n\n\n  5550\n  \n  five\n  2015-05-15\n  17:55\n  2018-05-05 04:00\n  1325.81\n  row_5\n  grp_b\n\n\n  \n  fig\n  six\n  2015-06-15\n  \n  2018-06-06 16:11\n  13.255\n  row_6\n  grp_b\n\n\n  777000\n  grapefruit\n  seven\n  \n  19:10\n  2018-07-07 05:22\n  \n  row_7\n  grp_b\n\n\n  8880000\n  honeydew\n  eight\n  2015-08-15\n  20:20\n  \n  0.44\n  row_8\n  grp_b"
-  },
-  {
-    "objectID": "reference/GT.fmt_integer.html#see-also",
-    "href": "reference/GT.fmt_integer.html#see-also",
-    "title": "GT.fmt_integer",
-    "section": "See Also",
-    "text": "See Also\nThe fmt_number() method might be more of what you need if you’d like decimal values in your outputs. Need to do integer-based formatting on a value or list of values? Take a look at the functional version of this method: val_fmt_integer()."
-  },
-  {
-    "objectID": "reference/html.html",
-    "href": "reference/html.html",
-    "title": "html",
-    "section": "",
-    "text": "html(text)\nInterpret input text as HTML-formatted text.\nFor certain pieces of text (like in column labels or table headings) we may want to express them as raw HTML. In fact, with HTML, anything goes so it can be much more than just text. The html() function will guard the input HTML against escaping, so, your HTML tags will come through as HTML when rendered… to HTML.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ntext\nstr\nThe text that is understood to contain HTML formatting.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._text.Text\nAn instance of the Text class is returned, where the text type is \"html\"."
-  },
-  {
-    "objectID": "reference/html.html#parameters",
-    "href": "reference/html.html#parameters",
-    "title": "html",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\ntext\nstr\nThe text that is understood to contain HTML formatting.\nrequired"
-  },
-  {
-    "objectID": "reference/html.html#returns",
-    "href": "reference/html.html#returns",
-    "title": "html",
-    "section": "",
-    "text": "Type\nDescription\n\n\n\n\ngreat_tables._text.Text\nAn instance of the Text class is returned, where the text type is \"html\"."
+    "text": "data.countrypops\ndata.countrypops\nYearly populations of countries from 1960 to 2022\nA dataset that presents yearly, total populations of countries. Total population is based on counts of all residents regardless of legal status or citizenship. Country identifiers include the English-language country names, and the 2- and 3-letter ISO 3166-1 country codes. Each row contains a population value for a given year (from 1960 to 2022). Any missing values for populations indicate the non-existence of the entity during that year."
   },
   {
     "objectID": "reference/data.gtcars.html",
@@ -322,270 +224,179 @@
     "text": "data.constants\ndata.constants\nThe fundamental physical constants\nThis dataset contains values for over 300 basic fundamental constants in nature. The values originate from the 2018 adjustment which is based on the latest relevant precision measurements and improvements of theoretical calculations. Such work has been carried out under the authority of the Task Group on Fundamental Constants (TGFC) of the Committee on Data of the International Science Council (CODATA). These updated values became available on May 20, 2019. They are published at http://physics.nist.gov/constants, a website of the Fundamental Constants Data Center of the National Institute of Standards and Technology (NIST), Gaithersburg, Maryland, USA."
   },
   {
-    "objectID": "reference/GT.tab_header.html",
-    "href": "reference/GT.tab_header.html",
-    "title": "GT.tab_header",
+    "objectID": "reference/data.pizzaplace.html",
+    "href": "reference/data.pizzaplace.html",
+    "title": "data.pizzaplace",
     "section": "",
-    "text": "GT.tab_header(title, subtitle=None, preheader=None)\nAdd a table header.\nWe can add a table header to the gt table with a title and even a subtitle using the tab_header() method. A table header is an optional table component that is positioned above above the column labels. We have the flexibility to use Markdown or HTML formatting for the header’s title and subtitle with the md() and html() helper functions."
+    "text": "data.pizzaplace\ndata.pizzaplace\nA year of pizza sales from a pizza place\nA synthetic dataset that describes pizza sales for a pizza place somewhere in the US. While the contents are artificial, the ingredients used to make the pizzas are far from it. There are 32 different pizzas that fall into 4 different categories: classic (classic pizzas: ‘You probably had one like it before, but never like this!’), chicken (pizzas with chicken as a major ingredient: ‘Try the Southwest Chicken Pizza! You’ll love it!’), supreme (pizzas that try a little harder: ‘My Soppressata pizza uses only the finest salami from my personal salumist!’), and, veggie (pizzas without any meats whatsoever: ‘My Five Cheese pizza has so many cheeses, I can only offer it in Large Size!’)."
   },
   {
-    "objectID": "reference/GT.tab_header.html#parameters",
-    "href": "reference/GT.tab_header.html#parameters",
-    "title": "GT.tab_header",
-    "section": "Parameters",
-    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ntitle\nstr\nText to be used in the table title. We can elect to use the md() and html() helper functions to style the text as Markdown or to retain HTML elements in the text.\nrequired\n\n\nsubtitle\nstr\nText to be used in the table subtitle. We can elect to use the md() and html() helper functions to style the text as Markdown or to retain HTML elements in the text.\nNone\n\n\npreheader\ntyping.Optional[typing.Union[str, typing.List[str]]]\nOptional preheader content that is rendered above the table. Can be supplied as a list of strings.\nNone"
-  },
-  {
-    "objectID": "reference/GT.tab_header.html#returns",
-    "href": "reference/GT.tab_header.html#returns",
-    "title": "GT.tab_header",
-    "section": "Returns",
-    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\nGTData\nThe GTData object is returned."
-  },
-  {
-    "objectID": "reference/GT.tab_header.html#examples",
-    "href": "reference/GT.tab_header.html#examples",
-    "title": "GT.tab_header",
-    "section": "Examples",
-    "text": "Examples\nLet’s use a small portion of the gtcars dataset to create a table. A header part can be added to the table with the tab_header() method. We’ll add a title and the optional subtitle as well. With the md() helper function, we can make sure the Markdown formatting is interpreted and transformed.\n\nimport great_tables as gt\n\ngtcars_mini = gt.gtcars[[\"mfr\", \"model\", \"msrp\"]].head(5)\n\n(\n    gt.GT(gtcars_mini)\n    .tab_header(\n        title=gt.md(\"Data listing from **gtcars**\"),\n        subtitle=gt.md(\"`gtcars` is an R dataset\")\n    )\n)\n\n\n\n\n\n  \n    Data listing from gtcars\n  \n  \n    gtcars is an R dataset\n  \nmfr\nmodel\nmsrp\n\n\n  Ford\n  GT\n  447000.0\n\n\n  Ferrari\n  458 Speciale\n  291744.0\n\n\n  Ferrari\n  458 Spider\n  263553.0\n\n\n  Ferrari\n  458 Italia\n  233509.0\n\n\n  Ferrari\n  488 GTB\n  245400.0\n\n\n\n\n\n\n\n        \n\n\nWe can alternatively use the html() helper function to retain HTML elements in the text.\n\n(\n    gt.GT(gtcars_mini)\n    .tab_header(\n        title=gt.md(\"Data listing &lt;strong&gt;gtcars&lt;/strong&gt;\"),\n        subtitle=gt.html(\"From &lt;span style='color:red;'&gt;gtcars&lt;/span&gt;\")\n    )\n)\n\n\n\n\n\n  \n    Data listing gtcars\n  \n  \n    From gtcars\n  \nmfr\nmodel\nmsrp\n\n\n  Ford\n  GT\n  447000.0\n\n\n  Ferrari\n  458 Speciale\n  291744.0\n\n\n  Ferrari\n  458 Spider\n  263553.0\n\n\n  Ferrari\n  458 Italia\n  233509.0\n\n\n  Ferrari\n  488 GTB\n  245400.0"
-  },
-  {
-    "objectID": "reference/GT.fmt_number.html",
-    "href": "reference/GT.fmt_number.html",
-    "title": "GT.fmt_number",
+    "objectID": "reference/val_fmt_currency.html",
+    "href": "reference/val_fmt_currency.html",
+    "title": "val_fmt_currency",
     "section": "",
-    "text": "GT.fmt_number(self, columns=None, rows=None, decimals=2, n_sigfig=None, drop_trailing_zeros=False, drop_trailing_dec_mark=True, use_seps=True, scale_by=1, compact=False, pattern='{x}', sep_mark=',', dec_mark='.', force_sign=False, locale=None)\nFormat numeric values.\nWith numeric values in a gt table, we can perform number-based formatting so that the targeted values are rendered with a higher consideration for tabular presentation. Furthermore, there is finer control over numeric formatting with the following options:"
+    "text": "val_fmt_currency(x, currency=None, use_subunits=True, decimals=None, drop_trailing_dec_mark=True, use_seps=True, scale_by=1, pattern='{x}', sep_mark=',', dec_mark='.', force_sign=False, placement='left', incl_space=False, locale=None)\nFormat values as currencies.\nWith numeric values, we can perform currency-based formatting with the val_fmt_currency() function. This supports both automatic formatting with a three-letter currency code. We have fine control over the conversion from numeric values to currency values, where we could take advantage of the following options:\n\nthe currency: providing a currency code or common currency name will procure the correct currency symbol and number of currency subunits\ncurrency symbol placement: the currency symbol can be placed before or after the values\ndecimals/subunits: choice of the number of decimal places, and a choice of the decimal symbol, and an option on whether to include or exclude the currency subunits (the decimal portion)\ndigit grouping separators: options to enable/disable digit separators and provide a choice of separator symbol\nscaling: we can choose to scale targeted values by a multiplier value\npattern: option to use a text pattern for decoration of the formatted currency values\nlocale-based formatting: providing a locale ID will result in currency formatting specific to the chosen locale; it will also retrieve the locale’s currency if none is explicitly given\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ncurrency\ntyping.Union[str, None]\nThe currency to use for the numeric value. This input can be supplied as a 3-letter currency code (e.g., \"USD\" for U.S. Dollars, \"EUR\" for the Euro currency).\nNone\n\n\nuse_subunits\nbool\nAn option for whether the subunits portion of a currency value should be displayed. For example, with an input value of 273.81, the default formatting will produce \"$273.81\". Removing the subunits (with use_subunits = False) will give us \"$273\".\nTrue\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. This value is optional as a currency has an intrinsic number of decimal places (i.e., the subunits). A value such as 2.34 can, for example, be formatted with 0 decimal places and if the currency used is \"USD\" it would result in \"$2\". With 4 decimal places, the formatted value becomes \"$2.3400\".\nNone\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nplacement\nstr\nThe placement of the currency symbol. This can be either be \"left\" (as in \"$450\") or \"right\" (which yields \"450$\").\n'left'\n\n\nincl_space\nbool\nAn option for whether to include a space between the value and the currency symbol. The default is to not introduce a space character.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
   },
   {
-    "objectID": "reference/GT.fmt_number.html#parameters",
-    "href": "reference/GT.fmt_number.html#parameters",
-    "title": "GT.fmt_number",
+    "objectID": "reference/val_fmt_currency.html#parameters",
+    "href": "reference/val_fmt_currency.html#parameters",
+    "title": "val_fmt_currency",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ncurrency\ntyping.Union[str, None]\nThe currency to use for the numeric value. This input can be supplied as a 3-letter currency code (e.g., \"USD\" for U.S. Dollars, \"EUR\" for the Euro currency).\nNone\n\n\nuse_subunits\nbool\nAn option for whether the subunits portion of a currency value should be displayed. For example, with an input value of 273.81, the default formatting will produce \"$273.81\". Removing the subunits (with use_subunits = False) will give us \"$273\".\nTrue\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. This value is optional as a currency has an intrinsic number of decimal places (i.e., the subunits). A value such as 2.34 can, for example, be formatted with 0 decimal places and if the currency used is \"USD\" it would result in \"$2\". With 4 decimal places, the formatted value becomes \"$2.3400\".\nNone\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nplacement\nstr\nThe placement of the currency symbol. This can be either be \"left\" (as in \"$450\") or \"right\" (which yields \"450$\").\n'left'\n\n\nincl_space\nbool\nAn option for whether to include a space between the value and the currency symbol. The default is to not introduce a space character.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
+  },
+  {
+    "objectID": "reference/val_fmt_currency.html#returns",
+    "href": "reference/val_fmt_currency.html#returns",
+    "title": "val_fmt_currency",
+    "section": "",
+    "text": "Type\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
+  },
+  {
+    "objectID": "reference/GT.cols_align.html",
+    "href": "reference/GT.cols_align.html",
+    "title": "GT.cols_align",
+    "section": "",
+    "text": "GT.cols_align(align='left', columns=None)\nSet the alignment of one or more columns.\nThe cols_align() method sets the alignment of one or more columns. The align argument can be set to one of \"left\", \"center\", or \"right\" and the columns argument can be used to specify which columns to apply the alignment to. If columns is not specified, the alignment is applied to all columns."
+  },
+  {
+    "objectID": "reference/GT.cols_align.html#parameters",
+    "href": "reference/GT.cols_align.html#parameters",
+    "title": "GT.cols_align",
     "section": "Parameters",
-    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. A value such as 2.34 can, for example, be formatted with 0 decimal places and it would result in \"2\". With 4 decimal places, the formatted value becomes \"2.3400\". The trailing zeros can be removed with drop_trailing_zeros=True. If you always need decimals = 0, the fmt_integer() method should be considered.\n2\n\n\nn_sigfig\ntyping.Optional[int]\nA option to format numbers to n significant figures. By default, this is None and thus number values will be formatted according to the number of decimal places set via decimals. If opting to format according to the rules of significant figures, n_sigfig must be a number greater than or equal to 1. Any values passed to the decimals and drop_trailing_zeros arguments will be ignored.\nNone\n\n\ndrop_trailing_zeros\nbool\nA boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).\nFalse\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\ncompact\nbool\nA boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., 1230 becomes 1.23K, and 1230000 becomes 1.23M). The compact option is False by default.\nFalse\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
+    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nalign\nstr\nThe alignment to apply. Must be one of \"left\", \"center\", or \"right\".\n'left'\n\n\ncolumns\nUnion[str, List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list. If None, the alignment is applied to all columns.\nNone"
   },
   {
-    "objectID": "reference/GT.fmt_number.html#returns",
-    "href": "reference/GT.fmt_number.html#returns",
-    "title": "GT.fmt_number",
+    "objectID": "reference/GT.cols_align.html#returns",
+    "href": "reference/GT.cols_align.html#returns",
+    "title": "GT.cols_align",
     "section": "Returns",
     "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
   },
   {
-    "objectID": "reference/GT.fmt_number.html#adapting-output-to-a-specific-locale",
-    "href": "reference/GT.fmt_number.html#adapting-output-to-a-specific-locale",
-    "title": "GT.fmt_number",
+    "objectID": "reference/GT.cols_align.html#examples",
+    "href": "reference/GT.cols_align.html#examples",
+    "title": "GT.cols_align",
+    "section": "Examples",
+    "text": "Examples\nLet’s use the countrypops to create a small table. We can change the alignment of the population column with cols_align(). In this example, the column label and body cells of population will be aligned to the left.\n\nimport great_tables as gt\n\ncountrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"San Marino\"][\n    [\"country_name\", \"year\", \"population\"]\n].tail(5)\n\n(\n    gt.GT(countrypops_mini, rowname_col=\"year\", groupname_col=\"country_name\")\n    .cols_align(align=\"left\", columns=\"population\")\n)\n\n\n\n\n\n\n\npopulation\n\n\n  San Marino\n  2018\n  34156\n\n\n  2019\n  34178\n\n\n  2020\n  34007\n\n\n  2021\n  33745\n\n\n  2022\n  33660"
+  },
+  {
+    "objectID": "reference/val_fmt_time.html",
+    "href": "reference/val_fmt_time.html",
+    "title": "val_fmt_time",
+    "section": "",
+    "text": "val_fmt_time(x, time_style='iso', pattern='{x}', locale=None)\nFormat values as times.\nFormat input values to time values using one of 5 preset time styles. Input can be in the form of time values, or strings in the ISO 8601 forms of HH:MM:SS or YYYY-MM-DD HH:MM:SS.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ntime_style\nstr\nThe time style to use. By default this is the short name \"iso\" which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using info_time_style().\n'iso'\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone\n\n\n\n\n\n\nWe need to supply a preset time style to the time_style argument. The time styles are numerous and can handle localization to any supported locale. The following table provides a listing of all time styles and their output values (corresponding to an input time of 14:35:00).\n\n\n\n\nTime Style\nOutput\nNotes\n\n\n\n\n1\n\"iso\"\n\"14:35:00\"\nISO 8601, 24h\n\n\n2\n\"iso-short\"\n\"14:35\"\nISO 8601, 24h\n\n\n3\n\"h_m_s_p\"\n\"2:35:00 PM\"\n12h\n\n\n4\n\"h_m_p\"\n\"2:35 PM\"\n12h\n\n\n5\n\"h_p\"\n\"2 PM\"\n12h\n\n\n\nWe can use the info_time_style() function within the console to view a similar table of time styles with example output.\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
+  },
+  {
+    "objectID": "reference/val_fmt_time.html#parameters",
+    "href": "reference/val_fmt_time.html#parameters",
+    "title": "val_fmt_time",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ntime_style\nstr\nThe time style to use. By default this is the short name \"iso\" which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using info_time_style().\n'iso'\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
+  },
+  {
+    "objectID": "reference/val_fmt_time.html#formatting-with-the-time_style-argument",
+    "href": "reference/val_fmt_time.html#formatting-with-the-time_style-argument",
+    "title": "val_fmt_time",
+    "section": "",
+    "text": "We need to supply a preset time style to the time_style argument. The time styles are numerous and can handle localization to any supported locale. The following table provides a listing of all time styles and their output values (corresponding to an input time of 14:35:00).\n\n\n\n\nTime Style\nOutput\nNotes\n\n\n\n\n1\n\"iso\"\n\"14:35:00\"\nISO 8601, 24h\n\n\n2\n\"iso-short\"\n\"14:35\"\nISO 8601, 24h\n\n\n3\n\"h_m_s_p\"\n\"2:35:00 PM\"\n12h\n\n\n4\n\"h_m_p\"\n\"2:35 PM\"\n12h\n\n\n5\n\"h_p\"\n\"2 PM\"\n12h\n\n\n\nWe can use the info_time_style() function within the console to view a similar table of time styles with example output."
+  },
+  {
+    "objectID": "reference/val_fmt_time.html#returns",
+    "href": "reference/val_fmt_time.html#returns",
+    "title": "val_fmt_time",
+    "section": "",
+    "text": "Type\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
+  },
+  {
+    "objectID": "reference/data.towny.html",
+    "href": "reference/data.towny.html",
+    "title": "data.towny",
+    "section": "",
+    "text": "data.towny\ndata.towny\nPopulations of all municipalities in Ontario from 1996 to 2021\nA dataset containing census population data from six census years (1996 to 2021) for all 414 of Ontario’s local municipalities. The Municipal Act of Ontario (2001) defines a local municipality as “a single-tier municipality or a lower-tier municipality”. There are 173 single-tier municipalities and 241 lower-tier municipalities representing 99 percent of Ontario’s population and 17 percent of its land use.\nIn the towny dataset we include information specific to each municipality such as location (in the latitude and longitude columns), their website URLs, their classifications, and land area sizes according to 2021 boundaries. Additionally, there are computed columns containing population density values for each census year and population change values from adjacent census years."
+  },
+  {
+    "objectID": "reference/val_fmt_integer.html",
+    "href": "reference/val_fmt_integer.html",
+    "title": "val_fmt_integer",
+    "section": "",
+    "text": "val_fmt_integer(x, use_seps=True, scale_by=1, pattern='{x}', sep_mark=',', force_sign=False, locale=None)\nFormat values as integers.\nWith numeric values in a list, we can perform number-based formatting so that the input values are always rendered as integer values. The following major options are available:\nWe can have fine control over integer formatting with the following options:\n\ndigit grouping separators: options to enable/disable digit separators and provide a choice of separator symbol\nscaling: we can choose to scale targeted values by a multiplier value\nlarge-number suffixing: larger figures (thousands, millions, etc.) can be autoscaled and decorated with the appropriate suffixes\npattern: option to use a text pattern for decoration of the formatted values\nlocale-based formatting: providing a locale ID will result in number formatting specific to the chosen locale\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
+  },
+  {
+    "objectID": "reference/val_fmt_integer.html#parameters",
+    "href": "reference/val_fmt_integer.html#parameters",
+    "title": "val_fmt_integer",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
+  },
+  {
+    "objectID": "reference/val_fmt_integer.html#returns",
+    "href": "reference/val_fmt_integer.html#returns",
+    "title": "val_fmt_integer",
+    "section": "",
+    "text": "Type\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
+  },
+  {
+    "objectID": "reference/GT.fmt_scientific.html",
+    "href": "reference/GT.fmt_scientific.html",
+    "title": "GT.fmt_scientific",
+    "section": "",
+    "text": "GT.fmt_scientific(self, columns=None, rows=None, decimals=2, n_sigfig=None, drop_trailing_zeros=False, drop_trailing_dec_mark=True, scale_by=1, exp_style='x10n', pattern='{x}', sep_mark=',', dec_mark='.', force_sign_m=False, force_sign_n=False, locale=None)\nFormat values to scientific notation.\nWith numeric values in a gt table, we can perform formatting so that the targeted values are rendered in scientific notation, where extremely large or very small numbers can be expressed in a more practical fashion. Here, numbers are written in the form of a mantissa (m) and an exponent (n) with the construction m x 10^n or mEn. The mantissa component is a number between 1 and 10. For instance, 2.5 x 10^9 can be used to represent the value 2,500,000,000 in scientific notation. In a similar way, 0.00000012 can be expressed as 1.2 x 10^-7. Due to its ability to describe numbers more succinctly and its ease of calculation, scientific notation is widely employed in scientific and technical domains.\nWe have fine control over the formatting task, with the following options:"
+  },
+  {
+    "objectID": "reference/GT.fmt_scientific.html#parameters",
+    "href": "reference/GT.fmt_scientific.html#parameters",
+    "title": "GT.fmt_scientific",
+    "section": "Parameters",
+    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. A value such as 2.34 can, for example, be formatted with 0 decimal places and it would result in \"2\". With 4 decimal places, the formatted value becomes \"2.3400\". The trailing zeros can be removed with drop_trailing_zeros=True. If you always need decimals = 0, the fmt_integer() method should be considered.\n2\n\n\nn_sigfig\ntyping.Optional[int]\nA option to format numbers to n significant figures. By default, this is None and thus number values will be formatted according to the number of decimal places set via decimals. If opting to format according to the rules of significant figures, n_sigfig must be a number greater than or equal to 1. Any values passed to the decimals and drop_trailing_zeros arguments will be ignored.\nNone\n\n\ndrop_trailing_zeros\nbool\nA boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).\nFalse\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\nexp_style\nstr\nStyle of formatting to use for the scientific notation formatting. By default this is \"x10n\" but other options include using a single letter (e.g., \"e\", \"E\", etc.), a letter followed by a \"1\" to signal a minimum digit width of one, or \"low-ten\" for using a stylized \"10\" marker.\n'x10n'\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign_m\nbool\nShould the plus sign be shown for positive values of the mantissa (first component)? This would effectively show a sign for all values except zero on the first numeric component of the notation. If so, use True (the default for this is False), where only negative numbers will display a sign.\nFalse\n\n\nforce_sign_n\nbool\nShould the plus sign be shown for positive values of the exponent (second component)? This would effectively show a sign for all values except zero on the second numeric component of the notation. If so, use True (the default for this is False), where only negative numbers will display a sign.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
+  },
+  {
+    "objectID": "reference/GT.fmt_scientific.html#returns",
+    "href": "reference/GT.fmt_scientific.html#returns",
+    "title": "GT.fmt_scientific",
+    "section": "Returns",
+    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
+  },
+  {
+    "objectID": "reference/GT.fmt_scientific.html#adapting-output-to-a-specific-locale",
+    "href": "reference/GT.fmt_scientific.html#adapting-output-to-a-specific-locale",
+    "title": "GT.fmt_scientific",
     "section": "Adapting Output To A Specific Locale",
     "text": "Adapting Output To A Specific Locale\nThis formatting method can adapt outputs according to a provided locale value. Examples include \"en\" for English (United States) and \"fr\" for French (France). The use of a valid locale ID here means separator and decimal marks will be correct for the given locale. Should any values be provided in sep_mark or dec_mark, they will be overridden by the locale’s preferred values.\nNote that a locale value provided here will override any global locale setting performed in GT()’s own locale argument (it is settable there as a value received by all other methods that have a locale argument)."
   },
   {
-    "objectID": "reference/GT.fmt_number.html#examples",
-    "href": "reference/GT.fmt_number.html#examples",
-    "title": "GT.fmt_number",
+    "objectID": "reference/GT.fmt_scientific.html#examples",
+    "href": "reference/GT.fmt_scientific.html#examples",
+    "title": "GT.fmt_scientific",
     "section": "Examples",
-    "text": "Examples\nLet’s use the exibble dataset to create a table. With the fmt_number() method, we’ll format the num column to have three decimal places (with decimals=3) and omit the use of digit separators (with use_seps=False).\n\nimport great_tables as gt\n\ngt.GT(gt.exibble).fmt_number(columns=\"num\", decimals=3, use_seps=False)\n\n\n\n\n\n\nnum\nchar\nfctr\ndate\ntime\ndatetime\ncurrency\nrow\ngroup\n\n\n  0.111\n  apricot\n  one\n  2015-01-15\n  13:35\n  2018-01-01 02:22\n  49.95\n  row_1\n  grp_a\n\n\n  2.222\n  banana\n  two\n  2015-02-15\n  14:40\n  2018-02-02 14:33\n  17.95\n  row_2\n  grp_a\n\n\n  33.330\n  coconut\n  three\n  2015-03-15\n  15:45\n  2018-03-03 03:44\n  1.39\n  row_3\n  grp_a\n\n\n  444.400\n  durian\n  four\n  2015-04-15\n  16:50\n  2018-04-04 15:55\n  65100.0\n  row_4\n  grp_a\n\n\n  5550.000\n  \n  five\n  2015-05-15\n  17:55\n  2018-05-05 04:00\n  1325.81\n  row_5\n  grp_b\n\n\n  nan\n  fig\n  six\n  2015-06-15\n  \n  2018-06-06 16:11\n  13.255\n  row_6\n  grp_b\n\n\n  777000.000\n  grapefruit\n  seven\n  \n  19:10\n  2018-07-07 05:22\n  \n  row_7\n  grp_b\n\n\n  8880000.000\n  honeydew\n  eight\n  2015-08-15\n  20:20\n  \n  0.44\n  row_8\n  grp_b"
+    "text": "Examples\nFor this example, we’ll use the exibble dataset as the input table. With the fmt_scientific() method, we’ll format the num column to contain values in scientific formatting.\n\nimport great_tables as gt\n\ngt.GT(gt.exibble).fmt_scientific(columns=\"num\")\n\n\n\n\n\n\nnum\nchar\nfctr\ndate\ntime\ndatetime\ncurrency\nrow\ngroup\n\n\n  1.11 × 10−1\n  apricot\n  one\n  2015-01-15\n  13:35\n  2018-01-01 02:22\n  49.95\n  row_1\n  grp_a\n\n\n  2.22\n  banana\n  two\n  2015-02-15\n  14:40\n  2018-02-02 14:33\n  17.95\n  row_2\n  grp_a\n\n\n  3.33 × 101\n  coconut\n  three\n  2015-03-15\n  15:45\n  2018-03-03 03:44\n  1.39\n  row_3\n  grp_a\n\n\n  4.44 × 102\n  durian\n  four\n  2015-04-15\n  16:50\n  2018-04-04 15:55\n  65100.0\n  row_4\n  grp_a\n\n\n  5.55 × 103\n  \n  five\n  2015-05-15\n  17:55\n  2018-05-05 04:00\n  1325.81\n  row_5\n  grp_b\n\n\n  \n  fig\n  six\n  2015-06-15\n  \n  2018-06-06 16:11\n  13.255\n  row_6\n  grp_b\n\n\n  7.77 × 105\n  grapefruit\n  seven\n  \n  19:10\n  2018-07-07 05:22\n  \n  row_7\n  grp_b\n\n\n  8.88 × 106\n  honeydew\n  eight\n  2015-08-15\n  20:20\n  \n  0.44\n  row_8\n  grp_b"
   },
   {
-    "objectID": "reference/GT.fmt_number.html#see-also",
-    "href": "reference/GT.fmt_number.html#see-also",
-    "title": "GT.fmt_number",
+    "objectID": "reference/GT.fmt_scientific.html#see-also",
+    "href": "reference/GT.fmt_scientific.html#see-also",
+    "title": "GT.fmt_scientific",
     "section": "See Also",
-    "text": "See Also\nThe fmt_integer() method might be more useful if you really need to format numeric values to appear as integers (i.e., no decimals will be shown and input values are rounded as necessary). Need to do numeric formatting on a value or list of values? Take a look at the functional version of this method: val_fmt_number()."
+    "text": "See Also\nThe functional version of this method, val_fmt_scientific(), allows you to format a single numerical value (or a list of them)."
   },
   {
-    "objectID": "reference/px.html",
-    "href": "reference/px.html",
-    "title": "px",
+    "objectID": "reference/val_fmt_markdown.html",
+    "href": "reference/val_fmt_markdown.html",
+    "title": "val_fmt_markdown",
     "section": "",
-    "text": "px(x)\nHelper for providing a CSS length value in pixels.\nFor certain parameters, a length value is required. Examples include the setting of font sizes (e.g., in cell_text()) and thicknesses of lines (e.g., in cell_borders()). Setting a length in pixels with px() allows for an absolute definition of size as opposed to the analogous helper function pct().\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[int, float]\nThe integer or float value to format as a string (e.g., \"12px\") for some arguments that can take values as units of pixels.\nrequired\n\n\n\n\n\n\n&gt;&gt;&gt; from gt import *\n&gt;&gt;&gt; x = gt.px(12)\n&gt;&gt;&gt; x\n&gt;&gt;&gt; print(x)"
+    "text": "val_fmt_markdown(x)\nFormat Markdown text.\nAny Markdown-formatted text can be transformed to HTML when using the fmt_markdown() function.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
   },
   {
-    "objectID": "reference/px.html#parameters",
-    "href": "reference/px.html#parameters",
-    "title": "px",
+    "objectID": "reference/val_fmt_markdown.html#parameters",
+    "href": "reference/val_fmt_markdown.html#parameters",
+    "title": "val_fmt_markdown",
     "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[int, float]\nThe integer or float value to format as a string (e.g., \"12px\") for some arguments that can take values as units of pixels.\nrequired"
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired"
   },
   {
-    "objectID": "reference/px.html#examples",
-    "href": "reference/px.html#examples",
-    "title": "px",
+    "objectID": "reference/val_fmt_markdown.html#returns",
+    "href": "reference/val_fmt_markdown.html#returns",
+    "title": "val_fmt_markdown",
     "section": "",
-    "text": "&gt;&gt;&gt; from gt import *\n&gt;&gt;&gt; x = gt.px(12)\n&gt;&gt;&gt; x\n&gt;&gt;&gt; print(x)"
-  },
-  {
-    "objectID": "reference/index.html",
-    "href": "reference/index.html",
-    "title": "Function reference",
-    "section": "",
-    "text": "All tables created in great_tables begin by using GT(). Here we supply the input data table and some basic options for creating a stub (rowname_col) and row groups (groupname_col).\n\n\n\nGT\nCreate a great_tables object.\n\n\n\n\n\n\nA table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with footnotes and source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can modify the look of table parts more generally with tab_options() and perform styling on targeted table locations with tab_style().\n\n\n\nGT.tab_header\nAdd a table header.\n\n\nGT.tab_spanner\nInsert a spanner in the column labels part of a gt table.\n\n\nGT.tab_stubhead\nAdd label text to the stubhead.\n\n\nGT.tab_source_note\nAdd a source note citation.\n\n\n\n\n\n\nColumns of data can be formatted with the fmt_*() methods. We can specify the rows of these columns quite precisely with the rows argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the fmt() method and define your own formatter within.\n\n\n\nGT.fmt_number\nFormat numeric values.\n\n\nGT.fmt_integer\nFormat values as integers.\n\n\nGT.fmt_percent\nFormat values as a percentage.\n\n\nGT.fmt_scientific\nFormat values to scientific notation.\n\n\nGT.fmt_currency\nFormat values as currencies.\n\n\nGT.fmt_bytes\nFormat values as bytes.\n\n\nGT.fmt_roman\nFormat values as Roman numerals.\n\n\nGT.fmt_date\nFormat values as dates.\n\n\nGT.fmt_time\nFormat values as times.\n\n\nGT.fmt_markdown\nFormat Markdown text.\n\n\nGT.fmt\nSet a column format with a formatter function.\n\n\n\n\n\n\nThe cols_*() methods allow for modifications that act on entire columns. This includes alignment of the data in columns (cols_align()), hiding columns from view (cols_hide()), re-labeling the column labels (cols_label()), and moving columns around (the cols_move*() methods).\n\n\n\nGT.cols_align\nSet the alignment of one or more columns.\n\n\nGT.cols_label\nRelabel one or more columns.\n\n\nGT.cols_move\nMove one or more columns.\n\n\nGT.cols_move_to_start\nMove one or more columns to the start.\n\n\nGT.cols_move_to_end\nMove one or more columns to the end.\n\n\n\n\n\n\nAn assortment of helper functions is available in the great_tables package. The md() and html() helpers can used be during label creation with the tab_header(), tab_footnote(), tab_spanner(), tab_stubhead_label(), and tab_source_note() methods.\n\n\n\nmd\nInterpret input text as Markdown-formatted text.\n\n\nhtml\nInterpret input text as HTML-formatted text.\n\n\npx\nHelper for providing a CSS length value in pixels.\n\n\npct\nHelper for providing a CSS length value as a percentage.\n\n\n\n\n\n\n\n\n\nGT.opt_align_table_header\nOption to align the table header.\n\n\nGT.opt_all_caps\nOption to use all caps in select table locations.\n\n\nGT.opt_footnote_marks\nOption to modify the set of footnote marks.\n\n\nGT.opt_row_striping\nOption to add or remove row striping.\n\n\n\n\n\n\nIf you have single values (or lists of them) in need of formatting, we have a set of val_fmt_*() functions that have been adapted from the corresponding fmt_*() methods.\n\n\n\nval_fmt_number\nFormat numeric values.\n\n\nval_fmt_integer\nFormat values as integers.\n\n\nval_fmt_scientific\nFormat values to scientific notation.\n\n\nval_fmt_percent\nFormat values as a percentage.\n\n\nval_fmt_currency\nFormat values as currencies.\n\n\nval_fmt_roman\nFormat values as Roman numerals.\n\n\nval_fmt_bytes\nFormat values as bytes.\n\n\nval_fmt_date\nFormat values as dates.\n\n\nval_fmt_time\nFormat values as times.\n\n\nval_fmt_markdown\nFormat Markdown text.\n\n\n\n\n\n\nThe great_tables package is equipped with ten datasets that come in all shapes and sizes. Use them to experiment with the package! Many examples in the internal help documents use these datasets to quickly demonstrate the awesome features of great_tables.\n\n\n\ndata.countrypops\nYearly populations of countries from 1960 to 2022\n\n\ndata.sza\nTwice hourly solar zenith angles by month & latitude\n\n\ndata.gtcars\nDeluxe automobiles from the 2014-2017 period\n\n\ndata.sp500\nDaily S&P 500 Index data from 1950 to 2015\n\n\ndata.pizzaplace\nA year of pizza sales from a pizza place\n\n\ndata.exibble\nA toy example table for testing with gt: exibble\n\n\ndata.towny\nPopulations of all municipalities in Ontario from 1996 to 2021\n\n\ndata.metro\nThe stations of the Paris Metro\n\n\ndata.constants\nThe fundamental physical constants\n\n\ndata.illness\nLab tests for one suffering from an illness"
-  },
-  {
-    "objectID": "reference/index.html#table-creation",
-    "href": "reference/index.html#table-creation",
-    "title": "Function reference",
-    "section": "",
-    "text": "All tables created in great_tables begin by using GT(). Here we supply the input data table and some basic options for creating a stub (rowname_col) and row groups (groupname_col).\n\n\n\nGT\nCreate a great_tables object."
-  },
-  {
-    "objectID": "reference/index.html#creating-or-modifying-parts-of-a-table",
-    "href": "reference/index.html#creating-or-modifying-parts-of-a-table",
-    "title": "Function reference",
-    "section": "",
-    "text": "A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with footnotes and source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can modify the look of table parts more generally with tab_options() and perform styling on targeted table locations with tab_style().\n\n\n\nGT.tab_header\nAdd a table header.\n\n\nGT.tab_spanner\nInsert a spanner in the column labels part of a gt table.\n\n\nGT.tab_stubhead\nAdd label text to the stubhead.\n\n\nGT.tab_source_note\nAdd a source note citation."
-  },
-  {
-    "objectID": "reference/index.html#formatting-column-data",
-    "href": "reference/index.html#formatting-column-data",
-    "title": "Function reference",
-    "section": "",
-    "text": "Columns of data can be formatted with the fmt_*() methods. We can specify the rows of these columns quite precisely with the rows argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the fmt() method and define your own formatter within.\n\n\n\nGT.fmt_number\nFormat numeric values.\n\n\nGT.fmt_integer\nFormat values as integers.\n\n\nGT.fmt_percent\nFormat values as a percentage.\n\n\nGT.fmt_scientific\nFormat values to scientific notation.\n\n\nGT.fmt_currency\nFormat values as currencies.\n\n\nGT.fmt_bytes\nFormat values as bytes.\n\n\nGT.fmt_roman\nFormat values as Roman numerals.\n\n\nGT.fmt_date\nFormat values as dates.\n\n\nGT.fmt_time\nFormat values as times.\n\n\nGT.fmt_markdown\nFormat Markdown text.\n\n\nGT.fmt\nSet a column format with a formatter function."
-  },
-  {
-    "objectID": "reference/index.html#modifying-columns",
-    "href": "reference/index.html#modifying-columns",
-    "title": "Function reference",
-    "section": "",
-    "text": "The cols_*() methods allow for modifications that act on entire columns. This includes alignment of the data in columns (cols_align()), hiding columns from view (cols_hide()), re-labeling the column labels (cols_label()), and moving columns around (the cols_move*() methods).\n\n\n\nGT.cols_align\nSet the alignment of one or more columns.\n\n\nGT.cols_label\nRelabel one or more columns.\n\n\nGT.cols_move\nMove one or more columns.\n\n\nGT.cols_move_to_start\nMove one or more columns to the start.\n\n\nGT.cols_move_to_end\nMove one or more columns to the end."
-  },
-  {
-    "objectID": "reference/index.html#helper-functions",
-    "href": "reference/index.html#helper-functions",
-    "title": "Function reference",
-    "section": "",
-    "text": "An assortment of helper functions is available in the great_tables package. The md() and html() helpers can used be during label creation with the tab_header(), tab_footnote(), tab_spanner(), tab_stubhead_label(), and tab_source_note() methods.\n\n\n\nmd\nInterpret input text as Markdown-formatted text.\n\n\nhtml\nInterpret input text as HTML-formatted text.\n\n\npx\nHelper for providing a CSS length value in pixels.\n\n\npct\nHelper for providing a CSS length value as a percentage."
-  },
-  {
-    "objectID": "reference/index.html#table-options",
-    "href": "reference/index.html#table-options",
-    "title": "Function reference",
-    "section": "",
-    "text": "GT.opt_align_table_header\nOption to align the table header.\n\n\nGT.opt_all_caps\nOption to use all caps in select table locations.\n\n\nGT.opt_footnote_marks\nOption to modify the set of footnote marks.\n\n\nGT.opt_row_striping\nOption to add or remove row striping."
-  },
-  {
-    "objectID": "reference/index.html#value-formatting-functions",
-    "href": "reference/index.html#value-formatting-functions",
-    "title": "Function reference",
-    "section": "",
-    "text": "If you have single values (or lists of them) in need of formatting, we have a set of val_fmt_*() functions that have been adapted from the corresponding fmt_*() methods.\n\n\n\nval_fmt_number\nFormat numeric values.\n\n\nval_fmt_integer\nFormat values as integers.\n\n\nval_fmt_scientific\nFormat values to scientific notation.\n\n\nval_fmt_percent\nFormat values as a percentage.\n\n\nval_fmt_currency\nFormat values as currencies.\n\n\nval_fmt_roman\nFormat values as Roman numerals.\n\n\nval_fmt_bytes\nFormat values as bytes.\n\n\nval_fmt_date\nFormat values as dates.\n\n\nval_fmt_time\nFormat values as times.\n\n\nval_fmt_markdown\nFormat Markdown text."
-  },
-  {
-    "objectID": "reference/index.html#built-in-datasets",
-    "href": "reference/index.html#built-in-datasets",
-    "title": "Function reference",
-    "section": "",
-    "text": "The great_tables package is equipped with ten datasets that come in all shapes and sizes. Use them to experiment with the package! Many examples in the internal help documents use these datasets to quickly demonstrate the awesome features of great_tables.\n\n\n\ndata.countrypops\nYearly populations of countries from 1960 to 2022\n\n\ndata.sza\nTwice hourly solar zenith angles by month & latitude\n\n\ndata.gtcars\nDeluxe automobiles from the 2014-2017 period\n\n\ndata.sp500\nDaily S&P 500 Index data from 1950 to 2015\n\n\ndata.pizzaplace\nA year of pizza sales from a pizza place\n\n\ndata.exibble\nA toy example table for testing with gt: exibble\n\n\ndata.towny\nPopulations of all municipalities in Ontario from 1996 to 2021\n\n\ndata.metro\nThe stations of the Paris Metro\n\n\ndata.constants\nThe fundamental physical constants\n\n\ndata.illness\nLab tests for one suffering from an illness"
-  },
-  {
-    "objectID": "reference/GT.fmt_markdown.html",
-    "href": "reference/GT.fmt_markdown.html",
-    "title": "GT.fmt_markdown",
-    "section": "",
-    "text": "GT.fmt_markdown(self, columns=None, rows=None)\nFormat Markdown text.\nAny Markdown-formatted text in the incoming cells will be transformed during render when using the fmt_markdown() method.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned.\n\n\n\n\n\n\nThe functional version of this method, val_fmt_markdown(), allows you to format a single string value (or a list of them)."
-  },
-  {
-    "objectID": "reference/GT.fmt_markdown.html#parameters",
-    "href": "reference/GT.fmt_markdown.html#parameters",
-    "title": "GT.fmt_markdown",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone"
-  },
-  {
-    "objectID": "reference/GT.fmt_markdown.html#returns",
-    "href": "reference/GT.fmt_markdown.html#returns",
-    "title": "GT.fmt_markdown",
-    "section": "",
-    "text": "Type\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
-  },
-  {
-    "objectID": "reference/GT.fmt_markdown.html#see-also",
-    "href": "reference/GT.fmt_markdown.html#see-also",
-    "title": "GT.fmt_markdown",
-    "section": "",
-    "text": "The functional version of this method, val_fmt_markdown(), allows you to format a single string value (or a list of them)."
-  },
-  {
-    "objectID": "reference/data.exibble.html",
-    "href": "reference/data.exibble.html",
-    "title": "data.exibble",
-    "section": "",
-    "text": "data.exibble\ndata.exibble\nA toy example table for testing with gt: exibble\nThis table contains data of a few different classes, which makes it well-suited for quick experimentation with the functions in this package. It contains only eight rows with numeric and character columns. The last 4 rows contain missing values in the majority of this table’s columns (1 missing value per column). The date, time, and datetime columns are character-based dates/times in the familiar ISO 8601 format. The row and group columns provide for unique rownames and two groups (grp_a and grp_b) for experimenting with the rowname_col and groupname_col arguments."
-  },
-  {
-    "objectID": "reference/GT.cols_move_to_end.html",
-    "href": "reference/GT.cols_move_to_end.html",
-    "title": "GT.cols_move_to_end",
-    "section": "",
-    "text": "GT.cols_move_to_end(data, columns)\nMove one or more columns to the end.\nWe can easily move set of columns to the beginning of the column series and we only need to specify which columns. It’s possible to do this upstream of gt_tables, however, it is easier with this function and it presents less possibility for error. The ordering of the columns that are moved to the end is preserved (same with the ordering of all other columns in the table)."
-  },
-  {
-    "objectID": "reference/GT.cols_move_to_end.html#parameters",
-    "href": "reference/GT.cols_move_to_end.html#parameters",
-    "title": "GT.cols_move_to_end",
-    "section": "Parameters",
-    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[typing.List[str]]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nrequired"
-  },
-  {
-    "objectID": "reference/GT.cols_move_to_end.html#returns",
-    "href": "reference/GT.cols_move_to_end.html#returns",
-    "title": "GT.cols_move_to_end",
-    "section": "Returns",
-    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
-  },
-  {
-    "objectID": "reference/GT.cols_move_to_end.html#examples",
-    "href": "reference/GT.cols_move_to_end.html#examples",
-    "title": "GT.cols_move_to_end",
-    "section": "Examples",
-    "text": "Examples\nFor this example, we’ll use a portion of the countrypops dataset to create a simple table. Let’s move the year column, which is the middle column, to the end of the column series with the cols_move_to_end() method.\n\nimport great_tables as gt\n\ncountrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Benin\"][\n    [\"country_name\", \"year\", \"population\"]\n].tail(5)\n\ngt.GT(countrypops_mini).cols_move_to_end(columns=\"year\")\n\n\n\n\n\n\ncountry_name\npopulation\nyear\n\n\n  Benin\n  11940683\n  2018\n\n\n  Benin\n  12290444\n  2019\n\n\n  Benin\n  12643123\n  2020\n\n\n  Benin\n  12996895\n  2021\n\n\n  Benin\n  13352864\n  2022\n\n\n\n\n\n\n\n        \n\n\nWe can also move multiple columns at a time. With the same countrypops-based table, let’s move both the year and country_name columns to the end of the column series.\ngt.GT(countrypops_mini).cols_move_to_end(columns=[“year”, “country_name”])"
-  },
-  {
-    "objectID": "reference/GT.cols_move.html",
-    "href": "reference/GT.cols_move.html",
-    "title": "GT.cols_move",
-    "section": "",
-    "text": "GT.cols_move(data, columns, after)\nMove one or more columns.\nOn those occasions where you need to move columns this way or that way, we can make use of the cols_move() method. While it’s true that the movement of columns can be done upstream of great_tables, it is much easier and less error prone to use the function provided here. The movement procedure here takes one or more specified columns (in the columns argument) and places them to the right of a different column (the after argument). The ordering of the columns to be moved is preserved, as is the ordering of all other columns in the table.\nThe columns supplied in columns must all exist in the table and none of them can be in the after argument. The after column must also exist and only one column should be provided here. If you need to place one more or columns at the beginning of the column series, the cols_move_to_start() method should be used. Similarly, if those columns to move should be placed at the end of the column series then use cols_move_to_end()."
-  },
-  {
-    "objectID": "reference/GT.cols_move.html#parameters",
-    "href": "reference/GT.cols_move.html#parameters",
-    "title": "GT.cols_move",
-    "section": "Parameters",
-    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[typing.List[str]]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nrequired\n\n\nafter\nstr\nThe column after which the columns should be placed. This can be any column name that exists in the table.\nrequired"
-  },
-  {
-    "objectID": "reference/GT.cols_move.html#returns",
-    "href": "reference/GT.cols_move.html#returns",
-    "title": "GT.cols_move",
-    "section": "Returns",
-    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
-  },
-  {
-    "objectID": "reference/GT.cols_move.html#examples",
-    "href": "reference/GT.cols_move.html#examples",
-    "title": "GT.cols_move",
-    "section": "Examples",
-    "text": "Examples\nLet’s use the countrypops dataset to create a table. We’ll choose to position the population column after the country_name column by using the cols_move() method.\n\nimport great_tables as gt\n\ncountrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Japan\"][\n    [\"country_name\", \"year\", \"population\"]\n].tail(5)\n\n(\n    gt.GT(countrypops_mini)\n    .cols_move(\n        columns=\"population\",\n        after=\"country_name\"\n    )\n)\n\n\n\n\n\n\ncountry_name\npopulation\nyear\n\n\n  Japan\n  126811000\n  2018\n\n\n  Japan\n  126633000\n  2019\n\n\n  Japan\n  126261000\n  2020\n\n\n  Japan\n  125681593\n  2021\n\n\n  Japan\n  125124989\n  2022"
-  },
-  {
-    "objectID": "reference/GT.opt_row_striping.html",
-    "href": "reference/GT.opt_row_striping.html",
-    "title": "GT.opt_row_striping",
-    "section": "",
-    "text": "GT.opt_row_striping(row_striping=True)\nOption to add or remove row striping.\nBy default, a gt*table does not have row striping enabled. However, this method allows us to easily enable or disable striped rows in the table body. It’s a convenient shortcut for gt.tab_options(row_striping_include_table_body=&lt;True|False&gt;).\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nrow_striping\nbool\nA boolean that indicates whether row striping should be added or removed. Defaults to True.\nTrue\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\nGTData\nThe GTData object is returned."
-  },
-  {
-    "objectID": "reference/GT.opt_row_striping.html#parameters",
-    "href": "reference/GT.opt_row_striping.html#parameters",
-    "title": "GT.opt_row_striping",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nrow_striping\nbool\nA boolean that indicates whether row striping should be added or removed. Defaults to True.\nTrue"
-  },
-  {
-    "objectID": "reference/GT.opt_row_striping.html#returns",
-    "href": "reference/GT.opt_row_striping.html#returns",
-    "title": "GT.opt_row_striping",
-    "section": "",
-    "text": "Type\nDescription\n\n\n\n\nGTData\nThe GTData object is returned."
+    "text": "Type\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
   },
   {
     "objectID": "reference/GT.tab_spanner.html",
@@ -742,200 +553,242 @@
     "text": "See Also\nThe functional version of this method, val_fmt_bytes(), allows you to format a single numerical value (or a list of them)."
   },
   {
-    "objectID": "reference/val_fmt_markdown.html",
-    "href": "reference/val_fmt_markdown.html",
-    "title": "val_fmt_markdown",
+    "objectID": "reference/GT.cols_move.html",
+    "href": "reference/GT.cols_move.html",
+    "title": "GT.cols_move",
     "section": "",
-    "text": "val_fmt_markdown(x)\nFormat Markdown text.\nAny Markdown-formatted text can be transformed to HTML when using the fmt_markdown() function.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
+    "text": "GT.cols_move(data, columns, after)\nMove one or more columns.\nOn those occasions where you need to move columns this way or that way, we can make use of the cols_move() method. While it’s true that the movement of columns can be done upstream of great_tables, it is much easier and less error prone to use the function provided here. The movement procedure here takes one or more specified columns (in the columns argument) and places them to the right of a different column (the after argument). The ordering of the columns to be moved is preserved, as is the ordering of all other columns in the table.\nThe columns supplied in columns must all exist in the table and none of them can be in the after argument. The after column must also exist and only one column should be provided here. If you need to place one more or columns at the beginning of the column series, the cols_move_to_start() method should be used. Similarly, if those columns to move should be placed at the end of the column series then use cols_move_to_end()."
   },
   {
-    "objectID": "reference/val_fmt_markdown.html#parameters",
-    "href": "reference/val_fmt_markdown.html#parameters",
-    "title": "val_fmt_markdown",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired"
-  },
-  {
-    "objectID": "reference/val_fmt_markdown.html#returns",
-    "href": "reference/val_fmt_markdown.html#returns",
-    "title": "val_fmt_markdown",
-    "section": "",
-    "text": "Type\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
-  },
-  {
-    "objectID": "reference/GT.fmt_scientific.html",
-    "href": "reference/GT.fmt_scientific.html",
-    "title": "GT.fmt_scientific",
-    "section": "",
-    "text": "GT.fmt_scientific(self, columns=None, rows=None, decimals=2, n_sigfig=None, drop_trailing_zeros=False, drop_trailing_dec_mark=True, scale_by=1, exp_style='x10n', pattern='{x}', sep_mark=',', dec_mark='.', force_sign_m=False, force_sign_n=False, locale=None)\nFormat values to scientific notation.\nWith numeric values in a gt table, we can perform formatting so that the targeted values are rendered in scientific notation, where extremely large or very small numbers can be expressed in a more practical fashion. Here, numbers are written in the form of a mantissa (m) and an exponent (n) with the construction m x 10^n or mEn. The mantissa component is a number between 1 and 10. For instance, 2.5 x 10^9 can be used to represent the value 2,500,000,000 in scientific notation. In a similar way, 0.00000012 can be expressed as 1.2 x 10^-7. Due to its ability to describe numbers more succinctly and its ease of calculation, scientific notation is widely employed in scientific and technical domains.\nWe have fine control over the formatting task, with the following options:"
-  },
-  {
-    "objectID": "reference/GT.fmt_scientific.html#parameters",
-    "href": "reference/GT.fmt_scientific.html#parameters",
-    "title": "GT.fmt_scientific",
+    "objectID": "reference/GT.cols_move.html#parameters",
+    "href": "reference/GT.cols_move.html#parameters",
+    "title": "GT.cols_move",
     "section": "Parameters",
-    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. A value such as 2.34 can, for example, be formatted with 0 decimal places and it would result in \"2\". With 4 decimal places, the formatted value becomes \"2.3400\". The trailing zeros can be removed with drop_trailing_zeros=True. If you always need decimals = 0, the fmt_integer() method should be considered.\n2\n\n\nn_sigfig\ntyping.Optional[int]\nA option to format numbers to n significant figures. By default, this is None and thus number values will be formatted according to the number of decimal places set via decimals. If opting to format according to the rules of significant figures, n_sigfig must be a number greater than or equal to 1. Any values passed to the decimals and drop_trailing_zeros arguments will be ignored.\nNone\n\n\ndrop_trailing_zeros\nbool\nA boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).\nFalse\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\nexp_style\nstr\nStyle of formatting to use for the scientific notation formatting. By default this is \"x10n\" but other options include using a single letter (e.g., \"e\", \"E\", etc.), a letter followed by a \"1\" to signal a minimum digit width of one, or \"low-ten\" for using a stylized \"10\" marker.\n'x10n'\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign_m\nbool\nShould the plus sign be shown for positive values of the mantissa (first component)? This would effectively show a sign for all values except zero on the first numeric component of the notation. If so, use True (the default for this is False), where only negative numbers will display a sign.\nFalse\n\n\nforce_sign_n\nbool\nShould the plus sign be shown for positive values of the exponent (second component)? This would effectively show a sign for all values except zero on the second numeric component of the notation. If so, use True (the default for this is False), where only negative numbers will display a sign.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
+    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[typing.List[str]]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nrequired\n\n\nafter\nstr\nThe column after which the columns should be placed. This can be any column name that exists in the table.\nrequired"
   },
   {
-    "objectID": "reference/GT.fmt_scientific.html#returns",
-    "href": "reference/GT.fmt_scientific.html#returns",
-    "title": "GT.fmt_scientific",
+    "objectID": "reference/GT.cols_move.html#returns",
+    "href": "reference/GT.cols_move.html#returns",
+    "title": "GT.cols_move",
     "section": "Returns",
     "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
   },
   {
-    "objectID": "reference/GT.fmt_scientific.html#adapting-output-to-a-specific-locale",
-    "href": "reference/GT.fmt_scientific.html#adapting-output-to-a-specific-locale",
-    "title": "GT.fmt_scientific",
+    "objectID": "reference/GT.cols_move.html#examples",
+    "href": "reference/GT.cols_move.html#examples",
+    "title": "GT.cols_move",
+    "section": "Examples",
+    "text": "Examples\nLet’s use the countrypops dataset to create a table. We’ll choose to position the population column after the country_name column by using the cols_move() method.\n\nimport great_tables as gt\n\ncountrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Japan\"][\n    [\"country_name\", \"year\", \"population\"]\n].tail(5)\n\n(\n    gt.GT(countrypops_mini)\n    .cols_move(\n        columns=\"population\",\n        after=\"country_name\"\n    )\n)\n\n\n\n\n\n\ncountry_name\npopulation\nyear\n\n\n  Japan\n  126811000\n  2018\n\n\n  Japan\n  126633000\n  2019\n\n\n  Japan\n  126261000\n  2020\n\n\n  Japan\n  125681593\n  2021\n\n\n  Japan\n  125124989\n  2022"
+  },
+  {
+    "objectID": "reference/GT.cols_move_to_end.html",
+    "href": "reference/GT.cols_move_to_end.html",
+    "title": "GT.cols_move_to_end",
+    "section": "",
+    "text": "GT.cols_move_to_end(data, columns)\nMove one or more columns to the end.\nWe can easily move set of columns to the beginning of the column series and we only need to specify which columns. It’s possible to do this upstream of gt_tables, however, it is easier with this function and it presents less possibility for error. The ordering of the columns that are moved to the end is preserved (same with the ordering of all other columns in the table)."
+  },
+  {
+    "objectID": "reference/GT.cols_move_to_end.html#parameters",
+    "href": "reference/GT.cols_move_to_end.html#parameters",
+    "title": "GT.cols_move_to_end",
+    "section": "Parameters",
+    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[typing.List[str]]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nrequired"
+  },
+  {
+    "objectID": "reference/GT.cols_move_to_end.html#returns",
+    "href": "reference/GT.cols_move_to_end.html#returns",
+    "title": "GT.cols_move_to_end",
+    "section": "Returns",
+    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
+  },
+  {
+    "objectID": "reference/GT.cols_move_to_end.html#examples",
+    "href": "reference/GT.cols_move_to_end.html#examples",
+    "title": "GT.cols_move_to_end",
+    "section": "Examples",
+    "text": "Examples\nFor this example, we’ll use a portion of the countrypops dataset to create a simple table. Let’s move the year column, which is the middle column, to the end of the column series with the cols_move_to_end() method.\n\nimport great_tables as gt\n\ncountrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Benin\"][\n    [\"country_name\", \"year\", \"population\"]\n].tail(5)\n\ngt.GT(countrypops_mini).cols_move_to_end(columns=\"year\")\n\n\n\n\n\n\ncountry_name\npopulation\nyear\n\n\n  Benin\n  11940683\n  2018\n\n\n  Benin\n  12290444\n  2019\n\n\n  Benin\n  12643123\n  2020\n\n\n  Benin\n  12996895\n  2021\n\n\n  Benin\n  13352864\n  2022\n\n\n\n\n\n\n\n        \n\n\nWe can also move multiple columns at a time. With the same countrypops-based table, let’s move both the year and country_name columns to the end of the column series.\ngt.GT(countrypops_mini).cols_move_to_end(columns=[“year”, “country_name”])"
+  },
+  {
+    "objectID": "reference/data.exibble.html",
+    "href": "reference/data.exibble.html",
+    "title": "data.exibble",
+    "section": "",
+    "text": "data.exibble\ndata.exibble\nA toy example table for testing with gt: exibble\nThis table contains data of a few different classes, which makes it well-suited for quick experimentation with the functions in this package. It contains only eight rows with numeric and character columns. The last 4 rows contain missing values in the majority of this table’s columns (1 missing value per column). The date, time, and datetime columns are character-based dates/times in the familiar ISO 8601 format. The row and group columns provide for unique rownames and two groups (grp_a and grp_b) for experimenting with the rowname_col and groupname_col arguments."
+  },
+  {
+    "objectID": "reference/GT.fmt_markdown.html",
+    "href": "reference/GT.fmt_markdown.html",
+    "title": "GT.fmt_markdown",
+    "section": "",
+    "text": "GT.fmt_markdown(self, columns=None, rows=None)\nFormat Markdown text.\nAny Markdown-formatted text in the incoming cells will be transformed during render when using the fmt_markdown() method.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned.\n\n\n\n\n\n\nThe functional version of this method, val_fmt_markdown(), allows you to format a single string value (or a list of them)."
+  },
+  {
+    "objectID": "reference/GT.fmt_markdown.html#parameters",
+    "href": "reference/GT.fmt_markdown.html#parameters",
+    "title": "GT.fmt_markdown",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone"
+  },
+  {
+    "objectID": "reference/GT.fmt_markdown.html#returns",
+    "href": "reference/GT.fmt_markdown.html#returns",
+    "title": "GT.fmt_markdown",
+    "section": "",
+    "text": "Type\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
+  },
+  {
+    "objectID": "reference/GT.fmt_markdown.html#see-also",
+    "href": "reference/GT.fmt_markdown.html#see-also",
+    "title": "GT.fmt_markdown",
+    "section": "",
+    "text": "The functional version of this method, val_fmt_markdown(), allows you to format a single string value (or a list of them)."
+  },
+  {
+    "objectID": "reference/index.html",
+    "href": "reference/index.html",
+    "title": "Function reference",
+    "section": "",
+    "text": "All tables created in great_tables begin by using GT(). Here we supply the input data table and some basic options for creating a stub (rowname_col) and row groups (groupname_col).\n\n\n\nGT\nCreate a great_tables object.\n\n\n\n\n\n\nA table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with footnotes and source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can modify the look of table parts more generally with tab_options() and perform styling on targeted table locations with tab_style().\n\n\n\nGT.tab_header\nAdd a table header.\n\n\nGT.tab_spanner\nInsert a spanner in the column labels part of a gt table.\n\n\nGT.tab_stubhead\nAdd label text to the stubhead.\n\n\nGT.tab_source_note\nAdd a source note citation.\n\n\n\n\n\n\nColumns of data can be formatted with the fmt_*() methods. We can specify the rows of these columns quite precisely with the rows argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the fmt() method and define your own formatter within.\n\n\n\nGT.fmt_number\nFormat numeric values.\n\n\nGT.fmt_integer\nFormat values as integers.\n\n\nGT.fmt_percent\nFormat values as a percentage.\n\n\nGT.fmt_scientific\nFormat values to scientific notation.\n\n\nGT.fmt_currency\nFormat values as currencies.\n\n\nGT.fmt_bytes\nFormat values as bytes.\n\n\nGT.fmt_roman\nFormat values as Roman numerals.\n\n\nGT.fmt_date\nFormat values as dates.\n\n\nGT.fmt_time\nFormat values as times.\n\n\nGT.fmt_markdown\nFormat Markdown text.\n\n\nGT.fmt\nSet a column format with a formatter function.\n\n\n\n\n\n\nThe cols_*() methods allow for modifications that act on entire columns. This includes alignment of the data in columns (cols_align()), hiding columns from view (cols_hide()), re-labeling the column labels (cols_label()), and moving columns around (the cols_move*() methods).\n\n\n\nGT.cols_align\nSet the alignment of one or more columns.\n\n\nGT.cols_label\nRelabel one or more columns.\n\n\nGT.cols_move\nMove one or more columns.\n\n\nGT.cols_move_to_start\nMove one or more columns to the start.\n\n\nGT.cols_move_to_end\nMove one or more columns to the end.\n\n\n\n\n\n\nAn assortment of helper functions is available in the great_tables package. The md() and html() helpers can used be during label creation with the tab_header(), tab_footnote(), tab_spanner(), tab_stubhead_label(), and tab_source_note() methods.\n\n\n\nmd\nInterpret input text as Markdown-formatted text.\n\n\nhtml\nInterpret input text as HTML-formatted text.\n\n\npx\nHelper for providing a CSS length value in pixels.\n\n\npct\nHelper for providing a CSS length value as a percentage.\n\n\n\n\n\n\nIf you have single values (or lists of them) in need of formatting, we have a set of val_fmt_*() functions that have been adapted from the corresponding fmt_*() methods.\n\n\n\nval_fmt_number\nFormat numeric values.\n\n\nval_fmt_integer\nFormat values as integers.\n\n\nval_fmt_scientific\nFormat values to scientific notation.\n\n\nval_fmt_percent\nFormat values as a percentage.\n\n\nval_fmt_currency\nFormat values as currencies.\n\n\nval_fmt_roman\nFormat values as Roman numerals.\n\n\nval_fmt_bytes\nFormat values as bytes.\n\n\nval_fmt_date\nFormat values as dates.\n\n\nval_fmt_time\nFormat values as times.\n\n\nval_fmt_markdown\nFormat Markdown text.\n\n\n\n\n\n\nThe great_tables package is equipped with ten datasets that come in all shapes and sizes. Use them to experiment with the package! Many examples in the internal help documents use these datasets to quickly demonstrate the awesome features of great_tables.\n\n\n\ndata.countrypops\nYearly populations of countries from 1960 to 2022\n\n\ndata.sza\nTwice hourly solar zenith angles by month & latitude\n\n\ndata.gtcars\nDeluxe automobiles from the 2014-2017 period\n\n\ndata.sp500\nDaily S&P 500 Index data from 1950 to 2015\n\n\ndata.pizzaplace\nA year of pizza sales from a pizza place\n\n\ndata.exibble\nA toy example table for testing with gt: exibble\n\n\ndata.towny\nPopulations of all municipalities in Ontario from 1996 to 2021\n\n\ndata.metro\nThe stations of the Paris Metro\n\n\ndata.constants\nThe fundamental physical constants\n\n\ndata.illness\nLab tests for one suffering from an illness"
+  },
+  {
+    "objectID": "reference/index.html#table-creation",
+    "href": "reference/index.html#table-creation",
+    "title": "Function reference",
+    "section": "",
+    "text": "All tables created in great_tables begin by using GT(). Here we supply the input data table and some basic options for creating a stub (rowname_col) and row groups (groupname_col).\n\n\n\nGT\nCreate a great_tables object."
+  },
+  {
+    "objectID": "reference/index.html#creating-or-modifying-parts-of-a-table",
+    "href": "reference/index.html#creating-or-modifying-parts-of-a-table",
+    "title": "Function reference",
+    "section": "",
+    "text": "A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with footnotes and source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can modify the look of table parts more generally with tab_options() and perform styling on targeted table locations with tab_style().\n\n\n\nGT.tab_header\nAdd a table header.\n\n\nGT.tab_spanner\nInsert a spanner in the column labels part of a gt table.\n\n\nGT.tab_stubhead\nAdd label text to the stubhead.\n\n\nGT.tab_source_note\nAdd a source note citation."
+  },
+  {
+    "objectID": "reference/index.html#formatting-column-data",
+    "href": "reference/index.html#formatting-column-data",
+    "title": "Function reference",
+    "section": "",
+    "text": "Columns of data can be formatted with the fmt_*() methods. We can specify the rows of these columns quite precisely with the rows argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the fmt() method and define your own formatter within.\n\n\n\nGT.fmt_number\nFormat numeric values.\n\n\nGT.fmt_integer\nFormat values as integers.\n\n\nGT.fmt_percent\nFormat values as a percentage.\n\n\nGT.fmt_scientific\nFormat values to scientific notation.\n\n\nGT.fmt_currency\nFormat values as currencies.\n\n\nGT.fmt_bytes\nFormat values as bytes.\n\n\nGT.fmt_roman\nFormat values as Roman numerals.\n\n\nGT.fmt_date\nFormat values as dates.\n\n\nGT.fmt_time\nFormat values as times.\n\n\nGT.fmt_markdown\nFormat Markdown text.\n\n\nGT.fmt\nSet a column format with a formatter function."
+  },
+  {
+    "objectID": "reference/index.html#modifying-columns",
+    "href": "reference/index.html#modifying-columns",
+    "title": "Function reference",
+    "section": "",
+    "text": "The cols_*() methods allow for modifications that act on entire columns. This includes alignment of the data in columns (cols_align()), hiding columns from view (cols_hide()), re-labeling the column labels (cols_label()), and moving columns around (the cols_move*() methods).\n\n\n\nGT.cols_align\nSet the alignment of one or more columns.\n\n\nGT.cols_label\nRelabel one or more columns.\n\n\nGT.cols_move\nMove one or more columns.\n\n\nGT.cols_move_to_start\nMove one or more columns to the start.\n\n\nGT.cols_move_to_end\nMove one or more columns to the end."
+  },
+  {
+    "objectID": "reference/index.html#helper-functions",
+    "href": "reference/index.html#helper-functions",
+    "title": "Function reference",
+    "section": "",
+    "text": "An assortment of helper functions is available in the great_tables package. The md() and html() helpers can used be during label creation with the tab_header(), tab_footnote(), tab_spanner(), tab_stubhead_label(), and tab_source_note() methods.\n\n\n\nmd\nInterpret input text as Markdown-formatted text.\n\n\nhtml\nInterpret input text as HTML-formatted text.\n\n\npx\nHelper for providing a CSS length value in pixels.\n\n\npct\nHelper for providing a CSS length value as a percentage."
+  },
+  {
+    "objectID": "reference/index.html#value-formatting-functions",
+    "href": "reference/index.html#value-formatting-functions",
+    "title": "Function reference",
+    "section": "",
+    "text": "If you have single values (or lists of them) in need of formatting, we have a set of val_fmt_*() functions that have been adapted from the corresponding fmt_*() methods.\n\n\n\nval_fmt_number\nFormat numeric values.\n\n\nval_fmt_integer\nFormat values as integers.\n\n\nval_fmt_scientific\nFormat values to scientific notation.\n\n\nval_fmt_percent\nFormat values as a percentage.\n\n\nval_fmt_currency\nFormat values as currencies.\n\n\nval_fmt_roman\nFormat values as Roman numerals.\n\n\nval_fmt_bytes\nFormat values as bytes.\n\n\nval_fmt_date\nFormat values as dates.\n\n\nval_fmt_time\nFormat values as times.\n\n\nval_fmt_markdown\nFormat Markdown text."
+  },
+  {
+    "objectID": "reference/index.html#built-in-datasets",
+    "href": "reference/index.html#built-in-datasets",
+    "title": "Function reference",
+    "section": "",
+    "text": "The great_tables package is equipped with ten datasets that come in all shapes and sizes. Use them to experiment with the package! Many examples in the internal help documents use these datasets to quickly demonstrate the awesome features of great_tables.\n\n\n\ndata.countrypops\nYearly populations of countries from 1960 to 2022\n\n\ndata.sza\nTwice hourly solar zenith angles by month & latitude\n\n\ndata.gtcars\nDeluxe automobiles from the 2014-2017 period\n\n\ndata.sp500\nDaily S&P 500 Index data from 1950 to 2015\n\n\ndata.pizzaplace\nA year of pizza sales from a pizza place\n\n\ndata.exibble\nA toy example table for testing with gt: exibble\n\n\ndata.towny\nPopulations of all municipalities in Ontario from 1996 to 2021\n\n\ndata.metro\nThe stations of the Paris Metro\n\n\ndata.constants\nThe fundamental physical constants\n\n\ndata.illness\nLab tests for one suffering from an illness"
+  },
+  {
+    "objectID": "reference/px.html",
+    "href": "reference/px.html",
+    "title": "px",
+    "section": "",
+    "text": "px(x)\nHelper for providing a CSS length value in pixels.\nFor certain parameters, a length value is required. Examples include the setting of font sizes (e.g., in cell_text()) and thicknesses of lines (e.g., in cell_borders()). Setting a length in pixels with px() allows for an absolute definition of size as opposed to the analogous helper function pct().\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[int, float]\nThe integer or float value to format as a string (e.g., \"12px\") for some arguments that can take values as units of pixels.\nrequired\n\n\n\n\n\n\n&gt;&gt;&gt; from gt import *\n&gt;&gt;&gt; x = gt.px(12)\n&gt;&gt;&gt; x\n&gt;&gt;&gt; print(x)"
+  },
+  {
+    "objectID": "reference/px.html#parameters",
+    "href": "reference/px.html#parameters",
+    "title": "px",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[int, float]\nThe integer or float value to format as a string (e.g., \"12px\") for some arguments that can take values as units of pixels.\nrequired"
+  },
+  {
+    "objectID": "reference/px.html#examples",
+    "href": "reference/px.html#examples",
+    "title": "px",
+    "section": "",
+    "text": "&gt;&gt;&gt; from gt import *\n&gt;&gt;&gt; x = gt.px(12)\n&gt;&gt;&gt; x\n&gt;&gt;&gt; print(x)"
+  },
+  {
+    "objectID": "reference/GT.fmt_number.html",
+    "href": "reference/GT.fmt_number.html",
+    "title": "GT.fmt_number",
+    "section": "",
+    "text": "GT.fmt_number(self, columns=None, rows=None, decimals=2, n_sigfig=None, drop_trailing_zeros=False, drop_trailing_dec_mark=True, use_seps=True, scale_by=1, compact=False, pattern='{x}', sep_mark=',', dec_mark='.', force_sign=False, locale=None)\nFormat numeric values.\nWith numeric values in a gt table, we can perform number-based formatting so that the targeted values are rendered with a higher consideration for tabular presentation. Furthermore, there is finer control over numeric formatting with the following options:"
+  },
+  {
+    "objectID": "reference/GT.fmt_number.html#parameters",
+    "href": "reference/GT.fmt_number.html#parameters",
+    "title": "GT.fmt_number",
+    "section": "Parameters",
+    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. A value such as 2.34 can, for example, be formatted with 0 decimal places and it would result in \"2\". With 4 decimal places, the formatted value becomes \"2.3400\". The trailing zeros can be removed with drop_trailing_zeros=True. If you always need decimals = 0, the fmt_integer() method should be considered.\n2\n\n\nn_sigfig\ntyping.Optional[int]\nA option to format numbers to n significant figures. By default, this is None and thus number values will be formatted according to the number of decimal places set via decimals. If opting to format according to the rules of significant figures, n_sigfig must be a number greater than or equal to 1. Any values passed to the decimals and drop_trailing_zeros arguments will be ignored.\nNone\n\n\ndrop_trailing_zeros\nbool\nA boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).\nFalse\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\ncompact\nbool\nA boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., 1230 becomes 1.23K, and 1230000 becomes 1.23M). The compact option is False by default.\nFalse\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
+  },
+  {
+    "objectID": "reference/GT.fmt_number.html#returns",
+    "href": "reference/GT.fmt_number.html#returns",
+    "title": "GT.fmt_number",
+    "section": "Returns",
+    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
+  },
+  {
+    "objectID": "reference/GT.fmt_number.html#adapting-output-to-a-specific-locale",
+    "href": "reference/GT.fmt_number.html#adapting-output-to-a-specific-locale",
+    "title": "GT.fmt_number",
     "section": "Adapting Output To A Specific Locale",
     "text": "Adapting Output To A Specific Locale\nThis formatting method can adapt outputs according to a provided locale value. Examples include \"en\" for English (United States) and \"fr\" for French (France). The use of a valid locale ID here means separator and decimal marks will be correct for the given locale. Should any values be provided in sep_mark or dec_mark, they will be overridden by the locale’s preferred values.\nNote that a locale value provided here will override any global locale setting performed in GT()’s own locale argument (it is settable there as a value received by all other methods that have a locale argument)."
   },
   {
-    "objectID": "reference/GT.fmt_scientific.html#examples",
-    "href": "reference/GT.fmt_scientific.html#examples",
-    "title": "GT.fmt_scientific",
+    "objectID": "reference/GT.fmt_number.html#examples",
+    "href": "reference/GT.fmt_number.html#examples",
+    "title": "GT.fmt_number",
     "section": "Examples",
-    "text": "Examples\nFor this example, we’ll use the exibble dataset as the input table. With the fmt_scientific() method, we’ll format the num column to contain values in scientific formatting.\n\nimport great_tables as gt\n\ngt.GT(gt.exibble).fmt_scientific(columns=\"num\")\n\n\n\n\n\n\nnum\nchar\nfctr\ndate\ntime\ndatetime\ncurrency\nrow\ngroup\n\n\n  1.11 × 10−1\n  apricot\n  one\n  2015-01-15\n  13:35\n  2018-01-01 02:22\n  49.95\n  row_1\n  grp_a\n\n\n  2.22\n  banana\n  two\n  2015-02-15\n  14:40\n  2018-02-02 14:33\n  17.95\n  row_2\n  grp_a\n\n\n  3.33 × 101\n  coconut\n  three\n  2015-03-15\n  15:45\n  2018-03-03 03:44\n  1.39\n  row_3\n  grp_a\n\n\n  4.44 × 102\n  durian\n  four\n  2015-04-15\n  16:50\n  2018-04-04 15:55\n  65100.0\n  row_4\n  grp_a\n\n\n  5.55 × 103\n  \n  five\n  2015-05-15\n  17:55\n  2018-05-05 04:00\n  1325.81\n  row_5\n  grp_b\n\n\n  \n  fig\n  six\n  2015-06-15\n  \n  2018-06-06 16:11\n  13.255\n  row_6\n  grp_b\n\n\n  7.77 × 105\n  grapefruit\n  seven\n  \n  19:10\n  2018-07-07 05:22\n  \n  row_7\n  grp_b\n\n\n  8.88 × 106\n  honeydew\n  eight\n  2015-08-15\n  20:20\n  \n  0.44\n  row_8\n  grp_b"
+    "text": "Examples\nLet’s use the exibble dataset to create a table. With the fmt_number() method, we’ll format the num column to have three decimal places (with decimals=3) and omit the use of digit separators (with use_seps=False).\n\nimport great_tables as gt\n\ngt.GT(gt.exibble).fmt_number(columns=\"num\", decimals=3, use_seps=False)\n\n\n\n\n\n\nnum\nchar\nfctr\ndate\ntime\ndatetime\ncurrency\nrow\ngroup\n\n\n  0.111\n  apricot\n  one\n  2015-01-15\n  13:35\n  2018-01-01 02:22\n  49.95\n  row_1\n  grp_a\n\n\n  2.222\n  banana\n  two\n  2015-02-15\n  14:40\n  2018-02-02 14:33\n  17.95\n  row_2\n  grp_a\n\n\n  33.330\n  coconut\n  three\n  2015-03-15\n  15:45\n  2018-03-03 03:44\n  1.39\n  row_3\n  grp_a\n\n\n  444.400\n  durian\n  four\n  2015-04-15\n  16:50\n  2018-04-04 15:55\n  65100.0\n  row_4\n  grp_a\n\n\n  5550.000\n  \n  five\n  2015-05-15\n  17:55\n  2018-05-05 04:00\n  1325.81\n  row_5\n  grp_b\n\n\n  nan\n  fig\n  six\n  2015-06-15\n  \n  2018-06-06 16:11\n  13.255\n  row_6\n  grp_b\n\n\n  777000.000\n  grapefruit\n  seven\n  \n  19:10\n  2018-07-07 05:22\n  \n  row_7\n  grp_b\n\n\n  8880000.000\n  honeydew\n  eight\n  2015-08-15\n  20:20\n  \n  0.44\n  row_8\n  grp_b"
   },
   {
-    "objectID": "reference/GT.fmt_scientific.html#see-also",
-    "href": "reference/GT.fmt_scientific.html#see-also",
-    "title": "GT.fmt_scientific",
+    "objectID": "reference/GT.fmt_number.html#see-also",
+    "href": "reference/GT.fmt_number.html#see-also",
+    "title": "GT.fmt_number",
     "section": "See Also",
-    "text": "See Also\nThe functional version of this method, val_fmt_scientific(), allows you to format a single numerical value (or a list of them)."
+    "text": "See Also\nThe fmt_integer() method might be more useful if you really need to format numeric values to appear as integers (i.e., no decimals will be shown and input values are rounded as necessary). Need to do numeric formatting on a value or list of values? Take a look at the functional version of this method: val_fmt_number()."
   },
   {
-    "objectID": "reference/val_fmt_integer.html",
-    "href": "reference/val_fmt_integer.html",
-    "title": "val_fmt_integer",
+    "objectID": "reference/GT.tab_header.html",
+    "href": "reference/GT.tab_header.html",
+    "title": "GT.tab_header",
     "section": "",
-    "text": "val_fmt_integer(x, use_seps=True, scale_by=1, pattern='{x}', sep_mark=',', force_sign=False, locale=None)\nFormat values as integers.\nWith numeric values in a list, we can perform number-based formatting so that the input values are always rendered as integer values. The following major options are available:\nWe can have fine control over integer formatting with the following options:\n\ndigit grouping separators: options to enable/disable digit separators and provide a choice of separator symbol\nscaling: we can choose to scale targeted values by a multiplier value\nlarge-number suffixing: larger figures (thousands, millions, etc.) can be autoscaled and decorated with the appropriate suffixes\npattern: option to use a text pattern for decoration of the formatted values\nlocale-based formatting: providing a locale ID will result in number formatting specific to the chosen locale\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
+    "text": "GT.tab_header(title, subtitle=None, preheader=None)\nAdd a table header.\nWe can add a table header to the gt table with a title and even a subtitle using the tab_header() method. A table header is an optional table component that is positioned above above the column labels. We have the flexibility to use Markdown or HTML formatting for the header’s title and subtitle with the md() and html() helper functions."
   },
   {
-    "objectID": "reference/val_fmt_integer.html#parameters",
-    "href": "reference/val_fmt_integer.html#parameters",
-    "title": "val_fmt_integer",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
-  },
-  {
-    "objectID": "reference/val_fmt_integer.html#returns",
-    "href": "reference/val_fmt_integer.html#returns",
-    "title": "val_fmt_integer",
-    "section": "",
-    "text": "Type\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
-  },
-  {
-    "objectID": "reference/data.towny.html",
-    "href": "reference/data.towny.html",
-    "title": "data.towny",
-    "section": "",
-    "text": "data.towny\ndata.towny\nPopulations of all municipalities in Ontario from 1996 to 2021\nA dataset containing census population data from six census years (1996 to 2021) for all 414 of Ontario’s local municipalities. The Municipal Act of Ontario (2001) defines a local municipality as “a single-tier municipality or a lower-tier municipality”. There are 173 single-tier municipalities and 241 lower-tier municipalities representing 99 percent of Ontario’s population and 17 percent of its land use.\nIn the towny dataset we include information specific to each municipality such as location (in the latitude and longitude columns), their website URLs, their classifications, and land area sizes according to 2021 boundaries. Additionally, there are computed columns containing population density values for each census year and population change values from adjacent census years."
-  },
-  {
-    "objectID": "reference/val_fmt_time.html",
-    "href": "reference/val_fmt_time.html",
-    "title": "val_fmt_time",
-    "section": "",
-    "text": "val_fmt_time(x, time_style='iso', pattern='{x}', locale=None)\nFormat values as times.\nFormat input values to time values using one of 5 preset time styles. Input can be in the form of time values, or strings in the ISO 8601 forms of HH:MM:SS or YYYY-MM-DD HH:MM:SS.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ntime_style\nstr\nThe time style to use. By default this is the short name \"iso\" which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using info_time_style().\n'iso'\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone\n\n\n\n\n\n\nWe need to supply a preset time style to the time_style argument. The time styles are numerous and can handle localization to any supported locale. The following table provides a listing of all time styles and their output values (corresponding to an input time of 14:35:00).\n\n\n\n\nTime Style\nOutput\nNotes\n\n\n\n\n1\n\"iso\"\n\"14:35:00\"\nISO 8601, 24h\n\n\n2\n\"iso-short\"\n\"14:35\"\nISO 8601, 24h\n\n\n3\n\"h_m_s_p\"\n\"2:35:00 PM\"\n12h\n\n\n4\n\"h_m_p\"\n\"2:35 PM\"\n12h\n\n\n5\n\"h_p\"\n\"2 PM\"\n12h\n\n\n\nWe can use the info_time_style() function within the console to view a similar table of time styles with example output.\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
-  },
-  {
-    "objectID": "reference/val_fmt_time.html#parameters",
-    "href": "reference/val_fmt_time.html#parameters",
-    "title": "val_fmt_time",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ntime_style\nstr\nThe time style to use. By default this is the short name \"iso\" which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using info_time_style().\n'iso'\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
-  },
-  {
-    "objectID": "reference/val_fmt_time.html#formatting-with-the-time_style-argument",
-    "href": "reference/val_fmt_time.html#formatting-with-the-time_style-argument",
-    "title": "val_fmt_time",
-    "section": "",
-    "text": "We need to supply a preset time style to the time_style argument. The time styles are numerous and can handle localization to any supported locale. The following table provides a listing of all time styles and their output values (corresponding to an input time of 14:35:00).\n\n\n\n\nTime Style\nOutput\nNotes\n\n\n\n\n1\n\"iso\"\n\"14:35:00\"\nISO 8601, 24h\n\n\n2\n\"iso-short\"\n\"14:35\"\nISO 8601, 24h\n\n\n3\n\"h_m_s_p\"\n\"2:35:00 PM\"\n12h\n\n\n4\n\"h_m_p\"\n\"2:35 PM\"\n12h\n\n\n5\n\"h_p\"\n\"2 PM\"\n12h\n\n\n\nWe can use the info_time_style() function within the console to view a similar table of time styles with example output."
-  },
-  {
-    "objectID": "reference/val_fmt_time.html#returns",
-    "href": "reference/val_fmt_time.html#returns",
-    "title": "val_fmt_time",
-    "section": "",
-    "text": "Type\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
-  },
-  {
-    "objectID": "reference/GT.cols_align.html",
-    "href": "reference/GT.cols_align.html",
-    "title": "GT.cols_align",
-    "section": "",
-    "text": "GT.cols_align(align='left', columns=None)\nSet the alignment of one or more columns.\nThe cols_align() method sets the alignment of one or more columns. The align argument can be set to one of \"left\", \"center\", or \"right\" and the columns argument can be used to specify which columns to apply the alignment to. If columns is not specified, the alignment is applied to all columns."
-  },
-  {
-    "objectID": "reference/GT.cols_align.html#parameters",
-    "href": "reference/GT.cols_align.html#parameters",
-    "title": "GT.cols_align",
+    "objectID": "reference/GT.tab_header.html#parameters",
+    "href": "reference/GT.tab_header.html#parameters",
+    "title": "GT.tab_header",
     "section": "Parameters",
-    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nalign\nstr\nThe alignment to apply. Must be one of \"left\", \"center\", or \"right\".\n'left'\n\n\ncolumns\nUnion[str, List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list. If None, the alignment is applied to all columns.\nNone"
+    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ntitle\nstr\nText to be used in the table title. We can elect to use the md() and html() helper functions to style the text as Markdown or to retain HTML elements in the text.\nrequired\n\n\nsubtitle\nstr\nText to be used in the table subtitle. We can elect to use the md() and html() helper functions to style the text as Markdown or to retain HTML elements in the text.\nNone\n\n\npreheader\ntyping.Optional[typing.Union[str, typing.List[str]]]\nOptional preheader content that is rendered above the table. Can be supplied as a list of strings.\nNone"
   },
   {
-    "objectID": "reference/GT.cols_align.html#returns",
-    "href": "reference/GT.cols_align.html#returns",
-    "title": "GT.cols_align",
+    "objectID": "reference/GT.tab_header.html#returns",
+    "href": "reference/GT.tab_header.html#returns",
+    "title": "GT.tab_header",
     "section": "Returns",
-    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
+    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\nGTData\nThe GTData object is returned."
   },
   {
-    "objectID": "reference/GT.cols_align.html#examples",
-    "href": "reference/GT.cols_align.html#examples",
-    "title": "GT.cols_align",
+    "objectID": "reference/GT.tab_header.html#examples",
+    "href": "reference/GT.tab_header.html#examples",
+    "title": "GT.tab_header",
     "section": "Examples",
-    "text": "Examples\nLet’s use the countrypops to create a small table. We can change the alignment of the population column with cols_align(). In this example, the column label and body cells of population will be aligned to the left.\n\nimport great_tables as gt\n\ncountrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"San Marino\"][\n    [\"country_name\", \"year\", \"population\"]\n].tail(5)\n\n(\n    gt.GT(countrypops_mini, rowname_col=\"year\", groupname_col=\"country_name\")\n    .cols_align(align=\"left\", columns=\"population\")\n)\n\n\n\n\n\n\n\npopulation\n\n\n  San Marino\n  2018\n  34156\n\n\n  2019\n  34178\n\n\n  2020\n  34007\n\n\n  2021\n  33745\n\n\n  2022\n  33660"
-  },
-  {
-    "objectID": "reference/val_fmt_currency.html",
-    "href": "reference/val_fmt_currency.html",
-    "title": "val_fmt_currency",
-    "section": "",
-    "text": "val_fmt_currency(x, currency=None, use_subunits=True, decimals=None, drop_trailing_dec_mark=True, use_seps=True, scale_by=1, pattern='{x}', sep_mark=',', dec_mark='.', force_sign=False, placement='left', incl_space=False, locale=None)\nFormat values as currencies.\nWith numeric values, we can perform currency-based formatting with the val_fmt_currency() function. This supports both automatic formatting with a three-letter currency code. We have fine control over the conversion from numeric values to currency values, where we could take advantage of the following options:\n\nthe currency: providing a currency code or common currency name will procure the correct currency symbol and number of currency subunits\ncurrency symbol placement: the currency symbol can be placed before or after the values\ndecimals/subunits: choice of the number of decimal places, and a choice of the decimal symbol, and an option on whether to include or exclude the currency subunits (the decimal portion)\ndigit grouping separators: options to enable/disable digit separators and provide a choice of separator symbol\nscaling: we can choose to scale targeted values by a multiplier value\npattern: option to use a text pattern for decoration of the formatted currency values\nlocale-based formatting: providing a locale ID will result in currency formatting specific to the chosen locale; it will also retrieve the locale’s currency if none is explicitly given\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ncurrency\ntyping.Union[str, None]\nThe currency to use for the numeric value. This input can be supplied as a 3-letter currency code (e.g., \"USD\" for U.S. Dollars, \"EUR\" for the Euro currency).\nNone\n\n\nuse_subunits\nbool\nAn option for whether the subunits portion of a currency value should be displayed. For example, with an input value of 273.81, the default formatting will produce \"$273.81\". Removing the subunits (with use_subunits = False) will give us \"$273\".\nTrue\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. This value is optional as a currency has an intrinsic number of decimal places (i.e., the subunits). A value such as 2.34 can, for example, be formatted with 0 decimal places and if the currency used is \"USD\" it would result in \"$2\". With 4 decimal places, the formatted value becomes \"$2.3400\".\nNone\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nplacement\nstr\nThe placement of the currency symbol. This can be either be \"left\" (as in \"$450\") or \"right\" (which yields \"450$\").\n'left'\n\n\nincl_space\nbool\nAn option for whether to include a space between the value and the currency symbol. The default is to not introduce a space character.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
-  },
-  {
-    "objectID": "reference/val_fmt_currency.html#parameters",
-    "href": "reference/val_fmt_currency.html#parameters",
-    "title": "val_fmt_currency",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ncurrency\ntyping.Union[str, None]\nThe currency to use for the numeric value. This input can be supplied as a 3-letter currency code (e.g., \"USD\" for U.S. Dollars, \"EUR\" for the Euro currency).\nNone\n\n\nuse_subunits\nbool\nAn option for whether the subunits portion of a currency value should be displayed. For example, with an input value of 273.81, the default formatting will produce \"$273.81\". Removing the subunits (with use_subunits = False) will give us \"$273\".\nTrue\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. This value is optional as a currency has an intrinsic number of decimal places (i.e., the subunits). A value such as 2.34 can, for example, be formatted with 0 decimal places and if the currency used is \"USD\" it would result in \"$2\". With 4 decimal places, the formatted value becomes \"$2.3400\".\nNone\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nplacement\nstr\nThe placement of the currency symbol. This can be either be \"left\" (as in \"$450\") or \"right\" (which yields \"450$\").\n'left'\n\n\nincl_space\nbool\nAn option for whether to include a space between the value and the currency symbol. The default is to not introduce a space character.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
-  },
-  {
-    "objectID": "reference/val_fmt_currency.html#returns",
-    "href": "reference/val_fmt_currency.html#returns",
-    "title": "val_fmt_currency",
-    "section": "",
-    "text": "Type\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
-  },
-  {
-    "objectID": "reference/data.pizzaplace.html",
-    "href": "reference/data.pizzaplace.html",
-    "title": "data.pizzaplace",
-    "section": "",
-    "text": "data.pizzaplace\ndata.pizzaplace\nA year of pizza sales from a pizza place\nA synthetic dataset that describes pizza sales for a pizza place somewhere in the US. While the contents are artificial, the ingredients used to make the pizzas are far from it. There are 32 different pizzas that fall into 4 different categories: classic (classic pizzas: ‘You probably had one like it before, but never like this!’), chicken (pizzas with chicken as a major ingredient: ‘Try the Southwest Chicken Pizza! You’ll love it!’), supreme (pizzas that try a little harder: ‘My Soppressata pizza uses only the finest salami from my personal salumist!’), and, veggie (pizzas without any meats whatsoever: ‘My Five Cheese pizza has so many cheeses, I can only offer it in Large Size!’)."
-  },
-  {
-    "objectID": "reference/GT.opt_all_caps.html",
-    "href": "reference/GT.opt_all_caps.html",
-    "title": "GT.opt_all_caps",
-    "section": "",
-    "text": "GT.opt_all_caps(all_caps=True, locations=['column_labels', 'stub', 'row_group'])\nOption to use all caps in select table locations.\nSometimes an all-capitalized look is suitable for a table. By using opt_all_caps(), we can transform characters in the column labels, the stub, and in all row groups in this way (and there’s control over which of these locations are transformed). This function serves as a convenient shortcut for tab_options(&lt;location&gt;.text_transform=\"uppercase\", &lt;location&gt;.font.size=gt.pct(80), &lt;location&gt;.font.weight=\"bolder\") (for all locations selected).\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nall_caps\nbool\nIndicates whether the text transformation to all caps should be performed (True, the default) or reset to default values (False) for the locations targeted.\nTrue\n\n\nlocations\ntyping.Union[str, typing.List[str]]\nWhich locations should undergo this text transformation? By default it includes all of the \"column_labels\", the \"stub\", and the \"row_group\" locations. However, we could just choose one or two of those.\n['column_labels', 'stub', 'row_group']\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\nGTData\nThe GTData object is returned."
-  },
-  {
-    "objectID": "reference/GT.opt_all_caps.html#parameters",
-    "href": "reference/GT.opt_all_caps.html#parameters",
-    "title": "GT.opt_all_caps",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nall_caps\nbool\nIndicates whether the text transformation to all caps should be performed (True, the default) or reset to default values (False) for the locations targeted.\nTrue\n\n\nlocations\ntyping.Union[str, typing.List[str]]\nWhich locations should undergo this text transformation? By default it includes all of the \"column_labels\", the \"stub\", and the \"row_group\" locations. However, we could just choose one or two of those.\n['column_labels', 'stub', 'row_group']"
-  },
-  {
-    "objectID": "reference/GT.opt_all_caps.html#returns",
-    "href": "reference/GT.opt_all_caps.html#returns",
-    "title": "GT.opt_all_caps",
-    "section": "",
-    "text": "Type\nDescription\n\n\n\n\nGTData\nThe GTData object is returned."
+    "text": "Examples\nLet’s use a small portion of the gtcars dataset to create a table. A header part can be added to the table with the tab_header() method. We’ll add a title and the optional subtitle as well. With the md() helper function, we can make sure the Markdown formatting is interpreted and transformed.\n\nimport great_tables as gt\n\ngtcars_mini = gt.gtcars[[\"mfr\", \"model\", \"msrp\"]].head(5)\n\n(\n    gt.GT(gtcars_mini)\n    .tab_header(\n        title=gt.md(\"Data listing from **gtcars**\"),\n        subtitle=gt.md(\"`gtcars` is an R dataset\")\n    )\n)\n\n\n\n\n\n  \n    Data listing from gtcars\n  \n  \n    gtcars is an R dataset\n  \nmfr\nmodel\nmsrp\n\n\n  Ford\n  GT\n  447000.0\n\n\n  Ferrari\n  458 Speciale\n  291744.0\n\n\n  Ferrari\n  458 Spider\n  263553.0\n\n\n  Ferrari\n  458 Italia\n  233509.0\n\n\n  Ferrari\n  488 GTB\n  245400.0\n\n\n\n\n\n\n\n        \n\n\nWe can alternatively use the html() helper function to retain HTML elements in the text.\n\n(\n    gt.GT(gtcars_mini)\n    .tab_header(\n        title=gt.md(\"Data listing &lt;strong&gt;gtcars&lt;/strong&gt;\"),\n        subtitle=gt.html(\"From &lt;span style='color:red;'&gt;gtcars&lt;/span&gt;\")\n    )\n)\n\n\n\n\n\n  \n    Data listing gtcars\n  \n  \n    From gtcars\n  \nmfr\nmodel\nmsrp\n\n\n  Ford\n  GT\n  447000.0\n\n\n  Ferrari\n  458 Speciale\n  291744.0\n\n\n  Ferrari\n  458 Spider\n  263553.0\n\n\n  Ferrari\n  458 Italia\n  233509.0\n\n\n  Ferrari\n  488 GTB\n  245400.0"
   },
   {
     "objectID": "reference/GT.fmt_currency.html",
@@ -1211,60 +1064,116 @@
     "text": "Examples\nWith three columns from the gtcars dataset, let’s create a new table. We can use the tab_source_note() method to add a source note to the table footer. Here we are citing the data source but this method can be used for any text you’d prefer to display in the footer component of the table.\n\nimport great_tables as gt\n\ngtcars_mini = gt.gtcars[[\"mfr\", \"model\", \"msrp\"]].head(5)\n\n(\n    gt.GT(gtcars_mini, rowname_col=\"model\")\n    .tab_source_note(source_note=\"From edmunds.com\")\n)\n\n\n\n\n\n\n\nmfr\nmsrp\n\n\n  GT\n  Ford\n  447000.0\n\n\n  458 Speciale\n  Ferrari\n  291744.0\n\n\n  458 Spider\n  Ferrari\n  263553.0\n\n\n  458 Italia\n  Ferrari\n  233509.0\n\n\n  488 GTB\n  Ferrari\n  245400.0\n\n\n  \n  \n  \n    From edmunds.com"
   },
   {
-    "objectID": "reference/GT.opt_align_table_header.html",
-    "href": "reference/GT.opt_align_table_header.html",
-    "title": "GT.opt_align_table_header",
+    "objectID": "reference/html.html",
+    "href": "reference/html.html",
+    "title": "html",
     "section": "",
-    "text": "GT.opt_align_table_header(align='center')\nOption to align the table header.\nBy default, a table header added to a gt table has center alignment for both the title and the subtitle elements. This function allows us to easily set the horizontal alignment of the title and subtitle to the left or right by using the \"align\" argument. This function serves as a convenient shortcut for gt.tab_options(heading.align=&lt;align&gt;).\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nalign\nstr\nThe alignment of the title and subtitle elements in the table header. Options are \"center\" (the default), \"left\", or \"right\".\n'center'\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\nGTData\nThe GTData object is returned."
+    "text": "html(text)\nInterpret input text as HTML-formatted text.\nFor certain pieces of text (like in column labels or table headings) we may want to express them as raw HTML. In fact, with HTML, anything goes so it can be much more than just text. The html() function will guard the input HTML against escaping, so, your HTML tags will come through as HTML when rendered… to HTML.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ntext\nstr\nThe text that is understood to contain HTML formatting.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._text.Text\nAn instance of the Text class is returned, where the text type is \"html\"."
   },
   {
-    "objectID": "reference/GT.opt_align_table_header.html#parameters",
-    "href": "reference/GT.opt_align_table_header.html#parameters",
-    "title": "GT.opt_align_table_header",
+    "objectID": "reference/html.html#parameters",
+    "href": "reference/html.html#parameters",
+    "title": "html",
     "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nalign\nstr\nThe alignment of the title and subtitle elements in the table header. Options are \"center\" (the default), \"left\", or \"right\".\n'center'"
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\ntext\nstr\nThe text that is understood to contain HTML formatting.\nrequired"
   },
   {
-    "objectID": "reference/GT.opt_align_table_header.html#returns",
-    "href": "reference/GT.opt_align_table_header.html#returns",
-    "title": "GT.opt_align_table_header",
+    "objectID": "reference/html.html#returns",
+    "href": "reference/html.html#returns",
+    "title": "html",
     "section": "",
-    "text": "Type\nDescription\n\n\n\n\nGTData\nThe GTData object is returned."
+    "text": "Type\nDescription\n\n\n\n\ngreat_tables._text.Text\nAn instance of the Text class is returned, where the text type is \"html\"."
   },
   {
-    "objectID": "reference/data.countrypops.html",
-    "href": "reference/data.countrypops.html",
-    "title": "data.countrypops",
+    "objectID": "reference/GT.fmt_integer.html",
+    "href": "reference/GT.fmt_integer.html",
+    "title": "GT.fmt_integer",
     "section": "",
-    "text": "data.countrypops\ndata.countrypops\nYearly populations of countries from 1960 to 2022\nA dataset that presents yearly, total populations of countries. Total population is based on counts of all residents regardless of legal status or citizenship. Country identifiers include the English-language country names, and the 2- and 3-letter ISO 3166-1 country codes. Each row contains a population value for a given year (from 1960 to 2022). Any missing values for populations indicate the non-existence of the entity during that year."
+    "text": "GT.fmt_integer(self, columns=None, rows=None, use_seps=True, scale_by=1, compact=False, pattern='{x}', sep_mark=',', force_sign=False, locale=None)\nFormat values as integers.\nWith numeric values in a gt table, we can perform number-based formatting so that the targeted values are always rendered as integer values.\nWe can have fine control over integer formatting with the following options:"
   },
   {
-    "objectID": "reference/data.metro.html",
-    "href": "reference/data.metro.html",
-    "title": "data.metro",
-    "section": "",
-    "text": "data.metro\ndata.metro\nThe stations of the Paris Metro\nA dataset with information on all 308 Paris Metro stations as of February 2023. Each record represents a station, describing which Metro lines are serviced by the station, which other connections are available, and annual passenger volumes. Basic location information is provided for each station in terms where they reside on a municipal level, and, through latitude/longitude coordinates.\nThe system has 16 lines (numbered from 1 to 14, with two additional lines: 3bis and 7bis) and covers over 200 kilometers of track. The Metro runs on standard gauge tracks (1,435 mm) and operates using a variety of rolling stock, including rubber-tired trains and steel-wheeled trains (which are far more common).\nThe Metro is operated by the RATP, which also operates other transit systems in the region, including buses, trams, and the RER. The RER is an important component of the region’s transit infrastructure, and several RER stations have connectivity with the Metro. This integration allows passengers to transfer between those two systems seamlessly. The Metro also has connections to the Transilien rail network, tramway stations, several major train stations (e.g., Gare du Nord, Gare de l’Est, etc.), and many bus lines."
+    "objectID": "reference/GT.fmt_integer.html#parameters",
+    "href": "reference/GT.fmt_integer.html#parameters",
+    "title": "GT.fmt_integer",
+    "section": "Parameters",
+    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\ncompact\nbool\nA boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., 1230 becomes 1K, and 1230000 becomes 1M). The compact option is False by default.\nFalse\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
   },
   {
-    "objectID": "reference/val_fmt_number.html",
-    "href": "reference/val_fmt_number.html",
-    "title": "val_fmt_number",
-    "section": "",
-    "text": "val_fmt_number(x, decimals=2, n_sigfig=None, drop_trailing_zeros=False, drop_trailing_dec_mark=True, use_seps=True, scale_by=1, pattern='{x}', sep_mark=',', dec_mark='.', force_sign=False, locale=None)\nFormat numeric values.\nWith numeric values in a list, we can perform number-based formatting so that the values are rendered with some level of precision. The following major options are available:\n\ndecimals: choice of the number of decimal places, option to drop trailing zeros, and a choice of the decimal symbol\ndigit grouping separators: options to enable/disable digit separators and provide a choice of separator symbol\nscaling: we can choose to scale targeted values by a multiplier value\nlarge-number suffixing: larger figures (thousands, millions, etc.) can be autoscaled and decorated with the appropriate suffixes\npattern: option to use a text pattern for decoration of the formatted values\nlocale-based formatting: providing a locale ID will result in number formatting specific to the chosen locale\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. A value such as 2.34 can, for example, be formatted with 0 decimal places and it would result in \"2\". With 4 decimal places, the formatted value becomes \"2.3400\". The trailing zeros can be removed with drop_trailing_zeros=True. If you always need decimals = 0, the fmt_integer() method should be considered.\n2\n\n\nn_sigfig\ntyping.Optional[int]\nA option to format numbers to n significant figures. By default, this is None and thus number values will be formatted according to the number of decimal places set via decimals. If opting to format according to the rules of significant figures, n_sigfig must be a number greater than or equal to 1. Any values passed to the decimals and drop_trailing_zeros arguments will be ignored.\nNone\n\n\ndrop_trailing_zeros\nbool\nA boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).\nFalse\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone\n\n\n\n\n\n\n\n\n\nType\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
+    "objectID": "reference/GT.fmt_integer.html#returns",
+    "href": "reference/GT.fmt_integer.html#returns",
+    "title": "GT.fmt_integer",
+    "section": "Returns",
+    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
   },
   {
-    "objectID": "reference/val_fmt_number.html#parameters",
-    "href": "reference/val_fmt_number.html#parameters",
-    "title": "val_fmt_number",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nx\ntyping.Union[typing.Any, typing.List[typing.Any]]\nA list of values to be formatted.\nrequired\n\n\ndecimals\nint\nThe decimals values corresponds to the exact number of decimal places to use. A value such as 2.34 can, for example, be formatted with 0 decimal places and it would result in \"2\". With 4 decimal places, the formatted value becomes \"2.3400\". The trailing zeros can be removed with drop_trailing_zeros=True. If you always need decimals = 0, the fmt_integer() method should be considered.\n2\n\n\nn_sigfig\ntyping.Optional[int]\nA option to format numbers to n significant figures. By default, this is None and thus number values will be formatted according to the number of decimal places set via decimals. If opting to format according to the rules of significant figures, n_sigfig must be a number greater than or equal to 1. Any values passed to the decimals and drop_trailing_zeros arguments will be ignored.\nNone\n\n\ndrop_trailing_zeros\nbool\nA boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).\nFalse\n\n\ndrop_trailing_dec_mark\nbool\nA boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., 23 becomes 23. if False). By default trailing decimal marks are not shown.\nTrue\n\n\nuse_seps\nbool\nThe use_seps option allows for the use of digit group separators. The type of digit group separator is set by sep_mark and overridden if a locale ID is provided to locale. This setting is True by default.\nTrue\n\n\nscale_by\nfloat\nAll numeric values will be multiplied by the scale_by value before undergoing formatting. Since the default value is 1, no values will be changed unless a different multiplier value is supplied.\n1\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nsep_mark\nstr\nThe string to use as a separator between groups of digits. For example, using sep_mark=\",\" with a value of 1000 would result in a formatted value of \"1,000\". This argument is ignored if a locale is supplied (i.e., is not None).\n','\n\n\ndec_mark\nstr\nThe string to be used as the decimal mark. For example, using dec_mark=\",\" with the value 0.152 would result in a formatted value of \"0,152\"). This argument is ignored if a locale is supplied (i.e., is not None).\n'.'\n\n\nforce_sign\nbool\nShould the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use True for this option. The default is False, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with accounting = True.\nFalse\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
+    "objectID": "reference/GT.fmt_integer.html#adapting-output-to-a-specific-locale",
+    "href": "reference/GT.fmt_integer.html#adapting-output-to-a-specific-locale",
+    "title": "GT.fmt_integer",
+    "section": "Adapting Output To A Specific Locale",
+    "text": "Adapting Output To A Specific Locale\nThis formatting method can adapt outputs according to a provided locale value. Examples include \"en\" for English (United States) and \"fr\" for French (France). The use of a valid locale ID here means separator marks will be correct for the given locale. Should any value be provided in sep_mark, it will be overridden by the locale’s preferred value.\nNote that a locale value provided here will override any global locale setting performed in GT()’s own locale argument (it is settable there as a value received by all other methods that have a locale argument)."
   },
   {
-    "objectID": "reference/val_fmt_number.html#returns",
-    "href": "reference/val_fmt_number.html#returns",
-    "title": "val_fmt_number",
+    "objectID": "reference/GT.fmt_integer.html#examples",
+    "href": "reference/GT.fmt_integer.html#examples",
+    "title": "GT.fmt_integer",
+    "section": "Examples",
+    "text": "Examples\nFor this example, we’ll use the exibble dataset as the input table. With the fmt_integer() method, we’ll format the num column as integer values having no digit separators (with the use_seps=False option).\n\nimport great_tables as gt\n\ngt.GT(gt.exibble).fmt_integer(columns=\"num\", use_seps=False)\n\n\n\n\n\n\nnum\nchar\nfctr\ndate\ntime\ndatetime\ncurrency\nrow\ngroup\n\n\n  0\n  apricot\n  one\n  2015-01-15\n  13:35\n  2018-01-01 02:22\n  49.95\n  row_1\n  grp_a\n\n\n  2\n  banana\n  two\n  2015-02-15\n  14:40\n  2018-02-02 14:33\n  17.95\n  row_2\n  grp_a\n\n\n  33\n  coconut\n  three\n  2015-03-15\n  15:45\n  2018-03-03 03:44\n  1.39\n  row_3\n  grp_a\n\n\n  444\n  durian\n  four\n  2015-04-15\n  16:50\n  2018-04-04 15:55\n  65100.0\n  row_4\n  grp_a\n\n\n  5550\n  \n  five\n  2015-05-15\n  17:55\n  2018-05-05 04:00\n  1325.81\n  row_5\n  grp_b\n\n\n  \n  fig\n  six\n  2015-06-15\n  \n  2018-06-06 16:11\n  13.255\n  row_6\n  grp_b\n\n\n  777000\n  grapefruit\n  seven\n  \n  19:10\n  2018-07-07 05:22\n  \n  row_7\n  grp_b\n\n\n  8880000\n  honeydew\n  eight\n  2015-08-15\n  20:20\n  \n  0.44\n  row_8\n  grp_b"
+  },
+  {
+    "objectID": "reference/GT.fmt_integer.html#see-also",
+    "href": "reference/GT.fmt_integer.html#see-also",
+    "title": "GT.fmt_integer",
+    "section": "See Also",
+    "text": "See Also\nThe fmt_number() method might be more of what you need if you’d like decimal values in your outputs. Need to do integer-based formatting on a value or list of values? Take a look at the functional version of this method: val_fmt_integer()."
+  },
+  {
+    "objectID": "reference/GT.fmt_time.html",
+    "href": "reference/GT.fmt_time.html",
+    "title": "GT.fmt_time",
     "section": "",
-    "text": "Type\nDescription\n\n\n\n\ntyping.List[str]\nA list of formatted values is returned."
+    "text": "GT.fmt_time(self, columns=None, rows=None, time_style='iso', pattern='{x}', locale=None)\nFormat values as times.\nFormat input values to time values using one of 5 preset time styles. Input can be in the form of time values, or strings in the ISO 8601 forms of HH:MM:SS or YYYY-MM-DD HH:MM:SS."
+  },
+  {
+    "objectID": "reference/GT.fmt_time.html#parameters",
+    "href": "reference/GT.fmt_time.html#parameters",
+    "title": "GT.fmt_time",
+    "section": "Parameters",
+    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncolumns\ntyping.Union[str, typing.List[str], None]\nThe columns to target. Can either be a single column name or a series of column names provided in a list.\nNone\n\n\nrows\ntyping.Union[int, typing.List[int], None]\nIn conjunction with columns, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in columns being formatted. Alternatively, we can supply a list of row indices.\nNone\n\n\ntime_style\nstr\nThe time style to use. By default this is the short name \"iso\" which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using info_time_style().\n'iso'\n\n\npattern\nstr\nA formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the {x} (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.\n'{x}'\n\n\nlocale\nstr\nAn optional locale identifier that can be used for formatting values according the locale’s rules. Examples include \"en\" for English (United States) and \"fr\" for French (France).\nNone"
+  },
+  {
+    "objectID": "reference/GT.fmt_time.html#formatting-with-the-time_style-argument",
+    "href": "reference/GT.fmt_time.html#formatting-with-the-time_style-argument",
+    "title": "GT.fmt_time",
+    "section": "Formatting With The Time_Style Argument",
+    "text": "Formatting With The Time_Style Argument\nWe need to supply a preset time style to the time_style argument. The time styles are numerous and can handle localization to any supported locale. The following table provides a listing of all time styles and their output values (corresponding to an input time of 14:35:00).\n\n\n\n\nTime Style\nOutput\nNotes\n\n\n\n\n1\n\"iso\"\n\"14:35:00\"\nISO 8601, 24h\n\n\n2\n\"iso-short\"\n\"14:35\"\nISO 8601, 24h\n\n\n3\n\"h_m_s_p\"\n\"2:35:00 PM\"\n12h\n\n\n4\n\"h_m_p\"\n\"2:35 PM\"\n12h\n\n\n5\n\"h_p\"\n\"2 PM\"\n12h\n\n\n\nWe can use the info_time_style() function within the console to view a similar table of time styles with example output."
+  },
+  {
+    "objectID": "reference/GT.fmt_time.html#returns",
+    "href": "reference/GT.fmt_time.html#returns",
+    "title": "GT.fmt_time",
+    "section": "Returns",
+    "text": "Returns\n\n\n\nType\nDescription\n\n\n\n\ngreat_tables._gt_data.GTData\nThe GTData object is returned."
+  },
+  {
+    "objectID": "reference/GT.fmt_time.html#adapting-output-to-a-specific-locale",
+    "href": "reference/GT.fmt_time.html#adapting-output-to-a-specific-locale",
+    "title": "GT.fmt_time",
+    "section": "Adapting Output To A Specific Locale",
+    "text": "Adapting Output To A Specific Locale\nThis formatting method can adapt outputs according to a provided locale value. Examples include \"en\" for English (United States) and \"fr\" for French (France). Note that a locale value provided here will override any global locale setting performed in GT()’s own locale argument (it is settable there as a value received by all other methods that have a locale argument)."
+  },
+  {
+    "objectID": "reference/GT.fmt_time.html#examples",
+    "href": "reference/GT.fmt_time.html#examples",
+    "title": "GT.fmt_time",
+    "section": "Examples",
+    "text": "Examples\nLet’s use the exibble dataset to create a simple, two-column table (keeping only the date and time columns). With the fmt_time() method, we’ll format the time column to display times formatted with the \"h_m_s_p\" time style.\n\nimport great_tables as gt\n\nexibble_mini = gt.exibble[[\"date\", \"time\"]]\n\ngt.GT(exibble_mini).fmt_time(columns=\"time\", time_style=\"h_m_s_p\")\n\n\n\n\n\n\ndate\ntime\n\n\n  2015-01-15\n  1:35:00 PM\n\n\n  2015-02-15\n  2:40:00 PM\n\n\n  2015-03-15\n  3:45:00 PM\n\n\n  2015-04-15\n  4:50:00 PM\n\n\n  2015-05-15\n  5:55:00 PM\n\n\n  2015-06-15\n  \n\n\n  \n  7:10:00 PM\n\n\n  2015-08-15\n  8:20:00 PM"
+  },
+  {
+    "objectID": "reference/GT.fmt_time.html#see-also",
+    "href": "reference/GT.fmt_time.html#see-also",
+    "title": "GT.fmt_time",
+    "section": "See Also",
+    "text": "See Also\nThe functional version of this method, val_fmt_time(), allows you to format a single numerical value (or a list of them)."
   },
   {
     "objectID": "reference/GT.fmt.html",
@@ -1306,6 +1215,6 @@
     "href": "examples-qmd/fmt-number.html",
     "title": "fmt_number",
     "section": "",
-    "text": "import great_tables as gt\nfrom great_tables import exibble, countrypops\n\nUse the exibble dataset to create a gt table. With the fmt_number() method, we’ll format the num column to have three decimal places (with decimals=3) and omit the use of digit separators (with use_seps=False).\n\ngt.GT(exibble).fmt_number(columns='num', decimals=3).cols_label(char = \"character\")\n\n\n\n\n\n\nnum\ncharacter\nfctr\ndate\ntime\ndatetime\ncurrency\nrow\ngroup\n\n\n  0.111\n  apricot\n  one\n  2015-01-15\n  13:35\n  2018-01-01 02:22\n  49.95\n  row_1\n  grp_a\n\n\n  2.222\n  banana\n  two\n  2015-02-15\n  14:40\n  2018-02-02 14:33\n  17.95\n  row_2\n  grp_a\n\n\n  33.330\n  coconut\n  three\n  2015-03-15\n  15:45\n  2018-03-03 03:44\n  1.39\n  row_3\n  grp_a\n\n\n  444.400\n  durian\n  four\n  2015-04-15\n  16:50\n  2018-04-04 15:55\n  65100.0\n  row_4\n  grp_a\n\n\n  5,550.000\n  \n  five\n  2015-05-15\n  17:55\n  2018-05-05 04:00\n  1325.81\n  row_5\n  grp_b\n\n\n  nan\n  fig\n  six\n  2015-06-15\n  \n  2018-06-06 16:11\n  13.255\n  row_6\n  grp_b\n\n\n  777,000.000\n  grapefruit\n  seven\n  \n  19:10\n  2018-07-07 05:22\n  \n  row_7\n  grp_b\n\n\n  8,880,000.000\n  honeydew\n  eight\n  2015-08-15\n  20:20\n  \n  0.44\n  row_8\n  grp_b\n\n\n\n\n\n\n\n        \n\n\nUse a modified version of the countrypops dataset to create a gt table with row labels. Format all columns to use large-number suffixing (e.g., where '10,000,000' becomes '10M') with the suffixing=True option.\n\nfrom siuba import *\nres = (countrypops\n   &gt;&gt; select(_.country_code_3, _.year, _.population)\n   &gt;&gt; filter(_.country_code_3.isin(['CHN', 'IND', 'USA', 'PAK', 'IDN']))\n   &gt;&gt; filter(_.year &gt; 1975, _.year % 5 == 0)\n   &gt;&gt; spread(_.year, _.population)\n   &gt;&gt; arrange(-_[2015])\n)\n\n# TODO: implement `suffixing`\n(gt.GT(res)\n   .fmt_integer(columns=1980, scale_by=1/10000)\n   .fmt_number(columns=1985)\n)\n\nTypeError: Invalid value '98,124' for dtype Int64\n\n\nGT(_tbl_data=  country_code_3       1980        1985        1990        1995        2000  \\\n0            CHN  981235000  1051040000  1135185000  1204855000  1262645000   \n2            IND  696828385   780242084   870452165   964279129  1059633675   \n4            USA  227225000   237924000   249623000   266278000   282162411   \n1            IDN  148177096   165791694   182159874   198140162   214072421   \n3            PAK   80624057    97121552   115414069   133117476   154369924   \n\n         2005        2010        2015        2020  \n0  1303720000  1337705000  1379860000  1411100000  \n2  1154638713  1240613620  1322866505  1396387127  \n4   295516599   309327143   320738994   331511512  \n1   228805144   244016173   259091970   271857970  \n3   174372098   194454498   210969298   227196741  , _body=&lt;great_tables._gt_data.Body object at 0x7f1f6c3d6530&gt;, _boxhead=Boxhead([ColInfo(var='country_code_3', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='country_code_3', column_align='left', column_width=None), ColInfo(var=1980, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1980, column_align='right', column_width=None), ColInfo(var=1985, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1985, column_align='right', column_width=None), ColInfo(var=1990, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1990, column_align='right', column_width=None), ColInfo(var=1995, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1995, column_align='right', column_width=None), ColInfo(var=2000, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2000, column_align='right', column_width=None), ColInfo(var=2005, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2005, column_align='right', column_width=None), ColInfo(var=2010, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2010, column_align='right', column_width=None), ColInfo(var=2015, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2015, column_align='right', column_width=None), ColInfo(var=2020, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2020, column_align='right', column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=[], _group_rows=GroupRows([]), _spanners=Spanners([]), _heading=Heading(title=None, subtitle=None, preheader=None), _stubhead=None, _source_notes=[], _footnotes=[], _styles=[], _locale=&lt;great_tables._gt_data.Locale object at 0x7f1f6c3d5c30&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7f1f6c416e60&gt;, &lt;great_tables._gt_data.FormatInfo object at 0x7f1f6c416fe0&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7f1f6c3d6c20&gt;, _has_built=False)\n\n\nIn a variation of the previous table, we can combine large-number suffixing with a declaration of the number of significant digits to use. With things like population figures, n_sigfig=3 is a very good option.\n\n#countrypops |&gt;\n#  dplyr::select(country_code_3, year, population) |&gt;\n#  dplyr::filter(country_code_3 %in% c('CHN', 'IND', 'USA', 'PAK', 'IDN')) |&gt;\n#  dplyr::filter(year &gt; 1975 & year %% 5 == 0) |&gt;\n#  tidyr::spread(year, population) |&gt;\n#  dplyr::arrange(desc(`2015`)) |&gt;\n#  gt(rowname_col='country_code_3') |&gt;\n#  fmt_number(suffixing=True, n_sigfig=3)\n\nThere can be cases where you want to show numbers to a large number of decimal places but also drop the unnecessary trailing zeros for low-precision values. Let’s take a portion of the towny dataset and format the latitude and longitude columns with fmt_number(). We’ll have up to 5 digits displayed as decimal values, but we’ll also unconditionally drop any runs of trailing zeros in the decimal part with drop_trailing_zeros=True.\n\ntowny |&gt;\n  dplyr::select(name, latitude, longitude) |&gt;\n  dplyr::slice_head(n=10) |&gt;\n  gt() |&gt;\n  fmt_number(decimals=5, drop_trailing_zeros=True) |&gt;\n  # replace -name with [latitude, longitude]\n  ## cols_merge(columns=-name, pattern='{1}, {2}') |&gt;\n  cols_label(\n    name~'Municipality',\n    latitude='Location'\n  )"
+    "text": "import great_tables as gt\nfrom great_tables import exibble, countrypops\n\nUse the exibble dataset to create a gt table. With the fmt_number() method, we’ll format the num column to have three decimal places (with decimals=3) and omit the use of digit separators (with use_seps=False).\n\ngt.GT(exibble).fmt_number(columns='num', decimals=3).cols_label(char = \"character\")\n\n\n\n\n\n\nnum\ncharacter\nfctr\ndate\ntime\ndatetime\ncurrency\nrow\ngroup\n\n\n  0.111\n  apricot\n  one\n  2015-01-15\n  13:35\n  2018-01-01 02:22\n  49.95\n  row_1\n  grp_a\n\n\n  2.222\n  banana\n  two\n  2015-02-15\n  14:40\n  2018-02-02 14:33\n  17.95\n  row_2\n  grp_a\n\n\n  33.330\n  coconut\n  three\n  2015-03-15\n  15:45\n  2018-03-03 03:44\n  1.39\n  row_3\n  grp_a\n\n\n  444.400\n  durian\n  four\n  2015-04-15\n  16:50\n  2018-04-04 15:55\n  65100.0\n  row_4\n  grp_a\n\n\n  5,550.000\n  \n  five\n  2015-05-15\n  17:55\n  2018-05-05 04:00\n  1325.81\n  row_5\n  grp_b\n\n\n  nan\n  fig\n  six\n  2015-06-15\n  \n  2018-06-06 16:11\n  13.255\n  row_6\n  grp_b\n\n\n  777,000.000\n  grapefruit\n  seven\n  \n  19:10\n  2018-07-07 05:22\n  \n  row_7\n  grp_b\n\n\n  8,880,000.000\n  honeydew\n  eight\n  2015-08-15\n  20:20\n  \n  0.44\n  row_8\n  grp_b\n\n\n\n\n\n\n\n        \n\n\nUse a modified version of the countrypops dataset to create a gt table with row labels. Format all columns to use large-number suffixing (e.g., where '10,000,000' becomes '10M') with the suffixing=True option.\n\nfrom siuba import *\nres = (countrypops\n   &gt;&gt; select(_.country_code_3, _.year, _.population)\n   &gt;&gt; filter(_.country_code_3.isin(['CHN', 'IND', 'USA', 'PAK', 'IDN']))\n   &gt;&gt; filter(_.year &gt; 1975, _.year % 5 == 0)\n   &gt;&gt; spread(_.year, _.population)\n   &gt;&gt; arrange(-_[2015])\n)\n\n# TODO: implement `suffixing`\n(gt.GT(res)\n   .fmt_integer(columns=1980, scale_by=1/10000)\n   .fmt_number(columns=1985)\n)\n\nTypeError: Invalid value '98,124' for dtype Int64\n\n\nGT(_tbl_data=  country_code_3       1980        1985        1990        1995        2000  \\\n0            CHN  981235000  1051040000  1135185000  1204855000  1262645000   \n2            IND  696828385   780242084   870452165   964279129  1059633675   \n4            USA  227225000   237924000   249623000   266278000   282162411   \n1            IDN  148177096   165791694   182159874   198140162   214072421   \n3            PAK   80624057    97121552   115414069   133117476   154369924   \n\n         2005        2010        2015        2020  \n0  1303720000  1337705000  1379860000  1411100000  \n2  1154638713  1240613620  1322866505  1396387127  \n4   295516599   309327143   320738994   331511512  \n1   228805144   244016173   259091970   271857970  \n3   174372098   194454498   210969298   227196741  , _body=&lt;great_tables._gt_data.Body object at 0x7fe058026590&gt;, _boxhead=Boxhead([ColInfo(var='country_code_3', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='country_code_3', column_align='left', column_width=None), ColInfo(var=1980, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1980, column_align='right', column_width=None), ColInfo(var=1985, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1985, column_align='right', column_width=None), ColInfo(var=1990, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1990, column_align='right', column_width=None), ColInfo(var=1995, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=1995, column_align='right', column_width=None), ColInfo(var=2000, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2000, column_align='right', column_width=None), ColInfo(var=2005, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2005, column_align='right', column_width=None), ColInfo(var=2010, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2010, column_align='right', column_width=None), ColInfo(var=2015, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2015, column_align='right', column_width=None), ColInfo(var=2020, type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label=2020, column_align='right', column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=1, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=2, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=3, group_id=None, rowname=None, group_label=None, built=False), RowInfo(rownum_i=4, group_id=None, rowname=None, group_label=None, built=False)]), _row_groups=[], _group_rows=GroupRows([]), _spanners=Spanners([]), _heading=Heading(title=None, subtitle=None, preheader=None), _stubhead=None, _source_notes=[], _footnotes=[], _styles=[], _locale=&lt;great_tables._gt_data.Locale object at 0x7fe058025c90&gt;, _formats=[&lt;great_tables._gt_data.FormatInfo object at 0x7fe058066ec0&gt;, &lt;great_tables._gt_data.FormatInfo object at 0x7fe058067040&gt;], _options=&lt;great_tables._gt_data.Options object at 0x7fe058026c80&gt;, _has_built=False)\n\n\nIn a variation of the previous table, we can combine large-number suffixing with a declaration of the number of significant digits to use. With things like population figures, n_sigfig=3 is a very good option.\n\n#countrypops |&gt;\n#  dplyr::select(country_code_3, year, population) |&gt;\n#  dplyr::filter(country_code_3 %in% c('CHN', 'IND', 'USA', 'PAK', 'IDN')) |&gt;\n#  dplyr::filter(year &gt; 1975 & year %% 5 == 0) |&gt;\n#  tidyr::spread(year, population) |&gt;\n#  dplyr::arrange(desc(`2015`)) |&gt;\n#  gt(rowname_col='country_code_3') |&gt;\n#  fmt_number(suffixing=True, n_sigfig=3)\n\nThere can be cases where you want to show numbers to a large number of decimal places but also drop the unnecessary trailing zeros for low-precision values. Let’s take a portion of the towny dataset and format the latitude and longitude columns with fmt_number(). We’ll have up to 5 digits displayed as decimal values, but we’ll also unconditionally drop any runs of trailing zeros in the decimal part with drop_trailing_zeros=True.\n\ntowny |&gt;\n  dplyr::select(name, latitude, longitude) |&gt;\n  dplyr::slice_head(n=10) |&gt;\n  gt() |&gt;\n  fmt_number(decimals=5, drop_trailing_zeros=True) |&gt;\n  # replace -name with [latitude, longitude]\n  ## cols_merge(columns=-name, pattern='{1}, {2}') |&gt;\n  cols_label(\n    name~'Municipality',\n    latitude='Location'\n  )"
   }
 ]
