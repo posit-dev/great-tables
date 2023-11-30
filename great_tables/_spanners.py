@@ -9,13 +9,14 @@ from ._locations import SelectExpr, resolve_cols_c
 
 if TYPE_CHECKING:
     from ._gt_data import GTData, Boxhead
+    from ._types import GTSelf
 
 
 SpannerMatrix = List[Dict[str, Union[str, None]]]
 
 
 def tab_spanner(
-    data: GTData,
+    data: GTSelf,
     label: str,
     columns: SelectExpr = None,
     spanners: Union[list[str], str, None] = None,
@@ -23,7 +24,7 @@ def tab_spanner(
     id: Optional[str] = None,
     gather: bool = True,
     replace: bool = False,
-) -> GTData:
+) -> GTSelf:
     """
     Insert a spanner in the column labels part of a gt table.
 
@@ -257,7 +258,7 @@ def cols_move(data: GTData, columns: SelectExpr, after: str) -> GTData:
     return data._replace(_boxhead=new_boxhead)
 
 
-def cols_move_to_start(data: GTData, columns: SelectExpr) -> GTData:
+def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
     """Move one or more columns to the start.
 
     We can easily move set of columns to the beginning of the column series and we only need to
@@ -328,7 +329,7 @@ def cols_move_to_start(data: GTData, columns: SelectExpr) -> GTData:
     return data._replace(_boxhead=new_boxhead)
 
 
-def cols_move_to_end(data: GTData, columns: SelectExpr) -> GTData:
+def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
     """Move one or more columns to the end.
 
     We can easily move set of columns to the beginning of the column series and we only need to

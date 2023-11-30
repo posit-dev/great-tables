@@ -1,6 +1,6 @@
 from __future__ import annotations
 from decimal import Decimal
-from typing import Any, Callable, TypeVar, Union, List, cast, Optional, Dict
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, List, cast, Optional, Dict
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
@@ -10,6 +10,11 @@ import pandas as pd
 import math
 from datetime import datetime, date, time
 from babel.dates import format_date, format_time
+
+
+if TYPE_CHECKING:
+    from ._types import GTSelf
+
 
 T = TypeVar("T")
 
@@ -71,7 +76,7 @@ class FormatsAPI:
 
 
 def fmt_number(
-    self: GTData,
+    self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
     decimals: int = 2,
@@ -86,7 +91,7 @@ def fmt_number(
     dec_mark: str = ".",
     force_sign: bool = False,
     locale: Union[str, None] = None,
-) -> GTData:
+) -> GTSelf:
     """
     Format numeric values.
 
@@ -275,7 +280,7 @@ def fmt_number(
 
 
 def fmt_integer(
-    self: GTData,
+    self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
     use_seps: bool = True,
@@ -285,7 +290,7 @@ def fmt_integer(
     sep_mark: str = ",",
     force_sign: bool = False,
     locale: Union[str, None] = None,
-) -> GTData:
+) -> GTSelf:
     """
     Format values as integers.
 
@@ -442,7 +447,7 @@ def fmt_integer(
 
 
 def fmt_scientific(
-    self: GTData,
+    self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
     decimals: int = 2,
@@ -457,7 +462,7 @@ def fmt_scientific(
     force_sign_m: bool = False,
     force_sign_n: bool = False,
     locale: Union[str, None] = None,
-) -> GTData:
+) -> GTSelf:
     """
     Format values to scientific notation.
 
@@ -702,7 +707,7 @@ def fmt_scientific(
 
 
 def fmt_percent(
-    self: GTData,
+    self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
     decimals: int = 2,
@@ -717,7 +722,7 @@ def fmt_percent(
     placement: str = "right",
     incl_space: bool = False,
     locale: Union[str, None] = None,
-) -> GTData:
+) -> GTSelf:
     """
     Format values as a percentage.
 
@@ -905,7 +910,7 @@ def fmt_percent(
 
 
 def fmt_currency(
-    self: GTData,
+    self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
     currency: Optional[int] = None,
@@ -921,7 +926,7 @@ def fmt_currency(
     placement: str = "left",
     incl_space: bool = False,
     locale: Union[str, None] = None,
-) -> GTData:
+) -> GTSelf:
     """
     Format values as currencies.
 
@@ -1141,12 +1146,12 @@ def fmt_currency(
 
 
 def fmt_roman(
-    self: GTData,
+    self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
     case: str = "upper",
     pattern: str = "{x}",
-):
+) -> GTSelf:
     """
     Format values as Roman numerals.
 
@@ -1248,7 +1253,7 @@ def fmt_roman(
 
 
 def fmt_bytes(
-    self: GTData,
+    self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
     standard: str = "decimal",
@@ -1263,7 +1268,7 @@ def fmt_bytes(
     force_sign: bool = False,
     incl_space: bool = True,
     locale: Union[str, None] = None,
-) -> GTData:
+) -> GTSelf:
     """
     Format values as bytes.
 
@@ -1483,13 +1488,13 @@ def fmt_bytes(
 
 
 def fmt_date(
-    self: GTData,
+    self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
     date_style: str = "iso",
     pattern: str = "{x}",
     locale: Union[str, None] = None,
-) -> GTData:
+) -> GTSelf:
     """
     Format values as dates.
 
@@ -1628,13 +1633,13 @@ def fmt_date(
 
 
 def fmt_time(
-    self: GTData,
+    self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
     time_style: str = "iso",
     pattern: str = "{x}",
     locale: Union[str, None] = None,
-) -> GTData:
+) -> GTSelf:
     """
     Format values as times.
 
@@ -1764,10 +1769,10 @@ def fmt_time(
 
 
 def fmt_markdown(
-    self: GTData,
+    self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
-) -> GTData:
+) -> GTSelf:
     """
     Format Markdown text.
 

@@ -1,9 +1,18 @@
 from __future__ import annotations
-from ._gt_data import GTData
+
+from typing_extensions import Self
+from copy import copy
+
+
+# class Stubhead:
+#    stubhead: Optional[str]
+#
+#    def __init__(self):
+#        pass
 
 
 class StubheadAPI:
-    def tab_stubhead(self, label: str) -> GTData:
+    def tab_stubhead(self, label: str) -> Self:
         """
         Add label text to the stubhead.
 
@@ -44,6 +53,8 @@ class StubheadAPI:
         ```
         """
 
-        self._stubhead = label
+        result = copy(self)
 
-        return self
+        result._stubhead = label
+
+        return result

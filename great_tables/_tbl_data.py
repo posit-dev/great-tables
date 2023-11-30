@@ -345,5 +345,7 @@ def _(df: PdDataFrame, replacement: DataFrameLike):
 
 @replace_null_frame.register
 def _(df: PlDataFrame, replacement: PlDataFrame):
+    import polars as pl
+
     exprs = [pl.col(name).fill_null(replacement[name]) for name in df.columns]
     return df.select(exprs)
