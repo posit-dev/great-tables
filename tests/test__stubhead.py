@@ -13,4 +13,8 @@ def test_tab_stubhead():
 
     # Test adding a stubhead label with Markdown formatting
     result = gt_data.tab_stubhead(label=gt.md("*Car*"))
-    assert result._stubhead == "*Car*"
+    assert result._stubhead.text == "*Car*"
+
+    # Test adding a stubhead label with HTML formatting
+    result = gt_data.tab_stubhead(label=gt.html("<strong>Car</strong>"))
+    assert result._stubhead.text == "<strong>Car</strong>"
