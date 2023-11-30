@@ -1535,7 +1535,7 @@ def fmt_date(
     Examples
     --------
     Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `date`
-    and `time` columns). With the `fmt_date()` function, we'll format the `date` column to display
+    and `time` columns). With the `fmt_date()` method, we'll format the `date` column to display
     dates formatted with the `"month_day_year"` date style.
 
     ```{python}
