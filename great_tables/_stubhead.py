@@ -46,10 +46,14 @@ class StubheadAPI:
 
         gtcars_mini = gt.gtcars[[\"model\", \"year\", \"hp\", \"trq\"]].head(5)
 
-        (
-            gt.GT(gtcars_mini, rowname_col=\"model\")
-            .tab_stubhead(label=\"car\")
-        )
+        gt.GT(gtcars_mini, rowname_col=\"model\").tab_stubhead(label=\"car\")
+        ```
+
+        We can also use Markdown formatting for the stubhead label. In this example, we'll use
+        `md("*Car*")` to make the label italicized.
+
+        ```{python}
+        gt.GT(gtcars_mini, rowname_col="model").tab_stubhead(label=gt.md("*Car*"))
         ```
         """
 
