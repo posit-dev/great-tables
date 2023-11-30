@@ -121,17 +121,16 @@ def create_columns_component_h(data: GTData) -> str:
 
             table_col_headings.append(
                 tags.th(
-                    HTML(stub_label),
+                    HTML(_process_text(stub_label)),
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
                     rowspan="1",
                     colspan=len(stub_layout),
                     style=stubhead_style,
                     scope="colgroup" if len(stub_layout) > 1 else "col",
-                    id=stub_label,
+                    id=_process_text_id(stub_label),
                 )
             )
 
-        #
         # Create the headings in the case where there are no spanners at all -------------------------
         for info in headings_info:
             # NOTE: Ignore styles for now
@@ -144,13 +143,13 @@ def create_columns_component_h(data: GTData) -> str:
 
             table_col_headings.append(
                 tags.th(
-                    HTML(info.column_label),
+                    HTML(_process_text(info.column_label)),
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{info.defaulted_align}",
                     rowspan=1,
                     colspan=1,
                     style=column_style,
                     scope="col",
-                    id=str(info.column_label),
+                    id=_process_text_id(info.column_label),
                 )
             )
 
