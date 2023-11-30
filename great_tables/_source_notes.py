@@ -1,9 +1,13 @@
 from __future__ import annotations
 
-from ._gt_data import GTData
+from typing import TYPE_CHECKING
 
 
-def tab_source_note(data: GTData, source_note: str) -> GTData:
+if TYPE_CHECKING:
+    from ._types import GTSelf
+
+
+def tab_source_note(data: GTSelf, source_note: str) -> GTSelf:
     """
     Add a source note citation.
 

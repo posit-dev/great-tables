@@ -144,6 +144,7 @@ _illness_dtype = {
 }
 
 _islands_fname = pkg_resources.resource_filename(DATA_MOD, "11-islands.csv")
+_airquality_fname = pkg_resources.resource_filename(DATA_MOD, "x-airquality.csv")
 
 countrypops: pd.DataFrame = pd.read_csv(_countrypops_fname, dtype=_countrypops_dtype)  # type: ignore
 countrypops.__doc__ = """
@@ -300,6 +301,7 @@ symptoms such as nosebleeds, gastrointestinal bleeding, and hematoma.
 """
 
 islands: pd.DataFrame = pd.read_csv(_islands_fname)  # type: ignore
+airquality: pd.DataFrame = pd.read_csv(_airquality_fname)  # type: ignore
 
 
 _x_locales_fname = pkg_resources.resource_filename(DATA_MOD, "x_locales.csv")

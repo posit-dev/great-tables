@@ -62,5 +62,9 @@ def _process_text(x: Union[Text, str, None]) -> str:
     return x_out
 
 
+def _process_text_id(x: Union[Text, str, None]) -> str:
+    return _process_text(x)
+
+
 def _html_escape(x: str) -> str:
     return html.escape(x)

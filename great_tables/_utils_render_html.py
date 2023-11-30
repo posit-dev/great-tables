@@ -4,7 +4,7 @@ from ._tbl_data import n_rows, _get_cell, cast_frame_to_string, replace_null_fra
 from typing import List, Any, cast
 from htmltools import tags, HTML, css, TagList
 from itertools import groupby, chain
-from ._text import StringBuilder, _process_text
+from ._text import StringBuilder, _process_text, _process_text_id
 
 
 def create_heading_component_h(data: GTData) -> StringBuilder:
@@ -233,13 +233,13 @@ def create_columns_component_h(data: GTData) -> str:
 
                 level_1_spanners.append(
                     tags.th(
-                        HTML(h_info.column_label),
+                        HTML(_process_text(h_info.column_label)),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{str(first_set_alignment)}",
                         rowspan=2,
                         colspan=1,
                         style=heading_style,
                         scope="col",
-                        id=h_info.column_label,
+                        id=_process_text_id(h_info.column_label),
                     )
                 )
 
@@ -309,13 +309,13 @@ def create_columns_component_h(data: GTData) -> str:
 
                 spanned_column_labels.append(
                     tags.th(
-                        HTML(remaining_headings_labels[j]),
+                        HTML(_process_text(remaining_headings_labels[j])),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{remaining_alignment}",
                         rowspan=1,
                         colspan=1,
                         style=remaining_style,
                         scope="col",
-                        id=remaining_headings_labels[j],
+                        id=_process_text_id(remaining_headings_labels[j]),
                     )
                 )
 

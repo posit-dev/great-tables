@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from typing_extensions import Self
+from copy import copy
+
 
 # class Stubhead:
 #    stubhead: Optional[str]
@@ -9,7 +12,7 @@ from __future__ import annotations
 
 
 class StubheadAPI:
-    def tab_stubhead(self, label: str):
+    def tab_stubhead(self, label: str) -> Self:
         """
         Add label text to the stubhead.
 
@@ -41,6 +44,8 @@ class StubheadAPI:
             >>> print(x)
         """
 
-        self._stubhead.stubhead = label
+        result = copy(self)
 
-        return self
+        result._stubhead = label
+
+        return result

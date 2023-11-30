@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Optional, Union, List
-from ._gt_data import GTData, Heading
+from typing_extensions import Self
+
+from ._gt_data import Heading
 
 from copy import copy
 
@@ -11,7 +13,7 @@ class HeadingAPI:
         title: str,
         subtitle: Optional[str] = None,
         preheader: Optional[Union[str, List[str]]] = None,
-    ) -> GTData:
+    ) -> Self:
         """
         Add a table header.
 

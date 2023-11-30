@@ -1,15 +1,19 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ._gt_data import GTData
 from ._locations import Loc, PlacementOptions, set_footnote, set_style
 from ._styles import CellStyle
 
 
+if TYPE_CHECKING:
+    from ._types import GTSelf
+
+
 def tab_style(
-    self: GTData, style: CellStyle | list[CellStyle], locations: Loc | list[Loc]
-) -> GTData:
+    self: GTSelf, style: CellStyle | list[CellStyle], locations: Loc | list[Loc]
+) -> GTSelf:
     """Add custom style to one or more cells
 
     Parameters
@@ -37,11 +41,11 @@ def tab_style(
 # will likely be implemented down the road (e.g. after basic styling).
 # this is just all the machinery to set data in GT._footnotes
 def tab_footnote(
-    self: GTData,
+    self: GTSelf,
     footnote: str | list[str],
     locations: Loc | None | list[Loc | None],
     placement: PlacementOptions = "auto",
-) -> GTData:
+) -> GTSelf:
     """Add a footnote to a table
 
     Parameters
