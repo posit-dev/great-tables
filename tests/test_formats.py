@@ -12,6 +12,13 @@ from great_tables._formats import (
 )
 
 
+def assert_rendered_body(snapshot, gt):
+    built = gt._build_data("html")
+    body = create_body_component_h(built)
+
+    assert snapshot == body
+
+
 def test_format_fns():
     df = pd.DataFrame({"x": [1, 2]})
     gt = GT(df)
@@ -29,11 +36,9 @@ def test_format_snap(snapshot):
         .fmt_currency(columns="currency")
         .fmt_scientific(columns="num")
         .fmt_date(columns="date", date_style="day_month_year")
-        ._build_data("html")
     )
 
-    body = create_body_component_h(new_gt)
-    assert snapshot == body
+    assert_rendered_body(snapshot, new_gt)
 
 
 @pytest.mark.parametrize(
