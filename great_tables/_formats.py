@@ -1541,7 +1541,7 @@ def fmt_date(
     ```{python}
     import great_tables as gt
 
-    exibble_mini = gt.exibble[["date", "time"]]
+    exibble_mini = gt.exibble[[\"date\", \"time\"]]
 
     gt.GT(exibble_mini).fmt_date(columns=\"date\", date_style=\"month_day_year\")
     ```
@@ -1674,7 +1674,7 @@ def fmt_time(
     ```{python}
     import great_tables as gt
 
-    exibble_mini = gt.exibble[["date", "time"]]
+    exibble_mini = gt.exibble[[\"date\", \"time\"]]
 
     gt.GT(exibble_mini).fmt_time(columns=\"time\", time_style=\"h_m_s_p\")
     ```
