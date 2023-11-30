@@ -347,6 +347,28 @@ def cols_move_to_end(data: GTData, columns: SelectExpr) -> GTData:
     -------
     GTData
         The GTData object is returned.
+
+    Examples
+    --------
+    For this example, we'll use a portion of the `countrypops` dataset to create a simple table.
+    Let's move the `year` column, which is the middle column, to the end of the column series with
+    the `cols_move_to_end()` method.
+
+    ```{python}
+    import great_tables as gt
+
+    countrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Benin\"][
+        [\"country_name\", \"year\", \"population\"]
+    ].tail(5)
+
+    gt.GT(countrypops_mini).cols_move_to_end(columns=\"year\")
+    ```
+
+    We can also move multiple columns at a time. With the same `countrypops`-based table, let's move
+    both the `year` and `country_name` columns to the end of the column series.
+
+    ```{python}
+    gt.GT(countrypops_mini).cols_move_to_end(columns=[\"year\", \"country_name\"])
     """
 
     # If `columns` is a string, convert it to a list
