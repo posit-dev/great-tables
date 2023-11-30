@@ -1493,7 +1493,7 @@ def fmt_date(
     """
     Format values as dates.
 
-    Format input values to time values using one of 41 preset date styles. Input can be in the form
+    Format input values to time values using one of 17 preset date styles. Input can be in the form
     of `date` type or as a ISO-8601 string (in the form of `YYYY-MM-DD HH:MM:SS` or `YYYY-MM-DD`).
 
     Parameters
