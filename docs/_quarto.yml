@@ -95,12 +95,6 @@ quartodoc:
         - html
         - px
         - pct
-    - title: Table options
-      contents:
-        - GT.opt_align_table_header
-        - GT.opt_all_caps
-        - GT.opt_footnote_marks
-        - GT.opt_row_striping
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of
