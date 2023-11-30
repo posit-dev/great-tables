@@ -389,10 +389,8 @@ class OptionsAPI:
             An option for whether to include the table body when striping rows.
 
 
-
         Returns
         -------
-
         GT
             Result of the table operation.
         """
