@@ -183,6 +183,12 @@ def cols_move(data: GTData, columns: SelectExpr, after: str) -> GTData:
     places them to the right of a different column (the `after` argument). The ordering of the
     `columns` to be moved is preserved, as is the ordering of all other columns in the table.
 
+    The columns supplied in `columns` must all exist in the table and none of them can be in the
+    `after` argument. The `after` column must also exist and only one column should be provided
+    here. If you need to place one more or columns at the beginning of the column series, the
+    `cols_move_to_start()` method should be used. Similarly, if those columns to move should be
+    placed at the end of the column series then use `cols_move_to_end()`.
+
     Parameters
     ----------
     columns : Union[List[str]]
@@ -196,6 +202,27 @@ def cols_move(data: GTData, columns: SelectExpr, after: str) -> GTData:
     -------
     GTData
         The GTData object is returned.
+
+    Examples
+    --------
+    Let's use the `countrypops` dataset to create a table. We'll choose to position the `population`
+    column after the `country_name` column by using the `cols_move()` method.
+
+    ```{python}
+    import great_tables as gt
+
+    countrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Japan\"][
+        [\"country_name\", \"year\", \"population\"]
+    ].tail(5)
+
+    (
+        gt.GT(countrypops_mini)
+        .cols_move(
+            columns=\"population\",
+            after=\"country_name\"
+        )
+    )
+    ```
     """
 
     # If `columns` is a string, convert it to a list
