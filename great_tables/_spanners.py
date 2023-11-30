@@ -266,6 +266,11 @@ def cols_move_to_start(data: GTData, columns: SelectExpr) -> GTData:
     `columns` that are moved to the start is preserved (same with the ordering of all other columns
     in the table).
 
+    The columns supplied in `columns` must all exist in the table. If you need to place one or
+    columns at the end of the column series, the `cols_move_to_end()` method should be used. More
+    control is offered with the `cols_move()` method, where columns could be placed after a specific
+    column.
+
     Parameters
     ----------
     columns : Union[List[str]]
@@ -276,6 +281,29 @@ def cols_move_to_start(data: GTData, columns: SelectExpr) -> GTData:
     -------
     GTData
         The GTData object is returned.
+
+    Examples
+    --------
+    For this example, we'll use a portion of the `countrypops` dataset to create a simple table.
+    Let's move the `year` column, which is the middle column, to the start of the column series with
+    the `cols_move_to_start()` method.
+
+    ```{python}
+    import great_tables as gt
+
+    countrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Fiji\"][
+        [\"country_name\", \"year\", \"population\"]
+    ].tail(5)
+
+    gt.GT(countrypops_mini).cols_move_to_start(columns=\"year\")
+    ```
+
+    We can also move multiple columns at a time. With the same `countrypops`-based table, let's move
+    both the `year` and `population` columns to the start of the column series.
+
+    ```{python}
+    gt.GT(countrypops_mini).cols_move_to_start(columns=[\"year\", \"population\"])
+    ```
     """
 
     # If `columns` is a string, convert it to a list
