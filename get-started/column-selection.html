@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables – gt</title>
+<title>great_tables - Column selection</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,8 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/GT.tab_header.html" rel="next">
-<link href="../reference/index.html" rel="prev">
+<link href="../get-started/basic-formatting.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -121,11 +120,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../get-started/index.html" rel="" target="">
+    <a class="nav-link active" href="../get-started/index.html" rel="" target="" aria-current="page">
  <span class="menu-text">Get Started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../reference/index.html" rel="" target="" aria-current="page">
+    <a class="nav-link" href="../reference/index.html" rel="" target="">
  <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
@@ -150,7 +149,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/GT.html">Table Creation</a></li><li class="breadcrumb-item"><a href="../reference/GT.html">GT</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../get-started/column-selection.html">Advanced</a></li><li class="breadcrumb-item"><a href="../get-started/column-selection.html">Column selection</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
     </div>
@@ -164,14 +163,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Function reference</span></a>
+  <a href="../get-started/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Intro</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
- <span class="menu-text">Table Creation</span></a>
+ <span class="menu-text">Basic</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -179,8 +184,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/GT.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">GT</span></a>
+  <a href="../get-started/basic-header.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Header and Footer</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/basic-stub.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Stub (row labels)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/basic-column-labels.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Column labels</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/basic-formatting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Formatting values</span></a>
   </div>
 </li>
       </ul>
@@ -188,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
- <span class="menu-text">Creating or modifying parts of a table</span></a>
+ <span class="menu-text">Advanced</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -196,321 +219,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/GT.tab_header.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.tab_header</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.tab_spanner.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.tab_spanner</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.tab_stubhead.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.tab_stubhead</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.tab_source_note.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.tab_source_note</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
- <span class="menu-text">Formatting column data</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt_number.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.fmt_number</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt_integer.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.fmt_integer</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt_percent.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.fmt_percent</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt_scientific.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.fmt_scientific</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt_currency.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.fmt_currency</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt_bytes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.fmt_bytes</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt_roman.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.fmt_roman</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt_date.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.fmt_date</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt_time.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.fmt_time</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt_markdown.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.fmt_markdown</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.fmt</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
- <span class="menu-text">Modifying columns</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.cols_align.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.cols_align</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.cols_label.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.cols_label</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.cols_move.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.cols_move</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.cols_move_to_start.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.cols_move_to_start</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/GT.cols_move_to_end.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">GT.cols_move_to_end</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
- <span class="menu-text">Helper functions</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/md.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">md</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/html.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">html</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/px.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">px</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/pct.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">pct</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true">
- <span class="menu-text">Value formatting functions</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_number.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_number</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_integer.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_integer</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_scientific.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_scientific</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_percent.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_percent</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_currency.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_currency</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_roman.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_roman</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_bytes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_bytes</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_date.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_date</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_time.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_time</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_markdown.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_markdown</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true">
- <span class="menu-text">Built in datasets</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/data.countrypops.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">data.countrypops</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/data.sza.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">data.sza</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/data.gtcars.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">data.gtcars</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/data.sp500.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">data.sp500</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/data.pizzaplace.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">data.pizzaplace</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/data.exibble.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">data.exibble</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/data.towny.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">data.towny</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/data.metro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">data.metro</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/data.constants.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">data.constants</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/data.illness.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">data.illness</span></a>
+  <a href="../get-started/column-selection.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Column selection</span></a>
   </div>
 </li>
       </ul>
@@ -525,9 +235,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
-  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
-  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#string-and-integer-selectors" id="toc-string-and-integer-selectors" class="nav-link active" data-scroll-target="#string-and-integer-selectors">String and integer selectors</a></li>
+  <li><a href="#function-selectors" id="toc-function-selectors" class="nav-link" data-scroll-target="#function-selectors">Function selectors</a></li>
+  <li><a href="#polars-selectors" id="toc-polars-selectors" class="nav-link" data-scroll-target="#polars-selectors">Polars selectors</a></li>
   </ul>
 </nav>
     </div>
@@ -536,7 +246,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">GT</h1>
+<h1 class="title">Column selection</h1>
 </div>
 
 
@@ -551,103 +261,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<p><code>GT(self, data, rowname_col=None, groupname_col=None, auto_align=True, locale=None)</code></p>
-<p>Create a <strong>great_tables</strong> object.</p>
-<p>The <code>GT()</code> class creates a <strong>great_tables</strong> object when provided with tabular data. Using this is the first step in a typical <strong>great_tables</strong> workflow. Once we have this object, we can perform numerous transformations before rendering to a display table.</p>
-<p>There are a few data ingest options we can consider at this stage. We can choose to create a table stub containing row labels through the use of the <code>rowname_col</code> argument. Further to this, stub row groups can be created with the <code>groupname_col</code> argument. Both arguments take the name of a column in the input table data. Typically, the data in the <code>groupname_col</code> column will consist of categorical text whereas the data in the <code>rowname_col</code> column will contain unique labels (could be unique across the entire table or unique within the different row groups).</p>
-<section id="parameters" class="level2">
-<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="table">
-<colgroup>
-<col style="width: 6%">
-<col style="width: 5%">
-<col style="width: 82%">
-<col style="width: 4%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>data</code></td>
-<td>typing.Any</td>
-<td>A DataFrame object.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td><code>rowname_col</code></td>
-<td>str | None</td>
-<td>The column name in the input <code>data</code> table to use as row labels to be placed in the table stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td><code>groupname_col</code></td>
-<td>str | None</td>
-<td>The column name in the input <code>data</code> table to use as group labels for generation of row groups.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td><code>auto_align</code></td>
-<td>bool</td>
-<td>Optionally have column data be aligned depending on the content contained in each column of the input <code>data</code>.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="odd">
-<td><code>locale</code></td>
-<td>str</td>
-<td>An optional locale identifier that can be set as the default locale for all functions that take a <code>locale</code> argument. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="returns" class="level2">
-<h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<table class="table">
-<thead>
-<tr class="header">
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>great_tables._gt_data.GTData</td>
-<td>A GTData object is returned.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="examples" class="level2">
-<h2 class="anchored" data-anchor-id="examples">Examples</h2>
-<p>Let’s use the <code>exibble</code> dataset for the next few examples, we’ll learn how to make simple output tables with the <code>GT()</code> class. The most basic thing to do is to just use <code>GT()</code> with the dataset as the input.</p>
+<p>The <code>columns=</code> argument for functions like <code>.tab_spanner()</code> and <code>.cols_move()</code> can accept a range of arguments. In the above examples, we just passed a list of strings with the exact column names.</p>
+<p>However, we can specify columns using any of the following:</p>
+<ul>
+<li>A single string column name.</li>
+<li>An integer for the column’s position.</li>
+<li>A list of strings or integers.</li>
+<li>A polars selector.</li>
+<li>A function that takes a string and returns True or False.</li>
+</ul>
 <div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables <span class="im">as</span> gt</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>gt.GT(gt.exibble)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>gt_ex <span class="op">=</span> GT(exibble)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>gt_ex</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 
-<div id="alrfcyhbed" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="hpjnfdvucl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#alrfcyhbed table {
+#hpjnfdvucl table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#alrfcyhbed thead, tbody, tfoot, tr, td, th {
+#hpjnfdvucl thead, tbody, tfoot, tr, td, th {
   border-style: none; }
 
-#alrfcyhbed p {
+#hpjnfdvucl p {
   margin: 0;
   padding: 0; }
 
-#alrfcyhbed .gt_table {
+#hpjnfdvucl .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -672,11 +318,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-width: 2px;
   border-left-color: #D3D3D3; }
 
-#alrfcyhbed .gt_caption {
+#hpjnfdvucl .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px; }
 
-#alrfcyhbed .gt_title {
+#hpjnfdvucl .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -687,7 +333,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0; }
 
-#alrfcyhbed .gt_subtitle {
+#hpjnfdvucl .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -698,7 +344,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #FFFFFF;
   border-top-width: 0; }
 
-#alrfcyhbed .gt_heading {
+#hpjnfdvucl .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -709,12 +355,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#alrfcyhbed .gt_bottom_border {
+#hpjnfdvucl .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#alrfcyhbed .gt_col_headings {
+#hpjnfdvucl .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -728,7 +374,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#alrfcyhbed .gt_col_heading {
+#hpjnfdvucl .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -747,7 +393,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   overflow-x: hidden; }
 
-#alrfcyhbed .gt_column_spanner_outer {
+#hpjnfdvucl .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -758,13 +404,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 4px;
   padding-right: 4px; }
 
-#alrfcyhbed .gt_column_spanner_outer:first-child {
+#hpjnfdvucl .gt_column_spanner_outer:first-child {
   padding-left: 0; }
 
-#alrfcyhbed .gt_column_spanner_outer:last-child {
+#hpjnfdvucl .gt_column_spanner_outer:last-child {
   padding-right: 0; }
 
-#alrfcyhbed .gt_column_spanner {
+#hpjnfdvucl .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -775,10 +421,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   display: inline-block;
   width: 100%; }
 
-#alrfcyhbed .gt_spanner_row {
+#hpjnfdvucl .gt_spanner_row {
   border-bottom-style: hidden; }
 
-#alrfcyhbed .gt_group_heading {
+#hpjnfdvucl .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -803,7 +449,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   text-align: left; }
 
-#alrfcyhbed .gt_empty_group_heading {
+#hpjnfdvucl .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -817,13 +463,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
   vertical-align: middle; }
 
-#alrfcyhbed .gt_from_md > :first-child {
+#hpjnfdvucl .gt_from_md > :first-child {
   margin-top: 0; }
 
-#alrfcyhbed .gt_from_md > :last-child {
+#hpjnfdvucl .gt_from_md > :last-child {
   margin-bottom: 0; }
 
-#alrfcyhbed .gt_row {
+#hpjnfdvucl .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -841,7 +487,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   overflow-x: hidden; }
 
-#alrfcyhbed .gt_stub {
+#hpjnfdvucl .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -853,7 +499,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#alrfcyhbed .gt_stub_row_grou#alrfcyhbed p {
+#hpjnfdvucl .gt_stub_row_grou#hpjnfdvucl p {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -866,13 +512,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   vertical-align: top; }
 
-#alrfcyhbed .gt_row_group_first td {
+#hpjnfdvucl .gt_row_group_first td {
   border-top-width: 2px; }
 
-#alrfcyhbed .gt_row_group_first th {
+#hpjnfdvucl .gt_row_group_first th {
   border-top-width: 2px; }
 
-#alrfcyhbed .gt_summary_row {
+#hpjnfdvucl .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -881,14 +527,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#alrfcyhbed .gt_first_summary_row {
+#hpjnfdvucl .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3; }
 
-#alrfcyhbed .gt_first_summary_row.thick {
+#hpjnfdvucl .gt_first_summary_row.thick {
   border-top-width: 2px; }
 
-#alrfcyhbed .gt_last_summary_row {
+#hpjnfdvucl .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -897,7 +543,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#alrfcyhbed .gt_grand_summary_row {
+#hpjnfdvucl .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -906,7 +552,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#alrfcyhbed .gt_first_grand_summary_row {
+#hpjnfdvucl .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -915,7 +561,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 6px;
   border-top-color: #D3D3D3; }
 
-#alrfcyhbed .gt_last_grand_summary_row_to#alrfcyhbed p {
+#hpjnfdvucl .gt_last_grand_summary_row_to#hpjnfdvucl p {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -924,10 +570,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 6px;
   border-bottom-color: #D3D3D3; }
 
-#alrfcyhbed .gt_striped {
+#hpjnfdvucl .gt_striped {
   background-color: rgba(128, 128, 128, 0.05); }
 
-#alrfcyhbed .gt_table_body {
+#hpjnfdvucl .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -935,7 +581,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#alrfcyhbed .gt_footnotes {
+#hpjnfdvucl .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -948,7 +594,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#alrfcyhbed .gt_footnote {
+#hpjnfdvucl .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -956,7 +602,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#alrfcyhbed .gt_sourcenotes {
+#hpjnfdvucl .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -969,41 +615,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#alrfcyhbed .gt_sourcenote {
+#hpjnfdvucl .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 5px;
   padding-right: 5px; }
 
-#alrfcyhbed .gt_left {
+#hpjnfdvucl .gt_left {
   text-align: left; }
 
-#alrfcyhbed .gt_center {
+#hpjnfdvucl .gt_center {
   text-align: center; }
 
-#alrfcyhbed .gt_right {
+#hpjnfdvucl .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums; }
 
-#alrfcyhbed .gt_font_normal {
+#hpjnfdvucl .gt_font_normal {
   font-weight: normal; }
 
-#alrfcyhbed .gt_font_bold {
+#hpjnfdvucl .gt_font_bold {
   font-weight: bold; }
 
-#alrfcyhbed .gt_font_italic {
+#hpjnfdvucl .gt_font_italic {
   font-style: italic; }
 
-#alrfcyhbed .gt_super {
+#hpjnfdvucl .gt_super {
   font-size: 65%; }
 
-#alrfcyhbed .gt_footnote_marks {
+#hpjnfdvucl .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial; }
 
-#alrfcyhbed .gt_asterisk {
+#hpjnfdvucl .gt_asterisk {
   font-size: 100%;
   vertical-align: 0; }
 
@@ -1117,27 +763,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         
 </div>
 </div>
-<p>This dataset has the <code>row</code> and <code>group</code> columns. The former contains unique values that are ideal for labeling rows, and this often happens in what is called the ‘stub’ (a reserved area that serves to label rows). With the <code>GT()</code> class, we can immediately place the contents of the <code>row</code> column into the stub column. To do this, we use the <code>rowname_col</code> argument with the appropriate column name.</p>
+<section id="string-and-integer-selectors" class="level2">
+<h2 class="anchored" data-anchor-id="string-and-integer-selectors">String and integer selectors</h2>
+<p>Use a list of strings or integers to select columns by name or position, respectively.</p>
 <div class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gt.GT(gt.exibble, rowname_col<span class="op">=</span><span class="st">"row"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gt_ex.cols_move_to_start([<span class="st">"date"</span>, <span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 
-<div id="savvczqrvw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="hhulobdwuh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#savvczqrvw table {
+#hhulobdwuh table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#savvczqrvw thead, tbody, tfoot, tr, td, th {
+#hhulobdwuh thead, tbody, tfoot, tr, td, th {
   border-style: none; }
 
-#savvczqrvw p {
+#hhulobdwuh p {
   margin: 0;
   padding: 0; }
 
-#savvczqrvw .gt_table {
+#hhulobdwuh .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1162,11 +810,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-width: 2px;
   border-left-color: #D3D3D3; }
 
-#savvczqrvw .gt_caption {
+#hhulobdwuh .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px; }
 
-#savvczqrvw .gt_title {
+#hhulobdwuh .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1177,7 +825,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0; }
 
-#savvczqrvw .gt_subtitle {
+#hhulobdwuh .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1188,7 +836,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #FFFFFF;
   border-top-width: 0; }
 
-#savvczqrvw .gt_heading {
+#hhulobdwuh .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1199,12 +847,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#savvczqrvw .gt_bottom_border {
+#hhulobdwuh .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#savvczqrvw .gt_col_headings {
+#hhulobdwuh .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1218,7 +866,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#savvczqrvw .gt_col_heading {
+#hhulobdwuh .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1237,7 +885,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   overflow-x: hidden; }
 
-#savvczqrvw .gt_column_spanner_outer {
+#hhulobdwuh .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1248,13 +896,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 4px;
   padding-right: 4px; }
 
-#savvczqrvw .gt_column_spanner_outer:first-child {
+#hhulobdwuh .gt_column_spanner_outer:first-child {
   padding-left: 0; }
 
-#savvczqrvw .gt_column_spanner_outer:last-child {
+#hhulobdwuh .gt_column_spanner_outer:last-child {
   padding-right: 0; }
 
-#savvczqrvw .gt_column_spanner {
+#hhulobdwuh .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1265,10 +913,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   display: inline-block;
   width: 100%; }
 
-#savvczqrvw .gt_spanner_row {
+#hhulobdwuh .gt_spanner_row {
   border-bottom-style: hidden; }
 
-#savvczqrvw .gt_group_heading {
+#hhulobdwuh .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1293,7 +941,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   text-align: left; }
 
-#savvczqrvw .gt_empty_group_heading {
+#hhulobdwuh .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1307,13 +955,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
   vertical-align: middle; }
 
-#savvczqrvw .gt_from_md > :first-child {
+#hhulobdwuh .gt_from_md > :first-child {
   margin-top: 0; }
 
-#savvczqrvw .gt_from_md > :last-child {
+#hhulobdwuh .gt_from_md > :last-child {
   margin-bottom: 0; }
 
-#savvczqrvw .gt_row {
+#hhulobdwuh .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1331,7 +979,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   overflow-x: hidden; }
 
-#savvczqrvw .gt_stub {
+#hhulobdwuh .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1343,7 +991,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#savvczqrvw .gt_stub_row_grou#savvczqrvw p {
+#hhulobdwuh .gt_stub_row_grou#hhulobdwuh p {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1356,13 +1004,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   vertical-align: top; }
 
-#savvczqrvw .gt_row_group_first td {
+#hhulobdwuh .gt_row_group_first td {
   border-top-width: 2px; }
 
-#savvczqrvw .gt_row_group_first th {
+#hhulobdwuh .gt_row_group_first th {
   border-top-width: 2px; }
 
-#savvczqrvw .gt_summary_row {
+#hhulobdwuh .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1371,14 +1019,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#savvczqrvw .gt_first_summary_row {
+#hhulobdwuh .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3; }
 
-#savvczqrvw .gt_first_summary_row.thick {
+#hhulobdwuh .gt_first_summary_row.thick {
   border-top-width: 2px; }
 
-#savvczqrvw .gt_last_summary_row {
+#hhulobdwuh .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1387,7 +1035,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#savvczqrvw .gt_grand_summary_row {
+#hhulobdwuh .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1396,7 +1044,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#savvczqrvw .gt_first_grand_summary_row {
+#hhulobdwuh .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1405,7 +1053,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 6px;
   border-top-color: #D3D3D3; }
 
-#savvczqrvw .gt_last_grand_summary_row_to#savvczqrvw p {
+#hhulobdwuh .gt_last_grand_summary_row_to#hhulobdwuh p {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1414,10 +1062,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 6px;
   border-bottom-color: #D3D3D3; }
 
-#savvczqrvw .gt_striped {
+#hhulobdwuh .gt_striped {
   background-color: rgba(128, 128, 128, 0.05); }
 
-#savvczqrvw .gt_table_body {
+#hhulobdwuh .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1425,7 +1073,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#savvczqrvw .gt_footnotes {
+#hhulobdwuh .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1438,7 +1086,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#savvczqrvw .gt_footnote {
+#hhulobdwuh .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1446,7 +1094,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#savvczqrvw .gt_sourcenotes {
+#hhulobdwuh .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1459,144 +1107,144 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#savvczqrvw .gt_sourcenote {
+#hhulobdwuh .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 5px;
   padding-right: 5px; }
 
-#savvczqrvw .gt_left {
+#hhulobdwuh .gt_left {
   text-align: left; }
 
-#savvczqrvw .gt_center {
+#hhulobdwuh .gt_center {
   text-align: center; }
 
-#savvczqrvw .gt_right {
+#hhulobdwuh .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums; }
 
-#savvczqrvw .gt_font_normal {
+#hhulobdwuh .gt_font_normal {
   font-weight: normal; }
 
-#savvczqrvw .gt_font_bold {
+#hhulobdwuh .gt_font_bold {
   font-weight: bold; }
 
-#savvczqrvw .gt_font_italic {
+#hhulobdwuh .gt_font_italic {
   font-style: italic; }
 
-#savvczqrvw .gt_super {
+#hhulobdwuh .gt_super {
   font-size: 65%; }
 
-#savvczqrvw .gt_footnote_marks {
+#hhulobdwuh .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial; }
 
-#savvczqrvw .gt_asterisk {
+#hhulobdwuh .gt_asterisk {
   font-size: 100%;
   vertical-align: 0; }
 
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 
-<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
-<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="date">date</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group">group</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="date">date</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="time">time</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="datetime">datetime</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group">group</th></tr>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="row">row</th></tr>
 </tbody><tbody class="gt_table_body">
 <tr>
-  <th class="gt_row gt_left gt_stub">row_1</th>
-  <td class="gt_row gt_right">0.1111</td>
-  <td class="gt_row gt_left">apricot</td>
-  <td class="gt_row gt_left">one</td>
   <td class="gt_row gt_right">2015-01-15</td>
+  <td class="gt_row gt_left">apricot</td>
+  <td class="gt_row gt_left">grp_a</td>
+  <td class="gt_row gt_right">0.1111</td>
+  <td class="gt_row gt_left">one</td>
   <td class="gt_row gt_right">13:35</td>
   <td class="gt_row gt_right">2018-01-01 02:22</td>
   <td class="gt_row gt_right">49.95</td>
-  <td class="gt_row gt_left">grp_a</td>
+  <td class="gt_row gt_left">row_1</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_2</th>
-  <td class="gt_row gt_right">2.222</td>
-  <td class="gt_row gt_left">banana</td>
-  <td class="gt_row gt_left">two</td>
   <td class="gt_row gt_right">2015-02-15</td>
+  <td class="gt_row gt_left">banana</td>
+  <td class="gt_row gt_left">grp_a</td>
+  <td class="gt_row gt_right">2.222</td>
+  <td class="gt_row gt_left">two</td>
   <td class="gt_row gt_right">14:40</td>
   <td class="gt_row gt_right">2018-02-02 14:33</td>
   <td class="gt_row gt_right">17.95</td>
-  <td class="gt_row gt_left">grp_a</td>
+  <td class="gt_row gt_left">row_2</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_3</th>
-  <td class="gt_row gt_right">33.33</td>
-  <td class="gt_row gt_left">coconut</td>
-  <td class="gt_row gt_left">three</td>
   <td class="gt_row gt_right">2015-03-15</td>
+  <td class="gt_row gt_left">coconut</td>
+  <td class="gt_row gt_left">grp_a</td>
+  <td class="gt_row gt_right">33.33</td>
+  <td class="gt_row gt_left">three</td>
   <td class="gt_row gt_right">15:45</td>
   <td class="gt_row gt_right">2018-03-03 03:44</td>
   <td class="gt_row gt_right">1.39</td>
-  <td class="gt_row gt_left">grp_a</td>
+  <td class="gt_row gt_left">row_3</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_4</th>
-  <td class="gt_row gt_right">444.4</td>
-  <td class="gt_row gt_left">durian</td>
-  <td class="gt_row gt_left">four</td>
   <td class="gt_row gt_right">2015-04-15</td>
+  <td class="gt_row gt_left">durian</td>
+  <td class="gt_row gt_left">grp_a</td>
+  <td class="gt_row gt_right">444.4</td>
+  <td class="gt_row gt_left">four</td>
   <td class="gt_row gt_right">16:50</td>
   <td class="gt_row gt_right">2018-04-04 15:55</td>
   <td class="gt_row gt_right">65100.0</td>
-  <td class="gt_row gt_left">grp_a</td>
+  <td class="gt_row gt_left">row_4</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_5</th>
-  <td class="gt_row gt_right">5550.0</td>
-  <td class="gt_row gt_left"><na></na></td>
-  <td class="gt_row gt_left">five</td>
   <td class="gt_row gt_right">2015-05-15</td>
+  <td class="gt_row gt_left"><na></na></td>
+  <td class="gt_row gt_left">grp_b</td>
+  <td class="gt_row gt_right">5550.0</td>
+  <td class="gt_row gt_left">five</td>
   <td class="gt_row gt_right">17:55</td>
   <td class="gt_row gt_right">2018-05-05 04:00</td>
   <td class="gt_row gt_right">1325.81</td>
-  <td class="gt_row gt_left">grp_b</td>
+  <td class="gt_row gt_left">row_5</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_6</th>
-  <td class="gt_row gt_right"><na></na></td>
-  <td class="gt_row gt_left">fig</td>
-  <td class="gt_row gt_left">six</td>
   <td class="gt_row gt_right">2015-06-15</td>
+  <td class="gt_row gt_left">fig</td>
+  <td class="gt_row gt_left">grp_b</td>
+  <td class="gt_row gt_right"><na></na></td>
+  <td class="gt_row gt_left">six</td>
   <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_right">2018-06-06 16:11</td>
   <td class="gt_row gt_right">13.255</td>
-  <td class="gt_row gt_left">grp_b</td>
+  <td class="gt_row gt_left">row_6</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_7</th>
-  <td class="gt_row gt_right">777000.0</td>
-  <td class="gt_row gt_left">grapefruit</td>
-  <td class="gt_row gt_left">seven</td>
   <td class="gt_row gt_right"><na></na></td>
+  <td class="gt_row gt_left">grapefruit</td>
+  <td class="gt_row gt_left">grp_b</td>
+  <td class="gt_row gt_right">777000.0</td>
+  <td class="gt_row gt_left">seven</td>
   <td class="gt_row gt_right">19:10</td>
   <td class="gt_row gt_right">2018-07-07 05:22</td>
   <td class="gt_row gt_right"><na></na></td>
-  <td class="gt_row gt_left">grp_b</td>
+  <td class="gt_row gt_left">row_7</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_8</th>
-  <td class="gt_row gt_right">8880000.0</td>
-  <td class="gt_row gt_left">honeydew</td>
-  <td class="gt_row gt_left">eight</td>
   <td class="gt_row gt_right">2015-08-15</td>
+  <td class="gt_row gt_left">honeydew</td>
+  <td class="gt_row gt_left">grp_b</td>
+  <td class="gt_row gt_right">8880000.0</td>
+  <td class="gt_row gt_left">eight</td>
   <td class="gt_row gt_right">20:20</td>
   <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_right">0.44</td>
-  <td class="gt_row gt_left">grp_b</td>
+  <td class="gt_row gt_left">row_8</td>
 </tr>
 </tbody>
 
@@ -1607,28 +1255,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         
 </div>
 </div>
-<p>This sets up a table with a stub, the row labels are placed within the stub column, and a vertical dividing line has been placed on the right-hand side.</p>
-<p>The <code>group</code> column contains categorical values that are ideal for grouping rows. We can use the <code>groupname_col</code> argument to place these values into row groups.</p>
+<p>Note the code above moved the following columns:</p>
+<ul>
+<li>The string <code>"date"</code> matched the column of the same name.</li>
+<li>The integer <code>1</code> matched the second column (similar to list indexing).</li>
+<li>The integer <code>-1</code> matched the last column.</li>
+</ul>
+<p>Moreover, the order of the list defines the order of selected columns. In this case, <code>"data"</code> was the first entry, so it’s the very first column in the new table.</p>
+</section>
+<section id="function-selectors" class="level2">
+<h2 class="anchored" data-anchor-id="function-selectors">Function selectors</h2>
+<p>A function can be used to select columns. It should take a string and returns True or False.</p>
 <div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gt.GT(gt.exibble, rowname_col<span class="op">=</span><span class="st">"row"</span>, groupname_col<span class="op">=</span><span class="st">"group"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gt_ex.cols_move_to_start(<span class="kw">lambda</span> x: <span class="st">"c"</span> <span class="kw">in</span> x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 
-<div id="zfymlruykb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="nkbihskbqt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#zfymlruykb table {
+#nkbihskbqt table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#zfymlruykb thead, tbody, tfoot, tr, td, th {
+#nkbihskbqt thead, tbody, tfoot, tr, td, th {
   border-style: none; }
 
-#zfymlruykb p {
+#nkbihskbqt p {
   margin: 0;
   padding: 0; }
 
-#zfymlruykb .gt_table {
+#nkbihskbqt .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1653,11 +1310,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-width: 2px;
   border-left-color: #D3D3D3; }
 
-#zfymlruykb .gt_caption {
+#nkbihskbqt .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px; }
 
-#zfymlruykb .gt_title {
+#nkbihskbqt .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1668,7 +1325,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0; }
 
-#zfymlruykb .gt_subtitle {
+#nkbihskbqt .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1679,7 +1336,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #FFFFFF;
   border-top-width: 0; }
 
-#zfymlruykb .gt_heading {
+#nkbihskbqt .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1690,12 +1347,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#zfymlruykb .gt_bottom_border {
+#nkbihskbqt .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#zfymlruykb .gt_col_headings {
+#nkbihskbqt .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1709,7 +1366,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#zfymlruykb .gt_col_heading {
+#nkbihskbqt .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1728,7 +1385,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   overflow-x: hidden; }
 
-#zfymlruykb .gt_column_spanner_outer {
+#nkbihskbqt .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1739,13 +1396,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 4px;
   padding-right: 4px; }
 
-#zfymlruykb .gt_column_spanner_outer:first-child {
+#nkbihskbqt .gt_column_spanner_outer:first-child {
   padding-left: 0; }
 
-#zfymlruykb .gt_column_spanner_outer:last-child {
+#nkbihskbqt .gt_column_spanner_outer:last-child {
   padding-right: 0; }
 
-#zfymlruykb .gt_column_spanner {
+#nkbihskbqt .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1756,10 +1413,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   display: inline-block;
   width: 100%; }
 
-#zfymlruykb .gt_spanner_row {
+#nkbihskbqt .gt_spanner_row {
   border-bottom-style: hidden; }
 
-#zfymlruykb .gt_group_heading {
+#nkbihskbqt .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1784,7 +1441,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   text-align: left; }
 
-#zfymlruykb .gt_empty_group_heading {
+#nkbihskbqt .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1798,13 +1455,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
   vertical-align: middle; }
 
-#zfymlruykb .gt_from_md > :first-child {
+#nkbihskbqt .gt_from_md > :first-child {
   margin-top: 0; }
 
-#zfymlruykb .gt_from_md > :last-child {
+#nkbihskbqt .gt_from_md > :last-child {
   margin-bottom: 0; }
 
-#zfymlruykb .gt_row {
+#nkbihskbqt .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1822,7 +1479,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   overflow-x: hidden; }
 
-#zfymlruykb .gt_stub {
+#nkbihskbqt .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1834,7 +1491,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#zfymlruykb .gt_stub_row_grou#zfymlruykb p {
+#nkbihskbqt .gt_stub_row_grou#nkbihskbqt p {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1847,13 +1504,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   vertical-align: top; }
 
-#zfymlruykb .gt_row_group_first td {
+#nkbihskbqt .gt_row_group_first td {
   border-top-width: 2px; }
 
-#zfymlruykb .gt_row_group_first th {
+#nkbihskbqt .gt_row_group_first th {
   border-top-width: 2px; }
 
-#zfymlruykb .gt_summary_row {
+#nkbihskbqt .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1862,14 +1519,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#zfymlruykb .gt_first_summary_row {
+#nkbihskbqt .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3; }
 
-#zfymlruykb .gt_first_summary_row.thick {
+#nkbihskbqt .gt_first_summary_row.thick {
   border-top-width: 2px; }
 
-#zfymlruykb .gt_last_summary_row {
+#nkbihskbqt .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1878,7 +1535,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#zfymlruykb .gt_grand_summary_row {
+#nkbihskbqt .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1887,7 +1544,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#zfymlruykb .gt_first_grand_summary_row {
+#nkbihskbqt .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1896,7 +1553,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 6px;
   border-top-color: #D3D3D3; }
 
-#zfymlruykb .gt_last_grand_summary_row_to#zfymlruykb p {
+#nkbihskbqt .gt_last_grand_summary_row_to#nkbihskbqt p {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1905,10 +1562,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 6px;
   border-bottom-color: #D3D3D3; }
 
-#zfymlruykb .gt_striped {
+#nkbihskbqt .gt_striped {
   background-color: rgba(128, 128, 128, 0.05); }
 
-#zfymlruykb .gt_table_body {
+#nkbihskbqt .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1916,7 +1573,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#zfymlruykb .gt_footnotes {
+#nkbihskbqt .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1929,7 +1586,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#zfymlruykb .gt_footnote {
+#nkbihskbqt .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1937,7 +1594,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#zfymlruykb .gt_sourcenotes {
+#nkbihskbqt .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1950,137 +1607,144 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#zfymlruykb .gt_sourcenote {
+#nkbihskbqt .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 5px;
   padding-right: 5px; }
 
-#zfymlruykb .gt_left {
+#nkbihskbqt .gt_left {
   text-align: left; }
 
-#zfymlruykb .gt_center {
+#nkbihskbqt .gt_center {
   text-align: center; }
 
-#zfymlruykb .gt_right {
+#nkbihskbqt .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums; }
 
-#zfymlruykb .gt_font_normal {
+#nkbihskbqt .gt_font_normal {
   font-weight: normal; }
 
-#zfymlruykb .gt_font_bold {
+#nkbihskbqt .gt_font_bold {
   font-weight: bold; }
 
-#zfymlruykb .gt_font_italic {
+#nkbihskbqt .gt_font_italic {
   font-style: italic; }
 
-#zfymlruykb .gt_super {
+#nkbihskbqt .gt_super {
   font-size: 65%; }
 
-#zfymlruykb .gt_footnote_marks {
+#nkbihskbqt .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial; }
 
-#zfymlruykb .gt_asterisk {
+#nkbihskbqt .gt_asterisk {
   font-size: 100%;
   vertical-align: 0; }
 
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 
-<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
-<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="date">date</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="time">time</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="datetime">datetime</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th></tr>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="row">row</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group">group</th></tr>
 </tbody><tbody class="gt_table_body">
 <tr>
-</tr><tr class="gt_group_heading_row">  <th class="gt_group_heading" colspan="8">grp_a</th></tr>
-  <tr><th class="gt_row gt_left gt_stub">row_1</th>
-  <td class="gt_row gt_right">0.1111</td>
   <td class="gt_row gt_left">apricot</td>
   <td class="gt_row gt_left">one</td>
+  <td class="gt_row gt_right">49.95</td>
+  <td class="gt_row gt_right">0.1111</td>
   <td class="gt_row gt_right">2015-01-15</td>
   <td class="gt_row gt_right">13:35</td>
   <td class="gt_row gt_right">2018-01-01 02:22</td>
-  <td class="gt_row gt_right">49.95</td>
+  <td class="gt_row gt_left">row_1</td>
+  <td class="gt_row gt_left">grp_a</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_2</th>
-  <td class="gt_row gt_right">2.222</td>
   <td class="gt_row gt_left">banana</td>
   <td class="gt_row gt_left">two</td>
+  <td class="gt_row gt_right">17.95</td>
+  <td class="gt_row gt_right">2.222</td>
   <td class="gt_row gt_right">2015-02-15</td>
   <td class="gt_row gt_right">14:40</td>
   <td class="gt_row gt_right">2018-02-02 14:33</td>
-  <td class="gt_row gt_right">17.95</td>
+  <td class="gt_row gt_left">row_2</td>
+  <td class="gt_row gt_left">grp_a</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_3</th>
-  <td class="gt_row gt_right">33.33</td>
   <td class="gt_row gt_left">coconut</td>
   <td class="gt_row gt_left">three</td>
+  <td class="gt_row gt_right">1.39</td>
+  <td class="gt_row gt_right">33.33</td>
   <td class="gt_row gt_right">2015-03-15</td>
   <td class="gt_row gt_right">15:45</td>
   <td class="gt_row gt_right">2018-03-03 03:44</td>
-  <td class="gt_row gt_right">1.39</td>
+  <td class="gt_row gt_left">row_3</td>
+  <td class="gt_row gt_left">grp_a</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_4</th>
-  <td class="gt_row gt_right">444.4</td>
   <td class="gt_row gt_left">durian</td>
   <td class="gt_row gt_left">four</td>
+  <td class="gt_row gt_right">65100.0</td>
+  <td class="gt_row gt_right">444.4</td>
   <td class="gt_row gt_right">2015-04-15</td>
   <td class="gt_row gt_right">16:50</td>
   <td class="gt_row gt_right">2018-04-04 15:55</td>
-  <td class="gt_row gt_right">65100.0</td>
+  <td class="gt_row gt_left">row_4</td>
+  <td class="gt_row gt_left">grp_a</td>
 </tr>
 <tr>
-</tr><tr class="gt_group_heading_row">  <th class="gt_group_heading" colspan="8">grp_b</th></tr>
-  <tr><th class="gt_row gt_left gt_stub">row_5</th>
-  <td class="gt_row gt_right">5550.0</td>
   <td class="gt_row gt_left"><na></na></td>
   <td class="gt_row gt_left">five</td>
+  <td class="gt_row gt_right">1325.81</td>
+  <td class="gt_row gt_right">5550.0</td>
   <td class="gt_row gt_right">2015-05-15</td>
   <td class="gt_row gt_right">17:55</td>
   <td class="gt_row gt_right">2018-05-05 04:00</td>
-  <td class="gt_row gt_right">1325.81</td>
+  <td class="gt_row gt_left">row_5</td>
+  <td class="gt_row gt_left">grp_b</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_6</th>
-  <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_left">fig</td>
   <td class="gt_row gt_left">six</td>
+  <td class="gt_row gt_right">13.255</td>
+  <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_right">2015-06-15</td>
   <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_right">2018-06-06 16:11</td>
-  <td class="gt_row gt_right">13.255</td>
+  <td class="gt_row gt_left">row_6</td>
+  <td class="gt_row gt_left">grp_b</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_7</th>
-  <td class="gt_row gt_right">777000.0</td>
   <td class="gt_row gt_left">grapefruit</td>
   <td class="gt_row gt_left">seven</td>
   <td class="gt_row gt_right"><na></na></td>
+  <td class="gt_row gt_right">777000.0</td>
+  <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_right">19:10</td>
   <td class="gt_row gt_right">2018-07-07 05:22</td>
-  <td class="gt_row gt_right"><na></na></td>
+  <td class="gt_row gt_left">row_7</td>
+  <td class="gt_row gt_left">grp_b</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_8</th>
-  <td class="gt_row gt_right">8880000.0</td>
   <td class="gt_row gt_left">honeydew</td>
   <td class="gt_row gt_left">eight</td>
+  <td class="gt_row gt_right">0.44</td>
+  <td class="gt_row gt_right">8880000.0</td>
   <td class="gt_row gt_right">2015-08-15</td>
   <td class="gt_row gt_right">20:20</td>
   <td class="gt_row gt_right"><na></na></td>
-  <td class="gt_row gt_right">0.44</td>
+  <td class="gt_row gt_left">row_8</td>
+  <td class="gt_row gt_left">grp_b</td>
 </tr>
 </tbody>
 
@@ -2091,27 +1755,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         
 </div>
 </div>
-<p>By default, values in the body of a table (and their column labels) are automatically aligned. The alignment is governed by the types of values in a column. If you’d like to disable this form of auto-alignment, the <code>auto_align=False</code> option can be taken.</p>
+</section>
+<section id="polars-selectors" class="level2">
+<h2 class="anchored" data-anchor-id="polars-selectors">Polars selectors</h2>
+<p>When using a polars DataFrame, you can select columns using <a href="https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html">polars selectors</a>.</p>
+<p>The example below uses polars selectors to move all columns that start with <code>"c"</code> or <code>"f"</code> to the start of the table.</p>
 <div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>gt.GT(gt.exibble, rowname_col<span class="op">=</span><span class="st">"row"</span>, auto_align<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars.selectors <span class="im">as</span> cs</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>pl_df <span class="op">=</span> pl.from_pandas(exibble)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>GT(pl_df).cols_move_to_start(cs.starts_with(<span class="st">"c"</span>) <span class="op">|</span> cs.starts_with(<span class="st">"f"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 
-<div id="ejgwmlgcwv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="uizndhretp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#ejgwmlgcwv table {
+#uizndhretp table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#ejgwmlgcwv thead, tbody, tfoot, tr, td, th {
+#uizndhret#uizndhretp p thead, tbody, tfoot, tr, td, th {
   border-style: none; }
 
-#ejgwmlgcwv p {
+#uizndhretp p {
   margin: 0;
   padding: 0; }
 
-#ejgwmlgcwv .gt_table {
+#uizndhret#uizndhretp p .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2136,11 +1809,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-width: 2px;
   border-left-color: #D3D3D3; }
 
-#ejgwmlgcwv .gt_caption {
+#uizndhret#uizndhretp p .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px; }
 
-#ejgwmlgcwv .gt_title {
+#uizndhret#uizndhretp p .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2151,7 +1824,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0; }
 
-#ejgwmlgcwv .gt_subtitle {
+#uizndhret#uizndhretp p .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2162,7 +1835,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #FFFFFF;
   border-top-width: 0; }
 
-#ejgwmlgcwv .gt_heading {
+#uizndhret#uizndhretp p .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2173,12 +1846,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#ejgwmlgcwv .gt_bottom_border {
+#uizndhret#uizndhretp p .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#ejgwmlgcwv .gt_col_headings {
+#uizndhret#uizndhretp p .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2192,7 +1865,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#ejgwmlgcwv .gt_col_heading {
+#uizndhret#uizndhretp p .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2211,7 +1884,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   overflow-x: hidden; }
 
-#ejgwmlgcwv .gt_column_spanner_outer {
+#uizndhret#uizndhretp p .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2222,13 +1895,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 4px;
   padding-right: 4px; }
 
-#ejgwmlgcwv .gt_column_spanner_outer:first-child {
+#uizndhret#uizndhretp p .gt_column_spanner_outer:first-child {
   padding-left: 0; }
 
-#ejgwmlgcwv .gt_column_spanner_outer:last-child {
+#uizndhret#uizndhretp p .gt_column_spanner_outer:last-child {
   padding-right: 0; }
 
-#ejgwmlgcwv .gt_column_spanner {
+#uizndhret#uizndhretp p .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2239,10 +1912,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   display: inline-block;
   width: 100%; }
 
-#ejgwmlgcwv .gt_spanner_row {
+#uizndhret#uizndhretp p .gt_spanner_row {
   border-bottom-style: hidden; }
 
-#ejgwmlgcwv .gt_group_heading {
+#uizndhret#uizndhretp p .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2267,7 +1940,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   text-align: left; }
 
-#ejgwmlgcwv .gt_empty_group_heading {
+#uizndhret#uizndhretp p .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2281,13 +1954,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
   vertical-align: middle; }
 
-#ejgwmlgcwv .gt_from_md > :first-child {
+#uizndhret#uizndhretp p .gt_from_md > :first-child {
   margin-top: 0; }
 
-#ejgwmlgcwv .gt_from_md > :last-child {
+#uizndhret#uizndhretp p .gt_from_md > :last-child {
   margin-bottom: 0; }
 
-#ejgwmlgcwv .gt_row {
+#uizndhret#uizndhretp p .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2305,7 +1978,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   overflow-x: hidden; }
 
-#ejgwmlgcwv .gt_stub {
+#uizndhret#uizndhretp p .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2317,7 +1990,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#ejgwmlgcwv .gt_stub_row_grou#ejgwmlgcwv p {
+#uizndhret#uizndhretp p .gt_stub_row_grou#uizndhretp p {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2330,13 +2003,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   vertical-align: top; }
 
-#ejgwmlgcwv .gt_row_group_first td {
+#uizndhret#uizndhretp p .gt_row_group_first td {
   border-top-width: 2px; }
 
-#ejgwmlgcwv .gt_row_group_first th {
+#uizndhret#uizndhretp p .gt_row_group_first th {
   border-top-width: 2px; }
 
-#ejgwmlgcwv .gt_summary_row {
+#uizndhret#uizndhretp p .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2345,14 +2018,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#ejgwmlgcwv .gt_first_summary_row {
+#uizndhret#uizndhretp p .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3; }
 
-#ejgwmlgcwv .gt_first_summary_row.thick {
+#uizndhret#uizndhretp p .gt_first_summary_row.thick {
   border-top-width: 2px; }
 
-#ejgwmlgcwv .gt_last_summary_row {
+#uizndhret#uizndhretp p .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2361,7 +2034,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#ejgwmlgcwv .gt_grand_summary_row {
+#uizndhret#uizndhretp p .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2370,7 +2043,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#ejgwmlgcwv .gt_first_grand_summary_row {
+#uizndhret#uizndhretp p .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2379,7 +2052,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 6px;
   border-top-color: #D3D3D3; }
 
-#ejgwmlgcwv .gt_last_grand_summary_row_to#ejgwmlgcwv p {
+#uizndhret#uizndhretp p .gt_last_grand_summary_row_to#uizndhretp p {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2388,10 +2061,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 6px;
   border-bottom-color: #D3D3D3; }
 
-#ejgwmlgcwv .gt_striped {
+#uizndhret#uizndhretp p .gt_striped {
   background-color: rgba(128, 128, 128, 0.05); }
 
-#ejgwmlgcwv .gt_table_body {
+#uizndhret#uizndhretp p .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2399,7 +2072,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#ejgwmlgcwv .gt_footnotes {
+#uizndhret#uizndhretp p .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2412,7 +2085,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#ejgwmlgcwv .gt_footnote {
+#uizndhret#uizndhretp p .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -2420,7 +2093,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#ejgwmlgcwv .gt_sourcenotes {
+#uizndhret#uizndhretp p .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2433,143 +2106,143 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#ejgwmlgcwv .gt_sourcenote {
+#uizndhret#uizndhretp p .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 5px;
   padding-right: 5px; }
 
-#ejgwmlgcwv .gt_left {
+#uizndhret#uizndhretp p .gt_left {
   text-align: left; }
 
-#ejgwmlgcwv .gt_center {
+#uizndhret#uizndhretp p .gt_center {
   text-align: center; }
 
-#ejgwmlgcwv .gt_right {
+#uizndhret#uizndhretp p .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums; }
 
-#ejgwmlgcwv .gt_font_normal {
+#uizndhret#uizndhretp p .gt_font_normal {
   font-weight: normal; }
 
-#ejgwmlgcwv .gt_font_bold {
+#uizndhret#uizndhretp p .gt_font_bold {
   font-weight: bold; }
 
-#ejgwmlgcwv .gt_font_italic {
+#uizndhret#uizndhretp p .gt_font_italic {
   font-style: italic; }
 
-#ejgwmlgcwv .gt_super {
+#uizndhret#uizndhretp p .gt_super {
   font-size: 65%; }
 
-#ejgwmlgcwv .gt_footnote_marks {
+#uizndhret#uizndhretp p .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial; }
 
-#ejgwmlgcwv .gt_asterisk {
+#uizndhret#uizndhretp p .gt_asterisk {
   font-size: 100%;
   vertical-align: 0; }
 
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 
-<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
-<th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="num">num</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="char">char</th>
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="char">char</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="date">date</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="time">time</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="datetime">datetime</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="row">row</th>
 <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="group">group</th></tr>
 </tbody><tbody class="gt_table_body">
 <tr>
-  <th class="gt_row gt_left gt_stub">row_1</th>
-  <td class="gt_row gt_center">0.1111</td>
   <td class="gt_row gt_center">apricot</td>
+  <td class="gt_row gt_right">49.95</td>
   <td class="gt_row gt_center">one</td>
+  <td class="gt_row gt_right">0.1111</td>
   <td class="gt_row gt_center">2015-01-15</td>
   <td class="gt_row gt_center">13:35</td>
   <td class="gt_row gt_center">2018-01-01 02:22</td>
-  <td class="gt_row gt_center">49.95</td>
+  <td class="gt_row gt_center">row_1</td>
   <td class="gt_row gt_center">grp_a</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_2</th>
-  <td class="gt_row gt_center">2.222</td>
   <td class="gt_row gt_center">banana</td>
+  <td class="gt_row gt_right">17.95</td>
   <td class="gt_row gt_center">two</td>
+  <td class="gt_row gt_right">2.222</td>
   <td class="gt_row gt_center">2015-02-15</td>
   <td class="gt_row gt_center">14:40</td>
   <td class="gt_row gt_center">2018-02-02 14:33</td>
-  <td class="gt_row gt_center">17.95</td>
+  <td class="gt_row gt_center">row_2</td>
   <td class="gt_row gt_center">grp_a</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_3</th>
-  <td class="gt_row gt_center">33.33</td>
   <td class="gt_row gt_center">coconut</td>
+  <td class="gt_row gt_right">1.39</td>
   <td class="gt_row gt_center">three</td>
+  <td class="gt_row gt_right">33.33</td>
   <td class="gt_row gt_center">2015-03-15</td>
   <td class="gt_row gt_center">15:45</td>
   <td class="gt_row gt_center">2018-03-03 03:44</td>
-  <td class="gt_row gt_center">1.39</td>
+  <td class="gt_row gt_center">row_3</td>
   <td class="gt_row gt_center">grp_a</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_4</th>
-  <td class="gt_row gt_center">444.4</td>
   <td class="gt_row gt_center">durian</td>
+  <td class="gt_row gt_right">65100.0</td>
   <td class="gt_row gt_center">four</td>
+  <td class="gt_row gt_right">444.4</td>
   <td class="gt_row gt_center">2015-04-15</td>
   <td class="gt_row gt_center">16:50</td>
   <td class="gt_row gt_center">2018-04-04 15:55</td>
-  <td class="gt_row gt_center">65100.0</td>
+  <td class="gt_row gt_center">row_4</td>
   <td class="gt_row gt_center">grp_a</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_5</th>
-  <td class="gt_row gt_center">5550.0</td>
-  <td class="gt_row gt_center"><na></na></td>
+  <td class="gt_row gt_center">None</td>
+  <td class="gt_row gt_right">1325.81</td>
   <td class="gt_row gt_center">five</td>
+  <td class="gt_row gt_right">5550.0</td>
   <td class="gt_row gt_center">2015-05-15</td>
   <td class="gt_row gt_center">17:55</td>
   <td class="gt_row gt_center">2018-05-05 04:00</td>
-  <td class="gt_row gt_center">1325.81</td>
+  <td class="gt_row gt_center">row_5</td>
   <td class="gt_row gt_center">grp_b</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_6</th>
-  <td class="gt_row gt_center"><na></na></td>
   <td class="gt_row gt_center">fig</td>
+  <td class="gt_row gt_right">13.255</td>
   <td class="gt_row gt_center">six</td>
+  <td class="gt_row gt_right">None</td>
   <td class="gt_row gt_center">2015-06-15</td>
-  <td class="gt_row gt_center"><na></na></td>
+  <td class="gt_row gt_center">None</td>
   <td class="gt_row gt_center">2018-06-06 16:11</td>
-  <td class="gt_row gt_center">13.255</td>
+  <td class="gt_row gt_center">row_6</td>
   <td class="gt_row gt_center">grp_b</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_7</th>
-  <td class="gt_row gt_center">777000.0</td>
   <td class="gt_row gt_center">grapefruit</td>
+  <td class="gt_row gt_right">None</td>
   <td class="gt_row gt_center">seven</td>
-  <td class="gt_row gt_center"><na></na></td>
+  <td class="gt_row gt_right">777000.0</td>
+  <td class="gt_row gt_center">None</td>
   <td class="gt_row gt_center">19:10</td>
   <td class="gt_row gt_center">2018-07-07 05:22</td>
-  <td class="gt_row gt_center"><na></na></td>
+  <td class="gt_row gt_center">row_7</td>
   <td class="gt_row gt_center">grp_b</td>
 </tr>
 <tr>
-  <th class="gt_row gt_left gt_stub">row_8</th>
-  <td class="gt_row gt_center">8880000.0</td>
   <td class="gt_row gt_center">honeydew</td>
+  <td class="gt_row gt_right">0.44</td>
   <td class="gt_row gt_center">eight</td>
+  <td class="gt_row gt_right">8880000.0</td>
   <td class="gt_row gt_center">2015-08-15</td>
   <td class="gt_row gt_center">20:20</td>
-  <td class="gt_row gt_center"><na></na></td>
-  <td class="gt_row gt_center">0.44</td>
+  <td class="gt_row gt_center">None</td>
+  <td class="gt_row gt_center">row_8</td>
   <td class="gt_row gt_center">grp_b</td>
 </tr>
 </tbody>
@@ -2581,503 +2254,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         
 </div>
 </div>
-<p>What you’ll get from that is center-alignment of all table body values and all column labels. Note that row labels in the the stub are still left-aligned; and <code>auto_align</code> has no effect on alignment within the table stub.</p>
-<p>However which way you generate the initial table object, you can modify it with a huge variety of methods to further customize the presentation. Formatting body cells is commonly done with the family of formatting methods (e.g., <code>fmt_number()</code>, <code>fmt_date()</code>, etc.). The package supports formatting with internationalization (‘i18n’ features) and so locale-aware methods all come with a <code>locale</code> argument. To avoid having to use that argument repeatedly, the <code>GT()</code> class has its own <code>locale</code> argument. Setting a locale in that will make it available globally. Here’s an example of how that works in practice when setting <code>locale = "fr"</code> in <code>GT()</code> prior to using formatting methods:</p>
+<p>In general, selection should match the behaviors of the polars <code>DataFrame.select()</code> method.</p>
 <div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    gt.GT(gt.exibble, rowname_col<span class="op">=</span><span class="st">"row"</span>, locale<span class="op">=</span><span class="st">"fr"</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>      .fmt_currency(columns<span class="op">=</span><span class="st">"currency"</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>      .fmt_scientific(columns<span class="op">=</span><span class="st">"num"</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>      .fmt_date(columns<span class="op">=</span><span class="st">"date"</span>, date_style<span class="op">=</span><span class="st">"day_month_year"</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pl_df.select(cs.starts_with(<span class="st">"c"</span>) <span class="op">|</span> cs.starts_with(<span class="st">"f"</span>)).columns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
-
-<div id="piiopkhyrw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>
-#piiopkhyrw table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#piiopkhyrw thead, tbody, tfoot, tr, td, th {
-  border-style: none; }
-
-#piiopkhyrw p {
-  margin: 0;
-  padding: 0; }
-
-#piiopkhyrw .gt_table {
-  display: table;
-  border-collapse: collapse;
-  line-height: normal;
-  margin-left: auto;
-  margin-right: auto;
-  color: #333333;
-  font-size: 16px;
-  font-weight: normal;
-  font-style: normal;
-  background-color: #FFFFFF;
-  width: auto;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #A8A8A8;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #A8A8A8;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3; }
-
-#piiopkhyrw .gt_caption {
-  padding-top: 4px;
-  padding-bottom: 4px; }
-
-#piiopkhyrw .gt_title {
-  color: #333333;
-  font-size: 125%;
-  font-weight: initial;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-color: #FFFFFF;
-  border-bottom-width: 0; }
-
-#piiopkhyrw .gt_subtitle {
-  color: #333333;
-  font-size: 85%;
-  font-weight: initial;
-  padding-top: 3px;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-color: #FFFFFF;
-  border-top-width: 0; }
-
-#piiopkhyrw .gt_heading {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-bottom-color: #FFFFFF;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3; }
-
-#piiopkhyrw .gt_bottom_border {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3; }
-
-#piiopkhyrw .gt_col_headings {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3; }
-
-#piiopkhyrw .gt_col_heading {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow-x: hidden; }
-
-#piiopkhyrw .gt_column_spanner_outer {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 4px;
-  padding-right: 4px; }
-
-#piiopkhyrw .gt_column_spanner_outer:first-child {
-  padding-left: 0; }
-
-#piiopkhyrw .gt_column_spanner_outer:last-child {
-  padding-right: 0; }
-
-#piiopkhyrw .gt_column_spanner {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  overflow-x: hidden;
-  display: inline-block;
-  width: 100%; }
-
-#piiopkhyrw .gt_spanner_row {
-  border-bottom-style: hidden; }
-
-#piiopkhyrw .gt_group_heading {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  text-align: left; }
-
-#piiopkhyrw .gt_empty_group_heading {
-  padding: 0.5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: middle; }
-
-#piiopkhyrw .gt_from_md > :first-child {
-  margin-top: 0; }
-
-#piiopkhyrw .gt_from_md > :last-child {
-  margin-bottom: 0; }
-
-#piiopkhyrw .gt_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 10px;
-  border-top-style: solid;
-  border-top-width: 1px;
-  border-top-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  overflow-x: hidden; }
-
-#piiopkhyrw .gt_stub {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 5px;
-  padding-right: 5px; }
-
-#piiopkhyrw .gt_stub_row_grou#piiopkhyrw p {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 5px;
-  padding-right: 5px;
-  vertical-align: top; }
-
-#piiopkhyrw .gt_row_group_first td {
-  border-top-width: 2px; }
-
-#piiopkhyrw .gt_row_group_first th {
-  border-top-width: 2px; }
-
-#piiopkhyrw .gt_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px; }
-
-#piiopkhyrw .gt_first_summary_row {
-  border-top-style: solid;
-  border-top-color: #D3D3D3; }
-
-#piiopkhyrw .gt_first_summary_row.thick {
-  border-top-width: 2px; }
-
-#piiopkhyrw .gt_last_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3; }
-
-#piiopkhyrw .gt_grand_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px; }
-
-#piiopkhyrw .gt_first_grand_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: double;
-  border-top-width: 6px;
-  border-top-color: #D3D3D3; }
-
-#piiopkhyrw .gt_last_grand_summary_row_to#piiopkhyrw p {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: double;
-  border-bottom-width: 6px;
-  border-bottom-color: #D3D3D3; }
-
-#piiopkhyrw .gt_striped {
-  background-color: rgba(128, 128, 128, 0.05); }
-
-#piiopkhyrw .gt_table_body {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3; }
-
-#piiopkhyrw .gt_footnotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3; }
-
-#piiopkhyrw .gt_footnote {
-  margin: 0px;
-  font-size: 90%;
-  padding-left: 4px;
-  padding-right: 4px;
-  padding-left: 5px;
-  padding-right: 5px; }
-
-#piiopkhyrw .gt_sourcenotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3; }
-
-#piiopkhyrw .gt_sourcenote {
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px; }
-
-#piiopkhyrw .gt_left {
-  text-align: left; }
-
-#piiopkhyrw .gt_center {
-  text-align: center; }
-
-#piiopkhyrw .gt_right {
-  text-align: right;
-  font-variant-numeric: tabular-nums; }
-
-#piiopkhyrw .gt_font_normal {
-  font-weight: normal; }
-
-#piiopkhyrw .gt_font_bold {
-  font-weight: bold; }
-
-#piiopkhyrw .gt_font_italic {
-  font-style: italic; }
-
-#piiopkhyrw .gt_super {
-  font-size: 65%; }
-
-#piiopkhyrw .gt_footnote_marks {
-  font-size: 75%;
-  vertical-align: 0.4em;
-  position: initial; }
-
-#piiopkhyrw .gt_asterisk {
-  font-size: 100%;
-  vertical-align: 0; }
-
-</style>
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-
-<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
-<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="date">date</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="time">time</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="datetime">datetime</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group">group</th></tr>
-</tbody><tbody class="gt_table_body">
-<tr>
-  <th class="gt_row gt_left gt_stub">row_1</th>
-  <td class="gt_row gt_right">1.11 × 10<sup style="font-size: 65%;">−1</sup></td>
-  <td class="gt_row gt_left">apricot</td>
-  <td class="gt_row gt_left">one</td>
-  <td class="gt_row gt_right">15 January 2015</td>
-  <td class="gt_row gt_right">13:35</td>
-  <td class="gt_row gt_right">2018-01-01 02:22</td>
-  <td class="gt_row gt_right">$49.95</td>
-  <td class="gt_row gt_left">grp_a</td>
-</tr>
-<tr>
-  <th class="gt_row gt_left gt_stub">row_2</th>
-  <td class="gt_row gt_right">2.22</td>
-  <td class="gt_row gt_left">banana</td>
-  <td class="gt_row gt_left">two</td>
-  <td class="gt_row gt_right">15 February 2015</td>
-  <td class="gt_row gt_right">14:40</td>
-  <td class="gt_row gt_right">2018-02-02 14:33</td>
-  <td class="gt_row gt_right">$17.95</td>
-  <td class="gt_row gt_left">grp_a</td>
-</tr>
-<tr>
-  <th class="gt_row gt_left gt_stub">row_3</th>
-  <td class="gt_row gt_right">3.33 × 10<sup style="font-size: 65%;">1</sup></td>
-  <td class="gt_row gt_left">coconut</td>
-  <td class="gt_row gt_left">three</td>
-  <td class="gt_row gt_right">15 March 2015</td>
-  <td class="gt_row gt_right">15:45</td>
-  <td class="gt_row gt_right">2018-03-03 03:44</td>
-  <td class="gt_row gt_right">$1.39</td>
-  <td class="gt_row gt_left">grp_a</td>
-</tr>
-<tr>
-  <th class="gt_row gt_left gt_stub">row_4</th>
-  <td class="gt_row gt_right">4.44 × 10<sup style="font-size: 65%;">2</sup></td>
-  <td class="gt_row gt_left">durian</td>
-  <td class="gt_row gt_left">four</td>
-  <td class="gt_row gt_right">15 April 2015</td>
-  <td class="gt_row gt_right">16:50</td>
-  <td class="gt_row gt_right">2018-04-04 15:55</td>
-  <td class="gt_row gt_right">$65,100.00</td>
-  <td class="gt_row gt_left">grp_a</td>
-</tr>
-<tr>
-  <th class="gt_row gt_left gt_stub">row_5</th>
-  <td class="gt_row gt_right">5.55 × 10<sup style="font-size: 65%;">3</sup></td>
-  <td class="gt_row gt_left"><na></na></td>
-  <td class="gt_row gt_left">five</td>
-  <td class="gt_row gt_right">15 May 2015</td>
-  <td class="gt_row gt_right">17:55</td>
-  <td class="gt_row gt_right">2018-05-05 04:00</td>
-  <td class="gt_row gt_right">$1,325.81</td>
-  <td class="gt_row gt_left">grp_b</td>
-</tr>
-<tr>
-  <th class="gt_row gt_left gt_stub">row_6</th>
-  <td class="gt_row gt_right"><na></na></td>
-  <td class="gt_row gt_left">fig</td>
-  <td class="gt_row gt_left">six</td>
-  <td class="gt_row gt_right">15 June 2015</td>
-  <td class="gt_row gt_right"><na></na></td>
-  <td class="gt_row gt_right">2018-06-06 16:11</td>
-  <td class="gt_row gt_right">$13.26</td>
-  <td class="gt_row gt_left">grp_b</td>
-</tr>
-<tr>
-  <th class="gt_row gt_left gt_stub">row_7</th>
-  <td class="gt_row gt_right">7.77 × 10<sup style="font-size: 65%;">5</sup></td>
-  <td class="gt_row gt_left">grapefruit</td>
-  <td class="gt_row gt_left">seven</td>
-  <td class="gt_row gt_right"><na></na></td>
-  <td class="gt_row gt_right">19:10</td>
-  <td class="gt_row gt_right">2018-07-07 05:22</td>
-  <td class="gt_row gt_right"><na></na></td>
-  <td class="gt_row gt_left">grp_b</td>
-</tr>
-<tr>
-  <th class="gt_row gt_left gt_stub">row_8</th>
-  <td class="gt_row gt_right">8.88 × 10<sup style="font-size: 65%;">6</sup></td>
-  <td class="gt_row gt_left">honeydew</td>
-  <td class="gt_row gt_left">eight</td>
-  <td class="gt_row gt_right">15 August 2015</td>
-  <td class="gt_row gt_right">20:20</td>
-  <td class="gt_row gt_right"><na></na></td>
-  <td class="gt_row gt_right">$0.44</td>
-  <td class="gt_row gt_left">grp_b</td>
-</tr>
-</tbody>
-
-
-</table>
-
-</div>
-        
+<pre><code>['char', 'currency', 'fctr']</code></pre>
 </div>
 </div>
-<p>In this example, the <code>fmt_currency()</code>, <code>fmt_scientific()</code>, and <code>fmt_date()</code> methods understand that the locale for this table is <code>"fr"</code> (French), so the appropriate formatting for that locale is apparent in the <code>currency</code>, <code>num</code>, and <code>date</code> columns.</p>
+<p>See the <a href="https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html">Selectors page in the polars docs</a> for more information.</p>
 
 
 </section>
@@ -3318,14 +2502,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/index.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Function reference</span>
+      <a href="../get-started/basic-formatting.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Formatting values</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/GT.tab_header.html" class="pagination-link">
-        <span class="nav-page-text">GT.tab_header</span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
