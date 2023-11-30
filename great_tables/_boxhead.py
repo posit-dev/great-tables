@@ -40,7 +40,6 @@ class BoxheadAPI:
         GTData
             The GTData object is returned.
 
-
         Examples
         --------
         Let's use a portion of the `countrypops` dataset to create a table. We can relabel all the
@@ -56,11 +55,11 @@ class BoxheadAPI:
 
         (
             gt.GT(countrypops_mini)
-                .cols_label(
-                    country_name=\"Name\",
-                    year=\"Year\",
-                    population=\"Population\"
-                )
+            .cols_label(
+                country_name=\"Name\",
+                year=\"Year\",
+                population=\"Population\"
+            )
         )
         ```
         """
@@ -120,8 +119,8 @@ class BoxheadAPI:
         ].tail(5)
 
         (
-           gt.GT(countrypops_mini, rowname_col=\"year\", groupname_col=\"country_name\")
-           .cols_align(align=\"left\", columns=\"population\")
+            gt.GT(countrypops_mini, rowname_col=\"year\", groupname_col=\"country_name\")
+            .cols_align(align=\"left\", columns=\"population\")
         )
         ```
 
