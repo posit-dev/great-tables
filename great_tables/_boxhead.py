@@ -62,6 +62,20 @@ class BoxheadAPI:
             )
         )
         ```
+
+        We can also use Markdown formatting for the column labels. In this example, we'll use
+        `gt.md("*Population*")` to make the label italicized.
+
+        ```{python}
+        (
+            gt.GT(countrypops_mini)
+            .cols_label(
+                country_name=\"Name\",
+                year=\"Year\",
+                population=gt.md(\"*Population*\")
+            )
+        )
+        ```
         """
 
         # If nothing is provided, return `data` unchanged
