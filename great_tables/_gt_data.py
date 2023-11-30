@@ -42,15 +42,14 @@ class GTData:
     _options: Options
     _has_built: bool = False
 
-    def _replace(self, **kwargs) -> Self:
-        # TODO: may want to validate that kwargs should be an attribute on GT
+    def _replace(self, **kwargs: Any) -> Self:
         new_obj = copy.copy(self)
 
         missing = {k for k in kwargs if k not in new_obj.__dict__}
         if missing:
             raise ValueError(f"Replacements not in data: {missing}")
 
-        new_obj.__dict__.update(kwargs)
+        new_obj.__dict__.update(kwargs)  # type: ignore
 
         return new_obj
 
