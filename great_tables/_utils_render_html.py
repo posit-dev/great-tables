@@ -226,8 +226,7 @@ def create_columns_component_h(data: GTData) -> str:
                 # heading_style = next(styles_heading, {}).get('html_style', None)
                 heading_style = None
 
-                # Get the alignment for the current column from the `col_alignment` list
-                # by using the `h_var` value to obtain the index of the alignment value
+                # Get the alignment values for the first set of column labels
                 first_set_alignment = h_info.defaulted_align
 
                 level_1_spanners.append(
