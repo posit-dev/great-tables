@@ -9,7 +9,7 @@ from ._utils import _str_detect, _str_replace
 import pandas as pd
 import math
 from datetime import datetime, date, time
-from babel.dates import format_date, format_datetime, format_time
+from babel.dates import format_date, format_time
 
 
 if TYPE_CHECKING:
@@ -205,7 +205,7 @@ def fmt_number(
     The `fmt_integer()` method might be more useful if you really need to format numeric values to
     appear as integers (i.e., no decimals will be shown and input values are rounded as necessary).
     Need to do numeric formatting on a value or list of values? Take a look at the functional
-    version of this method: `vals_fmt_number()`.
+    version of this method: `val_fmt_number()`.
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -378,7 +378,7 @@ def fmt_integer(
     --------
     The `fmt_number()` method might be more of what you need if you'd like decimal values in your
     outputs. Need to do integer-based formatting on a value or list of values? Take a look at the
-    functional version of this method: `vals_fmt_integer()`.
+    functional version of this method: `val_fmt_integer()`.
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -578,7 +578,7 @@ def fmt_scientific(
 
     See Also
     --------
-    The functional version of this method, `vals_fmt_scientific()`, allows you to format a single
+    The functional version of this method, `val_fmt_scientific()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -821,7 +821,7 @@ def fmt_percent(
 
     See Also
     --------
-    The functional version of this method, `vals_fmt_percent()`, allows you to format a single
+    The functional version of this method, `val_fmt_percent()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1039,7 +1039,7 @@ def fmt_currency(
 
     See Also
     --------
-    The functional version of this method, `vals_fmt_currency()`, allows you to format a single
+    The functional version of this method, `val_fmt_currency()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1180,9 +1180,24 @@ def fmt_roman(
     GTData
         The GTData object is returned.
 
+    Examples
+    --------
+    Let's first create a DataFrame containing small numeric values and then introduce that to
+    `GT()`. We'll then format the `roman` column to appear as Roman numerals with the `fmt_roman()`
+    method.
+
+    ```{python}
+    import pandas as pd
+    import great_tables as gt
+
+    numbers_tbl = pd.DataFrame({\"arabic\": [1, 8, 24, 85], \"roman\": [1, 8, 24, 85]})
+
+    gt.GT(numbers_tbl, rowname_col=\"arabic\").fmt_roman(columns=\"roman\")
+    ```
+
     See Also
     --------
-    The functional version of this method, `vals_fmt_roman()`, allows you to format a single
+    The functional version of this method, `val_fmt_roman()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1345,9 +1360,21 @@ def fmt_bytes(
     `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
     that have a `locale` argument).
 
+    Examples
+    --------
+    Let's use a single column from the `exibble` dataset and create a new table. We'll format the
+    `num` column to display as byte sizes in the decimal standard through use of the `fmt_bytes()`
+    method.
+
+    ```{python}
+    import great_tables as gt
+
+    gt.GT(gt.exibble[[\"num\"]]).fmt_bytes(columns=\"num\", standard=\"decimal\")
+    ```
+
     See Also
     --------
-    The functional version of this method, `vals_fmt_bytes()`, allows you to format a single
+    The functional version of this method, `val_fmt_bytes()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1471,7 +1498,7 @@ def fmt_date(
     """
     Format values as dates.
 
-    Format input values to time values using one of 41 preset date styles. Input can be in the form
+    Format input values to time values using one of 17 preset date styles. Input can be in the form
     of `date` type or as a ISO-8601 string (in the form of `YYYY-MM-DD HH:MM:SS` or `YYYY-MM-DD`).
 
     Parameters
@@ -1537,9 +1564,23 @@ def fmt_date(
     argument (it is settable there as a value received by all other methods that have a `locale`
     argument).
 
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `date`
+    and `time` columns). With the `fmt_date()` method, we'll format the `date` column to display
+    dates formatted with the `"month_day_year"` date style.
+
+    ```{python}
+    import great_tables as gt
+
+    exibble_mini = gt.exibble[[\"date\", \"time\"]]
+
+    gt.GT(exibble_mini).fmt_date(columns=\"date\", date_style=\"month_day_year\")
+    ```
+
     See Also
     --------
-    The functional version of this method, `vals_fmt_date()`, allows you to format a single
+    The functional version of this method, `val_fmt_date()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1656,9 +1697,23 @@ def fmt_time(
     argument (it is settable there as a value received by all other methods that have a `locale`
     argument).
 
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `date`
+    and `time` columns). With the `fmt_time()` method, we'll format the `time` column to display
+    times formatted with the `"h_m_s_p"` time style.
+
+    ```{python}
+    import great_tables as gt
+
+    exibble_mini = gt.exibble[[\"date\", \"time\"]]
+
+    gt.GT(exibble_mini).fmt_time(columns=\"time\", time_style=\"h_m_s_p\")
+    ```
+
     See Also
     --------
-    The functional version of this method, `vals_fmt_time()`, allows you to format a single
+    The functional version of this method, `val_fmt_time()`, allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1741,7 +1796,7 @@ def fmt_markdown(
 
     See Also
     --------
-    The functional version of this method, `vals_fmt_markdown()`, allows you to format a single
+    The functional version of this method, `val_fmt_markdown()`, allows you to format a single
     string value (or a list of them).
     """
 

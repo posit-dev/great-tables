@@ -13,9 +13,9 @@ def tab_source_note(data: GTSelf, source_note: str) -> GTSelf:
 
     Add a source note to the footer part of the gt table. A source note is useful for citing the
     data included in the table. Several can be added to the footer, simply use the
-    `tab_source_note()` multiple time and they will be inserted in the order provided. We can use
-    Markdown formatting for the note, or, if the table is intended for HTML output, we can include
-    HTML formatting.
+    `tab_source_note()` method multiple times and they will be inserted in the order provided. We
+    can use Markdown formatting for the note, or, if the table is intended for HTML output, we can
+    include HTML formatting.
 
     Parameters
     ----------
@@ -30,11 +30,21 @@ def tab_source_note(data: GTSelf, source_note: str) -> GTSelf:
 
     Examples
     --------
-        >>> from gt import *
-        >>> x = GT([{"a": 5, "b": 10}, {"a": 15, "b": 20}])
-        >>>     .tab_source_note(source_note="Source note for the table.")
-        >>> x
-        >>> print(x)
+    With three columns from the `gtcars` dataset, let's create a new table. We can use the
+    `tab_source_note()` method to add a source note to the table footer. Here we are citing the
+    data source but this method can be used for any text you'd prefer to display in the footer
+    component of the table.
+
+    ```{python}
+    import great_tables as gt
+
+    gtcars_mini = gt.gtcars[[\"mfr\", \"model\", \"msrp\"]].head(5)
+
+    (
+        gt.GT(gtcars_mini, rowname_col=\"model\")
+        .tab_source_note(source_note=\"From edmunds.com\")
+    )
+    ```
     """
 
     return data._replace(_source_notes=data._source_notes + [source_note])
