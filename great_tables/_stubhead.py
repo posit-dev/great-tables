@@ -1,18 +1,12 @@
 from __future__ import annotations
-
+from typing import Union
 from typing_extensions import Self
 from copy import copy
-
-
-# class Stubhead:
-#    stubhead: Optional[str]
-#
-#    def __init__(self):
-#        pass
+from ._text import Text
 
 
 class StubheadAPI:
-    def tab_stubhead(self, label: str) -> Self:
+    def tab_stubhead(self, label: Union[str, Text]) -> Self:
         """
         Add label text to the stubhead.
 
