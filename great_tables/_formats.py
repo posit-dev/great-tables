@@ -1364,7 +1364,7 @@ def fmt_bytes(
     ```{python}
     import great_tables as gt
 
-    gt.GT(exibble[[\"num\"]]).fmt_bytes(columns=\"num\", standard=\"decimal\")
+    gt.GT(gt.exibble[[\"num\"]]).fmt_bytes(columns=\"num\", standard=\"decimal\")
     ```
 
     See Also
