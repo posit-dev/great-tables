@@ -49,7 +49,7 @@ class GTData:
         if missing:
             raise ValueError(f"Replacements not in data: {missing}")
 
-        new_obj.__dict__.update(kwargs)  # type: ignore
+        new_obj.__dict__.update(kwargs)
 
         return new_obj
 
