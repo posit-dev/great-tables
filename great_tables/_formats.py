@@ -1175,6 +1175,21 @@ def fmt_roman(
     GTData
         The GTData object is returned.
 
+    Examples
+    --------
+    Let's first create a DataFrame containing small numeric values and then introduce that to
+    `GT()`. We'll then format the `roman` column to appear as Roman numerals with the `fmt_roman()`
+    method.
+
+    ```{python}
+    import pandas as pd
+    import great_tables as gt
+
+    numbers_tbl = pd.DataFrame({arabic: [1, 8, 24, 85]}).assign(roman = lambda x: x.arabic)
+
+    gt.GT(numbers_tbl, rowname_col=\"arabic\").fmt_roman(columns=\"roman\")
+    ```
+
     See Also
     --------
     The functional version of this method, `val_fmt_roman()`, allows you to format a single
