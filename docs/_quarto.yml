@@ -6,9 +6,8 @@ website:
   page-navigation: true
   navbar:
     left:
-      - text: Articles
-        menu:
-          - articles/case-study-gtcars.qmd
+      - text: Get Started
+        file: get-started/index.qmd
       - href: reference/index.qmd
         text: Reference
       - href: changelog.qmd
@@ -19,6 +18,19 @@ website:
   sidebar:
     - id: examples
       contents: examples-qmd/*
+    - title: "Get Started"
+      contents:
+        - get-started/index.qmd
+        - get-started/overview.qmd
+        - section: Basic
+          contents:
+            - get-started/basic-header.qmd
+            - get-started/basic-stub.qmd
+            - get-started/basic-column-labels.qmd
+            - get-started/basic-formatting.qmd
+        - section: Advanced
+          contents:
+            - get-started/column-selection.qmd
 
 format:
   html:
