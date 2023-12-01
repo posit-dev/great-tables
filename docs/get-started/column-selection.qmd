@@ -1,0 +1,74 @@
+---
+title: Column selection
+jupyter: python3
+html-table-processing: none
+---
+
+The `columns=` argument for functions like `.tab_spanner()` and `.cols_move()` can accept a range of arguments.
+In the above examples, we just passed a list of strings with the exact column names.
+
+However, we can specify columns using any of the following:
+
+* A single string column name.
+* An integer for the column's position.
+* A list of strings or integers.
+* A polars selector.
+* A function that takes a string and returns True or False.
+
+```{python}
+from great_tables import GT, exibble
+
+gt_ex = GT(exibble)
+
+gt_ex
+```
+
+## String and integer selectors
+
+Use a list of strings or integers to select columns by name or position, respectively.
+
+```{python}
+gt_ex.cols_move_to_start(["date", 1, -1])
+```
+
+Note the code above moved the following columns:
+
+* The string `"date"` matched the column of the same name.
+* The integer `1` matched the second column (similar to list indexing).
+* The integer `-1` matched the last column.
+
+Moreover, the order of the list defines the order of selected columns.
+In this case, `"data"` was the first entry, so it's the very first column in the new table.
+
+## Function selectors
+
+A function can be used to select columns. It should take a string and returns True or False.
+
+```{python}
+gt_ex.cols_move_to_start(lambda x: "c" in x)
+```
+
+## Polars selectors
+
+When using a polars DataFrame, you can select columns using [polars selectors](https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html).
+
+The example below uses polars selectors to move all columns that start with `"c"` or `"f"` to the start of the table.
+
+```{python}
+import polars as pl
+import polars.selectors as cs
+
+pl_df = pl.from_pandas(exibble)
+
+GT(pl_df).cols_move_to_start(cs.starts_with("c") | cs.starts_with("f"))
+```
+
+In general, selection should match the behaviors of the polars `DataFrame.select()` method.
+
+```{python}
+pl_df.select(cs.starts_with("c") | cs.starts_with("f")).columns
+```
+
+See the [Selectors page in the polars docs](https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html) for more information.
+
+

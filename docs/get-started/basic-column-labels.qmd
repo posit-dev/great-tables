@@ -1,0 +1,95 @@
+---
+title: Column labels
+jupyter: python3
+html-table-processing: none
+---
+
+The table's **Column Labels** part contains, at a minimum, columns and their *column labels*. The last example had a single column: `size`. Just as in the **Stub**, we can create groupings called *spanner columns* that encompass one or more columns.
+
+To better demonstrate how **Column Labels** work and are displayed, let's use an input data table with more columns. In this case, that input table will be `airquality`. It has the following columns:
+
+- `Ozone`: mean ground-level ozone in parts per billion by volume (ppbV), measured between 13:00 and 15:00
+- `Solar_R`: solar radiation in Langley units (cal/m<sup>2</sup>), measured between 08:00 and noon
+- `Wind`: mean wind speed in miles per hour (mph)
+- `Temp`: maximum daily air temperature in degrees Fahrenheit (&deg;F)
+- `Month`, `Day`: the numeric month and day of month for the record
+
+We know that all measurements took place in 1973, so a `year` column will be added to the dataset before it is passed to `gt()`.
+
+```{python}
+from great_tables import GT, html
+from great_tables.data import airquality
+
+airquality_m = airquality.head(10).assign(Year = 1973)
+
+airquality_m
+```
+
+## Column spanners
+
+Let's organize the time information under a `Time` *spanner column label*, and put the other columns under a `Measurement` *spanner column label*. We can do this with the `tab_spanner()` method.
+
+
+```{python}
+gt_airquality = (
+    GT(airquality_m)
+
+    .tab_header(
+        title = "New York Air Quality Measurements",
+        subtitle = "Daily measurements in New York City (May 1-10, 1973)"
+    )
+    .tab_spanner(
+        label = "Time",
+        columns = ["Year", "Month", "Day"]
+    )
+    .tab_spanner(
+        label = "Measurement",
+        columns = ["Ozone", "Solar.R", "Wind", "Temp"]
+    )
+)
+
+gt_airquality
+```
+
+## Move and label columns
+
+We can do two more things to make this presentable:
+
+- move the `Time` columns to the beginning of the series (using `cols_move_to_start()`)
+- customize the column labels so that they are more descriptive (using `cols_label()`)
+
+Let's do both of these things in the next example.
+
+```{python}
+(
+    gt_airquality
+    .cols_move_to_start(columns = ["Year", "Month", "Day"])
+    .cols_label(
+        Ozone = html("Ozone,<br>ppbV"),
+        Solar_R = html("Solar R.,<br>cal/m<sup>2</sup>"),
+        Wind = html("Wind,<br>mph"),
+        Temp = html("Temp,<br>&deg;F")
+    )
+)
+```
+
+
+Note that even though columns were moved using `cols_move_to_start()`, the *spanner column labels* still spanned above the correct *column labels*. There are a number of methods on `GT`  to move columns, including `cols_move()`, `cols_move_to_end()`; there's even a method to hide columns: `cols_hide()`.
+
+Multiple columns can be renamed in a single use of `cols_label()`. Further to this, the helper functions `md()` and `html()` can be used to create column labels with additional styling. In the above example, we provided column labels as HTML so that we can insert linebreaks with `<br>`, insert a superscripted `2` (with `<sup>2</sup>`), and insert a degree symbol as an HTML entity (`&deg;`).
+
+## Specifying column selection
+
+In the above examples, we selected columns to span or move using a list of column names (as strings).
+However, **great_tables** supports a wide range of ways to select columns.
+
+For example, you can use a lambda function:
+
+```{python}
+(
+    GT(airquality_m)
+    .cols_move_to_start(columns = lambda colname: colname.endswith("R"))
+)
+```
+
+Inputs like strings, integers, and polars selectors are also supported. For more information, see [Column Selection](./column-selection.qmd).

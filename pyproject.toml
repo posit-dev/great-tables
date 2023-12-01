@@ -57,6 +57,7 @@ dev = [
     "jupyter",
     "quartodoc>=0.7.1; python_version >= '3.9'",
     "polars",
+    "pyarrow",
     "pytest>=3",
     "siuba",
     "syrupy"

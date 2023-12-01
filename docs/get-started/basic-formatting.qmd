@@ -1,0 +1,7 @@
+---
+title: Formatting values
+jupyter: python3
+html-table-processing: none
+---
+
+
