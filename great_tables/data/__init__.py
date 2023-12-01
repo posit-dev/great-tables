@@ -158,7 +158,7 @@ the non-existence of the entity during that year.
 
 Details
 -------
-A dataset with 13,545 rows and 5 columns:
+This is a dataset with 13,545 rows and 5 columns.
 
 - `country_name`: The name of the country.
 - `country_code_2`, `country_code_3`: The 2- and 3-letter ISO 3166-1 country codes.
@@ -192,7 +192,7 @@ noontime SZA is 73.0 but a different observer at 20 degrees N would measure the 
 
 Details
 -------
-A dataset with 816 rows and 4 columns.
+This is a dataset with 816 rows and 4 columns.
 
 - `latitude`: The latitude in decimal degrees for the observations.
 - `month: The measurement month. All calculations where conducted for the first day of each month.
@@ -224,7 +224,7 @@ experience should also mean motoring at speed, doing so in style and safety.
 
 Details
 -------
-A dataset with 47 rows and 15 columns.
+This is a dataset with 47 rows and 15 columns.
 
 - `mfr`: `The name of the car manufacturer.
 - `model`: The car's model name.
@@ -255,7 +255,7 @@ available market capitalization.
 
 Details
 -------
-A dataset with 16,607 rows and 7 columns.
+This is a dataset with 16,607 rows and 7 columns.
 
 `date`: The date expressed as `Date` values.
 `open`, `high`, `low`, `close`: The day's opening, high, low, and closing prices in USD. The `close`
@@ -352,7 +352,7 @@ Peppers, Garlic, Pesto Sauce)
 
 Details
 -------
-A dataset with 49,574 rows and 7 columns:
+This is a dataset with 49,574 rows and 7 columns.
 
 - `id`: The ID for the order, which consists of one or more pizzas at a given `date` and `time`.
 `date`: A character representation of the `order` date, expressed in the ISO 8601 date format
@@ -381,15 +381,15 @@ the familiar ISO 8601 format. The row and group columns provide for unique rowna
 
 Details
 -------
-A dataset with 8 rows and 9 columns:
+This is a dataset with 8 rows and 9 columns.
 
 - `num`: A numeric column ordered with increasingly larger values.
 - `char`: A character column composed of names of fruits from `a` to `h`.
 - `fctr`: A factor column with numbers from `1` to `8`, written out.
 - `date`, `time`, `datetime`: Character columns with dates, times, and datetimes.
 - `currency`: A numeric column that is useful for testing currency-based formatting.
-- `row`: A character column in the format `row_X` which can be useful for testing with row captions
-in a table stub.
+- `row`: A character column in the format `row_X` which can be useful for testing with row labels in
+a table stub.
 - `group`: A character column with four `grp_a` values and four `grp_b` values which can be useful
 for testing tables that contain row groups.
 """
@@ -414,7 +414,7 @@ year and population change values from adjacent census years.
 
 Details
 -------
-A dataset with 414 rows and 25 columns:
+This is a dataset with 414 rows and 25 columns.
 
 - `name`: The name of the municipality.
 - `website`: The website for the municipality. This is missing if there isn't an official site.
@@ -465,7 +465,7 @@ l'Est, etc.), and many bus lines.
 
 Details
 -------
-A dataset with 308 rows and 11 columns:
+This is a dataset with 308 rows and 11 columns.
 
 - `name`: The name of the station.
 - `caption`: In some cases, a station will have a caption that might describe a nearby place of
@@ -503,7 +503,7 @@ National Institute of Standards and Technology (NIST), Gaithersburg, Maryland, U
 
 Details
 -------
-A dataset with 354 rows and 4 columns:
+This is a dataset with 354 rows and 4 columns.
 
 - `name`: The name of the constant.
 - `value`: The value of the constant.
@@ -571,7 +571,7 @@ of any abbreviations seen in that column.
 
 Details
 -------
-A dataset with 39 rows and 11 columns:
+This is a dataset with 39 rows and 11 columns.
 
 - `test`: The name of the test.
 - `units`: The measurement units for the test.
