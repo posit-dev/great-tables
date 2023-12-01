@@ -1,7 +1,11 @@
+from __future__ import annotations
 from ._gt_data import GTData
 from great_tables.gt import _get_column_of_values, GT
 from great_tables import GT
-from typing import List, Any, Union, Optional
+from typing import List, Any, Union, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ._formats import DateStyle, TimeStyle
 
 
 def _make_one_col_table(vals: Union[Any, List[Any]]) -> GTData:
@@ -33,6 +37,7 @@ def val_fmt_number(
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
     scale_by: float = 1,
+    compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -87,6 +92,10 @@ def val_fmt_number(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    compact : bool
+        A boolean value that allows for compact formatting of numeric values. Values will be scaled
+        and decorated with the appropriate suffixes (e.g., `1230` becomes `1.23K`, and `1230000`
+        becomes `1.23M`). The `compact` option is `False` by default.
     pattern : str
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -124,6 +133,7 @@ def val_fmt_number(
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
         scale_by=scale_by,
+        compact=compact,
         pattern=pattern,
         sep_mark=sep_mark,
         dec_mark=dec_mark,
@@ -140,6 +150,7 @@ def val_fmt_integer(
     x: Union[Any, List[Any]],
     use_seps: bool = True,
     scale_by: float = 1,
+    compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     force_sign: bool = False,
@@ -174,6 +185,10 @@ def val_fmt_integer(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    compact : bool
+        A boolean value that allows for compact formatting of numeric values. Values will be scaled
+        and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
+        becomes `1M`). The `compact` option is `False` by default.
     pattern : str
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -203,6 +218,7 @@ def val_fmt_integer(
         columns="x",
         use_seps=use_seps,
         scale_by=scale_by,
+        compact=compact,
         pattern=pattern,
         sep_mark=sep_mark,
         force_sign=force_sign,
@@ -733,7 +749,7 @@ def val_fmt_bytes(
 
 def val_fmt_date(
     x: Union[Any, List[Any]],
-    date_style: str = "iso",
+    date_style: DateStyle = "iso",
     pattern: str = "{x}",
     locale: Union[str, None] = None,
 ) -> List[str]:
@@ -811,7 +827,7 @@ def val_fmt_date(
 
 def val_fmt_time(
     x: Union[Any, List[Any]],
-    time_style: str = "iso",
+    time_style: TimeStyle = "iso",
     pattern: str = "{x}",
     locale: Union[str, None] = None,
 ) -> List[str]:
