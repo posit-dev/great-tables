@@ -1,4 +1,4 @@
-# `great_tables v0.0.2`
+## `great_tables v0.0.2`
 
 This release contains fairly comprehensive implementations of a top-level `GT` object, with...
 
