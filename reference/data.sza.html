@@ -488,7 +488,11 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.data.sza" id="toc-great_tables.data.sza" class="nav-link active" data-scroll-target="#great_tables.data.sza">data.sza</a></li>
+  <li><a href="#great_tables.data.sza" id="toc-great_tables.data.sza" class="nav-link active" data-scroll-target="#great_tables.data.sza">data.sza</a>
+  <ul class="collapse">
+  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -500,10 +504,25 @@ ul.task-list li input[type="checkbox"] {
 <section id="great_tables.data.sza" class="level1">
 <h1>data.sza</h1>
 <p><code>data.sza</code></p>
-<p>Twice hourly solar zenith angles by month &amp; latitude</p>
+<p>Twice hourly solar zenith angles by month &amp; latitude.</p>
 <p>This dataset contains solar zenith angles (in degrees, with the range of 0-90) every half hour from 04:00 to 12:00, true solar time. This set of values is calculated on the first of every month for 4 different northern hemisphere latitudes. For determination of afternoon values, the presented tabulated values are symmetric about noon.</p>
+<p>The solar zenith angle (SZA) is one measure that helps to describe the sun’s path across the sky. It’s defined as the angle of the sun relative to a line perpendicular to the earth’s surface. It is useful to calculate the SZA in relation to the true solar time. True solar time relates to the position of the sun with respect to the observer, which is different depending on the exact longitude. For example, two hours before the sun crosses the meridian (the highest point it would reach that day) corresponds to a true solar time of 10 a.m. The SZA has a strong dependence on the observer’s latitude. For example, at a latitude of 50 degrees N at the start of January, the noontime SZA is 73.0 but a different observer at 20 degrees N would measure the noontime SZA to be 43.0 degrees.</p>
+<section id="details" class="level2">
+<h2 class="anchored" data-anchor-id="details">Details</h2>
+<p>A dataset with 816 rows and 4 columns.</p>
+<ul>
+<li><code>latitude</code>: The latitude in decimal degrees for the observations.</li>
+<li>`month: The measurement month. All calculations where conducted for the first day of each month.</li>
+<li><code>tst: The true solar time at the given</code>latitude<code>and date (first of</code>month`) for which the solar zenith angle is calculated.</li>
+<li><code>sza: The solar zenith angle in degrees, where</code>NA<code>s indicate that sunrise hadn't yet occurred by the</code>tst` value.</li>
+</ul>
+</section>
+<section id="source" class="level2">
+<h2 class="anchored" data-anchor-id="source">Source</h2>
+<p>Calculated Actinic Fluxes (290 - 700 nm) for Air Pollution Photochemistry Applications (Peterson, 1976), available at: <a href="https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=9100JA26.txt" class="uri">https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=9100JA26.txt</a>.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

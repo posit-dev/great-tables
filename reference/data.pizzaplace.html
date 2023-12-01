@@ -488,7 +488,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.data.pizzaplace" id="toc-great_tables.data.pizzaplace" class="nav-link active" data-scroll-target="#great_tables.data.pizzaplace">data.pizzaplace</a></li>
+  <li><a href="#great_tables.data.pizzaplace" id="toc-great_tables.data.pizzaplace" class="nav-link active" data-scroll-target="#great_tables.data.pizzaplace">data.pizzaplace</a>
+  <ul class="collapse">
+  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -500,10 +503,67 @@ ul.task-list li input[type="checkbox"] {
 <section id="great_tables.data.pizzaplace" class="level1">
 <h1>data.pizzaplace</h1>
 <p><code>data.pizzaplace</code></p>
-<p>A year of pizza sales from a pizza place</p>
+<p>A year of pizza sales from a pizza place.</p>
 <p>A synthetic dataset that describes pizza sales for a pizza place somewhere in the US. While the contents are artificial, the ingredients used to make the pizzas are far from it. There are 32 different pizzas that fall into 4 different categories: classic (classic pizzas: ‘You probably had one like it before, but never like this!’), chicken (pizzas with chicken as a major ingredient: ‘Try the Southwest Chicken Pizza! You’ll love it!’), supreme (pizzas that try a little harder: ‘My Soppressata pizza uses only the finest salami from my personal salumist!’), and, veggie (pizzas without any meats whatsoever: ‘My Five Cheese pizza has so many cheeses, I can only offer it in Large Size!’).</p>
+<p>Each pizza in the dataset is identified by a short <code>name</code>. The following listings provide the full names of each pizza and their main ingredients.</p>
+<p><strong>Classic Pizzas</strong></p>
+<ul>
+<li><code>"classic_dlx"</code>: The Classic Deluxe Pizza (Pepperoni, Mushrooms, Red Onions, Red Peppers, Bacon)</li>
+<li><code>"big_meat"</code>: The Big Meat Pizza (Bacon, Pepperoni, Italian Sausage, Chorizo Sausage)</li>
+<li><code>"pepperoni"</code>: The Pepperoni Pizza (Mozzarella Cheese, Pepperoni)</li>
+<li><code>"hawaiian"</code>: The Hawaiian Pizza (Sliced Ham, Pineapple, Mozzarella Cheese)</li>
+<li><code>"pep_msh_pep"</code>: The Pepperoni, Mushroom, and Peppers Pizza (Pepperoni, Mushrooms, and Green Peppers)</li>
+<li><code>"ital_cpcllo"</code>: The Italian Capocollo Pizza (Capocollo, Red Peppers, Tomatoes, Goat Cheese, Garlic, Oregano)</li>
+<li><code>"napolitana"</code>: The Napolitana Pizza (Tomatoes, Anchovies, Green Olives, Red Onions, Garlic)</li>
+<li><code>"the_greek"</code>: The Greek Pizza (Kalamata Olives, Feta Cheese, Tomatoes, Garlic, Beef Chuck Roast, Red Onions)</li>
+</ul>
+<p><strong>Chicken Pizzas</strong></p>
+<ul>
+<li><code>"thai_ckn"</code>: The Thai Chicken Pizza (Chicken, Pineapple, Tomatoes, Red Peppers, Thai Sweet Chilli Sauce)</li>
+<li><code>"bbq_ckn"</code>: The Barbecue Chicken Pizza (Barbecued Chicken, Red Peppers, Green Peppers, Tomatoes, Red Onions, Barbecue Sauce)</li>
+<li><code>"southw_ckn"</code>: The Southwest Chicken Pizza (Chicken, Tomatoes, Red Peppers, Red Onions, Jalapeno Peppers, Corn, Cilantro, Chipotle Sauce)</li>
+<li><code>"cali_ckn"</code>: The California Chicken Pizza (Chicken, Artichoke, Spinach, Garlic, Jalapeno Peppers, Fontina Cheese, Gouda Cheese)</li>
+<li><code>"ckn_pesto"</code>: The Chicken Pesto Pizza (Chicken, Tomatoes, Red Peppers, Spinach, Garlic, Pesto Sauce)</li>
+<li><code>"ckn_alfredo"</code>: The Chicken Alfredo Pizza (Chicken, Red Onions, Red Peppers, Mushrooms, Asiago Cheese, Alfredo Sauce)</li>
+</ul>
+<p><strong>Supreme Pizzas</strong></p>
+<ul>
+<li><code>"brie_carre"</code>: The Brie Carre Pizza (Brie Carre Cheese, Prosciutto, Caramelized Onions, Pears, Thyme, Garlic)</li>
+<li><code>"calabrese"</code>: The Calabrese Pizza (’Nduja Salami, Pancetta, Tomatoes, Red Onions, Friggitello Peppers, Garlic)</li>
+<li><code>"soppressata"</code>: The Soppressata Pizza (Soppressata Salami, Fontina Cheese, Mozzarella Cheese, Mushrooms, Garlic)</li>
+<li><code>"sicilian"</code>: The Sicilian Pizza (Coarse Sicilian Salami, Tomatoes, Green Olives, Luganega Sausage, Onions, Garlic)</li>
+<li><code>"ital_supr"</code>: The Italian Supreme Pizza (Calabrese Salami, Capocollo, Tomatoes, Red Onions, Green Olives, Garlic)</li>
+<li><code>"peppr_salami"</code>: The Pepper Salami Pizza (Genoa Salami, Capocollo, Pepperoni, Tomatoes, Asiago Cheese, Garlic)</li>
+<li><code>"prsc_argla"</code>: The Prosciutto and Arugula Pizza (Prosciutto di San Daniele, Arugula, Mozzarella Cheese)</li>
+<li><code>"spinach_supr"</code>: The Spinach Supreme Pizza (Spinach, Red Onions, Pepperoni, Tomatoes, Artichokes, Kalamata Olives, Garlic, Asiago Cheese)</li>
+<li><code>"spicy_ital"</code>: The Spicy Italian Pizza (Capocollo, Tomatoes, Goat Cheese, Artichokes, Peperoncini verdi, Garlic)</li>
+</ul>
+<p><strong>Vegetable Pizzas</strong></p>
+<ul>
+<li><code>"mexicana"</code>: The Mexicana Pizza (Tomatoes, Red Peppers, Jalapeno Peppers, Red Onions, Cilantro, Corn, Chipotle Sauce, Garlic)</li>
+<li><code>"four_cheese"</code>: The Four Cheese Pizza (Ricotta Cheese, Gorgonzola Piccante Cheese, Mozzarella Cheese, Parmigiano Reggiano Cheese, Garlic)</li>
+<li><code>"five_cheese"</code>: The Five Cheese Pizza (Mozzarella Cheese, Provolone Cheese, Smoked Gouda Cheese, Romano Cheese, Blue Cheese, Garlic)</li>
+<li><code>"spin_pesto"</code>: The Spinach Pesto Pizza (Spinach, Artichokes, Tomatoes, Sun-dried Tomatoes, Garlic, Pesto Sauce)</li>
+<li><code>"veggie_veg"</code>: The Vegetables + Vegetables Pizza (Mushrooms, Tomatoes, Red Peppers, Green Peppers, Red Onions, Zucchini, Spinach, Garlic)</li>
+<li><code>"green_garden"</code>: The Green Garden Pizza (Spinach, Mushrooms, Tomatoes, Green Olives, Feta Cheese)</li>
+<li><code>"mediterraneo"</code>: The Mediterranean Pizza (Spinach, Artichokes, Kalamata Olives, Sun-dried Tomatoes, Feta Cheese, Plum Tomatoes, Red Onions)</li>
+<li><code>"spinach_fet"</code>: The Spinach and Feta Pizza (Spinach, Mushrooms, Red Onions, Feta Cheese, Garlic)</li>
+<li><code>"ital_veggie"</code>: The Italian Vegetables Pizza (Eggplant, Artichokes, Tomatoes, Zucchini, Red Peppers, Garlic, Pesto Sauce)</li>
+</ul>
+<section id="details" class="level2">
+<h2 class="anchored" data-anchor-id="details">Details</h2>
+<p>A dataset with 49,574 rows and 7 columns:</p>
+<ul>
+<li><code>id</code>: The ID for the order, which consists of one or more pizzas at a given <code>date</code> and <code>time</code>. <code>date</code>: A character representation of the <code>order</code> date, expressed in the ISO 8601 date format (‘YYYY-MM-DD’).</li>
+<li><code>time</code>: A character representation of the <code>order</code> time, expressed as a 24-hour time the ISO 8601 extended time format (‘hh:mm:ss’).</li>
+<li><code>name</code>: The short name for the pizza.</li>
+<li><code>size</code>: The size of the pizza, which can either be <code>"S"</code>, <code>"M"</code>, <code>"L"</code>, <code>"XL"</code> (rare!), or <code>"XXL"</code> (even rarer!); most pizzas are available in the <code>"S"</code>, <code>"M"</code>, and <code>"L"</code> sizes but exceptions apply.</li>
+<li><code>type</code>: The category or type of pizza, which can either be <code>"classic"</code>, <code>"chicken"</code>, <code>"supreme"</code>, or <code>"veggie"</code>.</li>
+<li><code>price</code>: The price of the pizza and the amount that it sold for (in USD).</li>
+</ul>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

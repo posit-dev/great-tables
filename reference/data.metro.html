@@ -488,7 +488,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.data.metro" id="toc-great_tables.data.metro" class="nav-link active" data-scroll-target="#great_tables.data.metro">data.metro</a></li>
+  <li><a href="#great_tables.data.metro" id="toc-great_tables.data.metro" class="nav-link active" data-scroll-target="#great_tables.data.metro">data.metro</a>
+  <ul class="collapse">
+  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -500,12 +503,28 @@ ul.task-list li input[type="checkbox"] {
 <section id="great_tables.data.metro" class="level1">
 <h1>data.metro</h1>
 <p><code>data.metro</code></p>
-<p>The stations of the Paris Metro</p>
+<p>The stations of the Paris Metro.</p>
 <p>A dataset with information on all 308 Paris Metro stations as of February 2023. Each record represents a station, describing which Metro lines are serviced by the station, which other connections are available, and annual passenger volumes. Basic location information is provided for each station in terms where they reside on a municipal level, and, through latitude/longitude coordinates.</p>
 <p>The system has 16 lines (numbered from 1 to 14, with two additional lines: 3bis and 7bis) and covers over 200 kilometers of track. The Metro runs on standard gauge tracks (1,435 mm) and operates using a variety of rolling stock, including rubber-tired trains and steel-wheeled trains (which are far more common).</p>
 <p>The Metro is operated by the RATP, which also operates other transit systems in the region, including buses, trams, and the RER. The RER is an important component of the region’s transit infrastructure, and several RER stations have connectivity with the Metro. This integration allows passengers to transfer between those two systems seamlessly. The Metro also has connections to the Transilien rail network, tramway stations, several major train stations (e.g., Gare du Nord, Gare de l’Est, etc.), and many bus lines.</p>
+<section id="details" class="level2">
+<h2 class="anchored" data-anchor-id="details">Details</h2>
+<p>A dataset with 308 rows and 11 columns:</p>
+<ul>
+<li><code>name</code>: The name of the station.</li>
+<li><code>caption</code>: In some cases, a station will have a caption that might describe a nearby place of interest. This is missing if there isn’t a caption for the station name.</li>
+<li><code>lines</code>: All Metro lines associated with the station. This is a <code>character</code>-based, comma-separated series of line names.</li>
+<li><code>connect_rer</code>: Station connections with the RER. The RER system has five lines (A, B, C, D, and E) with 257 stations and several interchanges with the Metro.</li>
+<li><code>connect_tram</code>: Connections with tramway lines. This system has twelve lines in operation (T1, T2, T3a, T3b, T4, T5, T6, T7, T8, T9, T11, and T13) with 235 stations.</li>
+<li><code>connect_transilien</code>: Connections with Transilien lines. This system has eight lines in operation (H, J, K, L, N, P, R, and U).</li>
+<li><code>connect_other</code>: Other connections with transportation infrastructure such as regional, intercity, night, and high-speed trains (typically at railway stations).</li>
+<li><code>latitude, longitude</code>: The location of the station, given as latitude and longitude values in decimal degrees.</li>
+<li><code>location</code>: The arrondissement of Paris or municipality in which the station resides. For some stations located at borders, the grouping of locations will be presented as a comma-separated series.</li>
+<li><code>passengers</code>: The total number of Metro station entries during 2021. Some of the newest stations in the Metro system do not have this data, thus they show as missing values.</li>
+</ul>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

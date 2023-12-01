@@ -487,7 +487,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.data.illness" id="toc-great_tables.data.illness" class="nav-link active" data-scroll-target="#great_tables.data.illness">data.illness</a></li>
+  <li><a href="#great_tables.data.illness" id="toc-great_tables.data.illness" class="nav-link active" data-scroll-target="#great_tables.data.illness">data.illness</a>
+  <ul class="collapse">
+  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -499,10 +502,59 @@ ul.task-list li input[type="checkbox"] {
 <section id="great_tables.data.illness" class="level1">
 <h1>data.illness</h1>
 <p><code>data.illness</code></p>
-<p>Lab tests for one suffering from an illness</p>
+<p>Lab tests for one suffering from an illness.</p>
 <p>A dataset with artificial daily lab data for a patient with Yellow Fever (YF). The table comprises laboratory findings for the patient from day 3 of illness onset until day 9 (after which the patient died). YF viral DNA was found in serum samples from day 3, where the viral load reached 14,000 copies per mL. Several medical interventions were taken to help the patient, including the administration of fresh frozen plasma, platelets, red cells, and coagulation factor VIII. The patient also received advanced support treatment in the form of mechanical ventilation and plasmapheresis. Though the patient’s temperature remained stable during their illness, unfortunately, the patient’s condition did not improve. On days 7 and 8, the patient’s health declined further, with symptoms such as nosebleeds, gastrointestinal bleeding, and hematoma.</p>
+<p>The various tests are identified in the <code>test</code> column. The following listing provides the full names of any abbreviations seen in that column.</p>
+<ul>
+<li><code>"WBC"</code>: white blood cells.</li>
+<li><code>"RBC"</code>: red blood cells.</li>
+<li><code>"Hb"</code>: hemoglobin.</li>
+<li><code>"PLT"</code>: platelets.</li>
+<li><code>"ALT"</code>: alanine aminotransferase.</li>
+<li><code>"AST"</code>: aspartate aminotransferase.</li>
+<li><code>"TBIL"</code>: total bilirubin.</li>
+<li><code>"DBIL"</code>: direct bilirubin.</li>
+<li><code>"NH3"</code>: hydrogen nitride.</li>
+<li><code>"PT"</code>: prothrombin time.</li>
+<li><code>"APTT"</code>: activated partial thromboplastin time.</li>
+<li><code>"PTA"</code>: prothrombin time activity.</li>
+<li><code>"DD"</code>: D-dimer.</li>
+<li><code>"FDP"</code>: fibrinogen degradation products.</li>
+<li><code>"LDH"</code>: lactate dehydrogenase.</li>
+<li><code>"HBDH"</code>: hydroxybutyrate dehydrogenase.</li>
+<li><code>"CK"</code>: creatine kinase.</li>
+<li><code>"CKMB"</code>: the MB fraction of creatine kinase.</li>
+<li><code>"BNP"</code>: B-type natriuetic peptide.</li>
+<li><code>"MYO"</code>: myohemoglobin.</li>
+<li><code>"TnI"</code>: troponin inhibitory.</li>
+<li><code>"CREA"</code>: creatinine.</li>
+<li><code>"BUN"</code>: blood urea nitrogen.</li>
+<li><code>"AMY"</code>: amylase.</li>
+<li><code>"LPS"</code>: lipase.</li>
+<li><code>"K"</code>: kalium.</li>
+<li><code>"Na"</code>: sodium.</li>
+<li><code>"Cl"</code>: chlorine.</li>
+<li><code>"Ca"</code>: calcium.</li>
+<li><code>"P"</code>: phosphorus.</li>
+<li><code>"Lac"</code>: lactate, blood.</li>
+<li><code>"CRP"</code>: c-reactive protein.</li>
+<li><code>"PCT"</code>: procalcitonin.</li>
+<li><code>"IL-6"</code>: interleukin-6.</li>
+<li><code>"CD3+CD4+"</code>: CD4+T lymphocytes.</li>
+<li><code>"CD3+CD8+"</code>: CD8+T lymphocytes.</li>
+</ul>
+<section id="details" class="level2">
+<h2 class="anchored" data-anchor-id="details">Details</h2>
+<p>A dataset with 39 rows and 11 columns:</p>
+<ul>
+<li><code>test</code>: The name of the test.</li>
+<li><code>units</code>: The measurement units for the test.</li>
+<li><code>day_3</code>, <code>day_4</code>, <code>day_5</code>, <code>day_6</code>, <code>day_7</code>, <code>day_8</code>, <code>day_9</code>: Measurement values associated with each test administered from days 3 to 9. A missing value indicates that the test could not be performed that day.</li>
+<li><code>norm_l</code>, <code>norm_u</code>: Lower and upper bounds for the normal range associated with the test.</li>
+</ul>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
