@@ -8,6 +8,8 @@ website:
     left:
       - text: Get Started
         file: get-started/index.qmd
+      - text: Examples
+        file: examples/index.qmd
       - href: reference/index.qmd
         text: Reference
       - href: changelog.qmd
