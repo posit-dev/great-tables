@@ -378,15 +378,15 @@ def _(df: PlDataFrame, replacement: PlDataFrame):
 
 
 @singledispatch
-def to_list(ser: SeriesLike) -> list[Any]:
+def to_list(ser: SeriesLike) -> List[Any]:
     raise NotImplementedError(f"Unsupported type: {type(ser)}")
 
 
 @to_list.register
-def _(ser: PdSeries) -> list[Any]:
+def _(ser: PdSeries) -> List[Any]:
     return ser.tolist()
 
 
 @to_list.register
-def _(ser: PlSeries) -> list[Any]:
+def _(ser: PlSeries) -> List[Any]:
     return ser.to_list()
