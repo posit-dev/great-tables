@@ -1,6 +1,7 @@
 from __future__ import annotations
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, List, cast, Optional, Dict
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, List, cast, Optional, Dict, Literal
+from typing_extensions import TypeAlias
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
@@ -17,6 +18,32 @@ if TYPE_CHECKING:
 
 
 T = TypeVar("T")
+DateStyle: TypeAlias = Literal[
+    "iso",
+    "wday_month_day_year",
+    "wd_m_day_year",
+    "wday_day_month_year",
+    "month_day_year",
+    "m_day_year",
+    "day_m_year",
+    "day_month_year",
+    "day_month",
+    "day_m",
+    "year",
+    "month",
+    "day",
+    "year.mn.day",
+    "y.mn.day",
+    "year_week",
+    "year_quarter",
+]
+TimeStyle: TypeAlias = Literal[
+    "iso",
+    "iso-short",
+    "h_m_s_p",
+    "h_m_p",
+    "h_p",
+]
 
 
 class FormatsAPI:
@@ -1491,7 +1518,7 @@ def fmt_date(
     self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
-    date_style: str = "iso",
+    date_style: DateStyle = "iso",
     pattern: str = "{x}",
     locale: Union[str, None] = None,
 ) -> GTSelf:
@@ -1636,7 +1663,7 @@ def fmt_time(
     self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
-    time_style: str = "iso",
+    time_style: TimeStyle = "iso",
     pattern: str = "{x}",
     locale: Union[str, None] = None,
 ) -> GTSelf:
