@@ -25,8 +25,8 @@ def tab_source_note(data: GTSelf, source_note: str) -> GTSelf:
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Examples
     --------

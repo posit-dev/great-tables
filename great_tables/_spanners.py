@@ -76,8 +76,8 @@ def tab_spanner(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Examples
     --------
@@ -214,8 +214,8 @@ def cols_move(data: GTData, columns: SelectExpr, after: str) -> GTData:
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Examples
     --------
@@ -293,8 +293,8 @@ def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Examples
     --------
@@ -359,8 +359,8 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Examples
     --------
@@ -424,8 +424,8 @@ def cols_hide(data: GTData, columns: SelectExpr) -> GTData:
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Details
     -------

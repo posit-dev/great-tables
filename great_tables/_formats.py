@@ -51,8 +51,8 @@ class FormatsAPI:
 
         Returns
         -------
-        GTData
-            The GTData object is returned.
+        GT
+            The GT object is returned.
         """
 
         # If a single function is supplied to `fns` then
@@ -173,8 +173,8 @@ def fmt_number(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -348,8 +348,8 @@ def fmt_integer(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -549,8 +549,8 @@ def fmt_scientific(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -804,8 +804,8 @@ def fmt_percent(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -1010,8 +1010,8 @@ def fmt_currency(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -1177,8 +1177,8 @@ def fmt_roman(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Examples
     --------
@@ -1345,8 +1345,8 @@ def fmt_bytes(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -1553,8 +1553,8 @@ def fmt_date(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -1686,8 +1686,8 @@ def fmt_time(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -1791,8 +1791,8 @@ def fmt_markdown(
 
     Returns
     -------
-    GTData
-        The GTData object is returned.
+    GT
+        The GT object is returned.
 
     See Also
     --------

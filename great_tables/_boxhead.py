@@ -37,8 +37,8 @@ class BoxheadAPI:
 
         Returns
         -------
-        GTData
-            The GTData object is returned.
+        GT
+            The GT object is returned.
 
         Examples
         --------
@@ -116,8 +116,8 @@ class BoxheadAPI:
 
         Returns
         -------
-        GTData
-            The GTData object is returned.
+        GT
+            The GT object is returned.
 
         Examples
         --------

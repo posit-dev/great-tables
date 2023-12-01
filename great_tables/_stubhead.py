@@ -25,8 +25,8 @@ class StubheadAPI:
 
         Returns
         -------
-        GTData
-            The GTData object is returned.
+        GT
+            The GT object is returned.
 
         Examples
         --------
