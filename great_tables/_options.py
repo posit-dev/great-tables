@@ -394,10 +394,10 @@ class OptionsAPI:
             marks), `"standard"` (for a traditional set of four symbol marks), and `"extended"`
             (which adds two more symbols to the standard set).
 
-            Returns
-            -------
-          GT
-                 The GT object is returned.
+         Returns
+         -------
+         GT
+            The GT object is returned.
         """
         # Validate the marks keyword passed in as a string
         if marks is str:
