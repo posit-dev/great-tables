@@ -213,6 +213,10 @@ class ColInfo:
         return self.type != ColInfoTypeEnum.hidden
 
     @property
+    def is_stub(self) -> bool:
+        return self.type == ColInfoTypeEnum.stub or self.type == ColInfoTypeEnum.row_group
+
+    @property
     def defaulted_align(self) -> str:
         return "center" if self.column_align is None else str(self.column_align)
 
