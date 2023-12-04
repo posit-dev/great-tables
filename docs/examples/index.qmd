@@ -55,7 +55,7 @@ gt_airquality = (
     )
     .tab_spanner(
         label = "Measurement",
-        columns = ["Ozone", "Solar.R", "Wind", "Temp"]
+        columns = ["Ozone", "Solar_R", "Wind", "Temp"]
     )
     .cols_move_to_start(columns = ["Year", "Month", "Day"])
     .cols_label(
@@ -82,21 +82,18 @@ import polars.selectors as cs
 # Get vectors of 2-letter country codes for each region of Oceania
 countries = {
     "Australasia": ["AU", "NZ"],
-    "Melanesia":  ["NC", "PG", "SB", "VU"],
+    "Melanesia": ["NC", "PG", "SB", "VU"],
     "Micronesia": ["FM", "GU", "KI", "MH", "MP", "NR", "PW"],
     "Polynesia": ["PF", "WS", "TO", "TV"],
 }
 
 # a dictionary mapping region to country (e.g. AU -> Australasia)
 region_to_country = {
-    region: country
-    for country, regions in countries.items()
-    for region in regions
+    region: country for country, regions in countries.items() for region in regions
 }
 
-keep_rows = (
-    countrypops.country_code_2.isin(list(region_to_country))
-    & countrypops.year.isin([2000, 2010, 2020])
+keep_rows = countrypops.country_code_2.isin(list(region_to_country)) & countrypops.year.isin(
+    [2000, 2010, 2020]
 )
 
 # Create a gt table based on a preprocessed `countrypops`
@@ -106,26 +103,15 @@ wide_pops = (
         pl.col("country_code_2").is_in(list(region_to_country))
         & pl.col("year").is_in([2000, 2010, 2020])
     )
-    .with_columns(
-        pl.col("country_code_2")
-        .map_dict(region_to_country)
-        .alias("region")
-    )
-    .pivot(
-        index=["country_name", "region"],
-        columns="year",
-        values="population"
-    )
+    .with_columns(pl.col("country_code_2").map_dict(region_to_country).alias("region"))
+    .pivot(index=["country_name", "region"], columns="year", values="population")
     .sort("2020", descending=True)
 )
 
 (
-    GT(wide_pops, rowname_col = "country_name", groupname_col = "region")
-    .tab_header(title ="Populations of Oceania's Countries in 2000, 2010, and 2020")
-    .tab_spanner(
-        label = "Total Population",
-        columns = cs.all()
-    )
+    GT(wide_pops.to_pandas(), rowname_col="country_name", groupname_col="region")
+    .tab_header(title="Populations of Oceania's Countries in 2000, 2010, and 2020")
+    .tab_spanner(label="Total Population", columns=cs.all())
     .fmt_integer()
 )
 #  pivot_wider(names_from = year, values_from = population) |>
