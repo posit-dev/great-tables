@@ -15,7 +15,7 @@ from great_tables import _utils
 
 # Rewrite main gt imports to use relative imports of APIs ----
 from great_tables._body import body_reassemble
-from great_tables._boxhead import BoxheadAPI
+from great_tables._boxhead import cols_align, cols_label
 from great_tables._footnotes import FootnotesAPI
 from great_tables._formats import (
     FormatsAPI,
@@ -79,7 +79,6 @@ __all__ = ["GT"]
 # =============================================================================
 class GT(
     GTData,
-    BoxheadAPI,
     RowGroupsAPI,
     HeadingAPI,
     StubheadAPI,
@@ -215,6 +214,8 @@ class GT(
         super().__init__(**gtdata.__dict__)
 
     # TODO: Refactor API methods -----
+    cols_align = cols_align
+    cols_label = cols_label
     fmt_number = fmt_number
     fmt_integer = fmt_integer
     fmt_percent = fmt_percent
