@@ -97,7 +97,7 @@ class BoxheadAPI:
 
         return self._replace(_boxhead=boxhead)
 
-    def cols_align(self, align: str = "left", columns: Optional[str] = None) -> GTData:
+    def cols_align(self, align: str = "left", columns: Optional[str] = None) -> Self:
         """
         Set the alignment of one or more columns.
 
@@ -155,10 +155,7 @@ class BoxheadAPI:
             columns = column_names
 
         # Set the alignment for each column
-        for column in columns:
-            self._boxhead._set_column_align(column=column, align=align)
-
-        return self
+        return self._replace(_boxhead=self._boxhead._set_column_aligns(columns, align=align))
 
     def _print_boxhead(self) -> pd.DataFrame:
         boxhead_list = list(

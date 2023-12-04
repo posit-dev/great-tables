@@ -381,12 +381,16 @@ class Boxhead(_Sequence[ColInfo]):
         return self.__class__(out_cols)
 
     # Set column alignments
-    def _set_column_align(self, column: str, align: str):
+    def _set_column_aligns(self, columns: List[str], align: str) -> Self:
+        set_cols = set(columns)
+        out_cols: List[ColInfo] = []
         for x in self._d:
-            if x.var == column:
-                x.column_align = align
+            if x.var in set_cols:
+                out_cols.append(replace(x, column_align=align))
+            else:
+                out_cols.append(x)
 
-        return self
+        return self.__class__(out_cols)
 
     # Get a list of column widths
     def _get_column_widths(self) -> List[str | None]:
