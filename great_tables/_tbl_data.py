@@ -24,7 +24,11 @@ if TYPE_CHECKING:
     PlDataFrame = pl.DataFrame
     PlSelectExpr = _selector_proxy_
 
+    PdSeries = pd.Series
+    PlSeries = pl.Series
+
     DataFrameLike = Union[PdDataFrame, PlDataFrame]
+    SeriesLike = Union[PdSeries, PlSeries]
     TblData = DataFrameLike
 
 else:
@@ -43,13 +47,24 @@ else:
     class PlSelectExpr(AbstractBackend):
         _backends = [("polars.selectors", "_selector_proxy_")]
 
+    class PdSeries(AbstractBackend):
+        _backends = [("pandas", "Series")]
+
+    class PlSeries(AbstractBackend):
+        _backends = [("polars", "Series")]
+
     # TODO: these types are imported throughout gt, so we need to either put
     # those imports under TYPE_CHECKING, or continue to make available dynamically here.
     class DataFrameLike(ABC):
         """Represent some DataFrame"""
 
+    class SeriesLike(ABC):
+        """Represent some Series"""
+
     DataFrameLike.register(PdDataFrame)
     DataFrameLike.register(PlDataFrame)
+    SeriesLike.register(PdSeries)
+    SeriesLike.register(PlSeries)
 
     TblData = DataFrameLike
 
@@ -202,6 +217,17 @@ def _(data: PdDataFrame, group_key: str) -> Dict[Any, List[int]]:
     return {k: list(v) for k, v in g_df.grouper.indices.items()}
 
 
+@group_splits.register
+def _(data: PlDataFrame, group_key: str) -> Dict[Any, List[int]]:
+    # TODO: should ensure row count name isn't already in data
+    import polars as pl
+
+    groups = data.with_row_count("__row_count__").group_by(group_key).agg(pl.col("__row_count__"))
+
+    res = dict(zip(groups[group_key].to_list(), groups["__row_count__"].to_list()))
+    return res
+
+
 # eval_select ----
 
 _NamePos: TypeAlias = List[Tuple[str, int]]
@@ -349,3 +375,18 @@ def _(df: PlDataFrame, replacement: PlDataFrame):
 
     exprs = [pl.col(name).fill_null(replacement[name]) for name in df.columns]
     return df.select(exprs)
+
+
+@singledispatch
+def to_list(ser: SeriesLike) -> List[Any]:
+    raise NotImplementedError(f"Unsupported type: {type(ser)}")
+
+
+@to_list.register
+def _(ser: PdSeries) -> List[Any]:
+    return ser.tolist()
+
+
+@to_list.register
+def _(ser: PlSeries) -> List[Any]:
+    return ser.to_list()

@@ -1,0 +1,149 @@
+---
+title: Examples
+jupyter: python3
+html-table-processing: none
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the Code"
+---
+
+:::::: {.column-page}
+::::: {.grid}
+
+:::{.g-col-6}
+
+```{python}
+from great_tables import GT, md, html
+from great_tables.data import islands
+
+islands_mini = islands.head(10)
+
+(
+    GT(islands_mini, rowname_col = "name")
+    .tab_header(
+        title = "Large Landmasses of the World",
+        subtitle = "The top ten largest are presented"
+    )
+    .tab_source_note(
+        source_note = "Source: The World Almanac and Book of Facts, 1975, page 406."
+    )
+    .tab_source_note(
+        source_note = md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
+    )
+    . tab_stubhead(label = "landmass")
+)
+```
+
+:::
+:::{.g-col-6}
+
+```{python}
+from great_tables.data import airquality
+
+airquality_m = airquality.head(10).assign(Year = 1973)
+
+gt_airquality = (
+    GT(airquality_m)
+    .tab_header(
+        title = "New York Air Quality Measurements",
+        subtitle = "Daily measurements in New York City (May 1-10, 1973)"
+    )
+    .tab_spanner(
+        label = "Time",
+        columns = ["Year", "Month", "Day"]
+    )
+    .tab_spanner(
+        label = "Measurement",
+        columns = ["Ozone", "Solar.R", "Wind", "Temp"]
+    )
+    .cols_move_to_start(columns = ["Year", "Month", "Day"])
+    .cols_label(
+        Ozone = html("Ozone,<br>ppbV"),
+        Solar_R = html("Solar R.,<br>cal/m<sup>2</sup>"),
+        Wind = html("Wind,<br>mph"),
+        Temp = html("Temp,<br>&deg;F")
+    )
+)
+
+gt_airquality
+```
+
+:::
+
+:::{.g-col-6}
+
+```{python}
+from great_tables import GT, countrypops
+
+import polars as pl
+import polars.selectors as cs
+
+# Get vectors of 2-letter country codes for each region of Oceania
+countries = {
+    "Australasia": ["AU", "NZ"],
+    "Melanesia":  ["NC", "PG", "SB", "VU"],
+    "Micronesia": ["FM", "GU", "KI", "MH", "MP", "NR", "PW"],
+    "Polynesia": ["PF", "WS", "TO", "TV"],
+}
+
+# a dictionary mapping region to country (e.g. AU -> Australasia)
+region_to_country = {
+    region: country
+    for country, regions in countries.items()
+    for region in regions
+}
+
+keep_rows = (
+    countrypops.country_code_2.isin(list(region_to_country))
+    & countrypops.year.isin([2000, 2010, 2020])
+)
+
+# Create a gt table based on a preprocessed `countrypops`
+wide_pops = (
+    pl.from_pandas(countrypops)
+    .filter(
+        pl.col("country_code_2").is_in(list(region_to_country))
+        & pl.col("year").is_in([2000, 2010, 2020])
+    )
+    .with_columns(
+        pl.col("country_code_2")
+        .map_dict(region_to_country)
+        .alias("region")
+    )
+    .pivot(
+        index=["country_name", "region"],
+        columns="year",
+        values="population"
+    )
+    .sort("2020", descending=True)
+)
+
+(
+    GT(wide_pops, rowname_col = "country_name", groupname_col = "region")
+    .tab_header(title ="Populations of Oceania's Countries in 2000, 2010, and 2020")
+    .tab_spanner(
+        label = "Total Population",
+        columns = cs.all()
+    )
+    .fmt_integer()
+)
+#  pivot_wider(names_from = year, values_from = population) |>
+#  arrange(region, desc(`2020`)) |>
+#  select(-starts_with("country_code")) |>
+#  gt(
+#    rowname_col = "country_name",
+#    groupname_col = "region"
+#  ) |>
+#  tab_header(title = "Populations of Oceania's Countries in 2000, 2010, and 2020") |>
+#  tab_spanner(
+#    label = "Total Population",
+#    columns = everything()
+#  ) |>
+#  fmt_integer()
+```
+
+:::
+
+:::::
+::::::

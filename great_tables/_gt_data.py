@@ -7,7 +7,7 @@ from typing import overload, TypeVar, Optional
 from typing_extensions import Self, TypeAlias
 from dataclasses import dataclass, field, replace
 from ._utils import _str_detect
-from ._tbl_data import create_empty_frame
+from ._tbl_data import create_empty_frame, to_list
 
 from ._styles import CellStyle
 
@@ -486,12 +486,12 @@ class Stub(_Sequence[RowInfo]):
             row_indices = list(range(n_rows(data)))
 
             if groupname_col is not None:
-                group_id = data[groupname_col].tolist()
+                group_id = to_list(data[groupname_col])
             else:
                 group_id = [None] * n_rows(data)
 
             if rowname_col is not None:
-                row_names = data[rowname_col].tolist()
+                row_names = to_list(data[rowname_col])
             else:
                 row_names = [None] * n_rows(data)
 
