@@ -229,6 +229,7 @@ def create_columns_component_h(data: GTData) -> str:
                 # Get the alignment values for the first set of column labels
                 first_set_alignment = h_info.defaulted_align
 
+                # Creation of <th> tags for column labels with no spanners above them
                 level_1_spanners.append(
                     tags.th(
                         HTML(_process_text(h_info.column_label)),
