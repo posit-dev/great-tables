@@ -109,7 +109,7 @@ wide_pops = (
 )
 
 (
-    GT(wide_pops.to_pandas(), rowname_col="country_name", groupname_col="region")
+    GT(wide_pops, rowname_col="country_name", groupname_col="region")
     .tab_header(title="Populations of Oceania's Countries in 2000, 2010, and 2020")
     .tab_spanner(label="Total Population", columns=cs.all())
     .fmt_integer()
