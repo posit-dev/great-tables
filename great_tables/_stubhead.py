@@ -51,8 +51,4 @@ class StubheadAPI:
         ```
         """
 
-        result = copy(self)
-
-        result._stubhead = label
-
-        return result
+        return self._replace(_stubhead=label)

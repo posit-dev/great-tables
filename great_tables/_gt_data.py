@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import re
 
-from typing import overload, TypeVar, Optional
+from typing import overload, TypeVar, Dict, Optional
 from typing_extensions import Self, TypeAlias
 from dataclasses import dataclass, field, replace
 from ._utils import _str_detect
@@ -23,7 +23,7 @@ from dataclasses import dataclass
 __GT = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class GTData:
     _tbl_data: TblData
     _body: Body
@@ -189,7 +189,7 @@ class ColInfoTypeEnum(Enum):
     hidden = auto()
 
 
-@dataclass
+@dataclass(frozen=True)
 class ColInfo:
     # TODO: Make var readonly
     var: str
@@ -206,7 +206,7 @@ class ColInfo:
 
     def __post_init__(self):
         if self.column_label is None:
-            self.column_label = self.var
+            super().__setattr__("column_label", self.var)
 
     @property
     def visible(self) -> bool:
@@ -317,7 +317,7 @@ class Boxhead(_Sequence[ColInfo]):
             col_classes.append(dtype)
 
         # Get a list of `align` values by translating the column classes
-        align = []
+        align: List[str] = []
 
         for col_class in col_classes:
             # Ensure that `col_class` is lowercase
@@ -342,8 +342,11 @@ class Boxhead(_Sequence[ColInfo]):
                 align.append("center")
 
         # Set the alignment for each column in the boxhead
+        new_cols: List[ColInfo] = []
         for col, alignment in zip(self._d, align):
-            col.column_align = alignment
+            new_cols.append(replace(col, column_align=alignment))
+
+        self._d = new_cols
 
     def vars_from_type(self, type: ColInfoTypeEnum) -> List[str]:
         return [x.var for x in self._d if x.type == type]
@@ -366,12 +369,16 @@ class Boxhead(_Sequence[ColInfo]):
         return [x.column_label for x in self._d]
 
     # Set column label
-    def _set_column_label(self, column: str, label: str):
+    def _set_column_labels(self, col_labels: Dict[str, str]) -> Self:
+        out_cols: List[ColInfo] = []
         for x in self._d:
-            if x.var == column:
-                x.column_label = label
+            new_label = col_labels.get(x.var, None)
+            if new_label is not None:
+                out_cols.append(replace(x, column_label=new_label))
+            else:
+                out_cols.append(x)
 
-        return self
+        return self.__class__(out_cols)
 
     # Set column alignments
     def _set_column_align(self, column: str, align: str):
@@ -455,7 +462,7 @@ __Stub = None
 from ._tbl_data import TblData, n_rows
 
 
-@dataclass
+@dataclass(frozen=True)
 class RowInfo:
     # TODO: Make `rownum_i` readonly
     rownum_i: int
@@ -582,7 +589,7 @@ RowGroups: TypeAlias = List[str]
 __GroupRows = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class GroupRowInfo:
     group_id: str
     group_label: str | None = None
@@ -650,7 +657,7 @@ __Spanners = None
 import pandas as pd
 
 
-@dataclass
+@dataclass(frozen=True)
 class SpannerInfo:
     spanner_id: str
     spanner_level: int
@@ -712,7 +719,7 @@ __Heading = None
 from typing import Optional, Union, List
 
 
-@dataclass
+@dataclass(frozen=True)
 class Heading:
     title: Optional[str] = None
     subtitle: Optional[str] = None
@@ -748,7 +755,7 @@ class FootnotePlacement(Enum):
     auto = auto()
 
 
-@dataclass
+@dataclass(frozen=True)
 class FootnoteInfo:
     locname: Optional[str] = None
     grpname: Optional[str] = None
@@ -768,7 +775,7 @@ __Styles = None
 from typing import List, Optional
 
 
-@dataclass
+@dataclass(frozen=True)
 class StyleInfo:
     locname: str
     locnum: int

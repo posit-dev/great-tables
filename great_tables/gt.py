@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any, List, Optional, cast
+from typing_extensions import Self
 import pkg_resources
 
 import sass
@@ -237,24 +238,25 @@ class GT(
     def _get_has_built(self: GT) -> bool:
         return self._has_built
 
-    def _render_formats(self, context: str) -> GT:
-        self._body.render_formats(self._tbl_data, self._formats, context)
-        return self
+    def _render_formats(self, context: str) -> Self:
+        rendered = copy.copy(self)
 
-    def _build_data(self, context: str):
+        # TODO: this body method performs a mutation. Should we make a copy of body?
+        rendered._body.render_formats(rendered._tbl_data, rendered._formats, context)
+        return rendered
+
+    def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
-        built = copy.copy(self)
-        built._body = self._body.__class__(copy_frame(self._tbl_data))
-        built._render_formats(context)
+        built = self._render_formats(context)
         # built._body = _migrate_unformatted_to_output(body)
 
         # built._perform_col_merge()
-        built._body = body_reassemble(built._body, self._row_groups, self._stub, self._boxhead)
+        final_body = body_reassemble(built._body, self._row_groups, self._stub, self._boxhead)
 
         # Reordering of the metadata elements of the table
 
-        built._stub = reorder_stub_df(self._stub, self._row_groups)
+        final_stub = reorder_stub_df(self._stub, self._row_groups)
         # self = self.reorder_footnotes()
         # self = self.reorder_styles()
 
@@ -264,13 +266,9 @@ class GT(
 
         # ...
 
-        return built
+        return built._replace(_body=final_body, _stub=final_stub)
 
     def render(self, context: str) -> str:
-        self = self._build_data(context=context)
-
-        self._has_built = True
-
         html_table = self._render_as_html()
         return html_table
 

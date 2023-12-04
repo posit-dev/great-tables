@@ -72,7 +72,4 @@ class HeadingAPI:
         )
         ```
         """
-        result = copy(self)
-        result._heading = Heading(title=title, subtitle=subtitle, preheader=preheader)
-
-        return result
+        return self._replace(_heading=Heading(title=title, subtitle=subtitle, preheader=preheader))
