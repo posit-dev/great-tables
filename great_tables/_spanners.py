@@ -467,11 +467,10 @@ def spanners_print_matrix(
     ids: bool = False,
     omit_columns_row: bool = False,
 ) -> tuple[SpannerMatrix, list[str]]:
-    if not include_hidden:
-        # TODO: no "type" field on boxhead, is this use of visible right?
-        vars = [row.var for row in boxhead if row.visible]
+    if include_hidden:
+        vars = [row.var for row in boxhead if not row.is_stub]
     else:
-        vars = [row.var for row in boxhead]
+        vars = [row.var for row in boxhead if not row.is_stub and row.visible]
 
     if not spanners:
         return empty_spanner_matrix(vars=vars, omit_columns_row=omit_columns_row)
