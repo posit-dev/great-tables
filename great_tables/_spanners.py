@@ -502,7 +502,11 @@ def spanners_print_matrix(
 
     for span_ii, span in enumerate(crnt_spans):
         for var in span.vars:
-            label_matrix[span.spanner_level][var] = spanner_reprs[span_ii]
+            # This if clause skips spanned columns that are not in the
+            # boxhead vars we are planning to use (e.g. not in the visible ones
+            # or in the stub).
+            if var in label_matrix[span.spanner_level]:
+                label_matrix[span.spanner_level][var] = spanner_reprs[span_ii]
 
     # reverse order , so if you were to print it out, level 0 would appear on the bottom
     label_matrix.reverse()
