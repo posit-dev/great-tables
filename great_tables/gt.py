@@ -16,7 +16,6 @@ from great_tables import _utils
 # Rewrite main gt imports to use relative imports of APIs ----
 from great_tables._body import body_reassemble
 from great_tables._boxhead import cols_align, cols_label
-from great_tables._footnotes import FootnotesAPI
 from great_tables._formats import (
     FormatsAPI,
     fmt_number,
@@ -88,7 +87,6 @@ class GT(
     RowGroupsAPI,
     HeadingAPI,
     StubheadAPI,
-    FootnotesAPI,
     LocaleAPI,
     FormatsAPI,
 ):
