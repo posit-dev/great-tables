@@ -59,6 +59,7 @@ dev = [
     "polars",
     "pyarrow",
     "pytest>=3",
+    "pytest-cov",
     "siuba",
     "syrupy"
 ]
