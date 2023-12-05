@@ -38,7 +38,6 @@ from great_tables._options import (
     opt_footnote_marks,
     opt_row_striping,
 )
-from great_tables._row_groups import RowGroupsAPI
 from great_tables._source_notes import tab_source_note
 from great_tables._spanners import (
     tab_spanner,
@@ -84,7 +83,6 @@ __all__ = ["GT"]
 # =============================================================================
 class GT(
     GTData,
-    RowGroupsAPI,
     StubheadAPI,
     LocaleAPI,
     FormatsAPI,
