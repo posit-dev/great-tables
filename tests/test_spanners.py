@@ -74,6 +74,17 @@ def test_spanners_print_matrix_arg_include_hidden(spanners, boxhead):
     ]
 
 
+def test_spanners_print_matrix_exclude_stub():
+    """spanners_print_matrix omits a selected column if it's in the stub."""
+    info = SpannerInfo(spanner_id="a", spanner_level=0, vars=["x", "y"], built="A")
+    spanners = Spanners([info])
+    boxh = Boxhead([ColInfo(var="x"), ColInfo(var="y", type=ColInfoTypeEnum.stub)])
+
+    mat, vars = spanners_print_matrix(spanners, boxh, omit_columns_row=True)
+    assert vars == ["x"]
+    assert mat == [{"x": "A"}]
+
+
 def test_empty_spanner_matrix():
     mat, vars = empty_spanner_matrix(["a", "b"], omit_columns_row=False)
 
