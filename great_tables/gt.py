@@ -17,7 +17,7 @@ from great_tables import _utils
 from great_tables._body import body_reassemble
 from great_tables._boxhead import cols_align, cols_label
 from great_tables._formats import (
-    FormatsAPI,
+    fmt,
     fmt_number,
     fmt_percent,
     fmt_integer,
@@ -82,7 +82,6 @@ __all__ = ["GT"]
 # =============================================================================
 class GT(
     GTData,
-    FormatsAPI,
 ):
     """
     Create a **great_tables** object.
@@ -213,6 +212,7 @@ class GT(
     # TODO: Refactor API methods -----
     cols_align = cols_align
     cols_label = cols_label
+    fmt = fmt
     fmt_number = fmt_number
     fmt_integer = fmt_integer
     fmt_percent = fmt_percent
