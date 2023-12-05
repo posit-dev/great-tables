@@ -30,7 +30,6 @@ from great_tables._formats import (
     fmt_markdown,
 )
 from great_tables._heading import tab_header
-from great_tables._locale import LocaleAPI
 from great_tables._options import (
     tab_options,
     opt_align_table_header,
@@ -47,7 +46,7 @@ from great_tables._spanners import (
     cols_hide,
 )
 from great_tables._stub import reorder_stub_df
-from great_tables._stubhead import StubheadAPI
+from great_tables._stubhead import tab_stubhead
 from great_tables._utils_render_html import (
     create_heading_component_h,
     create_columns_component_h,
@@ -83,8 +82,6 @@ __all__ = ["GT"]
 # =============================================================================
 class GT(
     GTData,
-    StubheadAPI,
-    LocaleAPI,
     FormatsAPI,
 ):
     """
@@ -241,6 +238,8 @@ class GT(
     cols_move_to_start = cols_move_to_start
     cols_move_to_end = cols_move_to_end
     cols_hide = cols_hide
+
+    tab_stubhead = tab_stubhead
 
     # -----
 
