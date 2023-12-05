@@ -29,7 +29,7 @@ from great_tables._formats import (
     fmt_time,
     fmt_markdown,
 )
-from great_tables._heading import HeadingAPI
+from great_tables._heading import tab_header
 from great_tables._locale import LocaleAPI
 from great_tables._options import (
     tab_options,
@@ -85,7 +85,6 @@ __all__ = ["GT"]
 class GT(
     GTData,
     RowGroupsAPI,
-    HeadingAPI,
     StubheadAPI,
     LocaleAPI,
     FormatsAPI,
@@ -235,6 +234,8 @@ class GT(
     opt_all_caps = opt_all_caps
     opt_footnote_marks = opt_footnote_marks
     opt_row_striping = opt_row_striping
+
+    tab_header = tab_header
 
     tab_spanner = tab_spanner
     tab_source_note = tab_source_note
