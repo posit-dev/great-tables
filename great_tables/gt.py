@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, cast
+from typing import Any, List, Optional
 import pkg_resources
 
 import sass
@@ -8,14 +8,19 @@ import re
 import copy
 
 from great_tables._gt_data import GTData
-
-# Main gt imports ----
-from great_tables import _utils
-
-# Rewrite main gt imports to use relative imports of APIs ----
-from great_tables._body import body_reassemble
+from great_tables._heading import HeadingAPI
 from great_tables._boxhead import BoxheadAPI
+from great_tables._stubhead import StubheadAPI
+from great_tables._row_groups import RowGroupsAPI
 from great_tables._footnotes import FootnotesAPI
+from great_tables._options import OptionsAPI
+from great_tables._locale import LocaleAPI
+from great_tables._body import body_reassemble
+from great_tables._stub import reorder_stub_df
+from great_tables._helpers import random_id
+from great_tables._source_notes import tab_source_note
+from great_tables._utils import _as_css_font_family_attr, _unique_set
+from great_tables._tbl_data import n_rows, _get_cell, copy_frame
 from great_tables._formats import (
     FormatsAPI,
     fmt_number,
@@ -29,11 +34,6 @@ from great_tables._formats import (
     fmt_time,
     fmt_markdown,
 )
-from great_tables._heading import HeadingAPI
-from great_tables._locale import LocaleAPI
-from great_tables._options import OptionsAPI
-from great_tables._row_groups import RowGroupsAPI
-from great_tables._source_notes import tab_source_note
 from great_tables._spanners import (
     tab_spanner,
     cols_move,
@@ -41,8 +41,6 @@ from great_tables._spanners import (
     cols_move_to_end,
     cols_hide,
 )
-from great_tables._stub import reorder_stub_df
-from great_tables._stubhead import StubheadAPI
 from great_tables._utils_render_html import (
     create_heading_component_h,
     create_columns_component_h,
@@ -50,27 +48,8 @@ from great_tables._utils_render_html import (
     create_source_notes_component_h,
     create_footnotes_component_h,
 )
-from great_tables._helpers import random_id
-
-
-# from ._helpers import random_id
-# from ._body import Body
-from ._text import StringBuilder, _process_text
-from ._utils import _as_css_font_family_attr, _unique_set
-from ._tbl_data import n_rows, _get_cell, copy_frame
-
-
-# from ._body import Context
-
 
 __all__ = ["GT"]
-
-# Architecture of GT:
-# 1. GT class for holding all user specified directives (internally
-#    implemented using multiple smaller modules)
-# 2. Build step that performs mostly-context-agnostic pre-rendering tasks.
-#    State from GT class is transformed into input for the render step.
-# 3. Render into final output.
 
 
 # =============================================================================
@@ -213,7 +192,6 @@ class GT(
         )
         super().__init__(**gtdata.__dict__)
 
-    # TODO: Refactor API methods -----
     fmt_number = fmt_number
     fmt_integer = fmt_integer
     fmt_percent = fmt_percent
@@ -224,7 +202,6 @@ class GT(
     fmt_date = fmt_date
     fmt_time = fmt_time
     fmt_markdown = fmt_markdown
-
     tab_spanner = tab_spanner
     tab_source_note = tab_source_note
     cols_move = cols_move
@@ -273,24 +250,6 @@ class GT(
 
         html_table = self._render_as_html()
         return html_table
-
-    # =============================================================================
-    # Building
-    # =============================================================================
-
-    # def _body_build(self, data: Table):
-    #     return self
-    #     # data.cells[(1, 3)].set_cell_value("foo")
-
-    # def _migrate_unformatted_to_output(self, body: Dict[Column, Any]):
-
-    #     # Get the dictionary keys from the body as these serve as column names
-    #     colnames = body.keys()
-
-    #     for column in colnames:
-    #         body[column]
-
-    #     return body
 
     # =============================================================================
     # HTML Rendering
@@ -404,7 +363,7 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
 
 
 # =============================================================================
-# Table Structuring Functions
+# SCSS Compilation
 # =============================================================================
 
 
@@ -459,7 +418,7 @@ def _compile_scss(data: GT, id: Optional[str]) -> str:
 
     scss = scss_params_str + gt_colors + gt_styles_default
 
-    compiled_css = cast(str, sass.compile(string=scss))
+    compiled_css = sass.compile(string=scss)
 
     if has_id:
         compiled_css = re.sub(r"\.gt_", f"#{id} .gt_", compiled_css, 0, re.MULTILINE)
