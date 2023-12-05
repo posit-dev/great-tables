@@ -95,6 +95,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -607,16 +610,417 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    gt.GT(countrypops_mini, rowname_col<span class="op">=</span><span class="st">"year"</span>, groupname_col<span class="op">=</span><span class="st">"country_name"</span>)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    .cols_align(align<span class="op">=</span><span class="st">"left"</span>, columns<span class="op">=</span><span class="st">"population"</span>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>AttributeError: 'Options' object has no attribute '_options'</code></pre>
-</div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>GT(_tbl_data=      country_name  year  population
-10957   San Marino  2018       34156
-10958   San Marino  2019       34178
-10959   San Marino  2020       34007
-10960   San Marino  2021       33745
-10961   San Marino  2022       33660, _body=&lt;great_tables._gt_data.Body object at 0x7f8274117fd0&gt;, _boxhead=Boxhead([ColInfo(var='country_name', type=&lt;ColInfoTypeEnum.row_group: 3&gt;, column_label='country_name', column_align='left', column_width=None), ColInfo(var='year', type=&lt;ColInfoTypeEnum.stub: 2&gt;, column_label='year', column_align='right', column_width=None), ColInfo(var='population', type=&lt;ColInfoTypeEnum.default: 1&gt;, column_label='population', column_align='left', column_width=None)]), _stub=Stub([RowInfo(rownum_i=0, group_id='San Marino', rowname=2018, group_label=None, built=False), RowInfo(rownum_i=1, group_id='San Marino', rowname=2019, group_label=None, built=False), RowInfo(rownum_i=2, group_id='San Marino', rowname=2020, group_label=None, built=False), RowInfo(rownum_i=3, group_id='San Marino', rowname=2021, group_label=None, built=False), RowInfo(rownum_i=4, group_id='San Marino', rowname=2022, group_label=None, built=False)]), _row_groups=['San Marino'], _group_rows=GroupRows([GroupRowInfo(group_id='San Marino', group_label=None, indices=[0, 1, 2, 3, 4], has_summary_rows=False, summary_row_side=None)]), _spanners=Spanners([]), _heading=Heading(title=None, subtitle=None, preheader=None), _stubhead=None, _source_notes=[], _footnotes=[], _styles=[], _locale=&lt;great_tables._gt_data.Locale object at 0x7f826ec30220&gt;, _formats=[], _options=Options(table_id=OptionsInfo(scss=False, category='table', type='value', value=None), table_caption=OptionsInfo(scss=False, category='table', type='value', value=None), table_width=OptionsInfo(scss=True, category='table', type='px', value='auto'), table_layout=OptionsInfo(scss=True, category='table', type='value', value='fixed'), table_margin_left=OptionsInfo(scss=True, category='table', type='px', value='auto'), table_margin_right=OptionsInfo(scss=True, category='table', type='px', value='auto'), table_background_color=OptionsInfo(scss=True, category='table', type='value', value='#FFFFFF'), table_additional_css=OptionsInfo(scss=False, category='table', type='values', value=None), table_font_names=OptionsInfo(scss=False, category='table', type='values', value=['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Helvetica Neue', 'Fira Sans', 'Droid Sans', 'Arial', 'sans-serif']), table_font_size=OptionsInfo(scss=True, category='table', type='px', value='16px'), table_font_weight=OptionsInfo(scss=True, category='table', type='value', value='normal'), table_font_style=OptionsInfo(scss=True, category='table', type='value', value='normal'), table_font_color=OptionsInfo(scss=True, category='table', type='value', value='#333333'), table_font_color_light=OptionsInfo(scss=True, category='table', type='value', value='#FFFFFF'), table_border_top_include=OptionsInfo(scss=False, category='table', type='boolean', value=True), table_border_top_style=OptionsInfo(scss=True, category='table', type='value', value='solid'), table_border_top_width=OptionsInfo(scss=True, category='table', type='px', value='2px'), table_border_top_color=OptionsInfo(scss=True, category='table', type='value', value='#A8A8A8'), table_border_right_style=OptionsInfo(scss=True, category='table', type='value', value='none'), table_border_right_width=OptionsInfo(scss=True, category='table', type='px', value='2px'), table_border_right_color=OptionsInfo(scss=True, category='table', type='value', value='#D3D3D3'), table_border_bottom_include=OptionsInfo(scss=False, category='table', type='boolean', value=True), table_border_bottom_style=OptionsInfo(scss=True, category='table', type='value', value='solid'), table_border_bottom_width=OptionsInfo(scss=True, category='table', type='px', value='2px'), table_border_bottom_color=OptionsInfo(scss=True, category='table', type='value', value='#A8A8A8'), table_border_left_style=OptionsInfo(scss=True, category='table', type='value', value='none'), table_border_left_width=OptionsInfo(scss=True, category='table', type='px', value='2px'), table_border_left_color=OptionsInfo(scss=True, category='table', type='value', value='#D3D3D3'), heading_background_color=OptionsInfo(scss=True, category='heading', type='value', value=None), heading_align=OptionsInfo(scss=True, category='heading', type='value', value='center'), heading_title_font_size=OptionsInfo(scss=True, category='heading', type='px', value='125%'), heading_title_font_weight=OptionsInfo(scss=True, category='heading', type='value', value='initial'), heading_subtitle_font_size=OptionsInfo(scss=True, category='heading', type='px', value='85%'), heading_subtitle_font_weight=OptionsInfo(scss=True, category='heading', type='value', value='initial'), heading_padding=OptionsInfo(scss=True, category='heading', type='px', value='4px'), heading_padding_horizontal=OptionsInfo(scss=True, category='heading', type='px', value='5px'), heading_border_bottom_style=OptionsInfo(scss=True, category='heading', type='value', value='solid'), heading_border_bottom_width=OptionsInfo(scss=True, category='heading', type='px', value='2px'), heading_border_bottom_color=OptionsInfo(scss=True, category='heading', type='value', value='#D3D3D3'), heading_border_lr_style=OptionsInfo(scss=True, category='heading', type='value', value='none'), heading_border_lr_width=OptionsInfo(scss=True, category='heading', type='px', value='1px'), heading_border_lr_color=OptionsInfo(scss=True, category='heading', type='value', value='#D3D3D3'), column_labels_background_color=OptionsInfo(scss=True, category='column_labels', type='value', value=None), column_labels_font_size=OptionsInfo(scss=True, category='column_labels', type='px', value='100%'), column_labels_font_weight=OptionsInfo(scss=True, category='column_labels', type='value', value='normal'), column_labels_text_transform=OptionsInfo(scss=True, category='column_labels', type='value', value='inherit'), column_labels_padding=OptionsInfo(scss=True, category='column_labels', type='px', value='5px'), column_labels_padding_horizontal=OptionsInfo(scss=True, category='column_labels', type='px', value='5px'), column_labels_vlines_style=OptionsInfo(scss=True, category='table_body', type='value', value='none'), column_labels_vlines_width=OptionsInfo(scss=True, category='table_body', type='px', value='1px'), column_labels_vlines_color=OptionsInfo(scss=True, category='table_body', type='value', value='#D3D3D3'), column_labels_border_top_style=OptionsInfo(scss=True, category='column_labels', type='value', value='solid'), column_labels_border_top_width=OptionsInfo(scss=True, category='column_labels', type='px', value='2px'), column_labels_border_top_color=OptionsInfo(scss=True, category='column_labels', type='value', value='#D3D3D3'), column_labels_border_bottom_style=OptionsInfo(scss=True, category='column_labels', type='value', value='solid'), column_labels_border_bottom_width=OptionsInfo(scss=True, category='column_labels', type='px', value='2px'), column_labels_border_bottom_color=OptionsInfo(scss=True, category='column_labels', type='value', value='#D3D3D3'), column_labels_border_lr_style=OptionsInfo(scss=True, category='column_labels', type='value', value='none'), column_labels_border_lr_width=OptionsInfo(scss=True, category='column_labels', type='px', value='1px'), column_labels_border_lr_color=OptionsInfo(scss=True, category='column_labels', type='value', value='#D3D3D3'), column_labels_hidden=OptionsInfo(scss=False, category='column_labels', type='boolean', value=False), row_group_background_color=OptionsInfo(scss=True, category='row_group', type='value', value=None), row_group_font_size=OptionsInfo(scss=True, category='row_group', type='px', value='100%'), row_group_font_weight=OptionsInfo(scss=True, category='row_group', type='value', value='initial'), row_group_text_transform=OptionsInfo(scss=True, category='row_group', type='value', value='inherit'), row_group_padding=OptionsInfo(scss=True, category='row_group', type='px', value='8px'), row_group_padding_horizontal=OptionsInfo(scss=True, category='row_group', type='px', value='5px'), row_group_border_top_style=OptionsInfo(scss=True, category='row_group', type='value', value='solid'), row_group_border_top_width=OptionsInfo(scss=True, category='row_group', type='px', value='2px'), row_group_border_top_color=OptionsInfo(scss=True, category='row_group', type='value', value='#D3D3D3'), row_group_border_right_style=OptionsInfo(scss=True, category='row_group', type='value', value='none'), row_group_border_right_width=OptionsInfo(scss=True, category='row_group', type='px', value='1px'), row_group_border_right_color=OptionsInfo(scss=True, category='row_group', type='value', value='#D3D3D3'), row_group_border_bottom_style=OptionsInfo(scss=True, category='row_group', type='value', value='solid'), row_group_border_bottom_width=OptionsInfo(scss=True, category='row_group', type='px', value='2px'), row_group_border_bottom_color=OptionsInfo(scss=True, category='row_group', type='value', value='#D3D3D3'), row_group_border_left_style=OptionsInfo(scss=True, category='row_group', type='value', value='none'), row_group_border_left_width=OptionsInfo(scss=True, category='row_group', type='px', value='1px'), row_group_border_left_color=OptionsInfo(scss=True, category='row_group', type='value', value='#D3D3D3'), row_group_default_label=OptionsInfo(scss=False, category='row_group', type='value', value=None), row_group_as_column=OptionsInfo(scss=False, category='row_group', type='boolean', value=False), table_body_hlines_style=OptionsInfo(scss=True, category='table_body', type='value', value='solid'), table_body_hlines_width=OptionsInfo(scss=True, category='table_body', type='px', value='1px'), table_body_hlines_color=OptionsInfo(scss=True, category='table_body', type='value', value='#D3D3D3'), table_body_vlines_style=OptionsInfo(scss=True, category='table_body', type='value', value='none'), table_body_vlines_width=OptionsInfo(scss=True, category='table_body', type='px', value='1px'), table_body_vlines_color=OptionsInfo(scss=True, category='table_body', type='value', value='#D3D3D3'), table_body_border_top_style=OptionsInfo(scss=True, category='table_body', type='value', value='solid'), table_body_border_top_width=OptionsInfo(scss=True, category='table_body', type='px', value='2px'), table_body_border_top_color=OptionsInfo(scss=True, category='table_body', type='value', value='#D3D3D3'), table_body_border_bottom_style=OptionsInfo(scss=True, category='table_body', type='value', value='solid'), table_body_border_bottom_width=OptionsInfo(scss=True, category='table_body', type='px', value='2px'), table_body_border_bottom_color=OptionsInfo(scss=True, category='table_body', type='value', value='#D3D3D3'), data_row_padding=OptionsInfo(scss=True, category='data_row', type='px', value='8px'), data_row_padding_horizontal=OptionsInfo(scss=True, category='data_row', type='px', value='5px'), stub_background_color=OptionsInfo(scss=True, category='stub', type='value', value=None), stub_font_size=OptionsInfo(scss=True, category='stub', type='px', value='100%'), stub_font_weight=OptionsInfo(scss=True, category='stub', type='value', value='initial'), stub_text_transform=OptionsInfo(scss=True, category='stub', type='value', value='inherit'), stub_border_style=OptionsInfo(scss=True, category='stub', type='value', value='solid'), stub_border_width=OptionsInfo(scss=True, category='stub', type='px', value='2px'), stub_border_color=OptionsInfo(scss=True, category='stub', type='value', value='#D3D3D3'), stub_row_group_background_color=OptionsInfo(scss=True, category='stub', type='value', value=None), stub_row_group_font_size=OptionsInfo(scss=True, category='stub', type='px', value='100%'), stub_row_group_font_weight=OptionsInfo(scss=True, category='stub', type='value', value='initial'), stub_row_group_text_transform=OptionsInfo(scss=True, category='stub', type='value', value='inherit'), stub_row_group_border_style=OptionsInfo(scss=True, category='stub', type='value', value='solid'), stub_row_group_border_width=OptionsInfo(scss=True, category='stub', type='px', value='2px'), stub_row_group_border_color=OptionsInfo(scss=True, category='stub', type='value', value='#D3D3D3'), summary_row_padding=OptionsInfo(scss=True, category='summary_row', type='px', value='8px'), summary_row_padding_horizontal=OptionsInfo(scss=True, category='summary_row', type='px', value='5px'), summary_row_background_color=OptionsInfo(scss=True, category='summary_row', type='value', value=None), summary_row_text_transform=OptionsInfo(scss=True, category='summary_row', type='value', value='inherit'), summary_row_border_style=OptionsInfo(scss=True, category='summary_row', type='value', value='solid'), summary_row_border_width=OptionsInfo(scss=True, category='summary_row', type='px', value='2px'), summary_row_border_color=OptionsInfo(scss=True, category='summary_row', type='value', value='#D3D3D3'), grand_summary_row_padding=OptionsInfo(scss=True, category='grand_summary_row', type='px', value='8px'), grand_summary_row_padding_horizontal=OptionsInfo(scss=True, category='grand_summary_row', type='px', value='5px'), grand_summary_row_background_color=OptionsInfo(scss=True, category='grand_summary_row', type='value', value=None), grand_summary_row_text_transform=OptionsInfo(scss=True, category='grand_summary_row', type='value', value='inherit'), grand_summary_row_border_style=OptionsInfo(scss=True, category='grand_summary_row', type='value', value='double'), grand_summary_row_border_width=OptionsInfo(scss=True, category='grand_summary_row', type='px', value='6px'), grand_summary_row_border_color=OptionsInfo(scss=True, category='grand_summary_row', type='value', value='#D3D3D3'), footnotes_font_size=OptionsInfo(scss=True, category='footnotes', type='px', value='90%'), footnotes_padding=OptionsInfo(scss=True, category='footnotes', type='px', value='4px'), footnotes_padding_horizontal=OptionsInfo(scss=True, category='footnotes', type='px', value='5px'), footnotes_background_color=OptionsInfo(scss=True, category='footnotes', type='value', value=None), footnotes_margin=OptionsInfo(scss=True, category='footnotes', type='px', value='0px'), footnotes_border_bottom_style=OptionsInfo(scss=True, category='footnotes', type='value', value='none'), footnotes_border_bottom_width=OptionsInfo(scss=True, category='footnotes', type='px', value='2px'), footnotes_border_bottom_color=OptionsInfo(scss=True, category='footnotes', type='value', value='#D3D3D3'), footnotes_border_lr_style=OptionsInfo(scss=True, category='footnotes', type='value', value='none'), footnotes_border_lr_width=OptionsInfo(scss=True, category='footnotes', type='px', value='2px'), footnotes_border_lr_color=OptionsInfo(scss=True, category='footnotes', type='value', value='#D3D3D3'), footnotes_marks=OptionsInfo(scss=False, category='footnotes', type='values', value='numbers'), footnotes_multiline=OptionsInfo(scss=False, category='footnotes', type='boolean', value=True), footnotes_sep=OptionsInfo(scss=False, category='footnotes', type='value', value=' '), source_notes_padding=OptionsInfo(scss=True, category='source_notes', type='px', value='4px'), source_notes_padding_horizontal=OptionsInfo(scss=True, category='source_notes', type='px', value='5px'), source_notes_background_color=OptionsInfo(scss=True, category='source_notes', type='value', value=None), source_notes_font_size=OptionsInfo(scss=True, category='source_notes', type='px', value='90%'), source_notes_border_bottom_style=OptionsInfo(scss=True, category='source_notes', type='value', value='none'), source_notes_border_bottom_width=OptionsInfo(scss=True, category='source_notes', type='px', value='2px'), source_notes_border_bottom_color=OptionsInfo(scss=True, category='source_notes', type='value', value='#D3D3D3'), source_notes_border_lr_style=OptionsInfo(scss=True, category='source_notes', type='value', value='none'), source_notes_border_lr_width=OptionsInfo(scss=True, category='source_notes', type='px', value='2px'), source_notes_border_lr_color=OptionsInfo(scss=True, category='source_notes', type='value', value='#D3D3D3'), source_notes_multiline=OptionsInfo(scss=False, category='source_notes', type='boolean', value=True), source_notes_sep=OptionsInfo(scss=False, category='source_notes', type='value', value=' '), row_striping_background_color=OptionsInfo(scss=True, category='row', type='value', value='rgba(128,128,128,0.05)'), row_striping_include_stub=OptionsInfo(scss=False, category='row', type='boolean', value=False), row_striping_include_table_body=OptionsInfo(scss=False, category='row', type='boolean', value=False), container_width=OptionsInfo(scss=False, category='container', type='px', value='auto'), container_height=OptionsInfo(scss=False, category='container', type='px', value='auto'), container_padding_x=OptionsInfo(scss=False, category='container', type='px', value='0px'), container_padding_y=OptionsInfo(scss=False, category='container', type='px', value='10px'), container_overflow_x=OptionsInfo(scss=False, category='container', type='overflow', value='auto'), container_overflow_y=OptionsInfo(scss=False, category='container', type='overflow', value='auto'), page_orientation=OptionsInfo(scss=False, category='page', type='value', value='portrait'), page_numbering=OptionsInfo(scss=False, category='page', type='boolean', value=False), page_header_use_tbl_headings=OptionsInfo(scss=False, category='page', type='boolean', value=False), page_footer_use_tbl_notes=OptionsInfo(scss=False, category='page', type='boolean', value=False), page_width=OptionsInfo(scss=False, category='page', type='value', value='8.5in'), page_height=OptionsInfo(scss=False, category='page', type='value', value='11.0in'), page_margin_left=OptionsInfo(scss=False, category='page', type='value', value='1.0in'), page_margin_right=OptionsInfo(scss=False, category='page', type='value', value='1.0in'), page_margin_top=OptionsInfo(scss=False, category='page', type='value', value='1.0in'), page_margin_bottom=OptionsInfo(scss=False, category='page', type='value', value='1.0in'), page_header_height=OptionsInfo(scss=False, category='page', type='value', value='0.5in'), page_footer_height=OptionsInfo(scss=False, category='page', type='value', value='0.5in'), quarto_disable_processing=OptionsInfo(scss=False, category='quarto', type='logical', value=False), quarto_use_bootstrap=OptionsInfo(scss=False, category='quarto', type='logical', value=False)), _has_built=False)</code></pre>
+
+<div id="njkdpimdqz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#njkdpimdqz table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#njkdpimdqz thead, tbody, tfoot, tr, td, th {
+  border-style: none; }
+
+#njkdpimdqz p {
+  margin: 0;
+  padding: 0; }
+
+#njkdpimdqz .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3; }
+
+#njkdpimdqz .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px; }
+
+#njkdpimdqz .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0; }
+
+#njkdpimdqz .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0; }
+
+#njkdpimdqz .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+#njkdpimdqz .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#njkdpimdqz .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3; }
+
+#njkdpimdqz .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden; }
+
+#njkdpimdqz .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+#njkdpimdqz .gt_column_spanner_outer:first-child {
+  padding-left: 0; }
+
+#njkdpimdqz .gt_column_spanner_outer:last-child {
+  padding-right: 0; }
+
+#njkdpimdqz .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%; }
+
+#njkdpimdqz .gt_spanner_row {
+  border-bottom-style: hidden; }
+
+#njkdpimdqz .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left; }
+
+#njkdpimdqz .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle; }
+
+#njkdpimdqz .gt_from_md > :first-child {
+  margin-top: 0; }
+
+#njkdpimdqz .gt_from_md > :last-child {
+  margin-bottom: 0; }
+
+#njkdpimdqz .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden; }
+
+#njkdpimdqz .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#njkdpimdqz .gt_stub_row_grou#njkdpimdqz p {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top; }
+
+#njkdpimdqz .gt_row_group_first td {
+  border-top-width: 2px; }
+
+#njkdpimdqz .gt_row_group_first th {
+  border-top-width: 2px; }
+
+#njkdpimdqz .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#njkdpimdqz .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3; }
+
+#njkdpimdqz .gt_first_summary_row.thick {
+  border-top-width: 2px; }
+
+#njkdpimdqz .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#njkdpimdqz .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#njkdpimdqz .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3; }
+
+#njkdpimdqz .gt_last_grand_summary_row_to#njkdpimdqz p {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3; }
+
+#njkdpimdqz .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05); }
+
+#njkdpimdqz .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3; }
+
+#njkdpimdqz .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+#njkdpimdqz .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#njkdpimdqz .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3; }
+
+#njkdpimdqz .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+#njkdpimdqz .gt_left {
+  text-align: left; }
+
+#njkdpimdqz .gt_center {
+  text-align: center; }
+
+#njkdpimdqz .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+#njkdpimdqz .gt_font_normal {
+  font-weight: normal; }
+
+#njkdpimdqz .gt_font_bold {
+  font-weight: bold; }
+
+#njkdpimdqz .gt_font_italic {
+  font-style: italic; }
+
+#njkdpimdqz .gt_super {
+  font-size: 65%; }
+
+#njkdpimdqz .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial; }
+
+#njkdpimdqz .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0; }
+
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="population">population</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+</tr><tr class="gt_group_heading_row">  <th class="gt_group_heading" colspan="2">San Marino</th></tr>
+  <tr><th class="gt_row gt_left gt_stub">2018</th>
+  <td class="gt_row gt_left">34156</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">2019</th>
+  <td class="gt_row gt_left">34178</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">2020</th>
+  <td class="gt_row gt_left">34007</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">2021</th>
+  <td class="gt_row gt_left">33745</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">2022</th>
+  <td class="gt_row gt_left">33660</td>
+</tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
 </div>
 </div>
 
