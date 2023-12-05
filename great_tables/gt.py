@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, List, Optional
 from typing_extensions import Self
+from dataclasses import asdict, fields, astuple
 
 import pkg_resources
 
@@ -58,7 +59,6 @@ from great_tables._utils_render_html import (
     create_source_notes_component_h,
     create_footnotes_component_h,
 )
-
 
 
 __all__ = ["GT"]
@@ -196,7 +196,6 @@ class GT(
         )
         super().__init__(**gtdata.__dict__)
 
-
     # TODO: Refactor API methods -----
     cols_align = cols_align
     cols_label = cols_label
@@ -280,8 +279,8 @@ class GT(
         footnotes_component = create_footnotes_component_h(data=self)
 
         # Determine whether Quarto processing of the table is enabled
-        quarto_disable_processing = self._options._get_option_value("quarto_disable_processing")
-        quarto_use_bootstrap = self._options._get_option_value("quarto_use_bootstrap")
+        quarto_disable_processing = self._options.quarto_disable_processing.value
+        quarto_use_bootstrap = self._options.quarto_use_bootstrap.value
         quarto_disable_processing = str(quarto_disable_processing).lower()
         quarto_use_bootstrap = str(quarto_use_bootstrap).lower()
 
@@ -295,7 +294,7 @@ class GT(
 """
 
         # Obtain the `table_id` value (might be set, might be None)
-        table_id = self._options._options["table_id"].value
+        table_id = self._options.table_id.value
 
         if table_id is None:
             id = random_id()
@@ -307,12 +306,12 @@ class GT(
 
         # Obtain options set for overflow and container dimensions
 
-        container_padding_x = self._options._get_option_value("container_padding_x")
-        container_padding_y = self._options._get_option_value("container_padding_y")
-        container_overflow_x = self._options._get_option_value("container_overflow_x")
-        container_overflow_y = self._options._get_option_value("container_overflow_y")
-        container_width = self._options._get_option_value("container_width")
-        container_height = self._options._get_option_value("container_height")
+        container_padding_x = self._options.container_padding_x.value
+        container_padding_y = self._options.container_padding_y.value
+        container_overflow_x = self._options.container_overflow_x.value
+        container_overflow_y = self._options.container_overflow_y.value
+        container_width = self._options.container_width.value
+        container_height = self._options.container_height.value
 
         finalized_table = f"""<div id="{id}" style="padding-left:{container_padding_x};padding-right:{container_padding_x};padding-top:{container_padding_y};padding-bottom:{container_padding_y};overflow-x:{container_overflow_x};overflow-y:{container_overflow_y};width:{container_width};height:{container_height};">
 <style>
@@ -387,14 +386,11 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
 
 def _compile_scss(data: GT, id: Optional[str]) -> str:
     # Obtain the SCSS options dictionary
-    gt_options_dict = data._options._options
+    options = {field.name: getattr(data._options, field.name) for field in fields(data._options)}
 
     # Get collection of parameters that pertain to SCSS
-    scss_params = [
-        f"${x.parameter}: {x.value};"
-        for x in gt_options_dict.values()
-        if x.scss is True and x.value is not None
-    ]
+    scss_params_raw = {k: opt for k, opt in options.items() if opt.scss and opt.value is not None}
+    scss_params = [f"${k}: {opt.value};" for k, opt in scss_params_raw.items()]
     scss_params_str = "\n".join(scss_params) + "\n"
 
     # Determine whether the table has an ID
@@ -406,7 +402,7 @@ def _compile_scss(data: GT, id: Optional[str]) -> str:
     # TODO: need to implement a function to normalize color (`html_color()`)
 
     # Get the unique list of fonts from `gt_options_dict`
-    font_list = _unique_set(gt_options_dict["table_font_names"].value)
+    font_list = _unique_set(data._options.table_font_names.value)
 
     # Generate a `font-family` string
     if font_list is not None:

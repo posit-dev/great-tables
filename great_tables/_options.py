@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dataclasses import replace
 from typing import TYPE_CHECKING, Optional, Union, List, cast
 from great_tables import _utils
 
@@ -355,13 +356,12 @@ def tab_options(
     del saved_args["self"]
 
     modified_args = {k: v for k, v in saved_args.items() if v is not None}
+    new_options_info = {
+        k: replace(getattr(self._options, k), value=v) for k, v in modified_args.items()
+    }
+    new_options = replace(self._options, **new_options_info)
 
-    for i in range(len(modified_args)):
-        self._options._set_option_value(
-            option=list(modified_args.keys())[i], value=list(modified_args.values())[i]
-        )
-
-    return self
+    return self._replace(_options=new_options)
 
 
 def opt_footnote_marks(self: GTSelf, marks: Union[str, List[str]] = "numbers") -> GTSelf:
