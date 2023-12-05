@@ -892,7 +892,7 @@ default_fonts_list = [
 ]
 
 
-@dataclass
+@dataclass(frozen=True)
 class OptionsInfo:
     scss: bool
     category: str
