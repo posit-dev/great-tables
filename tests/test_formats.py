@@ -22,9 +22,9 @@ def assert_rendered_body(snapshot, gt):
 def test_format_fns():
     df = pd.DataFrame({"x": [1, 2]})
     gt = GT(df)
-    fmt(gt, fns=lambda x: str(x + 1), columns=["x"])
+    new_gt = fmt(gt, fns=lambda x: str(x + 1), columns=["x"])
 
-    formats_fn = gt._formats[0]
+    formats_fn = new_gt._formats[0]
 
     res = list(map(formats_fn.func.default, df["x"]))
     assert res == ["2", "3"]

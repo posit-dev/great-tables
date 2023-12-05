@@ -47,7 +47,7 @@ TimeStyle: TypeAlias = Literal[
 
 
 def fmt(
-    x: GTSelf,
+    self: GTSelf,
     fns: Union[FormatFn, FormatFns],
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
@@ -88,14 +88,12 @@ def fmt(
     columns = _listify(columns, list)
 
     if rows is None:
-        rows = list(range(n_rows(x._tbl_data)))
+        rows = list(range(n_rows(self._tbl_data)))
     elif isinstance(rows, int):
         rows = [rows]
 
     formatter = FormatInfo(fns, columns, rows)
-    x._formats.append(formatter)
-
-    return x
+    return self._replace(_formats=[*self._formats, formatter])
 
 
 def fmt_number(
@@ -297,9 +295,7 @@ def fmt_number(
 
         return x_formatted
 
-    fmt(self, fns=fmt_number_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_number_fn, columns=columns, rows=rows)
 
 
 def fmt_integer(
@@ -464,9 +460,7 @@ def fmt_integer(
 
         return x_formatted
 
-    fmt(self, fns=fmt_integer_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_integer_fn, columns=columns, rows=rows)
 
 
 def fmt_scientific(
@@ -724,9 +718,7 @@ def fmt_scientific(
 
         return x_formatted
 
-    fmt(self, fns=fmt_scientific_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_scientific_fn, columns=columns, rows=rows)
 
 
 def fmt_percent(
@@ -927,9 +919,7 @@ def fmt_percent(
 
         return x_formatted
 
-    fmt(self, fns=fmt_percent_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_percent_fn, columns=columns, rows=rows)
 
 
 def fmt_currency(
@@ -1163,9 +1153,7 @@ def fmt_currency(
 
         return x_formatted
 
-    fmt(self, fns=fmt_currency_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_currency_fn, columns=columns, rows=rows)
 
 
 def fmt_roman(
@@ -1270,9 +1258,7 @@ def fmt_roman(
 
         return x_formatted
 
-    fmt(self, fns=fmt_roman_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_roman_fn, columns=columns, rows=rows)
 
 
 def fmt_bytes(
@@ -1505,9 +1491,7 @@ def fmt_bytes(
 
         return x_formatted
 
-    fmt(self, fns=fmt_bytes_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_bytes_fn, columns=columns, rows=rows)
 
 
 def fmt_date(
@@ -1650,9 +1634,7 @@ def fmt_date(
 
         return x_formatted
 
-    fmt(self, fns=fmt_date_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_date_fn, columns=columns, rows=rows)
 
 
 def fmt_time(
@@ -1786,9 +1768,7 @@ def fmt_time(
 
         return x_formatted
 
-    fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
 
 
 def fmt_markdown(
@@ -1835,9 +1815,7 @@ def fmt_markdown(
 
         return x_formatted
 
-    fmt(self, fns=fmt_markdown_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_markdown_fn, columns=columns, rows=rows)
 
 
 def _value_to_decimal_notation(
