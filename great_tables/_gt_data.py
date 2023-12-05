@@ -540,7 +540,7 @@ class Stub(_Sequence[RowInfo]):
         # Given that there are row groups, we need to look at the option `row_group_as_column` to
         # determine whether they populate a column located in the stub; if set as True then that's
         # the return value
-        row_group_as_column = options._get_option_value(option="row_group_as_column")
+        row_group_as_column = options.row_group_as_column.value
 
         row_group_as_column: Any
         if not isinstance(row_group_as_column, bool):
@@ -1114,9 +1114,6 @@ class Options:
 
     # def _get_option_type(self, option: str) -> Union[Any, List[str]]:
     #    return self._options[option].type
-
-    def _get_option_value(self, option: str) -> Union[Any, List[str]]:
-        return self._options[option].value
 
     def _set_option_value(self, option: str, value: Any):
         self._options[option].value = value
