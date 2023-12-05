@@ -32,7 +32,13 @@ from great_tables._formats import (
 )
 from great_tables._heading import HeadingAPI
 from great_tables._locale import LocaleAPI
-from great_tables._options import OptionsAPI
+from great_tables._options import (
+    tab_options,
+    opt_align_table_header,
+    opt_all_caps,
+    opt_footnote_marks,
+    opt_row_striping,
+)
 from great_tables._row_groups import RowGroupsAPI
 from great_tables._source_notes import tab_source_note
 from great_tables._spanners import (
@@ -85,7 +91,6 @@ class GT(
     FootnotesAPI,
     LocaleAPI,
     FormatsAPI,
-    OptionsAPI,
 ):
     """
     Create a **great_tables** object.
@@ -226,6 +231,12 @@ class GT(
     fmt_date = fmt_date
     fmt_time = fmt_time
     fmt_markdown = fmt_markdown
+
+    tab_options = tab_options
+    opt_align_table_header = opt_align_table_header
+    opt_all_caps = opt_all_caps
+    opt_footnote_marks = opt_footnote_marks
+    opt_row_striping = opt_row_striping
 
     tab_spanner = tab_spanner
     tab_source_note = tab_source_note
