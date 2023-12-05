@@ -50,7 +50,7 @@ def create_columns_component_h(data: GTData) -> str:
     """
 
     # Should the column labels be hidden?
-    column_labels_hidden: bool = data._options._get_option_value(option="column_labels_hidden")
+    column_labels_hidden: bool = data._options.column_labels_hidden.value
 
     if column_labels_hidden:
         return ""
@@ -615,7 +615,7 @@ def _get_spanners_matrix_height(
 # Get the attributes needed for the <table> tag
 def _get_table_defs(data: GTData):
     # Get the `table-layout` value, which is set in `_options`
-    table_layout = data._options._get_option_value(option="table_layout")
+    table_layout = data._options.table_layout.value
     table_style = f"table-layout: {table_layout};"
 
     # Get the number of columns that have a width set
@@ -627,7 +627,7 @@ def _get_table_defs(data: GTData):
         return dict(table_style=None, table_colgroups=None)
 
     # Get the table's width (which or may not have been set)
-    table_width = data._options._get_option_value(option="table_width")
+    table_width = data._options.table_width.value
 
     # Get all the widths for the columns as a list where None values mean
     # that the width is not set for that column

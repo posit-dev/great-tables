@@ -1,58 +1,57 @@
 from __future__ import annotations
-from typing import Union
+from typing import TYPE_CHECKING, Union
 from typing_extensions import Self
 from copy import copy
 from ._text import Text
 
 
-class StubheadAPI:
-    def tab_stubhead(self, label: Union[str, Text]) -> Self:
-        """
-        Add label text to the stubhead.
+if TYPE_CHECKING:
+    from ._types import GTSelf
 
-        Add a label to the stubhead of a table. The stubhead is the lone element that is positioned
-        left of the column labels, and above the stub. If a stub does not exist, then there is no
-        stubhead (so no change will be made when using this method in that case). We have the
-        flexibility to use Markdown formatting for the stubhead label (through use of the `md()`
-        helper function). Furthermore, we can use HTML for the stubhead label so long as we also use
-        the `html()` helper function.
 
-        Parameters
-        ----------
-        label : str
-            The text to be used as the stubhead label. We can optionally use the `md()` and `html()`
-            functions to style the text as Markdown or to retain HTML elements in the text.
+def tab_stubhead(self: GTSelf, label: Union[str, Text]) -> GTSelf:
+    """
+    Add label text to the stubhead.
 
-        Returns
-        -------
-        GT
-            The GT object is returned.
+    Add a label to the stubhead of a table. The stubhead is the lone element that is positioned
+    left of the column labels, and above the stub. If a stub does not exist, then there is no
+    stubhead (so no change will be made when using this method in that case). We have the
+    flexibility to use Markdown formatting for the stubhead label (through use of the `md()`
+    helper function). Furthermore, we can use HTML for the stubhead label so long as we also use
+    the `html()` helper function.
 
-        Examples
-        --------
-        Using a small subset of the `gtcars` dataset, we can create a table with row labels. Since
-        we have row labels in the stub (via use of `rowname_col="model"` in the `GT()` call) we have
-        a stubhead, so, let's add a stubhead label (`"car"`) with the `tab_stubhead()` method to
-        describe what's in the stub.
+    Parameters
+    ----------
+    label : str
+        The text to be used as the stubhead label. We can optionally use the `md()` and `html()`
+        functions to style the text as Markdown or to retain HTML elements in the text.
 
-        ```{python}
-        import great_tables as gt
+    Returns
+    -------
+    GT
+        The GT object is returned.
 
-        gtcars_mini = gt.gtcars[[\"model\", \"year\", \"hp\", \"trq\"]].head(5)
+    Examples
+    --------
+    Using a small subset of the `gtcars` dataset, we can create a table with row labels. Since
+    we have row labels in the stub (via use of `rowname_col="model"` in the `GT()` call) we have
+    a stubhead, so, let's add a stubhead label (`"car"`) with the `tab_stubhead()` method to
+    describe what's in the stub.
 
-        gt.GT(gtcars_mini, rowname_col=\"model\").tab_stubhead(label=\"car\")
-        ```
+    ```{python}
+    import great_tables as gt
 
-        We can also use Markdown formatting for the stubhead label. In this example, we'll use
-        `md("*Car*")` to make the label italicized.
+    gtcars_mini = gt.gtcars[[\"model\", \"year\", \"hp\", \"trq\"]].head(5)
 
-        ```{python}
-        gt.GT(gtcars_mini, rowname_col="model").tab_stubhead(label=gt.md("*Car*"))
-        ```
-        """
+    gt.GT(gtcars_mini, rowname_col=\"model\").tab_stubhead(label=\"car\")
+    ```
 
-        result = copy(self)
+    We can also use Markdown formatting for the stubhead label. In this example, we'll use
+    `md("*Car*")` to make the label italicized.
 
-        result._stubhead = label
+    ```{python}
+    gt.GT(gtcars_mini, rowname_col="model").tab_stubhead(label=gt.md("*Car*"))
+    ```
+    """
 
-        return result
+    return self._replace(_stubhead=label)

@@ -8,7 +8,7 @@ from great_tables._utils_render_html import create_body_component_h
 from great_tables._formats import (
     _format_number_fixed_decimals,
     _expand_exponential_to_full_string,
-    FormatsAPI,
+    fmt,
 )
 
 
@@ -22,9 +22,9 @@ def assert_rendered_body(snapshot, gt):
 def test_format_fns():
     df = pd.DataFrame({"x": [1, 2]})
     gt = GT(df)
-    FormatsAPI.fmt(gt, fns=lambda x: str(x + 1), columns=["x"])
+    new_gt = fmt(gt, fns=lambda x: str(x + 1), columns=["x"])
 
-    formats_fn = gt._formats[0]
+    formats_fn = new_gt._formats[0]
 
     res = list(map(formats_fn.func.default, df["x"]))
     assert res == ["2", "3"]

@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import re
 
-from typing import overload, TypeVar, Optional
+from typing import overload, TypeVar, Dict, Optional
 from typing_extensions import Self, TypeAlias
 from dataclasses import dataclass, field, replace
 from ._utils import _str_detect
@@ -23,7 +23,7 @@ from dataclasses import dataclass
 __GT = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class GTData:
     _tbl_data: TblData
     _body: Body
@@ -189,7 +189,7 @@ class ColInfoTypeEnum(Enum):
     hidden = auto()
 
 
-@dataclass
+@dataclass(frozen=True)
 class ColInfo:
     # TODO: Make var readonly
     var: str
@@ -206,7 +206,7 @@ class ColInfo:
 
     def __post_init__(self):
         if self.column_label is None:
-            self.column_label = self.var
+            super().__setattr__("column_label", self.var)
 
     @property
     def visible(self) -> bool:
@@ -317,7 +317,7 @@ class Boxhead(_Sequence[ColInfo]):
             col_classes.append(dtype)
 
         # Get a list of `align` values by translating the column classes
-        align = []
+        align: List[str] = []
 
         for col_class in col_classes:
             # Ensure that `col_class` is lowercase
@@ -342,8 +342,11 @@ class Boxhead(_Sequence[ColInfo]):
                 align.append("center")
 
         # Set the alignment for each column in the boxhead
+        new_cols: List[ColInfo] = []
         for col, alignment in zip(self._d, align):
-            col.column_align = alignment
+            new_cols.append(replace(col, column_align=alignment))
+
+        self._d = new_cols
 
     def vars_from_type(self, type: ColInfoTypeEnum) -> List[str]:
         return [x.var for x in self._d if x.type == type]
@@ -366,20 +369,28 @@ class Boxhead(_Sequence[ColInfo]):
         return [x.column_label for x in self._d]
 
     # Set column label
-    def _set_column_label(self, column: str, label: str):
+    def _set_column_labels(self, col_labels: Dict[str, str]) -> Self:
+        out_cols: List[ColInfo] = []
         for x in self._d:
-            if x.var == column:
-                x.column_label = label
+            new_label = col_labels.get(x.var, None)
+            if new_label is not None:
+                out_cols.append(replace(x, column_label=new_label))
+            else:
+                out_cols.append(x)
 
-        return self
+        return self.__class__(out_cols)
 
     # Set column alignments
-    def _set_column_align(self, column: str, align: str):
+    def _set_column_aligns(self, columns: List[str], align: str) -> Self:
+        set_cols = set(columns)
+        out_cols: List[ColInfo] = []
         for x in self._d:
-            if x.var == column:
-                x.column_align = align
+            if x.var in set_cols:
+                out_cols.append(replace(x, column_align=align))
+            else:
+                out_cols.append(x)
 
-        return self
+        return self.__class__(out_cols)
 
     # Get a list of column widths
     def _get_column_widths(self) -> List[str | None]:
@@ -455,7 +466,7 @@ __Stub = None
 from ._tbl_data import TblData, n_rows
 
 
-@dataclass
+@dataclass(frozen=True)
 class RowInfo:
     # TODO: Make `rownum_i` readonly
     rownum_i: int
@@ -582,7 +593,7 @@ RowGroups: TypeAlias = List[str]
 __GroupRows = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class GroupRowInfo:
     group_id: str
     group_label: str | None = None
@@ -650,7 +661,7 @@ __Spanners = None
 import pandas as pd
 
 
-@dataclass
+@dataclass(frozen=True)
 class SpannerInfo:
     spanner_id: str
     spanner_level: int
@@ -712,7 +723,7 @@ __Heading = None
 from typing import Optional, Union, List
 
 
-@dataclass
+@dataclass(frozen=True)
 class Heading:
     title: Optional[str] = None
     subtitle: Optional[str] = None
@@ -748,7 +759,7 @@ class FootnotePlacement(Enum):
     auto = auto()
 
 
-@dataclass
+@dataclass(frozen=True)
 class FootnoteInfo:
     locname: Optional[str] = None
     grpname: Optional[str] = None
@@ -768,7 +779,7 @@ __Styles = None
 from typing import List, Optional
 
 
-@dataclass
+@dataclass(frozen=True)
 class StyleInfo:
     locname: str
     locnum: int
@@ -881,226 +892,232 @@ default_fonts_list = [
 ]
 
 
+@dataclass(frozen=True)
 class OptionsInfo:
-    parameter: str
-    scss: Optional[bool]
-    category: Optional[str]
-    type: Optional[str]
+    scss: bool
+    category: str
+    type: str
     value: Optional[Union[Any, List[str]]]
 
-    def __init__(
-        self,
-        parameter: str,
-        scss: Optional[bool] = None,
-        category: Optional[str] = None,
-        type: Optional[str] = None,
-        value: Optional[Union[Any, List[str]]] = None,
-    ):
-        self.parameter = parameter
-        self.scss = scss
-        self.category = category
-        self.type = type
-        self.value = value
 
-
-# fmt: off
+@dataclass(frozen=True)
 class Options:
-    def __init__(self):
-        self._options: dict[str, OptionsInfo] = dict(
-           (v.parameter, v) for v in [
-            #           parameter                            scss    category            type        value
-            OptionsInfo("table_id",                          False,  "table",            "value",    None),
-            OptionsInfo("table_caption",                     False,  "table",            "value",    None),
-            OptionsInfo("table_width",                        True,  "table",            "px",       "auto"),
-            OptionsInfo("table_layout",                       True,  "table",            "value",    "fixed"),
-            OptionsInfo("table_margin_left",                  True,  "table",            "px",       "auto"),
-            OptionsInfo("table_margin_right",                 True,  "table",            "px",       "auto"),
-            OptionsInfo("table_background_color",             True,  "table",            "value",    "#FFFFFF"),
-            OptionsInfo("table_additional_css",              False,  "table",            "values",   None),
-            OptionsInfo("table_font_names",                  False,  "table",            "values",   default_fonts_list),
-            OptionsInfo("table_font_size",                    True,  "table",            "px",       "16px"),
-            OptionsInfo("table_font_weight",                  True,  "table",            "value",    "normal"),
-            OptionsInfo("table_font_style",                   True,  "table",            "value",    "normal"),
-            OptionsInfo("table_font_color",                   True,  "table",            "value",    "#333333"),
-            OptionsInfo("table_font_color_light",             True,  "table",            "value",    "#FFFFFF"),
-            OptionsInfo("table_border_top_include",          False,  "table",            "boolean",  True),
-            OptionsInfo("table_border_top_style",             True,  "table",            "value",    "solid"),
-            OptionsInfo("table_border_top_width",             True,  "table",            "px",       "2px"),
-            OptionsInfo("table_border_top_color",             True,  "table",            "value",    "#A8A8A8"),
-            OptionsInfo("table_border_right_style",           True,  "table",            "value",    "none"),
-            OptionsInfo("table_border_right_width",           True,  "table",            "px",       "2px"),
-            OptionsInfo("table_border_right_color",           True,  "table",            "value",    "#D3D3D3"),
-            OptionsInfo("table_border_bottom_include",       False,  "table",            "boolean",  True),
-            OptionsInfo("table_border_bottom_style",          True,  "table",            "value",    "solid"),
-            OptionsInfo("table_border_bottom_width",          True,  "table",            "px",       "2px"),
-            OptionsInfo("table_border_bottom_color",          True,  "table",            "value",    "#A8A8A8"),
-            OptionsInfo("table_border_left_style",            True,  "table",            "value",    "none"),
-            OptionsInfo("table_border_left_width",            True,  "table",            "px",       "2px"),
-            OptionsInfo("table_border_left_color",            True,  "table",            "value",    "#D3D3D3"),
-            OptionsInfo("heading_background_color",           True,  "heading",          "value",    None),
-            OptionsInfo("heading_align",                      True,  "heading",          "value",    "center"),
-            OptionsInfo("heading_title_font_size",            True,  "heading",          "px",       "125%"),
-            OptionsInfo("heading_title_font_weight",          True,  "heading",          "value",    "initial"),
-            OptionsInfo("heading_subtitle_font_size",         True,  "heading",          "px",       "85%"),
-            OptionsInfo("heading_subtitle_font_weight",       True,  "heading",          "value",    "initial"),
-            OptionsInfo("heading_padding",                    True,  "heading",          "px",       "4px"),
-            OptionsInfo("heading_padding_horizontal",         True,  "heading",          "px",       "5px"),
-            OptionsInfo("heading_border_bottom_style",        True,  "heading",          "value",    "solid"),
-            OptionsInfo("heading_border_bottom_width",        True,  "heading",          "px",       "2px"),
-            OptionsInfo("heading_border_bottom_color",        True,  "heading",          "value",    "#D3D3D3"),
-            OptionsInfo("heading_border_lr_style",            True,  "heading",          "value",    "none"),
-            OptionsInfo("heading_border_lr_width",            True,  "heading",          "px",       "1px"),
-            OptionsInfo("heading_border_lr_color",            True,  "heading",          "value",    "#D3D3D3"),
-            OptionsInfo("column_labels_background_color",     True,  "column_labels",    "value",    None),
-            OptionsInfo("column_labels_font_size",            True,  "column_labels",    "px",       "100%"),
-            OptionsInfo("column_labels_font_weight",          True,  "column_labels",    "value",    "normal"),
-            OptionsInfo("column_labels_text_transform",       True,  "column_labels",    "value",    "inherit"),
-            OptionsInfo("column_labels_padding",              True,  "column_labels",    "px",       "5px"),
-            OptionsInfo("column_labels_padding_horizontal",   True,  "column_labels",    "px",       "5px"),
-            OptionsInfo("column_labels_vlines_style",         True,  "table_body",       "value",    "none"),
-            OptionsInfo("column_labels_vlines_width",         True,  "table_body",       "px",       "1px"),
-            OptionsInfo("column_labels_vlines_color",         True,  "table_body",       "value",    "#D3D3D3"),
-            OptionsInfo("column_labels_border_top_style",     True,  "column_labels",    "value",    "solid"),
-            OptionsInfo("column_labels_border_top_width",     True,  "column_labels",    "px",       "2px"),
-            OptionsInfo("column_labels_border_top_color",     True,  "column_labels",    "value",    "#D3D3D3"),
-            OptionsInfo("column_labels_border_bottom_style",  True,  "column_labels",    "value",    "solid"),
-            OptionsInfo("column_labels_border_bottom_width",  True,  "column_labels",    "px",       "2px"),
-            OptionsInfo("column_labels_border_bottom_color",  True,  "column_labels",    "value",    "#D3D3D3"),
-            OptionsInfo("column_labels_border_lr_style",      True,  "column_labels",    "value",    "none"),
-            OptionsInfo("column_labels_border_lr_width",      True,  "column_labels",    "px",       "1px"),
-            OptionsInfo("column_labels_border_lr_color",      True,  "column_labels",    "value",    "#D3D3D3"),
-            OptionsInfo("column_labels_hidden",              False,  "column_labels",    "boolean",  False),
-            OptionsInfo("row_group_background_color",         True,  "row_group",        "value",    None),
-            OptionsInfo("row_group_font_size",                True,  "row_group",        "px",       "100%"),
-            OptionsInfo("row_group_font_weight",              True,  "row_group",        "value",    "initial"),
-            OptionsInfo("row_group_text_transform",           True,  "row_group",        "value",    "inherit"),
-            OptionsInfo("row_group_padding",                  True,  "row_group",        "px",       "8px"),
-            OptionsInfo("row_group_padding_horizontal",       True,  "row_group",        "px",       "5px"),
-            OptionsInfo("row_group_border_top_style",         True,  "row_group",        "value",    "solid"),
-            OptionsInfo("row_group_border_top_width",         True,  "row_group",        "px",       "2px"),
-            OptionsInfo("row_group_border_top_color",         True,  "row_group",        "value",    "#D3D3D3"),
-            OptionsInfo("row_group_border_right_style",       True,  "row_group",        "value",    "none"),
-            OptionsInfo("row_group_border_right_width",       True,  "row_group",        "px",       "1px"),
-            OptionsInfo("row_group_border_right_color",       True,  "row_group",        "value",    "#D3D3D3"),
-            OptionsInfo("row_group_border_bottom_style",      True,  "row_group",        "value",    "solid"),
-            OptionsInfo("row_group_border_bottom_width",      True,  "row_group",        "px",       "2px"),
-            OptionsInfo("row_group_border_bottom_color",      True,  "row_group",        "value",    "#D3D3D3"),
-            OptionsInfo("row_group_border_left_style",        True,  "row_group",        "value",    "none"),
-            OptionsInfo("row_group_border_left_width",        True,  "row_group",        "px",       "1px"),
-            OptionsInfo("row_group_border_left_color",        True,  "row_group",        "value",    "#D3D3D3"),
-            OptionsInfo("row_group_default_label",           False,  "row_group",        "value",    None),
-            OptionsInfo("row_group_as_column",               False,  "row_group",        "boolean",  False),
-            OptionsInfo("table_body_hlines_style",            True,  "table_body",       "value",    "solid"),
-            OptionsInfo("table_body_hlines_width",            True,  "table_body",       "px",       "1px"),
-            OptionsInfo("table_body_hlines_color",            True,  "table_body",       "value",    "#D3D3D3"),
-            OptionsInfo("table_body_vlines_style",            True,  "table_body",       "value",    "none"),
-            OptionsInfo("table_body_vlines_width",            True,  "table_body",       "px",       "1px"),
-            OptionsInfo("table_body_vlines_color",            True,  "table_body",       "value",    "#D3D3D3"),
-            OptionsInfo("table_body_border_top_style",        True,  "table_body",       "value",    "solid"),
-            OptionsInfo("table_body_border_top_width",        True,  "table_body",       "px",       "2px"),
-            OptionsInfo("table_body_border_top_color",        True,  "table_body",       "value",    "#D3D3D3"),
-            OptionsInfo("table_body_border_bottom_style",     True,  "table_body",       "value",    "solid"),
-            OptionsInfo("table_body_border_bottom_width",     True,  "table_body",       "px",       "2px"),
-            OptionsInfo("table_body_border_bottom_color",     True,  "table_body",       "value",    "#D3D3D3"),
-            OptionsInfo("data_row_padding",                   True,  "data_row",         "px",       "8px"),
-            OptionsInfo("data_row_padding_horizontal",        True,  "data_row",         "px",       "5px"),
-            OptionsInfo("stub_background_color",              True,  "stub",             "value",    None),
-            OptionsInfo("stub_font_size",                     True,  "stub",             "px",       "100%"),
-            OptionsInfo("stub_font_weight",                   True,  "stub",             "value",    "initial"),
-            OptionsInfo("stub_text_transform",                True,  "stub",             "value",    "inherit"),
-            OptionsInfo("stub_border_style",                  True,  "stub",             "value",    "solid"),
-            OptionsInfo("stub_border_width",                  True,  "stub",             "px",       "2px"),
-            OptionsInfo("stub_border_color",                  True,  "stub",             "value",    "#D3D3D3"),
-            OptionsInfo("stub_row_group_background_color",    True,  "stub",             "value",    None),
-            OptionsInfo("stub_row_group_font_size",           True,  "stub",             "px",       "100%"),
-            OptionsInfo("stub_row_group_font_weight",         True,  "stub",             "value",    "initial"),
-            OptionsInfo("stub_row_group_text_transform",      True,  "stub",             "value",    "inherit"),
-            OptionsInfo("stub_row_group_border_style",        True,  "stub",             "value",    "solid"),
-            OptionsInfo("stub_row_group_border_width",        True,  "stub",             "px",       "2px"),
-            OptionsInfo("stub_row_group_border_color",        True,  "stub",             "value",    "#D3D3D3"),
-            OptionsInfo("summary_row_padding",                True,  "summary_row",      "px",       "8px"),
-            OptionsInfo("summary_row_padding_horizontal",     True,  "summary_row",      "px",       "5px"),
-            OptionsInfo("summary_row_background_color",       True,  "summary_row",      "value",    None),
-            OptionsInfo("summary_row_text_transform",         True,  "summary_row",      "value",    "inherit"),
-            OptionsInfo("summary_row_border_style",           True,  "summary_row",      "value",    "solid"),
-            OptionsInfo("summary_row_border_width",           True,  "summary_row",      "px",       "2px"),
-            OptionsInfo("summary_row_border_color",           True,  "summary_row",      "value",    "#D3D3D3"),
-            OptionsInfo("grand_summary_row_padding",          True,  "grand_summary_row", "px",      "8px"),
-            OptionsInfo("grand_summary_row_padding_horizontal",True, "grand_summary_row", "px",      "5px"),
-            OptionsInfo("grand_summary_row_background_color", True,  "grand_summary_row", "value",   None),
-            OptionsInfo("grand_summary_row_text_transform",   True,  "grand_summary_row", "value",   "inherit"),
-            OptionsInfo("grand_summary_row_border_style",     True,  "grand_summary_row", "value",   "double"),
-            OptionsInfo("grand_summary_row_border_width",     True,  "grand_summary_row", "px",      "6px"),
-            OptionsInfo("grand_summary_row_border_color",     True,  "grand_summary_row", "value",   "#D3D3D3"),
-            OptionsInfo("footnotes_font_size",                True,  "footnotes",        "px",       "90%"),
-            OptionsInfo("footnotes_padding",                  True,  "footnotes",        "px",       "4px"),
-            OptionsInfo("footnotes_padding_horizontal",       True,  "footnotes",        "px",       "5px"),
-            OptionsInfo("footnotes_background_color",         True,  "footnotes",        "value",    None),
-            OptionsInfo("footnotes_margin",                   True,  "footnotes",        "px",       "0px"),
-            OptionsInfo("footnotes_border_bottom_style",      True,  "footnotes",        "value",    "none"),
-            OptionsInfo("footnotes_border_bottom_width",      True,  "footnotes",        "px",       "2px"),
-            OptionsInfo("footnotes_border_bottom_color",      True,  "footnotes",        "value",    "#D3D3D3"),
-            OptionsInfo("footnotes_border_lr_style",          True,  "footnotes",        "value",    "none"),
-            OptionsInfo("footnotes_border_lr_width",          True,  "footnotes",        "px",       "2px"),
-            OptionsInfo("footnotes_border_lr_color",          True,  "footnotes",        "value",    "#D3D3D3"),
-            OptionsInfo("footnotes_marks" ,                  False,  "footnotes",        "values",   "numbers"),
-            OptionsInfo("footnotes_multiline",               False,  "footnotes",        "boolean",  True),
-            OptionsInfo("footnotes_sep",                     False,  "footnotes",        "value",    " "),
-            OptionsInfo("source_notes_padding",               True,  "source_notes",     "px",       "4px"),
-            OptionsInfo("source_notes_padding_horizontal",    True,  "source_notes",     "px",       "5px"),
-            OptionsInfo("source_notes_background_color",      True,  "source_notes",     "value",    None),
-            OptionsInfo("source_notes_font_size",             True,  "source_notes",     "px",       "90%"),
-            OptionsInfo("source_notes_border_bottom_style",   True,  "source_notes",     "value",    "none"),
-            OptionsInfo("source_notes_border_bottom_width",   True,  "source_notes",     "px",       "2px"),
-            OptionsInfo("source_notes_border_bottom_color",   True,  "source_notes",     "value",    "#D3D3D3"),
-            OptionsInfo("source_notes_border_lr_style",       True,  "source_notes",     "value",    "none"),
-            OptionsInfo("source_notes_border_lr_width",       True,  "source_notes",     "px",       "2px"),
-            OptionsInfo("source_notes_border_lr_color",       True,  "source_notes",     "value",    "#D3D3D3"),
-            OptionsInfo("source_notes_multiline",            False,  "source_notes",     "boolean",  True),
-            OptionsInfo("source_notes_sep",                  False,  "source_notes",     "value",    " "),
-            OptionsInfo("row_striping_background_color",      True,  "row",              "value",    "rgba(128,128,128,0.05)"),
-            OptionsInfo("row_striping_include_stub",         False,  "row",              "boolean",  False),
-            OptionsInfo("row_striping_include_table_body",   False,  "row",              "boolean",  False),
-            OptionsInfo("container_width",                   False,  "container",        "px",       "auto"),
-            OptionsInfo("container_height",                  False,  "container",        "px",       "auto"),
-            OptionsInfo("container_padding_x",               False,  "container",        "px",       "0px"),
-            OptionsInfo("container_padding_y",               False,  "container",        "px",       "10px"),
-            OptionsInfo("container_overflow_x",              False,  "container",        "overflow", "auto"),
-            OptionsInfo("container_overflow_y",              False,  "container",        "overflow", "auto"),
-            OptionsInfo("page_orientation",                  False,  "page",             "value",    "portrait"),
-            OptionsInfo("page_numbering",                    False,  "page",             "boolean",  False),
-            OptionsInfo("page_header_use_tbl_headings",      False,  "page",             "boolean",  False),
-            OptionsInfo("page_footer_use_tbl_notes",         False,  "page",             "boolean",  False),
-            OptionsInfo("page_width",                        False,  "page",             "value",    "8.5in"),
-            OptionsInfo("page_height",                       False,  "page",             "value",    "11.0in"),
-            OptionsInfo("page_margin_left",                  False,  "page",             "value",    "1.0in"),
-            OptionsInfo("page_margin_right",                 False,  "page",             "value",    "1.0in"),
-            OptionsInfo("page_margin_top",                   False,  "page",             "value",    "1.0in"),
-            OptionsInfo("page_margin_bottom",                False,  "page",             "value",    "1.0in"),
-            OptionsInfo("page_header_height",                False,  "page",             "value",    "0.5in"),
-            OptionsInfo("page_footer_height",                False,  "page",             "value",    "0.5in"),
-            OptionsInfo("quarto_disable_processing",         False,  "quarto",           "logical",  False),
-            OptionsInfo("quarto_use_bootstrap",              False,  "quarto",           "logical",  False),
-        ])
-# fmt: on
+    table_id: OptionsInfo = OptionsInfo(False, "table", "value", None)
+    table_caption: OptionsInfo = OptionsInfo(False, "table", "value", None)
+    table_width: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
+    table_layout: OptionsInfo = OptionsInfo(True, "table", "value", "fixed")
+    table_margin_left: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
+    table_margin_right: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
+    table_background_color: OptionsInfo = OptionsInfo(True, "table", "value", "#FFFFFF")
+    table_additional_css: OptionsInfo = OptionsInfo(False, "table", "values", None)
+    table_font_names: OptionsInfo = OptionsInfo(False, "table", "values", default_fonts_list)
+    table_font_size: OptionsInfo = OptionsInfo(True, "table", "px", "16px")
+    table_font_weight: OptionsInfo = OptionsInfo(True, "table", "value", "normal")
+    table_font_style: OptionsInfo = OptionsInfo(True, "table", "value", "normal")
+    table_font_color: OptionsInfo = OptionsInfo(True, "table", "value", "#333333")
+    table_font_color_light: OptionsInfo = OptionsInfo(True, "table", "value", "#FFFFFF")
+    table_border_top_include: OptionsInfo = OptionsInfo(False, "table", "boolean", True)
+    table_border_top_style: OptionsInfo = OptionsInfo(True, "table", "value", "solid")
+    table_border_top_width: OptionsInfo = OptionsInfo(True, "table", "px", "2px")
+    table_border_top_color: OptionsInfo = OptionsInfo(True, "table", "value", "#A8A8A8")
+    table_border_right_style: OptionsInfo = OptionsInfo(True, "table", "value", "none")
+    table_border_right_width: OptionsInfo = OptionsInfo(True, "table", "px", "2px")
+    table_border_right_color: OptionsInfo = OptionsInfo(True, "table", "value", "#D3D3D3")
+    table_border_bottom_include: OptionsInfo = OptionsInfo(False, "table", "boolean", True)
+    table_border_bottom_style: OptionsInfo = OptionsInfo(True, "table", "value", "solid")
+    table_border_bottom_width: OptionsInfo = OptionsInfo(True, "table", "px", "2px")
+    table_border_bottom_color: OptionsInfo = OptionsInfo(True, "table", "value", "#A8A8A8")
+    table_border_left_style: OptionsInfo = OptionsInfo(True, "table", "value", "none")
+    table_border_left_width: OptionsInfo = OptionsInfo(True, "table", "px", "2px")
+    table_border_left_color: OptionsInfo = OptionsInfo(True, "table", "value", "#D3D3D3")
+    heading_background_color: OptionsInfo = OptionsInfo(True, "heading", "value", None)
+    heading_align: OptionsInfo = OptionsInfo(True, "heading", "value", "center")
+    heading_title_font_size: OptionsInfo = OptionsInfo(True, "heading", "px", "125%")
+    heading_title_font_weight: OptionsInfo = OptionsInfo(True, "heading", "value", "initial")
+    heading_subtitle_font_size: OptionsInfo = OptionsInfo(True, "heading", "px", "85%")
+    heading_subtitle_font_weight: OptionsInfo = OptionsInfo(True, "heading", "value", "initial")
+    heading_padding: OptionsInfo = OptionsInfo(True, "heading", "px", "4px")
+    heading_padding_horizontal: OptionsInfo = OptionsInfo(True, "heading", "px", "5px")
+    heading_border_bottom_style: OptionsInfo = OptionsInfo(True, "heading", "value", "solid")
+    heading_border_bottom_width: OptionsInfo = OptionsInfo(True, "heading", "px", "2px")
+    heading_border_bottom_color: OptionsInfo = OptionsInfo(True, "heading", "value", "#D3D3D3")
+    heading_border_lr_style: OptionsInfo = OptionsInfo(True, "heading", "value", "none")
+    heading_border_lr_width: OptionsInfo = OptionsInfo(True, "heading", "px", "1px")
+    heading_border_lr_color: OptionsInfo = OptionsInfo(True, "heading", "value", "#D3D3D3")
+    column_labels_background_color: OptionsInfo = OptionsInfo(True, "column_labels", "value", None)
+    column_labels_font_size: OptionsInfo = OptionsInfo(True, "column_labels", "px", "100%")
+    column_labels_font_weight: OptionsInfo = OptionsInfo(True, "column_labels", "value", "normal")
+    column_labels_text_transform: OptionsInfo = OptionsInfo(
+        True, "column_labels", "value", "inherit"
+    )
+    column_labels_padding: OptionsInfo = OptionsInfo(True, "column_labels", "px", "5px")
+    column_labels_padding_horizontal: OptionsInfo = OptionsInfo(True, "column_labels", "px", "5px")
+    column_labels_vlines_style: OptionsInfo = OptionsInfo(True, "table_body", "value", "none")
+    column_labels_vlines_width: OptionsInfo = OptionsInfo(True, "table_body", "px", "1px")
+    column_labels_vlines_color: OptionsInfo = OptionsInfo(True, "table_body", "value", "#D3D3D3")
+    column_labels_border_top_style: OptionsInfo = OptionsInfo(
+        True, "column_labels", "value", "solid"
+    )
+    column_labels_border_top_width: OptionsInfo = OptionsInfo(True, "column_labels", "px", "2px")
+    column_labels_border_top_color: OptionsInfo = OptionsInfo(
+        True, "column_labels", "value", "#D3D3D3"
+    )
+    column_labels_border_bottom_style: OptionsInfo = OptionsInfo(
+        True, "column_labels", "value", "solid"
+    )
+    column_labels_border_bottom_width: OptionsInfo = OptionsInfo(True, "column_labels", "px", "2px")
+    column_labels_border_bottom_color: OptionsInfo = OptionsInfo(
+        True, "column_labels", "value", "#D3D3D3"
+    )
+    column_labels_border_lr_style: OptionsInfo = OptionsInfo(True, "column_labels", "value", "none")
+    column_labels_border_lr_width: OptionsInfo = OptionsInfo(True, "column_labels", "px", "1px")
+    column_labels_border_lr_color: OptionsInfo = OptionsInfo(
+        True, "column_labels", "value", "#D3D3D3"
+    )
+    column_labels_hidden: OptionsInfo = OptionsInfo(False, "column_labels", "boolean", False)
+    row_group_background_color: OptionsInfo = OptionsInfo(True, "row_group", "value", None)
+    row_group_font_size: OptionsInfo = OptionsInfo(True, "row_group", "px", "100%")
+    row_group_font_weight: OptionsInfo = OptionsInfo(True, "row_group", "value", "initial")
+    row_group_text_transform: OptionsInfo = OptionsInfo(True, "row_group", "value", "inherit")
+    row_group_padding: OptionsInfo = OptionsInfo(True, "row_group", "px", "8px")
+    row_group_padding_horizontal: OptionsInfo = OptionsInfo(True, "row_group", "px", "5px")
+    row_group_border_top_style: OptionsInfo = OptionsInfo(True, "row_group", "value", "solid")
+    row_group_border_top_width: OptionsInfo = OptionsInfo(True, "row_group", "px", "2px")
+    row_group_border_top_color: OptionsInfo = OptionsInfo(True, "row_group", "value", "#D3D3D3")
+    row_group_border_right_style: OptionsInfo = OptionsInfo(True, "row_group", "value", "none")
+    row_group_border_right_width: OptionsInfo = OptionsInfo(True, "row_group", "px", "1px")
+    row_group_border_right_color: OptionsInfo = OptionsInfo(True, "row_group", "value", "#D3D3D3")
+    row_group_border_bottom_style: OptionsInfo = OptionsInfo(True, "row_group", "value", "solid")
+    row_group_border_bottom_width: OptionsInfo = OptionsInfo(True, "row_group", "px", "2px")
+    row_group_border_bottom_color: OptionsInfo = OptionsInfo(True, "row_group", "value", "#D3D3D3")
+    row_group_border_left_style: OptionsInfo = OptionsInfo(True, "row_group", "value", "none")
+    row_group_border_left_width: OptionsInfo = OptionsInfo(True, "row_group", "px", "1px")
+    row_group_border_left_color: OptionsInfo = OptionsInfo(True, "row_group", "value", "#D3D3D3")
+    row_group_default_label: OptionsInfo = OptionsInfo(False, "row_group", "value", None)
+    row_group_as_column: OptionsInfo = OptionsInfo(False, "row_group", "boolean", False)
+    table_body_hlines_style: OptionsInfo = OptionsInfo(True, "table_body", "value", "solid")
+    table_body_hlines_width: OptionsInfo = OptionsInfo(True, "table_body", "px", "1px")
+    table_body_hlines_color: OptionsInfo = OptionsInfo(True, "table_body", "value", "#D3D3D3")
+    table_body_vlines_style: OptionsInfo = OptionsInfo(True, "table_body", "value", "none")
+    table_body_vlines_width: OptionsInfo = OptionsInfo(True, "table_body", "px", "1px")
+    table_body_vlines_color: OptionsInfo = OptionsInfo(True, "table_body", "value", "#D3D3D3")
+    table_body_border_top_style: OptionsInfo = OptionsInfo(True, "table_body", "value", "solid")
+    table_body_border_top_width: OptionsInfo = OptionsInfo(True, "table_body", "px", "2px")
+    table_body_border_top_color: OptionsInfo = OptionsInfo(True, "table_body", "value", "#D3D3D3")
+    table_body_border_bottom_style: OptionsInfo = OptionsInfo(True, "table_body", "value", "solid")
+    table_body_border_bottom_width: OptionsInfo = OptionsInfo(True, "table_body", "px", "2px")
+    table_body_border_bottom_color: OptionsInfo = OptionsInfo(
+        True, "table_body", "value", "#D3D3D3"
+    )
+    data_row_padding: OptionsInfo = OptionsInfo(True, "data_row", "px", "8px")
+    data_row_padding_horizontal: OptionsInfo = OptionsInfo(True, "data_row", "px", "5px")
+    stub_background_color: OptionsInfo = OptionsInfo(True, "stub", "value", None)
+    stub_font_size: OptionsInfo = OptionsInfo(True, "stub", "px", "100%")
+    stub_font_weight: OptionsInfo = OptionsInfo(True, "stub", "value", "initial")
+    stub_text_transform: OptionsInfo = OptionsInfo(True, "stub", "value", "inherit")
+    stub_border_style: OptionsInfo = OptionsInfo(True, "stub", "value", "solid")
+    stub_border_width: OptionsInfo = OptionsInfo(True, "stub", "px", "2px")
+    stub_border_color: OptionsInfo = OptionsInfo(True, "stub", "value", "#D3D3D3")
+    stub_row_group_background_color: OptionsInfo = OptionsInfo(True, "stub", "value", None)
+    stub_row_group_font_size: OptionsInfo = OptionsInfo(True, "stub", "px", "100%")
+    stub_row_group_font_weight: OptionsInfo = OptionsInfo(True, "stub", "value", "initial")
+    stub_row_group_text_transform: OptionsInfo = OptionsInfo(True, "stub", "value", "inherit")
+    stub_row_group_border_style: OptionsInfo = OptionsInfo(True, "stub", "value", "solid")
+    stub_row_group_border_width: OptionsInfo = OptionsInfo(True, "stub", "px", "2px")
+    stub_row_group_border_color: OptionsInfo = OptionsInfo(True, "stub", "value", "#D3D3D3")
+    summary_row_padding: OptionsInfo = OptionsInfo(True, "summary_row", "px", "8px")
+    summary_row_padding_horizontal: OptionsInfo = OptionsInfo(True, "summary_row", "px", "5px")
+    summary_row_background_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", None)
+    summary_row_text_transform: OptionsInfo = OptionsInfo(True, "summary_row", "value", "inherit")
+    summary_row_border_style: OptionsInfo = OptionsInfo(True, "summary_row", "value", "solid")
+    summary_row_border_width: OptionsInfo = OptionsInfo(True, "summary_row", "px", "2px")
+    summary_row_border_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", "#D3D3D3")
+    grand_summary_row_padding: OptionsInfo = OptionsInfo(True, "grand_summary_row", "px", "8px")
+    grand_summary_row_padding_horizontal: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "px", "5px"
+    )
+    grand_summary_row_background_color: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", None
+    )
+    grand_summary_row_text_transform: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "inherit"
+    )
+    grand_summary_row_border_style: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "double"
+    )
+    grand_summary_row_border_width: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "px", "6px"
+    )
+    grand_summary_row_border_color: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "#D3D3D3"
+    )
+    footnotes_font_size: OptionsInfo = OptionsInfo(True, "footnotes", "px", "90%")
+    footnotes_padding: OptionsInfo = OptionsInfo(True, "footnotes", "px", "4px")
+    footnotes_padding_horizontal: OptionsInfo = OptionsInfo(True, "footnotes", "px", "5px")
+    footnotes_background_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", None)
+    footnotes_margin: OptionsInfo = OptionsInfo(True, "footnotes", "px", "0px")
+    footnotes_border_bottom_style: OptionsInfo = OptionsInfo(True, "footnotes", "value", "none")
+    footnotes_border_bottom_width: OptionsInfo = OptionsInfo(True, "footnotes", "px", "2px")
+    footnotes_border_bottom_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", "#D3D3D3")
+    footnotes_border_lr_style: OptionsInfo = OptionsInfo(True, "footnotes", "value", "none")
+    footnotes_border_lr_width: OptionsInfo = OptionsInfo(True, "footnotes", "px", "2px")
+    footnotes_border_lr_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", "#D3D3D3")
+    footnotes_marks: OptionsInfo = OptionsInfo(False, "footnotes", "values", "numbers")
+    footnotes_multiline: OptionsInfo = OptionsInfo(False, "footnotes", "boolean", True)
+    footnotes_sep: OptionsInfo = OptionsInfo(False, "footnotes", "value", " ")
+    source_notes_padding: OptionsInfo = OptionsInfo(True, "source_notes", "px", "4px")
+    source_notes_padding_horizontal: OptionsInfo = OptionsInfo(True, "source_notes", "px", "5px")
+    source_notes_background_color: OptionsInfo = OptionsInfo(True, "source_notes", "value", None)
+    source_notes_font_size: OptionsInfo = OptionsInfo(True, "source_notes", "px", "90%")
+    source_notes_border_bottom_style: OptionsInfo = OptionsInfo(
+        True, "source_notes", "value", "none"
+    )
+    source_notes_border_bottom_width: OptionsInfo = OptionsInfo(True, "source_notes", "px", "2px")
+    source_notes_border_bottom_color: OptionsInfo = OptionsInfo(
+        True, "source_notes", "value", "#D3D3D3"
+    )
+    source_notes_border_lr_style: OptionsInfo = OptionsInfo(True, "source_notes", "value", "none")
+    source_notes_border_lr_width: OptionsInfo = OptionsInfo(True, "source_notes", "px", "2px")
+    source_notes_border_lr_color: OptionsInfo = OptionsInfo(
+        True, "source_notes", "value", "#D3D3D3"
+    )
+    source_notes_multiline: OptionsInfo = OptionsInfo(False, "source_notes", "boolean", True)
+    source_notes_sep: OptionsInfo = OptionsInfo(False, "source_notes", "value", " ")
+    row_striping_background_color: OptionsInfo = OptionsInfo(
+        True, "row", "value", "rgba(128,128,128,0.05)"
+    )
+    row_striping_include_stub: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
+    row_striping_include_table_body: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
+    container_width: OptionsInfo = OptionsInfo(False, "container", "px", "auto")
+    container_height: OptionsInfo = OptionsInfo(False, "container", "px", "auto")
+    container_padding_x: OptionsInfo = OptionsInfo(False, "container", "px", "0px")
+    container_padding_y: OptionsInfo = OptionsInfo(False, "container", "px", "10px")
+    container_overflow_x: OptionsInfo = OptionsInfo(False, "container", "overflow", "auto")
+    container_overflow_y: OptionsInfo = OptionsInfo(False, "container", "overflow", "auto")
+    page_orientation: OptionsInfo = OptionsInfo(False, "page", "value", "portrait")
+    page_numbering: OptionsInfo = OptionsInfo(False, "page", "boolean", False)
+    page_header_use_tbl_headings: OptionsInfo = OptionsInfo(False, "page", "boolean", False)
+    page_footer_use_tbl_notes: OptionsInfo = OptionsInfo(False, "page", "boolean", False)
+    page_width: OptionsInfo = OptionsInfo(False, "page", "value", "8.5in")
+    page_height: OptionsInfo = OptionsInfo(False, "page", "value", "11.0in")
+    page_margin_left: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
+    page_margin_right: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
+    page_margin_top: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
+    page_margin_bottom: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
+    page_header_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
+    page_footer_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
+    quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
+    quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
 
     def _get_all_options_keys(self) -> List[Union[str, None]]:
         return [x.parameter for x in self._options.values()]
 
-    def __getattr__(self, __name: str) -> OptionsInfo:
-        return self._options[__name]
-        # use this like
-        #
-        # options = Options()
-        # options.foo.value = "bar"
-        # print(options.foo.type)
-
-    #def _get_option_type(self, option: str) -> Union[Any, List[str]]:
+    # def _get_option_type(self, option: str) -> Union[Any, List[str]]:
     #    return self._options[option].type
 
     def _get_option_value(self, option: str) -> Union[Any, List[str]]:
         return self._options[option].value
 
     def _set_option_value(self, option: str, value: Any):
-       self._options[option].value = value
-       return self
+        self._options[option].value = value
+        return self

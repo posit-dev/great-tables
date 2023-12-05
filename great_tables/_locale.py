@@ -13,10 +13,6 @@ class Locale:
         self._locale = locale
 
 
-class LocaleAPI:
-    pass
-
-
 def _get_locales_data() -> pd.DataFrame:
     _x_locales_fname = pkg_resources.resource_filename("great_tables.data", "x_locales.csv")
     _x_locales_dtype = {

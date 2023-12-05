@@ -46,60 +46,54 @@ TimeStyle: TypeAlias = Literal[
 ]
 
 
-class FormatsAPI:
-    @staticmethod
-    def fmt(
-        x: GTData,
-        fns: Union[FormatFn, FormatFns],
-        columns: Union[str, List[str], None] = None,
-        rows: Union[int, List[int], None] = None,
-    ) -> GTData:
-        """
-        Set a column format with a formatter function.
+def fmt(
+    self: GTSelf,
+    fns: Union[FormatFn, FormatFns],
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+) -> GTSelf:
+    """
+    Set a column format with a formatter function.
 
-        The `fmt()` method provides a way to execute custom formatting functionality with raw data
-        values in a way that can consider all output contexts.
+    The `fmt()` method provides a way to execute custom formatting functionality with raw data
+    values in a way that can consider all output contexts.
 
-        Along with the `columns` and `rows` arguments that provide some precision in targeting data
-        cells, the `fns` argument allows you to define one or more functions for manipulating the
-        raw data.
+    Along with the `columns` and `rows` arguments that provide some precision in targeting data
+    cells, the `fns` argument allows you to define one or more functions for manipulating the
+    raw data.
 
-        Parameters
-        ----------
-        fns : Union[FormatFn, FormatFns]
-            Either a single formatting function or a named list of functions.
-        columns : Union[str, List[str], None]
-            The columns to target. Can either be a single column name or a series of column names
-            provided in a list.
-        rows : Union[int, List[int], None]
-            In conjunction with `columns`, we can specify which of their rows should undergo
-            formatting. The default is all rows, resulting in all rows in `columns` being formatted.
-            Alternatively, we can supply a list of row indices.
+    Parameters
+    ----------
+    fns : Union[FormatFn, FormatFns]
+        Either a single formatting function or a named list of functions.
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows : Union[int, List[int], None]
+        In conjunction with `columns`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in `columns` being formatted.
+        Alternatively, we can supply a list of row indices.
 
-        Returns
-        -------
-        GT
-            The GT object is returned.
-        """
+    Returns
+    -------
+    GT
+        The GT object is returned.
+    """
 
-        # If a single function is supplied to `fns` then
-        # repackage that into a list as the `default` function
-        if isinstance(fns, Callable):
-            fns = FormatFns(default=fns)
+    # If a single function is supplied to `fns` then
+    # repackage that into a list as the `default` function
+    if isinstance(fns, Callable):
+        fns = FormatFns(default=fns)
 
-        columns = _listify(columns, list)
+    columns = _listify(columns, list)
 
-        if rows is None:
-            rows = list(range(n_rows(x._tbl_data)))
-        elif isinstance(rows, int):
-            rows = [rows]
+    if rows is None:
+        rows = list(range(n_rows(self._tbl_data)))
+    elif isinstance(rows, int):
+        rows = [rows]
 
-        formatter = FormatInfo(fns, columns, rows)
-        x._formats.append(formatter)
-
-        return x
-
-    # TODO: transition to static methods ----
+    formatter = FormatInfo(fns, columns, rows)
+    return self._replace(_formats=[*self._formats, formatter])
 
 
 def fmt_number(
@@ -301,9 +295,7 @@ def fmt_number(
 
         return x_formatted
 
-    FormatsAPI.fmt(self, fns=fmt_number_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_number_fn, columns=columns, rows=rows)
 
 
 def fmt_integer(
@@ -468,9 +460,7 @@ def fmt_integer(
 
         return x_formatted
 
-    FormatsAPI.fmt(self, fns=fmt_integer_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_integer_fn, columns=columns, rows=rows)
 
 
 def fmt_scientific(
@@ -728,9 +718,7 @@ def fmt_scientific(
 
         return x_formatted
 
-    FormatsAPI.fmt(self, fns=fmt_scientific_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_scientific_fn, columns=columns, rows=rows)
 
 
 def fmt_percent(
@@ -931,9 +919,7 @@ def fmt_percent(
 
         return x_formatted
 
-    FormatsAPI.fmt(self, fns=fmt_percent_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_percent_fn, columns=columns, rows=rows)
 
 
 def fmt_currency(
@@ -1167,9 +1153,7 @@ def fmt_currency(
 
         return x_formatted
 
-    FormatsAPI.fmt(self, fns=fmt_currency_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_currency_fn, columns=columns, rows=rows)
 
 
 def fmt_roman(
@@ -1274,9 +1258,7 @@ def fmt_roman(
 
         return x_formatted
 
-    FormatsAPI.fmt(self, fns=fmt_roman_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_roman_fn, columns=columns, rows=rows)
 
 
 def fmt_bytes(
@@ -1509,9 +1491,7 @@ def fmt_bytes(
 
         return x_formatted
 
-    FormatsAPI.fmt(self, fns=fmt_bytes_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_bytes_fn, columns=columns, rows=rows)
 
 
 def fmt_date(
@@ -1654,9 +1634,7 @@ def fmt_date(
 
         return x_formatted
 
-    FormatsAPI.fmt(self, fns=fmt_date_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_date_fn, columns=columns, rows=rows)
 
 
 def fmt_time(
@@ -1790,9 +1768,7 @@ def fmt_time(
 
         return x_formatted
 
-    FormatsAPI.fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
 
 
 def fmt_markdown(
@@ -1839,9 +1815,7 @@ def fmt_markdown(
 
         return x_formatted
 
-    FormatsAPI.fmt(self, fns=fmt_markdown_fn, columns=columns, rows=rows)
-
-    return self
+    return fmt(self, fns=fmt_markdown_fn, columns=columns, rows=rows)
 
 
 def _value_to_decimal_notation(
