@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, List, Optional
 from typing_extensions import Self
-from dataclasses import asdict, fields, astuple
+from dataclasses import fields
 
 import pkg_resources
 
@@ -13,9 +13,6 @@ import copy
 from great_tables._gt_data import GTData
 
 # Main gt imports ----
-from great_tables import _utils
-
-# Rewrite main gt imports to use relative imports of APIs ----
 from great_tables._body import body_reassemble
 from great_tables._boxhead import cols_align, cols_label
 from great_tables._formats import (
@@ -50,7 +47,7 @@ from great_tables._spanners import (
 )
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import tab_stubhead
-from great_tables._tbl_data import n_rows, _get_cell, copy_frame
+from great_tables._tbl_data import n_rows, _get_cell
 from great_tables._utils import _as_css_font_family_attr, _unique_set
 from great_tables._utils_render_html import (
     create_heading_component_h,
