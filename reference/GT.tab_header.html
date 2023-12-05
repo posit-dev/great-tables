@@ -543,7 +543,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<p><code>GT.tab_header(title, subtitle=None, preheader=None)</code></p>
+<p><code>GT.tab_header(self, title, subtitle=None, preheader=None)</code></p>
 <p>Add a table header.</p>
 <p>We can add a table header to the <strong>gt</strong> table with a title and even a subtitle using the <code>tab_header()</code> method. A table header is an optional table component that is positioned above above the column labels. We have the flexibility to use Markdown or HTML formatting for the header’s title and subtitle with the <code>md()</code> and <code>html()</code> helper functions.</p>
 <section id="parameters" class="level2">
@@ -619,22 +619,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 
-<div id="ycoyzbukfh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="tktwbfeebl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#ycoyzbukfh table {
+#tktwbfeebl table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#ycoyzbukfh thead, tbody, tfoot, tr, td, th {
+#tktwbfeebl thead, tbody, tfoot, tr, td, th {
   border-style: none; }
 
-#ycoyzbukfh p {
+#tktwbfeebl p {
   margin: 0;
   padding: 0; }
 
-#ycoyzbukfh .gt_table {
+#tktwbfeebl .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -659,11 +659,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-width: 2px;
   border-left-color: #D3D3D3; }
 
-#ycoyzbukfh .gt_caption {
+#tktwbfeebl .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px; }
 
-#ycoyzbukfh .gt_title {
+#tktwbfeebl .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -674,7 +674,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0; }
 
-#ycoyzbukfh .gt_subtitle {
+#tktwbfeebl .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -685,7 +685,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #FFFFFF;
   border-top-width: 0; }
 
-#ycoyzbukfh .gt_heading {
+#tktwbfeebl .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -696,12 +696,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#ycoyzbukfh .gt_bottom_border {
+#tktwbfeebl .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#ycoyzbukfh .gt_col_headings {
+#tktwbfeebl .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -715,7 +715,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#ycoyzbukfh .gt_col_heading {
+#tktwbfeebl .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -734,7 +734,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   overflow-x: hidden; }
 
-#ycoyzbukfh .gt_column_spanner_outer {
+#tktwbfeebl .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -745,13 +745,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 4px;
   padding-right: 4px; }
 
-#ycoyzbukfh .gt_column_spanner_outer:first-child {
+#tktwbfeebl .gt_column_spanner_outer:first-child {
   padding-left: 0; }
 
-#ycoyzbukfh .gt_column_spanner_outer:last-child {
+#tktwbfeebl .gt_column_spanner_outer:last-child {
   padding-right: 0; }
 
-#ycoyzbukfh .gt_column_spanner {
+#tktwbfeebl .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -762,10 +762,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   display: inline-block;
   width: 100%; }
 
-#ycoyzbukfh .gt_spanner_row {
+#tktwbfeebl .gt_spanner_row {
   border-bottom-style: hidden; }
 
-#ycoyzbukfh .gt_group_heading {
+#tktwbfeebl .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -790,7 +790,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   text-align: left; }
 
-#ycoyzbukfh .gt_empty_group_heading {
+#tktwbfeebl .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -804,13 +804,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
   vertical-align: middle; }
 
-#ycoyzbukfh .gt_from_md > :first-child {
+#tktwbfeebl .gt_from_md > :first-child {
   margin-top: 0; }
 
-#ycoyzbukfh .gt_from_md > :last-child {
+#tktwbfeebl .gt_from_md > :last-child {
   margin-bottom: 0; }
 
-#ycoyzbukfh .gt_row {
+#tktwbfeebl .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -828,7 +828,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   overflow-x: hidden; }
 
-#ycoyzbukfh .gt_stub {
+#tktwbfeebl .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -840,7 +840,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#ycoyzbukfh .gt_stub_row_grou#ycoyzbukfh p {
+#tktwbfeebl .gt_stub_row_grou#tktwbfeebl p {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -853,13 +853,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   vertical-align: top; }
 
-#ycoyzbukfh .gt_row_group_first td {
+#tktwbfeebl .gt_row_group_first td {
   border-top-width: 2px; }
 
-#ycoyzbukfh .gt_row_group_first th {
+#tktwbfeebl .gt_row_group_first th {
   border-top-width: 2px; }
 
-#ycoyzbukfh .gt_summary_row {
+#tktwbfeebl .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -868,14 +868,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#ycoyzbukfh .gt_first_summary_row {
+#tktwbfeebl .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3; }
 
-#ycoyzbukfh .gt_first_summary_row.thick {
+#tktwbfeebl .gt_first_summary_row.thick {
   border-top-width: 2px; }
 
-#ycoyzbukfh .gt_last_summary_row {
+#tktwbfeebl .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -884,7 +884,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#ycoyzbukfh .gt_grand_summary_row {
+#tktwbfeebl .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -893,7 +893,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#ycoyzbukfh .gt_first_grand_summary_row {
+#tktwbfeebl .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -902,7 +902,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 6px;
   border-top-color: #D3D3D3; }
 
-#ycoyzbukfh .gt_last_grand_summary_row_to#ycoyzbukfh p {
+#tktwbfeebl .gt_last_grand_summary_row_to#tktwbfeebl p {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -911,10 +911,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 6px;
   border-bottom-color: #D3D3D3; }
 
-#ycoyzbukfh .gt_striped {
+#tktwbfeebl .gt_striped {
   background-color: rgba(128, 128, 128, 0.05); }
 
-#ycoyzbukfh .gt_table_body {
+#tktwbfeebl .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -922,7 +922,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#ycoyzbukfh .gt_footnotes {
+#tktwbfeebl .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -935,7 +935,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#ycoyzbukfh .gt_footnote {
+#tktwbfeebl .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -943,7 +943,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#ycoyzbukfh .gt_sourcenotes {
+#tktwbfeebl .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -956,41 +956,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#ycoyzbukfh .gt_sourcenote {
+#tktwbfeebl .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 5px;
   padding-right: 5px; }
 
-#ycoyzbukfh .gt_left {
+#tktwbfeebl .gt_left {
   text-align: left; }
 
-#ycoyzbukfh .gt_center {
+#tktwbfeebl .gt_center {
   text-align: center; }
 
-#ycoyzbukfh .gt_right {
+#tktwbfeebl .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums; }
 
-#ycoyzbukfh .gt_font_normal {
+#tktwbfeebl .gt_font_normal {
   font-weight: normal; }
 
-#ycoyzbukfh .gt_font_bold {
+#tktwbfeebl .gt_font_bold {
   font-weight: bold; }
 
-#ycoyzbukfh .gt_font_italic {
+#tktwbfeebl .gt_font_italic {
   font-style: italic; }
 
-#ycoyzbukfh .gt_super {
+#tktwbfeebl .gt_super {
   font-size: 65%; }
 
-#ycoyzbukfh .gt_footnote_marks {
+#tktwbfeebl .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial; }
 
-#ycoyzbukfh .gt_asterisk {
+#tktwbfeebl .gt_asterisk {
   font-size: 100%;
   vertical-align: 0; }
 
@@ -1051,22 +1051,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 
-<div id="kedetcbwek" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="tgqlugvaht" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#kedetcbwek table {
+#tgqlugvaht table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#kedetcbwek thead, tbody, tfoot, tr, td, th {
+#tgqlugvaht thead, tbody, tfoot, tr, td, th {
   border-style: none; }
 
-#kedetcbwek p {
+#tgqlugvaht p {
   margin: 0;
   padding: 0; }
 
-#kedetcbwek .gt_table {
+#tgqlugvaht .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1091,11 +1091,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-width: 2px;
   border-left-color: #D3D3D3; }
 
-#kedetcbwek .gt_caption {
+#tgqlugvaht .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px; }
 
-#kedetcbwek .gt_title {
+#tgqlugvaht .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1106,7 +1106,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0; }
 
-#kedetcbwek .gt_subtitle {
+#tgqlugvaht .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1117,7 +1117,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #FFFFFF;
   border-top-width: 0; }
 
-#kedetcbwek .gt_heading {
+#tgqlugvaht .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1128,12 +1128,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#kedetcbwek .gt_bottom_border {
+#tgqlugvaht .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#kedetcbwek .gt_col_headings {
+#tgqlugvaht .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1147,7 +1147,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#kedetcbwek .gt_col_heading {
+#tgqlugvaht .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1166,7 +1166,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   overflow-x: hidden; }
 
-#kedetcbwek .gt_column_spanner_outer {
+#tgqlugvaht .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1177,13 +1177,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 4px;
   padding-right: 4px; }
 
-#kedetcbwek .gt_column_spanner_outer:first-child {
+#tgqlugvaht .gt_column_spanner_outer:first-child {
   padding-left: 0; }
 
-#kedetcbwek .gt_column_spanner_outer:last-child {
+#tgqlugvaht .gt_column_spanner_outer:last-child {
   padding-right: 0; }
 
-#kedetcbwek .gt_column_spanner {
+#tgqlugvaht .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1194,10 +1194,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   display: inline-block;
   width: 100%; }
 
-#kedetcbwek .gt_spanner_row {
+#tgqlugvaht .gt_spanner_row {
   border-bottom-style: hidden; }
 
-#kedetcbwek .gt_group_heading {
+#tgqlugvaht .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1222,7 +1222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   text-align: left; }
 
-#kedetcbwek .gt_empty_group_heading {
+#tgqlugvaht .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1236,13 +1236,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
   vertical-align: middle; }
 
-#kedetcbwek .gt_from_md > :first-child {
+#tgqlugvaht .gt_from_md > :first-child {
   margin-top: 0; }
 
-#kedetcbwek .gt_from_md > :last-child {
+#tgqlugvaht .gt_from_md > :last-child {
   margin-bottom: 0; }
 
-#kedetcbwek .gt_row {
+#tgqlugvaht .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1260,7 +1260,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   overflow-x: hidden; }
 
-#kedetcbwek .gt_stub {
+#tgqlugvaht .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1272,7 +1272,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#kedetcbwek .gt_stub_row_grou#kedetcbwek p {
+#tgqlugvaht .gt_stub_row_grou#tgqlugvaht p {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1285,13 +1285,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   vertical-align: top; }
 
-#kedetcbwek .gt_row_group_first td {
+#tgqlugvaht .gt_row_group_first td {
   border-top-width: 2px; }
 
-#kedetcbwek .gt_row_group_first th {
+#tgqlugvaht .gt_row_group_first th {
   border-top-width: 2px; }
 
-#kedetcbwek .gt_summary_row {
+#tgqlugvaht .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1300,14 +1300,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#kedetcbwek .gt_first_summary_row {
+#tgqlugvaht .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3; }
 
-#kedetcbwek .gt_first_summary_row.thick {
+#tgqlugvaht .gt_first_summary_row.thick {
   border-top-width: 2px; }
 
-#kedetcbwek .gt_last_summary_row {
+#tgqlugvaht .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1316,7 +1316,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#kedetcbwek .gt_grand_summary_row {
+#tgqlugvaht .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1325,7 +1325,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#kedetcbwek .gt_first_grand_summary_row {
+#tgqlugvaht .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1334,7 +1334,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 6px;
   border-top-color: #D3D3D3; }
 
-#kedetcbwek .gt_last_grand_summary_row_to#kedetcbwek p {
+#tgqlugvaht .gt_last_grand_summary_row_to#tgqlugvaht p {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1343,10 +1343,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 6px;
   border-bottom-color: #D3D3D3; }
 
-#kedetcbwek .gt_striped {
+#tgqlugvaht .gt_striped {
   background-color: rgba(128, 128, 128, 0.05); }
 
-#kedetcbwek .gt_table_body {
+#tgqlugvaht .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1354,7 +1354,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#kedetcbwek .gt_footnotes {
+#tgqlugvaht .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1367,7 +1367,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#kedetcbwek .gt_footnote {
+#tgqlugvaht .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1375,7 +1375,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#kedetcbwek .gt_sourcenotes {
+#tgqlugvaht .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1388,41 +1388,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#kedetcbwek .gt_sourcenote {
+#tgqlugvaht .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 5px;
   padding-right: 5px; }
 
-#kedetcbwek .gt_left {
+#tgqlugvaht .gt_left {
   text-align: left; }
 
-#kedetcbwek .gt_center {
+#tgqlugvaht .gt_center {
   text-align: center; }
 
-#kedetcbwek .gt_right {
+#tgqlugvaht .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums; }
 
-#kedetcbwek .gt_font_normal {
+#tgqlugvaht .gt_font_normal {
   font-weight: normal; }
 
-#kedetcbwek .gt_font_bold {
+#tgqlugvaht .gt_font_bold {
   font-weight: bold; }
 
-#kedetcbwek .gt_font_italic {
+#tgqlugvaht .gt_font_italic {
   font-style: italic; }
 
-#kedetcbwek .gt_super {
+#tgqlugvaht .gt_super {
   font-size: 65%; }
 
-#kedetcbwek .gt_footnote_marks {
+#tgqlugvaht .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial; }
 
-#kedetcbwek .gt_asterisk {
+#tgqlugvaht .gt_asterisk {
   font-size: 100%;
   vertical-align: 0; }
 
