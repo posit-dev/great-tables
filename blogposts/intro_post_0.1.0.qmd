@@ -105,7 +105,7 @@ We didn't want to skimp on formatting methods for table cells with this early re
 - `fmt_markdown()`: format Markdown text
 - `fmt()`: set a column format with a formatting function
 
-The basic idea behind the formatting implementation was to make formatting an easy task but also to provide the user a lot of power via mixing and matching several options. Most of these methods have a `locale` argument which allows for numbers, dates, and times to be easily displayed in locale-specific ways. We basically want the formatting to be broadly useful to as many users as possible.
+The basic idea behind the formatting implementation was to make formatting an easy task but also to provide the user a lot of power via mixing and matching several options. Most of these methods have a `locale` argument which allows for numbers, dates, and times to be easily displayed in locale-specific ways. We did all this to make the formatting task broadly useful to as many users as possible.
 
 ## The Documentation Site
 
