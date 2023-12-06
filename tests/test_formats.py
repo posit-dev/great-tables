@@ -1,6 +1,7 @@
 from typing import Union
 import pandas as pd
 import pytest
+import re
 
 from great_tables import GT, exibble
 from great_tables.gt import _get_column_of_values
@@ -15,6 +16,13 @@ from great_tables._formats import (
 def assert_rendered_body(snapshot, gt):
     built = gt._build_data("html")
     body = create_body_component_h(built)
+
+    assert snapshot == body
+
+
+def assert_repr_html(snapshot, gt):
+    body = gt._repr_html_()
+    body = re.sub(r"^.*?<table (.*?)</table>.*$", r"\1", body, flags=re.DOTALL)
 
     assert snapshot == body
 
@@ -39,6 +47,17 @@ def test_format_snap(snapshot):
     )
 
     assert_rendered_body(snapshot, new_gt)
+
+
+def test_format_repr_snap(snapshot):
+    new_gt = (
+        GT(exibble)
+        .fmt_currency(columns="currency")
+        .fmt_scientific(columns="num")
+        .fmt_date(columns="date", date_style="day_month_year")
+    )
+
+    assert_repr_html(snapshot, new_gt)
 
 
 @pytest.mark.parametrize(
