@@ -26,7 +26,7 @@ from great_tables.data import islands
 islands_mini = islands.head(10)
 ```
 
-The `islands` dataset is a simple pandas DataFrame with 2 columns. We've cut it down to the first ten rows and produced the `islands_mini` table. We'll feed that table to the `GT` class of `great_tables`; that serves as the main entry point into the `great_tables` API.
+The `islands` dataset is a simple pandas DataFrame with two columns. We've cut it down to the first ten rows and produced the `islands_mini` table. We'll feed that table to the `GT` class of `great_tables`; that serves as the main entry point into the `great_tables` API.
 
 ```{python}
 # Create a display table showing ten of the largest islands in the world
@@ -40,19 +40,26 @@ That doesn't look too bad at all! Sure, it's basic but we really didn't really a
 
 ## Some more complex **gt** tables
 
-Let's take things a bit further and make that `islands_mini` table a whole lot nicer. Great Tables is all about having a smörgasbord of methods that allow you to refine the presentation until you are fully satisfied. This revamped display table will have a handy *Stub* component that emphasizes the row labels. We'll add a table title (and subtitle!) with `tab_header()`. The numerical values will all be formatted with the `fmt_integer()`. Table notes will be included by using the `tab_source_note()` method. And, as a finishing touch, we'll add in a label that goes above the *Stub* with `tab_stubhead()`.
+Let's take things a bit further and make a *deluxe* table with the included `gtcars` dataset. Great Tables is all about having a smörgasbord of methods that allow you to refine the presentation until you are fully satisfied. This revamped display table will have a handy *Stub* component that emphasizes the row labels. Groupings of rows will be generated via categorical values in a column. We'll add a table title (and subtitle!) with `tab_header()`. The numerical values will be formatted with `fmt_integer()` and `fmt_currency()`. Column labels will be enhanced via `cols_label()` and a source note will be included through use of the `tab_source_note()` method.
 
 ```{python}
+from great_tables.data import gtcars
+
+gtcars_mini = gtcars[["mfr", "model", "year", "hp", "trq", "msrp"]].tail(10)
+
 (
-    GT(islands_mini, rowname_col="name")
-    .tab_header(title="Large Landmasses of the World", subtitle="The top ten largest are presented")
-    .fmt_integer(columns="size")
-    .tab_source_note(source_note="Source: The World Almanac and Book of Facts, 1975, page 406.")
-    .tab_source_note(
-        source_note=md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
+    GT(gtcars_mini, rowname_col="model", groupname_col="mfr")
+    .tab_spanner(label=md("*Performance*"), columns=["hp", "trq"])
+    .tab_header(
+        title=html("Data listing from <strong>gtcars</strong>"),
+        subtitle=html("A <span style='font-size:12px;'>small selection</span> of great cars."),
     )
-    .tab_stubhead(label="landmass")
+    .cols_label(year="Year Produced", hp="HP", trq="Torque", msrp="Price (USD)")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .tab_source_note(source_note="Source: the gtcars dataset within the great_tables package.")
 )
+
 ```
 
 
