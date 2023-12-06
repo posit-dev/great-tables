@@ -3,7 +3,7 @@ jupyter: python3
 html-table-processing: none
 ---
 
-## Introducing Great Tables for Python
+## Introducing **Great Tables** for Python (`v0.1.0`)
 
 With the [`great_tables`](https://github.com/posit-dev/great-tables) package, anyone can make great-looking display tables in Python. Though the project/package is still fairly early in its development, you can do some really great things with it today! We very recently put out our first major release of the `great_tables` (`v0.1.0`) and it's available in [`PyPI`](https://pypi.org/project/great-tables/). You can install it by using:
 
@@ -105,10 +105,31 @@ We didn't want to skimp on formatting methods for table cells with this early re
 - `fmt_markdown()`: format Markdown text
 - `fmt()`: set a column format with a formatting function
 
-The basic idea behind the formatting implementation was to make formatting an easy task but also to provide the user a lot of power via mixing and matching several options. Most of these methods have a `locale` argument which allows for numbers, dates, and times to be easily displayed in locale-specific ways. We did all this to make the formatting task broadly useful to as many users as possible.
+The basic idea behind the formatting implementation was to make formatting an easy task but also to provide the user a lot of power via mixing and matching several options. Most of these methods have a `locale` argument which allows for numbers, dates, and times to be easily displayed in locale-specific ways. We did all this to make the formatting task broadly useful to as many users as possible. Let's take a look at an example of this with a smaller version of the `exibble` dataset:
+
+```{python}
+exibble_smaller = exibble[["date", "time"]].head(4)
+
+(
+    GT(exibble_smaller)
+    .fmt_date(columns="date", date_style="wday_month_day_year")
+    .fmt_date(columns="date", rows=[2, 3], date_style="day_month_year", locale="de-CH")
+    .fmt_time(columns="time", time_style="h_m_s_p")
+)
+```
+
+We support hundreds of locales, from `af` to `zu`! While there are more formatting methods yet to be added, the ones that are available now do work exceedingly well.
 
 ## The Documentation Site
 
 The [documentation website](https://posit-dev.github.io/great-tables/) was built using `quartodoc` and the site is designed to look easy on the eyes while also providing a ton of useful information.
 
+## We Are on the Path Toward Table Success
 
+While we’re only getting started on this package we absolutely feel things are really coming along! We want to hear from you and get your feedback on the package. There are quite a few ways to do this, so here are all the options:
+
+- you can file an [issue](https://github.com/posit-dev/great-tables/issues) or participate in a [discussion](https://github.com/posit-dev/great-tables/discussions) at GitHub
+- the gt package has an [X/Twitter account at @gt_package](https://twitter.com/gt_package), so check it out for package news and announcements
+- there's a fun [Discord server](https://discord.gg/Ux7nrcXHVV) that lets you more casually ask questions and generally just talk about table things
+
+Thanks for reading! For our part, we'll keep working on making **Great Tables** live up to its name.
