@@ -3,7 +3,8 @@ import pandas as pd
 import pytest
 import re
 
-from great_tables import GT, exibble
+from great_tables import GT
+from great_tables.data import exibble
 from great_tables.gt import _get_column_of_values
 from great_tables._utils_render_html import create_body_component_h
 from great_tables._formats import (

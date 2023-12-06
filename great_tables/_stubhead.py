@@ -41,7 +41,7 @@ def tab_stubhead(self: GTSelf, label: Union[str, Text]) -> GTSelf:
     ```{python}
     import great_tables as gt
 
-    gtcars_mini = gt.gtcars[[\"model\", \"year\", \"hp\", \"trq\"]].head(5)
+    gtcars_mini = gt.data.gtcars[[\"model\", \"year\", \"hp\", \"trq\"]].head(5)
 
     gt.GT(gtcars_mini, rowname_col=\"model\").tab_stubhead(label=\"car\")
     ```
