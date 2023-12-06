@@ -38,7 +38,7 @@ def tab_source_note(data: GTSelf, source_note: str) -> GTSelf:
     ```{python}
     import great_tables as gt
 
-    gtcars_mini = gt.gtcars[[\"mfr\", \"model\", \"msrp\"]].head(5)
+    gtcars_mini = gt.data.gtcars[[\"mfr\", \"model\", \"msrp\"]].head(5)
 
     (
         gt.GT(gtcars_mini, rowname_col=\"model\")

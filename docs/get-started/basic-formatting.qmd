@@ -7,7 +7,8 @@ html-table-processing: none
 The values within the table body, specifically those within the body cells, can be formatted with a large selection of `fmt_*()` methods like `fmt_number()`, `fmt_scientific()`, and more. Let's use a portion of the `exibble` dataset and introduce some formatting to the cell values. First, we'll generate the basic GT object and take a look at the table without any cell formatting applied.
 
 ```{python}
-from great_tables import GT, exibble
+from great_tables import GT
+from great_tables.data import exibble
 from great_tables import vals
 
 gt_ex = GT(exibble[["num", "date", "time", "currency"]].head(5))

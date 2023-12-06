@@ -16,7 +16,8 @@ However, we can specify columns using any of the following:
 * A function that takes a string and returns True or False.
 
 ```{python}
-from great_tables import GT, exibble
+from great_tables import GT
+from great_tables.data import exibble
 
 gt_ex = GT(exibble)
 

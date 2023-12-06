@@ -89,7 +89,8 @@ def tab_spanner(
     ```{python}
     import great_tables as gt
 
-    gtcars_mini = gt.gtcars[[\"model\", \"hp\", \"hp_rpm\", \"trq\", \"trq_rpm\", \"mpg_c\", \"mpg_h\"]].head(10)
+    colnames = [\"model\", \"hp\", \"hp_rpm\", \"trq\", \"trq_rpm\", \"mpg_c\", \"mpg_h\"]
+    gtcars_mini = gt.data.gtcars[colnames].head(10)
 
     (
         gt.GT(gtcars_mini)
@@ -224,8 +225,9 @@ def cols_move(data: GTData, columns: SelectExpr, after: str) -> GTData:
 
     ```{python}
     import great_tables as gt
+    from great_tables.data import countrypops
 
-    countrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Japan\"][
+    countrypops_mini = countrypops.loc[countrypops[\"country_name\"] == \"Japan\"][
         [\"country_name\", \"year\", \"population\"]
     ].tail(5)
 
@@ -304,8 +306,9 @@ def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     ```{python}
     import great_tables as gt
+    from great_tables.data import countrypops
 
-    countrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Fiji\"][
+    countrypops_mini = countrypops.loc[countrypops[\"country_name\"] == \"Fiji\"][
         [\"country_name\", \"year\", \"population\"]
     ].tail(5)
 
@@ -370,8 +373,9 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     ```{python}
     import great_tables as gt
+    from great_tables.data import countrypops
 
-    countrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Benin\"][
+    countrypops_mini = countrypops.loc[countrypops[\"country_name\"] == \"Benin\"][
         [\"country_name\", \"year\", \"population\"]
     ].tail(5)
 
