@@ -122,7 +122,13 @@ We support hundreds of locales, from `af` to `zu`! While there are more formatti
 
 ## The Documentation Site
 
-The [documentation website](https://posit-dev.github.io/great-tables/) was built using `quartodoc` and the site is designed to look easy on the eyes while also providing a ton of useful information.
+The [documentation site](https://posit-dev.github.io/great-tables/) was built using `quartodoc`. It's designed to look easy on the eyes while also providing a ton of useful information.
+
+Check out these handy sections of the docs to learn more:
+
+* [Get Started](https://posit-dev.github.io/great-tables/get-started/)
+* [Examples](https://posit-dev.github.io/great-tables/examples/)
+* [API Reference](https://posit-dev.github.io/great-tables/reference/)
 
 ## We Are on the Path Toward Table Success
 
