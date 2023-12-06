@@ -245,11 +245,11 @@ class GT(
         # built._body = _migrate_unformatted_to_output(body)
 
         # built._perform_col_merge()
-        final_body = body_reassemble(built._body, self._row_groups, self._stub, self._boxhead)
+        final_body = body_reassemble(built._body, built._row_groups, built._stub, built._boxhead)
 
         # Reordering of the metadata elements of the table
 
-        final_stub = reorder_stub_df(self._stub, self._row_groups)
+        final_stub = reorder_stub_df(built._stub, built._row_groups)
         # self = self.reorder_footnotes()
         # self = self.reorder_styles()
 
@@ -262,7 +262,7 @@ class GT(
         return built._replace(_body=final_body, _stub=final_stub)
 
     def render(self, context: str) -> str:
-        html_table = self._render_as_html()
+        html_table = self._build_data(context=context)._render_as_html()
         return html_table
 
     # =============================================================================
@@ -434,7 +434,7 @@ def _compile_scss(data: GT, id: Optional[str]) -> str:
     if has_id:
         compiled_css = re.sub(r"\.gt_", f"#{id} .gt_", compiled_css, 0, re.MULTILINE)
         compiled_css = re.sub(r"thead", f"#{id} thead", compiled_css, 0, re.MULTILINE)
-        compiled_css = re.sub(r"p ", f"#{id} p ", compiled_css, 0, re.MULTILINE)
+        compiled_css = re.sub(r" p \{", f"#{id} p " + "{", compiled_css, 0, re.MULTILINE)
 
     finalized_css = f"{gt_table_class_str}\n\n{compiled_css}"
 
