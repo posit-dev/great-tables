@@ -114,16 +114,16 @@ quartodoc:
         If you have single values (or lists of them) in need of formatting, we have a set of
         `val_fmt_*()` functions that have been adapted from the corresponding `fmt_*()` methods.
       contents:
-        - val_fmt_number
-        - val_fmt_integer
-        - val_fmt_scientific
-        - val_fmt_percent
-        - val_fmt_currency
-        - val_fmt_roman
-        - val_fmt_bytes
-        - val_fmt_date
-        - val_fmt_time
-        - val_fmt_markdown
+        - vals.fmt_number
+        - vals.fmt_integer
+        - vals.fmt_scientific
+        - vals.fmt_percent
+        - vals.fmt_currency
+        - vals.fmt_roman
+        - vals.fmt_bytes
+        - vals.fmt_date
+        - vals.fmt_time
+        - vals.fmt_markdown
     - title: Built in datasets
       desc: >
         The **great_tables** package is equipped with ten datasets that come in all shapes and

@@ -50,8 +50,9 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
 
     ```{python}
     import great_tables as gt
+    from great_tables.data import countrypops
 
-    countrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"Uganda\"][
+    countrypops_mini = countrypops.loc[countrypops[\"country_name\"] == \"Uganda\"][
         [\"country_name\", \"year\", \"population\"]
     ].tail(5)
 
@@ -129,8 +130,9 @@ def cols_align(self: GTSelf, align: str = "left", columns: Optional[str] = None)
 
     ```{python}
     import great_tables as gt
+    from great_tables.data import countrypops
 
-    countrypops_mini = gt.countrypops.loc[gt.countrypops[\"country_name\"] == \"San Marino\"][
+    countrypops_mini = countrypops.loc[countrypops[\"country_name\"] == \"San Marino\"][
         [\"country_name\", \"year\", \"population\"]
     ].tail(5)
 

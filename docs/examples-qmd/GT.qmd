@@ -7,7 +7,7 @@ html-table-processing: none
 
 ```{python}
 import great_tables as gt
-from great_tables import exibble
+from great_tables.data import exibble
 
 ```
 

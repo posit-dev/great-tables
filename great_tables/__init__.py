@@ -8,39 +8,34 @@ del _v
 # Main gt imports ----
 
 from .gt import GT
-from great_tables.data import *
-
-# from ._base_api import *
-# from ._body import *
-# from ._boxhead import *
-# from ._footnotes import *
-# from ._formats import *
-# from ._heading import *
+from . import data
+from . import vals
 from ._helpers import letters, LETTERS, px, pct, md, html, random_id
-from ._formats_vals import (
-    val_fmt_number,
-    val_fmt_integer,
-    val_fmt_scientific,
-    val_fmt_percent,
-    val_fmt_currency,
-    val_fmt_roman,
-    val_fmt_bytes,
-    val_fmt_date,
-    val_fmt_time,
-    val_fmt_markdown,
+from .data import exibble
+
+
+__all__ = (
+    "GT",
+    "exibble",
+    "letters",
+    "LETTERS",
+    "px",
+    "pct",
+    "md",
+    "html",
+    "random_id",
 )
 
-# from ._locale import *
-# from ._options import *
-# from ._row_groups import *
-# from ._source_notes import *
-# from ._spanners import *
-# from ._stub import *
-# from ._stubhead import *
-# from ._styles import *
-# from ._table import *
-# from ._tbl_data import *
-# from ._text import *
-# from ._utils import *
 
-#
+def __getattr__(k: str):
+    # datasets are no longer exposed in this module.
+    # this function ensures that we raise a friendly error when people try to import them.
+
+    dataset_names = [entry for entry in dir(data) if not entry.startswith("_")]
+    if k in dataset_names:
+        raise ImportError(
+            "Cannot import dataset from top-level of package. Please import from data submodule:"
+            f"\n\nfrom great_tables.data import {k}"
+        )
+    else:
+        raise ImportError(f"cannot import name {k} from great_tables ({__file__})")

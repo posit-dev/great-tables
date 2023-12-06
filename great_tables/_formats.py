@@ -218,7 +218,7 @@ def fmt_number(
     ```{python}
     import great_tables as gt
 
-    gt.GT(gt.exibble).fmt_number(columns=\"num\", decimals=3, use_seps=False)
+    gt.GT(gt.data.exibble).fmt_number(columns=\"num\", decimals=3, use_seps=False)
     ```
 
     See Also
@@ -390,7 +390,7 @@ def fmt_integer(
     ```{python}
     import great_tables as gt
 
-    gt.GT(gt.exibble).fmt_integer(columns=\"num\", use_seps=False)
+    gt.GT(gt.data.exibble).fmt_integer(columns=\"num\", use_seps=False)
     ```
 
     See Also
@@ -590,7 +590,7 @@ def fmt_scientific(
     ```{python}
     import great_tables as gt
 
-    gt.GT(gt.exibble).fmt_scientific(columns=\"num\")
+    gt.GT(gt.data.exibble).fmt_scientific(columns=\"num\")
     ```
 
     See Also
@@ -1047,7 +1047,7 @@ def fmt_currency(
     ```{python}
     import great_tables as gt
 
-    gt.GT(gt.exibble).fmt_currency(columns=\"currency\", decimals=3, use_seps=False)
+    gt.GT(gt.data.exibble).fmt_currency(columns=\"currency\", decimals=3, use_seps=False)
     ```
 
     See Also
@@ -1378,7 +1378,7 @@ def fmt_bytes(
     ```{python}
     import great_tables as gt
 
-    gt.GT(gt.exibble[[\"num\"]]).fmt_bytes(columns=\"num\", standard=\"decimal\")
+    gt.GT(gt.data.exibble[[\"num\"]]).fmt_bytes(columns=\"num\", standard=\"decimal\")
     ```
 
     See Also
@@ -1580,7 +1580,7 @@ def fmt_date(
     ```{python}
     import great_tables as gt
 
-    exibble_mini = gt.exibble[[\"date\", \"time\"]]
+    exibble_mini = gt.data.exibble[[\"date\", \"time\"]]
 
     gt.GT(exibble_mini).fmt_date(columns=\"date\", date_style=\"month_day_year\")
     ```
@@ -1711,7 +1711,7 @@ def fmt_time(
     ```{python}
     import great_tables as gt
 
-    exibble_mini = gt.exibble[[\"date\", \"time\"]]
+    exibble_mini = gt.data.exibble[[\"date\", \"time\"]]
 
     gt.GT(exibble_mini).fmt_time(columns=\"time\", time_style=\"h_m_s_p\")
     ```

@@ -52,7 +52,7 @@ def tab_header(
     ```{python}
     import great_tables as gt
 
-    gtcars_mini = gt.gtcars[[\"mfr\", \"model\", \"msrp\"]].head(5)
+    gtcars_mini = gt.data.gtcars[[\"mfr\", \"model\", \"msrp\"]].head(5)
 
     (
         gt.GT(gtcars_mini)
