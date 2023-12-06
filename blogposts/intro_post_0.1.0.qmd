@@ -118,7 +118,7 @@ exibble_smaller = exibble[["date", "time"]].head(4)
 )
 ```
 
-We support hundreds of locales, from `af` to `zu`! While there are more formatting methods yet to be added, the ones that are available now do work exceedingly well.
+We support hundreds of locales, from `af` to `zu`! While there are more formatting methods yet to be added, the ones that are available all work exceedingly well.
 
 ## The Documentation Site
 
