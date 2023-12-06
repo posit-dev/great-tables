@@ -376,62 +376,62 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_number.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_number</span></a>
+  <a href="../reference/vals.fmt_number.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_number</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_integer.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_integer</span></a>
+  <a href="../reference/vals.fmt_integer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_integer</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_scientific.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_scientific</span></a>
+  <a href="../reference/vals.fmt_scientific.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_scientific</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_percent.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_percent</span></a>
+  <a href="../reference/vals.fmt_percent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_percent</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_currency.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_currency</span></a>
+  <a href="../reference/vals.fmt_currency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_currency</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_roman.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_roman</span></a>
+  <a href="../reference/vals.fmt_roman.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_roman</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_bytes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_bytes</span></a>
+  <a href="../reference/vals.fmt_bytes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_bytes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_date.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_date</span></a>
+  <a href="../reference/vals.fmt_date.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_date</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_time.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_time</span></a>
+  <a href="../reference/vals.fmt_time.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_markdown.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_markdown</span></a>
+  <a href="../reference/vals.fmt_markdown.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_markdown</span></a>
   </div>
 </li>
       </ul>
@@ -601,33 +601,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Let’s use the <code>countrypops</code> to create a small table. We can change the alignment of the <code>population</code> column with <code>cols_align()</code>. In this example, the column label and body cells of <code>population</code> will be aligned to the left.</p>
 <div class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables <span class="im">as</span> gt</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>countrypops_mini <span class="op">=</span> gt.countrypops.loc[gt.countrypops[<span class="st">"country_name"</span>] <span class="op">==</span> <span class="st">"San Marino"</span>][</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"country_name"</span>, <span class="st">"year"</span>, <span class="st">"population"</span>]</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>].tail(<span class="dv">5</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    gt.GT(countrypops_mini, rowname_col<span class="op">=</span><span class="st">"year"</span>, groupname_col<span class="op">=</span><span class="st">"country_name"</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    .cols_align(align<span class="op">=</span><span class="st">"left"</span>, columns<span class="op">=</span><span class="st">"population"</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> countrypops</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>countrypops_mini <span class="op">=</span> countrypops.loc[countrypops[<span class="st">"country_name"</span>] <span class="op">==</span> <span class="st">"San Marino"</span>][</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"country_name"</span>, <span class="st">"year"</span>, <span class="st">"population"</span>]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>].tail(<span class="dv">5</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    gt.GT(countrypops_mini, rowname_col<span class="op">=</span><span class="st">"year"</span>, groupname_col<span class="op">=</span><span class="st">"country_name"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    .cols_align(align<span class="op">=</span><span class="st">"left"</span>, columns<span class="op">=</span><span class="st">"population"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 
-<div id="mtqcfzouao" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="jsbgxivlvt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#mtqcfzouao table {
+#jsbgxivlvt table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#mtqcfzouao thead, tbody, tfoot, tr, td, th {
+#jsbgxivlvt thead, tbody, tfoot, tr, td, th {
   border-style: none; }
 
-#mtqcfzouao p {
+#jsbgxivlvt p {
   margin: 0;
   padding: 0; }
 
-#mtqcfzouao .gt_table {
+#jsbgxivlvt .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -652,11 +653,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-width: 2px;
   border-left-color: #D3D3D3; }
 
-#mtqcfzouao .gt_caption {
+#jsbgxivlvt .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px; }
 
-#mtqcfzouao .gt_title {
+#jsbgxivlvt .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -667,7 +668,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0; }
 
-#mtqcfzouao .gt_subtitle {
+#jsbgxivlvt .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -678,7 +679,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #FFFFFF;
   border-top-width: 0; }
 
-#mtqcfzouao .gt_heading {
+#jsbgxivlvt .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -689,12 +690,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#mtqcfzouao .gt_bottom_border {
+#jsbgxivlvt .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#mtqcfzouao .gt_col_headings {
+#jsbgxivlvt .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -708,7 +709,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#mtqcfzouao .gt_col_heading {
+#jsbgxivlvt .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -727,7 +728,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   overflow-x: hidden; }
 
-#mtqcfzouao .gt_column_spanner_outer {
+#jsbgxivlvt .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -738,13 +739,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 4px;
   padding-right: 4px; }
 
-#mtqcfzouao .gt_column_spanner_outer:first-child {
+#jsbgxivlvt .gt_column_spanner_outer:first-child {
   padding-left: 0; }
 
-#mtqcfzouao .gt_column_spanner_outer:last-child {
+#jsbgxivlvt .gt_column_spanner_outer:last-child {
   padding-right: 0; }
 
-#mtqcfzouao .gt_column_spanner {
+#jsbgxivlvt .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -755,10 +756,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   display: inline-block;
   width: 100%; }
 
-#mtqcfzouao .gt_spanner_row {
+#jsbgxivlvt .gt_spanner_row {
   border-bottom-style: hidden; }
 
-#mtqcfzouao .gt_group_heading {
+#jsbgxivlvt .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -783,7 +784,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   text-align: left; }
 
-#mtqcfzouao .gt_empty_group_heading {
+#jsbgxivlvt .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -797,13 +798,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
   vertical-align: middle; }
 
-#mtqcfzouao .gt_from_md > :first-child {
+#jsbgxivlvt .gt_from_md > :first-child {
   margin-top: 0; }
 
-#mtqcfzouao .gt_from_md > :last-child {
+#jsbgxivlvt .gt_from_md > :last-child {
   margin-bottom: 0; }
 
-#mtqcfzouao .gt_row {
+#jsbgxivlvt .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -821,7 +822,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   overflow-x: hidden; }
 
-#mtqcfzouao .gt_stub {
+#jsbgxivlvt .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -833,7 +834,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#mtqcfzouao .gt_stub_row_grou#mtqcfzouao p {
+#jsbgxivlvt .gt_stub_row_grou#jsbgxivlvt p {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -846,13 +847,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   vertical-align: top; }
 
-#mtqcfzouao .gt_row_group_first td {
+#jsbgxivlvt .gt_row_group_first td {
   border-top-width: 2px; }
 
-#mtqcfzouao .gt_row_group_first th {
+#jsbgxivlvt .gt_row_group_first th {
   border-top-width: 2px; }
 
-#mtqcfzouao .gt_summary_row {
+#jsbgxivlvt .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -861,14 +862,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#mtqcfzouao .gt_first_summary_row {
+#jsbgxivlvt .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3; }
 
-#mtqcfzouao .gt_first_summary_row.thick {
+#jsbgxivlvt .gt_first_summary_row.thick {
   border-top-width: 2px; }
 
-#mtqcfzouao .gt_last_summary_row {
+#jsbgxivlvt .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -877,7 +878,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#mtqcfzouao .gt_grand_summary_row {
+#jsbgxivlvt .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -886,7 +887,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#mtqcfzouao .gt_first_grand_summary_row {
+#jsbgxivlvt .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -895,7 +896,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 6px;
   border-top-color: #D3D3D3; }
 
-#mtqcfzouao .gt_last_grand_summary_row_to#mtqcfzouao p {
+#jsbgxivlvt .gt_last_grand_summary_row_to#jsbgxivlvt p {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -904,10 +905,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 6px;
   border-bottom-color: #D3D3D3; }
 
-#mtqcfzouao .gt_striped {
+#jsbgxivlvt .gt_striped {
   background-color: rgba(128, 128, 128, 0.05); }
 
-#mtqcfzouao .gt_table_body {
+#jsbgxivlvt .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -915,7 +916,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#mtqcfzouao .gt_footnotes {
+#jsbgxivlvt .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -928,7 +929,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#mtqcfzouao .gt_footnote {
+#jsbgxivlvt .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -936,7 +937,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#mtqcfzouao .gt_sourcenotes {
+#jsbgxivlvt .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -949,41 +950,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#mtqcfzouao .gt_sourcenote {
+#jsbgxivlvt .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 5px;
   padding-right: 5px; }
 
-#mtqcfzouao .gt_left {
+#jsbgxivlvt .gt_left {
   text-align: left; }
 
-#mtqcfzouao .gt_center {
+#jsbgxivlvt .gt_center {
   text-align: center; }
 
-#mtqcfzouao .gt_right {
+#jsbgxivlvt .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums; }
 
-#mtqcfzouao .gt_font_normal {
+#jsbgxivlvt .gt_font_normal {
   font-weight: normal; }
 
-#mtqcfzouao .gt_font_bold {
+#jsbgxivlvt .gt_font_bold {
   font-weight: bold; }
 
-#mtqcfzouao .gt_font_italic {
+#jsbgxivlvt .gt_font_italic {
   font-style: italic; }
 
-#mtqcfzouao .gt_super {
+#jsbgxivlvt .gt_super {
   font-size: 65%; }
 
-#mtqcfzouao .gt_footnote_marks {
+#jsbgxivlvt .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial; }
 
-#mtqcfzouao .gt_asterisk {
+#jsbgxivlvt .gt_asterisk {
   font-size: 100%;
   vertical-align: 0; }
 

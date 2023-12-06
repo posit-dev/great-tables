@@ -376,62 +376,62 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_number.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_number</span></a>
+  <a href="../reference/vals.fmt_number.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_number</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_integer.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_integer</span></a>
+  <a href="../reference/vals.fmt_integer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_integer</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_scientific.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_scientific</span></a>
+  <a href="../reference/vals.fmt_scientific.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_scientific</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_percent.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_percent</span></a>
+  <a href="../reference/vals.fmt_percent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_percent</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_currency.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_currency</span></a>
+  <a href="../reference/vals.fmt_currency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_currency</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_roman.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_roman</span></a>
+  <a href="../reference/vals.fmt_roman.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_roman</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_bytes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_bytes</span></a>
+  <a href="../reference/vals.fmt_bytes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_bytes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_date.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_date</span></a>
+  <a href="../reference/vals.fmt_date.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_date</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_time.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_time</span></a>
+  <a href="../reference/vals.fmt_time.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/val_fmt_markdown.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">val_fmt_markdown</span></a>
+  <a href="../reference/vals.fmt_markdown.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_markdown</span></a>
   </div>
 </li>
       </ul>
@@ -608,7 +608,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables <span class="im">as</span> gt</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>gtcars_mini <span class="op">=</span> gt.gtcars[[<span class="st">"mfr"</span>, <span class="st">"model"</span>, <span class="st">"msrp"</span>]].head(<span class="dv">5</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>gtcars_mini <span class="op">=</span> gt.data.gtcars[[<span class="st">"mfr"</span>, <span class="st">"model"</span>, <span class="st">"msrp"</span>]].head(<span class="dv">5</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>(</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    gt.GT(gtcars_mini)</span>
@@ -619,22 +619,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 
-<div id="rsotjxkcio" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ovgkunlxws" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#rsotjxkcio table {
+#ovgkunlxws table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#rsotjxkcio thead, tbody, tfoot, tr, td, th {
+#ovgkunlxws thead, tbody, tfoot, tr, td, th {
   border-style: none; }
 
-#rsotjxkcio p {
+#ovgkunlxws p {
   margin: 0;
   padding: 0; }
 
-#rsotjxkcio .gt_table {
+#ovgkunlxws .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -659,11 +659,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-width: 2px;
   border-left-color: #D3D3D3; }
 
-#rsotjxkcio .gt_caption {
+#ovgkunlxws .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px; }
 
-#rsotjxkcio .gt_title {
+#ovgkunlxws .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -674,7 +674,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0; }
 
-#rsotjxkcio .gt_subtitle {
+#ovgkunlxws .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -685,7 +685,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #FFFFFF;
   border-top-width: 0; }
 
-#rsotjxkcio .gt_heading {
+#ovgkunlxws .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -696,12 +696,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#rsotjxkcio .gt_bottom_border {
+#ovgkunlxws .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#rsotjxkcio .gt_col_headings {
+#ovgkunlxws .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -715,7 +715,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#rsotjxkcio .gt_col_heading {
+#ovgkunlxws .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -734,7 +734,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   overflow-x: hidden; }
 
-#rsotjxkcio .gt_column_spanner_outer {
+#ovgkunlxws .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -745,13 +745,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 4px;
   padding-right: 4px; }
 
-#rsotjxkcio .gt_column_spanner_outer:first-child {
+#ovgkunlxws .gt_column_spanner_outer:first-child {
   padding-left: 0; }
 
-#rsotjxkcio .gt_column_spanner_outer:last-child {
+#ovgkunlxws .gt_column_spanner_outer:last-child {
   padding-right: 0; }
 
-#rsotjxkcio .gt_column_spanner {
+#ovgkunlxws .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -762,10 +762,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   display: inline-block;
   width: 100%; }
 
-#rsotjxkcio .gt_spanner_row {
+#ovgkunlxws .gt_spanner_row {
   border-bottom-style: hidden; }
 
-#rsotjxkcio .gt_group_heading {
+#ovgkunlxws .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -790,7 +790,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   text-align: left; }
 
-#rsotjxkcio .gt_empty_group_heading {
+#ovgkunlxws .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -804,13 +804,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
   vertical-align: middle; }
 
-#rsotjxkcio .gt_from_md > :first-child {
+#ovgkunlxws .gt_from_md > :first-child {
   margin-top: 0; }
 
-#rsotjxkcio .gt_from_md > :last-child {
+#ovgkunlxws .gt_from_md > :last-child {
   margin-bottom: 0; }
 
-#rsotjxkcio .gt_row {
+#ovgkunlxws .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -828,7 +828,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   overflow-x: hidden; }
 
-#rsotjxkcio .gt_stub {
+#ovgkunlxws .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -840,7 +840,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#rsotjxkcio .gt_stub_row_grou#rsotjxkcio p {
+#ovgkunlxws .gt_stub_row_grou#ovgkunlxws p {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -853,13 +853,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   vertical-align: top; }
 
-#rsotjxkcio .gt_row_group_first td {
+#ovgkunlxws .gt_row_group_first td {
   border-top-width: 2px; }
 
-#rsotjxkcio .gt_row_group_first th {
+#ovgkunlxws .gt_row_group_first th {
   border-top-width: 2px; }
 
-#rsotjxkcio .gt_summary_row {
+#ovgkunlxws .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -868,14 +868,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#rsotjxkcio .gt_first_summary_row {
+#ovgkunlxws .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3; }
 
-#rsotjxkcio .gt_first_summary_row.thick {
+#ovgkunlxws .gt_first_summary_row.thick {
   border-top-width: 2px; }
 
-#rsotjxkcio .gt_last_summary_row {
+#ovgkunlxws .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -884,7 +884,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#rsotjxkcio .gt_grand_summary_row {
+#ovgkunlxws .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -893,7 +893,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#rsotjxkcio .gt_first_grand_summary_row {
+#ovgkunlxws .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -902,7 +902,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 6px;
   border-top-color: #D3D3D3; }
 
-#rsotjxkcio .gt_last_grand_summary_row_to#rsotjxkcio p {
+#ovgkunlxws .gt_last_grand_summary_row_to#ovgkunlxws p {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -911,10 +911,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 6px;
   border-bottom-color: #D3D3D3; }
 
-#rsotjxkcio .gt_striped {
+#ovgkunlxws .gt_striped {
   background-color: rgba(128, 128, 128, 0.05); }
 
-#rsotjxkcio .gt_table_body {
+#ovgkunlxws .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -922,7 +922,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#rsotjxkcio .gt_footnotes {
+#ovgkunlxws .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -935,7 +935,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#rsotjxkcio .gt_footnote {
+#ovgkunlxws .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -943,7 +943,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#rsotjxkcio .gt_sourcenotes {
+#ovgkunlxws .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -956,41 +956,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#rsotjxkcio .gt_sourcenote {
+#ovgkunlxws .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 5px;
   padding-right: 5px; }
 
-#rsotjxkcio .gt_left {
+#ovgkunlxws .gt_left {
   text-align: left; }
 
-#rsotjxkcio .gt_center {
+#ovgkunlxws .gt_center {
   text-align: center; }
 
-#rsotjxkcio .gt_right {
+#ovgkunlxws .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums; }
 
-#rsotjxkcio .gt_font_normal {
+#ovgkunlxws .gt_font_normal {
   font-weight: normal; }
 
-#rsotjxkcio .gt_font_bold {
+#ovgkunlxws .gt_font_bold {
   font-weight: bold; }
 
-#rsotjxkcio .gt_font_italic {
+#ovgkunlxws .gt_font_italic {
   font-style: italic; }
 
-#rsotjxkcio .gt_super {
+#ovgkunlxws .gt_super {
   font-size: 65%; }
 
-#rsotjxkcio .gt_footnote_marks {
+#ovgkunlxws .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial; }
 
-#rsotjxkcio .gt_asterisk {
+#ovgkunlxws .gt_asterisk {
   font-size: 100%;
   vertical-align: 0; }
 
@@ -1051,22 +1051,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 
-<div id="uzyugdraoj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="pdxnpzdrkm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#uzyugdraoj table {
+#pdxnpzdrkm table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#uzyugdraoj thead, tbody, tfoot, tr, td, th {
+#pdxnpzdrkm thead, tbody, tfoot, tr, td, th {
   border-style: none; }
 
-#uzyugdraoj p {
+#pdxnpzdrkm p {
   margin: 0;
   padding: 0; }
 
-#uzyugdraoj .gt_table {
+#pdxnpzdrkm .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1091,11 +1091,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-width: 2px;
   border-left-color: #D3D3D3; }
 
-#uzyugdraoj .gt_caption {
+#pdxnpzdrkm .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px; }
 
-#uzyugdraoj .gt_title {
+#pdxnpzdrkm .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1106,7 +1106,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0; }
 
-#uzyugdraoj .gt_subtitle {
+#pdxnpzdrkm .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1117,7 +1117,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #FFFFFF;
   border-top-width: 0; }
 
-#uzyugdraoj .gt_heading {
+#pdxnpzdrkm .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1128,12 +1128,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#uzyugdraoj .gt_bottom_border {
+#pdxnpzdrkm .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#uzyugdraoj .gt_col_headings {
+#pdxnpzdrkm .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1147,7 +1147,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 1px;
   border-right-color: #D3D3D3; }
 
-#uzyugdraoj .gt_col_heading {
+#pdxnpzdrkm .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1166,7 +1166,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   overflow-x: hidden; }
 
-#uzyugdraoj .gt_column_spanner_outer {
+#pdxnpzdrkm .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1177,13 +1177,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 4px;
   padding-right: 4px; }
 
-#uzyugdraoj .gt_column_spanner_outer:first-child {
+#pdxnpzdrkm .gt_column_spanner_outer:first-child {
   padding-left: 0; }
 
-#uzyugdraoj .gt_column_spanner_outer:last-child {
+#pdxnpzdrkm .gt_column_spanner_outer:last-child {
   padding-right: 0; }
 
-#uzyugdraoj .gt_column_spanner {
+#pdxnpzdrkm .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1194,10 +1194,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   display: inline-block;
   width: 100%; }
 
-#uzyugdraoj .gt_spanner_row {
+#pdxnpzdrkm .gt_spanner_row {
   border-bottom-style: hidden; }
 
-#uzyugdraoj .gt_group_heading {
+#pdxnpzdrkm .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1222,7 +1222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   text-align: left; }
 
-#uzyugdraoj .gt_empty_group_heading {
+#pdxnpzdrkm .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1236,13 +1236,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
   vertical-align: middle; }
 
-#uzyugdraoj .gt_from_md > :first-child {
+#pdxnpzdrkm .gt_from_md > :first-child {
   margin-top: 0; }
 
-#uzyugdraoj .gt_from_md > :last-child {
+#pdxnpzdrkm .gt_from_md > :last-child {
   margin-bottom: 0; }
 
-#uzyugdraoj .gt_row {
+#pdxnpzdrkm .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1260,7 +1260,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
   overflow-x: hidden; }
 
-#uzyugdraoj .gt_stub {
+#pdxnpzdrkm .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1272,7 +1272,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#uzyugdraoj .gt_stub_row_grou#uzyugdraoj p {
+#pdxnpzdrkm .gt_stub_row_grou#pdxnpzdrkm p {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1285,13 +1285,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
   vertical-align: top; }
 
-#uzyugdraoj .gt_row_group_first td {
+#pdxnpzdrkm .gt_row_group_first td {
   border-top-width: 2px; }
 
-#uzyugdraoj .gt_row_group_first th {
+#pdxnpzdrkm .gt_row_group_first th {
   border-top-width: 2px; }
 
-#uzyugdraoj .gt_summary_row {
+#pdxnpzdrkm .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1300,14 +1300,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#uzyugdraoj .gt_first_summary_row {
+#pdxnpzdrkm .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3; }
 
-#uzyugdraoj .gt_first_summary_row.thick {
+#pdxnpzdrkm .gt_first_summary_row.thick {
   border-top-width: 2px; }
 
-#uzyugdraoj .gt_last_summary_row {
+#pdxnpzdrkm .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1316,7 +1316,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#uzyugdraoj .gt_grand_summary_row {
+#pdxnpzdrkm .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1325,7 +1325,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#uzyugdraoj .gt_first_grand_summary_row {
+#pdxnpzdrkm .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1334,7 +1334,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 6px;
   border-top-color: #D3D3D3; }
 
-#uzyugdraoj .gt_last_grand_summary_row_to#uzyugdraoj p {
+#pdxnpzdrkm .gt_last_grand_summary_row_to#pdxnpzdrkm p {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1343,10 +1343,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 6px;
   border-bottom-color: #D3D3D3; }
 
-#uzyugdraoj .gt_striped {
+#pdxnpzdrkm .gt_striped {
   background-color: rgba(128, 128, 128, 0.05); }
 
-#uzyugdraoj .gt_table_body {
+#pdxnpzdrkm .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1354,7 +1354,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3; }
 
-#uzyugdraoj .gt_footnotes {
+#pdxnpzdrkm .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1367,7 +1367,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#uzyugdraoj .gt_footnote {
+#pdxnpzdrkm .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1375,7 +1375,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-left: 5px;
   padding-right: 5px; }
 
-#uzyugdraoj .gt_sourcenotes {
+#pdxnpzdrkm .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1388,41 +1388,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-width: 2px;
   border-right-color: #D3D3D3; }
 
-#uzyugdraoj .gt_sourcenote {
+#pdxnpzdrkm .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 5px;
   padding-right: 5px; }
 
-#uzyugdraoj .gt_left {
+#pdxnpzdrkm .gt_left {
   text-align: left; }
 
-#uzyugdraoj .gt_center {
+#pdxnpzdrkm .gt_center {
   text-align: center; }
 
-#uzyugdraoj .gt_right {
+#pdxnpzdrkm .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums; }
 
-#uzyugdraoj .gt_font_normal {
+#pdxnpzdrkm .gt_font_normal {
   font-weight: normal; }
 
-#uzyugdraoj .gt_font_bold {
+#pdxnpzdrkm .gt_font_bold {
   font-weight: bold; }
 
-#uzyugdraoj .gt_font_italic {
+#pdxnpzdrkm .gt_font_italic {
   font-style: italic; }
 
-#uzyugdraoj .gt_super {
+#pdxnpzdrkm .gt_super {
   font-size: 65%; }
 
-#uzyugdraoj .gt_footnote_marks {
+#pdxnpzdrkm .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial; }
 
-#uzyugdraoj .gt_asterisk {
+#pdxnpzdrkm .gt_asterisk {
   font-size: 100%;
   vertical-align: 0; }
 
