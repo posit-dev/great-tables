@@ -1,0 +1,97 @@
+---
+jupyter: python3
+html-table-processing: none
+---
+
+## Introducing Great Tables for Python
+
+With the [`great_tables`](https://github.com/posit-dev/great-tables) package, anyone can make great-looking display tables in Python. Though the project/package is still fairly early in development, you can do some really great things with it today. In this introductory post, we'll walk through a few examples that touch upon the more common table-making use cases. We can configure the structure of the table, format table-cell values, integrate source notes, and incorporate tables within Quarto documents.
+
+We are very excited to have our first major release of the `great_tables` (`v0.1.0`) available in [`PyPI`]. You can install it by using:
+
+```{.bash}
+pip install great_tables
+```
+
+The **great_tables** package is all about making it simple to produce nice-looking display tables. Display tables? Well yes, we are trying to distinguish between data tables (e.g., DataFrames) and those tables you’d find in a web page, a journal article, or in a magazine.  We can think of display tables as output only, where we’d not want to use them as input ever again. Other features include annotations, table element styling, and text transformations that serve to communicate the subject matter more clearly.
+
+## A basic **gt** table
+
+Let's get right to making a table with the package. We'll start by making a subset of the `islands` dataset that's included in `great_tables`:
+
+```{python}
+from great_tables import GT, md, html
+from great_tables.data import islands
+
+islands_mini = islands.head(10)
+```
+
+The `islands` dataset is a simple pandas DataFrame with 2 columns. We've cut it down to the first ten rows and produced the `islands_mini` table. We'll feed that table to the `GT` class of `great_tables`; that serves as the main entry point into the `great_tables` API.
+
+```{python}
+# Create a display table showing ten of the largest islands in the world
+gt_tbl = GT(islands_mini)
+
+# Show the gt table
+gt_tbl
+```
+
+That doesn't look too bad at all! Sure, it's basic but we really didn't really ask for much. What we got was a proper table with column labels along with all of the cell data. Oftentimes however, you'll want a bit more... We'll endeavor to include some additional table components in the upcoming examples.
+
+## Some more complex **gt** tables
+
+Let's take things a bit further and make that `islands_mini` table a whole lot nicer. Great Tables is all about having a smörgasbord of methods that allow you to refine the presentation until you are fully satisfied. This revamped display table will have a handy *Stub* component that emphasizes the row labels. We'll add a table title (and subtitle!) with `tab_header()`. The numerical values will all be formatted with the `fmt_integer()`. Table notes will be included by using the `tab_source_note()` method. And, as a finishing touch, we'll add in a label that goes above the *Stub* with `tab_stubhead()`.
+
+```{python}
+(
+    GT(islands_mini, rowname_col="name")
+    .tab_header(title="Large Landmasses of the World", subtitle="The top ten largest are presented")
+    .fmt_integer(columns="size")
+    .tab_source_note(source_note="Source: The World Almanac and Book of Facts, 1975, page 406.")
+    .tab_source_note(
+        source_note=md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
+    )
+    .tab_stubhead(label="landmass")
+)
+```
+
+
+
+```{python}
+
+from great_tables.data import airquality
+
+airquality_m = airquality.head(10).assign(Year = 1973)
+
+gt_airquality = (
+    GT(airquality_m)
+    .tab_header(
+        title = "New York Air Quality Measurements",
+        subtitle = "Daily measurements in New York City (May 1-10, 1973)"
+    )
+    .tab_spanner(
+        label = "Time",
+        columns = ["Year", "Month", "Day"]
+    )
+    .tab_spanner(
+        label = "Measurement",
+        columns = ["Ozone", "Solar.R", "Wind", "Temp"]
+    )
+    .cols_move_to_start(columns = ["Year", "Month", "Day"])
+    .cols_label(
+        Ozone = html("Ozone,<br>ppbV"),
+        Solar_R = html("Solar R.,<br>cal/m<sup>2</sup>"),
+        Wind = html("Wind,<br>mph"),
+        Temp = html("Temp,<br>&deg;F")
+    )
+)
+
+gt_airquality
+```
+
+
+## Documentation Site
+
+The documentation website was built using `quartodoc` and the site is designed to look easy on the eyes while also providing a ton of useful information.
+
+
