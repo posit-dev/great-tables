@@ -299,7 +299,10 @@ class GT(
             id = table_id
 
         # Compile the SCSS as CSS
-        css = _compile_scss(data=self, id=id)
+        from ._scss import compile_scss
+
+        css = compile_scss(data=self, id=id)
+        # css = _compile_scss(data=self, id=id)
 
         # Obtain options set for overflow and container dimensions
 
