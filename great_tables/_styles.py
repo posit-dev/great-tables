@@ -17,7 +17,7 @@ class CellStyle:
 
 
 @dataclass
-class CellText:
+class CellStyleText:
     """A style specification for text."""
 
     color: str
