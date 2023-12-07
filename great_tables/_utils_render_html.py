@@ -413,6 +413,9 @@ def create_body_component_h(data: GTData) -> str:
     _str_orig_data = cast_frame_to_string(data._tbl_data)
     tbl_data = replace_null_frame(data._body.body, _str_orig_data)
 
+    # Filter list of StyleInfo to only those that apply to the body (where locname="data")
+    styles_body = [x for x in data._styles if x.locname == "data"]
+
     grp_idx_to_label = data._group_rows.indices_map()
 
     # Get the default column vars
@@ -470,10 +473,28 @@ def create_body_component_h(data: GTData) -> str:
             # by using the `name` value to obtain the index of the alignment value
             cell_alignment = colinfo.defaulted_align
 
+            # Get the style attributes for the current cell by filtering the
+            # `styles_body` list for the current row and column
+            styles_i = [x for x in styles_body if x.rownum == i and x.colname == colinfo.var]
+
+            # Develop the `style` attribute for the current cell
+            if len(styles_i) > 0:
+                style_entries = [x.styles for x in styles_i]
+                cell_styles = []
+                for style in style_entries:
+                    style_element = style[0]
+                    rendered_style = style_element._render_to_html_style()
+                    cell_styles.append(rendered_style)
+                cell_styles = f'style="{" ".join(cell_styles)}"'
+            else:
+                cell_styles = ""
+
             if is_stub_cell:
                 body_cells.append(f'  <th class="gt_row gt_left gt_stub">' + cell_str + "</th>")
             else:
-                body_cells.append(f'  <td class="gt_row gt_{cell_alignment}">' + cell_str + "</td>")
+                body_cells.append(
+                    f'  <td {cell_styles} class="gt_row gt_{cell_alignment}">' + cell_str + "</td>"
+                )
 
         body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
 
