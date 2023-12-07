@@ -20,14 +20,14 @@ class CellStyle:
 class CellStyleText:
     """A style specification for text."""
 
-    color: str
-    font: str
-    size: str
-    align: Literal["center", "left", "right", "justify"]
+    color: str | None = None
+    font: str | None = None
+    size: str | None = None
+    align: Literal["center", "left", "right", "justify"] | None = None
     # TODO: this can also be a gt_column object?
-    v_align: Literal["middle", "top", "bottom"]
-    style: Literal["normal", "italic", "oblique"]
-    weight: Literal["normal", "bold", "bolder", "lighter"]
+    v_align: Literal["middle", "top", "bottom"] | None = None
+    style: Literal["normal", "italic", "oblique"] | None = None
+    weight: Literal["normal", "bold", "bolder", "lighter"] | None = None
     stretch: Literal[
         "normal",
         "condensed",
