@@ -43,7 +43,6 @@ from great_tables._spanners import (
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import tab_stubhead
 from great_tables._tbl_data import n_rows, _get_cell
-from great_tables._utils import _as_css_font_family_attr, _unique_set
 from great_tables._utils_render_html import (
     create_heading_component_h,
     create_columns_component_h,
