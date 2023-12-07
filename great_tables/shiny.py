@@ -7,13 +7,21 @@ __all__ = (
 
 from great_tables import GT
 from htmltools import Tag, div, HTML
-from shiny.render.transformer import (
-    output_transformer,
-    TransformerMetadata,
-    ValueFn,
-    resolve_value_fn,
-)
-from shiny._namespaces import resolve_id
+
+try:
+    from shiny.render.transformer import (
+        output_transformer,
+        TransformerMetadata,
+        ValueFn,
+        resolve_value_fn,
+    )
+    from shiny._namespaces import resolve_id
+except ImportError:
+    raise ImportError(
+        "The great_tables.shiny module requires the shiny package to be installed."
+        " Please install it with this command:"
+        "\n\n    pip install shiny"
+    )
 
 from typing import TYPE_CHECKING, overload
 
