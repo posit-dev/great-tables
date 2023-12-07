@@ -5,7 +5,7 @@ html-table-processing: none
 
 ## Introducing **Great Tables** for Python (`v0.1.0`)
 
-With the [`great_tables`](https://github.com/posit-dev/great-tables) package, anyone can make great-looking display tables in Python. Though the project/package is still fairly early in its development, you can do some really great things with it today! We very recently put out our first major release of the `great_tables` (`v0.1.0`) and it's available in [`PyPI`](https://pypi.org/project/great-tables/). You can install it by using:
+With the [**Great Tables**](https://github.com/posit-dev/great-tables) package, anyone can make great-looking display tables in Python. Though the project/package is still fairly early in its development, you can do some really great things with it today! We very recently put out our first major release of the **Great Tables** (`v0.1.0`) and it's available in [`PyPI`](https://pypi.org/project/great-tables/). You can install it by using:
 
 ```{.bash}
 pip install great_tables
@@ -18,11 +18,11 @@ In this introductory post, we'll walk through a few examples that touch upon the
 - integrate source notes
 - incorporate tables within Quarto documents.
 
-The **great_tables** package is all about making it simple to produce nice-looking display tables. Display tables? Well yes, we are trying to distinguish between data tables (e.g., DataFrames) and those tables you’d find in a web page, a journal article, or in a magazine.  We can think of display tables as output only, where we’d not want to use them as input ever again. Other features include annotations, table element styling, and text transformations that serve to communicate the subject matter more clearly.
+The **Great Tables** package is all about making it simple to produce nice-looking display tables. Display tables? Well yes, we are trying to distinguish between data tables (e.g., DataFrames) and those tables you’d find in a web page, a journal article, or in a magazine.  We can think of display tables as output only, where we’d not want to use them as input ever again. Other features include annotations, table element styling, and text transformations that serve to communicate the subject matter more clearly.
 
 ## A Basic Table
 
-Let's get right to making a table with the package. We'll start by making use of the very small, but useful, `exibble` dataset (which is available in the package). After importing the `GT` class and that dataset, we'll feed that Pandas table to `GT()`. This serves as the main entry point into the `great_tables` API.
+Let's get right to making a table with the package. We'll start by making use of the very small, but useful, `exibble` dataset (which is available in the package). After importing the `GT` class and that dataset, we'll feed that Pandas table to `GT()`. This serves as the main entry point into the **Great Tables** API.
 
 ```{python}
 from great_tables import GT, exibble
@@ -56,11 +56,11 @@ gtcars_mini = gtcars[["mfr", "model", "year", "hp", "trq", "msrp"]].tail(10)
     .cols_label(year="Year Produced", hp="HP", trq="Torque", msrp="Price (USD)")
     .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
     .fmt_currency(columns="msrp")
-    .tab_source_note(source_note="Source: the gtcars dataset within the great_tables package.")
+    .tab_source_note(source_note="Source: the gtcars dataset within the Great Tables package.")
 )
 ```
 
-With the six different methods applied, the table looks really very presentable! The rendering you're seeing here has been done through a Quarto document. This is basically to say that the `great_tables` package is ready to rock inside your Quarto doc.
+With the six different methods applied, the table looks really very presentable! The rendering you're seeing here has been done through a Quarto document. This is basically to say that the **Great Tables** package is ready to rock inside your Quarto doc.
 
 Let's keep going and get to *deluxe* example #2. For this one, we'll use the `airquality` dataset (also included in the package, within the `data` submodule). With this table, two spanner labels will be added with `tab_spanner()`. It's an easy-to-use method where you only need to provide the spanner label text and the columns for that label to span across. Columns can be freely moved around with `cols_move_to_start()` (there also the `cols_move_to_end()` and the general `cols_move()` methods), which makes structuring the table much easier.
 
@@ -122,17 +122,19 @@ We support hundreds of locales, from `af` to `zu`! While there are more formatti
 
 ## The Documentation Site
 
-The [documentation site](https://posit-dev.github.io/great-tables/) was built using `quartodoc`. It's designed to look easy on the eyes while also providing a ton of useful information.
+The [documentation site](https://posit-dev.github.io/great-tables/) was built using [**quartodoc**](https://github.com/machow/quartodoc). It's designed to look easy on the eyes while also providing a ton of useful information.
 
-Check out these handy sections of the docs to learn more:
+Check out these handy sections of the docs to learn more about how to create your own **Great Tables**:
 
 * [Get Started](https://posit-dev.github.io/great-tables/get-started/)
 * [Examples](https://posit-dev.github.io/great-tables/examples/)
 * [API Reference](https://posit-dev.github.io/great-tables/reference/)
 
-## We Are on the Path Toward Table Success
+Since we care a lot about documentation we'll continue working toward making this documentation site the best it can be.
 
-While we’re only getting started on this package we absolutely feel things are really coming along! We want to hear from you and get your feedback on the package. There are quite a few ways to do this, so here are all the options:
+## We Are on the Path to Table Success
+
+While we’re only getting started on this package, we feel things are coming along nicely! But it's nothing without you, our users, so we'd really like to hear from you (we welcome any and all feedback). There are quite a few ways to do this; here are all the options:
 
 - you can file an [issue](https://github.com/posit-dev/great-tables/issues) or participate in a [discussion](https://github.com/posit-dev/great-tables/discussions) at GitHub
 - the gt package has an [X/Twitter account at @gt_package](https://twitter.com/gt_package), so check it out for package news and announcements
