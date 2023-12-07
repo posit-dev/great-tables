@@ -44,7 +44,6 @@ dependencies = [
     "packaging>=20.9",
     "pandas>=1.4.2",
     "numpy>=1.22.4",
-    "libsass>=0.22.0",
     "Babel>=2.13.1",
     "webcolors",
 ]
