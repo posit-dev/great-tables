@@ -24,7 +24,7 @@ The **great_tables** package is designed to be both straightforward yet powerful
 
 ```python
 import great_tables as gt
-from great_tables import sp500
+from great_tables.data import sp500
 
 # Define the start and end dates for the data range
 start_date = "2010-06-07"
