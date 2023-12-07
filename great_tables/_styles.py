@@ -38,10 +38,12 @@ class CellStyleText:
         "expanded",
         "extra-expanded",
         "ultra-expanded",
-    ]
-    decorate: Literal["overline", "line-through", "underline", "underline overline"]
-    transform: Literal["uppercase", "lowercase", "capitalize"]
-    whitespace: Literal["normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"]
+    ] | None = None
+    decorate: Literal["overline", "line-through", "underline", "underline overline"] | None = None
+    transform: Literal["uppercase", "lowercase", "capitalize"] | None = None
+    whitespace: Literal[
+        "normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"
+    ] | None = None
 
 
 @dataclass
