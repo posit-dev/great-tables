@@ -40,4 +40,4 @@ def __getattr__(k: str):
             f"\n\nfrom great_tables.data import {k}"
         )
     else:
-        raise ImportError(f"cannot import name {k} from great_tables ({__file__})")
+        raise AttributeError(f"cannot get attribute {k} from great_tables ({__file__})")
