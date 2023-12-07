@@ -45,6 +45,18 @@ class CellStyleText:
         "normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"
     ] | None = None
 
+    def _render_to_html_style(self):
+        rendered = f""
+
+        if self.color:
+            rendered = rendered.join(f"color: {self.color};")
+        if self.font:
+            rendered = rendered.join(f"font-family: {self.font};")
+        if self.size:
+            rendered = rendered.join(f"font-size: {self.size};")
+
+        return rendered
+
 
 @dataclass
 class CellStyleFill(CellStyle):
@@ -52,6 +64,9 @@ class CellStyleFill(CellStyle):
 
     fill: str
     alpha: Optional[float] = None
+
+    def _render_to_html_style(self):
+        return f"background-color: {self.fill};"
 
 
 @dataclass
