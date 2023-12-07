@@ -34,6 +34,14 @@ async def GtTransformer(_meta: TransformerMetadata, _fn: ValueFn[GT | None]) -> 
     raise TypeError(f"Expected a great_tables.GT object, got {type(value)}")
 
 
+@overload
+def render_gt() -> GtTransformer.OutputRendererDecorator:
+    ...
+
+@overload
+def render_gt(_fn: GtTransformer.ValueFn) -> GtTransformer.OutputRenderer:
+    ...
+
 def render_gt(
     _fn: GtTransformer.ValueFn | None = None,
 ) -> GtTransformer.OutputRenderer | GtTransformer.OutputRendererDecorator:
