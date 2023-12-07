@@ -50,12 +50,10 @@ from great_tables._utils_render_html import (
     create_source_notes_component_h,
     create_footnotes_component_h,
 )
-from great_tables._styles import CellStyle, CellStyleFill, CellStyleBorders
-from great_tables._locations import LocBody
 from great_tables._tab_create_modify import tab_style
 
 
-__all__ = ["GT", "CellStyle", "CellStyleFill", "CellStyleBorders", "LocBody"]
+__all__ = ["GT"]
 
 
 # =============================================================================

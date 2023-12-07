@@ -485,7 +485,7 @@ def create_body_component_h(data: GTData) -> str:
                     style_element = style[0]
                     rendered_style = style_element._render_to_html_style()
                     cell_styles.append(rendered_style)
-                cell_styles = f'style="{" ".join(cell_styles)}"'
+                cell_styles = f'style="{" ".join(cell_styles)}"' + " "
             else:
                 cell_styles = ""
 
@@ -493,7 +493,7 @@ def create_body_component_h(data: GTData) -> str:
                 body_cells.append(f'  <th class="gt_row gt_left gt_stub">' + cell_str + "</th>")
             else:
                 body_cells.append(
-                    f'  <td {cell_styles} class="gt_row gt_{cell_alignment}">' + cell_str + "</td>"
+                    f'  <td {cell_styles}class="gt_row gt_{cell_alignment}">' + cell_str + "</td>"
                 )
 
         body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
