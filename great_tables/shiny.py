@@ -15,7 +15,7 @@ from shiny.render.transformer import (
 )
 from shiny._namespaces import resolve_id
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
     from shiny.session._utils import RenderedDeps
@@ -41,9 +41,11 @@ async def GtTransformer(_meta: TransformerMetadata, _fn: ValueFn[GT | None]) -> 
 def render_gt() -> GtTransformer.OutputRendererDecorator:
     ...
 
+
 @overload
 def render_gt(_fn: GtTransformer.ValueFn) -> GtTransformer.OutputRenderer:
     ...
+
 
 def render_gt(
     _fn: GtTransformer.ValueFn | None = None,
