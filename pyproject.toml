@@ -61,6 +61,7 @@ dev = [
     "pytest>=3",
     "pytest-cov",
     "siuba",
+    "shiny",
     "syrupy"
 ]
 
