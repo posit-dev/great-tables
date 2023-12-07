@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-from ._gt_data import GTData
 from ._locations import Loc, PlacementOptions, set_footnote, set_style
 from ._styles import CellStyle
 
