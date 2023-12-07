@@ -6,16 +6,19 @@ __all__ = (
 )
 
 from great_tables import GT
+from htmltools import Tag, div, HTML
 from shiny.render.transformer import (
     output_transformer,
     TransformerMetadata,
     ValueFn,
     resolve_value_fn,
 )
-from shiny.session._utils import RenderedDeps
 from shiny._namespaces import resolve_id
 
-from htmltools import Tag, div, HTML
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from shiny.session._utils import RenderedDeps
 
 
 def output_gt(id: str, placeholder: bool = False) -> Tag:
