@@ -133,5 +133,48 @@ wide_pops = (
 
 :::
 
+:::{.g-col-6}
+
+```{python}
+from great_tables import GT, md, html
+from great_tables.data import towny
+
+
+towny_mini = (towny[["name", "website", "density_2021", "land_area_km2",
+              "latitude", "longitude"]].sort_values("density_2021",
+              ascending=False).head(10))
+
+towny_mini["url_name"] = (["["] + towny_mini["name"] + ["]"] +
+                         ["("] + towny_mini["website"] + [")"])
+
+towny_mini["location"] =( ["[map](http://maps.google.com/?ie=UTF8&hq=&ll="] +
+                          towny_mini["latitude"].astype(str) + [","] +
+                          towny_mini["longitude"].astype(str) + ["&z=13)"])
+
+
+(
+    GT(towny_mini[["url_name", "location", "land_area_km2","density_2021"]], rowname_col = "url_name")
+    .tab_header(
+        title = "The Municipalities of Ontario",
+        subtitle = "The top 10 highest population density in 2021"
+    )
+
+    .tab_stubhead(label = "Municipality")
+
+    .fmt_markdown(columns = ["url_name","location"])
+
+    .fmt_number(columns = ["land_area_km2", "density_2021"], decimals=1)
+
+    .cols_label(
+        land_area_km2 = html("land area, <br>km<sup>2</sup>"),
+        density_2021 = html("density, <br>people/km<sup>2</sup>")
+    )
+)
+
+
+```
+
+:::
+
 :::::
 ::::::
