@@ -98,6 +98,12 @@ quartodoc:
         - GT.cols_move
         - GT.cols_move_to_start
         - GT.cols_move_to_end
+    - title: Selection and Styling Classes
+      contents:
+        - loc.body
+        - style.fill
+        - style.text
+        - style.borders
     - title: Helper functions
       desc: >
         An assortment of helper functions is available in the **great_tables** package. The `md()`
