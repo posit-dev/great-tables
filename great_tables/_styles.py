@@ -11,13 +11,15 @@ from typing import Optional, Literal
 
 
 # TODO: what goes into CellStyle?
-@dataclass
 class CellStyle:
     """A style specification."""
 
+    def _to_html_style(self) -> str:
+        raise NotImplementedError
+
 
 @dataclass
-class CellStyleText:
+class CellStyleText(CellStyle):
     """A style specification for text."""
 
     color: str | None = None
@@ -45,7 +47,7 @@ class CellStyleText:
         "normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"
     ] | None = None
 
-    def _render_to_html_style(self):
+    def _to_html_style(self) -> str:
         rendered = f""
 
         if self.color:
@@ -65,7 +67,7 @@ class CellStyleFill(CellStyle):
     fill: str
     alpha: Optional[float] = None
 
-    def _render_to_html_style(self):
+    def _to_html_style(self) -> str:
         return f"background-color: {self.fill};"
 
 

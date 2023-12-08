@@ -85,8 +85,8 @@ class LocStub(Loc):
 @dataclass
 class LocBody(Loc):
     # TODO: these can be tidyselectors
-    columns: list[str]
-    rows: list[str]
+    columns: SelectExpr
+    rows: list[str] | str
 
 
 @dataclass

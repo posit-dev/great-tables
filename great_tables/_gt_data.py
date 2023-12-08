@@ -787,7 +787,7 @@ class StyleInfo:
     colname: Optional[str] = None
     rownum: Optional[int] = None
     colnum: Optional[int] = None
-    styles: Optional[Dict[str, str]] = field(default_factory=dict)
+    styles: List[CellStyle] = field(default_factory=list)
 
 
 Styles: TypeAlias = List[StyleInfo]

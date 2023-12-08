@@ -480,12 +480,12 @@ def create_body_component_h(data: GTData) -> str:
             # Develop the `style` attribute for the current cell
             if len(styles_i) > 0:
                 style_entries = [x.styles for x in styles_i]
-                cell_styles = []
+                cell_styles_list: List[str] = []
                 for style in style_entries:
                     style_element = style[0]
-                    rendered_style = style_element._render_to_html_style()
-                    cell_styles.append(rendered_style)
-                cell_styles = f'style="{" ".join(cell_styles)}"' + " "
+                    rendered_style = style_element._to_html_style()
+                    cell_styles_list.append(rendered_style)
+                cell_styles = f'style="{" ".join(cell_styles_list)}"' + " "
             else:
                 cell_styles = ""
 
