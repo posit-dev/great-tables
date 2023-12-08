@@ -1,5 +1,5 @@
 # serializer version: 1
-# name: test_scss_generated
+# name: test_scss_default_generated
   '''
   #abc table {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
