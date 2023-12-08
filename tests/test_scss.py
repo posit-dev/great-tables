@@ -1,7 +1,8 @@
 import pytest
+import pandas as pd
 
-from great_tables._scss import font_color, css_add
-from typing import Any
+from great_tables import GT
+from great_tables._scss import font_color, css_add, compile_scss
 
 
 @pytest.mark.parametrize(
@@ -28,3 +29,10 @@ def test_font_color(src, dst):
 def test_css_add(src: "str | int", dst: "str | int"):
     res = css_add(src, 1)
     assert res == dst
+
+
+def test_scss_default_generated(snapshot):
+    # we're using this just to generate the css
+    gt = GT(pd.DataFrame({"x": [1, 2, 3]}))
+
+    assert snapshot == compile_scss(gt, id="abc", compress=False)

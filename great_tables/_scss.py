@@ -66,7 +66,7 @@ def css_add(value: str | int, amount: int):
         raise NotImplementedError(f"Unable to add to CSS value: {value}")
 
 
-def compile_scss(data: GTData, id: Optional[str]) -> str:
+def compile_scss(data: GTData, id: Optional[str], compress: bool = True) -> str:
     """Return CSS for styling a table, based on options set."""
 
     # Obtain the SCSS options dictionary
@@ -127,8 +127,10 @@ def compile_scss(data: GTData, id: Optional[str]) -> str:
     )
 
     gt_styles_default = gt_styles_default_file.read()
-    gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, 0, re.MULTILINE)
-    gt_styles_default = re.sub(r"}", "}\n", gt_styles_default, 0, re.MULTILINE)
+
+    if compress:
+        gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, 0, re.MULTILINE)
+        gt_styles_default = re.sub(r"}", "}\n", gt_styles_default, 0, re.MULTILINE)
 
     compiled_css = Template(gt_styles_default).substitute(final_params)
 
