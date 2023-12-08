@@ -55,8 +55,8 @@ p {
   color: $font_color_heading_background_color;
   font-size: $heading_subtitle_font_size;
   font-weight: $heading_subtitle_font_weight;
-  padding-top: $heading_padding - 1;
-  padding-bottom: $heading_padding + 1;
+  padding-top: $heading_subtitle_padding_top;
+  padding-bottom: $heading_subtitle_padding_bottom;
   padding-left: $heading_padding_horizontal;
   padding-right: $heading_padding_horizontal;
   border-top-color: $table_background_color;
