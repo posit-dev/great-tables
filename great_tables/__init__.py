@@ -26,6 +26,9 @@ __all__ = (
     "md",
     "html",
     "random_id",
+    "vals",
+    "loc",
+    "style",
 )
 
 
