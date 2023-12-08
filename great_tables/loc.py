@@ -3,3 +3,5 @@ from ._locations import (
     LocStub as stub,
     LocColumnLabels as column_labels,
 )
+
+__all__ = ("body", "stub", "column_labels")
