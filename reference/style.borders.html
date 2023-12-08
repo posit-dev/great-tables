@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables – vals.fmt_time</title>
+<title>great_tables – style.borders</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/vals.fmt_markdown.html" rel="next">
-<link href="../reference/vals.fmt_date.html" rel="prev">
+<link href="../reference/md.html" rel="next">
+<link href="../reference/style.text.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -117,7 +117,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/vals.fmt_number.html">Value formatting functions</a></li><li class="breadcrumb-item"><a href="../reference/vals.fmt_time.html">vals.fmt_time</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/loc.body.html">Selection and Styling Classes</a></li><li class="breadcrumb-item"><a href="../reference/style.borders.html">style.borders</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
     </div>
@@ -334,7 +334,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/style.borders.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/style.borders.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">style.borders</span></a>
   </div>
 </li>
@@ -422,7 +422,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/vals.fmt_time.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/vals.fmt_time.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">vals.fmt_time</span></a>
   </div>
 </li>
@@ -515,12 +515,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.vals.fmt_time" id="toc-great_tables.vals.fmt_time" class="nav-link active" data-scroll-target="#great_tables.vals.fmt_time">vals.fmt_time</a>
-  <ul class="collapse">
-  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
-  <li><a href="#formatting-with-the-time_style-argument" id="toc-formatting-with-the-time_style-argument" class="nav-link" data-scroll-target="#formatting-with-the-time_style-argument">Formatting With The <code>Time_Style</code> Argument</a></li>
-  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
-  </ul></li>
+  <li><a href="#great_tables.style.borders" id="toc-great_tables.style.borders" class="nav-link active" data-scroll-target="#great_tables.style.borders">style.borders</a></li>
   </ul>
 </nav>
     </div>
@@ -529,122 +524,12 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="great_tables.vals.fmt_time" class="level1">
-<h1>vals.fmt_time</h1>
-<p><code>vals.fmt_time(x, time_style='iso', pattern='{x}', locale=None)</code></p>
-<p>Format values as times.</p>
-<p>Format input values to time values using one of 5 preset time styles. Input can be in the form of <code>time</code> values, or strings in the ISO 8601 forms of <code>HH:MM:SS</code> or <code>YYYY-MM-DD HH:MM:SS</code>.</p>
-<section id="parameters" class="level2">
-<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="table">
-<colgroup>
-<col style="width: 4%">
-<col style="width: 17%">
-<col style="width: 74%">
-<col style="width: 3%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>x</code></td>
-<td>typing.Union[typing.Any, typing.List[typing.Any]]</td>
-<td>A list of values to be formatted.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td><code>time_style</code></td>
-<td>great_tables._formats.TimeStyle</td>
-<td>The time style to use. By default this is the short name <code>"iso"</code> which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using <code>info_time_style()</code>.</td>
-<td><code>'iso'</code></td>
-</tr>
-<tr class="odd">
-<td><code>pattern</code></td>
-<td>str</td>
-<td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
-<td><code>'{x}'</code></td>
-</tr>
-<tr class="even">
-<td><code>locale</code></td>
-<td>str</td>
-<td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="formatting-with-the-time_style-argument" class="level2">
-<h2 class="anchored" data-anchor-id="formatting-with-the-time_style-argument">Formatting With The <code>Time_Style</code> Argument</h2>
-<p>We need to supply a preset time style to the <code>time_style</code> argument. The time styles are numerous and can handle localization to any supported locale. The following table provides a listing of all time styles and their output values (corresponding to an input time of <code>14:35:00</code>).</p>
-<table class="table">
-<thead>
-<tr class="header">
-<th></th>
-<th>Time Style</th>
-<th>Output</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>1</td>
-<td><code>"iso"</code></td>
-<td><code>"14:35:00"</code></td>
-<td>ISO 8601, 24h</td>
-</tr>
-<tr class="even">
-<td>2</td>
-<td><code>"iso-short"</code></td>
-<td><code>"14:35"</code></td>
-<td>ISO 8601, 24h</td>
-</tr>
-<tr class="odd">
-<td>3</td>
-<td><code>"h_m_s_p"</code></td>
-<td><code>"2:35:00 PM"</code></td>
-<td>12h</td>
-</tr>
-<tr class="even">
-<td>4</td>
-<td><code>"h_m_p"</code></td>
-<td><code>"2:35 PM"</code></td>
-<td>12h</td>
-</tr>
-<tr class="odd">
-<td>5</td>
-<td><code>"h_p"</code></td>
-<td><code>"2 PM"</code></td>
-<td>12h</td>
-</tr>
-</tbody>
-</table>
-<p>We can use the <code>info_time_style()</code> function within the console to view a similar table of time styles with example output.</p>
-</section>
-<section id="returns" class="level2">
-<h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<table class="table">
-<thead>
-<tr class="header">
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>typing.List[str]</td>
-<td>A list of formatted values is returned.</td>
-</tr>
-</tbody>
-</table>
+<section id="great_tables.style.borders" class="level1">
+<h1>style.borders</h1>
+<p><code>style.borders(sides, color, style, weight)</code></p>
+<p>CellStyleBorders(sides: “Literal[‘all’, ‘top’, ‘bottom’, ‘left’, ‘right’]”, color: ‘str’, style: ‘str’, weight: ‘str’)</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -883,13 +768,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/vals.fmt_date.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">vals.fmt_date</span>
+      <a href="../reference/style.text.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">style.text</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/vals.fmt_markdown.html" class="pagination-link">
-        <span class="nav-page-text">vals.fmt_markdown</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/md.html" class="pagination-link">
+        <span class="nav-page-text">md</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
