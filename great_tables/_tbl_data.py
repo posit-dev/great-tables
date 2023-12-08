@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     PdDataFrame = pd.DataFrame
     PlDataFrame = pl.DataFrame
     PlSelectExpr = _selector_proxy_
+    PlExpr = pl.Expr
 
     PdSeries = pd.Series
     PlSeries = pl.Series
@@ -46,6 +47,9 @@ else:
 
     class PlSelectExpr(AbstractBackend):
         _backends = [("polars.selectors", "_selector_proxy_")]
+
+    class PlExpr(AbstractBackend):
+        _backends = [("polars", "Expr")]
 
     class PdSeries(AbstractBackend):
         _backends = [("pandas", "Series")]
