@@ -42,10 +42,10 @@ islands_mini = islands.head(10)
 from great_tables import GT, md, html
 from great_tables.data import airquality
 
-airquality_m = airquality.head(10).assign(Year = 1973)
+airquality_mini = airquality.head(10).assign(Year = 1973)
 
-gt_airquality = (
-    GT(airquality_m)
+(
+    GT(airquality_mini)
     .tab_header(
         title = "New York Air Quality Measurements",
         subtitle = "Daily measurements in New York City (May 1-10, 1973)"
@@ -66,8 +66,6 @@ gt_airquality = (
         Temp = html("Temp,<br>&deg;F")
     )
 )
-
-gt_airquality
 ```
 
 :::
@@ -116,19 +114,6 @@ wide_pops = (
     .tab_spanner(label="Total Population", columns=cs.all())
     .fmt_integer()
 )
-#  pivot_wider(names_from = year, values_from = population) |>
-#  arrange(region, desc(`2020`)) |>
-#  select(-starts_with("country_code")) |>
-#  gt(
-#    rowname_col = "country_name",
-#    groupname_col = "region"
-#  ) |>
-#  tab_header(title = "Populations of Oceania's Countries in 2000, 2010, and 2020") |>
-#  tab_spanner(
-#    label = "Total Population",
-#    columns = everything()
-#  ) |>
-#  fmt_integer()
 ```
 
 :::
