@@ -55,7 +55,18 @@ def font_color(color: str, table_font_color: str, table_font_color_light: str):
     return table_font_color_light
 
 
-def compile_scss(data: GTData, id: Optional[str]) -> str:
+def css_add(value: str | int, amount: int):
+    if isinstance(value, int):
+        return value + amount
+    elif value.endswith("px"):
+        return f"{int(value[:-2]) + amount}px"
+    elif value.endswith("%"):
+        return f"{int(value[:-1]) + amount}%"
+    else:
+        raise NotImplementedError(f"Unable to add to CSS value: {value}")
+
+
+def compile_scss(data: GTData, id: Optional[str], compress: bool = True) -> str:
     """Return CSS for styling a table, based on options set."""
 
     # Obtain the SCSS options dictionary
@@ -76,7 +87,12 @@ def compile_scss(data: GTData, id: Optional[str]) -> str:
 
     font_params = {f"font_color_{k}": p_font_color(scss_params[k]) for k in FONT_COLOR_VARS}
 
-    final_params = {**scss_params, **font_params}
+    final_params = {
+        **scss_params,
+        **font_params,
+        "heading_subtitle_padding_top": css_add(scss_params["heading_padding"], -1),
+        "heading_subtitle_padding_bottom": css_add(scss_params["heading_padding"], 1),
+    }
 
     # Handle table id ----
     # Determine whether the table has an ID
@@ -111,8 +127,10 @@ def compile_scss(data: GTData, id: Optional[str]) -> str:
     )
 
     gt_styles_default = gt_styles_default_file.read()
-    gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, 0, re.MULTILINE)
-    gt_styles_default = re.sub(r"}", "}\n", gt_styles_default, 0, re.MULTILINE)
+
+    if compress:
+        gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, 0, re.MULTILINE)
+        gt_styles_default = re.sub(r"}", "}\n", gt_styles_default, 0, re.MULTILINE)
 
     compiled_css = Template(gt_styles_default).substitute(final_params)
 
