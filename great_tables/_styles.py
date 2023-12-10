@@ -56,6 +56,22 @@ class CellStyleText(CellStyle):
             rendered = rendered.join(f"font-family: {self.font};")
         if self.size:
             rendered = rendered.join(f"font-size: {self.size};")
+        if self.align:
+            rendered = rendered.join(f"text-align: {self.align};")
+        if self.v_align:
+            rendered = rendered.join(f"vertical-align: {self.v_align};")
+        if self.style:
+            rendered = rendered.join(f"font-style: {self.style};")
+        if self.weight:
+            rendered = rendered.join(f"font-weight: {self.weight};")
+        if self.stretch:
+            rendered = rendered.join(f"font-stretch: {self.stretch};")
+        if self.decorate:
+            rendered = rendered.join(f"text-decoration: {self.decorate};")
+        if self.transform:
+            rendered = rendered.join(f"text-transform: {self.transform};")
+        if self.whitespace:
+            rendered = rendered.join(f"white-space: {self.whitespace};")
 
         return rendered
 
