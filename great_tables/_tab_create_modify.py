@@ -27,7 +27,7 @@ def tab_style(
     - the text style (`style.text()`'s `style`), enabling the use of italics or oblique text.
     - the text weight (`style.text()`'s `weight`), allowing the use of thin to bold text (the degree
     of choice is greater with variable fonts)
-    - the alignment and indentation of text (`style.text()`'s `align` and `indent`)
+    - the alignment of text (`style.text()`'s `align`)
     - cell borders with the `style.borders()` class
 
     Parameters
