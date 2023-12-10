@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import singledispatch
 from typing import Optional, Literal, List
 
 
