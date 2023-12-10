@@ -94,3 +94,11 @@ class CellStyleBorders(CellStyle):
     style: str
     # TODO: this can include objects like px(1)
     weight: str
+
+    def _to_html_style(self) -> str:
+        border_css_list = []
+        for side in self.sides:
+            border_css_list.append(f"border-{side}: {self.weight} {self.style} {self.color};")
+
+        border_css = "".join(border_css_list)
+        return border_css
