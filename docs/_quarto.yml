@@ -98,7 +98,12 @@ quartodoc:
         - GT.cols_move
         - GT.cols_move_to_start
         - GT.cols_move_to_end
-    - title: Selection and Styling Classes
+    - title: Location Targeting and Styling Classes
+      desc: >
+        Location targeting is a powerful feature of **great_tables**. It allows for the precise
+        selection of table locations for styling (using the `tab_style()` method). The styling
+        classes allow for the specification of the styling properties to be applied to the targeted
+        locations.
       contents:
         - loc.body
         - style.fill
