@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables – loc.body</title>
+<title>great_tables – gt.tab_style</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -30,8 +64,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/style.fill.html" rel="next">
-<link href="../reference/GT.cols_move_to_end.html" rel="prev">
+<link href="../reference/GT.fmt_number.html" rel="next">
+<link href="../reference/GT.tab_source_note.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -61,6 +95,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -117,7 +154,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/loc.body.html">Location Targeting and Styling Classes</a></li><li class="breadcrumb-item"><a href="../reference/loc.body.html">loc.body</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/GT.tab_header.html">Creating or modifying parts of a table</a></li><li class="breadcrumb-item"><a href="../reference/GT.tab_style.html">GT.tab_style</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
     </div>
@@ -187,7 +224,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/GT.tab_style.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/GT.tab_style.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">GT.tab_style</span></a>
   </div>
 </li>
@@ -322,7 +359,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/loc.body.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/loc.body.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">loc.body</span></a>
   </div>
 </li>
@@ -521,19 +558,229 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.loc.body" id="toc-great_tables.loc.body" class="nav-link active" data-scroll-target="#great_tables.loc.body">loc.body</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">GT.tab_style</h1>
+</div>
 
 
-<section id="great_tables.loc.body" class="level1">
-<h1>loc.body</h1>
-<p><code>loc.body(columns, rows)</code></p>
-<p>LocBody(columns: ‘SelectExpr’, rows: ‘list[str] | str’)</p>
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p><code>GT.tab_style(self, style, locations)</code></p>
+<p>Add custom style to one or more cells</p>
+<p>With the <code>tab_style()</code> method we can target specific cells and apply styles to them. We do this with the combination of the <code>style</code> and <code>location</code> arguments. The <code>style</code> argument requires use of styling classes (e.g., <code>style.fill(color="red")</code>) and the <code>location</code> argument needs to be an expression of the cells we want to target using location targeting classes (e.g., <code>loc.body(columns=&lt;column_name&gt;)</code>). With the available suite of styling classes, here are some of the styles we can apply:</p>
+<ul>
+<li>the background color of the cell (<code>style.fill()</code>’s <code>color</code>)</li>
+<li>the cell’s text color, font, and size (<code>style.text()</code>’s <code>color</code>, <code>font</code>, and <code>size</code>)</li>
+<li>the text style (<code>style.text()</code>’s <code>style</code>), enabling the use of italics or oblique text.</li>
+<li>the text weight (<code>style.text()</code>’s <code>weight</code>), allowing the use of thin to bold text (the degree of choice is greater with variable fonts)</li>
+<li>the alignment of text (<code>style.text()</code>’s <code>align</code>)</li>
+<li>cell borders with the <code>style.borders()</code> class</li>
+</ul>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="table">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 26%">
+<col style="width: 65%">
+<col style="width: 4%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>style</code></td>
+<td>great_tables._styles.CellStyle | list[great_tables._styles.CellStyle]</td>
+<td>The styles to use for the cells at the targeted <code>locations</code>. The <code>style.text()</code>, <code>style.fill()</code>, and <code>style.borders()</code> classes can be used here to more easily generate valid styles.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td><code>location</code></td>
+<td>great_tables._locations.Loc | list[great_tables._locations.Loc]</td>
+<td>The cell or set of cells to be associated with the style. The <code>loc.body()</code> class can be used here to easily target body cell locations.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples" class="level2">
+<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<p>Let’s use a small subset of the <code>exibble</code> dataset to demonstrate how to use <code>tab_style()</code> to target specific cells and apply styles to them. We’ll start by creating the <code>exibble_sm</code> table (a subset of the <code>exibble</code> table) and then use <code>tab_style()</code> to apply a light cyan background color to the cells in the <code>num</code> column for the first two rows of the table. We’ll then apply a larger font size to the cells in the <code>fctr</code> column for the last four rows of the table.</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables <span class="im">as</span> gt</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> style, loc</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> exibble</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>exibble_sm <span class="op">=</span> exibble[[<span class="st">"num"</span>, <span class="st">"fctr"</span>, <span class="st">"row"</span>, <span class="st">"group"</span>]]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    gt.GT(exibble_sm, rowname_col<span class="op">=</span><span class="st">"row"</span>, groupname_col<span class="op">=</span><span class="st">"group"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.fill(color<span class="op">=</span><span class="st">"lightcyan"</span>),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.body(columns<span class="op">=</span><span class="st">"num"</span>, rows<span class="op">=</span>[<span class="st">"row_1"</span>, <span class="st">"row_2"</span>]),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.text(size<span class="op">=</span><span class="st">"22px"</span>),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.body(columns<span class="op">=</span>[<span class="st">"fctr"</span>], rows<span class="op">=</span>[<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>]),</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+
+<div id="xehtxpapdh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#xehtxpapdh table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+ #xehtxpapdh thead, tbody, tfoot, tr, td, th { border-style: none; }
+ p { margin: 0; padding: 0; }
+ #xehtxpapdh .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #xehtxpapdh .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #xehtxpapdh .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #xehtxpapdh .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #xehtxpapdh .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #xehtxpapdh .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #xehtxpapdh .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #xehtxpapdh .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px + 1; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #xehtxpapdh .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #xehtxpapdh .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #xehtxpapdh .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #xehtxpapdh .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #xehtxpapdh .gt_spanner_row { border-bottom-style: hidden; }
+ #xehtxpapdh .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #xehtxpapdh .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #xehtxpapdh .gt_from_md > :first-child { margin-top: 0; }
+ #xehtxpapdh .gt_from_md > :last-child { margin-bottom: 0; }
+ #xehtxpapdh .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #xehtxpapdh .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #xehtxpapdh .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #xehtxpapdh .gt_row_group_first td { border-top-width: 2px; }
+ #xehtxpapdh .gt_row_group_first th { border-top-width: 2px; }
+ #xehtxpapdh .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #xehtxpapdh .gt_first_summary_row { border-top-style: solid; border-top-color: #D3D3D3; }
+ #xehtxpapdh .gt_first_summary_row.thick { border-top-width: 2px; }
+ #xehtxpapdh .gt_last_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #xehtxpapdh .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #xehtxpapdh .gt_first_grand_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #xehtxpapdh .gt_last_grand_summary_row_top { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #xehtxpapdh .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #xehtxpapdh .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #xehtxpapdh .gt_footnotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #xehtxpapdh .gt_footnote { margin: 0px; font-size: 90%; padding-left: 4px; padding-right: 4px; padding-left: 5px; padding-right: 5px; }
+ #xehtxpapdh .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #xehtxpapdh .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #xehtxpapdh .gt_left { text-align: left; }
+ #xehtxpapdh .gt_center { text-align: center; }
+ #xehtxpapdh .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #xehtxpapdh .gt_font_normal { font-weight: normal; }
+ #xehtxpapdh .gt_font_bold { font-weight: bold; }
+ #xehtxpapdh .gt_font_italic { font-style: italic; }
+ #xehtxpapdh .gt_super { font-size: 65%; }
+ #xehtxpapdh .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #xehtxpapdh .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+</tr><tr class="gt_group_heading_row">  <th class="gt_group_heading" colspan="3">grp_a</th></tr>
+  <tr><th class="gt_row gt_left gt_stub">row_1</th>
+  <td style="background-color: lightcyan;" class="gt_row gt_right">0.1111</td>
+  <td class="gt_row gt_left">one</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">row_2</th>
+  <td style="background-color: lightcyan;" class="gt_row gt_right">2.222</td>
+  <td class="gt_row gt_left">two</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">row_3</th>
+  <td class="gt_row gt_right">33.33</td>
+  <td class="gt_row gt_left">three</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">row_4</th>
+  <td class="gt_row gt_right">444.4</td>
+  <td class="gt_row gt_left">four</td>
+</tr>
+<tr>
+</tr><tr class="gt_group_heading_row">  <th class="gt_group_heading" colspan="3">grp_b</th></tr>
+  <tr><th class="gt_row gt_left gt_stub">row_5</th>
+  <td class="gt_row gt_right">5550.0</td>
+  <td style="font-size: 22px;" class="gt_row gt_left">five</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">row_6</th>
+  <td class="gt_row gt_right"><na></na></td>
+  <td style="font-size: 22px;" class="gt_row gt_left">six</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">row_7</th>
+  <td class="gt_row gt_right">777000.0</td>
+  <td style="font-size: 22px;" class="gt_row gt_left">seven</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">row_8</th>
+  <td class="gt_row gt_right">8880000.0</td>
+  <td style="font-size: 22px;" class="gt_row gt_left">eight</td>
+</tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables.gt.GT</td>
+<td>The GT object is returned.</td>
+</tr>
+</tbody>
+</table>
 
 
 </section>
@@ -774,13 +1021,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/GT.cols_move_to_end.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">GT.cols_move_to_end</span>
+      <a href="../reference/GT.tab_source_note.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">GT.tab_source_note</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/style.fill.html" class="pagination-link">
-        <span class="nav-page-text">style.fill</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/GT.fmt_number.html" class="pagination-link">
+        <span class="nav-page-text">GT.fmt_number</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
