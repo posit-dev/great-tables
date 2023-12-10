@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import singledispatch
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 
 
 # Cell Styles ==========================================================================
@@ -96,7 +96,7 @@ class CellStyleBorders(CellStyle):
     weight: str
 
     def _to_html_style(self) -> str:
-        border_css_list = []
+        border_css_list: List[str] = []
         for side in self.sides:
             border_css_list.append(f"border-{side}: {self.weight} {self.style} {self.color};")
 
