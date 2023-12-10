@@ -62,13 +62,13 @@ class CellStyleText(CellStyle):
 
 @dataclass
 class CellStyleFill(CellStyle):
-    """A style specification for fill."""
+    """A style specification for the background fill of targeted cells."""
 
-    fill: str
+    color: str
     alpha: Optional[float] = None
 
     def _to_html_style(self) -> str:
-        return f"background-color: {self.fill};"
+        return f"background-color: {self.color};"
 
 
 @dataclass
