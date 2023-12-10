@@ -15,12 +15,35 @@ def tab_style(
 ) -> GTSelf:
     """Add custom style to one or more cells
 
+    With the `tab_style()` method we can target specific cells and apply styles to them. We do this
+    with the combination of the `style` and `location` arguments. The `style` argument requires use
+    of styling classes (e.g., `style.fill(color="red")`) and the `location` argument needs to be an
+    expression of the cells we want to target using location targeting classes (e.g.,
+    `loc.body(columns=<column_name>)`). With the available suite of styling classes, here are some
+    of the styles we can apply:
+
+    - the background color of the cell (`style.fill()`'s `color`)
+    - the cell's text color, font, and size (`style.text()`'s `color`, `font`, and `size`)
+    - the text style (`style.text()`'s `style`), enabling the use of italics or oblique text.
+    - the text weight (`style.text()`'s `weight`), allowing the use of thin to bold text (the degree
+    of choice is greater with variable fonts)
+    - the alignment and indentation of text (`style.text()`'s `align` and `indent`)
+    - cell borders with the `style.borders()` class
+
     Parameters
     ----------
-    style:
-        A style specification.
-    location:
-        A location on the table.
+    style : CellStyle | list[CellStyle]
+        The styles to use for the cells at the targeted `locations`. The `style.text()`,
+        `style.fill()`, and `style.borders()` classes can be used here to more easily generate valid
+        styles.
+    location : Loc | list[Loc]
+        The cell or set of cells to be associated with the style. The `loc.body()` class can be used
+        here to easily target body cell locations.
+
+    Returns
+    -------
+    GT
+        The GT object is returned.
     """
 
     if not isinstance(style, list):
