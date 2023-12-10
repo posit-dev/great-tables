@@ -11,7 +11,7 @@ from typing_extensions import TypeAlias
 # resolve generic, but we need to import at runtime, due to singledispatch looking
 # up annotations
 from ._gt_data import GTData, FootnoteInfo, Spanners, ColInfoTypeEnum, StyleInfo, FootnotePlacement
-from ._tbl_data import eval_select
+from ._tbl_data import eval_select, PlExpr
 from ._styles import CellStyle
 
 
@@ -85,8 +85,8 @@ class LocStub(Loc):
 @dataclass
 class LocBody(Loc):
     # TODO: these can be tidyselectors
-    columns: list[str]
-    rows: list[str]
+    columns: SelectExpr
+    rows: list[str] | str
 
 
 @dataclass
@@ -258,6 +258,11 @@ def resolve_rows_i(
             if (name in target_names or ii in target_pos)
         ]
         return selected
+    elif isinstance(expr, PlExpr):
+        # TODO: decide later on the name supplied to `name`
+        result = data._tbl_data.with_row_count(name="__row_number__").filter(expr)
+        print([(row_names[ii], ii) for ii in result["__row_number__"]])
+        return [(row_names[ii], ii) for ii in result["__row_number__"]]
 
     # TODO: identify filter-like selectors using some backend check
     # e.g. if it's a siuba expression vs tidyselect expression, etc..
