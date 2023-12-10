@@ -13,7 +13,7 @@ def gt():
 
 
 def test_tab_style(gt: GT):
-    style = CellStyleFill(fill="blue")
+    style = CellStyleFill(color="blue")
     new_gt = tab_style(gt, style, LocBody(["x"], [0]))
 
     assert len(gt._styles) == 0
@@ -24,7 +24,7 @@ def test_tab_style(gt: GT):
 
 
 def test_tab_style_multiple_columns(gt: GT):
-    style = CellStyleFill(fill="blue")
+    style = CellStyleFill(color="blue")
     new_gt = tab_style(gt, style, LocBody(["x", "y"], [0]))
 
     assert len(new_gt._styles) == 2
