@@ -47,7 +47,7 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/gt_sp500_table.svg" width="800px">
 </div>
 
-There are ten datasets provided by **great_tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `metro`, `constants`, and `illness`.
+There are ten datasets provided by **Great Tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `metro`, `constants`, and `illness`.
 
 <div align="center" style="padding-top:20px">
 <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_countrypops.svg" style="width:15%;">
