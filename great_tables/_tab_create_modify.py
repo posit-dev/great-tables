@@ -40,6 +40,34 @@ def tab_style(
         The cell or set of cells to be associated with the style. The `loc.body()` class can be used
         here to easily target body cell locations.
 
+    Examples
+    --------
+    Let's use a small subset of the `exibble` dataset to demonstrate how to use `tab_style()` to
+    target specific cells and apply styles to them. We'll start by creating the `exibble_sm` table
+    (a subset of the `exibble` table) and then use `tab_style()` to apply a light cyan background
+    color to the cells in the `num` column for the first two rows of the table. We'll then apply a
+    larger font size to the cells in the `fctr` column for the last four rows of the table.
+
+    ```{python}
+    import great_tables as gt
+    from great_tables import style, loc
+    from great_tables import exibble
+
+    exibble_sm = exibble[["num", "fctr", "row", "group"]]
+
+    (
+        gt.GT(exibble_sm, rowname_col="row", groupname_col="group")
+        .tab_style(
+            style=style.fill(color="lightcyan"),
+            locations=loc.body(columns="num", rows=["row_1", "row_2"]),
+        )
+        .tab_style(
+            style=style.text(size="22px"),
+            locations=loc.body(columns=["fctr"], rows=[4, 5, 6, 7]),
+        )
+    )
+    ```
+
     Returns
     -------
     GT
