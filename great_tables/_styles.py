@@ -19,13 +19,67 @@ class CellStyle:
 
 @dataclass
 class CellStyleText(CellStyle):
-    """A style specification for text."""
+    """A style specification for text.
+
+    This class represents a style specification for text cells in a table.
+
+    The `style.text` class is to be used with the `tab_style()` method, which itself allows for the
+    setting of custom styles to one or more cells. With it, you can specify the color of the text,
+    the font family, the font size, and the horizontal and vertical alignment of the text and more.
+
+    Parameters
+    ----------
+    color : str | None
+        The text color can be modified through the `color` argument.
+    font : str | None
+        The font or collection of fonts (subsequent font names are) used as fallbacks.
+    size : str | None
+        The size of the font. Can be provided as a number that is assumed to represent `px` values
+        (or could be wrapped in the `px()` helper function). We can also use one of the following
+        absolute size keywords: `"xx-small"`, `"x-small"`, `"small"`, `"medium"`, `"large"`,
+        `"x-large"`, or `"xx-large"`.
+    align : Literal["center", "left", "right", "justify"] | None
+        The text in a cell can be horizontally aligned though one of the following options:
+        `"center"`, `"left"`, `"right"`, or `"justify"`.
+    v_align : Literal["middle", "top", "bottom"] | None
+        The vertical alignment of the text in the cell can be modified through the options
+        `"middle"`, `"top"`, or `"bottom"`.
+    style : Literal["normal", "italic", "oblique"] | None
+        Can be one of either `"normal"`, `"italic"`, or `"oblique"`.
+    weight : Literal["normal", "bold", "bolder", "lighter"] | None)
+        The weight of the font can be modified thorough a text-based option such as `"normal"`,
+        `"bold"`, `"lighter"`, `"bolder"`, or, a numeric value between `1` and `1000`, inclusive.
+        Note that only variable fonts may support the numeric mapping of weight.
+    stretch : Literal["normal", "condensed", "ultra-condensed", "extra-condensed", "semi-condensed", "semi-expanded", "expanded", "extra-expanded", "ultra-expanded"] | None
+        Allows for text to either be condensed or expanded. We can use one of the following
+        text-based keywords to describe the degree of condensation/expansion: `"ultra-condensed"`,
+        `"extra-condensed"`, `"condensed"`, `"semi-condensed"`, `"normal"`, `"semi-expanded"`,
+        `"expanded"`, `"extra-expanded"`, or `"ultra-expanded"`. Alternatively, we can supply
+        percentage values from `0%` to `200%`, inclusive. Negative percentage values are not
+        allowed.
+    decorate : Literal["overline", "line-through", "underline", "underline overline"] | None
+        Allows for text decoration effect to be applied. Here, we can use `"overline"`,
+        `"line-through"`, or `"underline"`.
+    transform : Literal["uppercase", "lowercase", "capitalize"] | None
+        Allows for the transformation of text. Options are `"uppercase"`, `"lowercase"`, or
+        `"capitalize"`.
+    whitespace : Literal["normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"] | None
+        A white-space preservation option. By default, runs of white-space will be collapsed into
+        single spaces but several options exist to govern how white-space is collapsed and how lines
+        might wrap at soft-wrap opportunities. The options are `"normal"`, `"nowrap"`, `"pre"`,
+        `"pre-wrap"`, `"pre-line"`, and `"break-spaces"`.
+
+    Returns
+    -------
+    CellStyleText
+        A CellStyleText object, which is used for a `styles` argument if specifying any cell text
+        properties.
+    """
 
     color: str | None = None
     font: str | None = None
     size: str | None = None
     align: Literal["center", "left", "right", "justify"] | None = None
-    # TODO: this can also be a gt_column object?
     v_align: Literal["middle", "top", "bottom"] | None = None
     style: Literal["normal", "italic", "oblique"] | None = None
     weight: Literal["normal", "bold", "bolder", "lighter"] | None = None
@@ -47,30 +101,30 @@ class CellStyleText(CellStyle):
     ] | None = None
 
     def _to_html_style(self) -> str:
-        rendered = f""
+        rendered = ""
 
         if self.color:
-            rendered = rendered.join(f"color: {self.color};")
+            rendered += f"color: {self.color};"
         if self.font:
-            rendered = rendered.join(f"font-family: {self.font};")
+            rendered += f"font-family: {self.font};"
         if self.size:
-            rendered = rendered.join(f"font-size: {self.size};")
+            rendered += f"font-size: {self.size};"
         if self.align:
-            rendered = rendered.join(f"text-align: {self.align};")
+            rendered += f"text-align: {self.align};"
         if self.v_align:
-            rendered = rendered.join(f"vertical-align: {self.v_align};")
+            rendered += f"vertical-align: {self.v_align};"
         if self.style:
-            rendered = rendered.join(f"font-style: {self.style};")
+            rendered += f"font-style: {self.style};"
         if self.weight:
-            rendered = rendered.join(f"font-weight: {self.weight};")
+            rendered += f"font-weight: {self.weight};"
         if self.stretch:
-            rendered = rendered.join(f"font-stretch: {self.stretch};")
+            rendered += f"font-stretch: {self.stretch};"
         if self.decorate:
-            rendered = rendered.join(f"text-decoration: {self.decorate};")
+            rendered += f"text-decoration: {self.decorate};"
         if self.transform:
-            rendered = rendered.join(f"text-transform: {self.transform};")
+            rendered += f"text-transform: {self.transform};"
         if self.whitespace:
-            rendered = rendered.join(f"white-space: {self.whitespace};")
+            rendered += f"white-space: {self.whitespace};"
 
         return rendered
 
