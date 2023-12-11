@@ -63,18 +63,19 @@ class GT(
     GTData,
 ):
     """
-    Create a **great_tables** object.
+    Create a **Great Tables** object.
 
-    The `GT()` class creates a **great_tables** object when provided with tabular data. Using this
-    is the first step in a typical **great_tables** workflow. Once we have this object, we can
-    perform numerous transformations before rendering to a display table.
+    The `GT()` class creates the `GT` object when provided with tabular data. Using this class is
+    the the first step in a typical **Great Tables** workflow. Once we have this object, we can
+    take advantage of numerous methods to get the desired display table for publication.
 
-    There are a few data ingest options we can consider at this stage. We can choose to create a
-    table stub containing row labels through the use of the `rowname_col` argument. Further to this,
-    stub row groups can be created with the `groupname_col` argument. Both arguments take the name
+    There are a few table structuring options we can consider at this stage. We can choose to create
+    a table stub containing row labels through the use of the `rowname_col` argument. Further to
+    this, row groups can be created with the `groupname_col` argument. Both arguments take the name
     of a column in the input table data. Typically, the data in the `groupname_col` column will
-    consist of categorical text whereas the data in the `rowname_col` column will contain unique
-    labels (could be unique across the entire table or unique within the different row groups).
+    consist of categorical text whereas the data in the `rowname_col` column will often contain
+    unique labels (perhaps being unique across the entire table or unique only within the different
+    row groups).
 
     Parameters
     ----------
@@ -96,8 +97,8 @@ class GT(
 
     Returns
     -------
-    GTData
-        A GTData object is returned.
+    GT
+        A GT object is returned.
 
     Examples
     --------
@@ -164,7 +165,6 @@ class GT(
     In this example, the `fmt_currency()`, `fmt_scientific()`, and `fmt_date()` methods understand
     that the locale for this table is `"fr"` (French), so the appropriate formatting for that locale
     is apparent in the `currency`, `num`, and `date` columns.
-
     """
 
     def _repr_html_(self):
