@@ -521,7 +521,11 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.style.fill" id="toc-great_tables.style.fill" class="nav-link active" data-scroll-target="#great_tables.style.fill">style.fill</a></li>
+  <li><a href="#great_tables.style.fill" id="toc-great_tables.style.fill" class="nav-link active" data-scroll-target="#great_tables.style.fill">style.fill</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -532,10 +536,59 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="great_tables.style.fill" class="level1">
 <h1>style.fill</h1>
-<p><code>style.fill(color, alpha=None)</code></p>
+<p><code>style.fill(color)</code></p>
 <p>A style specification for the background fill of targeted cells.</p>
+<p>The <code>style.fill</code> class is to be used with the <code>tab_style()</code> method, which itself allows for the setting of custom styles to one or more cells. Specifically, the call to <code>style.fill()</code> should be bound to the <code>styles</code> argument of <code>tab_style()</code>.</p>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 4%">
+<col style="width: 82%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>color</code></td>
+<td>str</td>
+<td>The color to use for the cell background fill. This can be any valid CSS color value, such as a hex code, a named color, or an RGB value.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<table class="table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._styles.CellStyleFill</td>
+<td>A CellStyleFill object, which is used for a <code>styles</code> argument if specifying a cell fill value.</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
