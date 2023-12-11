@@ -84,7 +84,7 @@ def _as_css_font_family_attr(fonts: List[str], value_only: bool = False) -> str:
 def _object_as_dict(v: Any) -> Any:
     try:
         return v.object_as_dict()
-    except:
+    except Exception:
         pass
     if type(v) == pd.DataFrame:
         return v.to_dict()
