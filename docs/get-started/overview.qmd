@@ -4,9 +4,9 @@ jupyter: python3
 html-table-processing: none
 ---
 
-## Adding parts to this simple table
+## Adding Parts to this Simple Table
 
-The **great_tables** (or just **gt**) package makes it relatively easy to add parts so that the resulting **gt Table** better conveys the information you want to present. These table parts work well together and there the possible variations in arrangement can handle most tabular presentation needs. The previous **gt Table** demonstrated had only two parts, the **Column Labels** and the **Table Body**. The next few examples will show all of the other table parts that are available.
+The **Great Tables** package makes it relatively easy to add components so that the resulting output table better conveys the information you want to present. These table components work well together and the possible variations in arrangement can handle even the most demanding table presentation needs. The previous output table we showed had only two components: the **Column Labels** and the **Table Body**. The next few examples will show all of the other table parts that are available.
 
 This is the way the main parts of a table (and their subparts) fit together:
 
@@ -19,4 +19,3 @@ The parts (roughly from top to bottom) are:
 - the **Column Labels** (contains *column labels*, optionally under *spanner column labels*)
 - the **Table Body** (contains *columns* and *rows* of *cells*)
 - the **Table Footer** (optional; possibly with **footnotes** and **source notes**)
-

@@ -4,21 +4,23 @@ jupyter: python3
 html-table-processing: none
 ---
 
-The **great_tables** (or **gt**) package is all about making it simple to produce nice-looking display tables. Display tables? Well yes, we are trying to distinguish between data tables (e.g., tibbles, data.frames, etc.) and those tables you’d find in a web page, a journal article, or in a magazine. Such tables can likewise be called presentation tables, summary tables, or just tables really. Here are some examples, ripped straight from the web:
+The **Great Tables** package is all about making it simple to produce nice-looking display tables. Display tables? Well yes, we are trying to distinguish between data tables (i.e., DataFrames) and those tables you’d find in a web page, a journal article, or in a magazine. Such tables can likewise be called presentation tables, summary tables, or just tables really. Here are some examples, ripped straight from the web:
 
 ![](/assets/tables_from_the_web.png)
 
 We can think of display tables as output only, where we’d not want to use them as input ever again. Other features include annotations, table element styling, and text transformations that serve to communicate the subject matter more clearly.
 
-## Install
+## Let's Install
+
+The installation really couldn't be much easier. Use this:
 
 ```{.bash}
 pip install great_tables
 ```
 
-## A basic **gt** table
+## A Basic **gt** Table
 
-Let’s use a subset of the `islands` dataset in `great_tables`:
+Let’s use a subset of the `islands` dataset available within `great_tables.data`:
 
 ```{python}
 from great_tables import GT, md, html
@@ -27,26 +29,21 @@ from great_tables.data import islands
 islands_mini = islands.head(10)
 ```
 
-The `islands` data is a simple pandas DataFrame with 2 columns.
-
-The main entry point into the `great_tables` API is the `GT` class.
+The `islands` data is a simple pandas DataFrame with 2 columns and that'll serve as a great start. Speaking of which, the main entry point into the `great_tables` API is the `GT` class. Let's use that to make a presentable table:
 
 ```{python}
-# Create a display table showing ten of
-# the largest islands in the world
+# Create a display table showing ten of the largest islands in the world
 gt_tbl = GT(islands_mini)
 
-# Show the gt Table
+# Show the gt table
 gt_tbl
 ```
 
-That doesn't look too bad. Sure, it's basic but we really didn't really ask for much. We did receive a proper table with column labels and the data. Also, that default striping is a nice touch. Oftentimes however, you'll want a bit more: a **Table header**, a **Stub**, and sometimes *footnotes* and *source notes* in the **Table Footer** part.
-
+That doesn't look too bad. Sure, it's basic but we really didn't really ask for much. We did receive a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a **Table header**, a **Stub**, and sometimes *footnotes* and *source notes* in the **Table Footer** part.
 
 ## Some beautiful examples
 
-In the following pages we'll use **great_tables** to turn DataFrames into beautiful tables, like the ones below.
-
+In the following pages we'll use **Great Tables** to turn DataFrames into beautiful tables, like the ones below.
 
 ```{python}
 #| code-fold: true
@@ -74,33 +71,28 @@ islands_mini = islands.head(10)
 ```
 
 ```{python}
-#| code-fold: true
-#| code-summary: Show the Code
+# | code-fold: true
+# | code-summary: Show the Code
 
+from great_tables import GT, html
 from great_tables.data import airquality
 
-airquality_m = airquality.head(10).assign(Year = 1973)
+airquality_m = airquality.head(10).assign(Year=1973)
 
 gt_airquality = (
     GT(airquality_m)
     .tab_header(
-        title = "New York Air Quality Measurements",
-        subtitle = "Daily measurements in New York City (May 1-10, 1973)"
+        title="New York Air Quality Measurements",
+        subtitle="Daily measurements in New York City (May 1-10, 1973)",
     )
-    .tab_spanner(
-        label = "Time",
-        columns = ["Year", "Month", "Day"]
-    )
-    .tab_spanner(
-        label = "Measurement",
-        columns = ["Ozone", "Solar.R", "Wind", "Temp"]
-    )
-    .cols_move_to_start(columns = ["Year", "Month", "Day"])
+    .tab_spanner(label="Time", columns=["Year", "Month", "Day"])
+    .tab_spanner(label="Measurement", columns=["Ozone", "Solar.R", "Wind", "Temp"])
+    .cols_move_to_start(columns=["Year", "Month", "Day"])
     .cols_label(
-        Ozone = html("Ozone,<br>ppbV"),
-        Solar_R = html("Solar R.,<br>cal/m<sup>2</sup>"),
-        Wind = html("Wind,<br>mph"),
-        Temp = html("Temp,<br>&deg;F")
+        Ozone=html("Ozone,<br>ppbV"),
+        Solar_R=html("Solar R.,<br>cal/m<sup>2</sup>"),
+        Wind=html("Wind,<br>mph"),
+        Temp=html("Temp,<br>&deg;F"),
     )
 )
 

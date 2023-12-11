@@ -80,8 +80,7 @@ Multiple columns can be renamed in a single use of `cols_label()`. Further to th
 
 ## Specifying column selection
 
-In the above examples, we selected columns to span or move using a list of column names (as strings).
-However, **great_tables** supports a wide range of ways to select columns.
+In the above examples, we selected columns to span or move using a list of column names (as strings). However, **Great Tables** supports a wide range of ways to select columns.
 
 For example, you can use a lambda function:
 
