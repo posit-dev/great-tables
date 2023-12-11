@@ -521,7 +521,11 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.style.text" id="toc-great_tables.style.text" class="nav-link active" data-scroll-target="#great_tables.style.text">style.text</a></li>
+  <li><a href="#great_tables.style.text" id="toc-great_tables.style.text" class="nav-link active" data-scroll-target="#great_tables.style.text">style.text</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -534,8 +538,118 @@ ul.task-list li input[type="checkbox"] {
 <h1>style.text</h1>
 <p><code>style.text(color=None, font=None, size=None, align=None, v_align=None, style=None, weight=None, stretch=None, decorate=None, transform=None, whitespace=None)</code></p>
 <p>A style specification for text.</p>
+<p>This class represents a style specification for text cells in a table.</p>
+<p>The <code>style.text</code> class is to be used with the <code>tab_style()</code> method, which itself allows for the setting of custom styles to one or more cells. With it, you can specify the color of the text, the font family, the font size, and the horizontal and vertical alignment of the text and more.</p>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="table">
+<colgroup>
+<col style="width: 2%">
+<col style="width: 26%">
+<col style="width: 69%">
+<col style="width: 1%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>color</code></td>
+<td>str | None</td>
+<td>The text color can be modified through the <code>color</code> argument.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>font</code></td>
+<td>str | None</td>
+<td>The font or collection of fonts (subsequent font names are) used as fallbacks.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>size</code></td>
+<td>str | None</td>
+<td>The size of the font. Can be provided as a number that is assumed to represent <code>px</code> values (or could be wrapped in the <code>px()</code> helper function). We can also use one of the following absolute size keywords: <code>"xx-small"</code>, <code>"x-small"</code>, <code>"small"</code>, <code>"medium"</code>, <code>"large"</code>, <code>"x-large"</code>, or <code>"xx-large"</code>.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>align</code></td>
+<td>typing.Literal[‘center’, ‘left’, ‘right’, ‘justify’] | None</td>
+<td>The text in a cell can be horizontally aligned though one of the following options: <code>"center"</code>, <code>"left"</code>, <code>"right"</code>, or <code>"justify"</code>.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>v_align</code></td>
+<td>typing.Literal[‘middle’, ‘top’, ‘bottom’] | None</td>
+<td>The vertical alignment of the text in the cell can be modified through the options <code>"middle"</code>, <code>"top"</code>, or <code>"bottom"</code>.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>style</code></td>
+<td>typing.Literal[‘normal’, ‘italic’, ‘oblique’] | None</td>
+<td>Can be one of either <code>"normal"</code>, <code>"italic"</code>, or <code>"oblique"</code>.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>weight</code></td>
+<td>Literal[“normal”, “bold”, “bolder”, “lighter”] | None)</td>
+<td>The weight of the font can be modified thorough a text-based option such as <code>"normal"</code>, <code>"bold"</code>, <code>"lighter"</code>, <code>"bolder"</code>, or, a numeric value between <code>1</code> and <code>1000</code>, inclusive. Note that only variable fonts may support the numeric mapping of weight.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>stretch</code></td>
+<td>typing.Literal[‘normal’, ‘condensed’, ‘ultra-condensed’, ‘extra-condensed’, ‘semi-condensed’, ‘semi-expanded’, ‘expanded’, ‘extra-expanded’, ‘ultra-expanded’] | None</td>
+<td>Allows for text to either be condensed or expanded. We can use one of the following text-based keywords to describe the degree of condensation/expansion: <code>"ultra-condensed"</code>, <code>"extra-condensed"</code>, <code>"condensed"</code>, <code>"semi-condensed"</code>, <code>"normal"</code>, <code>"semi-expanded"</code>, <code>"expanded"</code>, <code>"extra-expanded"</code>, or <code>"ultra-expanded"</code>. Alternatively, we can supply percentage values from <code>0%</code> to <code>200%</code>, inclusive. Negative percentage values are not allowed.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>decorate</code></td>
+<td>typing.Literal[‘overline’, ‘line-through’, ‘underline’, ‘underline overline’] | None</td>
+<td>Allows for text decoration effect to be applied. Here, we can use <code>"overline"</code>, <code>"line-through"</code>, or <code>"underline"</code>.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>transform</code></td>
+<td>typing.Literal[‘uppercase’, ‘lowercase’, ‘capitalize’] | None</td>
+<td>Allows for the transformation of text. Options are <code>"uppercase"</code>, <code>"lowercase"</code>, or <code>"capitalize"</code>.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>whitespace</code></td>
+<td>typing.Literal[‘normal’, ‘nowrap’, ‘pre’, ‘pre-wrap’, ‘pre-line’, ‘break-spaces’] | None</td>
+<td>A white-space preservation option. By default, runs of white-space will be collapsed into single spaces but several options exist to govern how white-space is collapsed and how lines might wrap at soft-wrap opportunities. The options are <code>"normal"</code>, <code>"nowrap"</code>, <code>"pre"</code>, <code>"pre-wrap"</code>, <code>"pre-line"</code>, and <code>"break-spaces"</code>.</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<table class="table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 74%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._styles.CellStyleText</td>
+<td>A CellStyleText object, which is used for a <code>styles</code> argument if specifying any cell text properties.</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
