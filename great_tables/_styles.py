@@ -77,10 +77,27 @@ class CellStyleText(CellStyle):
 
 @dataclass
 class CellStyleFill(CellStyle):
-    """A style specification for the background fill of targeted cells."""
+    """A style specification for the background fill of targeted cells.
+
+    The `style.fill` class is to be used with the `tab_style()` method, which itself allows for the
+    setting of custom styles to one or more cells. Specifically, the call to `style.fill()` should
+    be bound to the `styles` argument of `tab_style()`.
+
+    Parameters
+    ----------
+    color : str
+        The color to use for the cell background fill. This can be any valid CSS color value, such
+        as a hex code, a named color, or an RGB value.
+
+    Returns
+    -------
+    CellStyleFill
+        A CellStyleFill object, which is used for a `styles` argument if specifying a cell fill
+        value.
+    """
 
     color: str
-    alpha: Optional[float] = None
+    # alpha: Optional[float] = None
 
     def _to_html_style(self) -> str:
         return f"background-color: {self.color};"
