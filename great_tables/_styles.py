@@ -161,7 +161,6 @@ class CellStyleBorders(CellStyle):
     sides: Literal["all", "top", "bottom", "left", "right"]
     color: str = "#000000"
     style: str = "solid"
-    # TODO: this can include objects like px(1)
     weight: str = "1px"
     """A style specification for cell borders.
 
