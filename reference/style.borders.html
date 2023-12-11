@@ -521,7 +521,11 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.style.borders" id="toc-great_tables.style.borders" class="nav-link active" data-scroll-target="#great_tables.style.borders">style.borders</a></li>
+  <li><a href="#great_tables.style.borders" id="toc-great_tables.style.borders" class="nav-link active" data-scroll-target="#great_tables.style.borders">style.borders</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -533,9 +537,76 @@ ul.task-list li input[type="checkbox"] {
 <section id="great_tables.style.borders" class="level1">
 <h1>style.borders</h1>
 <p><code>style.borders(sides, color='#000000', style='solid', weight='1px')</code></p>
-<p>CellStyleBorders(sides: “Literal[‘all’, ‘top’, ‘bottom’, ‘left’, ‘right’]”, color: ‘str’ = ‘#000000’, style: ‘str’ = ‘solid’, weight: ‘str’ = ‘1px’)</p>
+<p>A style specification for cell borders.</p>
+<p>The <code>styles.borders()</code> class is to be used with the <code>tab_style()</code> method, which itself allows for the setting of custom styles to one or more cells. The <code>sides</code> argument is where we define which borders should be modified (e.g., <code>"left"</code>, <code>"right"</code>, etc.). With that selection, the <code>color</code>, <code>style</code>, and <code>weight</code> of the selected borders can then be modified.</p>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="table">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 22%">
+<col style="width: 68%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>sides</code></td>
+<td>typing.Literal[‘all’, ‘top’, ‘bottom’, ‘left’, ‘right’]</td>
+<td>The border sides to be modified. Options include <code>"left"</code>, <code>"right"</code>, <code>"top"</code>, and <code>"bottom"</code>. For all borders surrounding the selected cells, we can use the <code>"all"</code> option.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td><code>color</code></td>
+<td>str</td>
+<td>The border <code>color</code> can be defined with any valid CSS color value, such as a hex code, a named color, or an RGB value. The default <code>color</code> value is <code>"#000000"</code> (black).</td>
+<td><code>'#000000'</code></td>
+</tr>
+<tr class="odd">
+<td><code>style</code></td>
+<td>str</td>
+<td>The border <code>style</code> can be one of either <code>"solid"</code> (the default), <code>"dashed"</code>, <code>"dotted"</code>, <code>"hidden"</code>, or <code>"double"</code>.</td>
+<td><code>'solid'</code></td>
+</tr>
+<tr class="even">
+<td><code>weight</code></td>
+<td>str</td>
+<td>The default value for <code>weight</code> is <code>"1px"</code> and higher values will become more visually prominent.</td>
+<td><code>'1px'</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<table class="table">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 70%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._styles.CellStyleBorders</td>
+<td>A CellStyleBorders object, which is used for a <code>styles</code> argument if specifying cell borders.</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
