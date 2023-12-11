@@ -1,0 +1,22 @@
+exclude: "(.*\\.svg)|(.*\\.qmd)|(.*\\.ambr)|(.*\\.csv)|(.*\\.txt)"
+repos:
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        types:
+          - python
+        additional_dependencies:
+          - flake8-pyproject
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ["--unsafe"]
+      - id: check-added-large-files
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
