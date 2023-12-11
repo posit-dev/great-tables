@@ -19,13 +19,12 @@ class CellStyle:
 
 @dataclass
 class CellStyleText(CellStyle):
-    """A style specification for text.
+    """A style specification for cell text.
 
-    This class represents a style specification for text cells in a table.
-
-    The `style.text` class is to be used with the `tab_style()` method, which itself allows for the
-    setting of custom styles to one or more cells. With it, you can specify the color of the text,
-    the font family, the font size, and the horizontal and vertical alignment of the text and more.
+    The `style.text()` class is to be used with the `tab_style()` method, which itself allows for
+    the setting of custom styles to one or more cells. With it, you can specify the color of the
+    text, the font family, the font size, and the horizontal and vertical alignment of the text and
+    more.
 
     Parameters
     ----------
@@ -133,9 +132,9 @@ class CellStyleText(CellStyle):
 class CellStyleFill(CellStyle):
     """A style specification for the background fill of targeted cells.
 
-    The `style.fill` class is to be used with the `tab_style()` method, which itself allows for the
-    setting of custom styles to one or more cells. Specifically, the call to `style.fill()` should
-    be bound to the `styles` argument of `tab_style()`.
+    The `style.fill()` class is to be used with the `tab_style()` method, which itself allows for
+    the setting of custom styles to one or more cells. Specifically, the call to `style.fill()`
+    should be bound to the `styles` argument of `tab_style()`.
 
     Parameters
     ----------
@@ -160,10 +159,37 @@ class CellStyleFill(CellStyle):
 @dataclass
 class CellStyleBorders(CellStyle):
     sides: Literal["all", "top", "bottom", "left", "right"]
-    color: str
-    style: str
+    color: str = "#000000"
+    style: str = "solid"
     # TODO: this can include objects like px(1)
-    weight: str
+    weight: str = "1px"
+    """A style specification for cell borders.
+
+    The `styles.borders()` class is to be used with the `tab_style()` method, which itself allows
+    for the setting of custom styles to one or more cells. The `sides` argument is where we define
+    which borders should be modified (e.g., `"left"`, `"right"`, etc.). With that selection, the
+    `color`, `style`, and `weight` of the selected borders can then be modified.
+
+    Parameters
+    ----------
+    sides : Literal["all", "top", "bottom", "left", "right"]
+        The border sides to be modified. Options include `"left"`, `"right"`, `"top"`, and
+        `"bottom"`. For all borders surrounding the selected cells, we can use the `"all"` option.
+    color : str
+        The border `color` can be defined with any valid CSS color value, such as a hex code, a
+        named color, or an RGB value. The default `color` value is `"#000000"` (black).
+    style : str
+        The border `style` can be one of either `"solid"` (the default), `"dashed"`, `"dotted"`,
+        `"hidden"`, or `"double"`.
+    weight : str
+        The default value for `weight` is `"1px"` and higher values will become more visually
+        prominent.
+
+    Returns
+    -------
+    CellStyleBorders
+        A CellStyleBorders object, which is used for a `styles` argument if specifying cell borders.
+    """
 
     def _to_html_style(self) -> str:
         border_css_list: List[str] = []
