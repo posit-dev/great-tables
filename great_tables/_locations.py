@@ -85,6 +85,26 @@ class LocStub(Loc):
 @dataclass
 class LocBody(Loc):
     # TODO: these can be tidyselectors
+    """A location specification for targeting data cells in the table body.
+
+    The `loc.body()` class is used to target the data cells in the table body. The class can be used
+    to apply custom styling with the `tab_style()` method. That method has a `locations` argument
+    and this class should be used there to perform the targeting.
+
+    Parameters
+    ----------
+    columns : SelectExpr
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows : list[str | int]
+        The rows to target. Can either be a single row name or a series of row names provided in a
+        list.
+
+    Returns
+    -------
+    LocBody
+        A LocBody object, which is used for a `locations` argument if specifying the table body.
+    """
     columns: SelectExpr
     rows: list[str] | str
 
