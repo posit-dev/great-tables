@@ -528,10 +528,12 @@ def create_source_notes_component_h(data: GTData) -> str:
         source_notes_tr: List[str] = []
 
         for note in source_notes:
+            note_str = _process_text(note)
+
             source_notes_tr.append(
                 f"""
   <tr>
-    <td class="gt_sourcenote" colspan="{n_cols_total}">{note}</td>
+    <td class="gt_sourcenote" colspan="{n_cols_total}">{note_str}</td>
   </tr>
 """
             )
@@ -550,7 +552,12 @@ def create_source_notes_component_h(data: GTData) -> str:
     # Create the source notes component as a single `<tr><td>` inside
     # of a `<tfoot>`
 
-    source_notes_str_joined = separator.join(source_notes)
+    source_note_list: List[str] = []
+    for note in source_notes:
+        note_str = _process_text(note)
+        source_note_list.append(note_str)
+
+    source_notes_str_joined = separator.join(source_note_list)
 
     source_notes_component = f"""<tfoot>
   <tr class="gt_sourcenotes">
