@@ -1,0 +1,27 @@
+# serializer version: 1
+# name: test_format_snap
+  '''
+    <tfoot class="gt_sourcenotes">
+    
+    <tr>
+      <td class="gt_sourcenote" colspan="9">An <strong>important</strong> note.</td>
+    </tr>
+  
+  
+    <tr>
+      <td class="gt_sourcenote" colspan="9">Another <em>important</em> note.</td>
+    </tr>
+  
+  
+    <tr>
+      <td class="gt_sourcenote" colspan="9">A plain note.</td>
+    </tr>
+  
+  
+    <tr>
+      <td class="gt_sourcenote" colspan="9">An <strong>HTML heavy</strong> note.</td>
+    </tr>
+  
+  </tfoot>
+  '''
+# ---
