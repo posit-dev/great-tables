@@ -182,14 +182,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 <p><em>Absolutely Delightful Table-making in Python</em></p>
-<p>With <strong>great_tables</strong> anyone can make wonderful-looking tables in Python. The philosophy here is that we can construct a wide variety of useful tables by working with a cohesive set of table components. You can mix and match things like a <em>header</em> and <em>footer</em>, attach a <em>stub</em> (which contains row labels), arrange <em>spanner labels</em> over top of the <em>column labels</em>, and much more. Not only that, but you can format the cell values in a variety of awesome ways.</p>
+<p>With <strong>Great Tables</strong> anyone can make wonderful-looking tables in Python. The philosophy here is that we can construct a wide variety of useful tables by working with a cohesive set of table components. You can mix and match things like a <em>header</em> and <em>footer</em>, attach a <em>stub</em> (which contains row labels), arrange <em>spanner labels</em> over top of the <em>column labels</em>, and much more. Not only that, but you can format the cell values in a variety of awesome ways.</p>
 <div data-align="center">
 <p><img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/the_components_of_a_table.svg" width="100%"></p>
 </div>
-<p>It all begins with <strong>table data</strong> in the form of a Pandas DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a <strong>Quarto</strong> document.</p>
-<p>The <strong>great_tables</strong> package is designed to be both straightforward yet powerful. The emphasis is on simple methods for the everyday display table needs (but power when you need it). Here is a brief example of how to use <strong>gt</strong> to create a table from the included <code>sp500</code> dataset:</p>
+<p>It all begins with <strong>table data</strong> in the form of a Pandas or Polars DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a <strong>Quarto</strong> document.</p>
+<p>The <strong>Great Tables</strong> package is designed to be both straightforward yet powerful. The emphasis is on simple methods for the everyday display table needs (but power when you need it). Here is a brief example of how to use <strong>Great Tables</strong> to create a table from the included <code>sp500</code> dataset:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables <span class="im">as</span> gt</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> sp500</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> sp500</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the start and end dates for the data range</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>start_date <span class="op">=</span> <span class="st">"2010-06-07"</span></span>
@@ -204,39 +204,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    .tab_header(title<span class="op">=</span><span class="st">"S&amp;P 500"</span>, subtitle<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>start_date<span class="sc">}</span><span class="ss"> to </span><span class="sc">{</span>end_date<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(columns<span class="op">=</span>[<span class="st">"open"</span>, <span class="st">"high"</span>, <span class="st">"low"</span>, <span class="st">"close"</span>])</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    .fmt_date(columns<span class="op">=</span><span class="st">"date"</span>, date_style<span class="op">=</span><span class="st">"wd_m_day_year"</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    .fmt_number(columns<span class="op">=</span><span class="st">"volume"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    .fmt_number(columns<span class="op">=</span><span class="st">"volume"</span>, compact<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div data-align="center">
 <p><img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/gt_sp500_table.svg" width="100%"></p>
 </div>
-<p>There are ten datasets provided by <strong>great_tables</strong>: <code>countrypops</code>, <code>sza</code>, <code>gtcars</code>, <code>sp500</code>, <code>pizzaplace</code>, <code>exibble</code>, <code>towny</code>, <code>metro</code>, <code>constants</code>, and <code>illness</code>.</p>
+<p>There are ten datasets provided by <strong>Great Tables</strong>: <code>countrypops</code>, <code>sza</code>, <code>gtcars</code>, <code>sp500</code>, <code>pizzaplace</code>, <code>exibble</code>, <code>towny</code>, <code>metro</code>, <code>constants</code>, and <code>illness</code>.</p>
 <div data-align="center" style="padding-top:20px">
 <p><img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_countrypops.svg" style="width:19%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_sza.svg" style="width:19%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_gtcars.svg" style="width:19%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_sp500.svg" style="width:19%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_pizzaplace.svg" style="width:19%;"></p>
 </div>
 <div data-align="center" style="padding-bottom:20px">
 <p><img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_exibble.svg" style="width:19%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_towny.svg" style="width:19%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_metro.svg" style="width:19%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_constants.svg" style="width:19%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_illness.svg" style="width:19%;"></p>
 </div>
-<p>All of this tabular data is great for experimenting with the functionality available inside <strong>great_tables</strong> and we make extensive use of these datasets in our documentation.</p>
-<p>Beyond the functions shown in the simple <code>sp500</code>-based example, there are many possible ways to create super-customized tables. Check out the <a href="https://posit-dev.github.io/great-tables/">documentation website</a> to get started via introductory articles for making <strong>great_tables</strong>. There’s a handy <em>Function Reference</em> section that has detailed help for every method and function in the package.</p>
+<p>All of this tabular data is great for experimenting with the functionality available inside <strong>Great Tables</strong> and we make extensive use of these datasets in our documentation.</p>
+<p>Beyond the functions shown in the simple <code>sp500</code>-based example, there are many possible ways to create super-customized tables. Check out the <a href="https://posit-dev.github.io/great-tables/">documentation website</a> to get started via introductory articles for making <strong>Great Tables</strong>. There’s a handy <em>Function Reference</em> section that has detailed help for every method and function in the package.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><a href="https://posit-dev.github.io/great-tables/"><img src="https://img.shields.io/badge/Project%20Website-Documentation%20and%20Reference-blue?style=social.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
-<p>Let’s talk about how to make <strong>great_tables</strong>! There are a few locations where there is much potential for discussion.</p>
+<p>Let’s talk about how to make <strong>Great Tables</strong>! There are a few locations where there is much potential for discussion.</p>
 <p>One such place is in <a href="https://github.com/posit-dev/great-tables/discussions"><em>GitHub Discussions</em></a>. This discussion board is especially great for Q&amp;A, and many people have had their problems solved in there.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><a href="https://github.com/posit-dev/great-tables/discussions"><img src="https://img.shields.io/badge/GitHub%20Discussions-Ask%20about%20anything-blue?style=social&amp;logo=github&amp;logoColor=gray.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
-<p>Another fine venue for discussion is in the <a href="https://discord.com/invite/Ux7nrcXHVV"><code>gt_package</code> <em>Discord server</em></a>. This is a good option for asking about the development of <strong>great_tables</strong>, pitching ideas that may become features, and sharing your table creations!</p>
+<p>Another fine venue for discussion is in the <a href="https://discord.com/invite/Ux7nrcXHVV"><code>gt_package</code> <em>Discord server</em></a>. This is a good option for asking about the development of <strong>Great Tables</strong>, pitching ideas that may become features, and sharing your table creations!</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><a href="https://discord.com/invite/Ux7nrcXHVV"><img src="https://img.shields.io/badge/Discord-Chat%20with%20us-blue?style=social&amp;logo=discord&amp;logoColor=purple.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
-<p>Finally, there is the <a href="https://x.com/gt_package"><code>gt_package</code> <em>X account</em></a>. There you’ll find tweets about <strong>great_tables</strong> (including sneak previews about in-development features) and other table-generation packages.</p>
+<p>Finally, there is the <a href="https://x.com/gt_package"><code>gt_package</code> <em>X account</em></a>. There you’ll find tweets about <strong>Great Tables</strong> (including sneak previews about in-development features) and other table-generation packages.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><a href="https://x.com/gt_package"><img src="https://img.shields.io/twitter/follow/gt_package?style=social.png" class="img-fluid figure-img"></a></p>
@@ -245,17 +245,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>These are all great places to ask questions about how to use the package, discuss some ideas, engage with others, and much more!</p>
 <section id="installation" class="level2">
 <h2 class="anchored" data-anchor-id="installation">INSTALLATION</h2>
-<p>The <strong>great_tables</strong> package can be installed from <strong>PyPI</strong> with:</p>
+<p>The <strong>Great Tables</strong> package can be installed from <strong>PyPI</strong> with:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> pip install great_tables</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>If you encounter a bug, have usage questions, or want to share ideas to make this package better, please feel free to file an <a href="https://github.com/posit-dev/great-tables/issues">issue</a>.</p>
 </section>
 <section id="code-of-conduct" class="level2">
 <h2 class="anchored" data-anchor-id="code-of-conduct">Code of Conduct</h2>
-<p>Please note that the <strong>great_tables</strong> project is released with a <a href="https://www.contributor-covenant.org/version/2/1/code_of_conduct/">contributor code of conduct</a>.<br>By participating in this project you agree to abide by its terms.</p>
+<p>Please note that the <strong>Great Tables</strong> project is released with a <a href="https://www.contributor-covenant.org/version/2/1/code_of_conduct/">contributor code of conduct</a>.<br>By participating in this project you agree to abide by its terms.</p>
 </section>
 <section id="license" class="level2">
 <h2 class="anchored" data-anchor-id="license">📄 License</h2>
-<p><strong>great_tables</strong> is licensed under the MIT license.</p>
+<p><strong>Great Tables</strong> is licensed under the MIT license.</p>
 <p>© Posit Software, PBC.</p>
 </section>
 <section id="governance" class="level2">
