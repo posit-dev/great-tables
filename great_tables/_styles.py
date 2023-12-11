@@ -158,10 +158,6 @@ class CellStyleFill(CellStyle):
 
 @dataclass
 class CellStyleBorders(CellStyle):
-    sides: Literal["all", "top", "bottom", "left", "right"]
-    color: str = "#000000"
-    style: str = "solid"
-    weight: str = "1px"
     """A style specification for cell borders.
 
     The `styles.borders()` class is to be used with the `tab_style()` method, which itself allows
@@ -189,6 +185,11 @@ class CellStyleBorders(CellStyle):
     CellStyleBorders
         A CellStyleBorders object, which is used for a `styles` argument if specifying cell borders.
     """
+
+    sides: Literal["all", "top", "bottom", "left", "right"]
+    color: str = "#000000"
+    style: str = "solid"
+    weight: str = "1px"
 
     def _to_html_style(self) -> str:
         border_css_list: List[str] = []
