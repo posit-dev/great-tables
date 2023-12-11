@@ -521,7 +521,11 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.loc.body" id="toc-great_tables.loc.body" class="nav-link active" data-scroll-target="#great_tables.loc.body">loc.body</a></li>
+  <li><a href="#great_tables.loc.body" id="toc-great_tables.loc.body" class="nav-link active" data-scroll-target="#great_tables.loc.body">loc.body</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -533,9 +537,64 @@ ul.task-list li input[type="checkbox"] {
 <section id="great_tables.loc.body" class="level1">
 <h1>loc.body</h1>
 <p><code>loc.body(columns, rows)</code></p>
-<p>LocBody(columns: ‘SelectExpr’, rows: ‘list[str] | str’)</p>
+<p>A location specification for targeting data cells in the table body.</p>
+<p>The <code>loc.body()</code> class is used to target the data cells in the table body. The class can be used to apply custom styling with the <code>tab_style()</code> method. That method has a <code>locations</code> argument and this class should be used there to perform the targeting.</p>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 21%">
+<col style="width: 64%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>columns</code></td>
+<td>great_tables._locations.SelectExpr</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td><code>rows</code></td>
+<td>list[str | int]</td>
+<td>The rows to target. Can either be a single row name or a series of row names provided in a list.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<table class="table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 73%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables._locations.LocBody</td>
+<td>A LocBody object, which is used for a <code>locations</code> argument if specifying the table body.</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
