@@ -192,11 +192,16 @@ class CellStyleBorders(CellStyle):
     weight: str = "1px"
 
     def _to_html_style(self) -> str:
+        # If sides is None, return an empty string
         if self.sides is None:
             return ""
 
+        # If self.sides is a string, convert to a list
+        if isinstance(self.sides, str):
+            self.sides = [self.sides]
+
         # If 'all' is provided then call the function recursively with all sides
-        if self.sides == "all" or self.sides == ["all"]:
+        if "all" in self.sides:
             return CellStyleBorders(sides=["top", "bottom", "left", "right"])._to_html_style()
 
         weight = self.weight
