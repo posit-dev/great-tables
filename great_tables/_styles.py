@@ -186,14 +186,16 @@ class CellStyleBorders(CellStyle):
         A CellStyleBorders object, which is used for a `styles` argument if specifying cell borders.
     """
 
-    sides: List[str] | str | None = "all"
+    sides: Literal["all", "top", "bottom", "left", "right"] | List[
+        Literal["all", "top", "bottom", "left", "right"]
+    ] = "all"
     color: str = "#000000"
     style: str = "solid"
     weight: str = "1px"
 
     def _to_html_style(self) -> str:
-        # If sides is None, return an empty string
-        if self.sides is None:
+        # If sides is an empty list, return an empty string
+        if self.sides == []:
             return ""
 
         # If self.sides is a string, convert to a list
@@ -213,6 +215,8 @@ class CellStyleBorders(CellStyle):
 
         border_css_list: List[str] = []
         for side in self.sides:
+            if side not in ["top", "bottom", "left", "right"]:
+                raise ValueError(f"Invalid side '{side}' provided.")
             border_css_list.append(f"border-{side}: {weight} {style} {color};")
 
         border_css = "".join(border_css_list)
