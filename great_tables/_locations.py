@@ -105,8 +105,8 @@ class LocBody(Loc):
     LocBody
         A LocBody object, which is used for a `locations` argument if specifying the table body.
     """
-    columns: SelectExpr
-    rows: list[str] | str
+    columns: SelectExpr = None
+    rows: list[str] | str | None = None
 
 
 @dataclass
@@ -210,6 +210,49 @@ def resolve_cols_i(
 
             return []
 
+        # If expr is None, we want to select everything or nothing depending on
+        # the value of `null_means`
+        if expr is None:
+            if null_means == "everything":
+                # If `null_means` is "everything", we want to select all columns, perhaps
+                # excluding the stub and/or group columns depending on the values of
+                # `excl_stub` and `excl_group`; first, we get the column names and positions
+                # for all columns
+
+                if not excl_stub and not excl_group:
+                    return [(col, ii) for ii, col in enumerate(data._tbl_data.columns)]
+
+                # Depending on the value of `excl_stub` and `excl_group`, we want
+                # to exclude the stub and/or group columns from the selection
+                if excl_stub and excl_group:
+                    # If `excl_stub` and `excl_group` are both True, exclude both
+                    # the stub and group columns from the selection
+                    cols_excl = stub_var + data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
+                    return [
+                        (col, ii)
+                        for ii, col in enumerate(data._tbl_data.columns)
+                        if col not in cols_excl
+                    ]
+                elif excl_stub:
+                    # If `excl_stub` is True, exclude the stub column from the selection
+                    cols_excl = stub_var
+                    return [
+                        (col, ii)
+                        for ii, col in enumerate(data._tbl_data.columns)
+                        if col not in cols_excl
+                    ]
+                elif excl_group:
+                    # If `excl_group` is True, exclude the group column from the selection
+                    cols_excl = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
+                    return [
+                        (col, ii)
+                        for ii, col in enumerate(data._tbl_data.columns)
+                        if col not in cols_excl
+                    ]
+
+            else:
+                return []
+
         if not excl_stub:
             # In most cases we would want to exclude the column that
             # represents the stub but that isn't always the case (e.g.,
@@ -281,7 +324,7 @@ def resolve_rows_i(
     elif isinstance(expr, PlExpr):
         # TODO: decide later on the name supplied to `name`
         result = data._tbl_data.with_row_count(name="__row_number__").filter(expr)
-        print([(row_names[ii], ii) for ii in result["__row_number__"]])
+        # print([(row_names[ii], ii) for ii in result["__row_number__"]])
         return [(row_names[ii], ii) for ii in result["__row_number__"]]
 
     # TODO: identify filter-like selectors using some backend check
