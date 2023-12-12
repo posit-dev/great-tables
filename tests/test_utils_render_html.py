@@ -1,10 +1,5 @@
-from typing import Union
-
-import re
-
 from great_tables import GT, exibble, md, html
 from great_tables._utils_render_html import create_source_notes_component_h
-from great_tables._source_notes import tab_source_note
 
 
 def assert_rendered_source_notes(snapshot, gt):
