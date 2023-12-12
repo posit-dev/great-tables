@@ -179,20 +179,28 @@ def resolve_vector_l(expr: list[str], candidates: list[str], item_label: str) ->
 
 
 def resolve_cols_c(
-    expr: SelectExpr,
     data: GTData,
+    expr: SelectExpr,
     strict: bool = True,
     excl_stub: bool = True,
     excl_group: bool = True,
     null_means: Literal["everything", "nothing"] = "everything",
 ) -> list[str]:
-    selected = resolve_cols_i(expr, data, strict, excl_stub, excl_group, null_means)
+    """Return a list of column names, selected by expr."""
+    selected = resolve_cols_i(
+        data=data,
+        expr=expr,
+        strict=strict,
+        excl_stub=excl_stub,
+        excl_group=excl_group,
+        null_means=null_means,
+    )
     return [name_pos[0] for name_pos in selected]
 
 
 def resolve_cols_i(
-    expr: SelectExpr,
     data: GTData | TblData,
+    expr: SelectExpr,
     strict: bool = True,
     excl_stub: bool = True,
     excl_group: bool = True,
@@ -363,7 +371,7 @@ def _(loc: LocColumnSpanners, spanners: Spanners) -> LocColumnSpanners:
 
 @resolve.register
 def _(loc: LocBody, data: GTData) -> List[CellPos]:
-    cols = resolve_cols_i(loc.columns, data)
+    cols = resolve_cols_i(data=data, expr=loc.columns)
     rows = resolve_rows_i(data=data, expr=loc.rows)
 
     # TODO: dplyr arranges by `Var1`, and does distinct (since you can tidyselect the same
