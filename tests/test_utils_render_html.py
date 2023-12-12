@@ -30,7 +30,7 @@ def test_source_notes_snap(snapshot):
     assert_rendered_source_notes(snapshot, new_gt)
 
 
-def test_styling_data_1(snapshot):
+def test_styling_data_01(snapshot):
     new_gt = GT(small_exibble).tab_style(
         style=style.text(color="red"),
         locations=loc.body(),
@@ -39,7 +39,7 @@ def test_styling_data_1(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
-def test_styling_data_2(snapshot):
+def test_styling_data_02(snapshot):
     new_gt = GT(small_exibble).tab_style(
         style=style.text(color="red"),
         locations=loc.body(columns=["char"]),
@@ -48,7 +48,7 @@ def test_styling_data_2(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
-def test_styling_data_3(snapshot):
+def test_styling_data_03(snapshot):
     new_gt = GT(small_exibble).tab_style(
         style=style.text(color="red"),
         locations=loc.body(columns="char", rows=[0, 2]),
@@ -57,7 +57,7 @@ def test_styling_data_3(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
-def test_styling_data_4(snapshot):
+def test_styling_data_04(snapshot):
     new_gt = GT(small_exibble).tab_style(
         style=style.text(color="red"),
         locations=loc.body(columns=[], rows=[0, 2]),
@@ -66,7 +66,7 @@ def test_styling_data_4(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
-def test_styling_data_5(snapshot):
+def test_styling_data_05(snapshot):
     new_gt = GT(small_exibble).tab_style(
         style=style.text(color="red"),
         locations=loc.body(columns="char", rows=[]),
@@ -75,10 +75,46 @@ def test_styling_data_5(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
-def test_styling_data_6(snapshot):
+def test_styling_data_06(snapshot):
     new_gt = GT(small_exibble).tab_style(
         style=style.text(color="red"),
         locations=loc.body(columns=[], rows=[]),
+    )
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+def test_styling_data_07(snapshot):
+    new_gt = GT(small_exibble).tab_style(
+        style=style.borders(sides="left"),
+        locations=loc.body(columns="char", rows=[0, 2]),
+    )
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+def test_styling_data_08(snapshot):
+    new_gt = GT(small_exibble).tab_style(
+        style=style.borders(sides=["left"]),
+        locations=loc.body(columns="char", rows=[0, 2]),
+    )
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+def test_styling_data_09(snapshot):
+    new_gt = GT(small_exibble).tab_style(
+        style=style.borders(sides=["left", "right"]),
+        locations=loc.body(columns="char", rows=[0, 2]),
+    )
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+def test_styling_data_10(snapshot):
+    new_gt = GT(small_exibble).tab_style(
+        style=style.borders(sides="all"),
+        locations=loc.body(columns="char", rows=[0, 2]),
     )
 
     assert_rendered_body(snapshot, new_gt)
