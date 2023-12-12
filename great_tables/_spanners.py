@@ -138,7 +138,7 @@ def tab_spanner(
         # TODO: null_means is unimplemented
         raise NotImplementedError("columns must be specified")
 
-    selected_column_names = resolve_cols_c(columns, data, null_means="nothing")
+    selected_column_names = resolve_cols_c(data=data, expr=columns, null_means="nothing")
 
     # select spanner ids ----
     # TODO: this supports tidyselect
@@ -245,9 +245,9 @@ def cols_move(data: GTData, columns: SelectExpr, after: str) -> GTData:
     if isinstance(columns, str):
         columns = [columns]
 
-    sel_cols = resolve_cols_c(columns, data)
+    sel_cols = resolve_cols_c(data=data, expr=columns)
 
-    sel_after = resolve_cols_c([after], data)
+    sel_after = resolve_cols_c(data=data, expr=[after])
 
     vars = [col.var for col in data._boxhead]
 
@@ -327,7 +327,7 @@ def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
     if isinstance(columns, str):
         columns = [columns]
 
-    sel_cols = resolve_cols_c(columns, data)
+    sel_cols = resolve_cols_c(data=data, expr=columns)
 
     vars = [col.var for col in data._boxhead]
 
@@ -393,7 +393,7 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
     if isinstance(columns, str):
         columns = [columns]
 
-    sel_cols = resolve_cols_c(columns, data)
+    sel_cols = resolve_cols_c(data=data, expr=columns)
 
     vars = [col.var for col in data._boxhead]
 
@@ -446,7 +446,7 @@ def cols_hide(data: GTData, columns: SelectExpr) -> GTData:
     if isinstance(columns, str):
         columns = [columns]
 
-    sel_cols = resolve_cols_c(columns, data)
+    sel_cols = resolve_cols_c(data=data, expr=columns)
 
     vars = [col.var for col in data._boxhead]
 

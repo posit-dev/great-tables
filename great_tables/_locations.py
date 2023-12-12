@@ -105,8 +105,8 @@ class LocBody(Loc):
     LocBody
         A LocBody object, which is used for a `locations` argument if specifying the table body.
     """
-    columns: SelectExpr
-    rows: list[str] | str
+    columns: SelectExpr = None
+    rows: list[str] | str | None = None
 
 
 @dataclass
@@ -179,20 +179,28 @@ def resolve_vector_l(expr: list[str], candidates: list[str], item_label: str) ->
 
 
 def resolve_cols_c(
-    expr: SelectExpr,
     data: GTData,
+    expr: SelectExpr,
     strict: bool = True,
     excl_stub: bool = True,
     excl_group: bool = True,
     null_means: Literal["everything", "nothing"] = "everything",
 ) -> list[str]:
-    selected = resolve_cols_i(expr, data, strict, excl_stub, excl_group, null_means)
+    """Return a list of column names, selected by expr."""
+    selected = resolve_cols_i(
+        data=data,
+        expr=expr,
+        strict=strict,
+        excl_stub=excl_stub,
+        excl_group=excl_group,
+        null_means=null_means,
+    )
     return [name_pos[0] for name_pos in selected]
 
 
 def resolve_cols_i(
-    expr: SelectExpr,
     data: GTData | TblData,
+    expr: SelectExpr,
     strict: bool = True,
     excl_stub: bool = True,
     excl_group: bool = True,
@@ -202,6 +210,7 @@ def resolve_cols_i(
 
     if isinstance(data, GTData):
         stub_var = data._boxhead.vars_from_type(ColInfoTypeEnum.stub)
+        group_var = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
 
         # TODO: special handling of "stub()"
         if isinstance(expr, list) and "stub()" in expr:
@@ -209,6 +218,21 @@ def resolve_cols_i(
                 return [(stub_var[0], 1)]
 
             return []
+
+        # If expr is None, we want to select everything or nothing depending on
+        # the value of `null_means`
+        if expr is None:
+            if null_means == "everything":
+                cols_excl = [*(stub_var if excl_stub else []), *(group_var if excl_group else [])]
+
+                return [
+                    (col, ii)
+                    for ii, col in enumerate(data._tbl_data.columns)
+                    if col not in cols_excl
+                ]
+
+            else:
+                return []
 
         if not excl_stub:
             # In most cases we would want to exclude the column that
@@ -245,9 +269,9 @@ def resolve_cols_i(
 
 
 def resolve_rows_i(
-    expr: list[str | int],
     data: GTData | list[str],
-    null_means: Literal["everything", "nothing"] = "nothing",
+    expr: list[str | int] | None = None,
+    null_means: Literal["everything", "nothing"] = "everything",
 ) -> list[tuple[str, int]]:
     """Return matching row numbers, based on expr
 
@@ -257,10 +281,15 @@ def resolve_rows_i(
 
     Unlike tidyselect::eval_select, this function returns names in
     the order they appear in the data (rather than ordered by selectors).
-
     """
 
     if isinstance(data, GTData):
+        if expr is None:
+            if null_means == "everything":
+                return [(row.rowname, ii) for ii, row in enumerate(data._stub)]
+            else:
+                return []
+
         row_names = [row.rowname for row in data._stub]
     else:
         row_names = data
@@ -281,7 +310,7 @@ def resolve_rows_i(
     elif isinstance(expr, PlExpr):
         # TODO: decide later on the name supplied to `name`
         result = data._tbl_data.with_row_count(name="__row_number__").filter(expr)
-        print([(row_names[ii], ii) for ii in result["__row_number__"]])
+        # print([(row_names[ii], ii) for ii in result["__row_number__"]])
         return [(row_names[ii], ii) for ii in result["__row_number__"]]
 
     # TODO: identify filter-like selectors using some backend check
@@ -314,8 +343,8 @@ def _(loc: LocColumnSpanners, spanners: Spanners) -> LocColumnSpanners:
 
 @resolve.register
 def _(loc: LocBody, data: GTData) -> List[CellPos]:
-    cols = resolve_cols_i(loc.columns, data)
-    rows = resolve_rows_i(loc.rows, data)
+    cols = resolve_cols_i(data=data, expr=loc.columns)
+    rows = resolve_rows_i(data=data, expr=loc.rows)
 
     # TODO: dplyr arranges by `Var1`, and does distinct (since you can tidyselect the same
     # thing multiple times
