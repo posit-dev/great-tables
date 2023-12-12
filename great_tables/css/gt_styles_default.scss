@@ -110,7 +110,7 @@ p {
   border-right-color: $column_labels_vlines_color;
   vertical-align: bottom;
   padding-top: $column_labels_padding;
-  padding-bottom: $column_labels_padding + 1;
+  padding-bottom: $heading_padding_bottom;
   padding-left: $column_labels_padding_horizontal;
   padding-right: $column_labels_padding_horizontal;
   overflow-x: hidden;

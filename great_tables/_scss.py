@@ -92,6 +92,7 @@ def compile_scss(data: GTData, id: Optional[str], compress: bool = True) -> str:
         **font_params,
         "heading_subtitle_padding_top": css_add(scss_params["heading_padding"], -1),
         "heading_subtitle_padding_bottom": css_add(scss_params["heading_padding"], 1),
+        "heading_padding_bottom": css_add(scss_params["heading_padding"], 1),
     }
 
     # Handle table id ----
