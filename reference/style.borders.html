@@ -536,7 +536,7 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="great_tables.style.borders" class="level1">
 <h1>style.borders</h1>
-<p><code>style.borders(sides, color='#000000', style='solid', weight='1px')</code></p>
+<p><code>style.borders(sides='all', color='#000000', style='solid', weight='1px')</code></p>
 <p>A style specification for cell borders.</p>
 <p>The <code>styles.borders()</code> class is to be used with the <code>tab_style()</code> method, which itself allows for the setting of custom styles to one or more cells. The <code>sides</code> argument is where we define which borders should be modified (e.g., <code>"left"</code>, <code>"right"</code>, etc.). With that selection, the <code>color</code>, <code>style</code>, and <code>weight</code> of the selected borders can then be modified.</p>
 <section id="parameters" class="level2">
@@ -561,7 +561,7 @@ ul.task-list li input[type="checkbox"] {
 <td><code>sides</code></td>
 <td>typing.Literal[‘all’, ‘top’, ‘bottom’, ‘left’, ‘right’]</td>
 <td>The border sides to be modified. Options include <code>"left"</code>, <code>"right"</code>, <code>"top"</code>, and <code>"bottom"</code>. For all borders surrounding the selected cells, we can use the <code>"all"</code> option.</td>
-<td><em>required</em></td>
+<td><code>'all'</code></td>
 </tr>
 <tr class="even">
 <td><code>color</code></td>
