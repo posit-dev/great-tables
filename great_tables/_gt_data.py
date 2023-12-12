@@ -144,7 +144,7 @@ class Body:
     def __init__(self, body: Union[pd.DataFrame, TblData]):
         self.body = body
 
-    def render_formats(self, data_tbl: TblData, formats: List[FormatInfo], context: Context):
+    def render_formats(self, data_tbl: TblData, formats: List[FormatInfo], context: Any):
         for fmt in formats:
             eval_func = getattr(fmt.func, context, fmt.func.default)
             if eval_func is None:

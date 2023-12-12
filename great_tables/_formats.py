@@ -1869,7 +1869,7 @@ def _value_to_decimal_notation(
         result = result.rstrip(dec_mark)
 
     # Add in a trailing decimal mark under specific circumstances
-    if drop_trailing_dec_mark is False and not dec_mark in result:
+    if drop_trailing_dec_mark is False and dec_mark not in result:
         result = result + dec_mark
 
     # Force the positive sign to be present if the `force_sign` option is taken
@@ -1957,7 +1957,7 @@ def _format_number_n_sigfig(
     formatted_integer = ""
     formatted_decimal = dec_mark + decimal_part if decimal_part else ""
 
-    if preserve_integer and not "." in formatted_value:
+    if preserve_integer and "." not in formatted_value:
         formatted_value = "{:0.0f}".format(value)
 
     # Insert grouping separators within the integer part
@@ -2833,7 +2833,7 @@ def _validate_date_style(date_style: str) -> None:
     Returns:
         None
     """
-    if not date_style in _get_date_formats_dict():
+    if date_style not in _get_date_formats_dict():
         raise ValueError(f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}")
 
     return
@@ -2852,7 +2852,7 @@ def _validate_time_style(time_style: str) -> None:
     Returns:
         None
     """
-    if not time_style in _get_time_formats_dict():
+    if time_style not in _get_time_formats_dict():
         raise ValueError(f"time_style must be one of: {', '.join(_get_time_formats_dict().keys())}")
 
     return

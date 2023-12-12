@@ -328,17 +328,20 @@ def create_columns_component_h(data: GTData) -> str:
             table_col_headings = tags.tr(level_1_spanners, class_="gt_col_headings gt_spanner_row")
 
     if _get_spanners_matrix_height(data=data) > 2:
-        higher_spanner_rows_idx = seq_len(nrow(spanner_ids) - 2)
+        # TODO: functions like seq_len don't exist
+        higher_spanner_rows_idx = seq_len(nrow(spanner_ids) - 2)  # noqa
 
         higher_spanner_rows = TagList()
 
         for i in higher_spanner_rows_idx:
             spanner_ids_row = spanner_ids[i]
             spanners_row = spanners[i]
-            spanners_vars = list(set(spanner_ids_row[~np.isnan(spanner_ids_row)].tolist()))
+            # TODO: shouldn't use np here
+            spanners_vars = list(set(spanner_ids_row[~np.isnan(spanner_ids_row)].tolist()))  # noqa
 
             # Replace NA values in spanner_ids_row with an empty string
-            spanner_ids_row[np.isnan(spanner_ids_row)] = ""
+            # TODO: shouldn't use np here
+            spanner_ids_row[np.isnan(spanner_ids_row)] = ""  # noqa
 
             spanners_rle = [(k, len(list(g))) for k, g in groupby(list(spanner_ids_row))]
 
@@ -490,7 +493,7 @@ def create_body_component_h(data: GTData) -> str:
                 cell_styles = ""
 
             if is_stub_cell:
-                body_cells.append(f'  <th class="gt_row gt_left gt_stub">' + cell_str + "</th>")
+                body_cells.append('  <th class="gt_row gt_left gt_stub">' + cell_str + "</th>")
             else:
                 body_cells.append(
                     f'  <td {cell_styles}class="gt_row gt_{cell_alignment}">' + cell_str + "</td>"
