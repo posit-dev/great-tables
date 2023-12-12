@@ -14,7 +14,7 @@ def assert_rendered_source_notes(snapshot, gt):
     assert snapshot == source_notes
 
 
-def test_format_snap(snapshot):
+def test_source_notes_snap(snapshot):
     new_gt = (
         GT(exibble)
         .tab_source_note(md("An **important** note."))
