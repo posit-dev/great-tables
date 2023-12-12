@@ -35,15 +35,15 @@ def test_resolve_cols_i_ints():
 
 def test_resolve_rows_i_gt_data():
     gt = GT(pd.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
-    assert resolve_rows_i(["b", "a"], gt) == [("a", 0), ("b", 1)]
+    assert resolve_rows_i(gt, ["b", "a"]) == [("a", 0), ("b", 1)]
 
 
 def test_resolve_rows_i_strings():
-    assert resolve_rows_i(["x", "a"], ["a", "x", "a", "b"]) == [("a", 0), ("x", 1), ("a", 2)]
+    assert resolve_rows_i(["a", "x", "a", "b"], ["x", "a"]) == [("a", 0), ("x", 1), ("a", 2)]
 
 
 def test_resolve_rows_i_ints():
-    assert resolve_rows_i([0, -1], ["a", "x", "a", "b"]) == [("a", 0), ("b", 3)]
+    assert resolve_rows_i(["a", "x", "a", "b"], [0, -1]) == [("a", 0), ("b", 3)]
 
 
 def test_resolve_loc_body():
