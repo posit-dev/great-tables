@@ -20,17 +20,17 @@ def test_resolve_vector_i():
 
 def test_resolve_cols_i_gt_data():
     gt = GT(pd.DataFrame(columns=["a", "b", "x"]))
-    assert resolve_cols_i(["x", "a"], gt) == [("x", 2), ("a", 0)]
+    assert resolve_cols_i(gt, ["x", "a"]) == [("x", 2), ("a", 0)]
 
 
 def test_resolve_cols_i_strings():
     df = pd.DataFrame(columns=["a", "b", "x"])
-    assert resolve_cols_i(["x", "a"], df) == [("x", 2), ("a", 0)]
+    assert resolve_cols_i(df, ["x", "a"]) == [("x", 2), ("a", 0)]
 
 
 def test_resolve_cols_i_ints():
     df = pd.DataFrame(columns=["a", "b", "x"])
-    assert resolve_cols_i([-1, 0], df) == [("x", 2), ("a", 0)]
+    assert resolve_cols_i(df, [-1, 0]) == [("x", 2), ("a", 0)]
 
 
 def test_resolve_rows_i_gt_data():
