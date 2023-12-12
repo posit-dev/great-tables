@@ -288,9 +288,9 @@ def resolve_cols_i(
 
 
 def resolve_rows_i(
-    expr: list[str | int],
     data: GTData | list[str],
-    null_means: Literal["everything", "nothing"] = "nothing",
+    expr: list[str | int] | None = None,
+    null_means: Literal["everything", "nothing"] = "everything",
 ) -> list[tuple[str, int]]:
     """Return matching row numbers, based on expr
 
@@ -304,6 +304,12 @@ def resolve_rows_i(
     """
 
     if isinstance(data, GTData):
+        if expr is None:
+            if null_means == "everything":
+                return [(row.rowname, ii) for ii, row in enumerate(data._stub)]
+            else:
+                return []
+
         row_names = [row.rowname for row in data._stub]
     else:
         row_names = data
@@ -358,7 +364,7 @@ def _(loc: LocColumnSpanners, spanners: Spanners) -> LocColumnSpanners:
 @resolve.register
 def _(loc: LocBody, data: GTData) -> List[CellPos]:
     cols = resolve_cols_i(loc.columns, data)
-    rows = resolve_rows_i(loc.rows, data)
+    rows = resolve_rows_i(data=data, expr=loc.rows)
 
     # TODO: dplyr arranges by `Var1`, and does distinct (since you can tidyselect the same
     # thing multiple times
