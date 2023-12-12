@@ -308,7 +308,6 @@ def resolve_rows_i(
 
     Unlike tidyselect::eval_select, this function returns names in
     the order they appear in the data (rather than ordered by selectors).
-
     """
 
     if isinstance(data, GTData):
