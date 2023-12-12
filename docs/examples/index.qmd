@@ -11,7 +11,7 @@ format:
 :::::: {.column-page}
 ::::: {.grid}
 
-:::{.g-col-6}
+:::{.g-col-lg-6 .g-col-12}
 
 ```{python}
 from great_tables import GT, md, html
@@ -36,7 +36,7 @@ islands_mini = islands.head(10)
 ```
 
 :::
-:::{.g-col-6}
+:::{.g-col-lg-6 .g-col-12}
 
 ```{python}
 from great_tables import GT, md, html
@@ -70,7 +70,7 @@ airquality_mini = airquality.head(10).assign(Year = 1973)
 
 :::
 
-:::{.g-col-6}
+:::{.g-col-lg-6 .g-col-12}
 
 ```{python}
 from great_tables import GT
@@ -118,7 +118,7 @@ wide_pops = (
 
 :::
 
-:::{.g-col-6}
+:::{.g-col-lg-6 .g-col-12}
 
 ```{python}
 from great_tables import GT, md, html
