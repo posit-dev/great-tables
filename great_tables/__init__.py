@@ -12,6 +12,7 @@ from . import data
 from . import vals
 from . import loc
 from . import style
+from ._styles import FromColumn as from_column
 from ._helpers import letters, LETTERS, px, pct, md, html, random_id
 from .data import exibble
 
@@ -26,6 +27,7 @@ __all__ = (
     "md",
     "html",
     "random_id",
+    "from_column",
     "vals",
     "loc",
     "style",
