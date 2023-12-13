@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, replace
-from typing import Any, Callable, Literal, List
+from typing import TYPE_CHECKING, Any, Callable, Literal, List
 from typing_extensions import Self
 
 from ._tbl_data import TblData, _get_cell
+
+
+if TYPE_CHECKING:
+    from ._locations import Loc
 
 
 # Cell Styles ==========================================================================
@@ -69,6 +73,16 @@ class CellStyle:
 
         return replace(self, **new_fields)
 
+    def _raise_if_has_from_column(self, loc: Loc):
+        for field in fields(self):
+            attr = getattr(self, field.name)
+            if isinstance(attr, FromColumn):
+                raise TypeError(
+                    f"Location type {type(loc)} cannot use FromColumn."
+                    f"\n\nStyle type: {type(self)}"
+                    f"\nField with FromColumn: {field.name}"
+                )
+
 
 @dataclass
 class CellStyleText(CellStyle):
@@ -129,12 +143,12 @@ class CellStyleText(CellStyle):
     """
 
     color: str | FromColumn | None = None
-    font: str | None = None
-    size: str | None = None
-    align: Literal["center", "left", "right", "justify"] | None = None
-    v_align: Literal["middle", "top", "bottom"] | None = None
-    style: Literal["normal", "italic", "oblique"] | None = None
-    weight: Literal["normal", "bold", "bolder", "lighter"] | None = None
+    font: str | FromColumn | None = None
+    size: str | FromColumn | None = None
+    align: Literal["center", "left", "right", "justify"] | FromColumn | None = None
+    v_align: Literal["middle", "top", "bottom"] | FromColumn | None = None
+    style: Literal["normal", "italic", "oblique"] | FromColumn | None = None
+    weight: Literal["normal", "bold", "bolder", "lighter"] | FromColumn | None = None
     stretch: Literal[
         "normal",
         "condensed",
@@ -145,12 +159,14 @@ class CellStyleText(CellStyle):
         "expanded",
         "extra-expanded",
         "ultra-expanded",
-    ] | None = None
-    decorate: Literal["overline", "line-through", "underline", "underline overline"] | None = None
-    transform: Literal["uppercase", "lowercase", "capitalize"] | None = None
+    ] | FromColumn | None = None
+    decorate: Literal[
+        "overline", "line-through", "underline", "underline overline"
+    ] | FromColumn | None = None
+    transform: Literal["uppercase", "lowercase", "capitalize"] | FromColumn | None = None
     whitespace: Literal[
         "normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"
-    ] | None = None
+    ] | FromColumn | None = None
 
     def _to_html_style(self) -> str:
         rendered = ""
@@ -202,7 +218,7 @@ class CellStyleFill(CellStyle):
         value.
     """
 
-    color: str
+    color: str | FromColumn
     # alpha: Optional[float] = None
 
     def _to_html_style(self) -> str:
@@ -241,10 +257,10 @@ class CellStyleBorders(CellStyle):
 
     sides: Literal["all", "top", "bottom", "left", "right"] | List[
         Literal["all", "top", "bottom", "left", "right"]
-    ] = "all"
-    color: str = "#000000"
-    style: str = "solid"
-    weight: str = "1px"
+    ] | FromColumn = "all"
+    color: str | FromColumn = "#000000"
+    style: str | FromColumn = "solid"
+    weight: str | FromColumn = "1px"
 
     def _to_html_style(self) -> str:
         # If sides is an empty list, return an empty string

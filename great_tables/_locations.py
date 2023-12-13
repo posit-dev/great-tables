@@ -366,6 +366,11 @@ def set_style(loc: Loc, data: GTData, style: List[str]) -> GTData:
 
 @set_style.register
 def _(loc: LocTitle, data: GTData, style: List[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_has_from_column(loc)
+
+    # set ----
     if loc.groups == "title":
         info = StyleInfo(locname="title", locnum=1, styles=style)
     elif loc.groups == "subtitle":

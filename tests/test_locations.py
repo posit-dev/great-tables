@@ -4,6 +4,7 @@ import pytest
 from great_tables._locations import (
     LocColumnSpanners,
     LocBody,
+    LocTitle,
     CellPos,
     resolve,
     resolve_vector_i,
@@ -104,3 +105,15 @@ def test_set_style_loc_body_from_column():
     assert len(cell_info.styles) == 1
     assert isinstance(cell_info.styles[0], CellStyleText)
     assert cell_info.styles[0].color == "blue"
+
+
+def test_set_style_loc_title_from_column_error(snapshot):
+    df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
+    gt_df = GT(df)
+    loc = LocTitle("title")
+    style = CellStyleText(color=FromColumn("color"))
+
+    with pytest.raises(TypeError) as exc_info:
+        set_style(loc, gt_df, [style])
+
+    assert snapshot == exc_info.value.args[0]
