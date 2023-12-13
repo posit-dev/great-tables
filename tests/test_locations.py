@@ -92,7 +92,11 @@ def test_resolve_column_spanners_error_missing():
 
 @pytest.mark.parametrize(
     "expr",
-    [FromColumn("color"), pl.col("color"), pl.col("color").str.to_uppercase().str.to_lowercase()],
+    [
+        FromColumn("color"),
+        pl.col("color"),
+        pl.col("color").str.to_uppercase().str.to_lowercase(),
+    ],
 )
 def test_set_style_loc_body_from_column(expr):
     df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
