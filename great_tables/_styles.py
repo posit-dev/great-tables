@@ -26,13 +26,13 @@ class FromColumn:
 
     ```{python}
     import pandas as pd
-    from great_tables import GT, exibble, loc, style
+    from great_tables import GT, exibble, from_column, loc, style
 
     df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
 
     gt = GT(df)
     gt.tab_style(
-        style = style.text(color = style.from_column("color")),
+        style = style.text(color = from_column("color")),
         locations = loc.body(columns = ["x"])
     )
 
