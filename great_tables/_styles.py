@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, Any, Callable, Literal, List
-from typing_extensions import Self
+from typing import TYPE_CHECKING, Any, Callable, Literal, List, Union
+from typing_extensions import Self, TypeAlias
 
-from ._tbl_data import TblData, _get_cell
+from ._tbl_data import TblData, _get_cell, PlExpr, eval_transform
 
 
 if TYPE_CHECKING:
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 # Cell Styles ==========================================================================
 # TODO: stubbed out the styles in helpers.R as dataclasses while I was reading it,
 # but have no worked on any runtime validation, etc..
+ColumnExpr: TypeAlias = Union["FromColumn", PlExpr, "FromValues"]
 
 
 @dataclass
@@ -44,6 +45,12 @@ class FromColumn:
     fn: Callable[[Any], Any] | None = None
 
 
+@dataclass
+class FromValues:
+    values: list[Any]
+    expr: PlExpr | None = None
+
+
 # TODO: what goes into CellStyle?
 @dataclass
 class CellStyle:
@@ -51,6 +58,19 @@ class CellStyle:
 
     def _to_html_style(self) -> str:
         raise NotImplementedError
+
+    def _evaluate_expressions(self, data: TblData) -> Self:
+        new_fields: dict[str, FromValues] = {}
+        for field in fields(self):
+            attr = getattr(self, field.name)
+            if isinstance(attr, PlExpr):
+                col_res = eval_transform(data, attr)
+                new_fields[field.name] = FromValues(expr=attr, values=col_res)
+
+        if not new_fields:
+            return self
+
+        return replace(self, **new_fields)
 
     def _from_row(self, data: TblData, row: int) -> Self:
         """Return a new object with FromColumn replaced with values from row.
@@ -67,13 +87,15 @@ class CellStyle:
                 val = _get_cell(data, row, attr.column)
 
                 new_fields[field.name] = attr.fn(val) if attr.fn is not None else val
+            elif isinstance(attr, FromValues):
+                new_fields[field.name] = attr.values[row]
 
         if not new_fields:
             return self
 
         return replace(self, **new_fields)
 
-    def _raise_if_has_from_column(self, loc: Loc):
+    def _raise_if_requires_data(self, loc: Loc):
         for field in fields(self):
             attr = getattr(self, field.name)
             if isinstance(attr, FromColumn):
@@ -142,13 +164,13 @@ class CellStyleText(CellStyle):
         properties.
     """
 
-    color: str | FromColumn | None = None
-    font: str | FromColumn | None = None
-    size: str | FromColumn | None = None
-    align: Literal["center", "left", "right", "justify"] | FromColumn | None = None
-    v_align: Literal["middle", "top", "bottom"] | FromColumn | None = None
-    style: Literal["normal", "italic", "oblique"] | FromColumn | None = None
-    weight: Literal["normal", "bold", "bolder", "lighter"] | FromColumn | None = None
+    color: str | ColumnExpr | None = None
+    font: str | ColumnExpr | None = None
+    size: str | ColumnExpr | None = None
+    align: Literal["center", "left", "right", "justify"] | ColumnExpr | None = None
+    v_align: Literal["middle", "top", "bottom"] | ColumnExpr | None = None
+    style: Literal["normal", "italic", "oblique"] | ColumnExpr | None = None
+    weight: Literal["normal", "bold", "bolder", "lighter"] | ColumnExpr | None = None
     stretch: Literal[
         "normal",
         "condensed",
@@ -159,14 +181,14 @@ class CellStyleText(CellStyle):
         "expanded",
         "extra-expanded",
         "ultra-expanded",
-    ] | FromColumn | None = None
+    ] | ColumnExpr | None = None
     decorate: Literal[
         "overline", "line-through", "underline", "underline overline"
-    ] | FromColumn | None = None
-    transform: Literal["uppercase", "lowercase", "capitalize"] | FromColumn | None = None
+    ] | ColumnExpr | None = None
+    transform: Literal["uppercase", "lowercase", "capitalize"] | ColumnExpr | None = None
     whitespace: Literal[
         "normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"
-    ] | FromColumn | None = None
+    ] | ColumnExpr | None = None
 
     def _to_html_style(self) -> str:
         rendered = ""
@@ -218,7 +240,7 @@ class CellStyleFill(CellStyle):
         value.
     """
 
-    color: str | FromColumn
+    color: str | ColumnExpr
     # alpha: Optional[float] = None
 
     def _to_html_style(self) -> str:
@@ -257,10 +279,10 @@ class CellStyleBorders(CellStyle):
 
     sides: Literal["all", "top", "bottom", "left", "right"] | List[
         Literal["all", "top", "bottom", "left", "right"]
-    ] | FromColumn = "all"
-    color: str | FromColumn = "#000000"
-    style: str | FromColumn = "solid"
-    weight: str | FromColumn = "1px"
+    ] | ColumnExpr = "all"
+    color: str | ColumnExpr = "#000000"
+    style: str | ColumnExpr = "solid"
+    weight: str | ColumnExpr = "1px"
 
     def _to_html_style(self) -> str:
         # If sides is an empty list, return an empty string

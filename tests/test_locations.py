@@ -1,4 +1,5 @@
 import pandas as pd
+import polars as pl
 import pytest
 
 from great_tables._locations import (
@@ -89,11 +90,20 @@ def test_resolve_column_spanners_error_missing():
         resolve(loc, spanners)
 
 
-def test_set_style_loc_body_from_column():
+@pytest.mark.parametrize(
+    "expr",
+    [FromColumn("color"), pl.col("color"), pl.col("color").str.to_uppercase().str.to_lowercase()],
+)
+def test_set_style_loc_body_from_column(expr):
     df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
-    gt_df = GT(df)
+
+    if isinstance(expr, pl.Expr):
+        gt_df = GT(pl.DataFrame(df))
+    else:
+        gt_df = GT(df)
+
     loc = LocBody(["x"], [1])
-    style = CellStyleText(color=FromColumn("color"))
+    style = CellStyleText(color=expr)
 
     new_gt = set_style(loc, gt_df, [style])
 

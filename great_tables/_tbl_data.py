@@ -400,3 +400,46 @@ def _(ser: PdSeries) -> List[Any]:
 @to_list.register
 def _(ser: PlSeries) -> List[Any]:
     return ser.to_list()
+
+
+# mutate ----
+
+
+@singledispatch
+def eval_transform(df: DataFrameLike, expr: Any) -> List[Any]:
+    raise NotImplementedError(f"Unsupported type: {type(df)}")
+
+
+@eval_transform.register
+def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> List[Any]:
+    res = expr(df)
+
+    if not isinstance(res, PdSeries):
+        raise ValueError(f"Result must be a pandas Series. Received {type(res)}")
+    elif not len(res) == len(df):
+        raise ValueError(
+            f"Result must be same length as input data. Observed different lengths."
+            f"\n\nInput data: {len(df)}.\nResult: {len(res)}."
+        )
+
+    return res.to_list()
+
+
+@eval_transform.register
+def _(df: PlDataFrame, expr: PlExpr) -> List[Any]:
+    df_res = df.select(expr)
+
+    if len(df_res.columns) > 1:
+        raise ValueError(f"Result must be a single column. Received {len(df_res.columns)} columns.")
+    else:
+        res = df_res[df_res.columns[0]]
+
+    if not isinstance(res, PlSeries):
+        raise ValueError(f"Result must be a polars Series. Received {type(res)}")
+    elif not len(res) == len(df):
+        raise ValueError(
+            f"Result must be same length as input data. Observed different lengths."
+            f"\n\nInput data: {len(df)}.\nResult: {len(res)}."
+        )
+
+    return res.to_list()
