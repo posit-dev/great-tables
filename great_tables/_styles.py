@@ -35,7 +35,18 @@ class FromColumn:
         style = style.text(color = from_column("color")),
         locations = loc.body(columns = ["x"])
     )
+    ```
 
+    If you are using polars, you can just pass polars expressions in directly:
+
+    ```{python}
+    import polars as pl
+
+    gt_polars = GT(pl.from_pandas(df))
+    gt_polars.tab_style(
+        style = style.text(color = pl.col("color")),    # <-- polars expression
+        locations = loc.body(columns = ["x"])
+    )
     ```
     """
 
