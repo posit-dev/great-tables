@@ -110,6 +110,7 @@ quartodoc:
         - style.fill
         - style.text
         - style.borders
+        - style.from_column
     - title: Helper functions
       desc: >
         An assortment of helper functions is available in the **Great Tables** package. The `md()`

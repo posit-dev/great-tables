@@ -9,7 +9,9 @@ from great_tables._locations import (
     resolve_vector_i,
     resolve_cols_i,
     resolve_rows_i,
+    set_style,
 )
+from great_tables._styles import CellStyleText, FromColumn
 from great_tables._gt_data import Spanners, SpannerInfo
 from great_tables import GT
 
@@ -84,3 +86,21 @@ def test_resolve_column_spanners_error_missing():
 
     with pytest.raises(ValueError):
         resolve(loc, spanners)
+
+
+def test_set_style_loc_body_from_column():
+    df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
+    gt_df = GT(df)
+    loc = LocBody(["x"], [1])
+    style = CellStyleText(color=FromColumn("color"))
+
+    new_gt = set_style(loc, gt_df, [style])
+
+    # 1 style info added
+    assert len(new_gt._styles) == 1
+    cell_info = new_gt._styles[0]
+
+    # style info has single cell style, with new color
+    assert len(cell_info.styles) == 1
+    assert isinstance(cell_info.styles[0], CellStyleText)
+    assert cell_info.styles[0].color == "blue"

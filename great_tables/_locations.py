@@ -378,12 +378,13 @@ def _(loc: LocTitle, data: GTData, style: List[CellStyle]) -> GTData:
 
 @set_style.register
 def _(loc: LocBody, data: GTData, style: List[CellStyle]) -> GTData:
-    positions = resolve(loc, data)
+    positions: List[CellPos] = resolve(loc, data)
 
     all_info: list[StyleInfo] = []
     for col_pos in positions:
+        row_styles = [entry._from_row(data._tbl_data, col_pos.row) for entry in style]
         crnt_info = StyleInfo(
-            locname="data", locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=style
+            locname="data", locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=row_styles
         )
         all_info.append(crnt_info)
 

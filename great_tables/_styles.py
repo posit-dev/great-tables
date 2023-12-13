@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Literal, List
+from dataclasses import dataclass, fields, replace
+from typing import Any, Callable, Literal, List
+from typing_extensions import Self
+
+from ._tbl_data import TblData, _get_cell
 
 
 # Cell Styles ==========================================================================
@@ -9,12 +12,62 @@ from typing import Literal, List
 # but have no worked on any runtime validation, etc..
 
 
+@dataclass
+class FromColumn:
+    """Specify that a style value should be fetched from a column in the data.
+
+    Examples
+    --------
+
+    ```{python}
+    import pandas as pd
+    from great_tables import GT, exibble, loc, style
+
+    df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
+
+    gt = GT(df)
+    gt.tab_style(
+        style = style.text(color = style.from_column("color")),
+        locations = loc.body(columns = ["x"])
+    )
+
+    ```
+    """
+
+    column: str
+    # TODO: na_value currently unused
+    na_value: Any | None = None
+    fn: Callable[[Any], Any] | None = None
+
+
 # TODO: what goes into CellStyle?
+@dataclass
 class CellStyle:
     """A style specification."""
 
     def _to_html_style(self) -> str:
         raise NotImplementedError
+
+    def _from_row(self, data: TblData, row: int) -> Self:
+        """Return a new object with FromColumn replaced with values from row.
+
+        Note that if no FromColumn fields are present, this returns the original object.
+        """
+
+        new_fields: dict[str, Any] = {}
+        for field in fields(self):
+            attr = getattr(self, field.name)
+            if isinstance(attr, FromColumn):
+                # TODO: could validate that the value fetched from data is allowed.
+                # e.g. that color is a string, etc..
+                val = _get_cell(data, row, attr.column)
+
+                new_fields[field.name] = attr.fn(val) if attr.fn is not None else val
+
+        if not new_fields:
+            return self
+
+        return replace(self, **new_fields)
 
 
 @dataclass
@@ -75,7 +128,7 @@ class CellStyleText(CellStyle):
         properties.
     """
 
-    color: str | None = None
+    color: str | FromColumn | None = None
     font: str | None = None
     size: str | None = None
     align: Literal["center", "left", "right", "justify"] | None = None
