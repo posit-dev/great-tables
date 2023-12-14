@@ -40,6 +40,39 @@ Notice two important arguments to `GT.tab_style()`:
 * `style.fill(...)`: the type of style to apply. In this case the fill (background color).
 * `loc.body(...)`: the area we want to style. In this case, it's the table body with specific columns and rows specified.
 
+In addition to `style.fill()`, several other styles exist. We'll look at styling borders and text in the following sections.
+
+### Customizing borders
+
+Use [`style.borders()`](/reference/style.borders.qmd) to put a border around target cells.
+
+For example, the table below has a red dashed border at the top of a couple rows.
+
+```{python}
+border_style = style.borders(sides="top", color="red", style="dashed", weight="3px")
+
+gt_air.tab_style(
+    style = border_style,
+    locations = loc.body(rows=[1, 2])
+)
+```
+
+
+### Customizing text
+
+Use [`style.text()`](/reference/style.text.qmd) to customize the text in target cells.
+
+For example, the `Solar_R` column below has green, bolded text in a custom font.
+
+```{python}
+text_style = style.text(color = "green", font="Times New Roman", weight="bold")
+
+gt_air.tab_style(
+    style = text_style,
+    locations = loc.body(columns = "Solar_R")
+)
+```
+
 ## Specifying columns and rows
 
 If you are using polars, you can use column selectors and expressions for selecting specific rows and columns:
