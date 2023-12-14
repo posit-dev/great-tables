@@ -366,6 +366,11 @@ def set_style(loc: Loc, data: GTData, style: List[str]) -> GTData:
 
 @set_style.register
 def _(loc: LocTitle, data: GTData, style: List[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+
+    # set ----
     if loc.groups == "title":
         info = StyleInfo(locname="title", locnum=1, styles=style)
     elif loc.groups == "subtitle":
@@ -378,12 +383,16 @@ def _(loc: LocTitle, data: GTData, style: List[CellStyle]) -> GTData:
 
 @set_style.register
 def _(loc: LocBody, data: GTData, style: List[CellStyle]) -> GTData:
-    positions = resolve(loc, data)
+    positions: List[CellPos] = resolve(loc, data)
+
+    # evaluate any column expressions in styles
+    style_ready = [entry._evaluate_expressions(data._tbl_data) for entry in style]
 
     all_info: list[StyleInfo] = []
     for col_pos in positions:
+        row_styles = [entry._from_row(data._tbl_data, col_pos.row) for entry in style_ready]
         crnt_info = StyleInfo(
-            locname="data", locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=style
+            locname="data", locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=row_styles
         )
         all_info.append(crnt_info)
 

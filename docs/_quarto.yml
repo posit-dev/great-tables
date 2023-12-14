@@ -119,6 +119,7 @@ quartodoc:
       contents:
         - md
         - html
+        - from_column
         #- px
         #- pct
     - title: Value formatting functions
