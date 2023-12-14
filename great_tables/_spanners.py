@@ -456,10 +456,7 @@ def cols_hide(data: GTData, columns: SelectExpr) -> GTData:
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
 
     # New boxhead with hidden columns
-    new_boxhead = data._boxhead
-
-    for col in sel_cols:
-        new_boxhead = new_boxhead.set_col_hidden(colname=col)
+    new_boxhead = data._boxhead.set_cols_hidden(sel_cols)
 
     return data._replace(_boxhead=new_boxhead)
 

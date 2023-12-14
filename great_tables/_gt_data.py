@@ -267,12 +267,17 @@ class Boxhead(_Sequence[ColInfo]):
                 new_col = replace(col, type=ColInfoTypeEnum.default)
                 self._d[ii] = new_col
 
-    def set_col_hidden(self, colname: str):
+    def set_cols_hidden(self, colnames: list[str]):
         # TODO: validate that colname is in the boxhead
+        res: list[ColInfo] = []
         for ii, col in enumerate(self._d):
-            if col.var == colname:
+            if col.var in colnames:
                 new_col = replace(col, type=ColInfoTypeEnum.hidden)
-                self._d[ii] = new_col
+                res.append(new_col)
+            else:
+                res.append(col)
+
+        return self.__class__(res)
 
     def align_from_data(self, data: TblData):
         """Updates align attribute in entries based on data types."""
