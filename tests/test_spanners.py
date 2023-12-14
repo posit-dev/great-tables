@@ -5,6 +5,7 @@ from great_tables._spanners import (
     spanners_print_matrix,
     empty_spanner_matrix,
     tab_spanner,
+    cols_hide,
     cols_move,
 )
 from great_tables._gt_data import Spanners, SpannerInfo, Boxhead, ColInfo, ColInfoTypeEnum
@@ -148,6 +149,17 @@ def test_tab_spanners_with_gather():
 
     assert len(new_gt._spanners) == 1
     assert [col.var for col in new_gt._boxhead] == ["a", "c", "b"]
+
+
+def test_cols_hide():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    src_gt = GT(df)
+
+    new_gt = cols_hide(src_gt, columns=["a"])
+    assert [col.var for col in new_gt._boxhead if col.visible] == ["b", "c"]
+
+    new_gt = cols_hide(src_gt, columns=["a", "b"])
+    assert [col.var for col in new_gt._boxhead if col.visible] == ["c"]
 
 
 def test_cols_move():

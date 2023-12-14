@@ -8,7 +8,7 @@ from ._gt_data import Spanners, SpannerInfo
 from ._locations import SelectExpr, resolve_cols_c
 
 if TYPE_CHECKING:
-    from ._gt_data import GTData, Boxhead
+    from ._gt_data import Boxhead
     from ._types import GTSelf
 
 
@@ -188,7 +188,7 @@ def tab_spanner(
     return new_data
 
 
-def cols_move(data: GTData, columns: SelectExpr, after: str) -> GTData:
+def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
     """Move one or more columns.
 
     On those occasions where you need to move columns this way or that way, we can make use of the
@@ -411,7 +411,7 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
     return data._replace(_boxhead=new_boxhead)
 
 
-def cols_hide(data: GTData, columns: SelectExpr) -> GTData:
+def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
     """Hide one or more columns.
 
     The `cols_hide()` method allows us to hide one or more columns from appearing in the final
