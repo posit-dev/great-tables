@@ -30,6 +30,18 @@ def test_source_notes_snap(snapshot):
     assert_rendered_source_notes(snapshot, new_gt)
 
 
+def test_body_multiple_locations(snapshot):
+    new_gt = GT(small_exibble).tab_style(
+        style=style.fill(color="red"),
+        locations=[
+            loc.body(columns="num", rows=[0, 2]),
+            loc.body(columns="char", rows=[1]),
+        ],
+    )
+
+    assert_rendered_body(snapshot, new_gt)
+
+
 def test_styling_data_01(snapshot):
     new_gt = GT(small_exibble).tab_style(
         style=style.text(color="red"),

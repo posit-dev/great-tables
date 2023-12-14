@@ -82,7 +82,7 @@ def tab_style(
 
     new_data = self
     for loc in locations:
-        new_data = set_style(loc, self, style)
+        new_data = set_style(loc, new_data, style)
 
     return new_data
 
