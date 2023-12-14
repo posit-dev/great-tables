@@ -42,6 +42,15 @@ def test_body_multiple_locations(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
+def test_body_multiple_styles(snapshot):
+    new_gt = GT(small_exibble).tab_style(
+        style=[style.fill(color="red"), style.borders("left")],
+        locations=loc.body(columns="num", rows=[0]),
+    )
+
+    assert_rendered_body(snapshot, new_gt)
+
+
 def test_styling_data_01(snapshot):
     new_gt = GT(small_exibble).tab_style(
         style=style.text(color="red"),
