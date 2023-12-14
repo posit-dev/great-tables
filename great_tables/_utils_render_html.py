@@ -409,8 +409,6 @@ def create_columns_component_h(data: GTData) -> str:
 
 
 def create_body_component_h(data: GTData) -> str:
-    import pandas as pd
-
     # for now, just coerce everything in the original data to a string
     # so we can fill in the body data with it
     _str_orig_data = cast_frame_to_string(data._tbl_data)
@@ -482,13 +480,10 @@ def create_body_component_h(data: GTData) -> str:
 
             # Develop the `style` attribute for the current cell
             if len(styles_i) > 0:
-                style_entries = [x.styles for x in styles_i]
-                cell_styles_list: List[str] = []
-                for style in style_entries:
-                    style_element = style[0]
-                    rendered_style = style_element._to_html_style()
-                    cell_styles_list.append(rendered_style)
-                cell_styles = f'style="{" ".join(cell_styles_list)}"' + " "
+                # flatten all StyleInfo.styles lists
+                style_entries = list(chain(*[x.styles for x in styles_i]))
+                rendered_styles = [el._to_html_style() for el in style_entries]
+                cell_styles = f'style="{" ".join(rendered_styles)}"' + " "
             else:
                 cell_styles = ""
 
