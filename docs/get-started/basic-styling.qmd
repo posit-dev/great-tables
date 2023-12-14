@@ -1,0 +1,188 @@
+---
+title: Stying the table body
+jupyter: python3
+html-table-processing: none
+---
+
+Great Tables can add styles---like color, text properties, and borders---on many different parts of
+the displayed table. This page covers setting styles on the body of table, where column data is displayed.
+
+For the examples on this page, we'll use the included airquality dataset to set up GT objects for both pandas and polars DataFrames.
+
+```{python}
+import polars as pl
+
+from great_tables import GT, from_column, style, loc
+from great_tables.data import airquality
+
+air_head = airquality.head()
+
+# we'll use pandas and polars examples on this page ----
+gt_air = GT(air_head)
+gt_pl_air = GT(pl.from_pandas(air_head))
+```
+
+## Style basics
+
+Use the `GT.tab_style()` method with `loc.body()` to set styles on cells of data in the table body.
+
+For example, the code below fills in specific cells with yellow.
+
+```{python}
+gt_air.tab_style(
+    style = style.fill("yellow"),
+    locations = loc.body(columns="Temp", rows=[1, 2])
+)
+```
+
+Notice two important arguments to `GT.tab_style()`:
+
+* `style.fill(...)`: the type of style to apply. In this case the fill (background color).
+* `loc.body(...)`: the area we want to style. In this case, it's the table body with specific columns and rows specified.
+
+## Specifying columns and rows
+
+If you are using polars, you can use column selectors and expressions for selecting specific rows and columns:
+
+```{python}
+import polars.selectors as cs
+
+gt_pl_air.tab_style(
+    style.fill("yellow"),
+    loc.body(cs.starts_with("Te"), pl.col("Temp") > 70)
+)
+```
+
+See [Column Selection](./column-selection.qmd) for details on selecting columns.
+
+## Column-based styles
+
+In addition to setting styles to specific values (e.g. "yellow" background), you can also use table
+columns to specify styles.
+
+```{python}
+df = pl.DataFrame({"x": [1, 2], "background": ["lightyellow", "lightblue"]})
+
+(
+    GT(df)
+    .tab_style(
+        style=style.fill(color=from_column("background")),
+        locations=loc.body("x")
+    )
+)
+```
+
+Notice that in the code above, we used `from_column("background") to specify the fill color for each styled row.
+
+
+In the next sections, we'll first show how this combines nicely with `GT.cols_hide()`, and then how to use polars
+expressions to do everything much more simply.
+
+### Using with `cols_hide()`
+
+One common approach is to specify a style from a column, and then hide that column in the final output.
+
+For example, we can add a background column to our airquality data:
+
+
+```{python}
+color_map = {
+    True: "lightyellow",
+    False: "lightblue"
+}
+
+with_color = air_head.assign(
+    background = (air_head["Temp"] > 70).replace(color_map)
+)
+
+with_color
+```
+
+Notice that airquality now has a `background` column set to either "lightyellow" or "lightblue", depending
+on whether `Temp` is above 70.
+
+We can then use this `background` column to set fill color, and then hide it:
+
+```{python}
+(
+    GT(with_color)
+    .tab_style(
+        style.fill(color = from_column("background")),
+        loc.body("Temp")
+    )
+    .cols_hide("background")
+)
+```
+
+Note the two methods used above:
+
+* `tab_style()`: uses `from_column()` to set the color using the values of the `background` column.
+* `cols_hide()`: prevents the `background` column from being displayed in the output.
+
+
+
+### Using polars expressions
+
+Styles can also be specified using polars expressions.
+
+For example, the code below uses the `Temp` column to set color to "lightyellow" or "lightblue".
+
+```{python}
+# polars expression defines color based on temp
+temp_color = (
+    pl.when(pl.col("Temp") > 70)
+    .then(pl.lit("lightyellow"))
+    .otherwise(pl.lit("lightblue"))
+)
+
+gt_pl_air.tab_style(
+    style.fill(color = temp_color),   # <-- uses the polars expression
+    loc.body("Temp")
+)
+```
+
+
+## Multiple styles and locations
+
+Use a list of styles to apply multiple styles at once.
+
+For example, the code below sets fill and border on the same cells.
+
+```{python}
+gt_air.tab_style(
+    [style.fill("yellow"), style.borders(sides = "all")],
+    loc.body("Temp", [1, 2])
+)
+```
+
+Note that you can also pass a list of locations in.
+
+```{python}
+gt_air.tab_style(
+    style.fill("yellow"),
+    [loc.body("Temp", [1, 2]), loc.body("Ozone", [0])]
+)
+
+```
+
+You can also combine polars selectors with a row filtering expression, in order to select a combination of columns and rows.
+
+```{python}
+import polars.selectors as cs
+
+gt_pl_air.tab_style(
+    style.fill("yellow"),
+    loc.body(
+        columns = cs.all().exclude(["Month", "Day"]),
+        rows = pl.col("Temp") == pl.col("Temp").max()
+    )
+)
+```
+
+
+## Learning more
+
+* API Docs:
+  - [`GT.tab_style()`](/reference/GT.tab_style.qmd).
+  - [`style.*` and `loc.*` functions`](/reference/index.qmd#location-targeting-and-styling-classes).
+  - [`from_column()`](/reference/from_column.qmd)
