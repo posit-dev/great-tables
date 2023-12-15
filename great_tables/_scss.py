@@ -138,7 +138,7 @@ def compile_scss(data: GTData, id: Optional[str], compress: bool = True) -> str:
     if has_id:
         compiled_css = re.sub(r"\.gt_", f"#{id} .gt_", compiled_css, 0, re.MULTILINE)
         compiled_css = re.sub(r"thead", f"#{id} thead", compiled_css, 0, re.MULTILINE)
-        compiled_css = re.sub(r"^p \{", f"#{id} p " + "{", compiled_css, 0, re.MULTILINE)
+        compiled_css = re.sub(r"^ p \{", f" #{id} p " + "{", compiled_css, 0, re.MULTILINE)
 
     finalized_css = f"{gt_table_class_str}\n\n{compiled_css}"
 
