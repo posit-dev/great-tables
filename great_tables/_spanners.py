@@ -26,11 +26,11 @@ def tab_spanner(
     replace: bool = False,
 ) -> GTSelf:
     """
-    Insert a spanner in the column labels part of a gt table.
+    Insert a spanner above a selection of column headings.
 
     This part of the table contains, at a minimum, column labels and, optionally, an unlimited
     number of levels for spanners. A spanner will occupy space over any number of contiguous column
-    labels and it will have an associated label and ID value. This function allows for mapping to be
+    labels and it will have an associated label and ID value. This method allows for mapping to be
     defined by column names, existing spanner ID values, or a mixture of both.
 
     The spanners are placed in the order of calling `tab_spanner()` so if a later call uses the same
@@ -52,7 +52,7 @@ def tab_spanner(
         spanner ID values (in quotes) can be supplied here. This argument works in tandem with the
         `columns` argument.
     level : Optional[int]
-        An explicit level to which the spanner should be placed. If not provided, **great_tables**
+        An explicit level to which the spanner should be placed. If not provided, **Great Tables**
         will choose the level based on the inputs provided within `columns` and `spanners`, placing
         the spanner label where it will fit. The first spanner level (right above the column labels)
         is `0`.
@@ -61,10 +61,10 @@ def tab_spanner(
         `tab_spanner()` or `cells_column_spanners()` (when using `tab_style()` or `tab_footnote()`)
         the `id` value is used as the reference (and not the `label`). If an `id` is not explicitly
         provided here, it will be taken from the `label` value. It is advisable to set an explicit
-        `id` value if you plan to access this cell in a later function call and the label text is
-        complicated (e.g., contains markup, is lengthy, or both). Finally, when providing an `id`
-        value you must ensure that it is unique across all ID values set for spanner labels (the
-        function will stop if `id` isn't unique).
+        `id` value if you plan to access this cell in a later call and the label text is complicated
+        (e.g., contains markup, is lengthy, or both). Finally, when providing an `id` value you must
+        ensure that it is unique across all ID values set for spanner labels (the method will throw
+        an error if `id` isn't unique).
     gather : bool
         An option to move the specified `columns` such that they are unified under the spanner.
         Ordering of the moved-into-place columns will be preserved in all cases. By default, this
@@ -193,7 +193,7 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
 
     On those occasions where you need to move columns this way or that way, we can make use of the
     `cols_move()` method. While it's true that the movement of columns can be done upstream of
-    **great_tables**, it is much easier and less error prone to use the function provided here. The
+    **Great Tables**, it is much easier and less error prone to use the method provided here. The
     movement procedure here takes one or more specified columns (in the `columns` argument) and
     places them to the right of a different column (the `after` argument). The ordering of the
     `columns` to be moved is preserved, as is the ordering of all other columns in the table.
@@ -277,8 +277,8 @@ def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
     """Move one or more columns to the start.
 
     We can easily move set of columns to the beginning of the column series and we only need to
-    specify which `columns`. It's possible to do this upstream of **gt_tables**, however, it is
-    easier with this function and it presents less possibility for error. The ordering of the
+    specify which `columns`. It's possible to do this upstream of **Great Tables**, however, it is
+    easier with this method and it presents less possibility for error. The ordering of the
     `columns` that are moved to the start is preserved (same with the ordering of all other columns
     in the table).
 
@@ -349,8 +349,8 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
     """Move one or more columns to the end.
 
     We can easily move set of columns to the beginning of the column series and we only need to
-    specify which `columns`. It's possible to do this upstream of **gt_tables**, however, it is
-    easier with this function and it presents less possibility for error. The ordering of the
+    specify which `columns`. It's possible to do this upstream of **Great Tables**, however, it is
+    easier with this method and it presents less possibility for error. The ordering of the
     `columns` that are moved to the end is preserved (same with the ordering of all other columns in
     the table).
 
@@ -435,7 +435,7 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
     -------
     The hiding of columns is internally a rendering directive, so, all columns that are 'hidden' are
     still accessible and useful in any expression provided to a `rows` argument. Furthermore, the
-    `cols_hide()` method (as with many of the methods available in **great_tables**) can be placed
+    `cols_hide()` method (as with many of the methods available in **Great Tables**) can be placed
     anywhere in a chain of calls (acting as a promise to hide columns when the timing is right).
     However there's perhaps greater readability when placing this call closer to the end of such a
     chain. The `cols_hide()` method quietly changes the visible state of a column and doesn't yield

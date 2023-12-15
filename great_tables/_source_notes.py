@@ -11,11 +11,11 @@ def tab_source_note(data: GTSelf, source_note: str) -> GTSelf:
     """
     Add a source note citation.
 
-    Add a source note to the footer part of the gt table. A source note is useful for citing the
-    data included in the table. Several can be added to the footer, simply use the
-    `tab_source_note()` method multiple times and they will be inserted in the order provided. We
-    can use Markdown formatting for the note, or, if the table is intended for HTML output, we can
-    include HTML formatting.
+    Add a source note to the footer part of the table. A source note is useful for citing the data
+    included in the table. Several can be added to the footer, simply use the `tab_source_note()`
+    method multiple times and they will be inserted in the order provided. We can use Markdown
+    formatting for the note, or, if the table is intended for HTML output, we can include HTML
+    formatting.
 
     Parameters
     ----------

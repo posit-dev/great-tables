@@ -33,7 +33,7 @@ end_date = "2010-06-14"
 # Filter sp500 using Pandas to dates between `start_date` and `end_date`
 sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 
-# Create a gt table based on the `sp500_mini` table data
+# Create a display table based on the `sp500_mini` table data
 (
     gt.GT(data=sp500_mini)
     .tab_header(title="S&P 500", subtitle=f"{start_date} to {end_date}")

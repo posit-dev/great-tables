@@ -96,7 +96,7 @@ keep_rows = countrypops.country_code_2.isin(list(region_to_country)) & countrypo
     [2000, 2010, 2020]
 )
 
-# Create a gt table based on a preprocessed `countrypops`
+# Create a display table based on a preprocessed `countrypops`
 wide_pops = (
     pl.from_pandas(countrypops)
     .filter(

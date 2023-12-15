@@ -23,7 +23,7 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
 
     It's important to note that while columns can be freely relabeled, we continue to refer to
     columns by their names for targeting purposes. Column names in the input data table must be
-    unique whereas column labels in **great_tables** have no requirement for uniqueness (which
+    unique whereas column labels in **Great Tables** have no requirement for uniqueness (which
     is useful for labeling columns as, say, measurement units that may be repeated several
     times---usually under different spanner labels). Thus, we can still easily distinguish
     between columns in other method calls (e.g., in all of the `fmt*()` methods) even though we

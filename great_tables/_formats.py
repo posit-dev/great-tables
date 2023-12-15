@@ -313,8 +313,8 @@ def fmt_integer(
     """
     Format values as integers.
 
-    With numeric values in a gt table, we can perform number-based formatting so that the targeted
-    values are always rendered as integer values.
+    With numeric values in one or more table columns, we can perform number-based formatting so that
+    the targeted values are always rendered as integer values.
 
     We can have fine control over integer formatting with the following options:
 
@@ -1033,7 +1033,7 @@ def fmt_currency(
     locale ID here means separator and decimal marks will be correct for the given locale. Should
     any values be provided in `sep_mark` or `dec_mark`, they will be overridden by the locale's
     preferred values. In addition to number formatting, providing a `locale` value and not providing
-    a `currency` allows **great_tables** to obtain the currency code from the locale's territory.
+    a `currency` allows **Great Tables** to obtain the currency code from the locale's territory.
 
     Note that a `locale` value provided here will override any global locale setting performed in
     `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
