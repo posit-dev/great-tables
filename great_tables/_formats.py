@@ -1926,6 +1926,9 @@ def fmt_url(
             # color = _get_html_color(colors=color, alpha=None)
 
     else:
+        button_outline_style = "none"
+        button_outline_color = "invisible"
+
         if show_underline == "auto":
             show_underline = True
 
@@ -1958,14 +1961,14 @@ def fmt_url(
 
             if matched:
                 # Generate label
-                if bool(re.match(f"\\[.*?\\]\\(.*?\\)", x)):
-                    label_str = re.sub(f"\\[(.*?)\\]\\(.*?\\)", "\\1", x)
+                if bool(re.match(r"\\[.*?\\]\\(.*?\\)", x)):
+                    label_str = re.sub(r"\\[(.*?)\\]\\(.*?\\)", "\\1", x)
                 else:
                     label_str = x
 
                 # Generate href value
-                if bool(re.match(f"\\[.*?\\]\\(.*?\\)", x)):
-                    href_str = re.sub(f"\\[.*?\\]\\((.*?)\\)", "\\1", x)
+                if bool(re.match(r"\\[.*?\\]\\(.*?\\)", x)):
+                    href_str = re.sub(r"\\[.*?\\]\\((.*?)\\)", "\\1", x)
                 else:
                     href_str = x
 
@@ -3214,7 +3217,7 @@ def _get_html_color(colors: List[str]) -> List[str]:
     expanded_colors = []
     for color in colors:
         if is_short_hex[colors.index(color)]:
-            expanded_colors.append(expand_short_hex(color))
+            expanded_colors.append(_expand_short_hex(color))
         else:
             expanded_colors.append(color)
     colors = expanded_colors
