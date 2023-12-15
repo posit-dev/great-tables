@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables – data.metro</title>
+<title>great_tables – gt.fmt_url</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/data.constants.html" rel="next">
-<link href="../reference/data.towny.html" rel="prev">
+<link href="../reference/GT.fmt_markdown.html" rel="next">
+<link href="../reference/GT.fmt_time.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -117,7 +117,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/data.countrypops.html">Built in datasets</a></li><li class="breadcrumb-item"><a href="../reference/data.metro.html">data.metro</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/GT.fmt_number.html">Formatting column data</a></li><li class="breadcrumb-item"><a href="../reference/GT.fmt_url.html">GT.fmt_url</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
     </div>
@@ -258,7 +258,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/GT.fmt_url.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/GT.fmt_url.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">GT.fmt_url</span></a>
   </div>
 </li>
@@ -511,7 +511,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/data.metro.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/data.metro.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">data.metro</span></a>
   </div>
 </li>
@@ -539,9 +539,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.data.metro" id="toc-great_tables.data.metro" class="nav-link active" data-scroll-target="#great_tables.data.metro">data.metro</a>
+  <li><a href="#great_tables.GT.fmt_url" id="toc-great_tables.GT.fmt_url" class="nav-link active" data-scroll-target="#great_tables.GT.fmt_url">GT.fmt_url</a>
   <ul class="collapse">
-  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -551,28 +552,103 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="great_tables.data.metro" class="level1">
-<h1>data.metro</h1>
-<p><code>data.metro</code></p>
-<p>The stations of the Paris Metro.</p>
-<p>A dataset with information on all 308 Paris Metro stations as of February 2023. Each record represents a station, describing which Metro lines are serviced by the station, which other connections are available, and annual passenger volumes. Basic location information is provided for each station in terms where they reside on a municipal level, and, through latitude/longitude coordinates.</p>
-<p>The system has 16 lines (numbered from 1 to 14, with two additional lines: 3bis and 7bis) and covers over 200 kilometers of track. The Metro runs on standard gauge tracks (1,435 mm) and operates using a variety of rolling stock, including rubber-tired trains and steel-wheeled trains (which are far more common).</p>
-<p>The Metro is operated by the RATP, which also operates other transit systems in the region, including buses, trams, and the RER. The RER is an important component of the region’s transit infrastructure, and several RER stations have connectivity with the Metro. This integration allows passengers to transfer between those two systems seamlessly. The Metro also has connections to the Transilien rail network, tramway stations, several major train stations (e.g., Gare du Nord, Gare de l’Est, etc.), and many bus lines.</p>
-<section id="details" class="level2">
-<h2 class="anchored" data-anchor-id="details">Details</h2>
-<p>This is a dataset with 308 rows and 11 columns.</p>
-<ul>
-<li><code>name</code>: The name of the station.</li>
-<li><code>caption</code>: In some cases, a station will have a caption that might describe a nearby place of interest. This is missing if there isn’t a caption for the station name.</li>
-<li><code>lines</code>: All Metro lines associated with the station. This is a <code>character</code>-based, comma-separated series of line names.</li>
-<li><code>connect_rer</code>: Station connections with the RER. The RER system has five lines (A, B, C, D, and E) with 257 stations and several interchanges with the Metro.</li>
-<li><code>connect_tram</code>: Connections with tramway lines. This system has twelve lines in operation (T1, T2, T3a, T3b, T4, T5, T6, T7, T8, T9, T11, and T13) with 235 stations.</li>
-<li><code>connect_transilien</code>: Connections with Transilien lines. This system has eight lines in operation (H, J, K, L, N, P, R, and U).</li>
-<li><code>connect_other</code>: Other connections with transportation infrastructure such as regional, intercity, night, and high-speed trains (typically at railway stations).</li>
-<li><code>latitude, longitude</code>: The location of the station, given as latitude and longitude values in decimal degrees.</li>
-<li><code>location</code>: The arrondissement of Paris or municipality in which the station resides. For some stations located at borders, the grouping of locations will be presented as a comma-separated series.</li>
-<li><code>passengers</code>: The total number of Metro station entries during 2021. Some of the newest stations in the Metro system do not have this data, thus they show as missing values.</li>
-</ul>
+<section id="great_tables.GT.fmt_url" class="level1">
+<h1>GT.fmt_url</h1>
+<p><code>GT.fmt_url(self, columns=None, rows=None, label=None, as_button=False, color='auto', show_underline='auto', button_fill='auto', button_width='auto', button_outline='auto')</code></p>
+<p>Format URLs to generate links.</p>
+<p>Should cells contain URLs, the <code>fmt_url()</code> method can be used to make them navigable links. This should be expressly used on columns that contain <em>only</em> URL text (i.e., no URLs as part of a larger block of text). Should you have such a column of data, there are options for how the links should be styled. They can be of the conventional style (with underlines and text coloring that sets it apart from other text), or, they can appear to be button-like (with a surrounding box that can be filled with a color of your choosing).</p>
+<p>URLs in data cells are detected in two ways. The first is using the simple Markdown notation for URLs of the form: <code>[label](URL)</code>. The second assumes that the text is the URL. In the latter case the URL is also used as the label but there is the option to use the <code>label</code> argument to modify that text.</p>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 13%">
+<col style="width: 78%">
+<col style="width: 3%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>columns</code></td>
+<td>typing.Union[str, typing.List[str], None]</td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>rows</code></td>
+<td>typing.Union[int, typing.List[int], None]</td>
+<td>In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>label</code></td>
+<td>str | None</td>
+<td>The visible ‘label’ to use for the link. If <code>None</code> (the default) the URL will serve as the label. There are two non-<code>None</code> options: (1) using a piece of static text for the label through provision of a string, and (2) a function can be provided to fashion a label from every URL.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>as_button</code></td>
+<td>bool</td>
+<td>An option to style the link as a button. By default, this is <code>False</code>. If this option is chosen then the <code>button_fill</code> argument becomes usable.</td>
+<td><code>False</code></td>
+</tr>
+<tr class="odd">
+<td><code>color</code></td>
+<td>str</td>
+<td>The color used for the resulting link and its underline. This is <code>"auto"</code> by default; this allows <strong>Great Tables</strong> to choose an appropriate color based on various factors (such as the background <code>button_fill</code> when <code>as_button</code> is <code>True</code>).</td>
+<td><code>'auto'</code></td>
+</tr>
+<tr class="even">
+<td><code>show_underline</code></td>
+<td>str | bool</td>
+<td>Should the link be decorated with an underline? By default this is <code>"auto"</code> which means that <strong>Great Tables</strong> will choose <code>True</code> when <code>as_button=False</code> and <code>False</code> in the other case. The link underline will be the same color as that set in the <code>color</code> option.</td>
+<td><code>'auto'</code></td>
+</tr>
+<tr class="odd">
+<td><code>button_fill</code></td>
+<td>str</td>
+<td>The color to fill the button with. This is ignored if <code>as_button</code> is <code>False</code>. The default is <code>"auto"</code> which will use the default background color for the button.</td>
+<td><code>'auto'</code></td>
+</tr>
+<tr class="even">
+<td><code>button_width</code></td>
+<td>str</td>
+<td>The width of the button. This is ignored if <code>as_button</code> is <code>False</code>. The default is <code>"auto"</code> which will use the default button width for link-as-button.</td>
+<td><code>'auto'</code></td>
+</tr>
+<tr class="odd">
+<td><code>button_outline</code></td>
+<td>str</td>
+<td>Options for styling a link-as-button (and only applies if <code>as_button=True</code>). This option is by default set to <code>"auto"</code>, allowing <strong>Great Tables</strong> to choose the appropriate outline color value.</td>
+<td><code>'auto'</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>great_tables.gt.GT</td>
+<td>The GT object is returned.</td>
+</tr>
+</tbody>
+</table>
 
 
 </section>
@@ -814,13 +890,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/data.towny.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">data.towny</span>
+      <a href="../reference/GT.fmt_time.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">GT.fmt_time</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/data.constants.html" class="pagination-link">
-        <span class="nav-page-text">data.constants</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/GT.fmt_markdown.html" class="pagination-link">
+        <span class="nav-page-text">GT.fmt_markdown</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
