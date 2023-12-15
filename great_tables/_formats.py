@@ -1771,6 +1771,226 @@ def fmt_time(
     return fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
 
 
+def fmt_url(
+    self: GTSelf,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    label: str | None = None,
+    as_button: bool = False,
+    color: str = "auto",
+    show_underline: str | bool = "auto",
+    button_fill: str = "auto",
+    button_width: str = "auto",
+    button_outline: str = "auto",
+) -> GTSelf:
+    """
+    Format URLs to generate links.
+
+    Should cells contain URLs, the `fmt_url()` method can be used to make them navigable links. This
+    should be expressly used on columns that contain *only* URL text (i.e., no URLs as part of a
+    larger block of text). Should you have such a column of data, there are options for how the
+    links should be styled. They can be of the conventional style (with underlines and text coloring
+    that sets it apart from other text), or, they can appear to be button-like (with a surrounding
+    box that can be filled with a color of your choosing).
+
+    URLs in data cells are detected in two ways. The first is using the simple Markdown notation for
+    URLs of the form: `[label](URL)`. The second assumes that the text is the URL. In the latter
+    case the URL is also used as the label but there is the option to use the `label` argument to
+    modify that text.
+
+    Parameters
+    ----------
+    columns : Union[str, List[str], None]
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows : Union[int, List[int], None]
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+    label : str | None
+        The visible 'label' to use for the link. If `None` (the default) the URL will serve as the
+        label. There are two non-`None` options: (1) using a piece of static text for the label
+        through provision of a string, and (2) a function can be provided to fashion a label from
+        every URL.
+    as_button : bool
+        An option to style the link as a button. By default, this is `False`. If this option is
+        chosen then the `button_fill` argument becomes usable.
+    color : str
+        The color used for the resulting link and its underline. This is `"auto"` by default; this
+        allows **Great Tables** to choose an appropriate color based on various factors (such as the
+        background `button_fill` when `as_button` is `True`).
+    show_underline : str | bool
+        Should the link be decorated with an underline? By default this is `"auto"` which means that
+        **Great Tables** will choose `True` when `as_button=False` and `False` in the other case.
+        The link underline will be the same color as that set in the `color` option.
+    button_fill : str
+        The color to fill the button with. This is ignored if `as_button` is `False`. The default is
+        `"auto"` which will use the default background color for the button.
+    button_width : str
+        The width of the button. This is ignored if `as_button` is `False`. The default is `"auto"`
+        which will use the default button width for link-as-button.
+    button_outline : str
+        Options for styling a link-as-button (and only applies if `as_button=True`). This option is
+        by default set to `"auto"`, allowing **Great Tables** to choose the appropriate outline
+        color value.
+
+    Returns
+    -------
+    GT
+        The GT object is returned.
+    """
+
+    if as_button:
+        #
+        # All determinations of `color`, `show_underline`, `button_fill` and
+        # `button_width` for the case where `as_button = TRUE`; each of the
+        # above arguments are set to "auto" by default
+        #
+
+        # In the button case, we opt to never show an underline unless it's
+        # requested by the user (i.e., `show_underline = TRUE`)
+        if show_underline == "auto":
+            show_underline = False
+
+        if button_width == "auto":
+            button_width = None
+
+        button_outline_color = button_outline
+        button_outline_style = "solid"
+        button_outline_width = "2px"
+
+        # There are various combinations of "auto" or not with `button_fill` and
+        # `color` that need to be handled delicately so as to ensure contrast
+        # between foreground text and background fill is maximized
+        if button_fill == "auto" and color == "auto":
+            # Choose a fixed and standard color combination if both options are
+            # 'auto'; these will be 'steelblue' and 'white'
+            button_fill = "#4682B4"
+            color = "#FFFFFF"
+
+        elif button_fill == "auto" and color != "auto":
+            # Case where text color is chosen but background is left to gt
+            # to determine; will either by light blue or dark blue based on the
+            # brightness of the text color (can be of poor contrast if user chooses
+            # a text color somewhere in the mid range of brightness, but nothing
+            # really can be done there to compensate)
+
+            # TODO: Ensure that the incoming `color` is transformed to hexadecimal form
+            # color = _get_html_color(colors=color, alpha=None)
+
+            # Use `ideal_fgnd_color()` in a backwards manner only to see whether
+            # the proxy background color is light (#FFFFFF) or dark (#000000)
+            # bgrnd_bw = ideal_fgnd_color(bgnd_color=color, algo="apca")
+            bgrnd_bw = "#FFFFFF"
+
+            if bgrnd_bw == "#FFFFFF":
+                # Background should be light so using 'lightblue'
+                button_fill = "#ADD8E6"
+            else:
+                # Background should be dark so using 'darkblue'
+                button_fill = "#00008B"
+
+            if button_outline == "auto":
+                button_outline_color = "#BEBEBE"
+                button_outline_style = "none"
+
+        elif button_fill != "auto" and color == "auto":
+            # Ensure that the incoming `button_fill` is transformed
+            # to hexadecimal form
+            # button_fill = html_color(colors=button_fill, alpha=None)
+
+            # Case where background color is chosen for foreground text color is
+            # not; this is the simple case where `ideal_fgnd_color()` is well suited
+            # to determine the text color (either black or white)
+            # color = ideal_fgnd_color(bgnd_color=button_fill, algo="apca")
+
+            if button_outline == "auto":
+                button_outline_color = "#DFDFDF"
+
+                if button_fill in [
+                    "#FFFFFF",
+                    "#FFFFFF",
+                    "#FAF5EF",
+                    "#FAFAFA",
+                    "#FFFEFC",
+                    "#FBFCFA",
+                    "#FBFAF2",
+                ]:
+                    button_outline_style = "solid"
+                else:
+                    button_outline_style = "none"
+
+        else:
+            pass
+            # TODO: Ensure that the incoming `color` is transformed to hexadecimal form
+            # color = _get_html_color(colors=color, alpha=None)
+
+    else:
+        if show_underline == "auto":
+            show_underline = True
+
+        if color == "auto":
+            color = "#008B8B"
+        else:
+            pass
+            # TODO: Ensure that the incoming `color` is transformed to hexadecimal form
+            # color = html_color(colors=color, alpha=None)
+
+    # Generate a function that will operate on single `x` values in the table body
+    def fmt_url_fn(x: Any) -> str:
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
+        href_str = x
+
+        if label is not None:
+            if label is Callable:
+                label_str = label(x)
+            else:
+                label_str = label
+
+        else:
+            import re
+
+            pattern = r"^rgba\(\s*(?:[0-9]+?\s*,\s*){3}[0-9\.]+?\s*\)$"
+            matched = bool(re.match(pattern, x))
+
+            if matched:
+                # Generate label
+                if bool(re.match(f"\\[.*?\\]\\(.*?\\)", x)):
+                    label_str = re.sub(f"\\[(.*?)\\]\\(.*?\\)", "\\1", x)
+                else:
+                    label_str = x
+
+                # Generate href value
+                if bool(re.match(f"\\[.*?\\]\\(.*?\\)", x)):
+                    href_str = re.sub(f"\\[.*?\\]\\((.*?)\\)", "\\1", x)
+                else:
+                    href_str = x
+
+            else:
+                label_str = x
+
+        if as_button:
+            if button_width is not None:
+                button_width_str = f"width: {button_width}; text-align: center;"
+            else:
+                button_width_str = ""
+
+            button_attrs = f"background-color: {button_fill}; padding: 8px 12px; {button_width_str}; outline-style: {button_outline_style}; outline-color: {button_outline_color}; outline-width: {button_outline_width};"
+
+        else:
+            button_attrs = ""
+
+        attrs = f'color:{color};text-decoration:{"underline" if show_underline else "none"};{"text-underline-position: under;" if show_underline else ""} display: inline-block; {button_attrs}'
+        x_formatted = f'<a style="{attrs}" href="{href_str}">{label_str}</a>'
+
+        return x_formatted
+
+    return fmt(self, fns=fmt_url_fn, columns=columns, rows=rows)
+
+
 def fmt_markdown(
     self: GTSelf,
     columns: Union[str, List[str], None] = None,
@@ -2986,3 +3206,847 @@ def _validate_time_obj(x: Any) -> None:
         raise ValueError(f"Invalid time object: '{x}'. The object must be a time object.")
 
     return
+
+
+def _get_html_color(colors: List[str]) -> List[str]:
+    # Expand any shorthand hexadecimal color values to the `RRGGBB` form
+    is_short_hex = _is_short_hex(colors=colors)
+    expanded_colors = []
+    for color in colors:
+        if is_short_hex[colors.index(color)]:
+            expanded_colors.append(expand_short_hex(color))
+        else:
+            expanded_colors.append(color)
+    colors = expanded_colors
+
+    is_hex = _is_hex_col(colors=colors)
+
+    # If not classified as RGBA or hexadecimal, assume other values are named
+    # colors to be handled separately
+    is_named = [not is_hex[colors.index(color)] for color in colors]
+
+    colors = [color.lower() if is_named[colors.index(color)] else color for color in colors]
+
+    # Get a list of all named colors by using the is_named boolean list
+    named_colors = [color for color in colors if is_named[colors.index(color)]]
+
+    if len(named_colors) > 0:
+        # Ensure that all color names are in the set of X11 or CSS color names
+        _check_named_colors(colors=named_colors)
+
+    return colors
+
+
+def _is_rgba_col(colors: List[str]) -> List[bool]:
+    import re
+
+    pattern = r"^rgba\(\s*(?:[0-9]+?\s*,\s*){3}[0-9\.]+?\s*\)$"
+    return [bool(re.match(pattern, color)) for color in colors]
+
+
+def _is_short_hex(colors: List[str]) -> List[bool]:
+    import re
+
+    pattern = r"^#[0-9a-fA-F]{3}([0-9a-fA-F])?$"
+    return [bool(re.match(pattern, color)) for color in colors]
+
+
+def _is_hex_col(colors: List[str]) -> List[bool]:
+    import re
+
+    return [bool(re.match(r"^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", color)) for color in colors]
+
+
+def _check_named_colors(colors: List[str]) -> None:
+    named_colors = colors.lower()
+
+    # If any member of named_colors is not in the list of valid color names (from the
+    # `valid_color_names()` function), then throw an error
+    for color in named_colors:
+        if color not in _valid_color_names():
+            raise ValueError(
+                f"Invalid color name(s) provided ({color}). Please ensure that all color names are valid."
+            )
+
+
+def _valid_color_names() -> List[str]:
+    return [
+        "white",
+        "aliceblue",
+        "antiquewhite",
+        "antiquewhite1",
+        "antiquewhite2",
+        "antiquewhite3",
+        "antiquewhite4",
+        "aquamarine",
+        "aquamarine1",
+        "aquamarine2",
+        "aquamarine3",
+        "aquamarine4",
+        "azure",
+        "azure1",
+        "azure2",
+        "azure3",
+        "azure4",
+        "beige",
+        "bisque",
+        "bisque1",
+        "bisque2",
+        "bisque3",
+        "bisque4",
+        "black",
+        "blanchedalmond",
+        "blue",
+        "blue1",
+        "blue2",
+        "blue3",
+        "blue4",
+        "blueviolet",
+        "brown",
+        "brown1",
+        "brown2",
+        "brown3",
+        "brown4",
+        "burlywood",
+        "burlywood1",
+        "burlywood2",
+        "burlywood3",
+        "burlywood4",
+        "cadetblue",
+        "cadetblue1",
+        "cadetblue2",
+        "cadetblue3",
+        "cadetblue4",
+        "chartreuse",
+        "chartreuse1",
+        "chartreuse2",
+        "chartreuse3",
+        "chartreuse4",
+        "chocolate",
+        "chocolate1",
+        "chocolate2",
+        "chocolate3",
+        "chocolate4",
+        "coral",
+        "coral1",
+        "coral2",
+        "coral3",
+        "coral4",
+        "cornflowerblue",
+        "cornsilk",
+        "cornsilk1",
+        "cornsilk2",
+        "cornsilk3",
+        "cornsilk4",
+        "cyan",
+        "cyan1",
+        "cyan2",
+        "cyan3",
+        "cyan4",
+        "darkblue",
+        "darkcyan",
+        "darkgoldenrod",
+        "darkgoldenrod1",
+        "darkgoldenrod2",
+        "darkgoldenrod3",
+        "darkgoldenrod4",
+        "darkgray",
+        "darkgreen",
+        "darkgrey",
+        "darkkhaki",
+        "darkmagenta",
+        "darkolivegreen",
+        "darkolivegreen1",
+        "darkolivegreen2",
+        "darkolivegreen3",
+        "darkolivegreen4",
+        "darkorange",
+        "darkorange1",
+        "darkorange2",
+        "darkorange3",
+        "darkorange4",
+        "darkorchid",
+        "darkorchid1",
+        "darkorchid2",
+        "darkorchid3",
+        "darkorchid4",
+        "darkred",
+        "darksalmon",
+        "darkseagreen",
+        "darkseagreen1",
+        "darkseagreen2",
+        "darkseagreen3",
+        "darkseagreen4",
+        "darkslateblue",
+        "darkslategray",
+        "darkslategray1",
+        "darkslategray2",
+        "darkslategray3",
+        "darkslategray4",
+        "darkslategrey",
+        "darkturquoise",
+        "darkviolet",
+        "deeppink",
+        "deeppink1",
+        "deeppink2",
+        "deeppink3",
+        "deeppink4",
+        "deepskyblue",
+        "deepskyblue1",
+        "deepskyblue2",
+        "deepskyblue3",
+        "deepskyblue4",
+        "dimgray",
+        "dimgrey",
+        "dodgerblue",
+        "dodgerblue1",
+        "dodgerblue2",
+        "dodgerblue3",
+        "dodgerblue4",
+        "firebrick",
+        "firebrick1",
+        "firebrick2",
+        "firebrick3",
+        "firebrick4",
+        "floralwhite",
+        "forestgreen",
+        "gainsboro",
+        "ghostwhite",
+        "gold",
+        "gold1",
+        "gold2",
+        "gold3",
+        "gold4",
+        "goldenrod",
+        "goldenrod1",
+        "goldenrod2",
+        "goldenrod3",
+        "goldenrod4",
+        "gray",
+        "gray0",
+        "gray1",
+        "gray2",
+        "gray3",
+        "gray4",
+        "gray5",
+        "gray6",
+        "gray7",
+        "gray8",
+        "gray9",
+        "gray10",
+        "gray11",
+        "gray12",
+        "gray13",
+        "gray14",
+        "gray15",
+        "gray16",
+        "gray17",
+        "gray18",
+        "gray19",
+        "gray20",
+        "gray21",
+        "gray22",
+        "gray23",
+        "gray24",
+        "gray25",
+        "gray26",
+        "gray27",
+        "gray28",
+        "gray29",
+        "gray30",
+        "gray31",
+        "gray32",
+        "gray33",
+        "gray34",
+        "gray35",
+        "gray36",
+        "gray37",
+        "gray38",
+        "gray39",
+        "gray40",
+        "gray41",
+        "gray42",
+        "gray43",
+        "gray44",
+        "gray45",
+        "gray46",
+        "gray47",
+        "gray48",
+        "gray49",
+        "gray50",
+        "gray51",
+        "gray52",
+        "gray53",
+        "gray54",
+        "gray55",
+        "gray56",
+        "gray57",
+        "gray58",
+        "gray59",
+        "gray60",
+        "gray61",
+        "gray62",
+        "gray63",
+        "gray64",
+        "gray65",
+        "gray66",
+        "gray67",
+        "gray68",
+        "gray69",
+        "gray70",
+        "gray71",
+        "gray72",
+        "gray73",
+        "gray74",
+        "gray75",
+        "gray76",
+        "gray77",
+        "gray78",
+        "gray79",
+        "gray80",
+        "gray81",
+        "gray82",
+        "gray83",
+        "gray84",
+        "gray85",
+        "gray86",
+        "gray87",
+        "gray88",
+        "gray89",
+        "gray90",
+        "gray91",
+        "gray92",
+        "gray93",
+        "gray94",
+        "gray95",
+        "gray96",
+        "gray97",
+        "gray98",
+        "gray99",
+        "gray100",
+        "green",
+        "green1",
+        "green2",
+        "green3",
+        "green4",
+        "greenyellow",
+        "grey",
+        "grey0",
+        "grey1",
+        "grey2",
+        "grey3",
+        "grey4",
+        "grey5",
+        "grey6",
+        "grey7",
+        "grey8",
+        "grey9",
+        "grey10",
+        "grey11",
+        "grey12",
+        "grey13",
+        "grey14",
+        "grey15",
+        "grey16",
+        "grey17",
+        "grey18",
+        "grey19",
+        "grey20",
+        "grey21",
+        "grey22",
+        "grey23",
+        "grey24",
+        "grey25",
+        "grey26",
+        "grey27",
+        "grey28",
+        "grey29",
+        "grey30",
+        "grey31",
+        "grey32",
+        "grey33",
+        "grey34",
+        "grey35",
+        "grey36",
+        "grey37",
+        "grey38",
+        "grey39",
+        "grey40",
+        "grey41",
+        "grey42",
+        "grey43",
+        "grey44",
+        "grey45",
+        "grey46",
+        "grey47",
+        "grey48",
+        "grey49",
+        "grey50",
+        "grey51",
+        "grey52",
+        "grey53",
+        "grey54",
+        "grey55",
+        "grey56",
+        "grey57",
+        "grey58",
+        "grey59",
+        "grey60",
+        "grey61",
+        "grey62",
+        "grey63",
+        "grey64",
+        "grey65",
+        "grey66",
+        "grey67",
+        "grey68",
+        "grey69",
+        "grey70",
+        "grey71",
+        "grey72",
+        "grey73",
+        "grey74",
+        "grey75",
+        "grey76",
+        "grey77",
+        "grey78",
+        "grey79",
+        "grey80",
+        "grey81",
+        "grey82",
+        "grey83",
+        "grey84",
+        "grey85",
+        "grey86",
+        "grey87",
+        "grey88",
+        "grey89",
+        "grey90",
+        "grey91",
+        "grey92",
+        "grey93",
+        "grey94",
+        "grey95",
+        "grey96",
+        "grey97",
+        "grey98",
+        "grey99",
+        "grey100",
+        "honeydew",
+        "honeydew1",
+        "honeydew2",
+        "honeydew3",
+        "honeydew4",
+        "hotpink",
+        "hotpink1",
+        "hotpink2",
+        "hotpink3",
+        "hotpink4",
+        "indianred",
+        "indianred1",
+        "indianred2",
+        "indianred3",
+        "indianred4",
+        "ivory",
+        "ivory1",
+        "ivory2",
+        "ivory3",
+        "ivory4",
+        "khaki",
+        "khaki1",
+        "khaki2",
+        "khaki3",
+        "khaki4",
+        "lavender",
+        "lavenderblush",
+        "lavenderblush1",
+        "lavenderblush2",
+        "lavenderblush3",
+        "lavenderblush4",
+        "lawngreen",
+        "lemonchiffon",
+        "lemonchiffon1",
+        "lemonchiffon2",
+        "lemonchiffon3",
+        "lemonchiffon4",
+        "lightblue",
+        "lightblue1",
+        "lightblue2",
+        "lightblue3",
+        "lightblue4",
+        "lightcoral",
+        "lightcyan",
+        "lightcyan1",
+        "lightcyan2",
+        "lightcyan3",
+        "lightcyan4",
+        "lightgoldenrod",
+        "lightgoldenrod1",
+        "lightgoldenrod2",
+        "lightgoldenrod3",
+        "lightgoldenrod4",
+        "lightgoldenrodyellow",
+        "lightgray",
+        "lightgreen",
+        "lightgrey",
+        "lightpink",
+        "lightpink1",
+        "lightpink2",
+        "lightpink3",
+        "lightpink4",
+        "lightsalmon",
+        "lightsalmon1",
+        "lightsalmon2",
+        "lightsalmon3",
+        "lightsalmon4",
+        "lightseagreen",
+        "lightskyblue",
+        "lightskyblue1",
+        "lightskyblue2",
+        "lightskyblue3",
+        "lightskyblue4",
+        "lightslateblue",
+        "lightslategray",
+        "lightslategrey",
+        "lightsteelblue",
+        "lightsteelblue1",
+        "lightsteelblue2",
+        "lightsteelblue3",
+        "lightsteelblue4",
+        "lightyellow",
+        "lightyellow1",
+        "lightyellow2",
+        "lightyellow3",
+        "lightyellow4",
+        "limegreen",
+        "linen",
+        "magenta",
+        "magenta1",
+        "magenta2",
+        "magenta3",
+        "magenta4",
+        "maroon",
+        "maroon1",
+        "maroon2",
+        "maroon3",
+        "maroon4",
+        "mediumaquamarine",
+        "mediumblue",
+        "mediumorchid",
+        "mediumorchid1",
+        "mediumorchid2",
+        "mediumorchid3",
+        "mediumorchid4",
+        "mediumpurple",
+        "mediumpurple1",
+        "mediumpurple2",
+        "mediumpurple3",
+        "mediumpurple4",
+        "mediumseagreen",
+        "mediumslateblue",
+        "mediumspringgreen",
+        "mediumturquoise",
+        "mediumvioletred",
+        "midnightblue",
+        "mintcream",
+        "mistyrose",
+        "mistyrose1",
+        "mistyrose2",
+        "mistyrose3",
+        "mistyrose4",
+        "moccasin",
+        "navajowhite",
+        "navajowhite1",
+        "navajowhite2",
+        "navajowhite3",
+        "navajowhite4",
+        "navy",
+        "navyblue",
+        "oldlace",
+        "olivedrab",
+        "olivedrab1",
+        "olivedrab2",
+        "olivedrab3",
+        "olivedrab4",
+        "orange",
+        "orange1",
+        "orange2",
+        "orange3",
+        "orange4",
+        "orangered",
+        "orangered1",
+        "orangered2",
+        "orangered3",
+        "orangered4",
+        "orchid",
+        "orchid1",
+        "orchid2",
+        "orchid3",
+        "orchid4",
+        "palegoldenrod",
+        "palegreen",
+        "palegreen1",
+        "palegreen2",
+        "palegreen3",
+        "palegreen4",
+        "paleturquoise",
+        "paleturquoise1",
+        "paleturquoise2",
+        "paleturquoise3",
+        "paleturquoise4",
+        "palevioletred",
+        "palevioletred1",
+        "palevioletred2",
+        "palevioletred3",
+        "palevioletred4",
+        "papayawhip",
+        "peachpuff",
+        "peachpuff1",
+        "peachpuff2",
+        "peachpuff3",
+        "peachpuff4",
+        "peru",
+        "pink",
+        "pink1",
+        "pink2",
+        "pink3",
+        "pink4",
+        "plum",
+        "plum1",
+        "plum2",
+        "plum3",
+        "plum4",
+        "powderblue",
+        "purple",
+        "purple1",
+        "purple2",
+        "purple3",
+        "purple4",
+        "red",
+        "red1",
+        "red2",
+        "red3",
+        "red4",
+        "rosybrown",
+        "rosybrown1",
+        "rosybrown2",
+        "rosybrown3",
+        "rosybrown4",
+        "royalblue",
+        "royalblue1",
+        "royalblue2",
+        "royalblue3",
+        "royalblue4",
+        "saddlebrown",
+        "salmon",
+        "salmon1",
+        "salmon2",
+        "salmon3",
+        "salmon4",
+        "sandybrown",
+        "seagreen",
+        "seagreen1",
+        "seagreen2",
+        "seagreen3",
+        "seagreen4",
+        "seashell",
+        "seashell1",
+        "seashell2",
+        "seashell3",
+        "seashell4",
+        "sienna",
+        "sienna1",
+        "sienna2",
+        "sienna3",
+        "sienna4",
+        "skyblue",
+        "skyblue1",
+        "skyblue2",
+        "skyblue3",
+        "skyblue4",
+        "slateblue",
+        "slateblue1",
+        "slateblue2",
+        "slateblue3",
+        "slateblue4",
+        "slategray",
+        "slategray1",
+        "slategray2",
+        "slategray3",
+        "slategray4",
+        "slategrey",
+        "snow",
+        "snow1",
+        "snow2",
+        "snow3",
+        "snow4",
+        "springgreen",
+        "springgreen1",
+        "springgreen2",
+        "springgreen3",
+        "springgreen4",
+        "steelblue",
+        "steelblue1",
+        "steelblue2",
+        "steelblue3",
+        "steelblue4",
+        "tan",
+        "tan1",
+        "tan2",
+        "tan3",
+        "tan4",
+        "thistle",
+        "thistle1",
+        "thistle2",
+        "thistle3",
+        "thistle4",
+        "tomato",
+        "tomato1",
+        "tomato2",
+        "tomato3",
+        "tomato4",
+        "turquoise",
+        "turquoise1",
+        "turquoise2",
+        "turquoise3",
+        "turquoise4",
+        "violet",
+        "violetred",
+        "violetred1",
+        "violetred2",
+        "violetred3",
+        "violetred4",
+        "wheat",
+        "wheat1",
+        "wheat2",
+        "wheat3",
+        "wheat4",
+        "whitesmoke",
+        "yellow",
+        "yellow1",
+        "yellow2",
+        "yellow3",
+        "yellow4",
+        "yellowgreen",
+        "crimson",
+        "fuchsia",
+        "rebeccapurple",
+        "indigo",
+        "lime",
+        "olive",
+        "teal",
+        "aqua",
+        "silver",
+        "transparent",
+    ]
+
+
+apca_coeffs = {
+    "mainTRC": 2.4,
+    "sRco": 0.2126729,
+    "sGco": 0.7151522,
+    "sBco": 0.0721750,
+    "normBG": 0.56,
+    "normTXT": 0.57,
+    "revTXT": 0.62,
+    "revBG": 0.65,
+    "blkThrs": 0.022,
+    "blkClmp": 1.414,
+    "scaleBoW": 1.14,
+    "scaleWoB": 1.14,
+    "loBoWthresh": 0.035991,
+    "loBoWfactor": 27.7847239587675,
+    "loBoWoffset": 0.027,
+    "loClip": 0.001,
+    "deltaYmin": 0.0005,
+}
+
+
+# def get_contrast_ratio(color_1="black", color_2="white", algo="apca"):
+#
+#     # Obtain relative luminance for `color_1` and `color_2`
+#     if algo == "apca":
+#         lum_1 = get_relative_luminance_apca(color_1)
+#         lum_2 = get_relative_luminance_apca(color_2)
+#
+#         ratio = {"normal": get_ratio_apca(lum_1, lum_2), "reverse": get_ratio_apca(lum_2, lum_1)}
+#     else:
+#         lum_1 = get_relative_luminance_wcag(color_1)
+#         lum_2 = get_relative_luminance_wcag(color_2)
+#
+#         ratio = (lum_1 + 0.05) / (lum_2 + 0.05)
+#         ratio[ratio < 1] = 1 / ratio[ratio < 1]
+#
+#     return ratio
+#
+#
+# def get_ratio_apca(txt, bgrnd):
+#     # Determine ratio for normal polarity
+#     ratio = (bgrnd ** apca_coeffs["normBG"] - txt ** apca_coeffs["normTXT"]) * apca_coeffs[
+#         "scaleBoW"
+#     ]
+#     ratio = [0 if r < 0.1 else r - apca_coeffs["loBoWoffset"] for r in ratio]
+#
+#     # Determine ratio for reverse polarity
+#     rev = [b <= t for b, t in zip(bgrnd, txt)]
+#     ratio = [
+#         (b ** apca_coeffs["revBG"] - t ** apca_coeffs["revTXT"]) * apca_coeffs["scaleWoB"]
+#         if r
+#         else r
+#         for r, b, t in zip(ratio, bgrnd, txt)
+#     ]
+#     ratio = [0 if r > -0.1 else r + apca_coeffs["loBoWoffset"] for r in ratio]
+#
+#     # If the luminance difference between background and text is nearly the same, treat that as zero
+#     ratio = [
+#         0 if abs(b - t) < apca_coeffs["deltaYmin"] else r for r, b, t in zip(ratio, bgrnd, txt)
+#     ]
+#
+#     return [r * 100 for r in ratio]
+#
+#
+# def get_relative_luminance_apca(col):
+#     coef = [apca_coeffs["sRco"], apca_coeffs["sGco"], apca_coeffs["sBco"]]
+#     rgb = [[c / 255 for c in grDevices.col2rgb(c)] for c in col]
+#
+#     rgb = [[c ** apca_coeffs["mainTRC"] for c in color] for color in rgb]
+#     r_lum = [sum([c * coef[i] for i, c in enumerate(color)]) for color in rgb]
+#     clamp = [r <= apca_coeffs["blkThrs"] for r in r_lum]
+#     r_lum = [
+#         (apca_coeffs["blkThrs"] - r) ** apca_coeffs["blkClmp"] + r if c else r
+#         for r, c in zip(r_lum, clamp)
+#     ]
+#
+#     return r_lum
+#
+#
+# def get_relative_luminance_wcag(col):
+#     coef = [
+#         round(apca_coeffs["sRco"], 4),
+#         round(apca_coeffs["sGco"], 4),
+#         round(apca_coeffs["sBco"], 4),
+#     ]
+#     rgb = [[c / 255 for c in grDevices.col2rgb(c)] for c in col]
+#
+#     rgb = [
+#         [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in color]
+#         for color in rgb
+#     ]
+#     r_lum = [sum([c * coef[i] for i, c in enumerate(color)]) for color in rgb]
+#
+#     return r_lum
+#
+# def ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000000", algo: str = "apca") -> str:
+#
+#     # Normalize color to a #RRGGBB (stripping the alpha channel)
+#     #bgnd_color = html_color(colors=bgnd_color, alpha=1)
+#
+#     contrast_dark = get_contrast_ratio(color_1=dark, color_2=bgnd_color, algo="apca")
+#     contrast_light = get_contrast_ratio(color_1 = light, color_2 = bgnd_color, algo = "apca")[, 1]
+#
+#     # If the contrast ratio between the background color and the light color is greater than
+#     # the contrast ratio between the background color and the dark color, then return the light color
+#     if abs(contrast_dark) > abs(contrast_light):
+#         return dark
+#     else:
+#         return light
