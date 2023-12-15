@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables – vals.fmt_markdown</title>
+<title>great_tables – gt.cols_hide</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/data.countrypops.html" rel="next">
-<link href="../reference/vals.fmt_time.html" rel="prev">
+<link href="../reference/loc.body.html" rel="next">
+<link href="../reference/GT.cols_move_to_end.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -117,7 +117,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/vals.fmt_number.html">Value formatting functions</a></li><li class="breadcrumb-item"><a href="../reference/vals.fmt_markdown.html">vals.fmt_markdown</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/GT.cols_align.html">Modifying columns</a></li><li class="breadcrumb-item"><a href="../reference/GT.cols_hide.html">GT.cols_hide</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
     </div>
@@ -311,7 +311,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/GT.cols_hide.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/GT.cols_hide.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">GT.cols_hide</span></a>
   </div>
 </li>
@@ -446,7 +446,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/vals.fmt_markdown.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/vals.fmt_markdown.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">vals.fmt_markdown</span></a>
   </div>
 </li>
@@ -533,10 +533,11 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.vals.fmt_markdown" id="toc-great_tables.vals.fmt_markdown" class="nav-link active" data-scroll-target="#great_tables.vals.fmt_markdown">vals.fmt_markdown</a>
+  <li><a href="#great_tables.GT.cols_hide" id="toc-great_tables.GT.cols_hide" class="nav-link active" data-scroll-target="#great_tables.GT.cols_hide">GT.cols_hide</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -546,19 +547,19 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="great_tables.vals.fmt_markdown" class="level1">
-<h1>vals.fmt_markdown</h1>
-<p><code>vals.fmt_markdown(x)</code></p>
-<p>Format Markdown text.</p>
-<p>Any Markdown-formatted text can be transformed to HTML when using the <code>fmt_markdown()</code> function.</p>
+<section id="great_tables.GT.cols_hide" class="level1">
+<h1>GT.cols_hide</h1>
+<p><code>GT.cols_hide(data, columns)</code></p>
+<p>Hide one or more columns.</p>
+<p>The <code>cols_hide()</code> method allows us to hide one or more columns from appearing in the final output table. While it’s possible and often desirable to omit columns from the input table data before introduction to the <code>GT()</code> class, there can be cases where the data in certain columns is useful (as a column reference during formatting of other columns) but the final display of those columns is not necessary.</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 7%">
-<col style="width: 50%">
-<col style="width: 31%">
-<col style="width: 10%">
+<col style="width: 5%">
+<col style="width: 18%">
+<col style="width: 69%">
+<col style="width: 6%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -570,9 +571,9 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>x</code></td>
-<td>typing.Union[typing.Any, typing.List[typing.Any]]</td>
-<td>A list of values to be formatted.</td>
+<td><code>columns</code></td>
+<td>typing.Union[typing.List[str]]</td>
+<td>The columns to hide in the output display table. Can either be a single column name or a series of column names provided in a list.</td>
 <td><em>required</em></td>
 </tr>
 </tbody>
@@ -589,11 +590,15 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>typing.List[str]</td>
-<td>A list of formatted values is returned.</td>
+<td>great_tables.gt.GT</td>
+<td>The GT object is returned.</td>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="details" class="level2">
+<h2 class="anchored" data-anchor-id="details">Details</h2>
+<p>The hiding of columns is internally a rendering directive, so, all columns that are ‘hidden’ are still accessible and useful in any expression provided to a <code>rows</code> argument. Furthermore, the <code>cols_hide()</code> method (as with many of the methods available in <strong>Great Tables</strong>) can be placed anywhere in a chain of calls (acting as a promise to hide columns when the timing is right). However there’s perhaps greater readability when placing this call closer to the end of such a chain. The <code>cols_hide()</code> method quietly changes the visible state of a column and doesn’t yield warnings when changing the state of already-invisible columns.</p>
 
 
 </section>
@@ -835,13 +840,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/vals.fmt_time.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">vals.fmt_time</span>
+      <a href="../reference/GT.cols_move_to_end.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">GT.cols_move_to_end</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/data.countrypops.html" class="pagination-link">
-        <span class="nav-page-text">data.countrypops</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/loc.body.html" class="pagination-link">
+        <span class="nav-page-text">loc.body</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
