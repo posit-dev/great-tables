@@ -85,6 +85,7 @@ quartodoc:
         - GT.fmt_roman
         - GT.fmt_date
         - GT.fmt_time
+        - GT.fmt_url
         - GT.fmt_markdown
         - GT.fmt
     - title: Modifying columns
