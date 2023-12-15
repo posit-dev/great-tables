@@ -68,6 +68,35 @@ def tab_style(
     )
     ```
 
+    Let's use `exibble` once again to create a simple, two-column output table (keeping only the
+    `num` and `currency` columns). With the `tab_style()` method (called twice), we'll add style to
+    the values already formatted by `fmt_number()` and `fmt_currency()`. In the `style` argument of
+    each `tab_style()` call, we can define multiple types of styling with the `style.fill()` and
+    `style.text()` classes (enclosing these in a list). The cells to be targeted for styling require
+    the use of `loc.body()`, which is used here with different columns being targeted.
+
+    ```{python}
+    (
+        gt.GT(exibble[["num", "currency"]])
+        .fmt_number(columns = "num", decimals=1)
+        .fmt_currency(columns = "currency")
+        .tab_style(
+            style=[
+                style.fill(color="lightcyan"),
+                style.text(weight="bold")
+            ],
+            locations=loc.body(columns="num")
+        )
+        .tab_style(
+            style=[
+                style.fill(color = "#F9E3D6"),
+                style.text(style = "italic")
+            ],
+            locations=loc.body(columns="currency")
+        )
+    )
+    ```
+
     Returns
     -------
     GT
@@ -82,7 +111,7 @@ def tab_style(
 
     new_data = self
     for loc in locations:
-        new_data = set_style(loc, self, style)
+        new_data = set_style(loc, new_data, style)
 
     return new_data
 

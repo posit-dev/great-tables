@@ -1,15 +1,19 @@
 import pandas as pd
+import polars as pl
 import pytest
 
 from great_tables._locations import (
     LocColumnSpanners,
     LocBody,
+    LocTitle,
     CellPos,
     resolve,
     resolve_vector_i,
     resolve_cols_i,
     resolve_rows_i,
+    set_style,
 )
+from great_tables._styles import CellStyleText, FromColumn
 from great_tables._gt_data import Spanners, SpannerInfo
 from great_tables import GT
 
@@ -84,3 +88,46 @@ def test_resolve_column_spanners_error_missing():
 
     with pytest.raises(ValueError):
         resolve(loc, spanners)
+
+
+@pytest.mark.parametrize(
+    "expr",
+    [
+        FromColumn("color"),
+        pl.col("color"),
+        pl.col("color").str.to_uppercase().str.to_lowercase(),
+    ],
+)
+def test_set_style_loc_body_from_column(expr):
+    df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
+
+    if isinstance(expr, pl.Expr):
+        gt_df = GT(pl.DataFrame(df))
+    else:
+        gt_df = GT(df)
+
+    loc = LocBody(["x"], [1])
+    style = CellStyleText(color=expr)
+
+    new_gt = set_style(loc, gt_df, [style])
+
+    # 1 style info added
+    assert len(new_gt._styles) == 1
+    cell_info = new_gt._styles[0]
+
+    # style info has single cell style, with new color
+    assert len(cell_info.styles) == 1
+    assert isinstance(cell_info.styles[0], CellStyleText)
+    assert cell_info.styles[0].color == "blue"
+
+
+def test_set_style_loc_title_from_column_error(snapshot):
+    df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
+    gt_df = GT(df)
+    loc = LocTitle("title")
+    style = CellStyleText(color=FromColumn("color"))
+
+    with pytest.raises(TypeError) as exc_info:
+        set_style(loc, gt_df, [style])
+
+    assert snapshot == exc_info.value.args[0]
