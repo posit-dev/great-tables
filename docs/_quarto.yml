@@ -24,13 +24,16 @@ website:
       contents:
         - get-started/index.qmd
         - get-started/overview.qmd
-        - section: Basic
+        - section: Table Structure
           contents:
             - get-started/basic-header.qmd
             - get-started/basic-stub.qmd
             - get-started/basic-column-labels.qmd
+        - section: Format and Style
+          contents:
             - get-started/basic-formatting.qmd
-        - section: Advanced
+            - get-started/basic-styling.qmd
+        - section: Extra Topics
           contents:
             - get-started/column-selection.qmd
 
