@@ -99,6 +99,7 @@ quartodoc:
         - GT.cols_move
         - GT.cols_move_to_start
         - GT.cols_move_to_end
+        - GT.cols_hide
     - title: Location Targeting and Styling Classes
       desc: >
         Location targeting is a powerful feature of **Great Tables**. It allows for the precise
