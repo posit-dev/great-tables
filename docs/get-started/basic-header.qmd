@@ -1,5 +1,5 @@
 ---
-title: Header and Footer
+title: Header and footer
 jupyter: python3
 html-table-processing: none
 ---
