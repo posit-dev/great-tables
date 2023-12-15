@@ -20,10 +20,10 @@ def tab_header(
     """
     Add a table header.
 
-    We can add a table header to the **gt** table with a title and even a subtitle using the
-    `tab_header()` method. A table header is an optional table component that is positioned
-    above above the column labels. We have the flexibility to use Markdown or HTML formatting
-    for the header's title and subtitle with the `md()` and `html()` helper functions.
+    We can add a table header to the output table that contains a title and even a subtitle with the
+    `tab_header()` method. A table header is an optional table component that is positioned above
+    the column labels. We have the flexibility to use Markdown or HTML formatting for the header's
+    title and subtitle with the `md()` and `html()` helper functions.
 
     Parameters
     ----------

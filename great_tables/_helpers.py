@@ -99,7 +99,7 @@ def html(text: str) -> Text:
 
 
 def random_id(n: int = 10) -> str:
-    """Helper for creating a random `id` for a gt table
+    """Helper for creating a random `id` for an output table
 
     Parameters
     ----------

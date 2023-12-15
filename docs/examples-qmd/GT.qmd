@@ -11,7 +11,7 @@ from great_tables.data import exibble
 
 ```
 
-Let's use the exibble dataset for the next few examples, we'll learn how to make simple gt tables with the `GT()` class. The most basic thing to do is to just use `GT()` with the dataset as the input.
+Let's use the exibble dataset for the next few examples, we'll learn how to make simple display tables with the `GT()` class. The most basic thing to do is to just use `GT()` with the dataset as the input.
 
 ```{python}
 gt.GT(exibble)
@@ -51,7 +51,7 @@ Some datasets have rownames built in; `mtcars` has the car model names as the ro
 gt.GT(head(mtcars, 10), rownames_to_stub=True)
 ```
 
-By default, values in the body of a gt table (and their column labels) are automatically aligned. The alignment is governed by the types of values in a column. If you'd like to disable this form of auto-alignment, the `auto_align=False` option can be taken.
+By default, values in the body of a display table (and their column labels) are automatically aligned. The alignment is governed by the types of values in a column. If you'd like to disable this form of auto-alignment, the `auto_align=False` option can be taken.
 
 ```{python}
 # | eval: false
@@ -60,7 +60,7 @@ gt.GT(exibble, rowname_col="row", auto_align=False)
 
 What you'll get from that is center-alignment of all table body values and all column labels. Note that row labels in the the stub are still left-aligned; and `auto_align` has no effect on alignment within the table stub.
 
-However which way you generate the initial gt table object, you can use it with a huge variety of methods in the package to further customize the presentation. Formatting body cells is commonly done with the family of formatting methods (e.g., `fmt_number()`, `fmt_date()`, etc.). The package supports formatting with internationalization ('i18n' features) and so locale-aware methods come with a locale argument. To avoid having to use that argument repeatedly, the `GT()` class has its own `locale` argument. Setting a locale in that will make it available globally. Here's an example of how that works in practice when setting `locale='fr'` in `GT()` and using formatting methods:
+However which way you generate the initial `GT` table object, you can use it with a huge variety of methods in the package to further customize the presentation. Formatting body cells is commonly done with the family of formatting methods (e.g., `fmt_number()`, `fmt_date()`, etc.). The package supports formatting with internationalization ('i18n' features) and so locale-aware methods come with a locale argument. To avoid having to use that argument repeatedly, the `GT()` class has its own `locale` argument. Setting a locale in that will make it available globally. Here's an example of how that works in practice when setting `locale='fr'` in `GT()` and using formatting methods:
 
 ```{python}
 # | eval: false
