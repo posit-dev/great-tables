@@ -73,20 +73,6 @@ gt_air.tab_style(
 )
 ```
 
-## Specifying columns and rows
-
-If you are using polars, you can use column selectors and expressions for selecting specific rows and columns:
-
-```{python}
-import polars.selectors as cs
-
-gt_pl_air.tab_style(
-    style.fill("yellow"),
-    loc.body(cs.starts_with("Te"), pl.col("Temp") > 70)
-)
-```
-
-See [Column Selection](./column-selection.qmd) for details on selecting columns.
 
 ## Column-based styles
 
@@ -173,6 +159,23 @@ gt_pl_air.tab_style(
     loc.body("Temp")
 )
 ```
+
+
+## Specifying columns and rows
+
+If you are using polars, you can use column selectors and expressions for selecting specific rows and columns:
+
+```{python}
+import polars.selectors as cs
+
+gt_pl_air.tab_style(
+    style.fill("yellow"),
+    loc.body(cs.starts_with("Te"), pl.col("Temp") > 70)
+)
+```
+
+See [Column Selection](./column-selection.qmd) for details on selecting columns.
+
 
 
 ## Multiple styles and locations
