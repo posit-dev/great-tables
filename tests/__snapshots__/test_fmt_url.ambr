@@ -1,0 +1,91 @@
+# serializer version: 1
+# name: test_fmt_url_01
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_left">Addington Highlands</td>
+    <td class="gt_row gt_left"><a style="color:#008B8B;text-decoration:underline;text-underline-position:under;display:inline-block;" href="https://addingtonhighlands.ca">https://addingtonhighlands.ca</a></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adelaide Metcalfe</td>
+    <td class="gt_row gt_left"><a style="color:#008B8B;text-decoration:underline;text-underline-position:under;display:inline-block;" href="https://adelaidemetcalfe.on.ca">https://adelaidemetcalfe.on.ca</a></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adjala-Tosorontio</td>
+    <td class="gt_row gt_left"><a style="color:#008B8B;text-decoration:underline;text-underline-position:under;display:inline-block;" href="https://www.adjtos.ca">https://www.adjtos.ca</a></td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt_url_02
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_left">Addington Highlands</td>
+    <td class="gt_row gt_left"><a style="color:#FFFFFF;text-decoration:none;display:inline-block;background-color:#4682B4;padding:8px 12px;;outline-style:solid;outline-color:auto;outline-width:2px;" href="https://addingtonhighlands.ca">https://addingtonhighlands.ca</a></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adelaide Metcalfe</td>
+    <td class="gt_row gt_left"><a style="color:#FFFFFF;text-decoration:none;display:inline-block;background-color:#4682B4;padding:8px 12px;;outline-style:solid;outline-color:auto;outline-width:2px;" href="https://adelaidemetcalfe.on.ca">https://adelaidemetcalfe.on.ca</a></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adjala-Tosorontio</td>
+    <td class="gt_row gt_left"><a style="color:#FFFFFF;text-decoration:none;display:inline-block;background-color:#4682B4;padding:8px 12px;;outline-style:solid;outline-color:auto;outline-width:2px;" href="https://www.adjtos.ca">https://www.adjtos.ca</a></td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt_url_03
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_left">Addington Highlands</td>
+    <td class="gt_row gt_left"><a style="color:red;text-decoration:underline;text-underline-position:under;display:inline-block;" href="https://addingtonhighlands.ca">https://addingtonhighlands.ca</a></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adelaide Metcalfe</td>
+    <td class="gt_row gt_left"><a style="color:red;text-decoration:underline;text-underline-position:under;display:inline-block;" href="https://adelaidemetcalfe.on.ca">https://adelaidemetcalfe.on.ca</a></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adjala-Tosorontio</td>
+    <td class="gt_row gt_left"><a style="color:red;text-decoration:underline;text-underline-position:under;display:inline-block;" href="https://www.adjtos.ca">https://www.adjtos.ca</a></td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt_url_04
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_left">Addington Highlands</td>
+    <td class="gt_row gt_left"><a style="color:green;text-decoration:none;display:inline-block;background-color:#ADD8E6;padding:8px 12px;;outline-style:none;outline-color:#BEBEBE;outline-width:2px;" href="https://addingtonhighlands.ca">https://addingtonhighlands.ca</a></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adelaide Metcalfe</td>
+    <td class="gt_row gt_left"><a style="color:green;text-decoration:none;display:inline-block;background-color:#ADD8E6;padding:8px 12px;;outline-style:none;outline-color:#BEBEBE;outline-width:2px;" href="https://adelaidemetcalfe.on.ca">https://adelaidemetcalfe.on.ca</a></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adjala-Tosorontio</td>
+    <td class="gt_row gt_left"><a style="color:green;text-decoration:none;display:inline-block;background-color:#ADD8E6;padding:8px 12px;;outline-style:none;outline-color:#BEBEBE;outline-width:2px;" href="https://www.adjtos.ca">https://www.adjtos.ca</a></td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt_url_05
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_left">Addington Highlands</td>
+    <td class="gt_row gt_left"><a style="color:green;text-decoration:none;display:inline-block;" href="https://addingtonhighlands.ca">https://addingtonhighlands.ca</a></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adelaide Metcalfe</td>
+    <td class="gt_row gt_left"><a style="color:green;text-decoration:none;display:inline-block;" href="https://adelaidemetcalfe.on.ca">https://adelaidemetcalfe.on.ca</a></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adjala-Tosorontio</td>
+    <td class="gt_row gt_left"><a style="color:green;text-decoration:none;display:inline-block;" href="https://www.adjtos.ca">https://www.adjtos.ca</a></td>
+  </tr>
+  </tbody>
+  '''
+# ---
