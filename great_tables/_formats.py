@@ -1928,6 +1928,7 @@ def fmt_url(
     else:
         button_outline_style = "none"
         button_outline_color = "invisible"
+        button_outline_width = "0px"
 
         if show_underline == "auto":
             show_underline = True
@@ -1977,16 +1978,16 @@ def fmt_url(
 
         if as_button:
             if button_width is not None:
-                button_width_str = f"width: {button_width}; text-align: center;"
+                button_width_str = f"width:{button_width};text-align:center;"
             else:
                 button_width_str = ""
 
-            button_attrs = f"background-color: {button_fill}; padding: 8px 12px; {button_width_str}; outline-style: {button_outline_style}; outline-color: {button_outline_color}; outline-width: {button_outline_width};"
+            button_attrs = f"background-color:{button_fill};padding:8px 12px;{button_width_str};outline-style:{button_outline_style};outline-color:{button_outline_color};outline-width:{button_outline_width};"
 
         else:
             button_attrs = ""
 
-        attrs = f'color:{color};text-decoration:{"underline" if show_underline else "none"};{"text-underline-position: under;" if show_underline else ""} display: inline-block; {button_attrs}'
+        attrs = f'color:{color};text-decoration:{"underline" if show_underline else "none"};{"text-underline-position:under;" if show_underline else ""}display:inline-block;{button_attrs}'
         x_formatted = f'<a style="{attrs}" href="{href_str}">{label_str}</a>'
 
         return x_formatted
