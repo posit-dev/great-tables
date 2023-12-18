@@ -302,8 +302,6 @@ class Boxhead(_Sequence[ColInfo]):
                 # Check whether all values in 'object' columns are strings that
                 # for all intents and purpose are 'number-like'
 
-                import pandas as pd
-
                 col_vals = data[col].to_list()
 
                 # Detect whether all non-NA values in the column are 'number-like'
