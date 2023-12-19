@@ -42,3 +42,28 @@ p, h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,#parameters > table > t
     50% { color: #df4c00; }
     100% { color: #7e4fdf; }
 }
+
+#quarto-sidebar-section-1 a {
+    text-transform: initial;
+}
+#quarto-sidebar-section-2 a {
+    text-transform: initial;
+}
+#quarto-sidebar-section-3 a {
+    text-transform: initial;
+}
+#quarto-sidebar-section-4 a {
+    text-transform: initial;
+}
+#quarto-sidebar-section-5 a {
+    text-transform: initial;
+}
+#quarto-sidebar-section-6 a {
+    text-transform: initial;
+}
+#quarto-sidebar-section-7 a {
+    text-transform: initial;
+}
+#quarto-sidebar-section-8 a {
+    text-transform: initial;
+}
