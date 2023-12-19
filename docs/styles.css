@@ -22,7 +22,7 @@ code {
     color: rgb(18, 18, 18);
 }
 
-p, h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,#parameters > table > tbody > tr > td {
+p, h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -43,27 +43,14 @@ p, h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,#parameters > table > t
     100% { color: #7e4fdf; }
 }
 
-#quarto-sidebar-section-1 a {
+[id^=quarto-sidebar-section] a {
     text-transform: initial;
 }
-#quarto-sidebar-section-2 a {
-    text-transform: initial;
+
+[id^=quarto-sidebar-section] a:after {
+    content: "()"
 }
-#quarto-sidebar-section-3 a {
-    text-transform: initial;
-}
-#quarto-sidebar-section-4 a {
-    text-transform: initial;
-}
-#quarto-sidebar-section-5 a {
-    text-transform: initial;
-}
-#quarto-sidebar-section-6 a {
-    text-transform: initial;
-}
-#quarto-sidebar-section-7 a {
-    text-transform: initial;
-}
-#quarto-sidebar-section-8 a {
-    text-transform: initial;
+
+#quarto-sidebar-section-8 a:after {
+    content: "";
 }
