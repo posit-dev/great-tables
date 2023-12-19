@@ -40,8 +40,18 @@ website:
 format:
   html:
     theme: cosmo
-    # css: styles.css
+    css: styles.css
     toc: true
+
+filters:
+  - interlinks
+
+interlinks:
+  sources:
+    numpy:
+      url: https://numpy.org/doc/stable/
+    python:
+      url: https://docs.python.org/3/
 
 # tell quarto to read the generated sidebar
 metadata-files:
@@ -51,6 +61,7 @@ quartodoc:
   package: great_tables
   sidebar: _sidebar.yml
   dynamic: true
+  render_interlinks: true
   sections:
     - title: Table Creation
       desc: >
