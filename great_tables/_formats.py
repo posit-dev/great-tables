@@ -223,7 +223,7 @@ def fmt_number(
 
     See Also
     --------
-    The `fmt_integer()` method might be more useful if you really need to format numeric values to
+    The [`fmt_integer()`](`great_tables.GT.fmt_integer`) method might be more useful if you really need to format numeric values to
     appear as integers (i.e., no decimals will be shown and input values are rounded as necessary).
     Need to do numeric formatting on a value or list of values? Take a look at the functional
     version of this method: `val_fmt_number()`.
