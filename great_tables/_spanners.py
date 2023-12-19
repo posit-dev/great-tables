@@ -42,8 +42,9 @@ def tab_spanner(
     Parameters
     ----------
     label : str
-        The text to use for the spanner label. We can optionally use the [md()] and [html()] helpers
-        to style the text as Markdown or to retain HTML elements in the text.
+        The text to use for the spanner label. We can optionally use the [`md()`](`great_tables.md`)
+        and [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to
+        retain HTML elements in the text.
     columns : Union[str, List[str], None]
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
@@ -58,13 +59,12 @@ def tab_spanner(
         is `0`.
     id : Optional[str]
         The ID for the spanner. When accessing a spanner through the `spanners` argument of
-        `tab_spanner()` or `cells_column_spanners()` (when using `tab_style()` or `tab_footnote()`)
-        the `id` value is used as the reference (and not the `label`). If an `id` is not explicitly
-        provided here, it will be taken from the `label` value. It is advisable to set an explicit
-        `id` value if you plan to access this cell in a later call and the label text is complicated
-        (e.g., contains markup, is lengthy, or both). Finally, when providing an `id` value you must
-        ensure that it is unique across all ID values set for spanner labels (the method will throw
-        an error if `id` isn't unique).
+        `tab_spanner()` the `id` value is used as the reference (and not the `label`). If an `id`
+        is not explicitly provided here, it will be taken from the `label` value. It is advisable to
+        set an explicit `id` value if you plan to access this cell in a later call and the label
+        text is complicated (e.g., contains markup, is lengthy, or both). Finally, when providing
+        an `id` value you must ensure that it is unique across all ID values set for spanner labels
+        (the method will throw an error if `id` isn't unique).
     gather : bool
         An option to move the specified `columns` such that they are unified under the spanner.
         Ordering of the moved-into-place columns will be preserved in all cases. By default, this
