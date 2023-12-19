@@ -145,7 +145,7 @@ def fmt_number(
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
         can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-        `fmt_integer()` method should be considered.
+        [`fmt_integer()`](`great_tables.GT.fmt_integer`) method should be considered.
     n_sigfig : Optional[int]
         A option to format numbers to *n* significant figures. By default, this is `None` and thus
         number values will be formatted according to the number of decimal places set via
@@ -206,8 +206,8 @@ def fmt_number(
     preferred values.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -223,10 +223,11 @@ def fmt_number(
 
     See Also
     --------
-    The [`fmt_integer()`](`great_tables.GT.fmt_integer`) method might be more useful if you really need to format numeric values to
-    appear as integers (i.e., no decimals will be shown and input values are rounded as necessary).
-    Need to do numeric formatting on a value or list of values? Take a look at the functional
-    version of this method: `val_fmt_number()`.
+    The [`fmt_integer()`](`great_tables.GT.fmt_integer`) method might be more useful if you really
+    need to format numeric values to appear as integers (i.e., no decimals will be shown and input
+    values are rounded as necessary). Need to do numeric formatting on a value or list of values?
+    Take a look at the functional version of this method:
+    [`val_fmt_number()`](`great_tables._formats_vals.val_fmt_number`).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -378,8 +379,8 @@ def fmt_integer(
     provided in `sep_mark`, it will be overridden by the locale's preferred value.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -395,9 +396,10 @@ def fmt_integer(
 
     See Also
     --------
-    The `fmt_number()` method might be more of what you need if you'd like decimal values in your
-    outputs. Need to do integer-based formatting on a value or list of values? Take a look at the
-    functional version of this method: `val_fmt_integer()`.
+    The [`fmt_number()`](`great_tables.GT.fmt_number`) method might be more of what you need if
+    you'd like decimal values in your outputs. Need to do integer-based formatting on a value or
+    list of values? Take a look at the functional version of this method:
+    [`val_fmt_integer()`](`great_tables._formats_vals.val_fmt_integer`).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -514,8 +516,7 @@ def fmt_scientific(
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
-        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-        `fmt_integer()` method should be considered.
+        can be removed with `drop_trailing_zeros=True`.
     n_sigfig : Optional[int]
         A option to format numbers to *n* significant figures. By default, this is `None` and thus
         number values will be formatted according to the number of decimal places set via
@@ -578,8 +579,8 @@ def fmt_scientific(
     preferred values.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -595,8 +596,9 @@ def fmt_scientific(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_scientific()`, allows you to format a single
-    numerical value (or a list of them).
+    The functional version of this method,
+    [`val_fmt_scientific()`](`great_tables._formats_vals.val_fmt_scientific`), allows you to format
+    a single numerical value (or a list of them).
     """
 
     # Set a default value for `use_seps`; these separators are only used for very
@@ -772,8 +774,7 @@ def fmt_percent(
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
-        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-        `fmt_integer()` method should be considered.
+        can be removed with `drop_trailing_zeros=True`.
     drop_trailing_zeros : bool
         A boolean value that allows for removal of trailing zeros (those redundant zeros after the
         decimal mark).
@@ -831,13 +832,14 @@ def fmt_percent(
     preferred values.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     See Also
     --------
-    The functional version of this method, `val_fmt_percent()`, allows you to format a single
-    numerical value (or a list of them).
+    The functional version of this method,
+    [`val_fmt_percent()`](`great_tables._formats_vals.val_fmt_percent`), allows you to format a
+    single numerical value (or a list of them).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -1036,8 +1038,8 @@ def fmt_currency(
     a `currency` allows **Great Tables** to obtain the currency code from the locale's territory.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -1052,8 +1054,9 @@ def fmt_currency(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_currency()`, allows you to format a single
-    numerical value (or a list of them).
+    The functional version of this method,
+    [`val_fmt_currency()`](`great_tables._formats_vals.val_fmt_currency`), allows you to format a
+    single numerical value (or a list of them).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -1194,8 +1197,8 @@ def fmt_roman(
     Examples
     --------
     Let's first create a DataFrame containing small numeric values and then introduce that to
-    `GT()`. We'll then format the `roman` column to appear as Roman numerals with the `fmt_roman()`
-    method.
+    [`GT()`](`great_tables.GT`). We'll then format the `roman` column to appear as Roman numerals
+    with the `fmt_roman()` method.
 
     ```{python}
     import pandas as pd
@@ -1208,7 +1211,8 @@ def fmt_roman(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_roman()`, allows you to format a single
+    The functional version of this method,
+    [`val_fmt_roman()`](`great_tables._formats_vals.val_fmt_roman`), allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1366,8 +1370,8 @@ def fmt_bytes(
     preferred values.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -1383,7 +1387,8 @@ def fmt_bytes(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_bytes()`, allows you to format a single
+    The functional version of this method,
+    [`val_fmt_bytes()`](`great_tables._formats_vals.val_fmt_bytes`), allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1567,9 +1572,9 @@ def fmt_date(
     --------------------------------------
     This formatting method can adapt outputs according to a provided `locale` value. Examples
     include `"en"` for English (United States) and `"fr"` for French (France). Note that a `locale`
-    value provided here will override any global locale setting performed in `GT()`'s own `locale`
-    argument (it is settable there as a value received by all other methods that have a `locale`
-    argument).
+    value provided here will override any global locale setting performed in
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -1587,7 +1592,8 @@ def fmt_date(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_date()`, allows you to format a single
+    The functional version of this method,
+    [`val_fmt_date()`](`great_tables._formats_vals.val_fmt_date`), allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1698,9 +1704,9 @@ def fmt_time(
     --------------------------------------
     This formatting method can adapt outputs according to a provided `locale` value. Examples
     include `"en"` for English (United States) and `"fr"` for French (France). Note that a `locale`
-    value provided here will override any global locale setting performed in `GT()`'s own `locale`
-    argument (it is settable there as a value received by all other methods that have a `locale`
-    argument).
+    value provided here will override any global locale setting performed in
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -1718,7 +1724,8 @@ def fmt_time(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_time()`, allows you to format a single
+    The functional version of this method,
+    [`val_fmt_time()`](`great_tables._formats_vals.val_fmt_time`), allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1799,8 +1806,9 @@ def fmt_markdown(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_markdown()`, allows you to format a single
-    string value (or a list of them).
+    The functional version of this method,
+    [`val_fmt_markdown()`](`great_tables._formats_vals.val_fmt_markdown`), allows you to format a
+    single string value (or a list of them).
     """
 
     # Generate a function that will operate on single `x` values in the table body

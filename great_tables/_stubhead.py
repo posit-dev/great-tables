@@ -16,15 +16,16 @@ def tab_stubhead(self: GTSelf, label: Union[str, Text]) -> GTSelf:
     Add a label to the stubhead of a table. The stubhead is the lone element that is positioned
     left of the column labels, and above the stub. If a stub does not exist, then there is no
     stubhead (so no change will be made when using this method in that case). We have the
-    flexibility to use Markdown formatting for the stubhead label (through use of the `md()`
-    helper function). Furthermore, we can use HTML for the stubhead label so long as we also use
-    the `html()` helper function.
+    flexibility to use Markdown formatting for the stubhead label (through use of the
+    [`md()`](`great_tables.md`) helper function). Furthermore, we can use HTML for the stubhead
+    label so long as we also use the [`html()`](`great_tables.html`) helper function.
 
     Parameters
     ----------
     label : str
-        The text to be used as the stubhead label. We can optionally use the `md()` and `html()`
-        functions to style the text as Markdown or to retain HTML elements in the text.
+        The text to be used as the stubhead label. We can optionally use the
+        [`md()`](`great_tables.md`) and [`html()`](`great_tables.html`) helper functions to style
+        the text as Markdown or to retain HTML elements in the text.
 
     Returns
     -------

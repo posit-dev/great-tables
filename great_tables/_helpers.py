@@ -59,10 +59,9 @@ def pct(x: Union[int, float]) -> str:
 def md(text: str) -> Text:
     """Interpret input text as Markdown-formatted text.
 
-    Markdown! It's a wonderful thing. We can use it in certain places (e.g., footnotes, source
-    notes, the table title, etc.) and expect it to render to HTML as Markdown does. There is the
-    `html()` helper that allows you to ferry in HTML but this function `md()`... it's almost like a
-    two-for-one deal (you get to use Markdown plus any HTML fragments at the same time).
+    Markdown can be used in certain places (e.g., source notes, table title/subtitle, etc.) and we
+    can expect it to render to HTML. There is also the [`html()`](`great_tables.html`) helper
+    function that allows you to use raw HTML text.
 
     Parameters
     ----------
@@ -83,7 +82,7 @@ def html(text: str) -> Text:
     For certain pieces of text (like in column labels or table headings) we may want to express them
     as raw HTML. In fact, with HTML, anything goes so it can be much more than just text. The
     `html()` function will guard the input HTML against escaping, so, your HTML tags will come
-    through as HTML when rendered... to HTML.
+    through as HTML when rendered.
 
     Parameters
     ----------
