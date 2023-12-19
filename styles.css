@@ -54,3 +54,27 @@ p, h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
 #quarto-sidebar-section-8 a:after {
     content: "";
 }
+
+[id^=table-creation] td a:after {
+    content: "()"
+}
+
+[id^=creating-or-modifying] td a:after {
+    content: "()"
+}
+
+[id^=formatting-column-data] td a:after {
+    content: "()"
+}
+
+[id^=modifying-columns] td a:after {
+    content: "()"
+}
+
+[id^=location-targeting] td a:after {
+    content: "()"
+}
+
+[id^=value-formatting] td a:after {
+    content: "()"
+}
