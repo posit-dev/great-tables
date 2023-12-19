@@ -63,6 +63,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -556,9 +557,9 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 4%">
-<col style="width: 17%">
-<col style="width: 74%">
+<col style="width: 3%">
+<col style="width: 26%">
+<col style="width: 65%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -572,25 +573,25 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td><code>x</code></td>
-<td>typing.Union[typing.Any, typing.List[typing.Any]]</td>
+<td><code>Union</code>[<code>Any</code>, <code>List</code>[<code>Any</code>]]</td>
 <td>A list of values to be formatted.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
 <td><code>date_style</code></td>
-<td>great_tables._formats.DateStyle</td>
+<td><code>DateStyle</code></td>
 <td>The date style to use. By default this is the short name <code>"iso"</code> which corresponds to ISO 8601 date formatting. There are 41 date styles in total and their short names can be viewed using <code>info_date_style()</code>.</td>
 <td><code>'iso'</code></td>
 </tr>
 <tr class="odd">
 <td><code>pattern</code></td>
-<td>str</td>
+<td><code>str</code></td>
 <td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
 <td><code>'{x}'</code></td>
 </tr>
 <tr class="even">
 <td><code>locale</code></td>
-<td>str</td>
+<td><code>str</code></td>
 <td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
 <td><code>None</code></td>
 </tr>
@@ -701,6 +702,10 @@ ul.task-list li input[type="checkbox"] {
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
 <table class="table">
+<colgroup>
+<col style="width: 48%">
+<col style="width: 51%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Type</th>
@@ -709,7 +714,7 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>typing.List[str]</td>
+<td><code>List</code>[<code>str</code>]</td>
 <td>A list of formatted values is returned.</td>
 </tr>
 </tbody>

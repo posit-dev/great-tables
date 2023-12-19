@@ -63,6 +63,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -556,8 +557,8 @@ ul.task-list li input[type="checkbox"] {
 <table class="table">
 <colgroup>
 <col style="width: 2%">
-<col style="width: 26%">
-<col style="width: 69%">
+<col style="width: 28%">
+<col style="width: 68%">
 <col style="width: 1%">
 </colgroup>
 <thead>
@@ -571,37 +572,37 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td><code>color</code></td>
-<td>str | None</td>
+<td><code>str</code> | None</td>
 <td>The text color can be modified through the <code>color</code> argument.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>font</code></td>
-<td>str | None</td>
+<td><code>str</code> | None</td>
 <td>The font or collection of fonts (subsequent font names are) used as fallbacks.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>size</code></td>
-<td>str | None</td>
+<td><code>str</code> | None</td>
 <td>The size of the font. Can be provided as a number that is assumed to represent <code>px</code> values (or could be wrapped in the <code>px()</code> helper function). We can also use one of the following absolute size keywords: <code>"xx-small"</code>, <code>"x-small"</code>, <code>"small"</code>, <code>"medium"</code>, <code>"large"</code>, <code>"x-large"</code>, or <code>"xx-large"</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>align</code></td>
-<td>typing.Literal[‘center’, ‘left’, ‘right’, ‘justify’] | None</td>
+<td><code>Literal</code>[‘center’, ‘left’, ‘right’, ‘justify’] | None</td>
 <td>The text in a cell can be horizontally aligned though one of the following options: <code>"center"</code>, <code>"left"</code>, <code>"right"</code>, or <code>"justify"</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>v_align</code></td>
-<td>typing.Literal[‘middle’, ‘top’, ‘bottom’] | None</td>
+<td><code>Literal</code>[‘middle’, ‘top’, ‘bottom’] | None</td>
 <td>The vertical alignment of the text in the cell can be modified through the options <code>"middle"</code>, <code>"top"</code>, or <code>"bottom"</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>style</code></td>
-<td>typing.Literal[‘normal’, ‘italic’, ‘oblique’] | None</td>
+<td><code>Literal</code>[‘normal’, ‘italic’, ‘oblique’] | None</td>
 <td>Can be one of either <code>"normal"</code>, <code>"italic"</code>, or <code>"oblique"</code>.</td>
 <td><code>None</code></td>
 </tr>
@@ -613,25 +614,25 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td><code>stretch</code></td>
-<td>typing.Literal[‘normal’, ‘condensed’, ‘ultra-condensed’, ‘extra-condensed’, ‘semi-condensed’, ‘semi-expanded’, ‘expanded’, ‘extra-expanded’, ‘ultra-expanded’] | None</td>
+<td><code>Literal</code>[‘normal’, ‘condensed’, ‘ultra-condensed’, ‘extra-condensed’, ‘semi-condensed’, ‘semi-expanded’, ‘expanded’, ‘extra-expanded’, ‘ultra-expanded’] | None</td>
 <td>Allows for text to either be condensed or expanded. We can use one of the following text-based keywords to describe the degree of condensation/expansion: <code>"ultra-condensed"</code>, <code>"extra-condensed"</code>, <code>"condensed"</code>, <code>"semi-condensed"</code>, <code>"normal"</code>, <code>"semi-expanded"</code>, <code>"expanded"</code>, <code>"extra-expanded"</code>, or <code>"ultra-expanded"</code>. Alternatively, we can supply percentage values from <code>0%</code> to <code>200%</code>, inclusive. Negative percentage values are not allowed.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>decorate</code></td>
-<td>typing.Literal[‘overline’, ‘line-through’, ‘underline’, ‘underline overline’] | None</td>
+<td><code>Literal</code>[‘overline’, ‘line-through’, ‘underline’, ‘underline overline’] | None</td>
 <td>Allows for text decoration effect to be applied. Here, we can use <code>"overline"</code>, <code>"line-through"</code>, or <code>"underline"</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>transform</code></td>
-<td>typing.Literal[‘uppercase’, ‘lowercase’, ‘capitalize’] | None</td>
+<td><code>Literal</code>[‘uppercase’, ‘lowercase’, ‘capitalize’] | None</td>
 <td>Allows for the transformation of text. Options are <code>"uppercase"</code>, <code>"lowercase"</code>, or <code>"capitalize"</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>whitespace</code></td>
-<td>typing.Literal[‘normal’, ‘nowrap’, ‘pre’, ‘pre-wrap’, ‘pre-line’, ‘break-spaces’] | None</td>
+<td><code>Literal</code>[‘normal’, ‘nowrap’, ‘pre’, ‘pre-wrap’, ‘pre-line’, ‘break-spaces’] | None</td>
 <td>A white-space preservation option. By default, runs of white-space will be collapsed into single spaces but several options exist to govern how white-space is collapsed and how lines might wrap at soft-wrap opportunities. The options are <code>"normal"</code>, <code>"nowrap"</code>, <code>"pre"</code>, <code>"pre-wrap"</code>, <code>"pre-line"</code>, and <code>"break-spaces"</code>.</td>
 <td><code>None</code></td>
 </tr>
@@ -641,10 +642,6 @@ ul.task-list li input[type="checkbox"] {
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
 <table class="table">
-<colgroup>
-<col style="width: 25%">
-<col style="width: 74%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>Type</th>
@@ -653,7 +650,7 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>great_tables._styles.CellStyleText</td>
+<td><a href="../reference/style.text.html#great_tables.style.text">CellStyleText</a></td>
 <td>A CellStyleText object, which is used for a <code>styles</code> argument if specifying any cell text properties.</td>
 </tr>
 </tbody>

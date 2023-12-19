@@ -62,6 +62,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -555,7 +556,7 @@ ul.task-list li input[type="checkbox"] {
 <h1 class="doc doc-index">Function reference</h1>
 <section id="table-creation" class="level2">
 <h2 class="anchored" data-anchor-id="table-creation">Table Creation</h2>
-<p>All tables created in <strong>Great Tables</strong> begin by using <code>GT()</code>. Here we supply the input data table and some basic options for creating a stub (<code>rowname_col</code>) and row groups (<code>groupname_col</code>).</p>
+<p>All tables created in <strong>Great Tables</strong> begin by using <a href="../reference/GT.html#great_tables.GT"><code>GT()</code></a>. With this class, we supply the input data table and some basic options for creating a stub and row groups (with the <code>rowname_col</code> and <code>groupname_col</code> arguments).</p>
 <table class="table">
 <tbody>
 <tr class="odd">
@@ -567,7 +568,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="creating-or-modifying-parts-of-a-table" class="level2">
 <h2 class="anchored" data-anchor-id="creating-or-modifying-parts-of-a-table">Creating or modifying parts of a table</h2>
-<p>A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with footnotes and source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can modify the look of table parts more generally with <code>tab_options()</code> and perform styling on targeted table locations with <code>tab_style()</code>.</p>
+<p>A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with footnotes and source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can perform styling on targeted table locations with the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method.</p>
 <table class="table">
 <tbody>
 <tr class="odd">
@@ -595,7 +596,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="formatting-column-data" class="level2">
 <h2 class="anchored" data-anchor-id="formatting-column-data">Formatting column data</h2>
-<p>Columns of data can be formatted with the <code>fmt_*()</code> methods. We can specify the rows of these columns quite precisely with the <code>rows</code> argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the <code>fmt()</code> method and define your own formatter within.</p>
+<p>Columns of data can be formatted with the <code>fmt_*()</code> methods. We can specify the rows of these columns quite precisely with the <code>rows</code> argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the <a href="../reference/GT.fmt.html#great_tables.GT.fmt"><code>fmt()</code></a> method and define your own formatter.</p>
 <table class="table">
 <tbody>
 <tr class="odd">
@@ -647,7 +648,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="modifying-columns" class="level2">
 <h2 class="anchored" data-anchor-id="modifying-columns">Modifying columns</h2>
-<p>The <code>cols_*()</code> methods allow for modifications that act on entire columns. This includes alignment of the data in columns (<code>cols_align()</code>), hiding columns from view (<code>cols_hide()</code>), re-labeling the column labels (<code>cols_label()</code>), and moving columns around (the <code>cols_move*()</code> methods).</p>
+<p>The <code>cols_*()</code> methods allow for modifications that act on entire columns. This includes alignment of the data in columns (<a href="../reference/GT.cols_align.html#great_tables.GT.cols_align"><code>cols_align()</code></a>), hiding columns from view (<a href="../reference/GT.cols_hide.html#great_tables.GT.cols_hide"><code>cols_hide()</code></a>), re-labeling the column labels (<a href="../reference/GT.cols_label.html#great_tables.GT.cols_label"><code>cols_label()</code></a>), and moving columns around (with the <code>cols_move*()</code> methods).</p>
 <table class="table">
 <tbody>
 <tr class="odd">
@@ -679,7 +680,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="location-targeting-and-styling-classes" class="level2">
 <h2 class="anchored" data-anchor-id="location-targeting-and-styling-classes">Location Targeting and Styling Classes</h2>
-<p>Location targeting is a powerful feature of <strong>Great Tables</strong>. It allows for the precise selection of table locations for styling (using the <code>tab_style()</code> method). The styling classes allow for the specification of the styling properties to be applied to the targeted locations.</p>
+<p>Location targeting is a powerful feature of <strong>Great Tables</strong>. It allows for the precise selection of table locations for styling (using the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method). The styling classes allow for the specification of the styling properties to be applied to the targeted locations.</p>
 <table class="table">
 <tbody>
 <tr class="odd">
@@ -703,7 +704,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="helper-functions" class="level2">
 <h2 class="anchored" data-anchor-id="helper-functions">Helper functions</h2>
-<p>An assortment of helper functions is available in the <strong>Great Tables</strong> package. The <code>md()</code> and <code>html()</code> helpers can used be during label creation with the <code>tab_header()</code>, <code>tab_footnote()</code>, <code>tab_spanner()</code>, <code>tab_stubhead_label()</code>, and <code>tab_source_note()</code> methods.</p>
+<p>An assortment of helper functions is available in the <strong>Great Tables</strong> package. The <a href="../reference/md.html#great_tables.md"><code>md()</code></a> and <a href="../reference/html.html#great_tables.html"><code>html()</code></a> helper functions can used during label creation with the <a href="../reference/GT.tab_header.html#great_tables.GT.tab_header"><code>tab_header()</code></a>, <a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner"><code>tab_spanner()</code></a>, <a href="../reference/GT.tab_stubhead.html#great_tables.GT.tab_stubhead"><code>tab_stubhead()</code></a>, and <a href="../reference/GT.tab_source_note.html#great_tables.GT.tab_source_note"><code>tab_source_note()</code></a> methods.</p>
 <table class="table">
 <tbody>
 <tr class="odd">

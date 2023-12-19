@@ -1,0 +1,44 @@
+.table a {
+    text-underline-offset: 4px;
+    font-family: ui-monospace;
+    color: steelblue;
+    font-weight: bold;
+    font-size: 0.875em;
+    word-break: initial;
+}
+
+.sidebar-item-container {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.depth1 {
+    font-family: ui-monospace;
+}
+
+code {
+    font-family: ui-monospace;
+    font-size: 0.875em;
+    color: rgb(18, 18, 18);
+}
+
+p, h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,#parameters > table > tbody > tr > td {
+    font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+#quarto-sidebar > div > ul > li:nth-child(1) > div > a > span {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.navbar-title {
+    font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial, sans-serif;
+    font-weight: bold;
+    animation: color-change 5s infinite !important;
+}
+
+@keyframes color-change {
+    0% { color: #7e4fdf; }
+    50% { color: #df4c00; }
+    100% { color: #7e4fdf; }
+}

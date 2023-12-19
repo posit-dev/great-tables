@@ -63,6 +63,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -557,8 +558,8 @@ ul.task-list li input[type="checkbox"] {
 <table class="table">
 <colgroup>
 <col style="width: 3%">
-<col style="width: 16%">
-<col style="width: 76%">
+<col style="width: 25%">
+<col style="width: 67%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -572,13 +573,13 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td><code>columns</code></td>
-<td>typing.Union[str, typing.List[str], None]</td>
+<td><code>Union</code>[<code>str</code>, <code>List</code>[<code>str</code>], None]</td>
 <td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>rows</code></td>
-<td>typing.Union[int, typing.List[int], None]</td>
+<td><code>Union</code>[<code>int</code>, <code>List</code>[<code>int</code>], None]</td>
 <td>In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
 <td><code>None</code></td>
 </tr>
@@ -596,7 +597,7 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>great_tables.gt.GT</td>
+<td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
 <td>The GT object is returned.</td>
 </tr>
 </tbody>
@@ -604,7 +605,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="see-also" class="level2">
 <h2 class="anchored" data-anchor-id="see-also">See Also</h2>
-<p>The functional version of this method, <code>val_fmt_markdown()</code>, allows you to format a single string value (or a list of them).</p>
+<p>The functional version of this method, <a href="../reference/vals.fmt_markdown.html#great_tables.vals.fmt_markdown"><code>val_fmt_markdown()</code></a>, allows you to format a single string value (or a list of them).</p>
 
 
 </section>

@@ -63,6 +63,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -556,9 +557,9 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 3%">
-<col style="width: 24%">
-<col style="width: 68%">
+<col style="width: 2%">
+<col style="width: 32%">
+<col style="width: 60%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -572,19 +573,19 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td><code>fns</code></td>
-<td>typing.Union[great_tables._gt_data.FormatFn, great_tables._gt_data.FormatFns]</td>
+<td><code>Union</code>[<code>FormatFn</code>, <code>FormatFns</code>]</td>
 <td>Either a single formatting function or a named list of functions.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
 <td><code>columns</code></td>
-<td>typing.Union[str, typing.List[str], None]</td>
+<td><code>Union</code>[<code>str</code>, <code>List</code>[<code>str</code>], None]</td>
 <td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>rows</code></td>
-<td>typing.Union[int, typing.List[int], None]</td>
+<td><code>Union</code>[<code>int</code>, <code>List</code>[<code>int</code>], None]</td>
 <td>In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
 <td><code>None</code></td>
 </tr>
@@ -602,7 +603,7 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>great_tables.gt.GT</td>
+<td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
 <td>The GT object is returned.</td>
 </tr>
 </tbody>

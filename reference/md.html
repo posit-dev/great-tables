@@ -63,6 +63,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -550,15 +551,15 @@ ul.task-list li input[type="checkbox"] {
 <h1>md</h1>
 <p><code>md(text)</code></p>
 <p>Interpret input text as Markdown-formatted text.</p>
-<p>Markdown! It’s a wonderful thing. We can use it in certain places (e.g., footnotes, source notes, the table title, etc.) and expect it to render to HTML as Markdown does. There is the <code>html()</code> helper that allows you to ferry in HTML but this function <code>md()</code>… it’s almost like a two-for-one deal (you get to use Markdown plus any HTML fragments at the same time).</p>
+<p>Markdown can be used in certain places (e.g., source notes, table title/subtitle, etc.) and we can expect it to render to HTML. There is also the <a href="../reference/html.html#great_tables.html"><code>html()</code></a> helper function that allows you to use raw HTML text.</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
 <col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 68%">
-<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 64%">
+<col style="width: 12%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -571,7 +572,7 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td><code>text</code></td>
-<td>str</td>
+<td><code>str</code></td>
 <td>The text that is understood to contain Markdown formatting.</td>
 <td><em>required</em></td>
 </tr>
@@ -582,8 +583,8 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
 <table class="table">
 <colgroup>
-<col style="width: 22%">
-<col style="width: 77%">
+<col style="width: 28%">
+<col style="width: 71%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -593,7 +594,7 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>great_tables._text.Text</td>
+<td><code>Text</code></td>
 <td>An instance of the Text class is returned, where the text <code>type</code> is <code>"from_markdown"</code>.</td>
 </tr>
 </tbody>

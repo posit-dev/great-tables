@@ -63,6 +63,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -550,15 +551,15 @@ ul.task-list li input[type="checkbox"] {
 <h1>html</h1>
 <p><code>html(text)</code></p>
 <p>Interpret input text as HTML-formatted text.</p>
-<p>For certain pieces of text (like in column labels or table headings) we may want to express them as raw HTML. In fact, with HTML, anything goes so it can be much more than just text. The <code>html()</code> function will guard the input HTML against escaping, so, your HTML tags will come through as HTML when rendered… to HTML.</p>
+<p>For certain pieces of text (like in column labels or table headings) we may want to express them as raw HTML. In fact, with HTML, anything goes so it can be much more than just text. The <code>html()</code> function will guard the input HTML against escaping, so, your HTML tags will come through as HTML when rendered.</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 9%">
-<col style="width: 9%">
-<col style="width: 67%">
-<col style="width: 14%">
+<col style="width: 8%">
+<col style="width: 15%">
+<col style="width: 62%">
+<col style="width: 13%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -571,7 +572,7 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td><code>text</code></td>
-<td>str</td>
+<td><code>str</code></td>
 <td>The text that is understood to contain HTML formatting.</td>
 <td><em>required</em></td>
 </tr>
@@ -582,8 +583,8 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
 <table class="table">
 <colgroup>
-<col style="width: 24%">
-<col style="width: 75%">
+<col style="width: 30%">
+<col style="width: 69%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -593,7 +594,7 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>great_tables._text.Text</td>
+<td><code>Text</code></td>
 <td>An instance of the Text class is returned, where the text <code>type</code> is <code>"html"</code>.</td>
 </tr>
 </tbody>
