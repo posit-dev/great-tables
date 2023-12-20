@@ -15,7 +15,7 @@ With **Great Tables** anyone can make wonderful-looking tables in Python. The ph
 <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/the_components_of_a_table.svg" width="100%">
 </div>
 
-It all begins with **table data** in the form of a Pandas or Polars DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a **Quarto** document.
+It all begins with **table data** in the form of a **Pandas** or **Polars** DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a **Quarto** document.
 
 The **Great Tables** package is designed to be both straightforward yet powerful. The emphasis is on simple methods for the everyday display table needs (but power when you need it). Here is a brief example of how to use **Great Tables** to create a table from the included `sp500` dataset:
 
@@ -66,21 +66,29 @@ All of this tabular data is great for experimenting with the functionality avail
 
 Beyond the functions shown in the simple `sp500`-based example, there are many possible ways to create super-customized tables. Check out the [documentation website](https://posit-dev.github.io/great-tables/) to get started via introductory articles for making **Great Tables**. There's a handy *Function Reference* section that has detailed help for every method and function in the package.
 
+<div style="text-align: center;">
 [![](https://img.shields.io/badge/Project%20Website-Documentation%20and%20Reference-blue?style=social)](https://posit-dev.github.io/great-tables/)
+</div>
 
 Let's talk about how to make **Great Tables**! There are a few locations where there is much potential for discussion.
 
 One such place is in [*GitHub Discussions*](https://github.com/posit-dev/great-tables/discussions). This discussion board is especially great for Q&A, and many people have had their problems solved in there.
 
+<div style="text-align: center;">
 [![](https://img.shields.io/badge/GitHub%20Discussions-Ask%20about%20anything-blue?style=social&logo=github&logoColor=gray)](https://github.com/posit-dev/great-tables/discussions)
+</div>
 
 Another fine venue for discussion is in the [`gt_package` *Discord server*](https://discord.com/invite/Ux7nrcXHVV). This is a good option for asking about the development of **Great Tables**, pitching ideas that may become features, and sharing your table creations!
 
+<div style="text-align: center;">
 [![](https://img.shields.io/badge/Discord-Chat%20with%20us-blue?style=social&logo=discord&logoColor=purple)](https://discord.com/invite/Ux7nrcXHVV)
+</div>
 
 Finally, there is the [`gt_package` *X account*](https://x.com/gt_package). There you'll find tweets about **Great Tables** (including sneak previews about in-development features) and other table-generation packages.
 
-[![](https://img.shields.io/twitter/follow/gt_package?style=social)](https://x.com/gt_package)
+<div style="text-align: center;">
+[![](https://img.shields.io/twitter/follow/gt_package)](https://x.com/gt_package)
+</div>
 
 These are all great places to ask questions about how to use the package, discuss some ideas, engage with others, and much more!
 
