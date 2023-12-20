@@ -41,25 +41,25 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 )
 ```
 
-<div align="center">
+<div style="text-align: center;">
 <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/gt_sp500_table.svg" width="100%">
 </div>
 
 There are ten datasets provided by **Great Tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `metro`, `constants`, and `illness`.
 
-<div align="center" style="padding-top:20px">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_countrypops.svg" style="width:19%;">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_sza.svg" style="width:19%;">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_gtcars.svg" style="width:19%;">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_sp500.svg" style="width:19%;">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_pizzaplace.svg" style="width:19%;">
+<div style="padding-top: 20px; text-align: center;">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_countrypops.svg" style="width:18%;">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_sza.svg" style="width:18%;">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_gtcars.svg" style="width:18%;">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_sp500.svg" style="width:18%;">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_pizzaplace.svg" style="width:18%;">
 </div>
-<div align="center" style="padding-bottom:20px">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_exibble.svg" style="width:19%;">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_towny.svg" style="width:19%;">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_metro.svg" style="width:19%;">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_constants.svg" style="width:19%;">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_illness.svg" style="width:19%;">
+<div style="padding-bottom: 20px; text-align: center;">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_exibble.svg" style="width:18%;">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_towny.svg" style="width:18%;">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_metro.svg" style="width:18%;">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_constants.svg" style="width:18%;">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_illness.svg" style="width:18%;">
 </div>
 
 All of this tabular data is great for experimenting with the functionality available inside **Great Tables** and we make extensive use of these datasets in our documentation.
