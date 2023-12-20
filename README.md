@@ -77,11 +77,11 @@ One such place is in [_GitHub Discussions_](https://github.com/posit-dev/great-t
 
 [![GitHub Discussions](https://img.shields.io/badge/GitHub%20Discussions-Ask%20about%20anything-blue?style=social&logo=github&logoColor=gray)](https://github.com/posit-dev/great-tables/discussions)
 
-Another fine venue for discussion is in the [`gt_package` _Discord server_](https://discord.com/invite/Ux7nrcXHVV). This is a good option for asking about the development of **Great Tables**, pitching ideas that may become features, and sharing your table creations!
+Another fine venue for discussion is in our [_Discord server_](https://discord.com/invite/Ux7nrcXHVV). This is a good option for asking about the development of **Great Tables**, pitching ideas that may become features, and sharing your table creations!
 
 [![Discord Server](https://img.shields.io/badge/Discord-Chat%20with%20us-blue?style=social&logo=discord&logoColor=purple)](https://discord.com/invite/Ux7nrcXHVV)
 
-Finally, there is the [`gt_package` _X account_](https://twitter.com/gt_package). There you'll find tweets about **Great Tables** (including sneak previews about in-development features) and other table-generation packages.
+Finally, there is the [_X account_](https://twitter.com/gt_package). There you'll find tweets about **Great Tables** (including sneak previews about in-development features) and other table-generation packages.
 
 [![X Follow](https://img.shields.io/twitter/follow/gt_package?style=social)](https://twitter.com/gt_package)
 
