@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, Union, List
 from ._gt_data import Heading
+from ._text import Text
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -8,8 +9,8 @@ if TYPE_CHECKING:
 
 def tab_header(
     self: GTSelf,
-    title: str,
-    subtitle: Optional[str] = None,
+    title: Union[str, Text],
+    subtitle: Optional[Union[str, Text]] = None,
     preheader: Optional[Union[str, List[str]]] = None,
 ) -> GTSelf:
     """
@@ -23,22 +24,23 @@ def tab_header(
 
     Parameters
     ----------
-    title : str
+    title : str | Text
         Text to be used in the table title. We can elect to use the [`md()`](`great_tables.md`) and
         [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to retain
         HTML elements in the text.
-    subtitle : str
+    subtitle : Optional[str | Text]
         Text to be used in the table subtitle. We can elect to use the [`md()`](`great_tables.md`)
         and [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to
         retain HTML elements in the text.
-    preheader (str)
+    preheader: Optional[str | List[str]]
         Optional preheader content that is rendered above the table. Can be supplied as a list
         of strings.
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
