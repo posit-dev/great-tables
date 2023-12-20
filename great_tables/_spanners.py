@@ -45,10 +45,10 @@ def tab_spanner(
         The text to use for the spanner label. We can optionally use the [`md()`](`great_tables.md`)
         and [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to
         retain HTML elements in the text.
-    columns : Union[str, List[str], None]
+    columns : SelectExpr
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    spanners : Union[list[str], str, None]
+    spanners : str | list[str] | None
         The spanners that should be spanned over, should they already be defined. One or more
         spanner ID values (in quotes) can be supplied here. This argument works in tandem with the
         `columns` argument.
@@ -77,7 +77,8 @@ def tab_spanner(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
@@ -206,7 +207,7 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
 
     Parameters
     ----------
-    columns : Union[List[str]]
+    columns : SelectExpr
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     after : str
@@ -216,7 +217,8 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
@@ -289,14 +291,15 @@ def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     Parameters
     ----------
-    columns : Union[List[str]]
+    columns : SelectExpr
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
@@ -356,14 +359,15 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     Parameters
     ----------
-    columns : Union[List[str]]
+    columns : SelectExpr
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
@@ -422,14 +426,15 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     Parameters
     ----------
-    columns : Union[List[str]]
+    columns : SelectExpr
         The columns to hide in the output display table. Can either be a single column name or a
         series of column names provided in a list.
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Details
     -------
