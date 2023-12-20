@@ -11,7 +11,7 @@ _Absolutely Delightful Table-making in Python_
 
 With **Great Tables** anyone can make wonderful-looking tables in Python. The philosophy here is that we can construct a wide variety of useful tables by working with a cohesive set of table components. You can mix and match things like a _header_ and _footer_, attach a _stub_ (which contains row labels), arrange _spanner labels_ over top of the _column labels_, and much more. Not only that, but you can format the cell values in a variety of awesome ways.
 
-<div align="center">
+<div style="text-align: center;">
 <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/the_components_of_a_table.svg" width="100%">
 </div>
 
