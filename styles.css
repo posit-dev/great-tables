@@ -31,18 +31,6 @@ p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.navbar-title {
-    font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial, sans-serif;
-    font-weight: bold;
-    animation: color-change 5s infinite !important;
-}
-
-@keyframes color-change {
-    0% { color: #7e4fdf; }
-    50% { color: #df4c00; }
-    100% { color: #7e4fdf; }
-}
-
 [id^=table-creation] td a:after {
     content: "()"
 }
@@ -90,11 +78,62 @@ p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     border-radius: 5px;
 }
 
+#navbarCollapse > ul.navbar-nav.navbar-nav-scroll.me-auto > li > a {
+    color: white;
+    font-weight: bold;
+}
+
 #api-reference > h1 {
     margin: 0;
+}
+
+.navbar-title {
+    font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 1px;
+    padding-bottom: 4px;
 }
 
 #quarto-header > nav > div {
     margin-left: 5%;
     margin-right: 5%;
+}
+
+.navbar {
+	background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 200% 100%;
+	animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+#navbarCollapse > ul.navbar-nav.navbar-nav-scroll.ms-auto > li > a {
+    background-color: white;
+    border-radius: 3px;
+    height: 100%;
+    vertical-align: middle;
+}
+
+#quarto-search > div > button {
+    background-color: white;
+    border-radius: 50px;
+    width: 150%;
+    padding-right: 7px;
+    vertical-align: middle;
 }
