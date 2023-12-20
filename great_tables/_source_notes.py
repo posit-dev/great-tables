@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Union
+from ._text import Text
 
 if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def tab_source_note(data: GTSelf, source_note: str) -> GTSelf:
+def tab_source_note(data: GTSelf, source_note: Union[str, Text]) -> GTSelf:
     """
     Add a source note citation.
 
@@ -19,7 +19,7 @@ def tab_source_note(data: GTSelf, source_note: str) -> GTSelf:
 
     Parameters
     ----------
-    source_note : str
+    source_note : str | Text
         Text to be used in the source note. We can optionally use the [`md()`](`great_tables.md`) or
         [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to retain
         HTML elements in the text.
@@ -27,7 +27,8 @@ def tab_source_note(data: GTSelf, source_note: str) -> GTSelf:
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
