@@ -90,6 +90,6 @@ p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     border-radius: 5px;
 }
 
-#function-reference > h1 {
+#api-reference > h1 {
     margin: 0;
 }
