@@ -89,3 +89,7 @@ p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     color: white;
     border-radius: 5px;
 }
+
+#function-reference > h1 {
+    margin: 0;
+}
