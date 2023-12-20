@@ -56,12 +56,12 @@ interlinks:
 html-table-processing: none
 
 # tell quarto to read the generated sidebar
-metadata-files:
-  - _sidebar.yml
+#metadata-files:
+#  - _sidebar.yml
 
 quartodoc:
   package: great_tables
-  sidebar: _sidebar.yml
+  #sidebar: _sidebar.yml
   dynamic: true
   render_interlinks: true
   sections:
