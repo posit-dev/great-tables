@@ -93,3 +93,8 @@ p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
 #api-reference > h1 {
     margin: 0;
 }
+
+#quarto-header > nav > div {
+    margin-left: 5%;
+    margin-right: 5%;
+}
