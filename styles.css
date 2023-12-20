@@ -1,19 +1,24 @@
 .table a {
     text-underline-offset: 4px;
     font-family: ui-monospace;
-    color: steelblue;
+    color: inherit;
     font-weight: bold;
     font-size: 0.875em;
     word-break: initial;
+    text-decoration-thickness: 2px;
+}
+
+p a {
+    color: black;
+}
+
+.table td {
+    padding-left: 0px;
 }
 
 .sidebar-item-container {
     text-transform: uppercase;
     font-weight: bold;
-}
-
-.depth1 {
-    font-family: ui-monospace;
 }
 
 code {
@@ -22,13 +27,8 @@ code {
     color: rgb(18, 18, 18);
 }
 
-p, h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
+p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
-
-#quarto-sidebar > div > ul > li:nth-child(1) > div > a > span {
-    text-transform: uppercase;
-    font-weight: bold;
 }
 
 .navbar-title {
@@ -41,14 +41,6 @@ p, h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     0% { color: #7e4fdf; }
     50% { color: #df4c00; }
     100% { color: #7e4fdf; }
-}
-
-[id^=quarto-sidebar-section] a {
-    text-transform: initial;
-}
-
-#quarto-sidebar-section-8 a:after {
-    content: "";
 }
 
 [id^=table-creation] td a:after {
@@ -71,6 +63,29 @@ p, h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     content: "()"
 }
 
+[id^=helper-functions] td a:after {
+    content: "()"
+}
+
 [id^=value-formatting] td a:after {
     content: "()"
+}
+
+#toc-title {
+    font-size: 20px;
+}
+
+#quarto-margin-sidebar nav ul {
+    font-size: 16px;
+    padding-top: 5px;
+}
+
+#quarto-margin-sidebar nav ul li  {
+    padding-top: 3px;
+}
+
+#navbarCollapse > ul.navbar-nav.navbar-nav-scroll.me-auto > li > a:hover {
+    background-color: rgb(240, 112, 0);
+    color: white;
+    border-radius: 5px;
 }
