@@ -41,7 +41,8 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
@@ -121,7 +122,8 @@ def cols_align(self: GTSelf, align: str = "left", columns: Optional[str] = None)
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
