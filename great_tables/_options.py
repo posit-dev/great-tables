@@ -349,7 +349,8 @@ def tab_options(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
     """
     saved_args = locals()
 
@@ -400,7 +401,8 @@ def opt_footnote_marks(self: GTSelf, marks: Union[str, List[str]] = "numbers") -
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
     """
     # Validate the marks keyword passed in as a string
     if marks is str:
@@ -429,7 +431,8 @@ def opt_row_striping(self: GTSelf, row_striping: bool = True) -> GTSelf:
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
     """
     return tab_options(self, row_striping_include_table_body=row_striping)
 
@@ -452,7 +455,8 @@ def opt_align_table_header(self: GTSelf, align: str = "center") -> GTSelf:
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
     """
 
     align = _utils._match_arg(x=align, lst=["left", "center", "right"])
@@ -494,7 +498,8 @@ def opt_all_caps(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
     """
 
     # If providing a scalar string value, normalize it to be in a list
