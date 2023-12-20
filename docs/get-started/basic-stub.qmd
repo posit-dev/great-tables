@@ -4,12 +4,11 @@ jupyter: python3
 html-table-processing: none
 ---
 
-The **Stub** is the area to the left in a table that contains *row labels*, and may contain *row group labels*, and *summary labels*. Those subparts can be grouped in a sequence of *row groups*. The **Stub Head** provides a location for a label that describes the **Stub**. The **Stub** is optional since there are cases where a **Stub** wouldn't be useful (e.g., the display tables presented above were just fine without a **Stub**).
+The **Stub** is the area to the left in a table that contains *row labels*, and may contain *row group labels*, and *summary labels*. Those subparts can be grouped in a sequence of *row groups*. The **Stub Head** provides a location for a label that describes the **Stub**. The **Stub** is optional since there are cases where a **Stub** wouldn't be useful (i.e., the display tables presented above were just fine without a **Stub**).
 
 ## Row names
 
-An easy way to generate a **Stub** part is by specifying a stub column in the `gt()` method with the `rowname_col` argument. This will signal to **gt** that the named column should be used as the stub, making *row labels*. Let's add a stub with our `islands_tbl` dataset by modifying the call to `gt()`:
-
+An easy way to generate a **Stub** part is by specifying a stub column in the `GT()` class with the `rowname_col` argument. This will signal to **Great Tables** that the named column should be used as the stub, making *row labels*. Let's add a stub with our `islands_tbl` dataset by modifying the call to `GT()`:
 
 ```{python}
 from great_tables import GT, md, html
@@ -17,31 +16,28 @@ from great_tables.data import islands
 
 islands_mini = islands.head(10)
 
-GT(islands_mini, rowname_col = "name")
+GT(islands_mini, rowname_col="name")
 ```
 
-Notice that the landmass names are off the the left in an unstriped area? That's the **stub**. We can apply what's known as a **stubhead label**. This label can be added with the `tab_stubhead()` method:
-
+Notice that the landmass names are off the the left in an unstriped area? That's the **Stub**. We can apply what's known as a *stubhead label*. This label can be added with the `tab_stubhead()` method:
 
 ```{python}
 (
-    GT(islands_mini, rowname_col = "name")
-    .tab_stubhead(label = "landmass")
+    GT(islands_mini, rowname_col="name")
+    .tab_stubhead(label="landmass")
 )
 ```
 
-A very important thing to note here is that the table now has one column. Before, when there was no **stub**, two columns were present (with **column labels** `name` and `size`) but now column number `1` (the only column) is `size`.
+A very important thing to note here is that the table now has one column. Before, when there was no **stub**, two columns were present (with **Column Labels** `"name"` and `"size"`) but now column number `1` (the only column) is `size`.
 
 ## Row groups
 
 Let's incorporate row groups into the display table. This divides rows into groups, creating *row groups*, and results in a display of a *row group labels* right above the each group. This can be easily done with a table containing row labels. We can make a new *row group* with each call of the `tab_row_group()` method. The inputs are row group names in the `label` argument, and row references in the `rows` argument. We can use any of the strategies to reference rows as we did we footnotes (e.g., vectors of names/indices, select helpers, etc.).
 
-Here we will create three row groups (with row group labels `continent`, `country`, and `subregion`) to have a grouping of rows.
-
+Here we will create three row groups (with row group labels `"continent"`, `"country"`, and `"subregion"`) to have a grouping of rows.
 
 ```{python}
 island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] * 2 + ["continent"] * 6)
 
-# TODO: should also apply all above methods
 GT(island_groups, rowname_col="name", groupname_col="group").tab_stubhead(label="landmass")
 ```
