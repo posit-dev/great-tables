@@ -147,7 +147,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
@@ -163,7 +163,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page-left" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -187,7 +187,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div style="text-align: center;">
 <p><img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/the_components_of_a_table.svg" width="100%"></p>
 </div>
-<p>It all begins with <strong>table data</strong> in the form of a Pandas or Polars DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a <strong>Quarto</strong> document.</p>
+<p>It all begins with <strong>table data</strong> in the form of a <strong>Pandas</strong> or <strong>Polars</strong> DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a <strong>Quarto</strong> document.</p>
 <p>The <strong>Great Tables</strong> package is designed to be both straightforward yet powerful. The emphasis is on simple methods for the everyday display table needs (but power when you need it). Here is a brief example of how to use <strong>Great Tables</strong> to create a table from the included <code>sp500</code> dataset:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables <span class="im">as</span> gt</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> sp500</span>
@@ -220,29 +220,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>All of this tabular data is great for experimenting with the functionality available inside <strong>Great Tables</strong> and we make extensive use of these datasets in our documentation.</p>
 <p>Beyond the functions shown in the simple <code>sp500</code>-based example, there are many possible ways to create super-customized tables. Check out the <a href="https://posit-dev.github.io/great-tables/">documentation website</a> to get started via introductory articles for making <strong>Great Tables</strong>. There’s a handy <em>Function Reference</em> section that has detailed help for every method and function in the package.</p>
+<div style="text-align: center;">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><a href="https://posit-dev.github.io/great-tables/"><img src="https://img.shields.io/badge/Project%20Website-Documentation%20and%20Reference-blue?style=social.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
+</div>
 <p>Let’s talk about how to make <strong>Great Tables</strong>! There are a few locations where there is much potential for discussion.</p>
 <p>One such place is in <a href="https://github.com/posit-dev/great-tables/discussions"><em>GitHub Discussions</em></a>. This discussion board is especially great for Q&amp;A, and many people have had their problems solved in there.</p>
+<div style="text-align: center;">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><a href="https://github.com/posit-dev/great-tables/discussions"><img src="https://img.shields.io/badge/GitHub%20Discussions-Ask%20about%20anything-blue?style=social&amp;logo=github&amp;logoColor=gray.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
+</div>
 <p>Another fine venue for discussion is in the <a href="https://discord.com/invite/Ux7nrcXHVV"><code>gt_package</code> <em>Discord server</em></a>. This is a good option for asking about the development of <strong>Great Tables</strong>, pitching ideas that may become features, and sharing your table creations!</p>
+<div style="text-align: center;">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><a href="https://discord.com/invite/Ux7nrcXHVV"><img src="https://img.shields.io/badge/Discord-Chat%20with%20us-blue?style=social&amp;logo=discord&amp;logoColor=purple.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
+</div>
 <p>Finally, there is the <a href="https://x.com/gt_package"><code>gt_package</code> <em>X account</em></a>. There you’ll find tweets about <strong>Great Tables</strong> (including sneak previews about in-development features) and other table-generation packages.</p>
+<div style="text-align: center;">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="https://x.com/gt_package"><img src="https://img.shields.io/twitter/follow/gt_package?style=social.png" class="img-fluid figure-img"></a></p>
+<p><a href="https://x.com/gt_package"><img src="https://img.shields.io/twitter/follow/gt_package.png" class="img-fluid figure-img"></a></p>
 </figure>
+</div>
 </div>
 <p>These are all great places to ask questions about how to use the package, discuss some ideas, engage with others, and much more!</p>
 <section id="installation" class="level2">
