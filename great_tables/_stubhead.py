@@ -1,9 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Union
-from typing_extensions import Self
-from copy import copy
 from ._text import Text
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -22,7 +19,7 @@ def tab_stubhead(self: GTSelf, label: Union[str, Text]) -> GTSelf:
 
     Parameters
     ----------
-    label : str
+    label : str | Text
         The text to be used as the stubhead label. We can optionally use the
         [`md()`](`great_tables.md`) and [`html()`](`great_tables.html`) helper functions to style
         the text as Markdown or to retain HTML elements in the text.
@@ -30,7 +27,8 @@ def tab_stubhead(self: GTSelf, label: Union[str, Text]) -> GTSelf:
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
