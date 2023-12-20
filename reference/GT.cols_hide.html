@@ -144,9 +144,9 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 4%">
-<col style="width: 29%">
-<col style="width: 59%">
+<col style="width: 5%">
+<col style="width: 25%">
+<col style="width: 63%">
 <col style="width: 5%">
 </colgroup>
 <thead>
@@ -160,7 +160,7 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td><code>columns</code></td>
-<td><code>Union</code>[<code>List</code>[<code>str</code>]]</td>
+<td><code>SelectExpr</code></td>
 <td>The columns to hide in the output display table. Can either be a single column name or a series of column names provided in a list.</td>
 <td><em>required</em></td>
 </tr>
@@ -179,7 +179,7 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
-<td>The GT object is returned.</td>
+<td>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</td>
 </tr>
 </tbody>
 </table>

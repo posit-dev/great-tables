@@ -153,9 +153,9 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 5%">
-<col style="width: 19%">
-<col style="width: 72%">
+<col style="width: 6%">
+<col style="width: 14%">
+<col style="width: 76%">
 <col style="width: 2%">
 </colgroup>
 <thead>
@@ -169,13 +169,13 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td><code>columns</code></td>
-<td><code>Union</code>[<code>str</code>, <code>List</code>[<code>str</code>], None]</td>
+<td><code>str</code> | <code>List</code>[<code>str</code>] | None</td>
 <td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>rows</code></td>
-<td><code>Union</code>[<code>int</code>, <code>List</code>[<code>int</code>], None]</td>
+<td><code>int</code> | <code>List</code>[<code>int</code>] | None</td>
 <td>In conjunction with <code>columns</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
 <td><code>None</code></td>
 </tr>
@@ -247,7 +247,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td><code>locale</code></td>
-<td><code>str</code></td>
+<td><code>str</code> | None</td>
 <td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
 <td><code>None</code></td>
 </tr>
@@ -266,7 +266,7 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
-<td>The GT object is returned.</td>
+<td>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</td>
 </tr>
 </tbody>
 </table>
