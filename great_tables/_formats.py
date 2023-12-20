@@ -12,10 +12,8 @@ import math
 from datetime import datetime, date, time
 from babel.dates import format_date, format_time
 
-
 if TYPE_CHECKING:
     from ._types import GTSelf
-
 
 T = TypeVar("T")
 DateStyle: TypeAlias = Literal[
@@ -77,7 +75,8 @@ def fmt(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
     """
 
     # If a single function is supplied to `fns` then
@@ -116,9 +115,9 @@ def fmt_number(
     """
     Format numeric values.
 
-    With numeric values in a **gt** table, we can perform number-based formatting so that the
-    targeted values are rendered with a higher consideration for tabular presentation. Furthermore,
-    there is finer control over numeric formatting with the following options:
+    With numeric values within a table's body cells, we can perform number-based formatting so that
+    the targeted values are rendered with a higher consideration for tabular presentation.
+    Furthermore, there is finer control over numeric formatting with the following options:
 
     - decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice
     of the decimal symbol
@@ -133,10 +132,10 @@ def fmt_number(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -188,14 +187,15 @@ def fmt_number(
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -330,10 +330,10 @@ def fmt_integer(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -362,14 +362,15 @@ def fmt_integer(
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -505,10 +506,10 @@ def fmt_scientific(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -561,14 +562,15 @@ def fmt_scientific(
         would effectively show a sign for all values except zero on the second numeric component of
         the notation. If so, use `True` (the default for this is `False`), where only negative
         numbers will display a sign.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -763,10 +765,10 @@ def fmt_percent(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -814,14 +816,15 @@ def fmt_percent(
     incl_space : bool
         An option for whether to include a space between the value and the percent sign. The default
         is to not introduce a space character.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -964,14 +967,14 @@ def fmt_currency(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    currency : Union[str, None]
+    currency : str | None
         The currency to use for the numeric value. This input can be supplied as a 3-letter currency
         code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency).
     use_subunits: bool
@@ -1019,14 +1022,15 @@ def fmt_currency(
     incl_space : bool
         An option for whether to include a space between the value and the currency symbol. The
         default is to not introduce a space character.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -1174,10 +1178,10 @@ def fmt_roman(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -1192,7 +1196,8 @@ def fmt_roman(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
@@ -1304,10 +1309,10 @@ def fmt_bytes(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -1352,14 +1357,15 @@ def fmt_bytes(
     incl_space : bool
         An option for whether to include a space between the value and the currency symbol. The
         default is to not introduce a space character.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -1515,10 +1521,10 @@ def fmt_date(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -1530,7 +1536,7 @@ def fmt_date(
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -1566,7 +1572,8 @@ def fmt_date(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -1659,10 +1666,10 @@ def fmt_time(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -1674,7 +1681,7 @@ def fmt_time(
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -1698,7 +1705,8 @@ def fmt_time(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -1791,10 +1799,10 @@ def fmt_markdown(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -1802,7 +1810,8 @@ def fmt_markdown(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     See Also
     --------
