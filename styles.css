@@ -9,7 +9,9 @@
 }
 
 p a {
+    font-family: ui-monospace;
     color: black;
+    text-underline-offset: 4px;
 }
 
 .table td {
@@ -128,6 +130,10 @@ p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     border-radius: 3px;
     height: 100%;
     vertical-align: middle;
+}
+
+#navbarCollapse > ul.navbar-nav.navbar-nav-scroll.ms-auto > li {
+    padding-right: 5px
 }
 
 #quarto-search > div > button {
