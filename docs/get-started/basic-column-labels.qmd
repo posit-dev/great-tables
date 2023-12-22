@@ -1,5 +1,5 @@
 ---
-title: Column labels
+title: Column Labels
 jupyter: python3
 html-table-processing: none
 ---
@@ -25,7 +25,7 @@ airquality_mini = airquality.head(10).assign(Year = 1973)
 airquality_mini
 ```
 
-## Adding column spanners
+## Adding Column Spanners
 
 Let's organize the time information under a `Time` *spanner label*, and put the other columns under a `Measurement` *spanner label*. We can do this with the [`tab_spanner()`](`great_tables.GT.tab_spanner`) method.
 
@@ -49,7 +49,7 @@ gt_airquality = (
 gt_airquality
 ```
 
-## Moving and relabeling columns
+## Moving and Relabeling Columns
 
 We can do two more things to make this presentable:
 
@@ -75,7 +75,7 @@ Note that even though columns were moved using [`cols_move_to_start()`](`great_t
 
 Multiple columns can be renamed in a single use of [`cols_label()`](`great_tables.GT.cols_label`). Further to this, the helper functions [`md()`](`great_tables.md`) and [`html()`](`great_tables.html`) can be used to create column labels with additional styling. In the above example, we provided column labels as HTML so that we can insert linebreaks with `<br>`, insert a superscripted `2` (with `<sup>2</sup>`), and insert a degree symbol as an HTML entity (`&deg;`).
 
-## Targeting columns for `columns=`
+## Targeting Columns for `columns=`
 
 In the above examples, we selected columns to span or move using a list of column names (as strings). However, **Great Tables** supports a wide range of ways to select columns.
 
