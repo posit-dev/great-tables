@@ -1,5 +1,5 @@
 ---
-title: Formatting values
+title: Formatting Values
 jupyter: python3
 html-table-processing: none
 ---
@@ -52,7 +52,7 @@ gt_ex = gt_ex.fmt_currency(columns="currency", rows=[2, 3, 4], currency="GBP")
 gt_ex
 ```
 
-## Arguments common to several formatting functions
+## Arguments Common to Several Formatting Methods/Functions
 
 While we can use the `fmt_*()` methods on a table, we can also use the functional versions of these methods on scalar values or lists of values. These variants exist within the `vals` module. While arguments across these functions and their corresponding method aren't exactly the same, there are nonetheless many arguments that are shared amongst them. Here are a few examples:
 
