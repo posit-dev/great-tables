@@ -68,15 +68,15 @@ quartodoc:
       desc: >
         All tables created in **Great Tables** begin by using [`GT()`](`great_tables.GT`). With this
         class, we supply the input data table and some basic options for creating a stub and row
-        groups (with the `rowname_col` and `groupname_col` arguments).
+        groups (with the `rowname_col=` and `groupname_col=` arguments).
       contents:
         - GT
     - title: Creating or modifying parts of a table
       desc: >
         A table can contain a few useful components for conveying additional information. These
-        include a header (with a titles and subtitle), a footer (with footnotes and source notes),
-        and additional areas for labels (row group labels, column spanner labels, the stubhead
-        label). We can perform styling on targeted table locations with the
+        include a header (with a titles and subtitle), a footer (with source notes), and additional
+        areas for labels (row group labels, column spanner labels, the stubhead label). We can
+        perform styling on targeted table locations with the
         [`tab_style()`](`great_tables.GT.tab_style`) method.
       contents:
         - GT.tab_header
