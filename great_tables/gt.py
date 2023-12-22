@@ -326,28 +326,7 @@ class GT(
 
 
 # =============================================================================
-# as_raw_html()
-# =============================================================================
-
-
-def as_raw_html(gt: GT) -> str:
-    """
-    Returns the GTData object as raw HTML.
-
-    Args:
-        gt (GT): The GTData object to convert to raw HTML.
-        context (str): The context in which to build the output.
-
-    Returns:
-        str: The GTData object as raw HTML.
-    """
-    gt_built = gt._build_data(context="html")
-    html_table = gt_built._render_as_html()
-    return html_table
-
-
-# =============================================================================
-# Functions that operate on GT
+# Functions that operate on GT objects
 # =============================================================================
 
 
@@ -368,3 +347,19 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
         cell_values.append(cell_str)
 
     return cell_values
+
+
+def _as_raw_html(gt: GT) -> str:
+    """
+    Returns the GTData object as raw HTML.
+
+    Args:
+        gt (GT): The GTData object to convert to raw HTML.
+        context (str): The context in which to build the output.
+
+    Returns:
+        str: The GTData object as raw HTML.
+    """
+    gt_built = gt._build_data(context="html")
+    html_table = gt_built._render_as_html()
+    return html_table
