@@ -347,13 +347,8 @@ def as_raw_html(gt: GT) -> str:
 
 
 # =============================================================================
-# GT Getter/Setter Functions
+# Functions that operate on GT
 # =============================================================================
-
-
-def _set_has_built(gt: GT, value: bool) -> GT:
-    gt._has_built = value
-    return gt
 
 
 def _get_column_labels(gt: GT, context: str) -> List[str]:
