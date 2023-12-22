@@ -18,7 +18,7 @@ The installation really couldn't be much easier. Use this:
 pip install great_tables
 ```
 
-## A Basic **gt** Table
+## A Basic Table using **Great Tables**
 
 Let’s use a subset of the `islands` dataset available within `great_tables.data`:
 
