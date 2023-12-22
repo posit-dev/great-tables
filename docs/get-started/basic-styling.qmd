@@ -1,5 +1,5 @@
 ---
-title: Stying the table body
+title: Stying the Table Body
 jupyter: python3
 html-table-processing: none
 ---
