@@ -29,7 +29,7 @@ from great_tables.data import islands
 islands_mini = islands.head(10)
 ```
 
-The `islands` data is a simple pandas DataFrame with 2 columns and that'll serve as a great start. Speaking of which, the main entry point into the `great_tables` API is the `GT` class. Let's use that to make a presentable table:
+The `islands` data is a simple **Pandas** DataFrame with 2 columns and that'll serve as a great start. Speaking of which, the main entry point into the **Great Tables** API is the `GT` class. Let's use that to make a presentable table:
 
 ```{python}
 # Create a display table showing ten of the largest islands in the world
@@ -39,9 +39,9 @@ gt_tbl = GT(islands_mini)
 gt_tbl
 ```
 
-That doesn't look too bad. Sure, it's basic but we really didn't really ask for much. We did receive a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a **Table header**, a **Stub**, and sometimes *footnotes* and *source notes* in the **Table Footer** part.
+That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a **Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
 
-## Some beautiful examples
+## Some Beautiful Examples
 
 In the following pages we'll use **Great Tables** to turn DataFrames into beautiful tables, like the ones below.
 
@@ -57,16 +57,16 @@ islands_mini = islands.head(10)
 (
     GT(islands_mini, rowname_col = "name")
     .tab_header(
-        title = "Large Landmasses of the World",
-        subtitle = "The top ten largest are presented"
+        title="Large Landmasses of the World",
+        subtitle="The top ten largest are presented"
     )
     .tab_source_note(
-        source_note = "Source: The World Almanac and Book of Facts, 1975, page 406."
+        source_note="Source: The World Almanac and Book of Facts, 1975, page 406."
     )
     .tab_source_note(
-        source_note = md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
+        source_note=md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
     )
-    . tab_stubhead(label = "landmass")
+    . tab_stubhead(label="landmass")
 )
 ```
 
