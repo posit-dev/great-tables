@@ -1,5 +1,5 @@
 ---
-title: Stub (row labels)
+title: Stub (Row Labels)
 jupyter: python3
 html-table-processing: none
 ---
