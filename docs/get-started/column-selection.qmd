@@ -1,5 +1,5 @@
 ---
-title: Column selection
+title: Column Selection
 jupyter: python3
 html-table-processing: none
 ---
@@ -21,7 +21,7 @@ gt_ex = GT(exibble)
 gt_ex
 ```
 
-## String and integer selectors
+## String and Integer Selectors
 
 We can use a list of strings or integers to select columns by name or position, respectively.
 
@@ -37,7 +37,7 @@ Note the code above moved the following columns:
 
 Moreover, the order of the list defines the order of selected columns. In this case, `"data"` was the first entry, so it's the very first column in the new table.
 
-## Using function selectors
+## Using Function Selectors
 
 A function can be used to select columns. It should take a string and returns `True` or `False`.
 
@@ -45,7 +45,7 @@ A function can be used to select columns. It should take a string and returns `T
 gt_ex.cols_move_to_start(columns=lambda x: "c" in x)
 ```
 
-## **Polars** selectors
+## **Polars** Selectors
 
 When using a **Polars** DataFrame, you can select columns using [**Polars** selectors](https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html). The example below uses **Polars** selectors to move all columns that start with `"c"` or `"f"` to the start of the table.
 
