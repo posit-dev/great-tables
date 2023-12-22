@@ -12,10 +12,10 @@ This is the way the main parts of a table (and their subparts) fit together:
 
 ![](/assets/gt_parts_of_a_table.svg)
 
-The parts (roughly from top to bottom) are:
+The components (roughly from top to bottom) are:
 
 - the **Table Header** (optional; with a **title** and possibly a **subtitle**)
-- the **Stub** and the **Stub Head** (optional; contains *row labels*, optionally within *row groups* having *row group labels* and possibly *summary labels* when a summary is present)
-- the **Column Labels** (contains *column labels*, optionally under *spanner column labels*)
+- the **Stub** and the **Stub Head** (optional; contains *row labels*, optionally within *row groups* having *row group labels*)
+- the **Column Labels** (contains *column labels*, optionally under *spanner labels*)
 - the **Table Body** (contains *columns* and *rows* of *cells*)
-- the **Table Footer** (optional; possibly with **footnotes** and **source notes**)
+- the **Table Footer** (optional; possibly with one or more **source notes**)
