@@ -1786,6 +1786,33 @@ def fmt_time(
     return fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
 
 
+def _validate_iso_datetime_str(x: str) -> None:
+    """
+    Validate an ISO datetime string.
+
+    Parameters
+    ----------
+    x : str
+        The string to validate.
+
+    Raises
+    ------
+    ValueError
+        Raised if the string is not a valid ISO datetime string.
+    """
+
+    import re
+
+    # Define the regex pattern for a valid ISO datetime string
+    _ISO_DATETIME_REGEX = r"^\d{4}-\d{2}-\d{2}(T| )\d{2}:\d{2}(:\d{2})?$"
+
+    # Use regex to determine if string is a valid ISO datetime string
+    if not re.match(_ISO_DATETIME_REGEX, x):
+        raise ValueError(f'"{x}" is not a valid ISO datetime string')
+
+    return
+
+
 def fmt_markdown(
     self: GTSelf,
     columns: Union[str, List[str], None] = None,
