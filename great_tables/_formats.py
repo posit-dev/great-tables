@@ -1813,6 +1813,28 @@ def _validate_iso_datetime_str(x: str) -> None:
     return
 
 
+def _normalize_iso_datetime_str(x: str) -> str:
+    """
+    Normalize an ISO datetime string.
+
+    Parameters
+    ----------
+    x : str
+        The string to normalize.
+
+    Returns
+    -------
+    str
+        The normalized string.
+    """
+
+    # If the string does not have a seconds value, then add one
+    if len(x) == 16:
+        x = x + ":00"
+
+    return x
+
+
 def fmt_markdown(
     self: GTSelf,
     columns: Union[str, List[str], None] = None,
