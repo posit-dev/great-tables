@@ -2950,6 +2950,19 @@ def _iso_to_time(x: str) -> time:
     return datetime.strptime(x, "%H:%M:%S").time()
 
 
+def _iso_to_datetime(x: str) -> datetime:
+    """
+    Converts a string in ISO format to a datetime object.
+
+    Args:
+        x (str): The string to be converted.
+
+    Returns:
+        datetime: The converted datetime object.
+    """
+    return datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
+
+
 def _validate_iso_date_str(x: str) -> None:
     """
     Validates if the given string is a valid ISO date string in the format 'YYYY-MM-DD'.
