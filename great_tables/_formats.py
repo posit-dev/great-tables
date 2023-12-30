@@ -1786,6 +1786,179 @@ def fmt_time(
     return fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
 
 
+def fmt_datetime(
+    self: GTSelf,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    date_style: DateStyle = "iso",
+    time_style: TimeStyle = "iso",
+    pattern: str = "{x}",
+    locale: Union[str, None] = None,
+) -> GTSelf:
+    """
+    Format values as datetimes.
+
+    Format input values to datetime values using one of 17 preset date styles and one of 5 preset
+    time styles. Input can be in the form of `datetime` values, or strings in the ISO 8601 forms of
+    `YYYY-MM-DD HH:MM:SS` or `YYYY-MM-DD`.
+
+    Parameters
+    ----------
+    columns : str | List[str] | None
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows : int | List[int] | None
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+    date_style: str
+        The date style to use. By default this is the short name `"iso"` which corresponds to
+        ISO 8601 date formatting. There are 41 date styles in total and their short names can be
+        viewed using `info_date_style()`.
+    time_style: str
+        The time style to use. By default this is the short name `"iso"` which corresponds to how
+        times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
+        their short names can be viewed using `info_time_style()`.
+
+    Formatting with the `date_style` and `time_style` arguments
+    ------------------------------------------------------------
+    We need to supply a preset date style to the `date_style` argument and a preset time style to
+    the `time_style` argument. The date styles are numerous and can handle localization to any
+    supported locale. The following table provides a listing of all date styles and their output
+    values (corresponding to an input date of `2000-02-29 14:35:00`).
+
+    |    | Date Style            | Output                  |
+    |----|-----------------------|-------------------------|
+    | 1  | `"iso"`               | `"2000-02-29 14:35:00"`  |
+    | 2  | `"wday_month_day_year"`| `"Tuesday, February 29, 2000 14:35:00"`  |
+    | 3  | `"wd_m_day_year"`     | `"Tue, Feb 29, 2000 14:35:00"`   |
+    | 4  | `"wday_day_month_year"`| `"Tuesday 29 February 2000 14:35:00"`    |
+    | 5  | `"month_day_year"`    | `"February 29, 2000 14:35:00"`   |
+    | 6  | `"m_day_year"`        | `"Feb 29, 2000 14:35:00"`        |
+    | 7  | `"day_m_year"`        | `"29 Feb 2000 14:35:00"`         |
+    | 8  | `"day_month_year"`    | `"29 February 2000 14:35:00"`    |
+    | 9  | `"day_month"`         | `"29 February 14:35:00"`         |
+    | 10 | `"day_m"`             | `"29 Feb 14:35:00"`              |
+    | 11 | `"year"`              | `"2000 14:35:00"`                |
+    | 12 | `"month"`             | `"February 14:35:00"`            |
+    | 13 | `"day"`               | `"29 14:35:00"`                  |
+    | 14 | `"year.mn.day"`       | `"2000/02/29 14:35:00"`          |
+    | 15 | `"y.mn.day"`          | `"00/02/29 14:35:00"`            |
+    | 16 | `"year_week"`         | `"2000-W09 14:35:00"`            |
+    | 17 | `"year_quarter"`      | `"2000-Q1 14:35:00"`             |
+
+    The time styles are numerous and can handle localization to any supported locale. The following
+    table provides a listing of all time styles and their output values (corresponding to an input
+    time of `2000-02-29 14:35:00`).
+
+    |    | Time Style    | Output                          | Notes         |
+    |----|---------------|---------------------------------|---------------|
+    | 1  | `"iso"`       | `"2000-02-29 14:35:00"`         | ISO 8601, 24h |
+    | 2  | `"iso-short"` | `"2000-02-29 14:35"`            | ISO 8601, 24h |
+    | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                  | 12h           |
+    | 4  | `"h_m_p"`     | `"2:35 PM"`                     | 12h           |
+    | 5  | `"h_p"`       | `"2 PM"`                        | 12h           |
+
+    We can use the `info_date_style()` and `info_time_style()` functions within the console to view
+    similar tables of date and time styles with example output.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `date`
+    and `time` columns). With the `fmt_datetime()` method, we'll format the `date` column to display
+    dates formatted with the `"month_day_year"` date style and the `time` column to display times
+    formatted with the `"h_m_s_p"` time style.
+
+    ```{python}
+    import great_tables as gt
+
+    exibble_mini = gt.data.exibble[[\"date\", \"time\"]]
+
+    (
+        gt.GT(exibble_mini)
+        .fmt_datetime(
+            columns=\"date\",
+            date_style=\"month_day_year\",
+            time_style=\"h_m_s_p\"
+        )
+    )
+    ```
+    """
+
+    # Stop if `locale` does not have a valid value; normalize locale and resolve one
+    # that might be set globally
+    _validate_locale(locale=locale)
+    locale = _normalize_locale(locale=locale)
+
+    # Get the date format string based on the `date_style` value
+    date_format_str = _get_date_format(date_style=date_style)
+
+    # Get the time format string based on the `time_style` value
+    time_format_str = _get_time_format(time_style=time_style)
+
+    # Generate a function that will operate on single `x` values in the table body using both
+    # the date and time format strings
+    def fmt_datetime_fn(
+        x: Any,
+        date_format_str: str = date_format_str,
+        time_format_str: str = time_format_str,
+        locale: Union[str, None] = locale,
+    ) -> str:
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
+        # If the `x` value is infinite, then return the same value
+        if math.isinf(x):
+            # If positive infinity, return the string "Inf"
+            if x > 0:
+                return "Inf"
+            # If negative infinity, return the string "-Inf"
+            else:
+                return "-Inf"
+
+        # From the date and time format strings, create a datetime format string
+        datetime_format_str = f"{date_format_str} {time_format_str}"
+
+        # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
+        if isinstance(x, str):
+            # Stop if `x` is not a valid ISO datetime string
+            _validate_iso_datetime_str(x=x)
+
+            # Ensure that a seconds value is present in the ISO datetime string
+            x = _normalize_iso_datetime_str(x=x)
+
+            # Convert the ISO datetime string to a datetime object
+            x = _iso_to_datetime(x)
+
+        else:
+            # Stop if `x` is not a valid datetime object
+            _validate_datetime_obj(x=x)
+
+        # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
+        if locale is None:
+            locale = "en_US"
+        else:
+            locale = _str_replace(locale, "-", "_")
+
+        # Format the datetime object to a string using Babel's `format_datetime()` function
+        x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    return fmt(self, fns=fmt_datetime_fn, columns=columns, rows=rows)
+
+
 def _validate_iso_datetime_str(x: str) -> None:
     """
     Validate an ISO datetime string.
