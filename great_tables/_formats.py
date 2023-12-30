@@ -3065,3 +3065,22 @@ def _validate_time_obj(x: Any) -> None:
         raise ValueError(f"Invalid time object: '{x}'. The object must be a time object.")
 
     return
+
+
+def _validate_datetime_obj(x: Any) -> None:
+    """
+    Validate if the given object is a valid datetime object.
+
+    Args:
+        x (Any): The object to be validated.
+
+    Raises:
+        ValueError: If the object is not a valid datetime object.
+
+    Returns:
+        None
+    """
+    if not isinstance(x, datetime):
+        raise ValueError(f"Invalid datetime object: '{x}'. The object must be a datetime object.")
+
+    return
