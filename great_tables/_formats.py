@@ -1914,15 +1914,6 @@ def fmt_datetime(
         if pd.isna(x):
             return x
 
-        # If the `x` value is infinite, then return the same value
-        if math.isinf(x):
-            # If positive infinity, return the string "Inf"
-            if x > 0:
-                return "Inf"
-            # If negative infinity, return the string "-Inf"
-            else:
-                return "-Inf"
-
         # From the date and time format strings, create a datetime format string
         datetime_format_str = f"{date_format_str} {time_format_str}"
 
