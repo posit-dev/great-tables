@@ -21,6 +21,7 @@ from great_tables._formats import (
     fmt_roman,
     fmt_date,
     fmt_time,
+    fmt_datetime,
     fmt_markdown,
 )
 from great_tables._heading import tab_header
@@ -202,6 +203,7 @@ class GT(
     fmt_roman = fmt_roman
     fmt_date = fmt_date
     fmt_time = fmt_time
+    fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
 
     tab_options = tab_options
