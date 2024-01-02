@@ -1,5 +1,6 @@
 from __future__ import annotations
 from decimal import Decimal
+from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, List, cast, Optional, Dict, Literal
 from typing_extensions import TypeAlias
 from ._tbl_data import n_rows
@@ -1771,6 +1772,9 @@ def fmt_time(
     return fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
 
 
+# fmt_url ---------------------------------------------------------------------
+
+
 def fmt_url(
     self: GTSelf,
     columns: Union[str, List[str], None] = None,
@@ -1920,58 +1924,119 @@ def fmt_url(
             # color = html_color(colors=color, alpha=None)
 
     # Generate a function that will operate on single `x` values in the table body
-    def fmt_url_fn(x: Any) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
-            return x
+    f = partial(
+        _fmt_url_fn,
+        label=label,
+        as_button=as_button,
+        button_width=button_width,
+        button_fill=button_fill,
+        button_outline_style=button_outline_style,
+        button_outline_color=button_outline_color,
+        button_outline_width=button_outline_width,
+        color=color,
+        show_underline=show_underline,
+    )
+    return fmt(self, fns=f, columns=columns, rows=rows)
 
-        href_str = x
 
-        if label is not None:
-            if label is Callable:
-                label_str = label(x)
-            else:
-                label_str = label
+class FmtUrlBtn:
+    FILL_DARK = "#4682B4"
+    FILL_LIGHT = "#FFFFFF"
+    COLOR_DARK = "#4682B4"
+    COLOR_LIGHT = "#4682B4"
+
+    @classmethod
+    def get_fill(cls, fill: str, color: str, outline: str):
+        if fill != "auto":
+            return fill
+
+        if color == "auto":
+            return cls.FILL_DARK
+
+        if cls.is_dark(color):
+            return cls.FILL_LIGHT
+        else:
+            return cls.FILL_DARK
+
+    @classmethod
+    def get_color(cls, fill: str, color: str, outline: str):
+        if color != "auto":
+            return color
+
+        if fill == "auto":
+            return cls.COLOR_LIGHT
+
+        if cls.is_dark(fill):
+            return cls.COLOR_LIGHT
 
         else:
-            import re
+            return cls.COLOR_DARK
 
-            pattern = r"^rgba\(\s*(?:[0-9]+?\s*,\s*){3}[0-9\.]+?\s*\)$"
-            matched = bool(re.match(pattern, x))
+    # fill = FmtUrlBtn.get_fill(fill="auto", color="auto", outline="auto")
+    # color = FmtUrlBtn.get_color(fill=fill, color="auto", outline="auto")
 
-            if matched:
-                # Generate label
-                if bool(re.match(r"\\[.*?\\]\\(.*?\\)", x)):
-                    label_str = re.sub(r"\\[(.*?)\\]\\(.*?\\)", "\\1", x)
-                else:
-                    label_str = x
 
-                # Generate href value
-                if bool(re.match(r"\\[.*?\\]\\(.*?\\)", x)):
-                    href_str = re.sub(r"\\[.*?\\]\\((.*?)\\)", "\\1", x)
-                else:
-                    href_str = x
+def _fmt_url_fn(
+    x: Any,
+    label,
+    as_button,
+    button_width,
+    button_fill,
+    button_outline_style,
+    button_outline_color,
+    button_outline_width,
+    color,
+    show_underline,
+) -> str:
+    # If the `x` value is a Pandas 'NA', then return the same value
+    if pd.isna(x):
+        return x
 
+    href_str = x
+
+    if label is not None:
+        if label is Callable:
+            label_str = label(x)
+        else:
+            label_str = label
+
+    else:
+        import re
+
+        pattern = r"^rgba\(\s*(?:[0-9]+?\s*,\s*){3}[0-9\.]+?\s*\)$"
+        matched = bool(re.match(pattern, x))
+
+        if matched:
+            # Generate label
+            if bool(re.match(r"\\[.*?\\]\\(.*?\\)", x)):
+                label_str = re.sub(r"\\[(.*?)\\]\\(.*?\\)", "\\1", x)
             else:
                 label_str = x
 
-        if as_button:
-            if button_width is not None:
-                button_width_str = f"width:{button_width};text-align:center;"
+            # Generate href value
+            if bool(re.match(r"\\[.*?\\]\\(.*?\\)", x)):
+                href_str = re.sub(r"\\[.*?\\]\\((.*?)\\)", "\\1", x)
             else:
-                button_width_str = ""
-
-            button_attrs = f"background-color:{button_fill};padding:8px 12px;{button_width_str};outline-style:{button_outline_style};outline-color:{button_outline_color};outline-width:{button_outline_width};"
+                href_str = x
 
         else:
-            button_attrs = ""
+            label_str = x
 
-        attrs = f'color:{color};text-decoration:{"underline" if show_underline else "none"};{"text-underline-position:under;" if show_underline else ""}display:inline-block;{button_attrs}'
-        x_formatted = f'<a style="{attrs}" href="{href_str}">{label_str}</a>'
+    if as_button:
+        if button_width is not None:
+            button_width_str = f"width:{button_width};text-align:center;"
+        else:
+            button_width_str = ""
 
-        return x_formatted
+        button_attrs = f"background-color:{button_fill};padding:8px 12px;{button_width_str};outline-style:{button_outline_style};outline-color:{button_outline_color};outline-width:{button_outline_width};"
 
-    return fmt(self, fns=fmt_url_fn, columns=columns, rows=rows)
+    else:
+        button_attrs = ""
+
+    attrs = f'color:{color};text-decoration:{"underline" if show_underline else "none"};{"text-underline-position:under;" if show_underline else ""}display:inline-block;{button_attrs}'
+    x_formatted = f'<a style="{attrs}" href="{href_str}">{label_str}</a>'
+
+    return x_formatted
 
 
 def fmt_markdown(
