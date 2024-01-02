@@ -1829,23 +1829,23 @@ def fmt_datetime(
 
     |    | Date Style            | Output                  |
     |----|-----------------------|-------------------------|
-    | 1  | `"iso"`               | `"2000-02-29 14:35:00"`  |
-    | 2  | `"wday_month_day_year"`| `"Tuesday, February 29, 2000 14:35:00"`  |
-    | 3  | `"wd_m_day_year"`     | `"Tue, Feb 29, 2000 14:35:00"`   |
-    | 4  | `"wday_day_month_year"`| `"Tuesday 29 February 2000 14:35:00"`    |
-    | 5  | `"month_day_year"`    | `"February 29, 2000 14:35:00"`   |
-    | 6  | `"m_day_year"`        | `"Feb 29, 2000 14:35:00"`        |
-    | 7  | `"day_m_year"`        | `"29 Feb 2000 14:35:00"`         |
-    | 8  | `"day_month_year"`    | `"29 February 2000 14:35:00"`    |
-    | 9  | `"day_month"`         | `"29 February 14:35:00"`         |
-    | 10 | `"day_m"`             | `"29 Feb 14:35:00"`              |
-    | 11 | `"year"`              | `"2000 14:35:00"`                |
-    | 12 | `"month"`             | `"February 14:35:00"`            |
-    | 13 | `"day"`               | `"29 14:35:00"`                  |
-    | 14 | `"year.mn.day"`       | `"2000/02/29 14:35:00"`          |
-    | 15 | `"y.mn.day"`          | `"00/02/29 14:35:00"`            |
-    | 16 | `"year_week"`         | `"2000-W09 14:35:00"`            |
-    | 17 | `"year_quarter"`      | `"2000-Q1 14:35:00"`             |
+    | 1  | `"iso"`               | `"2000-02-29"`          |
+    | 2  | `"wday_month_day_year"`| `"Tuesday, February 29, 2000"`  |
+    | 3  | `"wd_m_day_year"`     | `"Tue, Feb 29, 2000"`   |
+    | 4  | `"wday_day_month_year"`| `"Tuesday 29 February 2000"`    |
+    | 5  | `"month_day_year"`    | `"February 29, 2000"`   |
+    | 6  | `"m_day_year"`        | `"Feb 29, 2000"`        |
+    | 7  | `"day_m_year"`        | `"29 Feb 2000"`         |
+    | 8  | `"day_month_year"`    | `"29 February 2000"`    |
+    | 9  | `"day_month"`         | `"29 February"`         |
+    | 10 | `"day_m"`             | `"29 Feb"`              |
+    | 11 | `"year"`              | `"2000"`                |
+    | 12 | `"month"`             | `"February"`            |
+    | 13 | `"day"`               | `"29"`                  |
+    | 14 | `"year.mn.day"`       | `"2000/02/29"`          |
+    | 15 | `"y.mn.day"`          | `"00/02/29"`            |
+    | 16 | `"year_week"`         | `"2000-W09"`            |
+    | 17 | `"year_quarter"`      | `"2000-Q1"`             |
 
     The time styles are numerous and can handle localization to any supported locale. The following
     table provides a listing of all time styles and their output values (corresponding to an input
@@ -1853,8 +1853,8 @@ def fmt_datetime(
 
     |    | Time Style    | Output                          | Notes         |
     |----|---------------|---------------------------------|---------------|
-    | 1  | `"iso"`       | `"2000-02-29 14:35:00"`         | ISO 8601, 24h |
-    | 2  | `"iso-short"` | `"2000-02-29 14:35"`            | ISO 8601, 24h |
+    | 1  | `"iso"`       | `"14:35:00"`                    | ISO 8601, 24h |
+    | 2  | `"iso-short"` | `"14:35"`                       | ISO 8601, 24h |
     | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                  | 12h           |
     | 4  | `"h_m_p"`     | `"2:35 PM"`                     | 12h           |
     | 5  | `"h_p"`       | `"2 PM"`                        | 12h           |
