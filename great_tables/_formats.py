@@ -1792,6 +1792,7 @@ def fmt_datetime(
     rows: Union[int, List[int], None] = None,
     date_style: DateStyle = "iso",
     time_style: TimeStyle = "iso",
+    sep: str = " ",
     pattern: str = "{x}",
     locale: Union[str, None] = None,
 ) -> GTSelf:
@@ -1908,6 +1909,7 @@ def fmt_datetime(
         x: Any,
         date_format_str: str = date_format_str,
         time_format_str: str = time_format_str,
+        sep: str = sep,
         locale: Union[str, None] = locale,
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
@@ -1915,7 +1917,7 @@ def fmt_datetime(
             return x
 
         # From the date and time format strings, create a datetime format string
-        datetime_format_str = f"{date_format_str} {time_format_str}"
+        datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
 
         # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
         if isinstance(x, str):
