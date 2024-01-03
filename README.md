@@ -33,13 +33,14 @@ end_date = "2010-06-14"
 # Filter sp500 using Pandas to dates between `start_date` and `end_date`
 sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 
-# Create a gt table based on the `sp500_mini` table data
+# Create a display table based on the `sp500_mini` table data
 (
     gt.GT(data=sp500_mini)
     .tab_header(title="S&P 500", subtitle=f"{start_date} to {end_date}")
     .fmt_currency(columns=["open", "high", "low", "close"])
     .fmt_date(columns="date", date_style="wd_m_day_year")
     .fmt_number(columns="volume", compact=True)
+    .cols_hide(columns="adj_close")
 )
 ```
 
@@ -47,7 +48,7 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/gt_sp500_table.svg" width="800px">
 </div>
 
-There are ten datasets provided by **great_tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `metro`, `constants`, and `illness`.
+There are ten datasets provided by **Great Tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `metro`, `constants`, and `illness`.
 
 <div align="center" style="padding-top:20px">
 <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_countrypops.svg" style="width:15%;">
@@ -66,21 +67,21 @@ There are ten datasets provided by **great_tables**: `countrypops`, `sza`, `gtca
 
 All of this tabular data is great for experimenting with the functionality available inside **Great Tables** and we make extensive use of these datasets in our documentation.
 
-Beyond the functions shown in the simple `sp500`-based example, there are many possible ways to create super-customized tables. Check out the [documentation website](https://posit-dev.github.io/great-tables/) to get started via introductory articles for making **Great Tables**. There's a handy *Function Reference* section that has detailed help for every method and function in the package.
+Beyond the functions shown in the simple `sp500`-based example, there are many possible ways to create super-customized tables. Check out the [documentation website](https://posit-dev.github.io/great-tables/) to get started via introductory articles for making **Great Tables**. There's a handy _Function Reference_ section that has detailed help for every method and function in the package.
 
 [![Documentation Site](https://img.shields.io/badge/Project%20Website-Documentation%20and%20Reference-blue?style=social)](https://posit-dev.github.io/great-tables/)
 
 Let's talk about how to make **Great Tables**! There are a few locations where there is much potential for discussion.
 
-One such place is in [*GitHub Discussions*](https://github.com/posit-dev/great-tables/discussions). This discussion board is especially great for Q&A, and many people have had their problems solved in there.
+One such place is in [_GitHub Discussions_](https://github.com/posit-dev/great-tables/discussions). This discussion board is especially great for Q&A, and many people have had their problems solved in there.
 
 [![GitHub Discussions](https://img.shields.io/badge/GitHub%20Discussions-Ask%20about%20anything-blue?style=social&logo=github&logoColor=gray)](https://github.com/posit-dev/great-tables/discussions)
 
-Another fine venue for discussion is in the [`gt_package` *Discord server*](https://discord.com/invite/Ux7nrcXHVV). This is a good option for asking about the development of **Great Tables**, pitching ideas that may become features, and sharing your table creations!
+Another fine venue for discussion is in our [_Discord server_](https://discord.com/invite/Ux7nrcXHVV). This is a good option for asking about the development of **Great Tables**, pitching ideas that may become features, and sharing your table creations!
 
 [![Discord Server](https://img.shields.io/badge/Discord-Chat%20with%20us-blue?style=social&logo=discord&logoColor=purple)](https://discord.com/invite/Ux7nrcXHVV)
 
-Finally, there is the [`gt_package` *X account*](https://twitter.com/gt_package). There you'll find tweets about **Great Tables** (including sneak previews about in-development features) and other table-generation packages.
+Finally, there is the [_X account_](https://twitter.com/gt_package). There you'll find tweets about **Great Tables** (including sneak previews about in-development features) and other table-generation packages.
 
 [![X Follow](https://img.shields.io/twitter/follow/gt_package?style=social)](https://twitter.com/gt_package)
 

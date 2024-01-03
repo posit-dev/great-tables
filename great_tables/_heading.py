@@ -1,11 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, Union, List
-from typing_extensions import Self
-
 from ._gt_data import Heading
-
-from copy import copy
-
+from ._text import Text
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -13,41 +9,45 @@ if TYPE_CHECKING:
 
 def tab_header(
     self: GTSelf,
-    title: str,
-    subtitle: Optional[str] = None,
+    title: Union[str, Text],
+    subtitle: Optional[Union[str, Text]] = None,
     preheader: Optional[Union[str, List[str]]] = None,
 ) -> GTSelf:
     """
     Add a table header.
 
-    We can add a table header to the **gt** table with a title and even a subtitle using the
-    `tab_header()` method. A table header is an optional table component that is positioned
-    above above the column labels. We have the flexibility to use Markdown or HTML formatting
-    for the header's title and subtitle with the `md()` and `html()` helper functions.
+    We can add a table header to the output table that contains a title and even a subtitle with the
+    `tab_header()` method. A table header is an optional table component that is positioned above
+    the column labels. We have the flexibility to use Markdown or HTML formatting for the header's
+    title and subtitle with the [`md()`](`great_tables.md`) and [`html()`](`great_tables.html`)
+    helper functions.
 
     Parameters
     ----------
-    title : str
-        Text to be used in the table title. We can elect to use the `md()` and `html()` helper
-        functions to style the text as Markdown or to retain HTML elements in the text.
-    subtitle : str
-        Text to be used in the table subtitle. We can elect to use the `md()` and `html()`
-        helper functions to style the text as Markdown or to retain HTML elements in the text.
-    preheader (str)
+    title : str | Text
+        Text to be used in the table title. We can elect to use the [`md()`](`great_tables.md`) and
+        [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to retain
+        HTML elements in the text.
+    subtitle : Optional[str | Text]
+        Text to be used in the table subtitle. We can elect to use the [`md()`](`great_tables.md`)
+        and [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to
+        retain HTML elements in the text.
+    preheader: Optional[str | List[str]]
         Optional preheader content that is rendered above the table. Can be supplied as a list
         of strings.
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
-    Let's use a small portion of the `gtcars` dataset to create a table. A header part can be
-    added to the table with the `tab_header()` method. We'll add a title and the optional
-    subtitle as well. With the `md()` helper function, we can make sure the Markdown formatting
-    is interpreted and transformed.
+    Let's use a small portion of the `gtcars` dataset to create a table. A header part can be added
+    to the table with the `tab_header()` method. We'll add a title and the optional subtitle as
+    well. With the [`md()`](`great_tables.md`) helper function, we can make sure the Markdown
+    formatting is interpreted and transformed.
 
     ```{python}
     import great_tables as gt
@@ -63,7 +63,8 @@ def tab_header(
     )
     ```
 
-    We can alternatively use the `html()` helper function to retain HTML elements in the text.
+    We can alternatively use the [`html()`](`great_tables.html`) helper function to retain HTML
+    elements in the text.
 
     ```{python}
     (

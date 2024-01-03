@@ -1,0 +1,144 @@
+.table a {
+    text-underline-offset: 4px;
+    font-family: ui-monospace;
+    color: inherit;
+    font-weight: bold;
+    font-size: 0.875em;
+    word-break: initial;
+    text-decoration-thickness: 2px;
+}
+
+p a {
+    color: black;
+    text-underline-offset: 4px;
+}
+
+.table td {
+    padding-left: 0px;
+}
+
+.sidebar-item-container {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+code {
+    font-family: ui-monospace;
+    font-size: 0.875em;
+    color: rgb(18, 18, 18);
+}
+
+p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
+    font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+[id^=table-creation] td a:after {
+    content: "()"
+}
+
+[id^=creating-or-modifying] td a:after {
+    content: "()"
+}
+
+[id^=formatting-column-data] td a:after {
+    content: "()"
+}
+
+[id^=modifying-columns] td a:after {
+    content: "()"
+}
+
+[id^=location-targeting] td a:after {
+    content: "()"
+}
+
+[id^=helper-functions] td a:after {
+    content: "()"
+}
+
+[id^=value-formatting] td a:after {
+    content: "()"
+}
+
+#toc-title {
+    font-size: 20px;
+}
+
+#quarto-margin-sidebar nav ul {
+    font-size: 16px;
+    padding-top: 5px;
+}
+
+#quarto-margin-sidebar nav ul li  {
+    padding-top: 3px;
+}
+
+#navbarCollapse > ul.navbar-nav.navbar-nav-scroll.me-auto > li > a:hover {
+    background-color: rgb(240, 112, 0);
+    color: white;
+    border-radius: 5px;
+}
+
+#navbarCollapse > ul.navbar-nav.navbar-nav-scroll.me-auto > li > a {
+    color: white;
+    font-weight: bold;
+}
+
+#api-reference > h1 {
+    margin: 0;
+}
+
+.navbar-title {
+    font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 1px;
+    padding-bottom: 4px;
+}
+
+#quarto-header > nav > div {
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.navbar {
+	background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 200% 100%;
+	animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+#navbarCollapse > ul.navbar-nav.navbar-nav-scroll.ms-auto > li > a {
+    background-color: white;
+    border-radius: 3px;
+    height: 100%;
+    vertical-align: middle;
+}
+
+#navbarCollapse > ul.navbar-nav.navbar-nav-scroll.ms-auto > li {
+    padding-right: 5px
+}
+
+#quarto-search > div > button {
+    background-color: white;
+    border-radius: 50px;
+    width: 150%;
+    padding-right: 7px;
+    vertical-align: middle;
+}

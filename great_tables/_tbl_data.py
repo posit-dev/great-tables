@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     PdDataFrame = pd.DataFrame
     PlDataFrame = pl.DataFrame
     PlSelectExpr = _selector_proxy_
+    PlExpr = pl.Expr
 
     PdSeries = pd.Series
     PlSeries = pl.Series
@@ -46,6 +47,9 @@ else:
 
     class PlSelectExpr(AbstractBackend):
         _backends = [("polars.selectors", "_selector_proxy_")]
+
+    class PlExpr(AbstractBackend):
+        _backends = [("polars", "Expr")]
 
     class PdSeries(AbstractBackend):
         _backends = [("pandas", "Series")]
@@ -244,6 +248,9 @@ def eval_select(data: DataFrameLike, expr: Any, strict: bool = True) -> _NamePos
 def _(
     data: PdDataFrame, expr: Union[List[Union[str, int]], Callable[[str], bool]], strict=True
 ) -> _NamePos:
+    if isinstance(expr, str):
+        expr = [expr]
+
     if isinstance(expr, list):
         return _eval_select_from_list(list(data.columns), expr)
     elif callable(expr):
@@ -261,6 +268,9 @@ def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) 
     # Seems to be polars.selectors._selector_proxy_.
     from polars import Expr
     from polars import selectors
+
+    if isinstance(expr, str):
+        expr = [expr]
 
     col_pos = {k: ii for ii, k in enumerate(data.columns)}
 
@@ -390,3 +400,46 @@ def _(ser: PdSeries) -> List[Any]:
 @to_list.register
 def _(ser: PlSeries) -> List[Any]:
     return ser.to_list()
+
+
+# mutate ----
+
+
+@singledispatch
+def eval_transform(df: DataFrameLike, expr: Any) -> List[Any]:
+    raise NotImplementedError(f"Unsupported type: {type(df)}")
+
+
+@eval_transform.register
+def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> List[Any]:
+    res = expr(df)
+
+    if not isinstance(res, PdSeries):
+        raise ValueError(f"Result must be a pandas Series. Received {type(res)}")
+    elif not len(res) == len(df):
+        raise ValueError(
+            f"Result must be same length as input data. Observed different lengths."
+            f"\n\nInput data: {len(df)}.\nResult: {len(res)}."
+        )
+
+    return res.to_list()
+
+
+@eval_transform.register
+def _(df: PlDataFrame, expr: PlExpr) -> List[Any]:
+    df_res = df.select(expr)
+
+    if len(df_res.columns) > 1:
+        raise ValueError(f"Result must be a single column. Received {len(df_res.columns)} columns.")
+    else:
+        res = df_res[df_res.columns[0]]
+
+    if not isinstance(res, PlSeries):
+        raise ValueError(f"Result must be a polars Series. Received {type(res)}")
+    elif not len(res) == len(df):
+        raise ValueError(
+            f"Result must be same length as input data. Observed different lengths."
+            f"\n\nInput data: {len(df)}.\nResult: {len(res)}."
+        )
+
+    return res.to_list()

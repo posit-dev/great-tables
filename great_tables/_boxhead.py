@@ -15,15 +15,16 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
     Relabel one or more columns.
 
     Column labels can be modified from their default values (the names of the columns from the
-    input table data). When you create a table object using `gt.GT()`, column names effectively
-    become the column labels. While this serves as a good first approximation, column names
-    aren't often appealing as column labels in an output table. The `cols_label()` method
-    provides the flexibility to relabel one or more columns and we even have the option to use
-    the `md()` or `html()` helpers for rendering column labels from Markdown or using HTML.
+    input table data). When you create a table object using [`GT()`](`great_tables.GT`), column
+    names effectively become the column labels. While this serves as a good first approximation,
+    column names aren't often appealing as column labels in an output table. The `cols_label()`
+    method provides the flexibility to relabel one or more columns and we even have the option to
+    use the [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helpers for rendering
+    column labels from Markdown or using HTML.
 
     It's important to note that while columns can be freely relabeled, we continue to refer to
     columns by their names for targeting purposes. Column names in the input data table must be
-    unique whereas column labels in **great_tables** have no requirement for uniqueness (which
+    unique whereas column labels in **Great Tables** have no requirement for uniqueness (which
     is useful for labeling columns as, say, measurement units that may be repeated several
     times---usually under different spanner labels). Thus, we can still easily distinguish
     between columns in other method calls (e.g., in all of the `fmt*()` methods) even though we
@@ -40,7 +41,8 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
@@ -120,7 +122,8 @@ def cols_align(self: GTSelf, align: str = "left", columns: Optional[str] = None)
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------

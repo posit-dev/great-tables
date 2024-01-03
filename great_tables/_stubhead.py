@@ -1,9 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Union
-from typing_extensions import Self
-from copy import copy
 from ._text import Text
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -16,20 +13,22 @@ def tab_stubhead(self: GTSelf, label: Union[str, Text]) -> GTSelf:
     Add a label to the stubhead of a table. The stubhead is the lone element that is positioned
     left of the column labels, and above the stub. If a stub does not exist, then there is no
     stubhead (so no change will be made when using this method in that case). We have the
-    flexibility to use Markdown formatting for the stubhead label (through use of the `md()`
-    helper function). Furthermore, we can use HTML for the stubhead label so long as we also use
-    the `html()` helper function.
+    flexibility to use Markdown formatting for the stubhead label (through use of the
+    [`md()`](`great_tables.md`) helper function). Furthermore, we can use HTML for the stubhead
+    label so long as we also use the [`html()`](`great_tables.html`) helper function.
 
     Parameters
     ----------
-    label : str
-        The text to be used as the stubhead label. We can optionally use the `md()` and `html()`
-        functions to style the text as Markdown or to retain HTML elements in the text.
+    label : str | Text
+        The text to be used as the stubhead label. We can optionally use the
+        [`md()`](`great_tables.md`) and [`html()`](`great_tables.html`) helper functions to style
+        the text as Markdown or to retain HTML elements in the text.
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------

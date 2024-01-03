@@ -144,7 +144,7 @@ class Body:
     def __init__(self, body: Union[pd.DataFrame, TblData]):
         self.body = body
 
-    def render_formats(self, data_tbl: TblData, formats: List[FormatInfo], context: Context):
+    def render_formats(self, data_tbl: TblData, formats: List[FormatInfo], context: Any):
         for fmt in formats:
             eval_func = getattr(fmt.func, context, fmt.func.default)
             if eval_func is None:
@@ -267,12 +267,17 @@ class Boxhead(_Sequence[ColInfo]):
                 new_col = replace(col, type=ColInfoTypeEnum.default)
                 self._d[ii] = new_col
 
-    def set_col_hidden(self, colname: str):
+    def set_cols_hidden(self, colnames: list[str]):
         # TODO: validate that colname is in the boxhead
+        res: list[ColInfo] = []
         for ii, col in enumerate(self._d):
-            if col.var == colname:
+            if col.var in colnames:
                 new_col = replace(col, type=ColInfoTypeEnum.hidden)
-                self._d[ii] = new_col
+                res.append(new_col)
+            else:
+                res.append(col)
+
+        return self.__class__(res)
 
     def align_from_data(self, data: TblData):
         """Updates align attribute in entries based on data types."""
@@ -296,8 +301,6 @@ class Boxhead(_Sequence[ColInfo]):
             if dtype == "object":
                 # Check whether all values in 'object' columns are strings that
                 # for all intents and purpose are 'number-like'
-
-                import pandas as pd
 
                 col_vals = data[col].to_list()
 
@@ -327,6 +330,8 @@ class Boxhead(_Sequence[ColInfo]):
             if col_class == "character-numeric":
                 align.append("right")
             elif col_class == "object":
+                align.append("left")
+            elif col_class == "utf8":
                 align.append("left")
             elif _str_detect(col_class, "int") or _str_detect(col_class, "float"):
                 align.append("right")
@@ -787,7 +792,7 @@ class StyleInfo:
     colname: Optional[str] = None
     rownum: Optional[int] = None
     colnum: Optional[int] = None
-    styles: Optional[List[CellStyle]] = field(default_factory=list)
+    styles: List[CellStyle] = field(default_factory=list)
 
 
 Styles: TypeAlias = List[StyleInfo]

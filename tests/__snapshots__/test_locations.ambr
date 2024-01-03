@@ -1,0 +1,9 @@
+# serializer version: 1
+# name: test_set_style_loc_title_from_column_error
+  '''
+  Location type <class 'great_tables._locations.LocTitle'> cannot use FromColumn.
+  
+  Style type: <class 'great_tables._styles.CellStyleText'>
+  Field with FromColumn: color
+  '''
+# ---

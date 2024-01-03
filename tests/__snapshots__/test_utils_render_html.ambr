@@ -1,0 +1,243 @@
+# serializer version: 1
+# name: test_body_multiple_locations
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="background-color: red;" class="gt_row gt_right">0.1111</td>
+    <td class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td style="background-color: red;" class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td style="background-color: red;" class="gt_row gt_right">33.33</td>
+    <td class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_body_multiple_styles
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="background-color: red; border-left: 1px solid #000000;" class="gt_row gt_right">0.1111</td>
+    <td class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_source_notes_snap
+  '''
+    <tfoot class="gt_sourcenotes">
+    
+    <tr>
+      <td class="gt_sourcenote" colspan="9">An <strong>important</strong> note.</td>
+    </tr>
+  
+  
+    <tr>
+      <td class="gt_sourcenote" colspan="9">Another <em>important</em> note.</td>
+    </tr>
+  
+  
+    <tr>
+      <td class="gt_sourcenote" colspan="9">A plain note.</td>
+    </tr>
+  
+  
+    <tr>
+      <td class="gt_sourcenote" colspan="9">An <strong>HTML heavy</strong> note.</td>
+    </tr>
+  
+  </tfoot>
+  '''
+# ---
+# name: test_styling_data_01
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="color: red;" class="gt_row gt_right">0.1111</td>
+    <td style="color: red;" class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td style="color: red;" class="gt_row gt_right">2.222</td>
+    <td style="color: red;" class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td style="color: red;" class="gt_row gt_right">33.33</td>
+    <td style="color: red;" class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_styling_data_02
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">0.1111</td>
+    <td style="color: red;" class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td style="color: red;" class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td style="color: red;" class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_styling_data_03
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">0.1111</td>
+    <td style="color: red;" class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td style="color: red;" class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_styling_data_04
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">0.1111</td>
+    <td class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_styling_data_05
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">0.1111</td>
+    <td class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_styling_data_06
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">0.1111</td>
+    <td class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_styling_data_07
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">0.1111</td>
+    <td style="border-left: 1px solid #000000;" class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td style="border-left: 1px solid #000000;" class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_styling_data_08
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">0.1111</td>
+    <td style="border-left: 1px solid #000000;" class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td style="border-left: 1px solid #000000;" class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_styling_data_09
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">0.1111</td>
+    <td style="border-left: 1px solid #000000;border-right: 1px solid #000000;" class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td style="border-left: 1px solid #000000;border-right: 1px solid #000000;" class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_styling_data_10
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">0.1111</td>
+    <td style="border-top: 1px solid #000000;border-bottom: 1px solid #000000;border-left: 1px solid #000000;border-right: 1px solid #000000;" class="gt_row gt_left">apricot</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td class="gt_row gt_left">banana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td style="border-top: 1px solid #000000;border-bottom: 1px solid #000000;border-left: 1px solid #000000;border-right: 1px solid #000000;" class="gt_row gt_left">coconut</td>
+  </tr>
+  </tbody>
+  '''
+# ---

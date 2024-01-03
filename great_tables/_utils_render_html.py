@@ -328,17 +328,20 @@ def create_columns_component_h(data: GTData) -> str:
             table_col_headings = tags.tr(level_1_spanners, class_="gt_col_headings gt_spanner_row")
 
     if _get_spanners_matrix_height(data=data) > 2:
-        higher_spanner_rows_idx = seq_len(nrow(spanner_ids) - 2)
+        # TODO: functions like seq_len don't exist
+        higher_spanner_rows_idx = seq_len(nrow(spanner_ids) - 2)  # noqa
 
         higher_spanner_rows = TagList()
 
         for i in higher_spanner_rows_idx:
             spanner_ids_row = spanner_ids[i]
             spanners_row = spanners[i]
-            spanners_vars = list(set(spanner_ids_row[~np.isnan(spanner_ids_row)].tolist()))
+            # TODO: shouldn't use np here
+            spanners_vars = list(set(spanner_ids_row[~np.isnan(spanner_ids_row)].tolist()))  # noqa
 
             # Replace NA values in spanner_ids_row with an empty string
-            spanner_ids_row[np.isnan(spanner_ids_row)] = ""
+            # TODO: shouldn't use np here
+            spanner_ids_row[np.isnan(spanner_ids_row)] = ""  # noqa
 
             spanners_rle = [(k, len(list(g))) for k, g in groupby(list(spanner_ids_row))]
 
@@ -406,12 +409,13 @@ def create_columns_component_h(data: GTData) -> str:
 
 
 def create_body_component_h(data: GTData) -> str:
-    import pandas as pd
-
     # for now, just coerce everything in the original data to a string
     # so we can fill in the body data with it
     _str_orig_data = cast_frame_to_string(data._tbl_data)
     tbl_data = replace_null_frame(data._body.body, _str_orig_data)
+
+    # Filter list of StyleInfo to only those that apply to the body (where locname="data")
+    styles_body = [x for x in data._styles if x.locname == "data"]
 
     grp_idx_to_label = data._group_rows.indices_map()
 
@@ -470,10 +474,25 @@ def create_body_component_h(data: GTData) -> str:
             # by using the `name` value to obtain the index of the alignment value
             cell_alignment = colinfo.defaulted_align
 
-            if is_stub_cell:
-                body_cells.append(f'  <th class="gt_row gt_left gt_stub">' + cell_str + "</th>")
+            # Get the style attributes for the current cell by filtering the
+            # `styles_body` list for the current row and column
+            styles_i = [x for x in styles_body if x.rownum == i and x.colname == colinfo.var]
+
+            # Develop the `style` attribute for the current cell
+            if len(styles_i) > 0:
+                # flatten all StyleInfo.styles lists
+                style_entries = list(chain(*[x.styles for x in styles_i]))
+                rendered_styles = [el._to_html_style() for el in style_entries]
+                cell_styles = f'style="{" ".join(rendered_styles)}"' + " "
             else:
-                body_cells.append(f'  <td class="gt_row gt_{cell_alignment}">' + cell_str + "</td>")
+                cell_styles = ""
+
+            if is_stub_cell:
+                body_cells.append('  <th class="gt_row gt_left gt_stub">' + cell_str + "</th>")
+            else:
+                body_cells.append(
+                    f'  <td {cell_styles}class="gt_row gt_{cell_alignment}">' + cell_str + "</td>"
+                )
 
         body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
 
@@ -507,10 +526,12 @@ def create_source_notes_component_h(data: GTData) -> str:
         source_notes_tr: List[str] = []
 
         for note in source_notes:
+            note_str = _process_text(note)
+
             source_notes_tr.append(
                 f"""
   <tr>
-    <td class="gt_sourcenote" colspan="{n_cols_total}">{note}</td>
+    <td class="gt_sourcenote" colspan="{n_cols_total}">{note_str}</td>
   </tr>
 """
             )
@@ -529,7 +550,12 @@ def create_source_notes_component_h(data: GTData) -> str:
     # Create the source notes component as a single `<tr><td>` inside
     # of a `<tfoot>`
 
-    source_notes_str_joined = separator.join(source_notes)
+    source_note_list: List[str] = []
+    for note in source_notes:
+        note_str = _process_text(note)
+        source_note_list.append(note_str)
+
+    source_notes_str_joined = separator.join(source_note_list)
 
     source_notes_component = f"""<tfoot>
   <tr class="gt_sourcenotes">

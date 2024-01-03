@@ -1,32 +1,34 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Union
+from ._text import Text
 
 if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def tab_source_note(data: GTSelf, source_note: str) -> GTSelf:
+def tab_source_note(data: GTSelf, source_note: Union[str, Text]) -> GTSelf:
     """
     Add a source note citation.
 
-    Add a source note to the footer part of the gt table. A source note is useful for citing the
-    data included in the table. Several can be added to the footer, simply use the
-    `tab_source_note()` method multiple times and they will be inserted in the order provided. We
-    can use Markdown formatting for the note, or, if the table is intended for HTML output, we can
-    include HTML formatting.
+    Add a source note to the footer part of the table. A source note is useful for citing the data
+    included in the table. Several can be added to the footer, simply use the `tab_source_note()`
+    method multiple times and they will be inserted in the order provided. We can use Markdown
+    formatting for the note, or, if the table is intended for HTML output, we can include HTML
+    formatting.
 
     Parameters
     ----------
-    source_note : str
-        Text to be used in the source note. We can optionally use the `md()` or `html()` helpers
-        to style the text as Markdown or to retain HTML elements in the text.
+    source_note : str | Text
+        Text to be used in the source note. We can optionally use the [`md()`](`great_tables.md`) or
+        [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to retain
+        HTML elements in the text.
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------

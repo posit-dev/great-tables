@@ -1,13 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import Any, List
 from typing_extensions import Self
-from dataclasses import fields
 
-import pkg_resources
-
-import sass
-import re
 import copy
 
 from great_tables._gt_data import GTData
@@ -26,6 +21,7 @@ from great_tables._formats import (
     fmt_roman,
     fmt_date,
     fmt_time,
+    fmt_datetime,
     fmt_markdown,
 )
 from great_tables._heading import tab_header
@@ -48,7 +44,6 @@ from great_tables._spanners import (
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import tab_stubhead
 from great_tables._tbl_data import n_rows, _get_cell
-from great_tables._utils import _as_css_font_family_attr, _unique_set
 from great_tables._utils_render_html import (
     create_heading_component_h,
     create_columns_component_h,
@@ -56,6 +51,7 @@ from great_tables._utils_render_html import (
     create_source_notes_component_h,
     create_footnotes_component_h,
 )
+from great_tables._tab_create_modify import tab_style
 
 
 __all__ = ["GT"]
@@ -68,18 +64,19 @@ class GT(
     GTData,
 ):
     """
-    Create a **great_tables** object.
+    Create a **Great Tables** object.
 
-    The `GT()` class creates a **great_tables** object when provided with tabular data. Using this
-    is the first step in a typical **great_tables** workflow. Once we have this object, we can
-    perform numerous transformations before rendering to a display table.
+    The `GT()` class creates the `GT` object when provided with tabular data. Using this class is
+    the the first step in a typical **Great Tables** workflow. Once we have this object, we can
+    take advantage of numerous methods to get the desired display table for publication.
 
-    There are a few data ingest options we can consider at this stage. We can choose to create a
-    table stub containing row labels through the use of the `rowname_col` argument. Further to this,
-    stub row groups can be created with the `groupname_col` argument. Both arguments take the name
+    There are a few table structuring options we can consider at this stage. We can choose to create
+    a table stub containing row labels through the use of the `rowname_col` argument. Further to
+    this, row groups can be created with the `groupname_col` argument. Both arguments take the name
     of a column in the input table data. Typically, the data in the `groupname_col` column will
-    consist of categorical text whereas the data in the `rowname_col` column will contain unique
-    labels (could be unique across the entire table or unique within the different row groups).
+    consist of categorical text whereas the data in the `rowname_col` column will often contain
+    unique labels (perhaps being unique across the entire table or unique only within the different
+    row groups).
 
     Parameters
     ----------
@@ -101,8 +98,8 @@ class GT(
 
     Returns
     -------
-    GTData
-        A GTData object is returned.
+    GT
+        A GT object is returned.
 
     Examples
     --------
@@ -169,7 +166,6 @@ class GT(
     In this example, the `fmt_currency()`, `fmt_scientific()`, and `fmt_date()` methods understand
     that the locale for this table is `"fr"` (French), so the appropriate formatting for that locale
     is apparent in the `currency`, `num`, and `date` columns.
-
     """
 
     def _repr_html_(self):
@@ -207,6 +203,7 @@ class GT(
     fmt_roman = fmt_roman
     fmt_date = fmt_date
     fmt_time = fmt_time
+    fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
 
     tab_options = tab_options
@@ -225,6 +222,8 @@ class GT(
     cols_hide = cols_hide
 
     tab_stubhead = tab_stubhead
+
+    tab_style = tab_style
 
     # -----
 
@@ -299,7 +298,9 @@ class GT(
             id = table_id
 
         # Compile the SCSS as CSS
-        css = _compile_scss(data=self, id=id)
+        from ._scss import compile_scss
+
+        css = compile_scss(data=self, id=id)
 
         # Obtain options set for overflow and container dimensions
 
@@ -327,34 +328,8 @@ class GT(
 
 
 # =============================================================================
-# as_raw_html()
+# Functions that operate on GT objects
 # =============================================================================
-
-
-def as_raw_html(gt: GT) -> str:
-    """
-    Returns the GTData object as raw HTML.
-
-    Args:
-        gt (GT): The GTData object to convert to raw HTML.
-        context (str): The context in which to build the output.
-
-    Returns:
-        str: The GTData object as raw HTML.
-    """
-    gt_built = gt._build_data(context="html")
-    html_table = gt_built._render_as_html()
-    return html_table
-
-
-# =============================================================================
-# GT Getter/Setter Functions
-# =============================================================================
-
-
-def _set_has_built(gt: GT, value: bool) -> GT:
-    gt._has_built = value
-    return gt
 
 
 def _get_column_labels(gt: GT, context: str) -> List[str]:
@@ -376,66 +351,17 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
     return cell_values
 
 
-# =============================================================================
-# SCSS Compilation
-# =============================================================================
+def _as_raw_html(gt: GT) -> str:
+    """
+    Returns the GTData object as raw HTML.
 
+    Args:
+        gt (GT): The GTData object to convert to raw HTML.
+        context (str): The context in which to build the output.
 
-def _compile_scss(data: GT, id: Optional[str]) -> str:
-    # Obtain the SCSS options dictionary
-    options = {field.name: getattr(data._options, field.name) for field in fields(data._options)}
-
-    # Get collection of parameters that pertain to SCSS
-    scss_params_raw = {k: opt for k, opt in options.items() if opt.scss and opt.value is not None}
-    scss_params = [f"${k}: {opt.value};" for k, opt in scss_params_raw.items()]
-    scss_params_str = "\n".join(scss_params) + "\n"
-
-    # Determine whether the table has an ID
-    has_id = id is not None
-
-    # Obtain the `table_id` value (might be set, might be None)
-    # table_id = data._options._get_option_value(option="table_id")
-
-    # TODO: need to implement a function to normalize color (`html_color()`)
-
-    # Get the unique list of fonts from `gt_options_dict`
-    font_list = _unique_set(data._options.table_font_names.value)
-
-    # Generate a `font-family` string
-    if font_list is not None:
-        font_family_attr = _as_css_font_family_attr(fonts=font_list)
-    else:
-        font_family_attr = ""
-
-    gt_table_open_str = f"#{id} table" if has_id else ".gt_table"
-
-    gt_table_class_str = f"""{gt_table_open_str} {{
-          {font_family_attr}
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }}"""
-
-    gt_styles_default_file = open(
-        pkg_resources.resource_filename("great_tables", "css/gt_styles_default.scss")
-    )
-
-    gt_styles_default = gt_styles_default_file.read()
-    gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, 0, re.MULTILINE)
-    gt_styles_default = re.sub(r"}", "}\n", gt_styles_default, 0, re.MULTILINE)
-
-    gt_colors_file = open(pkg_resources.resource_filename("great_tables", "css/gt_colors.scss"))
-
-    gt_colors = gt_colors_file.read()
-
-    scss = scss_params_str + gt_colors + gt_styles_default
-
-    compiled_css = sass.compile(string=scss)
-
-    if has_id:
-        compiled_css = re.sub(r"\.gt_", f"#{id} .gt_", compiled_css, 0, re.MULTILINE)
-        compiled_css = re.sub(r"thead", f"#{id} thead", compiled_css, 0, re.MULTILINE)
-        compiled_css = re.sub(r"^p \{", f"#{id} p " + "{", compiled_css, 0, re.MULTILINE)
-
-    finalized_css = f"{gt_table_class_str}\n\n{compiled_css}"
-
-    return finalized_css
+    Returns:
+        str: The GTData object as raw HTML.
+    """
+    gt_built = gt._build_data(context="html")
+    html_table = gt_built._render_as_html()
+    return html_table

@@ -14,7 +14,7 @@ p {
   line-height: normal;
   margin-left: $table_margin_left;
   margin-right: $table_margin_right;
-  color: font-color($table_background_color);
+  color: $font_color_table_background_color;
   font-size: $table_font_size;
   font-weight: $table_font_weight;
   font-style: $table_font_style;
@@ -40,7 +40,7 @@ p {
 }
 
 .gt_title {
-  color: font-color($heading_background_color);
+  color: $font_color_heading_background_color;
   font-size: $heading_title_font_size;
   font-weight: $heading_title_font_weight;
   padding-top: $heading_padding;
@@ -52,11 +52,11 @@ p {
 }
 
 .gt_subtitle {
-  color: font-color($heading_background_color);
+  color: $font_color_heading_background_color;
   font-size: $heading_subtitle_font_size;
   font-weight: $heading_subtitle_font_weight;
-  padding-top: $heading_padding - 1;
-  padding-bottom: $heading_padding + 1;
+  padding-top: $heading_subtitle_padding_top;
+  padding-bottom: $heading_subtitle_padding_bottom;
   padding-left: $heading_padding_horizontal;
   padding-right: $heading_padding_horizontal;
   border-top-color: $table_background_color;
@@ -97,7 +97,7 @@ p {
 }
 
 .gt_col_heading {
-  color: font-color($column_labels_background_color);
+  color: $font_color_column_labels_background_color;
   background-color: $column_labels_background_color;
   font-size: $column_labels_font_size;
   font-weight: $column_labels_font_weight;
@@ -110,14 +110,14 @@ p {
   border-right-color: $column_labels_vlines_color;
   vertical-align: bottom;
   padding-top: $column_labels_padding;
-  padding-bottom: $column_labels_padding + 1;
+  padding-bottom: $heading_padding_bottom;
   padding-left: $column_labels_padding_horizontal;
   padding-right: $column_labels_padding_horizontal;
   overflow-x: hidden;
 }
 
 .gt_column_spanner_outer {
-  color: font-color($column_labels_background_color);
+  color: $font_color_column_labels_background_color;
   background-color: $column_labels_background_color;
   font-size: $column_labels_font_size;
   font-weight: $column_labels_font_weight;
@@ -155,7 +155,7 @@ p {
   padding-bottom: $row_group_padding;
   padding-left: $row_group_padding_horizontal;
   padding-right: $row_group_padding_horizontal;
-  color: font-color($row_group_background_color);
+  color: $font_color_row_group_background_color;
   background-color: $row_group_background_color;
   font-size: $row_group_font_size;
   font-weight: $row_group_font_weight;
@@ -178,7 +178,7 @@ p {
 
 .gt_empty_group_heading {
   padding: 0.5px;
-  color: font-color($row_group_background_color);
+  color: $font_color_row_group_background_color;
   background-color: $row_group_background_color;
   font-size: $row_group_font_size;
   font-weight: $row_group_font_weight;
@@ -219,7 +219,7 @@ p {
 }
 
 .gt_stub {
-  color: font-color($stub_background_color);
+  color: $font_color_stub_background_color;
   background-color: $stub_background_color;
   font-size: $stub_font_size;
   font-weight: $stub_font_weight;
@@ -232,7 +232,7 @@ p {
 }
 
 .gt_stub_row_group {
-  color: font-color($stub_row_group_background_color);
+  color: $font_color_stub_row_group_background_color;
   background-color: $stub_row_group_background_color;
   font-size: $stub_row_group_font_size;
   font-weight: $stub_row_group_font_weight;
@@ -254,7 +254,7 @@ p {
 }
 
 .gt_summary_row {
-  color: font-color($summary_row_background_color);
+  color: $font_color_summary_row_background_color;
   background-color: $summary_row_background_color;
   text-transform: $summary_row_text_transform;
   padding-top: $summary_row_padding;
@@ -283,7 +283,7 @@ p {
 }
 
 .gt_grand_summary_row {
-  color: font-color($grand_summary_row_background_color);
+  color: $font_color_grand_summary_row_background_color;
   background-color: $grand_summary_row_background_color;
   text-transform: $grand_summary_row_text_transform;
   padding-top: $grand_summary_row_padding;
@@ -326,7 +326,7 @@ p {
 }
 
 .gt_footnotes {
-  color: font-color($footnotes_background_color);
+  color: $font_color_footnotes_background_color;
   background-color: $footnotes_background_color;
   border-bottom-style: $footnotes_border_bottom_style;
   border-bottom-width: $footnotes_border_bottom_width;
@@ -349,7 +349,7 @@ p {
 }
 
 .gt_sourcenotes {
-  color: font-color($source_notes_background_color);
+  color: $font_color_source_notes_background_color;
   background-color: $source_notes_background_color;
   border-bottom-style: $source_notes_border_bottom_style;
   border-bottom-width: $source_notes_border_bottom_width;

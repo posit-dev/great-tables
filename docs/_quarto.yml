@@ -24,56 +24,72 @@ website:
       contents:
         - get-started/index.qmd
         - get-started/overview.qmd
-        - section: Basic
+        - section: Table Structure
           contents:
             - get-started/basic-header.qmd
             - get-started/basic-stub.qmd
             - get-started/basic-column-labels.qmd
+        - section: Format and Style
+          contents:
             - get-started/basic-formatting.qmd
-        - section: Advanced
+            - get-started/basic-styling.qmd
+        - section: Extra Topics
           contents:
             - get-started/column-selection.qmd
 
 format:
   html:
     theme: cosmo
-    # css: styles.css
+    css: styles.css
     toc: true
+    page-layout: full
 
-# tell quarto to read the generated sidebar
-metadata-files:
-  - _sidebar.yml
+filters:
+  - interlinks
+
+interlinks:
+  sources:
+    numpy:
+      url: https://numpy.org/doc/stable/
+    python:
+      url: https://docs.python.org/3/
+
+html-table-processing: none
 
 quartodoc:
   package: great_tables
-  sidebar: _sidebar.yml
+  dir: reference
+  title: API Reference
+  style: pkgdown
   dynamic: true
+  render_interlinks: true
   sections:
     - title: Table Creation
       desc: >
-        All tables created in **great_tables** begin by using `GT()`. Here we supply the input
-        data table and some basic options for creating a stub (`rowname_col`) and row groups
-        (`groupname_col`).
+        All tables created in **Great Tables** begin by using [`GT()`](`great_tables.GT`). With this
+        class, we supply the input data table and some basic options for creating a stub and row
+        groups (with the `rowname_col=` and `groupname_col=` arguments).
       contents:
         - GT
     - title: Creating or modifying parts of a table
       desc: >
         A table can contain a few useful components for conveying additional information. These
-        include a header (with a titles and subtitle), a footer (with footnotes and source notes),
-        and additional areas for labels (row group labels, column spanner labels, the stubhead
-        label). We can modify the look of table parts more generally with `tab_options()` and
-        perform styling on targeted table locations with `tab_style()`.
+        include a header (with a titles and subtitle), a footer (with source notes), and additional
+        areas for labels (row group labels, column spanner labels, the stubhead label). We can
+        perform styling on targeted table locations with the
+        [`tab_style()`](`great_tables.GT.tab_style`) method.
       contents:
         - GT.tab_header
         - GT.tab_spanner
         - GT.tab_stubhead
         - GT.tab_source_note
+        - GT.tab_style
     - title: Formatting column data
       desc: >
         Columns of data can be formatted with the `fmt_*()` methods. We can specify the rows of
         these columns quite precisely with the `rows` argument. We get to apply these methods
         exactly once to each data cell (last call wins). Need to do custom formatting? Use the
-        `fmt()` method and define your own formatter within.
+        [`fmt()`](`great_tables.GT.fmt`) method and define your own formatter.
       contents:
         - GT.fmt_number
         - GT.fmt_integer
@@ -84,13 +100,15 @@ quartodoc:
         - GT.fmt_roman
         - GT.fmt_date
         - GT.fmt_time
+        - GT.fmt_datetime
         - GT.fmt_markdown
         - GT.fmt
     - title: Modifying columns
       desc: >
         The `cols_*()` methods allow for modifications that act on entire columns. This includes
-        alignment of the data in columns (`cols_align()`), hiding columns from view (`cols_hide()`),
-        re-labeling the column labels (`cols_label()`), and moving columns around (the
+        alignment of the data in columns ([`cols_align()`](`great_tables.GT.cols_align`)), hiding
+        columns from view ([`cols_hide()`](`great_tables.GT.cols_hide`)), re-labeling the column
+        labels ([`cols_label()`](`great_tables.GT.cols_label`)), and moving columns around (with the
         `cols_move*()` methods).
       contents:
         - GT.cols_align
@@ -98,15 +116,30 @@ quartodoc:
         - GT.cols_move
         - GT.cols_move_to_start
         - GT.cols_move_to_end
+        - GT.cols_hide
+    - title: Location Targeting and Styling Classes
+      desc: >
+        Location targeting is a powerful feature of **Great Tables**. It allows for the precise
+        selection of table locations for styling (using the
+        [`tab_style()`](`great_tables.GT.tab_style`) method). The styling classes allow for the
+        specification of the styling properties to be applied to the targeted locations.
+      contents:
+        - loc.body
+        - style.fill
+        - style.text
+        - style.borders
     - title: Helper functions
       desc: >
-        An assortment of helper functions is available in the **great_tables** package. The `md()`
-        and `html()` helpers can used be during label creation with the `tab_header()`,
-        `tab_footnote()`, `tab_spanner()`, `tab_stubhead_label()`, and `tab_source_note()`
-        methods.
+        An assortment of helper functions is available in the **Great Tables** package. The
+        [`md()`](`great_tables.md`) and [`html()`](`great_tables.html`) helper functions can used
+        during label creation with the [`tab_header()`](`great_tables.GT.tab_header`),
+        [`tab_spanner()`](`great_tables.GT.tab_spanner`),
+        [`tab_stubhead()`](`great_tables.GT.tab_stubhead`), and
+        [`tab_source_note()`](`great_tables.GT.tab_source_note`) methods.
       contents:
         - md
         - html
+        - from_column
         #- px
         #- pct
     - title: Value formatting functions
@@ -126,9 +159,9 @@ quartodoc:
         - vals.fmt_markdown
     - title: Built in datasets
       desc: >
-        The **great_tables** package is equipped with ten datasets that come in all shapes and
-        sizes. Use them to experiment with the package! Many examples in the internal help documents
-        use these datasets to quickly demonstrate the awesome features of **great_tables**.
+        The **Great Tables** package is equipped with ten datasets that come in all shapes and
+        sizes. Many examples thoughout the help docs use these datasets to quickly demonstrate the
+        awesome features of the package!
       contents:
         - data.countrypops
         - data.sza

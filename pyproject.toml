@@ -44,8 +44,8 @@ dependencies = [
     "packaging>=20.9",
     "pandas>=1.4.2",
     "numpy>=1.22.4",
-    "libsass>=0.22.0",
-    "Babel>=2.13.1"
+    "Babel>=2.13.1",
+    "webcolors",
 ]
 requires-python = ">=3.7"
 
@@ -61,11 +61,24 @@ dev = [
     "pytest>=3",
     "pytest-cov",
     "siuba",
+    "shiny",
     "syrupy"
 ]
 
 [tool.flake8]
-exclude = ["docs", ".venv"]
+exclude = ["docs", ".venv", "tests/*"]
+
+ignore = [
+    "E402",    # module level import not at top of file
+    "E501",    # line too long (maximum 100 characters)
+    "W503",    # line break before binary operator
+    "F811",    # redefinition of unused name
+    "E203",    # whitespace before ':'
+    "F401",    # 'module' imported but unused
+    "F841",    # local variable 'name' is assigned to but never used
+]
+
+max-line-length = 100
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -74,5 +87,6 @@ asyncio_mode = "strict"
 testpaths = [
     "tests"
 ]
+
 [tool.black]
 line-length = 100

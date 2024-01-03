@@ -10,6 +10,9 @@ del _v
 from .gt import GT
 from . import data
 from . import vals
+from . import loc
+from . import style
+from ._styles import FromColumn as from_column
 from ._helpers import letters, LETTERS, px, pct, md, html, random_id
 from .data import exibble
 
@@ -24,6 +27,10 @@ __all__ = (
     "md",
     "html",
     "random_id",
+    "from_column",
+    "vals",
+    "loc",
+    "style",
 )
 
 
@@ -38,4 +45,4 @@ def __getattr__(k: str):
             f"\n\nfrom great_tables.data import {k}"
         )
     else:
-        raise ImportError(f"cannot import name {k} from great_tables ({__file__})")
+        raise AttributeError(f"cannot get attribute {k} from great_tables ({__file__})")

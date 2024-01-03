@@ -70,7 +70,8 @@ def val_fmt_number(
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
         can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-        `fmt_integer()` method should be considered.
+        [`val_fmt_integer()`](`great_tables._formats_vals.val_fmt_integer`) function should be
+        considered.
     n_sigfig : Optional[int]
         A option to format numbers to *n* significant figures. By default, this is `None` and thus
         number values will be formatted according to the number of decimal places set via
@@ -274,8 +275,7 @@ def val_fmt_scientific(
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
-        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-        `fmt_integer()` method should be considered.
+        can be removed with `drop_trailing_zeros=True`.
     n_sigfig : Optional[int]
         A option to format numbers to *n* significant figures. By default, this is `None` and thus
         number values will be formatted according to the number of decimal places set via
@@ -397,8 +397,7 @@ def val_fmt_percent(
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
-        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-        `fmt_integer()` method should be considered.
+        can be removed with `drop_trailing_zeros=True`.
     drop_trailing_zeros : bool
         A boolean value that allows for removal of trailing zeros (those redundant zeros after the
         decimal mark).

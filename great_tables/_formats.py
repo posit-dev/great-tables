@@ -10,12 +10,10 @@ from ._utils import _str_detect, _str_replace
 import pandas as pd
 import math
 from datetime import datetime, date, time
-from babel.dates import format_date, format_time
-
+from babel.dates import format_date, format_time, format_datetime
 
 if TYPE_CHECKING:
     from ._types import GTSelf
-
 
 T = TypeVar("T")
 DateStyle: TypeAlias = Literal[
@@ -77,7 +75,8 @@ def fmt(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
     """
 
     # If a single function is supplied to `fns` then
@@ -116,9 +115,9 @@ def fmt_number(
     """
     Format numeric values.
 
-    With numeric values in a **gt** table, we can perform number-based formatting so that the
-    targeted values are rendered with a higher consideration for tabular presentation. Furthermore,
-    there is finer control over numeric formatting with the following options:
+    With numeric values within a table's body cells, we can perform number-based formatting so that
+    the targeted values are rendered with a higher consideration for tabular presentation.
+    Furthermore, there is finer control over numeric formatting with the following options:
 
     - decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice
     of the decimal symbol
@@ -133,10 +132,10 @@ def fmt_number(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -145,7 +144,7 @@ def fmt_number(
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
         can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-        `fmt_integer()` method should be considered.
+        [`fmt_integer()`](`great_tables.GT.fmt_integer`) method should be considered.
     n_sigfig : Optional[int]
         A option to format numbers to *n* significant figures. By default, this is `None` and thus
         number values will be formatted according to the number of decimal places set via
@@ -188,14 +187,15 @@ def fmt_number(
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -206,8 +206,8 @@ def fmt_number(
     preferred values.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -223,10 +223,11 @@ def fmt_number(
 
     See Also
     --------
-    The `fmt_integer()` method might be more useful if you really need to format numeric values to
-    appear as integers (i.e., no decimals will be shown and input values are rounded as necessary).
-    Need to do numeric formatting on a value or list of values? Take a look at the functional
-    version of this method: `val_fmt_number()`.
+    The [`fmt_integer()`](`great_tables.GT.fmt_integer`) method might be more useful if you really
+    need to format numeric values to appear as integers (i.e., no decimals will be shown and input
+    values are rounded as necessary). Need to do numeric formatting on a value or list of values?
+    Take a look at the functional version of this method:
+    [`val_fmt_number()`](`great_tables._formats_vals.val_fmt_number`).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -313,8 +314,8 @@ def fmt_integer(
     """
     Format values as integers.
 
-    With numeric values in a gt table, we can perform number-based formatting so that the targeted
-    values are always rendered as integer values.
+    With numeric values in one or more table columns, we can perform number-based formatting so that
+    the targeted values are always rendered as integer values.
 
     We can have fine control over integer formatting with the following options:
 
@@ -329,10 +330,10 @@ def fmt_integer(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -361,14 +362,15 @@ def fmt_integer(
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -378,8 +380,8 @@ def fmt_integer(
     provided in `sep_mark`, it will be overridden by the locale's preferred value.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -395,9 +397,10 @@ def fmt_integer(
 
     See Also
     --------
-    The `fmt_number()` method might be more of what you need if you'd like decimal values in your
-    outputs. Need to do integer-based formatting on a value or list of values? Take a look at the
-    functional version of this method: `val_fmt_integer()`.
+    The [`fmt_number()`](`great_tables.GT.fmt_number`) method might be more of what you need if
+    you'd like decimal values in your outputs. Need to do integer-based formatting on a value or
+    list of values? Take a look at the functional version of this method:
+    [`val_fmt_integer()`](`great_tables._formats_vals.val_fmt_integer`).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -503,10 +506,10 @@ def fmt_scientific(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -514,8 +517,7 @@ def fmt_scientific(
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
-        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-        `fmt_integer()` method should be considered.
+        can be removed with `drop_trailing_zeros=True`.
     n_sigfig : Optional[int]
         A option to format numbers to *n* significant figures. By default, this is `None` and thus
         number values will be formatted according to the number of decimal places set via
@@ -560,14 +562,15 @@ def fmt_scientific(
         would effectively show a sign for all values except zero on the second numeric component of
         the notation. If so, use `True` (the default for this is `False`), where only negative
         numbers will display a sign.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -578,8 +581,8 @@ def fmt_scientific(
     preferred values.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -595,8 +598,9 @@ def fmt_scientific(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_scientific()`, allows you to format a single
-    numerical value (or a list of them).
+    The functional version of this method,
+    [`val_fmt_scientific()`](`great_tables._formats_vals.val_fmt_scientific`), allows you to format
+    a single numerical value (or a list of them).
     """
 
     # Set a default value for `use_seps`; these separators are only used for very
@@ -761,10 +765,10 @@ def fmt_percent(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -772,8 +776,7 @@ def fmt_percent(
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
-        can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
-        `fmt_integer()` method should be considered.
+        can be removed with `drop_trailing_zeros=True`.
     drop_trailing_zeros : bool
         A boolean value that allows for removal of trailing zeros (those redundant zeros after the
         decimal mark).
@@ -813,14 +816,15 @@ def fmt_percent(
     incl_space : bool
         An option for whether to include a space between the value and the percent sign. The default
         is to not introduce a space character.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -831,13 +835,14 @@ def fmt_percent(
     preferred values.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     See Also
     --------
-    The functional version of this method, `val_fmt_percent()`, allows you to format a single
-    numerical value (or a list of them).
+    The functional version of this method,
+    [`val_fmt_percent()`](`great_tables._formats_vals.val_fmt_percent`), allows you to format a
+    single numerical value (or a list of them).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -962,14 +967,14 @@ def fmt_currency(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    currency : Union[str, None]
+    currency : str | None
         The currency to use for the numeric value. This input can be supplied as a 3-letter currency
         code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency).
     use_subunits: bool
@@ -1017,14 +1022,15 @@ def fmt_currency(
     incl_space : bool
         An option for whether to include a space between the value and the currency symbol. The
         default is to not introduce a space character.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -1033,11 +1039,11 @@ def fmt_currency(
     locale ID here means separator and decimal marks will be correct for the given locale. Should
     any values be provided in `sep_mark` or `dec_mark`, they will be overridden by the locale's
     preferred values. In addition to number formatting, providing a `locale` value and not providing
-    a `currency` allows **great_tables** to obtain the currency code from the locale's territory.
+    a `currency` allows **Great Tables** to obtain the currency code from the locale's territory.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -1052,8 +1058,9 @@ def fmt_currency(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_currency()`, allows you to format a single
-    numerical value (or a list of them).
+    The functional version of this method,
+    [`val_fmt_currency()`](`great_tables._formats_vals.val_fmt_currency`), allows you to format a
+    single numerical value (or a list of them).
     """
 
     # Stop if `locale` does not have a valid value; normalize locale and resolve one
@@ -1171,10 +1178,10 @@ def fmt_roman(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -1189,13 +1196,14 @@ def fmt_roman(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
     Let's first create a DataFrame containing small numeric values and then introduce that to
-    `GT()`. We'll then format the `roman` column to appear as Roman numerals with the `fmt_roman()`
-    method.
+    [`GT()`](`great_tables.GT`). We'll then format the `roman` column to appear as Roman numerals
+    with the `fmt_roman()` method.
 
     ```{python}
     import pandas as pd
@@ -1208,7 +1216,8 @@ def fmt_roman(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_roman()`, allows you to format a single
+    The functional version of this method,
+    [`val_fmt_roman()`](`great_tables._formats_vals.val_fmt_roman`), allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1300,10 +1309,10 @@ def fmt_bytes(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -1348,14 +1357,15 @@ def fmt_bytes(
     incl_space : bool
         An option for whether to include a space between the value and the currency symbol. The
         default is to not introduce a space character.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
@@ -1366,8 +1376,8 @@ def fmt_bytes(
     preferred values.
 
     Note that a `locale` value provided here will override any global locale setting performed in
-    `GT()`'s own `locale` argument (it is settable there as a value received by all other methods
-    that have a `locale` argument).
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -1383,7 +1393,8 @@ def fmt_bytes(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_bytes()`, allows you to format a single
+    The functional version of this method,
+    [`val_fmt_bytes()`](`great_tables._formats_vals.val_fmt_bytes`), allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1510,10 +1521,10 @@ def fmt_date(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -1525,7 +1536,7 @@ def fmt_date(
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -1561,15 +1572,16 @@ def fmt_date(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
     This formatting method can adapt outputs according to a provided `locale` value. Examples
     include `"en"` for English (United States) and `"fr"` for French (France). Note that a `locale`
-    value provided here will override any global locale setting performed in `GT()`'s own `locale`
-    argument (it is settable there as a value received by all other methods that have a `locale`
-    argument).
+    value provided here will override any global locale setting performed in
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -1587,7 +1599,8 @@ def fmt_date(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_date()`, allows you to format a single
+    The functional version of this method,
+    [`val_fmt_date()`](`great_tables._formats_vals.val_fmt_date`), allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1653,10 +1666,10 @@ def fmt_time(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -1668,7 +1681,7 @@ def fmt_time(
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    locale : str
+    locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -1692,15 +1705,16 @@ def fmt_time(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Adapting output to a specific `locale`
     --------------------------------------
     This formatting method can adapt outputs according to a provided `locale` value. Examples
     include `"en"` for English (United States) and `"fr"` for French (France). Note that a `locale`
-    value provided here will override any global locale setting performed in `GT()`'s own `locale`
-    argument (it is settable there as a value received by all other methods that have a `locale`
-    argument).
+    value provided here will override any global locale setting performed in
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
 
     Examples
     --------
@@ -1718,7 +1732,8 @@ def fmt_time(
 
     See Also
     --------
-    The functional version of this method, `val_fmt_time()`, allows you to format a single
+    The functional version of this method,
+    [`val_fmt_time()`](`great_tables._formats_vals.val_fmt_time`), allows you to format a single
     numerical value (or a list of them).
     """
 
@@ -1771,6 +1786,221 @@ def fmt_time(
     return fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
 
 
+def fmt_datetime(
+    self: GTSelf,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    date_style: DateStyle = "iso",
+    time_style: TimeStyle = "iso",
+    sep: str = " ",
+    pattern: str = "{x}",
+    locale: Union[str, None] = None,
+) -> GTSelf:
+    """
+    Format values as datetimes.
+
+    Format input values to datetime values using one of 17 preset date styles and one of 5 preset
+    time styles. Input can be in the form of `datetime` values, or strings in the ISO 8601 forms of
+    `YYYY-MM-DD HH:MM:SS` or `YYYY-MM-DD`.
+
+    Parameters
+    ----------
+    columns : str | List[str] | None
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows : int | List[int] | None
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
+    date_style: str
+        The date style to use. By default this is the short name `"iso"` which corresponds to
+        ISO 8601 date formatting. There are 41 date styles in total and their short names can be
+        viewed using `info_date_style()`.
+    time_style: str
+        The time style to use. By default this is the short name `"iso"` which corresponds to how
+        times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
+        their short names can be viewed using `info_time_style()`.
+
+    Formatting with the `date_style` and `time_style` arguments
+    ------------------------------------------------------------
+    We need to supply a preset date style to the `date_style` argument and a preset time style to
+    the `time_style` argument. The date styles are numerous and can handle localization to any
+    supported locale. The following table provides a listing of all date styles and their output
+    values (corresponding to an input date of `2000-02-29 14:35:00`).
+
+    |    | Date Style            | Output                  |
+    |----|-----------------------|-------------------------|
+    | 1  | `"iso"`               | `"2000-02-29"`          |
+    | 2  | `"wday_month_day_year"`| `"Tuesday, February 29, 2000"`  |
+    | 3  | `"wd_m_day_year"`     | `"Tue, Feb 29, 2000"`   |
+    | 4  | `"wday_day_month_year"`| `"Tuesday 29 February 2000"`    |
+    | 5  | `"month_day_year"`    | `"February 29, 2000"`   |
+    | 6  | `"m_day_year"`        | `"Feb 29, 2000"`        |
+    | 7  | `"day_m_year"`        | `"29 Feb 2000"`         |
+    | 8  | `"day_month_year"`    | `"29 February 2000"`    |
+    | 9  | `"day_month"`         | `"29 February"`         |
+    | 10 | `"day_m"`             | `"29 Feb"`              |
+    | 11 | `"year"`              | `"2000"`                |
+    | 12 | `"month"`             | `"February"`            |
+    | 13 | `"day"`               | `"29"`                  |
+    | 14 | `"year.mn.day"`       | `"2000/02/29"`          |
+    | 15 | `"y.mn.day"`          | `"00/02/29"`            |
+    | 16 | `"year_week"`         | `"2000-W09"`            |
+    | 17 | `"year_quarter"`      | `"2000-Q1"`             |
+
+    The time styles are numerous and can handle localization to any supported locale. The following
+    table provides a listing of all time styles and their output values (corresponding to an input
+    time of `2000-02-29 14:35:00`).
+
+    |    | Time Style    | Output                          | Notes         |
+    |----|---------------|---------------------------------|---------------|
+    | 1  | `"iso"`       | `"14:35:00"`                    | ISO 8601, 24h |
+    | 2  | `"iso-short"` | `"14:35"`                       | ISO 8601, 24h |
+    | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                  | 12h           |
+    | 4  | `"h_m_p"`     | `"2:35 PM"`                     | 12h           |
+    | 5  | `"h_p"`       | `"2 PM"`                        | 12h           |
+
+    We can use the `info_date_style()` and `info_time_style()` functions within the console to view
+    similar tables of date and time styles with example output.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `date`
+    and `time` columns). With the `fmt_datetime()` method, we'll format the `date` column to display
+    dates formatted with the `"month_day_year"` date style and the `time` column to display times
+    formatted with the `"h_m_s_p"` time style.
+
+    ```{python}
+    import great_tables as gt
+
+    exibble_mini = gt.data.exibble[[\"date\", \"time\"]]
+
+    (
+        gt.GT(exibble_mini)
+        .fmt_datetime(
+            columns=\"date\",
+            date_style=\"month_day_year\",
+            time_style=\"h_m_s_p\"
+        )
+    )
+    ```
+    """
+
+    # Stop if `locale` does not have a valid value; normalize locale and resolve one
+    # that might be set globally
+    _validate_locale(locale=locale)
+    locale = _normalize_locale(locale=locale)
+
+    # Get the date format string based on the `date_style` value
+    date_format_str = _get_date_format(date_style=date_style)
+
+    # Get the time format string based on the `time_style` value
+    time_format_str = _get_time_format(time_style=time_style)
+
+    # Generate a function that will operate on single `x` values in the table body using both
+    # the date and time format strings
+    def fmt_datetime_fn(
+        x: Any,
+        date_format_str: str = date_format_str,
+        time_format_str: str = time_format_str,
+        sep: str = sep,
+        locale: Union[str, None] = locale,
+    ) -> str:
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
+        # From the date and time format strings, create a datetime format string
+        datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
+
+        # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
+        if isinstance(x, str):
+            # Stop if `x` is not a valid ISO datetime string
+            _validate_iso_datetime_str(x=x)
+
+            # Ensure that a seconds value is present in the ISO datetime string
+            x = _normalize_iso_datetime_str(x=x)
+
+            # Convert the ISO datetime string to a datetime object
+            x = _iso_to_datetime(x)
+
+        else:
+            # Stop if `x` is not a valid datetime object
+            _validate_datetime_obj(x=x)
+
+        # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
+        if locale is None:
+            locale = "en_US"
+        else:
+            locale = _str_replace(locale, "-", "_")
+
+        # Format the datetime object to a string using Babel's `format_datetime()` function
+        x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    return fmt(self, fns=fmt_datetime_fn, columns=columns, rows=rows)
+
+
+def _validate_iso_datetime_str(x: str) -> None:
+    """
+    Validate an ISO datetime string.
+
+    Parameters
+    ----------
+    x : str
+        The string to validate.
+
+    Raises
+    ------
+    ValueError
+        Raised if the string is not a valid ISO datetime string.
+    """
+
+    import re
+
+    # Define the regex pattern for a valid ISO datetime string
+    _ISO_DATETIME_REGEX = r"^\d{4}-\d{2}-\d{2}(T| )\d{2}:\d{2}(:\d{2})?$"
+
+    # Use regex to determine if string is a valid ISO datetime string
+    if not re.match(_ISO_DATETIME_REGEX, x):
+        raise ValueError(f'"{x}" is not a valid ISO datetime string')
+
+    return
+
+
+def _normalize_iso_datetime_str(x: str) -> str:
+    """
+    Normalize an ISO datetime string.
+
+    Parameters
+    ----------
+    x : str
+        The string to normalize.
+
+    Returns
+    -------
+    str
+        The normalized string.
+    """
+
+    # If the string does not have a seconds value, then add one
+    if len(x) == 16:
+        x = x + ":00"
+
+    return x
+
+
 def fmt_markdown(
     self: GTSelf,
     columns: Union[str, List[str], None] = None,
@@ -1784,10 +2014,10 @@ def fmt_markdown(
 
     Parameters
     ----------
-    columns : Union[str, List[str], None]
+    columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows : int | List[int] | None
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -1795,12 +2025,14 @@ def fmt_markdown(
     Returns
     -------
     GT
-        The GT object is returned.
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     See Also
     --------
-    The functional version of this method, `val_fmt_markdown()`, allows you to format a single
-    string value (or a list of them).
+    The functional version of this method,
+    [`val_fmt_markdown()`](`great_tables._formats_vals.val_fmt_markdown`), allows you to format a
+    single string value (or a list of them).
     """
 
     # Generate a function that will operate on single `x` values in the table body
@@ -1869,7 +2101,7 @@ def _value_to_decimal_notation(
         result = result.rstrip(dec_mark)
 
     # Add in a trailing decimal mark under specific circumstances
-    if drop_trailing_dec_mark is False and not dec_mark in result:
+    if drop_trailing_dec_mark is False and dec_mark not in result:
         result = result + dec_mark
 
     # Force the positive sign to be present if the `force_sign` option is taken
@@ -1957,7 +2189,7 @@ def _format_number_n_sigfig(
     formatted_integer = ""
     formatted_decimal = dec_mark + decimal_part if decimal_part else ""
 
-    if preserve_integer and not "." in formatted_value:
+    if preserve_integer and "." not in formatted_value:
         formatted_value = "{:0.0f}".format(value)
 
     # Insert grouping separators within the integer part
@@ -2833,7 +3065,7 @@ def _validate_date_style(date_style: str) -> None:
     Returns:
         None
     """
-    if not date_style in _get_date_formats_dict():
+    if date_style not in _get_date_formats_dict():
         raise ValueError(f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}")
 
     return
@@ -2852,7 +3084,7 @@ def _validate_time_style(time_style: str) -> None:
     Returns:
         None
     """
-    if not time_style in _get_time_formats_dict():
+    if time_style not in _get_time_formats_dict():
         raise ValueError(f"time_style must be one of: {', '.join(_get_time_formats_dict().keys())}")
 
     return
@@ -2882,6 +3114,19 @@ def _iso_to_time(x: str) -> time:
         time: The converted time object.
     """
     return datetime.strptime(x, "%H:%M:%S").time()
+
+
+def _iso_to_datetime(x: str) -> datetime:
+    """
+    Converts a string in ISO format to a datetime object.
+
+    Args:
+        x (str): The string to be converted.
+
+    Returns:
+        datetime: The converted datetime object.
+    """
+    return datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
 
 
 def _validate_iso_date_str(x: str) -> None:
@@ -2984,5 +3229,24 @@ def _validate_time_obj(x: Any) -> None:
     """
     if not isinstance(x, time):
         raise ValueError(f"Invalid time object: '{x}'. The object must be a time object.")
+
+    return
+
+
+def _validate_datetime_obj(x: Any) -> None:
+    """
+    Validate if the given object is a valid datetime object.
+
+    Args:
+        x (Any): The object to be validated.
+
+    Raises:
+        ValueError: If the object is not a valid datetime object.
+
+    Returns:
+        None
+    """
+    if not isinstance(x, datetime):
+        raise ValueError(f"Invalid datetime object: '{x}'. The object must be a datetime object.")
 
     return
