@@ -43,8 +43,8 @@ Let's take things a bit further and create a table with the included `gtcars` da
 For this next table, we'll incorporate a *Stub* component and this provides a place for the row labels. Groupings of rows will be generated through categorical values in a particular column (we just have to cite the column name for that to work). We'll add a table title and subtitle with `tab_header()`. The numerical values will be formatted with the `fmt_integer()` and `fmt_currency()` methods. Column labels will be enhanced via `cols_label()` and a source note will be included through use of the `tab_source_note()` method. Here is the table code, followed by the table itself.
 
 ```{python}
+from great_tables import GT, md, html
 from great_tables.data import gtcars
-from great_tables import md, html
 
 gtcars_mini = gtcars[["mfr", "model", "year", "hp", "trq", "msrp"]].tail(10)
 
@@ -125,24 +125,103 @@ We support hundreds of locales, from `af` to `zu`! While there are more formatti
 
 ## Using Styles within a Table
 
-We use the `tab_style()` method in combination with `loc.body()` to set styles on cells of data in the table body. For example, the table-making code below applies a yellow background color to specific cells.
+We can use the `tab_style()` method in combination with `loc.body()` and various `style.*()` functions to set styles on cells of data within the table body. For example, the table-making code below applies a yellow background color to the targeted cells.
 
-gt_air.tab_style(
-    style=style.fill(color="yellow"),
-    locations=loc.body(columns="Temp", rows=[1, 2])
+```{python}
+from great_tables import GT, style, loc
+from great_tables.data import airquality
+
+airquality_mini = airquality.head()
+
+(
+    GT(airquality_mini)
+    .tab_style(
+        style=style.fill(color="yellow"),
+        locations=loc.body(columns="Temp", rows=[1, 2])
+    )
+)
+```
+
+Aside from `style.fill()` we can also use `style.text()` and `style.borders()` to focus the styling on cell text and borders. Here's an example where we perform several types of styling on targeted cells (the key is to put the `style.*()` calls in a list).
+
+```{python}
+from great_tables import GT, style, exibble
+
+(
+    gt.GT(exibble[["num", "currency"]])
+    .fmt_number(columns = "num", decimals=1)
+    .fmt_currency(columns = "currency")
+    .tab_style(
+        style=[
+            style.fill(color="lightcyan"),
+            style.text(weight="bold")
+        ],
+        locations=loc.body(columns="num")
+    )
+    .tab_style(
+        style=[
+            style.fill(color = "#F9E3D6"),
+            style.text(style = "italic")
+        ],
+        locations=loc.body(columns="currency")
+    )
+)
+```
+
+## Column Selection with Polars (and How It Helps with Styling)
+
+Styles can also be specified using **Polars** expressions. For example, the code below uses the `Temp` column to set color to `"lightyellow"` or `"lightblue"`.
+
+```{python}
+import polars as pl
+
+from great_tables import GT, from_column, style, loc
+from great_tables.data import airquality
+
+airquality_mini = pl.from_pandas(airquality.head())
+
+# A Polars expression defines color based on values in `Temp`
+fill_color_temp = (
+    pl.when(pl.col("Temp") > 70)
+    .then(pl.lit("lightyellow"))
+    .otherwise(pl.lit("lightblue"))
 )
 
-## Column Selection with Polars
+# Pass `fill_color_temp` to the `color=` arg of `style.fill()`
+(
+    GT(airquality_mini)
+    .tab_style(
+        style=style.fill(color=fill_color_temp),
+        locations=loc.body("Temp")
+    )
+)
+```
 
+We can deftly mix and match **Polars** column selectors and expressions. This gives us great flexibility in selecting specific columns and rows. Here's an example of doing that again with `tab_style()`:
 
+```{python}
+import polars.selectors as cs
 
+(
+    GT(airquality_mini)
+    .tab_style(
+        style=style.fill(color="yellow"),
+        locations=loc.body(
+            columns=cs.starts_with("Te"),
+            rows=pl.col("Temp") > 70
+        )
+    )
+)
+```
 
-## We Are on the Path to Table Success
+It feels great to use the conveniences offered by **Polars** and we're excited about how far we can take this!
 
-We are very excited about **Great Tables** and we're working hard to get useful features into the package. We would definitely appreciate hearing from you and we welcome any and all feedback! Get in touch with use through the following options:
+## Where We're Going with **Great Tables**
 
-- you can file an [issue](https://github.com/posit-dev/great-tables/issues) or participate in a [discussion](https://github.com/posit-dev/great-tables/discussions) at GitHub
+We're obviously pretty encouraged about how **Great Tables** is turning out and so we'll continue to get useful table-making niceties into the package. We welcome any and all feedback, so get in touch with us:
+
+- you can file a GitHub [issue](https://github.com/posit-dev/great-tables/issues) or get a discussion going in [GitHub Discussions](https://github.com/posit-dev/great-tables/discussions)
 - there's an [X/Twitter account at @gt_package](https://twitter.com/gt_package), so check it out for package news and announcements
 - there's a fun [Discord server](https://discord.gg/Ux7nrcXHVV) that lets you more casually ask questions and generally just talk about table things
 
-Thanks for reading! We'll keep working on making **Great Tables** better and better!
+Stay tuned for more on **Great Tables** in this blog or elsewhere in the Internet!
