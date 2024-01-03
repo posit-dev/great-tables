@@ -53,7 +53,7 @@ jobs:
         run: |
           npm install -g netlify-cli
           # push main branch to production, others to preview --
-          netlify link
+          netlify link --name="gt-python"
           if [ "${ALIAS}" == "main" ]; then
             netlify deploy --dir=docs/_site --alias="main"
           else
