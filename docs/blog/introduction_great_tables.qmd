@@ -93,7 +93,7 @@ That table looks really good, and the nice thing about all these methods is that
 
 ## Formatting Table Cells
 
-We didn't want to skimp on formatting methods for table cells with this early release. There are 11 `fmt_*()` methods available right now:
+We didn't want to skimp on formatting methods for table cells with this early release. There are 12 `fmt_*()` methods available right now:
 
 - `fmt_number()`: format numeric values
 - `fmt_integer()`: format values as integers
