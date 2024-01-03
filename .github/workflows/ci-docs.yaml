@@ -53,6 +53,7 @@ jobs:
         run: |
           npm install -g netlify-cli
           # push main branch to production, others to preview --
+          netlify link
           if [ "${ALIAS}" == "main" ]; then
             netlify deploy --dir=docs/_site --alias="main"
           else
@@ -75,6 +76,7 @@ jobs:
           logs: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_site
