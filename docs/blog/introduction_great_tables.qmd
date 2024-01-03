@@ -1,11 +1,14 @@
 ---
 jupyter: python3
 html-table-processing: none
+title: "Introducing Great Tables"
+author: Rich Iannone
+date: 2024-01-04
 ---
 
 ## **Great Tables** is Off to a Great Start
 
-We are really excited about developing the [**Great Tables**](https://github.com/posit-dev/great-tables) package because we believe it'll make great-looking display tables possible in Python. Though it's still early days for the project/package, you can do good things with it today! The most recent version of **Great Tables** (`v0.1.4`) is in [`PyPI`](https://pypi.org/project/great-tables/). You can install it by using:
+We are really excited about developing the [**Great Tables**](https://github.com/posit-dev/great-tables) package because we believe it'll make great-looking display tables possible in Python. Though it's still early days for the project/package, you can do good things with it today! The most recent version of **Great Tables** is in [`PyPI`](https://pypi.org/project/great-tables/). You can install it by using:
 
 ```{.bash}
 pip install great_tables
@@ -119,6 +122,20 @@ exibble_smaller = exibble[["date", "time"]].head(4)
 ```
 
 We support hundreds of locales, from `af` to `zu`! While there are more formatting methods yet to be added, the ones that are available all work exceedingly well.
+
+## Using Styles within a Table
+
+We use the `tab_style()` method in combination with `loc.body()` to set styles on cells of data in the table body. For example, the table-making code below applies a yellow background color to specific cells.
+
+gt_air.tab_style(
+    style=style.fill(color="yellow"),
+    locations=loc.body(columns="Temp", rows=[1, 2])
+)
+
+## Column Selection with Polars
+
+
+
 
 ## We Are on the Path to Table Success
 
