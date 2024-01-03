@@ -3,42 +3,41 @@ jupyter: python3
 html-table-processing: none
 ---
 
-## Introducing **Great Tables** for Python (`v0.1.0`)
+## **Great Tables** is Off to a Great Start
 
-With the [**Great Tables**](https://github.com/posit-dev/great-tables) package, anyone can make great-looking display tables in Python. Though the project/package is still fairly early in its development, you can do some really great things with it today! We very recently put out our first major release of the **Great Tables** (`v0.1.0`) and it's available in [`PyPI`](https://pypi.org/project/great-tables/). You can install it by using:
+We are really excited about developing the [**Great Tables**](https://github.com/posit-dev/great-tables) package because we believe it'll make great-looking display tables possible in Python. Though it's still early days for the project/package, you can do good things with it today! The most recent version of **Great Tables** (`v0.1.4`) is in [`PyPI`](https://pypi.org/project/great-tables/). You can install it by using:
 
 ```{.bash}
 pip install great_tables
 ```
 
-In this introductory post, we'll walk through a few examples that touch upon the more common table-making use cases. We'll demonstrate how you can:
+In this short post, we'll take a look at a few examples that focus on the more common table-making use cases. We'll show you how to:
 
 - configure the structure of the table
 - format table-cell values
 - integrate source notes
-- incorporate tables within Quarto documents.
-
-The **Great Tables** package is all about making it simple to produce nice-looking display tables. Display tables? Well yes, we are trying to distinguish between data tables (e.g., DataFrames) and those tables you’d find in a web page, a journal article, or in a magazine.  We can think of display tables as output only, where we’d not want to use them as input ever again. Other features include annotations, table element styling, and text transformations that serve to communicate the subject matter more clearly.
 
 ## A Basic Table
 
-Let's get right to making a table with the package. We'll start by making use of the very small, but useful, `exibble` dataset (which is available in the package). After importing the `GT` class and that dataset, we'll feed that Pandas table to `GT()`. This serves as the main entry point into the **Great Tables** API.
+Let's get right to making a display table with **Great Tables**. The package has quite a few datasets and so we'll start by making use of the very small, but useful, `exibble` dataset. After importing the `GT` class and that dataset, we'll introduce that Pandas table to `GT()`.
 
 ```{python}
 from great_tables import GT, exibble
 
-# Create a display table showing the table tailor-made for examples: exibble
+# Create a display table with the `exibble` dataset
 gt_tbl = GT(exibble)
 
 # Now, show the gt table
 gt_tbl
 ```
 
-That doesn't look too bad at all! Sure, it's basic but we really didn't really ask for much. What we got was a proper table with column labels along with all of the cell data. Oftentimes however, you'll want a bit more, so, we'll endeavor to include some additional table components and fluorishes in the upcoming examples.
+That looks pretty good! Indeed, it is a basic table but we really didn't really ask for much either. What we did get was an HTML table containing column labels and all of the body cells. You'll probably be wanting a bit more, so, let's look at how we can incorporate more table components and perform cell data formatting in the upcoming examples.
 
-## Some More Complex Tables
+## More Complex Tables
 
-Let's take things a bit further and make a *deluxe* table with the included `gtcars` dataset. Great Tables is all about having a smörgasbord of methods that allow you to refine the presentation until you are fully satisfied. This revamped display table will have a handy *Stub* component that emphasizes the row labels. Groupings of rows will be generated via categorical values in a column. We'll add a table title (and subtitle!) with `tab_header()`. The numerical values will be formatted with `fmt_integer()` and `fmt_currency()`. Column labels will be enhanced via `cols_label()` and a source note will be included through use of the `tab_source_note()` method.
+Let's take things a bit further and create a table with the included `gtcars` dataset. **Great Tables** provides a large selection of methods and they let you refine the table display; this can lead to a really presentable, and *beautiful* table visualization.
+
+For this next table, we'll incorporate a *Stub* component and this provides a place for the row labels. Groupings of rows will be generated through categorical values in a particular column (we just have to cite the column name for that to work). We'll add a table title and subtitle with `tab_header()`. The numerical values will be formatted with the `fmt_integer()` and `fmt_currency()` methods. Column labels will be enhanced via `cols_label()` and a source note will be included through use of the `tab_source_note()` method. Here is the table code, followed by the table itself.
 
 ```{python}
 from great_tables.data import gtcars
@@ -60,9 +59,9 @@ gtcars_mini = gtcars[["mfr", "model", "year", "hp", "trq", "msrp"]].tail(10)
 )
 ```
 
-With the six different methods applied, the table looks really very presentable! The rendering you're seeing here has been done through a Quarto document. This is basically to say that the **Great Tables** package is ready to rock inside your Quarto doc.
+With the six different methods applied, the table looks highly presentable! The rendering you're seeing here has been done through [**Quarto**](https://quarto.org) (this entire site has been generated with [**quartodoc**](https://machow.github.io/quartodoc/get-started/overview.html)). If you haven't yet tried out **Quarto**, we highly recommend it!
 
-Let's keep going and get to *deluxe* example #2. For this one, we'll use the `airquality` dataset (also included in the package, within the `data` submodule). With this table, two spanner labels will be added with `tab_spanner()`. It's an easy-to-use method where you only need to provide the spanner label text and the columns for that label to span across. Columns can be freely moved around with `cols_move_to_start()` (there also the `cols_move_to_end()` and the general `cols_move()` methods), which makes structuring the table much easier.
+For this next example we'll use the `airquality` dataset (also included in the package; it's inside the `data` submodule). With this table, two spanners will be added with the `tab_spanner()` method. This method is meant to be easy to use, you only need to provide the text for the spanner label and the columns associated with the spanner. We also make it easy to move columns around. You can use the `cols_move_to_start()` (example of that below) and there are also the `cols_move_to_end()` and `cols_move()` methods.
 
 ```{python}
 from great_tables.data import airquality
@@ -87,7 +86,7 @@ airquality_mini = airquality.head(10).assign(Year=1973)
 )
 ```
 
-That table is looking good! And the great thing about all these methods is that they can be used in virtually any order.
+That table looks really good, and the nice thing about all these methods is that they can be used in virtually any order.
 
 ## Formatting Table Cells
 
@@ -102,10 +101,11 @@ We didn't want to skimp on formatting methods for table cells with this early re
 - `fmt_roman()`: format values as Roman numerals
 - `fmt_date()`: format values as dates
 - `fmt_time()`: format values as times
+- `fmt_datetime()`: format values as datetimes
 - `fmt_markdown()`: format Markdown text
 - `fmt()`: set a column format with a formatting function
 
-The basic idea behind the formatting implementation was to make formatting an easy task but also to provide the user a lot of power via mixing and matching several options. Most of these methods have a `locale` argument which allows for numbers, dates, and times to be easily displayed in locale-specific ways. We did all this to make the formatting task broadly useful to as many users as possible. Let's take a look at an example of this with a smaller version of the `exibble` dataset:
+We strive to make formatting a simple task but we also want to provide the user a lot of power through advanced options and we ensure that varied combinations of options works well. For example, most of the formatting methods have a `locale=` argument. We want as many users as possible to be able to format numbers, dates, and times in ways that are familiar to them and are adapted to their own regional specifications. Now let's take a look at an example of this with a smaller version of the `exibble` dataset:
 
 ```{python}
 exibble_smaller = exibble[["date", "time"]].head(4)
@@ -120,24 +120,12 @@ exibble_smaller = exibble[["date", "time"]].head(4)
 
 We support hundreds of locales, from `af` to `zu`! While there are more formatting methods yet to be added, the ones that are available all work exceedingly well.
 
-## The Documentation Site
-
-The [documentation site](https://posit-dev.github.io/great-tables/) was built using [**quartodoc**](https://github.com/machow/quartodoc). It's designed to look easy on the eyes while also providing a ton of useful information.
-
-Check out these handy sections of the docs to learn more about how to create your own **Great Tables**:
-
-* [Get Started](https://posit-dev.github.io/great-tables/get-started/)
-* [Examples](https://posit-dev.github.io/great-tables/examples/)
-* [API Reference](https://posit-dev.github.io/great-tables/reference/)
-
-Since we care a lot about documentation we'll continue working toward making this documentation site the best it can be.
-
 ## We Are on the Path to Table Success
 
-While we’re only getting started on this package, we feel things are coming along nicely! But it's nothing without you, our users, so we'd really like to hear from you (we welcome any and all feedback). There are quite a few ways to do this; here are all the options:
+We are very excited about **Great Tables** and we're working hard to get useful features into the package. We would definitely appreciate hearing from you and we welcome any and all feedback! Get in touch with use through the following options:
 
 - you can file an [issue](https://github.com/posit-dev/great-tables/issues) or participate in a [discussion](https://github.com/posit-dev/great-tables/discussions) at GitHub
-- the gt package has an [X/Twitter account at @gt_package](https://twitter.com/gt_package), so check it out for package news and announcements
+- there's an [X/Twitter account at @gt_package](https://twitter.com/gt_package), so check it out for package news and announcements
 - there's a fun [Discord server](https://discord.gg/Ux7nrcXHVV) that lets you more casually ask questions and generally just talk about table things
 
-Thanks for reading! For our part, we'll keep working on making **Great Tables** live up to its name.
+Thanks for reading! We'll keep working on making **Great Tables** better and better!
