@@ -148,7 +148,7 @@ Aside from `style.fill()` we can also use `style.text()` and `style.borders()` t
 from great_tables import GT, style, exibble
 
 (
-    gt.GT(exibble[["num", "currency"]])
+    GT(exibble[["num", "currency"]])
     .fmt_number(columns = "num", decimals=1)
     .fmt_currency(columns = "currency")
     .tab_style(
