@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables – vals.fmt_integer</title>
+<title>great_tables - Listing Example</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,6 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-listing/list.min.js"></script>
+<script src="../site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -59,7 +61,38 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script>
 
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -95,7 +128,7 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../blog/index.html" rel="" target="">
+    <a class="nav-link active" href="../blog/index.html" rel="" target="" aria-current="page">
  <span class="menu-text">Blog</span></a>
   </li>  
   <li class="nav-item">
@@ -120,132 +153,97 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#great_tables.vals.fmt_integer" id="toc-great_tables.vals.fmt_integer" class="nav-link active" data-scroll-target="#great_tables.vals.fmt_integer">vals.fmt_integer</a>
-  <ul class="collapse">
-  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
-  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
-  </ul></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
-<main class="content column-page-left" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Listing Example</h1>
+</div>
 
 
 
-<section id="great_tables.vals.fmt_integer" class="level1">
-<h1>vals.fmt_integer</h1>
-<p><code>vals.fmt_integer(x, use_seps=True, scale_by=1, compact=False, pattern='{x}', sep_mark=',', force_sign=False, locale=None)</code></p>
-<p>Format values as integers.</p>
-<p>With numeric values in a list, we can perform number-based formatting so that the input values are always rendered as integer values. The following major options are available:</p>
-<p>We can have fine control over integer formatting with the following options:</p>
-<ul>
-<li>digit grouping separators: options to enable/disable digit separators and provide a choice of separator symbol</li>
-<li>scaling: we can choose to scale targeted values by a multiplier value</li>
-<li>large-number suffixing: larger figures (thousands, millions, etc.) can be autoscaled and decorated with the appropriate suffixes</li>
-<li>pattern: option to use a text pattern for decoration of the formatted values</li>
-<li>locale-based formatting: providing a locale ID will result in number formatting specific to the chosen locale</li>
-</ul>
-<section id="parameters" class="level2">
-<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="table">
-<colgroup>
-<col style="width: 3%">
-<col style="width: 21%">
-<col style="width: 72%">
-<col style="width: 2%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>x</code></td>
-<td><code>Union</code>[<code>Any</code>, <code>List</code>[<code>Any</code>]]</td>
-<td>A list of values to be formatted.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td><code>use_seps</code></td>
-<td><code>bool</code></td>
-<td>The <code>use_seps</code> option allows for the use of digit group separators. The type of digit group separator is set by <code>sep_mark</code> and overridden if a locale ID is provided to <code>locale</code>. This setting is <code>True</code> by default.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="odd">
-<td><code>scale_by</code></td>
-<td><code>float</code></td>
-<td>All numeric values will be multiplied by the <code>scale_by</code> value before undergoing formatting. Since the <code>default</code> value is <code>1</code>, no values will be changed unless a different multiplier value is supplied.</td>
-<td><code>1</code></td>
-</tr>
-<tr class="even">
-<td><code>compact</code></td>
-<td><code>bool</code></td>
-<td>A boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., <code>1230</code> becomes <code>1K</code>, and <code>1230000</code> becomes <code>1M</code>). The <code>compact</code> option is <code>False</code> by default.</td>
-<td><code>False</code></td>
-</tr>
-<tr class="odd">
-<td><code>pattern</code></td>
-<td><code>str</code></td>
-<td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
-<td><code>'{x}'</code></td>
-</tr>
-<tr class="even">
-<td><code>sep_mark</code></td>
-<td><code>str</code></td>
-<td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
-<td><code>','</code></td>
-</tr>
-<tr class="odd">
-<td><code>force_sign</code></td>
-<td><code>bool</code></td>
-<td>Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign. This option is disregarded when using accounting notation with <code>accounting = True</code>.</td>
-<td><code>False</code></td>
-</tr>
-<tr class="even">
-<td><code>locale</code></td>
-<td><code>str</code></td>
-<td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="returns" class="level2">
-<h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<table class="table">
-<colgroup>
-<col style="width: 48%">
-<col style="width: 51%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>List</code>[<code>str</code>]</td>
-<td>A list of formatted values is returned.</td>
-</tr>
-</tbody>
-</table>
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
 
 
-</section>
-</section>
 
-</main> <!-- /main -->
+
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+<div class="quarto-post image-right" data-index="0" data-listing-date-sort="1704326400000" data-listing-file-modified-sort="1704309944856" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6">
+<div class="thumbnail">
+<p><a href="../blog/introduction_great_tables.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+</div>
+<div class="body">
+<a href="../blog/introduction_great_tables.html">
+<h3 class="no-anchor listing-title">
+Introducing Great Tables
+</h3>
+<div class="listing-subtitle">
+
+</div>
+<div class="listing-description">
+
+We are really excited about developing the <strong>Great Tables</strong> package because we believe it’ll make great-looking display tables possible in…<strong></strong><code></code>
+</div>
+</a>
+</div>
+<div class="metadata">
+<a href="../blog/introduction_great_tables.html">
+<div class="listing-date">
+Jan 4, 2024
+</div>
+<div class="listing-author">
+Rich Iannone
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-listing-date-sort="1701907200000">
+<div class="thumbnail">
+<p><a href="https://posit.co/blog/introducing-great-tables-for-python-v0-1-0/"> </a></p>
+</div>
+<div class="body">
+<a href="https://posit.co/blog/introducing-great-tables-for-python-v0-1-0/">
+<h3 class="no-anchor listing-title">
+Introducing Great Tables for Python <code>v0.1.0</code>
+</h3>
+<div class="listing-subtitle">
+
+</div>
+<div class="listing-description">
+
+</div>
+</a>
+</div>
+<div class="metadata">
+<a href="https://posit.co/blog/introducing-great-tables-for-python-v0-1-0/">
+<div class="listing-date">
+Dec 7, 2023
+</div>
+<div class="listing-author">
+Rich Iannone and Michael Chow
+</div>
+</a>
+</div>
+</div>
+</div>
+<div class="listing-no-matching d-none">
+No matching items
+</div>
+</div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
