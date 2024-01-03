@@ -1,0 +1,11 @@
+---
+title: "Listing Example"
+listing:
+  contents:
+    - "**.qmd"
+    - title: "Introducing Great Tables for Python `v0.1.0`"
+      author: "Rich Iannone and Michael Chow"
+      date: 2023-12-07
+      path: https://posit.co/blog/introducing-great-tables-for-python-v0-1-0/
+---
+
