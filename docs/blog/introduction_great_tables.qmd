@@ -21,6 +21,8 @@ In this short post, we'll take a look at a few examples that focus on the more c
 - add styling to targeted table cells
 - use features from **Polars** to make it all better/nicer
 
+Alright! Let's get right into it.
+
 ## A Basic Table
 
 Let's get right to making a display table with **Great Tables**. The package has quite a few datasets and so we'll start by making use of the very small, but useful, `exibble` dataset. After importing the `GT` class and that dataset, we'll introduce that Pandas table to `GT()`.
