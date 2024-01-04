@@ -2094,7 +2094,7 @@ def data_color(
         `"manual"`.
     palette : str | List[str] | None
         The color palette to use. This can be a named palette (e.g., `"blue"` or `"red"`) or a
-        list of colors (e.g., `["#ff0000", "#00ff00", "#0000ff"]`). If `None`, then a default
+        list of colors (e.g., `["#FF0000", "#00FF00", "#0000FF"]`). If `None`, then a default
         palette will be used.
     domain : List[str] | List[float] | List[int] | None
         The domain of values to use for the color scheme. This can be a list of strings, floats, or
