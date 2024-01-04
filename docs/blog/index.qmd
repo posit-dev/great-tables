@@ -1,6 +1,7 @@
 ---
 title: "Great Blog"
 listing:
+  type: table
   contents:
     - "**.qmd"
     #- title: "Title"
