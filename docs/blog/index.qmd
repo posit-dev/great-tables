@@ -1,0 +1,11 @@
+---
+title: "Great Blog"
+listing:
+  contents:
+    - "**.qmd"
+    #- title: "Title"
+    #  author: "Authors"
+    #  date: 20XX-01-01
+    #  path: url
+---
+
