@@ -18,6 +18,8 @@ In this short post, we'll take a look at a few examples that focus on the more c
 - configure the structure of the table
 - format table-cell values
 - integrate source notes
+- add styling to targeted table cells
+- use features from **Polars** to make it all better/nicer
 
 ## A Basic Table
 
