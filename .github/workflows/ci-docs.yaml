@@ -39,7 +39,7 @@ jobs:
           echo "RELEASE_NAME=${GITHUB_REF_NAME/\//-}" >> $GITHUB_ENV
       # deploy ----
       - name: Create Github Deployment
-        uses: bobheadxi/deployments@v0.4.3
+        uses: bobheadxi/deployments@v1
         id: deployment
         with:
           step: start
@@ -53,6 +53,7 @@ jobs:
         run: |
           npm install -g netlify-cli
           # push main branch to production, others to preview --
+          netlify link --name="gt-python"
           if [ "${ALIAS}" == "main" ]; then
             netlify deploy --dir=docs/_site --alias="main"
           else
@@ -64,17 +65,17 @@ jobs:
           ALIAS: ${{ steps.deployment.outputs.env }}
 
       - name: Update Github Deployment
-        uses: bobheadxi/deployments@v0.4.3
-        if: ${{ always() }}
+        uses: bobheadxi/deployments@v1
+        if: always()
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
+          env: ${{ steps.deployment.outputs.env }}
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env_url: "https://${{ steps.deployment.outputs.env }}--gt-python.netlify.app"
-          logs: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_site

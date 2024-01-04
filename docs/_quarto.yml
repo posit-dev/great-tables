@@ -12,6 +12,8 @@ website:
         file: examples/index.qmd
       - href: reference/index.qmd
         text: Reference
+      - href: blog/index.qmd
+        text: Blog
       - href: changelog.qmd
         text: Changelog
     right:
