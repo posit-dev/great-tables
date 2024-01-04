@@ -4,6 +4,7 @@ html-table-processing: none
 title: "Introducing Great Tables"
 author: Rich Iannone
 date: 2024-01-04
+freeze: true
 ---
 
 We are really excited about developing the **Great Tables** package because we believe it'll make great-looking display tables possible in Python. Though it's still early days for the project/package, you can do good things with it today! The most recent version of **Great Tables** is in [`PyPI`](https://pypi.org/project/great-tables/). You can install it by using:
