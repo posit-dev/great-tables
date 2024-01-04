@@ -1,5 +1,5 @@
 ---
-title: "Great Blog"
+title: "Great Blogposts"
 listing:
   type: table
   contents:
