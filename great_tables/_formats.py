@@ -2050,6 +2050,105 @@ def fmt_markdown(
     return fmt(self, fns=fmt_markdown_fn, columns=columns, rows=rows)
 
 
+def data_color(
+    self: GTSelf,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    direction: str = "column",
+    target_columns: Union[str, List[str], None] = None,
+    method: str = "auto",
+    palette: Union[str, List[str], None] = None,
+    domain: Union[List[str], List[float], List[int], None] = None,
+    bins: int = 8,
+    quantiles: int = 4,
+    ordered: bool = False,
+    na_color: str = None,
+    alpha: Union[int, bool] = None,
+    reverse: bool = False,
+    autocolor_text: bool = True,
+) -> GTSelf:
+    """
+    Color data values.
+
+    Color data values in the table body according to a specified color scheme. The color scheme can
+    be generated automatically or supplied manually.
+
+    Parameters
+    ----------
+    columns : str | List[str] | None
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows : int | List[int] | None
+        In conjunction with `columns`, we can specify which of their rows should undergo coloring.
+        The default is all rows, resulting in all rows in `columns` being colored. Alternatively,
+        we can supply a list of row indices.
+    direction : str
+        The direction in which to color the data values. This can be `"column"` (the default) or
+        `"row"`.
+    target_columns : str | List[str] | None
+        The columns to target for coloring. Can either be a single column name or a series of
+        column names provided in a list. If `None`, then all columns in the table body will be
+        targeted.
+    method : str
+        The method to use for generating the color scheme. This can be `"auto"` (the default) or
+        `"manual"`.
+    palette : str | List[str] | None
+        The color palette to use. This can be a named palette (e.g., `"blue"` or `"red"`) or a
+        list of colors (e.g., `["#ff0000", "#00ff00", "#0000ff"]`). If `None`, then a default
+        palette will be used.
+    domain : List[str] | List[float] | List[int] | None
+        The domain of values to use for the color scheme. This can be a list of strings, floats, or
+        integers. If `None`, then the domain will be inferred from the data values.
+    bins : int
+        The number of bins to use for the color scheme. This is only used when `method` is set to
+        `"auto"`.
+    quantiles : int
+        The number of quantiles to use for the color scheme. This is only used when `method` is set
+        to `"auto"`.
+    ordered : bool
+        Whether or not the domain is ordered. This is only used when `method` is set to `"auto"`.
+    na_color : str | None
+        The color to use for `NA` values. If `None`, then the default color will be used.
+    alpha : int | bool | None
+        The alpha value to use for the colors. This can be an integer between 0 and 255, or it can
+        be `True` or `False`. If `None`, then the default alpha value will be used.
+    reverse : bool
+        Whether or not to reverse the color scheme. If `True`, then the color scheme will be
+        reversed.
+    autocolor_text : bool
+        Whether or not to automatically color the text of the data values. If `True`, then the text
+        will be colored according to the background color of the cell.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+    """
+
+    # Generate a function that will operate on single `x` values in the table body
+    def data_color_fn(
+        x: Any,
+        direction: str = direction,
+        target_columns: Union[str, List[str], None] = target_columns,
+        method: str = method,
+        palette: Union[str, List[str], None] = palette,
+        domain: Union[List[str], List[float], List[int], None] = domain,
+        bins: int = bins,
+        quantiles: int = quantiles,
+        ordered: bool = ordered,
+        na_color: str = na_color,
+        alpha: Union[int, bool] = alpha,
+        reverse: bool = reverse,
+        autocolor_text: bool = autocolor_text,
+    ) -> str:
+        x_formatted = "x"
+
+        return x_formatted
+
+    return fmt(self, fns=data_color_fn, columns=columns, rows=rows)
+
+
 def _value_to_decimal_notation(
     value: Union[int, float],
     decimals: int = 2,
