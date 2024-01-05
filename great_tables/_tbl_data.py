@@ -235,7 +235,7 @@ def _(data: PlDataFrame, group_key: str) -> Dict[Any, List[int]]:
 # eval_select ----
 
 SelectExpr: TypeAlias = Union[
-    list["str | int"],
+    List["str | int"],
     PlSelectExpr,
     str,
     int,
