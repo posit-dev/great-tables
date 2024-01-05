@@ -136,6 +136,26 @@ gt_pl_air.tab_style(
 )
 ```
 
+
+### Using functions
+
+You can also use a function, that takes the DataFrame and returns a Series with a style value for each row.
+
+This is shown below on a pandas DataFrame.
+
+```{python}
+def map_color(df):
+    return (df["Temp"] > 70).map(
+        {True: "lightyellow", False: "lightblue"}
+    )
+
+gt_air.tab_style(
+    style=style.fill(
+        color=map_color),
+    locations=loc.body("Temp")
+)
+```
+
 ## Specifying columns and rows
 
 ### Using polars selectors
