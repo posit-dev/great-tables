@@ -4,7 +4,9 @@ jupyter: python3
 html-table-processing: none
 ---
 
-The `columns=` argument for methods like [`tab_spanner()`](`great_tables.GT.tab_spanner`) and [`cols_move()`](`great_tables.GT.cols_move`) can accept a range of arguments. In the previous examples, we just passed a list of strings with the exact column names. However, we can specify columns using any of the following:
+The `columns=` argument for methods like [`GT.tab_spanner()`](`great_tables.GT.tab_spanner`), [`GT.cols_move()`](`great_tables.GT.cols_move`), and [`GT.tab_style`](`great_tables.GT.tab_style`) allows a range of options for selecting columns.
+
+The simplest approach is just a list of strings with the exact column names. However, we can specify columns using any of the following:
 
 * a single string column name.
 * an integer for the column's position.
@@ -16,12 +18,13 @@ The `columns=` argument for methods like [`tab_spanner()`](`great_tables.GT.tab_
 from great_tables import GT
 from great_tables.data import exibble
 
-gt_ex = GT(exibble)
+lil_exibble = exibble[["num", "char", "fctr", "date", "time"]].head(4)
+gt_ex = GT(lil_exibble)
 
 gt_ex
 ```
 
-## String and Integer Selectors
+## Using integers
 
 We can use a list of strings or integers to select columns by name or position, respectively.
 
@@ -37,15 +40,7 @@ Note the code above moved the following columns:
 
 Moreover, the order of the list defines the order of selected columns. In this case, `"data"` was the first entry, so it's the very first column in the new table.
 
-## Using Function Selectors
-
-A function can be used to select columns. It should take a string and returns `True` or `False`.
-
-```{python}
-gt_ex.cols_move_to_start(columns=lambda x: "c" in x)
-```
-
-## **Polars** Selectors
+## Using **Polars** selectors
 
 When using a **Polars** DataFrame, you can select columns using [**Polars** selectors](https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html). The example below uses **Polars** selectors to move all columns that start with `"c"` or `"f"` to the start of the table.
 
@@ -53,7 +48,7 @@ When using a **Polars** DataFrame, you can select columns using [**Polars** sele
 import polars as pl
 import polars.selectors as cs
 
-pl_df = pl.from_pandas(exibble)
+pl_df = pl.from_pandas(lil_exibble)
 
 GT(pl_df).cols_move_to_start(columns=cs.starts_with("c") | cs.starts_with("f"))
 ```
@@ -67,3 +62,10 @@ pl_df.select(cs.starts_with("c") | cs.starts_with("f")).columns
 See the [Selectors page in the polars docs](https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html) for more information on this.
 
 
+## Using functions
+
+A function can be used to select columns. It should take a column name as a string and return `True` or `False`.
+
+```{python}
+gt_ex.cols_move_to_start(columns=lambda x: "c" in x)
+```

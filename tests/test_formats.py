@@ -1,5 +1,6 @@
 from typing import Union
 import pandas as pd
+import polars as pl
 import pytest
 import re
 
@@ -12,6 +13,7 @@ from great_tables._formats import (
     _expand_exponential_to_full_string,
     fmt,
 )
+from great_tables._locations import RowSelectExpr
 
 
 def assert_rendered_body(snapshot, gt):
@@ -59,6 +61,27 @@ def test_format_repr_snap(snapshot):
     )
 
     assert_repr_html(snapshot, new_gt)
+
+
+@pytest.mark.parametrize(
+    "expr",
+    [
+        [1, 2],
+        pl.col("x") > 0,
+        lambda D: D["x"] > 0,
+    ],
+)
+def test_format_row_selection(expr):
+    df = pd.DataFrame({"x": [0, 1, 2]})
+
+    if isinstance(expr, pl.Expr):
+        gt = GT(pl.from_pandas(df))
+    else:
+        gt = GT(df)
+
+    res = gt.fmt(lambda x: x, columns=[], rows=expr)
+    assert len(res._formats) == 1
+    assert res._formats[0].cells.rows == [1, 2]
 
 
 @pytest.mark.parametrize(

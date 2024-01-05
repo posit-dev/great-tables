@@ -74,7 +74,7 @@ class CellStyle:
         new_fields: dict[str, FromValues] = {}
         for field in fields(self):
             attr = getattr(self, field.name)
-            if isinstance(attr, PlExpr):
+            if isinstance(attr, PlExpr) or callable(attr):
                 col_res = eval_transform(data, attr)
                 new_fields[field.name] = FromValues(expr=attr, values=col_res)
 

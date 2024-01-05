@@ -50,6 +50,16 @@ def test_resolve_rows_i_ints():
     assert resolve_rows_i(["a", "x", "a", "b"], [0, -1]) == [("a", 0), ("b", 3)]
 
 
+def test_resolve_rows_i_polars_expr():
+    gt = GT(pl.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    assert resolve_rows_i(gt, pl.col("x").is_in(["a", "b"])) == [("a", 0), ("b", 1)]
+
+
+def test_resolve_rows_i_func_expr():
+    gt = GT(pd.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    assert resolve_rows_i(gt, lambda D: D["x"].isin(["a", "b"])) == [("a", 0), ("b", 1)]
+
+
 def test_resolve_loc_body():
     gt = GT(pd.DataFrame({"x": [1, 2], "y": [3, 4]}))
 

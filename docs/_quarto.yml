@@ -38,6 +38,7 @@ website:
         - section: Extra Topics
           contents:
             - get-started/column-selection.qmd
+            - get-started/row-selection.qmd
 
 format:
   html:
