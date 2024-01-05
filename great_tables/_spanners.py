@@ -5,7 +5,8 @@ import itertools
 from typing import TYPE_CHECKING, Union, List, Dict, Optional, Any
 
 from ._gt_data import Spanners, SpannerInfo
-from ._locations import SelectExpr, resolve_cols_c
+from ._tbl_data import SelectExpr
+from ._locations import resolve_cols_c
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead

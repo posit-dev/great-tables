@@ -234,11 +234,19 @@ def _(data: PlDataFrame, group_key: str) -> Dict[Any, List[int]]:
 
 # eval_select ----
 
+SelectExpr: TypeAlias = Union[
+    list["str | int"],
+    PlSelectExpr,
+    str,
+    int,
+    Callable[[str], bool],
+    None,
+]
 _NamePos: TypeAlias = List[Tuple[str, int]]
 
 
 @singledispatch
-def eval_select(data: DataFrameLike, expr: Any, strict: bool = True) -> _NamePos:
+def eval_select(data: DataFrameLike, expr: SelectExpr, strict: bool = True) -> _NamePos:
     """Return a list of column names selected by expr."""
 
     raise NotImplementedError(f"Unsupported type: {type(expr)}")

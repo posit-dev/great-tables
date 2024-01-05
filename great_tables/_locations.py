@@ -4,25 +4,25 @@ import itertools
 
 from dataclasses import dataclass
 from functools import singledispatch
-from typing import TYPE_CHECKING, Literal, List, Callable
+from typing import TYPE_CHECKING, Literal, List, Callable, Union
 from typing_extensions import TypeAlias
 
 # note that types like Spanners are only used in annotations for concretes of the
 # resolve generic, but we need to import at runtime, due to singledispatch looking
 # up annotations
 from ._gt_data import GTData, FootnoteInfo, Spanners, ColInfoTypeEnum, StyleInfo, FootnotePlacement
-from ._tbl_data import eval_select, PlExpr
+from ._tbl_data import eval_select, eval_transform, PlExpr
 from ._styles import CellStyle
 
 
 if TYPE_CHECKING:
     from ._gt_data import TblData
-    from ._tbl_data import PlSelectExpr
+    from ._tbl_data import SelectExpr
 
 # Misc Types ===========================================================================
 
 PlacementOptions: TypeAlias = Literal["auto", "left", "right"]
-SelectExpr: TypeAlias = "list[str | int] | PlSelectExpr | str | int | Callable[[str], bool] | None"
+RowSelectExpr: TypeAlias = Union[List[int], PlExpr, Callable[["TblData"], bool], None]
 
 # Locations ============================================================================
 # TODO: these are called cells_* in gt. I prefixed them with Loc just to keep things
@@ -106,7 +106,7 @@ class LocBody(Loc):
         A LocBody object, which is used for a `locations` argument if specifying the table body.
     """
     columns: SelectExpr = None
-    rows: list[str] | str | None = None
+    rows: RowSelectExpr = None
 
 
 @dataclass
@@ -270,7 +270,7 @@ def resolve_cols_i(
 
 def resolve_rows_i(
     data: GTData | list[str],
-    expr: list[str | int] | None = None,
+    expr: RowSelectExpr = None,
     null_means: Literal["everything", "nothing"] = "everything",
 ) -> list[tuple[str, int]]:
     """Return matching row numbers, based on expr
@@ -282,6 +282,9 @@ def resolve_rows_i(
     Unlike tidyselect::eval_select, this function returns names in
     the order they appear in the data (rather than ordered by selectors).
     """
+
+    if isinstance(expr, (str, int)):
+        expr: List["str | int"] = [expr]
 
     if isinstance(data, GTData):
         if expr is None:
@@ -312,12 +315,25 @@ def resolve_rows_i(
         result = data._tbl_data.with_row_count(name="__row_number__").filter(expr)
         # print([(row_names[ii], ii) for ii in result["__row_number__"]])
         return [(row_names[ii], ii) for ii in result["__row_number__"]]
+    elif callable(expr):
+        res: "list[bool]" = eval_transform(data._tbl_data, expr)
+        if not all(map(lambda x: isinstance(x, bool), res)):
+            raise ValueError(
+                "If you select rows using a callable, it must take a DataFrame, "
+                "and return a boolean Series."
+            )
+        return [(row_names[ii], ii) for ii, val in enumerate(res) if val]
 
     # TODO: identify filter-like selectors using some backend check
     # e.g. if it's a siuba expression vs tidyselect expression, etc..
     # TODO: how would this be handled with something like polars? May need a predicate
     # function, similar in spirit to where()?
-    raise NotImplementedError("Currently, rows can only be selected via a list of strings")
+    raise NotImplementedError(
+        "Currently, rows can only be selected using these approaches:\n\n"
+        "  * a list of integers\n"
+        "  * a polars expression\n"
+        "  * a callable that takes a DataFrame and returns a boolean Series"
+    )
 
 
 # Resolve generic ======================================================================
