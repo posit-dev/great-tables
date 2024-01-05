@@ -138,6 +138,8 @@ gt_pl_air.tab_style(
 
 ## Specifying columns and rows
 
+### Using polars selectors
+
 If you are using **Polars**, you can use column selectors and expressions for selecting specific columns and rows:
 
 ```{python}
@@ -153,6 +155,21 @@ gt_pl_air.tab_style(
 ```
 
 See [Column Selection](./column-selection.qmd) for details on selecting columns.
+
+### Using a function
+
+For tools like **pandas**, you can use a function (or lambda) to select rows. The function should take a DataFrame, and output a boolean Series.
+
+```{python}
+gt_air.tab_style(
+    style=style.fill(color="yellow"),
+    locations=loc.body(
+        columns=lambda col_name: col_name.startswith("Te"),
+        rows=lambda D: D["Temp"] > 70,
+    )
+)
+```
+
 
 ## Multiple styles and locations
 
