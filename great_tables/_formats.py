@@ -14,6 +14,8 @@ import numpy as np
 import math
 from datetime import datetime, date, time
 from babel.dates import format_date, format_time, format_datetime
+from mizani.palettes import gradient_n_pal
+
 
 if TYPE_CHECKING:
     from ._types import GTSelf
