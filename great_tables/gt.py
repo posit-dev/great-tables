@@ -23,6 +23,7 @@ from great_tables._formats import (
     fmt_time,
     fmt_datetime,
     fmt_markdown,
+    data_color,
 )
 from great_tables._heading import tab_header
 from great_tables._helpers import random_id
@@ -205,6 +206,8 @@ class GT(
     fmt_time = fmt_time
     fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
+
+    data_color = data_color
 
     tab_options = tab_options
     opt_align_table_header = opt_align_table_header
