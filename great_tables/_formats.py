@@ -2096,11 +2096,10 @@ def data_color(
         targeted.
     method : str
         The method to use for generating the color scheme. This can be `"auto"` (the default) or
-        `"manual"`.
+        any of the following: `"numeric"`, `"bin"`, `"quantile"`, or `"factor"`.
     palette : str | List[str] | None
-        The color palette to use. This can be a named palette (e.g., `"blue"` or `"red"`) or a
-        list of colors (e.g., `["#FF0000", "#00FF00", "#0000FF"]`). If `None`, then a default
-        palette will be used.
+        The color palette to use. This should be a list of colors (e.g., `["#FF0000", "#00FF00",
+        "#0000FF"]`). If `None`, then a default palette will be used.
     domain : List[str] | List[float] | List[int] | None
         The domain of values to use for the color scheme. This can be a list of strings, floats, or
         integers. If `None`, then the domain will be inferred from the data values.
