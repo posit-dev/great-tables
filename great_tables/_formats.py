@@ -3071,6 +3071,31 @@ def _validate_case(case: str) -> None:
     return
 
 
+def _validate_data_color_method_arg(method: str) -> None:
+    """
+    Validates the `method` argument within the `data_color()` method.
+
+    Args:
+        case (str): The case argument to validate.
+
+    Raises:
+        ValueError: If the `method` argument is not 'auto', 'numeric', 'bin', 'quantile', or
+        'factor'.
+    """
+    if method not in ["auto", "numeric", "bin", "quantile", "factor"]:
+        raise ValueError(
+            f"""The `method` argument cannot be '{method}', it must be one of:
+            - 'auto'
+            - 'numeric'
+            - 'bin'
+            - 'quantile'
+            - 'factor'
+            """
+        )
+
+    return
+
+
 def _get_date_formats_dict() -> Dict[str, str]:
     date_formats = {
         "iso": "y-MM-dd",
