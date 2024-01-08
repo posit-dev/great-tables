@@ -10,6 +10,7 @@ from ._utils import _str_detect, _str_replace
 from .style import fill
 from .loc import body
 import pandas as pd
+import numpy as np
 import math
 from datetime import datetime, date, time
 from babel.dates import format_date, format_time, format_datetime
