@@ -2067,8 +2067,8 @@ def data_color(
     bins: int = 8,
     quantiles: int = 4,
     ordered: bool = False,
-    na_color: str = None,
-    alpha: Union[int, bool] = None,
+    na_color: Optional[str] = None,
+    alpha: Optional[Union[int, bool]] = None,
     reverse: bool = False,
     autocolor_text: bool = True,
 ) -> GTSelf:
