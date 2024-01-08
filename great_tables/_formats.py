@@ -2149,8 +2149,26 @@ def data_color(
         x_formatted = "x"
 
         return x_formatted
+def _get_domain_numeric(vals: List[Union[int, float]]) -> List[float]:
+    """
+    Get the domain of numeric values.
+
+    Get the domain of numeric values in `column_vals` as a list of two values: the minimum and
+    maximum values.
+    """
+
+    # Exclude any NA values from `vals`
+    vals = [x for x in vals if not pd.isna(x)]
+
+    # Get the minimum and maximum values from `vals`
+    domain_min = min(vals)
+    domain_max = max(vals)
+
+    # Create the domain
+    domain = [domain_min, domain_max]
 
     return fmt(self, fns=data_color_fn, columns=columns, rows=rows)
+    return domain
 
 
 def _value_to_decimal_notation(
