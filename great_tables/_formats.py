@@ -2130,23 +2130,85 @@ def data_color(
         can facilitate method chaining.
     """
 
-    # Generate a function that will operate on single `x` values in the table body
-    def data_color_fn(
-        x: Any,
-        direction: str = direction,
-        target_columns: Union[str, List[str], None] = target_columns,
-        method: str = method,
-        palette: Union[str, List[str], None] = palette,
-        domain: Union[List[str], List[float], List[int], None] = domain,
-        bins: int = bins,
-        quantiles: int = quantiles,
-        ordered: bool = ordered,
-        na_color: str = na_color,
-        alpha: Union[int, bool] = alpha,
-        reverse: bool = reverse,
-        autocolor_text: bool = autocolor_text,
-    ) -> str:
-        x_formatted = "x"
+    # Validate the `method` argument
+    _validate_data_color_method_arg(method=method)
+
+    # If no color is provided to `na_color`, use a light gray color as a default
+    if na_color is None:
+        na_color = "#808080"
+
+    # If palette is not provided, use a default palette
+    if palette is None:
+        palette = [
+            "#000000",
+            "#DF536B",
+            "#61D04F",
+            "#2297E6",
+            "#28E2E5",
+            "#CD0BBC",
+            "#F5C710",
+            "#9E9E9E",
+        ]
+
+    if domain is None:
+        autocalc_domain = True
+    else:
+        autocalc_domain = False
+
+    # Get the internal data table
+    data_table = self._tbl_data
+
+    # If `columns` is a single value, convert it to a list; if it is None then
+    # get a list of all columns in the table body
+    if isinstance(columns, str):
+        columns = [columns]
+    elif columns is None:
+        columns = data_table.columns.tolist()
+
+    # For each column targeted, get the data values as a new list object
+    for col in columns:
+        column_vals = data_table[col].tolist()
+
+        # If method is set to "auto", then generate a color scheme automatically
+        if method == "auto":
+            # If the column values are all numeric, then the method should be 'numeric'
+            # If columns values are strings, then the method should be 'factor'
+            if all(isinstance(x, (int, float)) for x in column_vals):
+                # If `domain` is not provided, then infer it from the data values
+                if autocalc_domain:
+                    domain = _get_domain_numeric(vals=column_vals)
+
+                # Rescale only the non-NA values in `column_vals` to the range [0, 1]
+                scaled_vals = _rescale_numeric(vals=column_vals, domain=domain)
+
+                # Replace NA values in `scaled_vals` with `None`
+                scaled_vals = [np.nan if pd.isna(x) else x for x in scaled_vals]
+
+                # Create a color scale from the palette
+                color_palette = gradient_n_pal(colors=palette)
+
+                color_vals = color_palette(scaled_vals)
+
+                # Replace 'None' values in `color_vals` with the `na_color`
+                color_vals = [na_color if x is None else x for x in color_vals]
+
+                # for every color value in color_vals, apply a fill to the corresponding cell
+                # by using `tab_style()`
+                for i, _ in enumerate(color_vals):
+                    self = self.tab_style(
+                        style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
+                    )
+
+            elif all(isinstance(x, str) for x in column_vals):
+                pass
+            else:
+                # Move to the next loop iteration if the column values are not
+                # all numeric or composed of strings
+                continue
+
+    return self
+
+
 def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float | NaTType | NAType | None]:
     """
     Rescale numeric values
@@ -2168,7 +2230,6 @@ def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List
     return scaled_vals
 
 
-        return x_formatted
 def _get_domain_numeric(vals: List[Union[int, float]]) -> List[float]:
     """
     Get the domain of numeric values.
@@ -2187,7 +2248,6 @@ def _get_domain_numeric(vals: List[Union[int, float]]) -> List[float]:
     # Create the domain
     domain = [domain_min, domain_max]
 
-    return fmt(self, fns=data_color_fn, columns=columns, rows=rows)
     return domain
 
 
