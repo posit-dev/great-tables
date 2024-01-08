@@ -2147,6 +2147,26 @@ def data_color(
         autocolor_text: bool = autocolor_text,
     ) -> str:
         x_formatted = "x"
+def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float | NaTType | NAType | None]:
+    """
+    Rescale numeric values
+
+    Rescale the numeric values in `column_vals` to the range [0, 1] using the domain
+    `domain`.
+    """
+
+    # Get the minimum and maximum values from `domain`
+    domain_min = domain[0]
+    domain_max = domain[1]
+
+    # Get the range of values in `domain`
+    domain_range = domain_max - domain_min
+
+    # Rescale the values in `column_vals` to the range [0, 1], pass through NA values
+    scaled_vals = [(x - domain_min) / domain_range if not pd.isna(x) else x for x in vals]
+
+    return scaled_vals
+
 
         return x_formatted
 def _get_domain_numeric(vals: List[Union[int, float]]) -> List[float]:
