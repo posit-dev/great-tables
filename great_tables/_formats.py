@@ -2209,7 +2209,7 @@ def data_color(
     return self
 
 
-def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float | NaTType | NAType | None]:
+def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float]:
     """
     Rescale numeric values
 
