@@ -2189,10 +2189,10 @@ def data_color(
                 # Replace NA values in `scaled_vals` with `None`
                 scaled_vals = [np.nan if pd.isna(x) else x for x in scaled_vals]
 
-                # Create a color scale from the palette
-                color_palette = gradient_n_pal(colors=palette)
+                # Create a color scale function from the palette
+                color_scale_fn = gradient_n_pal(colors=palette)
 
-                color_vals = color_palette(scaled_vals)
+                color_vals = color_scale_fn(scaled_vals)
 
                 # Replace 'None' values in `color_vals` with the `na_color`
                 color_vals = [na_color if x is None else x for x in color_vals]
