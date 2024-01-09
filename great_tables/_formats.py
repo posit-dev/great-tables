@@ -2114,8 +2114,8 @@ def data_color(
     na_color : str | None
         The color to use for `NA` values. If `None`, then the default color will be used.
     alpha : int | bool | None
-        The alpha value to use for the colors. This can be an integer between 0 and 255, or it can
-        be `True` or `False`. If `None`, then the default alpha value will be used.
+        An optional, fixed alpha transparency value that will be applied to all of the `colors`
+        provided.
     reverse : bool
         Should the colors computed operate in the reverse order? If `True` then colors that normally
         change from red to blue will change in the opposite direction.
