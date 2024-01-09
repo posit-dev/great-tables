@@ -2153,6 +2153,8 @@ def data_color(
     # Reverse the palette if `reverse` is set to `True`
     if reverse:
         palette = palette[::-1]
+
+    # Set a flag to indicate whether or not the domain should be calculated automatically
     if domain is None:
         autocalc_domain = True
     else:
