@@ -2082,32 +2082,17 @@ def data_color(
         In conjunction with `columns`, we can specify which of their rows should undergo coloring.
         The default is all rows, resulting in all rows in `columns` being colored. Alternatively,
         we can supply a list of row indices.
-    direction : str
-        The direction in which to color the data values. This can be `"column"` (the default) or
-        `"row"`.
-    target_columns : str | List[str] | None
-        The columns to target for coloring. Can either be a single column name or a series of
-        column names provided in a list. If `None`, then all columns in the table body will be
-        targeted.
     method : str
         The method to use for generating the color scheme. This can be `"auto"` (the default) or
         any of the following: `"numeric"`, `"bin"`, `"quantile"`, or `"factor"`.
     palette : str | List[str] | None
         The color palette to use. This should be a list of colors (e.g., `["#FF0000", "#00FF00",
         "#0000FF"]`). If `None`, then a default palette will be used.
-    domain : List[str] | List[float] | List[int] | None
-        The domain of values to use for the color scheme. This can be a list of strings, floats, or
-        integers. If `None`, then the domain will be inferred from the data values.
-    bins : int
-        The number of bins to use for the color scheme. This is only used when `method` is set to
-        `"auto"`.
-    quantiles : int
-        The number of quantiles to use for the color scheme. This is only used when `method` is set
-        to `"auto"`.
-    ordered : bool
-        Whether or not the domain is ordered. This is only used when `method` is set to `"auto"`.
+    domain : List[float] | List[int] | List[str] | None
+        The domain of values to use for the color scheme. This can be a list of floats, integers, or
+        strings. If `None`, then the domain will be inferred from the data values.
     na_color : str | None
-        The color to use for `NA` values. If `None`, then the default color will be used.
+        The color to use for missing values. If `None`, then the default color will be used.
     alpha : int | bool | None
         An optional, fixed alpha transparency value that will be applied to all of the `colors`
         provided.
