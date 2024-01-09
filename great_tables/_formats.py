@@ -2117,8 +2117,8 @@ def data_color(
         The alpha value to use for the colors. This can be an integer between 0 and 255, or it can
         be `True` or `False`. If `None`, then the default alpha value will be used.
     reverse : bool
-        Whether or not to reverse the color scheme. If `True`, then the color scheme will be
-        reversed.
+        Should the colors computed operate in the reverse order? If `True` then colors that normally
+        change from red to blue will change in the opposite direction.
     autocolor_text : bool
         Whether or not to automatically color the text of the data values. If `True`, then the text
         will be colored according to the background color of the cell.
