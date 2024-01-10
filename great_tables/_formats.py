@@ -2063,7 +2063,7 @@ def data_color(
     palette: Union[str, List[str], None] = None,
     domain: Union[List[str], List[float], List[int], None] = None,
     na_color: Optional[str] = None,
-    alpha: Optional[Union[int, bool]] = None,
+    alpha: Optional[Union[int, float]] = None,
     reverse: bool = False,
     autocolor_text: bool = True,
 ) -> GTSelf:
