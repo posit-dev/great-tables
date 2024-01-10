@@ -2295,6 +2295,23 @@ def _color_name_to_hex(colors: List[str]) -> List[str]:
 
     return colors
 
+
+def _check_named_colors(colors: Union[str, List[str]]) -> None:
+    # Ensure that all incoming color names are set in lowercase letters since CSS color names
+    # are often shown with uppercase letters and X11/R color names are always shown with lowercase
+    if isinstance(colors, str):
+        colors = [colors]
+
+    valid_color_names = _color_name_list()
+
+    for color in colors:
+        if not _is_hex_col(colors=[color]) and color not in valid_color_names:
+            raise ValueError(
+                f"Invalid color name provided ({color}). Please ensure that all color names are valid."
+            )
+
+    return
+
 def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float]:
     """
     Rescale numeric values
