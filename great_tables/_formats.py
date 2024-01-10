@@ -2136,6 +2136,9 @@ def data_color(
     if reverse:
         palette = palette[::-1]
 
+    # Standardize values in `palette` to hexadecimal color values
+    palette = _html_color(colors=palette, alpha=alpha)
+
     # Set a flag to indicate whether or not the domain should be calculated automatically
     if domain is None:
         autocalc_domain = True
