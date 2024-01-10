@@ -2989,6 +2989,14 @@ def _color_name_value_dict() -> Dict[str, str]:
 def _color_name_list() -> List[str]:
     return list(_color_name_value_dict())
 
+
+def _is_short_hex(color: str) -> bool:
+    import re
+
+    pattern = r"^#[0-9a-fA-F]{3}([0-9a-fA-F])?$"
+    return re.match(pattern, color) is not None
+
+
 def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float]:
     """
     Rescale numeric values
