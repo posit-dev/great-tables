@@ -2283,6 +2283,18 @@ def _float_to_hex(x: float) -> str:
 
     return x_hex
 
+
+def _color_name_to_hex(colors: List[str]) -> List[str]:
+    color_name_dict = _color_name_value_dict()
+
+    # If any of the colors are in the color_name_dict, then replace them with the
+    # corresponding hexadecimal value
+    for i, color in enumerate(colors):
+        if color.lower() in color_name_dict:
+            colors[i] = color_name_dict[color.lower()]
+
+    return colors
+
 def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float]:
     """
     Rescale numeric values
