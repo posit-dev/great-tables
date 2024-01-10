@@ -2228,6 +2228,32 @@ def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) ->
 
     return colors
 
+
+def _add_alpha(colors: List[str], alpha: Union[int, float]) -> List[str]:
+    # If `alpha` is an integer, then convert it to a float
+    if isinstance(alpha, int):
+        alpha = float(alpha)
+
+    # If `alpha` is not between 0 and 1, then throw an error
+    if alpha < 0 or alpha > 1:
+        raise ValueError(
+            f"Invalid alpha value provided ({alpha}). Please ensure that alpha is a value between 0 and 1."
+        )
+
+    # Loop through the colors and add the alpha value to each one
+    for i, color in enumerate(colors):
+        if color == "#FFFFFF00":
+            continue
+
+        # If the color value is already in the `#RRGGBBAA` format, then we need to remove the
+        # alpha value from it before adding the new alpha value
+        if len(color) == 9:
+            color = color[:-2]
+
+        # Add the alpha value to the color value
+        colors[i] = color + _float_to_hex(alpha)
+
+    return colors
 def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float]:
     """
     Rescale numeric values
