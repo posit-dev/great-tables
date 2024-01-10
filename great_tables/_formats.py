@@ -3002,6 +3002,39 @@ def _is_hex_col(colors: List[str]) -> List[bool]:
 
     return [bool(re.match(r"^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", color)) for color in colors]
 
+
+def _expand_short_hex(hex_color: str) -> str:
+    """
+    Expands a short hexadecimal color value to the full 6-digit hexadecimal color value.
+
+    Args:
+        hex_color (str): The short hexadecimal color value to expand.
+
+    Returns:
+        str: The expanded 6-digit hexadecimal color value.
+    """
+    # If the hex color is not a short hexadecimal color value, return the original value
+    if not _is_short_hex(color=hex_color):
+        return hex_color
+
+    # Get the hex color without the leading '#'
+    hex_color = hex_color[1:]
+
+    # Get the first character of the hex color
+    first_char = hex_color[0]
+
+    # Get the second character of the hex color
+    second_char = hex_color[1]
+
+    # Get the third character of the hex color
+    third_char = hex_color[2]
+
+    # Return the expanded 6-digit hexadecimal color value
+    expanded = "#" + first_char + first_char + second_char + second_char + third_char + third_char
+    expanded = expanded.upper()
+    return expanded
+
+
 def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float]:
     """
     Rescale numeric values
