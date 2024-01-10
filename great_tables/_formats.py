@@ -2997,6 +2997,11 @@ def _is_short_hex(color: str) -> bool:
     return re.match(pattern, color) is not None
 
 
+def _is_hex_col(colors: List[str]) -> List[bool]:
+    import re
+
+    return [bool(re.match(r"^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", color)) for color in colors]
+
 def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float]:
     """
     Rescale numeric values
