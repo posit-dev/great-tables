@@ -2129,6 +2129,8 @@ def data_color(
             "#F5C710",
             "#9E9E9E",
         ]
+    elif isinstance(palette, str):
+        palette = [palette]
 
     # Reverse the palette if `reverse` is set to `True`
     if reverse:
