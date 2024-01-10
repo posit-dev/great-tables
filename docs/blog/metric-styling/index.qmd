@@ -1,0 +1,120 @@
+---
+title: Styling tables of metrics
+date: 2024-01-10
+---
+
+```{python}
+#| include: false
+#|
+import polars as pl
+import random
+from datetime import date
+
+def unif_int(low, high, n):
+    rand_floats = [random.uniform(low, high+1) for ii in range(n)]
+    return list(map(int, rand_floats))
+
+def sample_n(choices, n):
+    return [random.sample(choices, k = 1)[0] for ii in range(n)]
+
+def random_date(start, end):
+    # from https://stackoverflow.com/a/553448
+    from random import randrange
+    from datetime import timedelta
+
+    delta = end - start
+    int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
+    random_second = randrange(int_delta)
+    return start + timedelta(seconds=random_second)
+
+N = 100
+dates = [random_date(date(2019, 1, 1), date(2020, 1, 1)) for ii in range(100)]
+
+data_trips = pl.DataFrame(dict(
+    ID_DRIVER = unif_int(1_000, 10_000, N),
+    ID_RIDER  = unif_int(1_000, 10_000, N),
+    ID_TRIP   = unif_int(1_000, 10_000, N),
+    DT_ORIG   = dates,
+    DT_DEST   = dates,
+    N_DRIVER_PASSENGERS = unif_int(1, 2, N),
+    N_TRIP_ORIG = unif_int(1, 1, N),
+    N_TRIP_DEST = unif_int(1, 1, N),
+    AMT_TRIP_DIST = unif_int(10, 50, N),
+    IND_SURGE = unif_int(0, 1, N),
+    VAL_DRIVER_RATING = unif_int(1, 5, N),
+    VAL_RIDER_RATING = unif_int(1, 5, N),
+    VAL_ORIG_LAT = unif_int(40, 42, N),
+    VAL_DEST_LAT = unif_int(40, 42, N),
+    VAL_ORIG_LON = unif_int(70, 120, N),
+    VAL_DEST_LON = unif_int(70, 120, N),
+    CAT_TRIP_TYPE = sample_n(["Pool", "Standard", "Elite"], 100),
+    CAT_RIDER_TYPE = sample_n(["Basic", "Frequent", "Subscription"], 100)
+))
+```
+
+Emily Riederer's post [Column Names as Contracts](https://emilyriederer.netlify.app/post/column-name-contracts/) illustrates how a consistent approach to column naming makes data easier to validate, discover, and wrangle.
+
+Consistent column names also help with the display of table data.
+
+## Column span example
+
+For example, you could use Great Tables to group columns together with high level labels (e.g. "Id" for all columns starting with ID):
+
+```{python}
+import polars as pl
+import polars.selectors as cs
+
+from great_tables import GT, loc, style
+
+# cutting out VAL columns for now, just so it's easier to
+# see all the data (but could add back in)
+lil_data = data_trips.head().select(~cs.starts_with("VAL"))
+
+(
+    GT(lil_data)
+    .tab_spanner("Id", cs.starts_with("ID"))
+    .tab_spanner("Date", cs.starts_with("DT"))
+    .tab_spanner("N", cs.starts_with("N"))
+    .tab_spanner("Amount", cs.starts_with("AMT"))
+    .tab_spanner("Category", cs.starts_with("CAT"))
+    .tab_spanner("Indicator", cs.starts_with("IND"))
+    .tab_spanner("Value", cs.starts_with("VAL"))
+    .cols_label()
+)
+```
+
+## Highlighting validation errors
+
+Another possible use of Great Tables and column-names-as-contracts is for data validation. Emily mentions that column names can be used to determine the types of validations to run. For cases where the validation is whether an ID is unique, we could use colors to distinguish each duplicate ID in the failing data:
+
+
+```{python}
+# TODO: this will be much more convenient to do once data_color is
+# added. (or if we use mizani directly to produce a discrete palette?)
+DRIVER_IDS = [1635, 1635, 1635, 8783, 8783]
+COLOR = {1635: "lightyellow", 8783: "lightblue"}
+
+invalid_data = data_trips.tail(5).with_columns(ID_DRIVER=pl.Series(DRIVER_IDS))
+
+(
+    GT(invalid_data)
+    .tab_style(
+        style.fill(pl.col("ID_DRIVER").replace(COLOR)),
+        loc.body("ID_DRIVER")
+    )
+)
+
+
+```
+
+## Other areas to explore
+
+It'd be interesting to explore how column names as contracts improves the presentation of tables:
+
+* Column spanners for grouping columns (shown above)
+* Summary info at the bottom of each column
+  - e.g. displaying the median for each count "N" column
+  - e.g. a tiny plot of a distribution of "N" (and other) columns
+* Highlighting rows that fail a validation process
+  - Either highlighting failed rows in the context of the full data, OR
+  - Showing all failures, and using color for type of failure
