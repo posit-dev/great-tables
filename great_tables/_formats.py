@@ -2196,6 +2196,38 @@ def data_color(
     return self
 
 
+def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) -> List[str]:
+    """
+    Normalize HTML colors.
+
+    Input colors can be color names (e.g., `"green"`, `"steelblue"`, etc.) or colors in hexadecimal
+    format with or without an alpha component (either #RRGGBB or #RRGGBBAA). Output will be a list
+    of hexadecimal colors of the same length as the input but it will contain #RRGGBB and #RRGGBBAA
+    colors.
+    """
+
+    # Expand any shorthand hexadecimal color values to the `RRGGBB` form
+    colors = [_expand_short_hex(hex_color=color) for color in colors]
+
+    # If not classified as hexadecimal, assume other values are named colors to be handled separately
+    all_hex_colors = all(_is_hex_col(colors=colors))
+
+    print(all_hex_colors)
+
+    if not all_hex_colors:
+        # Ensure that all color names are in the set of X11/R color names or CSS color names
+        _check_named_colors(colors=colors)
+
+        # Translate named colors to hexadecimal values
+        colors = _color_name_to_hex(colors=colors)
+
+    # If `alpha` is not None, then we need to add the alpha value to the
+    # color value but only if it doesn't already exist
+    if alpha is not None:
+        colors = _add_alpha(colors=colors, alpha=alpha)
+
+    return colors
+
 def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float]:
     """
     Rescale numeric values
