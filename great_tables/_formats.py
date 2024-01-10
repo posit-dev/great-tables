@@ -2254,6 +2254,35 @@ def _add_alpha(colors: List[str], alpha: Union[int, float]) -> List[str]:
         colors[i] = color + _float_to_hex(alpha)
 
     return colors
+
+
+def _float_to_hex(x: float) -> str:
+    """
+    Convert a float to a hexadecimal value.
+
+    Parameters
+    ----------
+    x : float
+        The float value to convert.
+
+    Returns
+    -------
+    str
+        The hexadecimal value.
+    """
+
+    # Convert the float to an integer and convert to a hexadecimal value
+    x_hex = hex(int(x * 255)).upper()
+
+    # Remove the leading '0x' from the hexadecimal value
+    x_hex = x_hex[2:]
+
+    # If the hexadecimal value is only one character long, then add a leading '0'
+    if len(x_hex) == 1:
+        x_hex = "0" + x_hex
+
+    return x_hex
+
 def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float]:
     """
     Rescale numeric values
