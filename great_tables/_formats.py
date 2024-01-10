@@ -2985,6 +2985,10 @@ def _color_name_value_dict() -> Dict[str, str]:
         "transparent": "#FFFFFF00",
     }
 
+
+def _color_name_list() -> List[str]:
+    return list(_color_name_value_dict())
+
 def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float]:
     """
     Rescale numeric values
