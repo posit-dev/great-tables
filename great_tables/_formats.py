@@ -3267,8 +3267,7 @@ def _get_domain_numeric(vals: List[Union[int, float]]) -> List[float]:
     """
     Get the domain of numeric values.
 
-    Get the domain of numeric values in `column_vals` as a list of two values: the minimum and
-    maximum values.
+    Get the domain of numeric values in `vals=` as a list of two values: the min and max values.
     """
 
     # Exclude any NA values from `vals`
@@ -3288,7 +3287,7 @@ def _get_domain_factor(vals: List[str]) -> List[str]:
     """
     Get the domain of factor values.
 
-    Get the domain of factor values in `vals` as a list of the unique values in the order provided.
+    Get the domain of factor values in `vals=` as a list of the unique values in the order provided.
     """
 
     # Exclude any NA values from `vals`
