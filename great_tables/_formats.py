@@ -2116,9 +2116,6 @@ def data_color(
         can facilitate method chaining.
     """
 
-    # Validate the `method` argument
-    _validate_data_color_method_arg(method=method)
-
     # If no color is provided to `na_color`, use a light gray color as a default
     if na_color is None:
         na_color = "#808080"
