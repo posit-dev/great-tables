@@ -2153,10 +2153,14 @@ def data_color(
 
     # If `columns` is a single value, convert it to a list; if it is None then
     # get a list of all columns in the table body
+    columns_resolved: List[str]
+
     if isinstance(columns, str):
-        columns = [columns]
+        columns_resolved = [columns]
     elif columns is None:
-        columns = data_table.columns.tolist()
+        columns_resolved = data_table.columns.tolist()
+    else:
+        columns_resolved = columns
 
     # For each column targeted, get the data values as a new list object
     for col in columns:
