@@ -2104,10 +2104,11 @@ def data_color(
         The domain of values to use for the color scheme. This can be a list of floats, integers, or
         strings. If `None`, then the domain will be inferred from the data values.
     na_color : str | None
-        The color to use for missing values. If `None`, then the default color will be used.
-    alpha : int | bool | None
-        An optional, fixed alpha transparency value that will be applied to all of the `colors`
-        provided.
+        The color to use for missing values. If `None`, then the default color (`"#808080"`) will be
+        used.
+    alpha : int | float | None
+        An optional, fixed alpha transparency value that will be applied to all color palette
+        values.
     reverse : bool
         Should the colors computed operate in the reverse order? If `True` then colors that normally
         change from red to blue will change in the opposite direction.
