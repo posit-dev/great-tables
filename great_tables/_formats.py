@@ -2200,7 +2200,8 @@ def data_color(
                     fgnd_color = _ideal_fgnd_color(bgnd_color=color_vals[i])
 
                     self = self.tab_style(
-                        style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
+                        style=[text(color=fgnd_color), fill(color=color_vals[i])],
+                        locations=body(columns=col, rows=[i]),
                     )
 
             elif all(isinstance(x, str) for x in column_vals):
