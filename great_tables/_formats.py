@@ -2169,84 +2169,55 @@ def data_color(
         columns_resolved = columns
 
     # For each column targeted, get the data values as a new list object
-    for col in columns:
+    for col in columns_resolved:
         column_vals = data_table[col].tolist()
 
-        # If method is set to "auto", then generate a color scheme automatically
-        if method == "auto":
-            # If the column values are all numeric, then the method should be 'numeric'
-            # If columns values are strings, then the method should be 'factor'
-            if all(isinstance(x, (int, float)) for x in column_vals):
-                # If `domain` is not provided, then infer it from the data values
-                if autocalc_domain:
-                    domain = _get_domain_numeric(vals=column_vals)
+        # The methodology for domain calculation and rescaling depends on column values being:
+        # (1) numeric (integers or floats), then the method should be 'numeric'
+        # (2) strings, then the method should be 'factor'
+        if all(isinstance(x, (int, float)) for x in column_vals):
+            # If `domain` is not provided, then infer it from the data values
+            if autocalc_domain:
+                domain = _get_domain_numeric(vals=column_vals)
 
-                # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-                scaled_vals = _rescale_numeric(vals=column_vals, domain=domain)
+            # Rescale only the non-NA values in `column_vals` to the range [0, 1]
+            scaled_vals = _rescale_numeric(vals=column_vals, domain=domain)
 
-                # Replace NA values in `scaled_vals` with `None`
-                scaled_vals = [np.nan if pd.isna(x) else x for x in scaled_vals]
+        elif all(isinstance(x, str) for x in column_vals):
+            # If `domain` is not provided, then infer it from the data values
+            if autocalc_domain:
+                domain = _get_domain_factor(vals=column_vals)
 
-                # Create a color scale function from the palette
-                color_scale_fn = gradient_n_pal(colors=palette)
+            # Rescale only the non-NA values in `column_vals` to the range [0, 1]
+            scaled_vals = _rescale_factor(vals=column_vals, domain=domain, palette=palette)
 
-                color_vals = color_scale_fn(scaled_vals)
+        # Replace NA values in `scaled_vals` with `None`
+        scaled_vals = [np.nan if pd.isna(x) else x for x in scaled_vals]
 
-                # Replace 'None' values in `color_vals` with the `na_color`
-                color_vals = [na_color if x is None else x for x in color_vals]
+        # Create a color scale function from the palette
+        color_scale_fn = gradient_n_pal(colors=palette)
 
-                # for every color value in color_vals, apply a fill to the corresponding cell
-                # by using `tab_style()`
-                for i, _ in enumerate(color_vals):
-                    if autocolor_text:
-                        fgnd_color = _ideal_fgnd_color(bgnd_color=color_vals[i])
+        # Call the color scale function on the scaled values to get a list of colors
+        color_vals = color_scale_fn(scaled_vals)
 
-                        self = self.tab_style(
-                            style=[text(color=fgnd_color), fill(color=color_vals[i])],
-                            locations=body(columns=col, rows=[i]),
-                        )
+        # Replace 'None' values in `color_vals` with the `na_color=` color
+        color_vals = [na_color if x is None else x for x in color_vals]
 
-                    else:
-                        self = self.tab_style(
-                            style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
-                        )
+        # for every color value in color_vals, apply a fill to the corresponding cell
+        # by using `tab_style()`
+        for i, _ in enumerate(color_vals):
+            if autocolor_text:
+                fgnd_color = _ideal_fgnd_color(bgnd_color=color_vals[i])
 
-            elif all(isinstance(x, str) for x in column_vals):
-                # If `domain` is not provided, then infer it from the data values
-                if autocalc_domain:
-                    domain = _get_domain_factor(vals=column_vals)
-
-                # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-                scaled_vals = _rescale_factor(vals=column_vals, domain=domain, palette=palette)
-
-                # Create a color scale function from the palette
-                color_scale_fn = gradient_n_pal(colors=palette)
-
-                color_vals = color_scale_fn(scaled_vals)
-
-                # Replace 'None' values in `color_vals` with the `na_color`
-                color_vals = [na_color if x is None else x for x in color_vals]
-
-                # for every color value in color_vals, apply a fill to the corresponding cell
-                # by using `tab_style()`
-                for i, _ in enumerate(color_vals):
-                    if autocolor_text:
-                        fgnd_color = _ideal_fgnd_color(bgnd_color=color_vals[i])
-
-                        self = self.tab_style(
-                            style=[text(color=fgnd_color), fill(color=color_vals[i])],
-                            locations=body(columns=col, rows=[i]),
-                        )
-
-                    else:
-                        self = self.tab_style(
-                            style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
-                        )
+                self = self.tab_style(
+                    style=[text(color=fgnd_color), fill(color=color_vals[i])],
+                    locations=body(columns=col, rows=[i]),
+                )
 
             else:
-                # Move to the next loop iteration if the column values are not
-                # all numeric or composed of strings
-                continue
+                self = self.tab_style(
+                    style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
+                )
 
     return self
 
