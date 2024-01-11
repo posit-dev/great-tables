@@ -3218,6 +3218,38 @@ def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List
     return scaled_vals
 
 
+def _rescale_factor(
+    vals: List[Union[int, float]], domain: List[float], palette: List[str]
+) -> List[float]:
+    """
+    Rescale factor values
+
+    Rescale the factor values in `vals` to the range [0, 1] using the domain `domain`.
+    """
+
+    domain_length = len(domain)
+    palette_length = len(palette)
+
+    if (domain_length <= palette_length) and (domain_length > 0):
+        # If the length of `domain` is less than or equal to the length of `palette`, then clip the
+        # length of `palette` to the length of `domain`
+        palette = palette[:domain_length]
+
+        # For each value in `vals`, get the index of the value in `domain` and use this index to
+        # get the corresponding color from `palette`
+        scaled_vals = [palette[domain.index(x)] if not pd.isna(x) else x for x in vals]
+
+    elif (domain_length > palette_length) and (palette_length > 0):
+        # If the length of `domain` is greater than the length of `palette`, then get the
+        # index values for each value in `vals` in `domain` and rescale these index values to
+        # the range [0, 1]
+        scaled_vals = _rescale_numeric(
+            vals=[domain.index(x) for x in vals], domain=[0, domain_length]
+        )
+
+    return scaled_vals
+
+
 def _get_domain_numeric(vals: List[Union[int, float]]) -> List[float]:
     """
     Get the domain of numeric values.
