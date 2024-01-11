@@ -2162,7 +2162,7 @@ def data_color(
     ```{python}
     gt.GT(gt.data.exibble).data_color(
         columns=\"currency\",
-        palette=\"green\",
+        palette=[\"red\", \"green\"],
         domain=[0, 50],
         na_color=\"lightgray\"
     )
