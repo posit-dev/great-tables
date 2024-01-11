@@ -3230,6 +3230,9 @@ def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List
     # Rescale the values in `vals` to the range [0, 1], pass through NA values
     scaled_vals = [(x - domain_min) / domain_range if not pd.isna(x) else x for x in vals]
 
+    # Add NA values to any values in `scaled_vals` that are not in the [0, 1] range
+    scaled_vals = [x if (x >= 0 and x <= 1) else np.nan for x in scaled_vals]
+
     return scaled_vals
 
 
