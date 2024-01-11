@@ -2215,8 +2215,6 @@ def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) ->
     # If not classified as hexadecimal, assume other values are named colors to be handled separately
     all_hex_colors = all(_is_hex_col(colors=colors))
 
-    print(all_hex_colors)
-
     if not all_hex_colors:
         # Ensure that all color names are in the set of X11/R color names or CSS color names
         _check_named_colors(colors=colors)
