@@ -2210,6 +2210,9 @@ def data_color(
                 if autocalc_domain:
                     domain = _get_domain_factor(vals=column_vals)
 
+                # Rescale only the non-NA values in `column_vals` to the range [0, 1]
+                scaled_vals = _rescale_factor(vals=column_vals, domain=domain, palette=palette)
+
                 # Create a color scale function from the palette
                 color_scale_fn = gradient_n_pal(colors=palette)
 
