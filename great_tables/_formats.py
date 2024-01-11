@@ -2211,7 +2211,7 @@ def data_color(
                     domain = _get_domain_factor(vals=column_vals)
 
                 # Create a color scale function from the palette
-                color_scale_fn = gradient_str_pal(colors=palette)
+                color_scale_fn = gradient_n_pal(colors=palette)
 
                 color_vals = color_scale_fn(column_vals)
 
