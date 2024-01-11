@@ -2089,13 +2089,9 @@ def data_color(
     columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
-        In conjunction with `columns`, we can specify which of their rows should undergo coloring.
-        The default is all rows, resulting in all rows in `columns` being colored. Alternatively,
-        we can supply a list of row indices.
     method : str
-        The method to use for generating the color scheme. This can be `"auto"` (the default) or
-        any of the following: `"numeric"`, `"bin"`, `"quantile"`, or `"factor"`.
+        The method to use for generating the color scheme. This can be `"auto"` (the default),
+        `"numeric"`, or `"factor"`.
     palette : str | List[str] | None
         The color palette to use. This should be a list of colors (e.g., `["#FF0000", "#00FF00",
         "#0000FF"]`). If `None`, then a default palette will be used.
