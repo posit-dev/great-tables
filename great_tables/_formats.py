@@ -2070,7 +2070,6 @@ def fmt_markdown(
 def data_color(
     self: GTSelf,
     columns: Union[str, List[str], None] = None,
-    method: str = "auto",
     palette: Union[str, List[str], None] = None,
     domain: Union[List[str], List[float], List[int], None] = None,
     na_color: Optional[str] = None,
