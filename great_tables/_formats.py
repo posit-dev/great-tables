@@ -2120,6 +2120,53 @@ def data_color(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+
+    The `data_color()` method can be used without any supplied arguments to colorize a table. Let's\
+    do this with the [`exibble`] dataset:
+
+    ```{python}
+    import great_tables as gt
+
+    gt.GT(gt.data.exibble).data_color()
+    ```
+
+    What's happened is that `data_color()` applies background colors to all cells of every column
+    with the palette of eight colors. Numeric columns will use 'numeric' methodology for color
+    scaling whereas string-based columns will use the 'factor' methodology. The text color undergoes
+    an automatic modification that maximizes contrast (since `autocolor_text=True` by default).
+
+    We can target specific colors and apply color to just those columns. Let's do that and also
+    supply `palette=` values of `"red"` and `"green"`.
+
+    ```{python}
+
+    gt.GT(gt.data.exibble).data_color(
+        columns=[\"num\", \"currency\"],
+        palette=[\"red\", \"green\"]
+    )
+    ```
+
+    With those options in place we see that only the numeric columns `num` and `currency` received
+    color treatments. Moreover, the palette colors were mapped to the lower and upper limits of the
+    data in each column; interpolated colors were used for the values in between the numeric limits
+    of the two columns.
+
+    We can manually set the limits of the data with the `domain=` argument (which is preferable in
+    most cases). Let's colorize just the currency column and set `domain=[0, 50]`. Any values that
+    are either missing or lie outside of the domain will be colorized with the `na_color=` color
+    (so we'll set that to `"lightgray"`).
+
+    ```{python}
+    gt.GT(gt.data.exibble).data_color(
+        columns=\"currency\",
+        palette=\"green\",
+        domain=[0, 50],
+        na_color=\"lightgray\"
+    )
+    ```
     """
 
     # If no color is provided to `na_color`, use a light gray color as a default
