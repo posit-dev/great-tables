@@ -14,7 +14,7 @@ When it comes to reports, it's trivial to plug polars into plotting libraries li
 However, there are fewer options for styling tables for presentation.
 You could convert from polars to pandas, and use the [built-in pandas DataFrame styler](https://pandas.pydata.org/docs/user_guide/style.html), but this has one major limitation: you can't use polars expressions.
 
-As it turns out, polars expressions make styling tables very straightforward. The same polars code that you would to select or filter combines with Great Tables to highlight, circle, or bolden text.
+As it turns out, polars expressions make styling tables very straightforward. The same polars code that you would use to select or filter combines with Great Tables to highlight, circle, or bolden text.
 
 In this post, I'll show how Great Tables uses polars expressions to make delightful tables, like the one below.
 
