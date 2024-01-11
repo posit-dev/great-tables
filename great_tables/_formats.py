@@ -2172,6 +2172,8 @@ def data_color(
     # If no color is provided to `na_color`, use a light gray color as a default
     if na_color is None:
         na_color = "#808080"
+    else:
+        na_color = _html_color(colors=[na_color], alpha=alpha)[0]
 
     # If palette is not provided, use a default palette
     if palette is None:
