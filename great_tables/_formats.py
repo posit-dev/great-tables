@@ -2206,7 +2206,34 @@ def data_color(
                         )
 
             elif all(isinstance(x, str) for x in column_vals):
-                pass
+                # If `domain` is not provided, then infer it from the data values
+                if autocalc_domain:
+                    domain = _get_domain_factor(vals=column_vals)
+
+                # Create a color scale function from the palette
+                color_scale_fn = gradient_str_pal(colors=palette)
+
+                color_vals = color_scale_fn(column_vals)
+
+                # Replace 'None' values in `color_vals` with the `na_color`
+                color_vals = [na_color if x is None else x for x in color_vals]
+
+                # for every color value in color_vals, apply a fill to the corresponding cell
+                # by using `tab_style()`
+                for i, _ in enumerate(color_vals):
+                    if autocolor_text:
+                        fgnd_color = _ideal_fgnd_color(bgnd_color=color_vals[i])
+
+                        self = self.tab_style(
+                            style=[text(color=fgnd_color), fill(color=color_vals[i])],
+                            locations=body(columns=col, rows=[i]),
+                        )
+
+                    else:
+                        self = self.tab_style(
+                            style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
+                        )
+
             else:
                 # Move to the next loop iteration if the column values are not
                 # all numeric or composed of strings
@@ -3210,6 +3237,28 @@ def _get_domain_numeric(vals: List[Union[int, float]]) -> List[float]:
     domain = [domain_min, domain_max]
 
     return domain
+
+
+def _get_domain_factor(vals: List[str]) -> List[str]:
+    """
+    Get the domain of factor values.
+
+    Get the domain of factor values in `vals` as a list of the unique values in the order provided.
+    """
+
+    # Exclude any NA values from `vals`
+    vals = [x for x in vals if not pd.isna(x)]
+
+    # Create the domain by getting the unique values in `vals` in order provided
+    unique_list: List[str] = []
+    seen: List[str] = []
+
+    for item in vals:
+        if item not in seen:
+            unique_list.append(item)
+            seen.append(item)
+
+    return seen
 
 
 def _value_to_decimal_notation(
