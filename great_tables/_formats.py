@@ -2216,7 +2216,7 @@ def data_color(
                 # Create a color scale function from the palette
                 color_scale_fn = gradient_n_pal(colors=palette)
 
-                color_vals = color_scale_fn(column_vals)
+                color_vals = color_scale_fn(scaled_vals)
 
                 # Replace 'None' values in `color_vals` with the `na_color`
                 color_vals = [na_color if x is None else x for x in color_vals]
