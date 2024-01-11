@@ -3245,7 +3245,7 @@ def _rescale_factor(
     domain_length = len(domain)
     palette_length = len(palette)
 
-    if (domain_length <= palette_length) and (domain_length > 0):
+    if domain_length <= palette_length:
         # If the length of `domain` is less than or equal to the length of `palette`, then clip the
         # length of `palette` to the length of `domain`
         palette = palette[:domain_length]
