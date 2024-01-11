@@ -3250,17 +3250,12 @@ def _rescale_factor(
         # length of `palette` to the length of `domain`
         palette = palette[:domain_length]
 
-        # For each value in `vals`, get the index of the value in `domain` and use this index to
-        # get the corresponding color from `palette`
-        scaled_vals = [palette[domain.index(x)] if not pd.isna(x) else x for x in vals]
-
-    elif (domain_length > palette_length) and (palette_length > 0):
-        # If the length of `domain` is greater than the length of `palette`, then get the
-        # index values for each value in `vals` in `domain` and rescale these index values to
-        # the range [0, 1]
-        scaled_vals = _rescale_numeric(
-            vals=[domain.index(x) for x in vals], domain=[0, domain_length]
-        )
+    # For each value in `vals`, get the index of the value in `domain` but if not present then
+    # use NA; then scale these index values to the range [0, 1]
+    scaled_vals = _rescale_numeric(
+        vals=[domain.index(x) if x in domain else np.nan for x in vals],
+        domain=[0, domain_length],
+    )
 
     return scaled_vals
 
