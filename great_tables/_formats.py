@@ -1,6 +1,18 @@
 from __future__ import annotations
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, List, cast, Optional, Dict, Literal
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    TypeVar,
+    Union,
+    List,
+    cast,
+    Optional,
+    Dict,
+    Tuple,
+    Literal,
+)
 from typing_extensions import TypeAlias
 from ._tbl_data import n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
