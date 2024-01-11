@@ -2215,6 +2215,17 @@ def data_color(
 
 
 def _ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000000") -> str:
+    # Normalize color to a #RRGGBB (stripping the alpha channel)
+    bgnd_color = _html_color(colors=[bgnd_color], alpha=1)
+
+    contrast_dark = _get_wcag_contrast_ratio(color_1=dark, color_2=bgnd_color[0])
+    contrast_light = _get_wcag_contrast_ratio(color_1=light, color_2=bgnd_color[0])
+
+    fgnd_color = dark if abs(contrast_dark) > abs(contrast_light) else light
+
+    return fgnd_color
+
+
 def _get_wcag_contrast_ratio(color_1: str, color_2: str) -> float:
     """
     Calculate the WCAG contrast ratio between two colors.
