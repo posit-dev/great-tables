@@ -3217,8 +3217,7 @@ def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List
     """
     Rescale numeric values
 
-    Rescale the numeric values in `column_vals` to the range [0, 1] using the domain
-    `domain`.
+    Rescale the numeric values in `vals=` to the range [0, 1] using the domain provided.
     """
 
     # Get the minimum and maximum values from `domain`
@@ -3228,7 +3227,7 @@ def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List
     # Get the range of values in `domain`
     domain_range = domain_max - domain_min
 
-    # Rescale the values in `column_vals` to the range [0, 1], pass through NA values
+    # Rescale the values in `vals` to the range [0, 1], pass through NA values
     scaled_vals = [(x - domain_min) / domain_range if not pd.isna(x) else x for x in vals]
 
     return scaled_vals
