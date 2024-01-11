@@ -2214,6 +2214,36 @@ def data_color(
     return self
 
 
+def _ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000000") -> str:
+def _get_wcag_contrast_ratio(color_1: str, color_2: str) -> float:
+    """
+    Calculate the WCAG contrast ratio between two colors.
+
+    Parameters
+    ----------
+    color_1 : str
+        The first color.
+    color_2 : str
+        The second color.
+
+    Returns
+    -------
+    float
+        The WCAG contrast ratio between the two colors.
+    """
+
+    # Convert the colors to RGB values
+    rgb_1 = _hex_to_rgb(hex_color=color_1)
+    rgb_2 = _hex_to_rgb(hex_color=color_2)
+
+    # Calculate the relative luminance values for each color
+    l_1 = _relative_luminance(rgb=rgb_1)
+    l_2 = _relative_luminance(rgb=rgb_2)
+
+    # Calculate the contrast ratio between the two colors
+    contrast_ratio = (max(l_1, l_2) + 0.05) / (min(l_1, l_2) + 0.05)
+
+    return contrast_ratio
 def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) -> List[str]:
     """
     Normalize HTML colors.
