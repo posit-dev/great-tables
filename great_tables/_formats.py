@@ -2271,6 +2271,30 @@ def _hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
 
     return rgb
 
+
+def _relative_luminance(rgb: Tuple[int, int, int]) -> float:
+    """
+    Calculate the relative luminance of an RGB color.
+
+    Parameters
+    ----------
+    rgb : Tuple[int, int, int]
+        The RGB color.
+
+    Returns
+    -------
+    float
+        The relative luminance.
+    """
+
+    # Convert the RGB values to the sRGB color space
+    srgb = [_srgb(x=x) for x in rgb]
+
+    # Calculate the relative luminance
+    l = 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2]
+
+    return l
+
 def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) -> List[str]:
     """
     Normalize HTML colors.
