@@ -3239,7 +3239,7 @@ def _rescale_factor(
     """
     Rescale factor values
 
-    Rescale the factor values in `vals` to the range [0, 1] using the domain `domain`.
+    Rescale the factor values in `vals=` to the range [0, 1] using the domain provided.
     """
 
     domain_length = len(domain)
