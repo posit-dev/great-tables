@@ -2244,6 +2244,33 @@ def _get_wcag_contrast_ratio(color_1: str, color_2: str) -> float:
     contrast_ratio = (max(l_1, l_2) + 0.05) / (min(l_1, l_2) + 0.05)
 
     return contrast_ratio
+
+
+def _hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
+    """
+    Convert a hexadecimal color value to RGB.
+
+    Parameters
+    ----------
+    hex_color : str
+        The hexadecimal color value.
+
+    Returns
+    -------
+    Tuple[int, int, int]
+        The RGB values.
+    """
+
+    # If the hexadecimal color value is in the #RRGGBBAA format, then we need to remove the
+    # alpha value from it before converting it to RGB
+    if len(hex_color) == 9:
+        hex_color = hex_color[:-2]
+
+    # Convert the hexadecimal color value to RGB
+    rgb = tuple(int(hex_color[i : i + 2], 16) for i in (1, 3, 5))
+
+    return rgb
+
 def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) -> List[str]:
     """
     Normalize HTML colors.
