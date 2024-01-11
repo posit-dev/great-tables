@@ -2197,6 +2197,8 @@ def data_color(
                 # for every color value in color_vals, apply a fill to the corresponding cell
                 # by using `tab_style()`
                 for i, _ in enumerate(color_vals):
+                    fgnd_color = _ideal_fgnd_color(bgnd_color=color_vals[i])
+
                     self = self.tab_style(
                         style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
                     )
