@@ -86,7 +86,7 @@ gt_airquality = (
         subtitle="Daily measurements in New York City (May 1-10, 1973)",
     )
     .tab_spanner(label="Time", columns=["Year", "Month", "Day"])
-    .tab_spanner(label="Measurement", columns=["Ozone", "Solar.R", "Wind", "Temp"])
+    .tab_spanner(label="Measurement", columns=["Ozone", "Solar_R", "Wind", "Temp"])
     .cols_move_to_start(columns=["Year", "Month", "Day"])
     .cols_label(
         Ozone=html("Ozone,<br>ppbV"),
