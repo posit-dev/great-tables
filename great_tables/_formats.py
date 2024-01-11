@@ -2295,6 +2295,32 @@ def _relative_luminance(rgb: Tuple[int, int, int]) -> float:
 
     return l
 
+
+def _srgb(x: int) -> float:
+    """
+    Convert an integer to the sRGB color space.
+
+    Parameters
+    ----------
+    x : int
+        The integer to convert.
+
+    Returns
+    -------
+    float
+        The converted value.
+    """
+
+    x_frac = x / 255
+
+    if x_frac <= 0.03928:
+        x_frac = x_frac / 12.92
+    else:
+        x_frac = ((x_frac + 0.055) / 1.055) ** 2.4
+
+    return x_frac
+
+
 def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) -> List[str]:
     """
     Normalize HTML colors.
