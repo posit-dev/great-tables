@@ -2310,9 +2310,9 @@ def _relative_luminance(rgb: Tuple[int, int, int]) -> float:
     srgb = [_srgb(x=x) for x in rgb]
 
     # Calculate the relative luminance
-    l = 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2]
+    relative_luminance = 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2]
 
-    return l
+    return relative_luminance
 
 
 def _srgb(x: int) -> float:
