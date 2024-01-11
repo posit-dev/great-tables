@@ -2245,8 +2245,8 @@ def data_color(
 
 
 def _ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000000") -> str:
-    # Normalize color to a #RRGGBB (stripping the alpha channel)
-    bgnd_color = _html_color(colors=[bgnd_color], alpha=1)
+    # Remove alpha value from hexadecimal color value in `bgnd_color=`
+    bgnd_color = _remove_alpha(colors=[bgnd_color])[0]
 
     contrast_dark = _get_wcag_contrast_ratio(color_1=dark, color_2=bgnd_color[0])
     contrast_light = _get_wcag_contrast_ratio(color_1=light, color_2=bgnd_color[0])
