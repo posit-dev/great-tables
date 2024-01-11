@@ -2078,19 +2078,25 @@ def data_color(
     autocolor_text: bool = True,
 ) -> GTSelf:
     """
-    Color data values.
+    Perform data cell colorization.
 
-    Color data values in the table body according to a specified color scheme. The color scheme can
-    be generated automatically or supplied manually.
+    It's possible to add color to data cells according to their values with the `data_color()`
+    method. There is a multitude of ways to perform data cell colorizing here:
+
+    - targeting: we can constrain which columns should receive the colorization treatment through
+    the `columns=` argument)
+    - color palettes: with `palette=` we could supply a list of colors composed of hexadecimal
+    values or color names
+    - value domain: we can either opt to have the range of values define the domain, or, specify
+    one explicitly with the `domain=` argument
+    - text autocoloring: `data_color()` will automatically recolor the foreground text to provide
+    the best contrast (can be deactivated with `autocolor_text=False`)
 
     Parameters
     ----------
     columns : str | List[str] | None
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    method : str
-        The method to use for generating the color scheme. This can be `"auto"` (the default),
-        `"numeric"`, or `"factor"`.
     palette : str | List[str] | None
         The color palette to use. This should be a list of colors (e.g., `["#FF0000", "#00FF00",
         "#0000FF"]`). If `None`, then a default palette will be used.
