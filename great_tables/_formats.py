@@ -19,7 +19,7 @@ from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
 from ._text import _md_html
 from ._utils import _str_detect, _str_replace
-from .style import fill
+from .style import fill, text
 from .loc import body
 import pandas as pd
 import numpy as np
