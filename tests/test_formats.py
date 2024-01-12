@@ -6,6 +6,7 @@ import re
 from great_tables import GT
 from great_tables.data import exibble
 from great_tables.gt import _get_column_of_values
+from great_tables._data_color.base import _html_color
 from great_tables._utils_render_html import create_body_component_h
 from great_tables._formats import (
     _format_number_fixed_decimals,
@@ -1035,8 +1036,6 @@ def df_color():
     ],
 )
 def test_html_color(color: str, x_out: str):
-    from great_tables._formats import _html_color
-
     x = _html_color(colors=[color])
     assert x == [x_out]
 
@@ -1055,7 +1054,5 @@ def test_html_color(color: str, x_out: str):
     ],
 )
 def test_html_color_with_alpha(color: str, x_out: str, alpha: float):
-    from great_tables._formats import _html_color
-
     x = _html_color(colors=[color], alpha=alpha)
     assert x == [x_out]
