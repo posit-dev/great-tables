@@ -461,7 +461,7 @@ def validate_frame(df: DataFrameLike) -> None:
 @validate_frame.register
 def _(df: PdDataFrame):
     dupes = df.columns[df.columns.duplicated()]
-    if dupes:
+    if len(dupes):
         raise ValueError(
             "Column names must be unique. Detected duplicate columns:\n\n" f"    {list(dupes)}"
         )
