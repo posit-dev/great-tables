@@ -86,3 +86,14 @@ def test_validate_frame_dupe_cols():
         validate_frame(df)
 
     assert "Column names must be unique" in str(exc_info.value.args[0])
+
+
+def test_validate_frame_multi_index():
+    df = pd.DataFrame(
+        [[1, 2, 3]], columns=pd.MultiIndex.from_tuples([("a", "x"), ("a", "y"), ("b", "x")])
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        validate_frame(df)
+
+    assert "MultiIndex columns are not supported" in str(exc_info.value.args[0])

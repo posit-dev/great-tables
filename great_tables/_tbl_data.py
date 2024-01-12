@@ -455,11 +455,27 @@ def _(df: PlDataFrame, expr: PlExpr) -> List[Any]:
 
 @singledispatch
 def validate_frame(df: DataFrameLike) -> None:
+    """Raises an error if a DataFrame is not supported by Great Tables.
+
+    Note that this is only relevant for pandas, which allows duplicate names
+    on DataFrames, and multi-index columns (and probably other things).
+    """
     raise NotImplementedError(f"Unsupported type: {type(df)}")
 
 
 @validate_frame.register
 def _(df: PdDataFrame):
+    import pandas as pd
+
+    # case 1: multi-index columns ----
+    if isinstance(df.columns, pd.MultiIndex):
+        raise ValueError(
+            "pandas DataFrames with MultiIndex columns are not supported."
+            " Please use .columns.droplevel() to remove extra column levels,"
+            " or combine the levels into a single name per column."
+        )
+
+    # case 2: duplicate column names ----
     dupes = df.columns[df.columns.duplicated()]
     if len(dupes):
         raise ValueError(
