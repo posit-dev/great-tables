@@ -286,7 +286,7 @@ gt_air = GT(pl_airquality)
 )
 ```
 
-Note too bad!
+Not too bad!
 
 Table styling is a surprisingly deep topic, and we've only scratched the surface on what Great Tables can do. A big one not covered here is the many [column formatting methods](/get-started/basic-formatting.qmd), like `GT.fmt_currency()`.
 
