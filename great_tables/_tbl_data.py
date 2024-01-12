@@ -451,3 +451,22 @@ def _(df: PlDataFrame, expr: PlExpr) -> List[Any]:
         )
 
     return res.to_list()
+
+
+@singledispatch
+def validate_frame(df: DataFrameLike) -> None:
+    raise NotImplementedError(f"Unsupported type: {type(df)}")
+
+
+@validate_frame.register
+def _(df: PdDataFrame):
+    dupes = df.columns[df.columns.duplicated()]
+    if dupes:
+        raise ValueError(
+            "Column names must be unique. Detected duplicate columns:\n\n" f"    {list(dupes)}"
+        )
+
+
+@validate_frame.register
+def _(df: PlDataFrame):
+    return None
