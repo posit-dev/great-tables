@@ -16,6 +16,7 @@ from ._databackend import AbstractBackend
 if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
+    import numpy as np
 
     # the class behind selectors
     from polars.selectors import _selector_proxy_
@@ -27,6 +28,11 @@ if TYPE_CHECKING:
 
     PdSeries = pd.Series
     PlSeries = pl.Series
+
+    PdNA = pd.NA
+    PlNull = pl.Null
+
+    NpNan = np.nan
 
     DataFrameLike = Union[PdDataFrame, PlDataFrame]
     SeriesLike = Union[PdSeries, PlSeries]
@@ -56,6 +62,15 @@ else:
 
     class PlSeries(AbstractBackend):
         _backends = [("polars", "Series")]
+
+    class PdNA(AbstractBackend):
+        _backends = [("pandas", "NA")]
+
+    class PlNull(AbstractBackend):
+        _backends = [("polars", "Null")]
+
+    class NpNan(AbstractBackend):
+        _backends = [("numpy", "nan")]
 
     # TODO: these types are imported throughout gt, so we need to either put
     # those imports under TYPE_CHECKING, or continue to make available dynamically here.
@@ -443,3 +458,22 @@ def _(df: PlDataFrame, expr: PlExpr) -> List[Any]:
         )
 
     return res.to_list()
+
+
+@singledispatch
+def is_na(df: DataFrameLike, x: Any) -> bool:
+    raise NotImplementedError(f"Unsupported type: {type(df)}")
+
+
+@is_na.register
+def _(df: PdDataFrame, x: Any) -> bool:
+    import pandas as pd
+
+    return pd.isna(x)
+
+
+@is_na.register
+def _(df: PlDataFrame, x: Any) -> bool:
+    import polars as pl
+
+    return isinstance(x, pl.Null)
