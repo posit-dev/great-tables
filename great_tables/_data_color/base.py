@@ -12,10 +12,15 @@ from great_tables.style import fill, text
 from great_tables.loc import body
 import numpy as np
 import pandas as pd
+import polars as pl
 from mizani.palettes import gradient_n_pal
 
 if TYPE_CHECKING:
     from great_tables._types import GTSelf
+
+    PdDataFrame = pd.DataFrame
+    PlDataFrame = pl.DataFrame
+    DataFrameLike = Union[PdDataFrame, PlDataFrame]
 
 
 def data_color(
@@ -170,18 +175,20 @@ def data_color(
         if all(isinstance(x, (int, float)) for x in column_vals):
             # If `domain` is not provided, then infer it from the data values
             if autocalc_domain:
-                domain = _get_domain_numeric(vals=column_vals)
+                domain = _get_domain_numeric(df=data_table, vals=column_vals)
 
             # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-            scaled_vals = _rescale_numeric(vals=column_vals, domain=domain)
+            scaled_vals = _rescale_numeric(df=data_table, vals=column_vals, domain=domain)
 
         elif all(isinstance(x, str) for x in column_vals):
             # If `domain` is not provided, then infer it from the data values
             if autocalc_domain:
-                domain = _get_domain_factor(vals=column_vals)
+                domain = _get_domain_factor(df=data_table, vals=column_vals)
 
             # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-            scaled_vals = _rescale_factor(vals=column_vals, domain=domain, palette=palette)
+            scaled_vals = _rescale_factor(
+                df=data_table, vals=column_vals, domain=domain, palette=palette
+            )
 
         # Replace NA values in `scaled_vals` with `None`
         scaled_vals = [np.nan if is_na(data_table, x) else x for x in scaled_vals]
@@ -508,7 +515,9 @@ def _expand_short_hex(hex_color: str) -> str:
     return expanded
 
 
-def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List[float]:
+def _rescale_numeric(
+    df: DataFrameLike, vals: List[Union[int, float]], domain: List[float]
+) -> List[float]:
     """
     Rescale numeric values
 
@@ -523,7 +532,7 @@ def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List
     domain_range = domain_max - domain_min
 
     # Rescale the values in `vals` to the range [0, 1], pass through NA values
-    scaled_vals = [(x - domain_min) / domain_range if not pd.isna(x) else x for x in vals]
+    scaled_vals = [(x - domain_min) / domain_range if not is_na(df, x) else x for x in vals]
 
     # Add NA values to any values in `scaled_vals` that are not in the [0, 1] range
     scaled_vals = [x if (x >= 0 and x <= 1) else np.nan for x in scaled_vals]
@@ -532,7 +541,7 @@ def _rescale_numeric(vals: List[Union[int, float]], domain: List[float]) -> List
 
 
 def _rescale_factor(
-    vals: List[Union[int, float]], domain: List[float], palette: List[str]
+    df: DataFrameLike, vals: List[Union[int, float]], domain: List[float], palette: List[str]
 ) -> List[float]:
     """
     Rescale factor values
@@ -551,6 +560,7 @@ def _rescale_factor(
     # For each value in `vals`, get the index of the value in `domain` but if not present then
     # use NA; then scale these index values to the range [0, 1]
     scaled_vals = _rescale_numeric(
+        df=df,
         vals=[domain.index(x) if x in domain else np.nan for x in vals],
         domain=[0, domain_length],
     )
@@ -558,7 +568,7 @@ def _rescale_factor(
     return scaled_vals
 
 
-def _get_domain_numeric(vals: List[Union[int, float]]) -> List[float]:
+def _get_domain_numeric(df: DataFrameLike, vals: List[Union[int, float]]) -> List[float]:
     """
     Get the domain of numeric values.
 
@@ -566,7 +576,7 @@ def _get_domain_numeric(vals: List[Union[int, float]]) -> List[float]:
     """
 
     # Exclude any NA values from `vals`
-    vals = [x for x in vals if not pd.isna(x)]
+    vals = [x for x in vals if not is_na(df, x)]
 
     # Get the minimum and maximum values from `vals`
     domain_min = min(vals)
@@ -578,7 +588,7 @@ def _get_domain_numeric(vals: List[Union[int, float]]) -> List[float]:
     return domain
 
 
-def _get_domain_factor(vals: List[str]) -> List[str]:
+def _get_domain_factor(df: DataFrameLike, vals: List[str]) -> List[str]:
     """
     Get the domain of factor values.
 
@@ -586,7 +596,7 @@ def _get_domain_factor(vals: List[str]) -> List[str]:
     """
 
     # Exclude any NA values from `vals`
-    vals = [x for x in vals if not pd.isna(x)]
+    vals = [x for x in vals if not is_na(df, x)]
 
     # Create the domain by getting the unique values in `vals` in order provided
     unique_list: List[str] = []
