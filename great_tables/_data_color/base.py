@@ -381,8 +381,9 @@ def _add_alpha(colors: List[str], alpha: Union[int, float]) -> List[str]:
             f"Invalid alpha value provided ({alpha}). Please ensure that alpha is a value between 0 and 1."
         )
 
-    # Loop through the colors and add the alpha value to each one
-    for i, color in enumerate(colors):
+    # Loop through the indices of the colors and add the alpha value to each one
+    for i in range(len(colors)):
+        color = colors[i]
         if color == "#FFFFFF00":
             continue
 
@@ -399,7 +400,8 @@ def _add_alpha(colors: List[str], alpha: Union[int, float]) -> List[str]:
 
 def _remove_alpha(colors: List[str]) -> List[str]:
     # Loop through the colors and remove the alpha value from each one
-    for i, color in enumerate(colors):
+    for i in range(len(colors)):
+        color = colors[i]
         # If the color value is already in the `#RRGGBB` format, then we need to add the
         # alpha value to it before removing the alpha value
         if len(color) == 7:
@@ -442,9 +444,12 @@ def _float_to_hex(x: float) -> str:
 def _color_name_to_hex(colors: List[str]) -> List[str]:
     # If any of the colors are in the color_name_dict, then replace them with the
     # corresponding hexadecimal value
-    for i, color in enumerate(colors):
+    i = 0
+    while i < len(colors):
+        color = colors[i]
         if color.lower() in COLOR_NAME_TO_HEX:
             colors[i] = COLOR_NAME_TO_HEX[color.lower()]
+        i += 1
 
     return colors
 
