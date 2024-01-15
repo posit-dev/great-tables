@@ -487,6 +487,7 @@ def _(df: PlDataFrame, x: Any) -> bool:
     return isinstance(x, pl.Null)
 
 
+@singledispatch
 def validate_frame(df: DataFrameLike) -> None:
     """Raises an error if a DataFrame is not supported by Great Tables.
 
