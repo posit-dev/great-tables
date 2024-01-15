@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-
-from collections import defaultdict
 from functools import singledispatch
 from typing import Any, Dict, List, Union, Callable, Tuple, TYPE_CHECKING
 from typing_extensions import TypeAlias
