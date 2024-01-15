@@ -72,6 +72,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
           env: ${{ steps.deployment.outputs.env }}
+          env_url: "https://${{ steps.deployment.outputs.env }}--gt-python.netlify.app"
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
 
       - uses: peaceiris/actions-gh-pages@v3

@@ -4,9 +4,8 @@ html-table-processing: none
 title: "Introducing Great Tables"
 author: Rich Iannone
 date: 2024-01-04
+freeze: true
 ---
-
-## **Great Tables** is Off to a Great Start
 
 We are really excited about developing the **Great Tables** package because we believe it'll make great-looking display tables possible in Python. Though it's still early days for the project/package, you can do good things with it today! The most recent version of **Great Tables** is in [`PyPI`](https://pypi.org/project/great-tables/). You can install it by using:
 
@@ -19,6 +18,10 @@ In this short post, we'll take a look at a few examples that focus on the more c
 - configure the structure of the table
 - format table-cell values
 - integrate source notes
+- add styling to targeted table cells
+- use features from **Polars** to make it all better/nicer
+
+Alright! Let's get right into it.
 
 ## A Basic Table
 
@@ -38,7 +41,7 @@ That looks pretty good! Indeed, it is a basic table but we really didn't really 
 
 ## More Complex Tables
 
-Let's take things a bit further and create a table with the included `gtcars` dataset. **Great Tables** provides a large selection of methods and they let you refine the table display; this can lead to a really presentable, and *beautiful* table visualization.
+Let's take things a bit further and create a table with the included `gtcars` dataset. **Great Tables** provides a large selection of methods and they let you refine the table display. They were designed so that you can easily create a really presentable and *beautiful* table visualization.
 
 For this next table, we'll incorporate a *Stub* component and this provides a place for the row labels. Groupings of rows will be generated through categorical values in a particular column (we just have to cite the column name for that to work). We'll add a table title and subtitle with `tab_header()`. The numerical values will be formatted with the `fmt_integer()` and `fmt_currency()` methods. Column labels will be enhanced via `cols_label()` and a source note will be included through use of the `tab_source_note()` method. Here is the table code, followed by the table itself.
 
@@ -64,7 +67,7 @@ gtcars_mini = gtcars[["mfr", "model", "year", "hp", "trq", "msrp"]].tail(10)
 
 With the six different methods applied, the table looks highly presentable! The rendering you're seeing here has been done through [**Quarto**](https://quarto.org) (this entire site has been generated with [**quartodoc**](https://machow.github.io/quartodoc/get-started/overview.html)). If you haven't yet tried out **Quarto**, we highly recommend it!
 
-For this next example we'll use the `airquality` dataset (also included in the package; it's inside the `data` submodule). With this table, two spanners will be added with the `tab_spanner()` method. This method is meant to be easy to use, you only need to provide the text for the spanner label and the columns associated with the spanner. We also make it easy to move columns around. You can use the `cols_move_to_start()` (example of that below) and there are also the `cols_move_to_end()` and `cols_move()` methods.
+For this next example we'll use the `airquality` dataset (also included in the package; it's inside the `data` submodule). With this table, two spanners will be added with the `tab_spanner()` method. This method is meant to be easy to use, you only need to provide the text for the spanner label and the columns associated with the spanner. We also make it easy to move columns around. You can use `cols_move_to_start()` (example of that below) and there are also the `cols_move_to_end()` and `cols_move()` methods.
 
 ```{python}
 from great_tables.data import airquality

@@ -249,11 +249,19 @@ def _(data: PlDataFrame, group_key: str) -> Dict[Any, List[int]]:
 
 # eval_select ----
 
+SelectExpr: TypeAlias = Union[
+    List["str | int"],
+    PlSelectExpr,
+    str,
+    int,
+    Callable[[str], bool],
+    None,
+]
 _NamePos: TypeAlias = List[Tuple[str, int]]
 
 
 @singledispatch
-def eval_select(data: DataFrameLike, expr: Any, strict: bool = True) -> _NamePos:
+def eval_select(data: DataFrameLike, expr: SelectExpr, strict: bool = True) -> _NamePos:
     """Return a list of column names selected by expr."""
 
     raise NotImplementedError(f"Unsupported type: {type(expr)}")
@@ -477,3 +485,37 @@ def _(df: PlDataFrame, x: Any) -> bool:
     import polars as pl
 
     return isinstance(x, pl.Null)
+
+
+def validate_frame(df: DataFrameLike) -> None:
+    """Raises an error if a DataFrame is not supported by Great Tables.
+
+    Note that this is only relevant for pandas, which allows duplicate names
+    on DataFrames, and multi-index columns (and probably other things).
+    """
+    raise NotImplementedError(f"Unsupported type: {type(df)}")
+
+
+@validate_frame.register
+def _(df: PdDataFrame):
+    import pandas as pd
+
+    # case 1: multi-index columns ----
+    if isinstance(df.columns, pd.MultiIndex):
+        raise ValueError(
+            "pandas DataFrames with MultiIndex columns are not supported."
+            " Please use .columns.droplevel() to remove extra column levels,"
+            " or combine the levels into a single name per column."
+        )
+
+    # case 2: duplicate column names ----
+    dupes = df.columns[df.columns.duplicated()]
+    if len(dupes):
+        raise ValueError(
+            f"Column names must be unique. Detected duplicate columns:\n\n {list(dupes)}"
+        )
+
+
+@validate_frame.register
+def _(df: PlDataFrame):
+    return None

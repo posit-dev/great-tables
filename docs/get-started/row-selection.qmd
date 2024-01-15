@@ -1,0 +1,94 @@
+---
+title: Row Selection
+jupyter: python3
+html-table-processing: none
+---
+
+Location and formatter functions (e.g. [`loc.body()`](`great_tables.loc.body`) and [`GT.fmt_number()`](`great_tables.GT.fmt_number`)) can be applied to specific rows, using the `rows=` argument.
+
+Rows may be specified using any of the following:
+
+* None (the default), to select everything.
+* an integer for the row's position.
+* a list of or integers.
+* a **Polars** selector for filtering.
+* a function that takes a DataFrame and returns a boolean Series.
+
+The following sections will use a subset of the `exibble` data, to demonstrate these options.
+
+```{python}
+from great_tables import GT, exibble, loc, style
+
+lil_exibble = exibble[["num", "char", "currency"]].head(3)
+gt_ex = GT(lil_exibble)
+```
+
+## Using integers
+
+Use a single integer, or a list of integers, to select rows by position.
+
+```{python}
+gt_ex.fmt_currency("currency", rows=0, decimals=1)
+```
+
+Notice that a dollar sign (`$`) was only added to the first row (index `0` in python).
+
+Indexing works the same as selecting items from a python list. This  negative integers select relative to the final row.
+
+```{python}
+gt_ex.fmt_currency("currency", rows=[0, -1], decimals=1)
+```
+
+
+## Using polars expressions
+
+The `rows=` argument accepts polars expressions, which return a boolean Series, indicating which rows to operate on.
+
+For example, the code below only formats the `num` column, but only when currency is less than 40.
+
+```{python}
+import polars as pl
+
+gt_polars = GT(pl.from_pandas(lil_exibble))
+
+gt_polars.fmt_integer("num", rows=pl.col("currency") < 40)
+```
+
+Here's a more realistic example, which highlights the row with the highest value for currency.
+
+```{python}
+import polars.selectors as cs
+
+gt_polars.tab_style(
+    style.fill("yellow"),
+    loc.body(
+        columns=cs.all(),
+        rows=pl.col("currency") == pl.col("currency").max()
+    )
+)
+```
+
+
+## Using a function
+
+Since libraries like `pandas` don't have lazy expressions, the `rows=` argument also accepts a function for selecting rows. The function should take a DataFrame and return a boolean series.
+
+Here's the same example as the previous polars section, but with pandas data, and a lamba for selecting rows.
+
+```{python}
+gt_ex.fmt_integer("num", rows=lambda D: D["currency"] < 40)
+```
+
+Here's the styling example from the previous polars section.
+
+```{python}
+import polars.selectors as cs
+
+gt_ex.tab_style(
+    style.fill("yellow"),
+    loc.body(
+        columns=lambda colname: True,
+        rows=lambda D: D["currency"] == D["currency"].max()
+    )
+)
+```

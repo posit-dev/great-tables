@@ -13,9 +13,10 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
-from ._tbl_data import n_rows
+from ._tbl_data import PlExpr, n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
+from ._locations import resolve_rows_i
 from ._text import _md_html
 from ._utils import _str_detect, _str_replace
 import pandas as pd
@@ -98,12 +99,10 @@ def fmt(
 
     columns = _listify(columns, list)
 
-    if rows is None:
-        rows = list(range(n_rows(self._tbl_data)))
-    elif isinstance(rows, int):
-        rows = [rows]
+    row_res = resolve_rows_i(self, rows)
+    row_pos = [name_pos[1] for name_pos in row_res]
 
-    formatter = FormatInfo(fns, columns, rows)
+    formatter = FormatInfo(fns, columns, row_pos)
     return self._replace(_formats=[*self._formats, formatter])
 
 
