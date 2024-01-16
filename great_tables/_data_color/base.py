@@ -404,7 +404,7 @@ def _remove_alpha(colors: List[str]) -> List[str]:
         color = colors[i]
         # If the color value is already in the `#RRGGBB` format, then we need to add the
         # alpha value to it before removing the alpha value
-        if len(color) == 7:
+        if _is_standard_hex_col([color])[0]:
             color = color + "FF"
 
         # Remove the alpha value from the color value
