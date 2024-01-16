@@ -488,6 +488,12 @@ def _is_hex_col(colors: List[str]) -> List[bool]:
     return [bool(re.match(r"^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", color)) for color in colors]
 
 
+def _is_standard_hex_col(colors: List[str]) -> List[bool]:
+    import re
+
+    return [bool(re.match(r"^#[0-9a-fA-F]{6}$", color)) for color in colors]
+
+
 def _expand_short_hex(hex_color: str) -> str:
     """
     Expands a short hexadecimal color value to the full 6-digit hexadecimal color value.
