@@ -1,5 +1,5 @@
 ---
-title: "Great Tables: Dreamy DataFrame Styling for Polars"
+title: "Great Tables: The Polars DataFrame Styler of Your Dreams"
 html-table-processing: none
 author: Michael Chow
 date: 2024-01-08
