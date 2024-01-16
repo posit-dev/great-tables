@@ -149,6 +149,8 @@ The `.tab_style()` method sets styles---like fill color, or text properties---on
 
 
 ```{python}
+from great_tables import style, loc
+
 is_max_wind = pl.col("Wind") == pl.col("Wind").max()
 
 (
@@ -213,6 +215,8 @@ Notice that there are now labels for "Time" and "Measurement" sitting above the 
 Use `GT.cols_labels()` with `html()` to create human-friendly labels (e.g. convert things like `cal_m_2` to <code>cal/m<sup>2</sup></code>).
 
 ```{python}
+from great_tables import html
+
 (
     gt_with_spanners
     .cols_label(
