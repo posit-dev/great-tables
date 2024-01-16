@@ -2,6 +2,7 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/polars-styling/index.html",
       "/blog/introduction_great_tables.html"
     ]
   }
