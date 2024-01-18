@@ -481,6 +481,16 @@ def test_get_domain_numeric():
     domain = _get_domain_numeric(df, vals)
     assert domain == [1, 10]
 
+    df = pd.DataFrame({"col1": [1, 2, 3, 4, 5], "col2": [6, 7, 8, 9, 10]})
+    vals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, np.nan]
+    domain = _get_domain_numeric(df, vals)
+    assert domain == [1, 10]
+
+    df = pd.DataFrame({"col1": [1, 2, 3, 4, 5], "col2": [6, 7, 8, 9, 10]})
+    vals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, np.nan, np.nan]
+    domain = _get_domain_numeric(df, vals)
+    assert domain == [1, 10]
+
 
 def test_get_domain_factor():
     # Test case 1: Empty DataFrame
