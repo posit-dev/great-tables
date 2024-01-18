@@ -16,7 +16,6 @@ from great_tables._data_color.base import (
     _is_standard_hex_col,
     _expand_short_hex,
     _rescale_numeric,
-    _rescale_factor,
     _get_domain_numeric,
     _get_domain_factor,
 )
