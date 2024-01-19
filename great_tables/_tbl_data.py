@@ -521,8 +521,8 @@ def _(df: PdDataFrame) -> PdDataFrame:
     if non_str_cols:
         _col_msg = "\n".join(f"  * Position {ii}: {col}" for ii, col in non_str_cols[:3])
         warnings.warn(
-            "pandas DataFrame contains non-string column names. Coercing to strings."
-            "Here are the first three non-string columns:\n\n"
+            "pandas DataFrame contains non-string column names. Coercing to strings. "
+            "Here are the first few non-string columns:\n\n"
             f"{_col_msg}",
             category=UserWarning,
         )
