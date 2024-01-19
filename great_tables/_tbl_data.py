@@ -519,7 +519,7 @@ def _(df: PdDataFrame) -> PdDataFrame:
     non_str_cols = [(ii, el) for ii, el in enumerate(df.columns) if not isinstance(el, str)]
 
     if non_str_cols:
-        _col_msg = "\n".join(f"  * Position {ii}: {col}" for ii, col in non_str_cols)
+        _col_msg = "\n".join(f"  * Position {ii}: {col}" for ii, col in non_str_cols[:3])
         warnings.warn(
             "pandas DataFrame contains non-string column names. Coercing to strings."
             "Here are the first three non-string columns:\n\n"
