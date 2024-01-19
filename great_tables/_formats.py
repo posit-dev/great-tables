@@ -1,6 +1,17 @@
 from __future__ import annotations
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, List, cast, Optional, Dict, Literal
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    TypeVar,
+    Union,
+    List,
+    cast,
+    Optional,
+    Dict,
+    Literal,
+)
 from typing_extensions import TypeAlias
 from ._tbl_data import PlExpr, n_rows
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
@@ -12,6 +23,7 @@ import pandas as pd
 import math
 from datetime import datetime, date, time
 from babel.dates import format_date, format_time, format_datetime
+
 
 if TYPE_CHECKING:
     from ._types import GTSelf

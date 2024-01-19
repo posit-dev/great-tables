@@ -7,6 +7,7 @@ import re
 from great_tables import GT
 from great_tables.data import exibble
 from great_tables.gt import _get_column_of_values
+from great_tables._data_color.base import _html_color
 from great_tables._utils_render_html import create_body_component_h
 from great_tables._formats import (
     _format_number_fixed_decimals,
@@ -1026,3 +1027,55 @@ def test_format_number_with_sep_dec_marks():
     gt = GT(df).fmt_number(columns="x", decimals=5, sep_mark=".", dec_mark=",")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["12.345.678,12346", "1,00000", "0,00000", "\u2212" + "12.345.678,12346"]
+
+
+# ------------------------------------------------------------------------------
+# Test `data_color()` and util functions
+# ------------------------------------------------------------------------------
+
+
+@pytest.fixture
+def df_color():
+    df = pd.DataFrame(
+        {
+            "A": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            "B": [10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+            "C": ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+        }
+    )
+    return df
+
+
+@pytest.mark.parametrize(
+    "color, x_out",
+    [
+        ("red", "#FF0000"),
+        ("#FFF", "#FFFFFF"),
+        ("crimson", "#DC143C"),
+        ("SteelBlue", "#4682B4"),
+        ("RED", "#FF0000"),
+        ("#FFFFFF", "#FFFFFF"),
+        ("transparent", "#FFFFFF00"),
+    ],
+)
+def test_html_color(color: str, x_out: str):
+    x = _html_color(colors=[color])
+    assert x == [x_out]
+
+
+@pytest.mark.parametrize(
+    "color, x_out, alpha",
+    [
+        ("red", "#FF0000D8", 0.85),
+        ("#DEF", "#DDEEFFD8", 0.85),
+        ("crimson", "#DC143CD8", 0.85),
+        ("SteelBlue", "#4682B4D8", 0.85),
+        ("RED", "#FF0000D8", 0.85),
+        ("#FFFFFF", "#FFFFFFD8", 0.85),
+        ("transparent", "#FFFFFF00", 0.85),
+        ("#FFFFFF00", "#FFFFFF00", 0.85),
+    ],
+)
+def test_html_color_with_alpha(color: str, x_out: str, alpha: float):
+    x = _html_color(colors=[color], alpha=alpha)
+    assert x == [x_out]

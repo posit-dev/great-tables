@@ -3,6 +3,9 @@
 test:
 	pytest
 
+test-update:
+	pytest --snapshot-update
+
 check:
 	pyright --pythonversion 3.8 gt
 	pyright --pythonversion 3.9 gt

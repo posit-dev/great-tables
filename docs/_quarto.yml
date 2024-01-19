@@ -106,6 +106,7 @@ quartodoc:
         - GT.fmt_datetime
         - GT.fmt_markdown
         - GT.fmt
+        - GT.data_color
     - title: Modifying columns
       desc: >
         The `cols_*()` methods allow for modifications that act on entire columns. This includes

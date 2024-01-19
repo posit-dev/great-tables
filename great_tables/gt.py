@@ -10,6 +10,7 @@ from great_tables._gt_data import GTData
 # Main gt imports ----
 from great_tables._body import body_reassemble
 from great_tables._boxhead import cols_align, cols_label
+from great_tables._data_color import data_color
 from great_tables._formats import (
     fmt,
     fmt_number,
@@ -205,6 +206,8 @@ class GT(
     fmt_time = fmt_time
     fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
+
+    data_color = data_color
 
     tab_options = tab_options
     opt_align_table_header = opt_align_table_header
