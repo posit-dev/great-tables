@@ -14,9 +14,9 @@ def assert_rendered_body(snapshot, gt):
 def test_data_color_simple_df_snap(snapshot):
     df = pd.DataFrame(
         {
-            "A": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            "B": [10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
-            "C": ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+            "A": [1, 2, 3],
+            "B": [10, 9, 8],
+            "C": ["one", "two", "three"],
         }
     )
 
@@ -25,19 +25,20 @@ def test_data_color_simple_df_snap(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
-def test_data_color_exibble_snap_1(snapshot):
+def test_data_color_simple_exibble_snap(snapshot):
     gt = GT(exibble).data_color()
 
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_exibble_snap_2(snapshot):
+def test_data_color_palette_snap(snapshot):
     gt = GT(exibble).data_color(columns=["num", "currency"], palette=["red", "green"])
 
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_exibble_snap_3(snapshot):
+def test_data_color_domain_na_color_snap(snapshot):
+    """`data_color` works with `domain` and `na_color`."""
     gt = GT(exibble).data_color(
         columns="currency", palette=["red", "green"], domain=[0, 50], na_color="blue"
     )
@@ -45,7 +46,8 @@ def test_data_color_exibble_snap_3(snapshot):
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_exibble_snap_4(snapshot):
+def test_data_color_domain_na_color_reverse_snap(snapshot):
+    """`data_color` works with `domain`, `na_color`, and `reverse`."""
     gt = GT(exibble).data_color(
         columns="currency", palette=["red", "green"], domain=[0, 50], na_color="blue", reverse=True
     )
@@ -53,7 +55,8 @@ def test_data_color_exibble_snap_4(snapshot):
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_exibble_snap_5(snapshot):
+def test_data_color_overlapping_domain(snapshot):
+    """`data_color` works with overlapping `domain` (RHS domain extends outside the data range)."""
     gt = GT(exibble).data_color(
         columns="currency",
         palette=["yellow", "rebeccapurple"],
@@ -64,7 +67,8 @@ def test_data_color_exibble_snap_5(snapshot):
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_exibble_snap_6(snapshot):
+def test_data_color_subset_domain(snapshot):
+    """`data_color` works with subset `domain`."""
     gt = GT(exibble).data_color(
         columns="currency",
         palette=["yellow", "rebeccapurple"],
@@ -75,7 +79,8 @@ def test_data_color_exibble_snap_6(snapshot):
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_exibble_snap_7(snapshot):
+def test_data_color_autocolor_text_false(snapshot):
+    """`data_color` works with `autocolor_text=False`."""
     gt = GT(exibble).data_color(
         columns="currency",
         palette=["red", "green"],
