@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+
 from functools import singledispatch
 from typing import Any, Dict, List, Union, Callable, Tuple, TYPE_CHECKING
 from typing_extensions import TypeAlias
@@ -486,7 +488,7 @@ def _(df: PlDataFrame, x: Any) -> bool:
 
 
 @singledispatch
-def validate_frame(df: DataFrameLike) -> None:
+def validate_frame(df: DataFrameLike) -> DataFrameLike:
     """Raises an error if a DataFrame is not supported by Great Tables.
 
     Note that this is only relevant for pandas, which allows duplicate names
@@ -496,7 +498,7 @@ def validate_frame(df: DataFrameLike) -> None:
 
 
 @validate_frame.register
-def _(df: PdDataFrame):
+def _(df: PdDataFrame) -> PdDataFrame:
     import pandas as pd
 
     # case 1: multi-index columns ----
@@ -514,7 +516,23 @@ def _(df: PdDataFrame):
             f"Column names must be unique. Detected duplicate columns:\n\n {list(dupes)}"
         )
 
+    non_str_cols = [(ii, el) for ii, el in enumerate(df.columns) if not isinstance(el, str)]
+
+    if non_str_cols:
+        _col_msg = "\n".join(f"  * Position {ii}: {col}" for ii, col in non_str_cols[:3])
+        warnings.warn(
+            "pandas DataFrame contains non-string column names. Coercing to strings. "
+            "Here are the first few non-string columns:\n\n"
+            f"{_col_msg}",
+            category=UserWarning,
+        )
+        new_df = df.copy()
+        new_df.columns = [str(el) for el in df.columns]
+        return new_df
+
+    return df
+
 
 @validate_frame.register
-def _(df: PlDataFrame):
-    return None
+def _(df: PlDataFrame) -> PlDataFrame:
+    return df

@@ -62,7 +62,7 @@ class GTData:
         auto_align: bool = True,
         locale: str | None = None,
     ):
-        validate_frame(data)
+        data = validate_frame(data)
         stub = Stub(data, rowname_col=rowname_col, groupname_col=groupname_col)
         boxhead = Boxhead(
             data, auto_align=auto_align, rowname_col=rowname_col, groupname_col=groupname_col

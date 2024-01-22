@@ -97,3 +97,22 @@ def test_validate_frame_multi_index():
         validate_frame(df)
 
     assert "MultiIndex columns are not supported" in str(exc_info.value.args[0])
+
+
+def test_validate_frame_non_str_cols_warning(snapshot):
+    df = pd.DataFrame({"x": [1], 55: [2], "y": [3], 99: [4]})
+
+    with pytest.warns(UserWarning) as record:
+        validate_frame(df)
+
+    assert len(record) == 1
+    assert snapshot == record[0].message.args[0]
+
+
+def test_validate_frame_non_str_cols_result():
+    df = pd.DataFrame({"x": [1], 55: [2], "y": [3], 99: [4]})
+
+    with pytest.warns(UserWarning):
+        res = validate_frame(df)
+
+    assert list(res.columns) == ["x", "55", "y", "99"]

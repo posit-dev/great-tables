@@ -1,0 +1,9 @@
+# serializer version: 1
+# name: test_validate_frame_non_str_cols_warning
+  '''
+  pandas DataFrame contains non-string column names. Coercing to strings. Here are the first few non-string columns:
+  
+    * Position 1: 55
+    * Position 3: 99
+  '''
+# ---
