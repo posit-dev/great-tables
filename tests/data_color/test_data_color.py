@@ -2,6 +2,17 @@ from great_tables import GT
 from great_tables.data import exibble
 from great_tables._utils_render_html import create_body_component_h
 import pandas as pd
+import polars as pl
+import pytest
+from great_tables._tbl_data import DataFrameLike
+
+
+params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars")]
+
+
+@pytest.fixture(params=params_frames, scope="function")
+def df(request) -> DataFrameLike:
+    return request.param(exibble[["num", "char", "currency"]].head(4))
 
 
 def assert_rendered_body(snapshot, gt):
@@ -25,39 +36,39 @@ def test_data_color_simple_df_snap(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
-def test_data_color_simple_exibble_snap(snapshot):
-    gt = GT(exibble).data_color()
+def test_data_color_simple_exibble_snap(snapshot, df: DataFrameLike):
+    gt = GT(df).data_color()
 
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_palette_snap(snapshot):
-    gt = GT(exibble).data_color(columns=["num", "currency"], palette=["red", "green"])
+def test_data_color_palette_snap(snapshot, df: DataFrameLike):
+    gt = GT(df).data_color(columns=["num", "currency"], palette=["red", "green"])
 
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_domain_na_color_snap(snapshot):
+def test_data_color_domain_na_color_snap(snapshot, df: DataFrameLike):
     """`data_color` works with `domain` and `na_color`."""
-    gt = GT(exibble).data_color(
+    gt = GT(df).data_color(
         columns="currency", palette=["red", "green"], domain=[0, 50], na_color="blue"
     )
 
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_domain_na_color_reverse_snap(snapshot):
+def test_data_color_domain_na_color_reverse_snap(snapshot, df: DataFrameLike):
     """`data_color` works with `domain`, `na_color`, and `reverse`."""
-    gt = GT(exibble).data_color(
+    gt = GT(df).data_color(
         columns="currency", palette=["red", "green"], domain=[0, 50], na_color="blue", reverse=True
     )
 
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_overlapping_domain(snapshot):
+def test_data_color_overlapping_domain(snapshot, df: DataFrameLike):
     """`data_color` works with overlapping `domain` (RHS domain extends outside the data range)."""
-    gt = GT(exibble).data_color(
+    gt = GT(df).data_color(
         columns="currency",
         palette=["yellow", "rebeccapurple"],
         domain=[1000, 65555],
@@ -67,9 +78,9 @@ def test_data_color_overlapping_domain(snapshot):
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_subset_domain(snapshot):
+def test_data_color_subset_domain(snapshot, df: DataFrameLike):
     """`data_color` works with subset `domain`."""
-    gt = GT(exibble).data_color(
+    gt = GT(df).data_color(
         columns="currency",
         palette=["yellow", "rebeccapurple"],
         domain=[1000, 60000],
@@ -79,9 +90,9 @@ def test_data_color_subset_domain(snapshot):
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_autocolor_text_false(snapshot):
+def test_data_color_autocolor_text_false(snapshot, df: DataFrameLike):
     """`data_color` works with `autocolor_text=False`."""
-    gt = GT(exibble).data_color(
+    gt = GT(df).data_color(
         columns="currency",
         palette=["red", "green"],
         domain=[0, 50],

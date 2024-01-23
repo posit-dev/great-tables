@@ -7,20 +7,14 @@ from typing import (
     Tuple,
 )
 from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX
-from great_tables._tbl_data import is_na
+from great_tables._tbl_data import is_na, DataFrameLike
 from great_tables.style import fill, text
 from great_tables.loc import body
 import numpy as np
-import pandas as pd
-import polars as pl
 from mizani.palettes import gradient_n_pal
 
 if TYPE_CHECKING:
     from great_tables._types import GTSelf
-
-    PdDataFrame = pd.DataFrame
-    PlDataFrame = pl.DataFrame
-    DataFrameLike = Union[PdDataFrame, PlDataFrame]
 
 
 def data_color(
@@ -161,18 +155,21 @@ def data_color(
     if isinstance(columns, str):
         columns_resolved = [columns]
     elif columns is None:
-        columns_resolved = data_table.columns.tolist()
+        columns_resolved = data_table.columns
     else:
         columns_resolved = columns
 
     # For each column targeted, get the data values as a new list object
     for col in columns_resolved:
-        column_vals = data_table[col].tolist()
+        column_vals = data_table[col].to_list()
+
+        # Filter out NA values from `column_vals`
+        filtered_column_vals = [x for x in column_vals if not is_na(data_table, x)]
 
         # The methodology for domain calculation and rescaling depends on column values being:
         # (1) numeric (integers or floats), then the method should be 'numeric'
         # (2) strings, then the method should be 'factor'
-        if all(isinstance(x, (int, float)) for x in column_vals):
+        if all(isinstance(x, (int, float)) for x in filtered_column_vals):
             # If `domain` is not provided, then infer it from the data values
             if autocalc_domain:
                 domain = _get_domain_numeric(df=data_table, vals=column_vals)
@@ -180,7 +177,7 @@ def data_color(
             # Rescale only the non-NA values in `column_vals` to the range [0, 1]
             scaled_vals = _rescale_numeric(df=data_table, vals=column_vals, domain=domain)
 
-        elif all(isinstance(x, str) for x in column_vals):
+        elif all(isinstance(x, str) for x in filtered_column_vals):
             # If `domain` is not provided, then infer it from the data values
             if autocalc_domain:
                 domain = _get_domain_factor(df=data_table, vals=column_vals)
@@ -188,6 +185,11 @@ def data_color(
             # Rescale only the non-NA values in `column_vals` to the range [0, 1]
             scaled_vals = _rescale_factor(
                 df=data_table, vals=column_vals, domain=domain, palette=palette
+            )
+
+        else:
+            raise ValueError(
+                f"Invalid column type provided ({col}). Please ensure that all columns are either numeric or strings."
             )
 
         # Replace NA values in `scaled_vals` with `None`
@@ -546,7 +548,7 @@ def _rescale_numeric(
     scaled_vals = [(x - domain_min) / domain_range if not is_na(df, x) else x for x in vals]
 
     # Add NA values to any values in `scaled_vals` that are not in the [0, 1] range
-    scaled_vals = [x if (x >= 0 and x <= 1) else np.nan for x in scaled_vals]
+    scaled_vals = [x if not is_na(df, x) and (x >= 0 and x <= 1) else np.nan for x in scaled_vals]
 
     return scaled_vals
 
