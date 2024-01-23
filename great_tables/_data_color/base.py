@@ -7,20 +7,14 @@ from typing import (
     Tuple,
 )
 from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX
-from great_tables._tbl_data import is_na
+from great_tables._tbl_data import is_na, DataFrameLike
 from great_tables.style import fill, text
 from great_tables.loc import body
 import numpy as np
-import pandas as pd
-import polars as pl
 from mizani.palettes import gradient_n_pal
 
 if TYPE_CHECKING:
     from great_tables._types import GTSelf
-
-    PdDataFrame = pd.DataFrame
-    PlDataFrame = pl.DataFrame
-    DataFrameLike = Union[PdDataFrame, PlDataFrame]
 
 
 def data_color(
