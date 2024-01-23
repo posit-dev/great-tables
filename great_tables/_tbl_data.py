@@ -484,7 +484,7 @@ def _(df: PdDataFrame, x: Any) -> bool:
 def _(df: PlDataFrame, x: Any) -> bool:
     import polars as pl
 
-    return isinstance(x, pl.Null)
+    return isinstance(x, (pl.Null, type(None)))
 
 
 @singledispatch
