@@ -161,13 +161,13 @@ def data_color(
     if isinstance(columns, str):
         columns_resolved = [columns]
     elif columns is None:
-        columns_resolved = data_table.columns.tolist()
+        columns_resolved = data_table.columns
     else:
         columns_resolved = columns
 
     # For each column targeted, get the data values as a new list object
     for col in columns_resolved:
-        column_vals = data_table[col].tolist()
+        column_vals = data_table[col].to_list()
 
         # The methodology for domain calculation and rescaling depends on column values being:
         # (1) numeric (integers or floats), then the method should be 'numeric'
