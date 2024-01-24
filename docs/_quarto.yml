@@ -33,6 +33,7 @@ website:
           contents:
             - get-started/basic-formatting.qmd
             - get-started/basic-styling.qmd
+            - get-started/colorizing-with-data.qmd
         - section: Extra Topics
           contents:
             - get-started/column-selection.qmd

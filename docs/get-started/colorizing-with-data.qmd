@@ -1,0 +1,100 @@
+---
+title: Colorizing with Data
+jupyter: python3
+html-table-processing: none
+---
+
+You sometimes come across heat maps in data visualization, and they're used to represent data values with color gradients. This technique is great for identifying patterns, trends, outliers, and missing data when there's lots of data. Tables can have this sort of treatment as well! Typically, formatted numeric values are shown along with some color treatment coinciding with the underlying data values.
+
+We can make this possible in **Great Tables** by using the [`data_color()`](`great_tables.GT.data_color`) method. Let's start with a simple example, using a Polars DataFrame with three columns of values. We can introduce that data to [`GT()`](`great_tables.GT`) and use [`data_color()`](`great_tables.GT.data_color`) without any arguments.
+
+```{python}
+from great_tables import GT
+import polars as pl
+
+simple_df = pl.DataFrame(
+    {
+        "integer": [1, 2, 3, 4, 5],
+        "float": [2.3, 1.3, 5.1, None, 4.4],
+        "category": ["one", "two", "three", "one", "three"],
+    }
+)
+
+GT(simple_df).data_color()
+```
+
+This works but doesn't look all too appealing. However, we can take note of a few things straight away. The first thing is that [`data_color()`](`great_tables.GT.data_color`) doesn't format the values but rather it applies color fill values to the cells. The second thing is that you don't have to intervene and modify the text color so that there's enough contrast, **Great Tables** will do that for you (this behavior *can* be deactivated with the `autocolor_text=` argument though).
+
+## Setting palette colors
+
+While this first example illustrated some basic things, the common thing to do in practices to provide a list of colors to the `palette=` argument. Let's choose two colors `"green"` and `"red"` and place them in that order.
+
+```{python}
+GT(simple_df).data_color(palette=["blue", "red"])
+```
+
+Now that we've moved away from the default palette and specified colors, we can see that lower numerical values are closer to blue and higher values are closer to red (those in the middle have colors that are a blend of the two; in this case, more in the purple range). Categorical values behave similarly, they take on ordinal values based on their first appearance (from top to bottom) and those values are used to generate the background colors.
+
+## Coloring missing values with `na_color`
+
+There is a lone `"None"` value in the `float` column, and it has a gray background. Thoughout the **Great Tables** package, missing values are treated in different ways and, in this case, it's given a default color value. We can change that with the `na_color=` argument. Let's try it now:
+
+```{python}
+GT(simple_df).data_color(palette=["blue", "red"], na_color="#FFE4C4")
+```
+
+Now, the gray color has been changed to Bisque. Note that when it comes to colors, you can use any combination of CSS/X11 color names and hexadecimal color codes.
+
+## Using `domain=` to color values across columns
+
+The previous usages of the [`data_color()`](`great_tables.GT.data_color`) method were such that the color ranges encompassed the boundaries of the data values. That can be changed with the `domain=` argument, which expects a list of two values (a lower and an upper value). Let's use the range `[0, 10]` on the first two columns, `integer` and `float`, and not the third (since a numerical domain is incompatible with string-based values). Here's the table code for that:
+
+
+```{python}
+(
+    GT(simple_df)
+    .data_color(
+        columns=["integer", "float"],
+        palette=["blue", "red"],
+        domain=[0, 10],
+        na_color="white"
+    )
+)
+```
+
+Nice! We can clearly see that the color ramp in the first column (`integer`) only proceeds from blue (value: `1`) to purple (value: `5`) and there isn't a reddish color in sight (would need a value close to 10).
+
+## Bringing it all together
+
+For a more advanced treatment of data colorization in the table, let's take the `sza` dataset (available in the `great_tables.data` submodule) and vigorously reshape it with **Polars** so that solar zenith angles are arranged as rows by month, and the half-hourly clock times are the columns (from early morning to solar noon).
+
+Once the `pivot()`ing is done, we can introduce that that table to the [`GT()`](`great_tables.GT`) class, placing the names of the months in the table stub. We will use [`data_color()`](`great_tables.GT.data_color`) with a domain that runs from `90` to `0` (here, 90&deg; is sunrise, and 0&deg; is represents the sun angle that's directly overhead). There are months where the sun rises later in the morning, before the sunrise times we'll see missing values in the dataset, and `na_color="white"` will handle those cases. Okay, that's the plan, and now here's the code:
+
+```{python}
+from great_tables import html
+from great_tables.data import sza
+import polars.selectors as cs
+
+sza_pivot = (
+    pl.from_pandas(sza)
+    .filter((pl.col("latitude") == "20") & (pl.col("tst") <= "1200"))
+    .select(pl.col("*").exclude("latitude"))
+    .drop_nulls()
+    .pivot(values="sza", index="month", columns="tst", sort_columns=True)
+)
+
+(
+    GT(sza_pivot, rowname_col="month")
+    .data_color(
+        domain=[90, 0],
+        palette=["rebeccapurple", "white", "orange"],
+        na_color="white",
+    )
+    .tab_header(
+        title="Solar Zenith Angles from 05:30 to 12:00",
+        subtitle=html("Average monthly values at latitude of 20&deg;N."),
+    )
+)
+```
+
+Because this is a table for presentation, we can't neglect using [`tab_header()`](`great_tables.GT.tab_header`). A *title* and *subtitle* can provide just enough information to guide the reader out through your table visualization.
