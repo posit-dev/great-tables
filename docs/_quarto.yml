@@ -14,8 +14,6 @@ website:
         text: Reference
       - href: blog/index.qmd
         text: Blog
-      - href: changelog.qmd
-        text: Changelog
     right:
       - icon: github
         href: https://github.com/posit-dev/great-tables
