@@ -45,8 +45,7 @@ wide_pops = (
         pl.col("country_code_2").is_in(["FM", "GU", "KI", "MH", "MP", "NR", "PW"])
         & pl.col("year").is_in([2000, 2010, 2020])
     )
-    .with_columns(pl.col("country_code_2").replace(region_to_country).alias("region"))
-    .pivot(index=["country_name", "region"], columns="year", values="population")
+    .pivot(index="country_name", columns="year", values="population")
     .sort("2020", descending=True)
 )
 
@@ -58,7 +57,6 @@ wide_pops = (
     )
     .tab_spanner(label="Total Population", columns=cs.all())
     .fmt_integer(columns=["2000", "2010", "2020"])
-    .cols_hide(columns="region")
     .data_color(
         palette=["white", "purple"],
         domain=[0, 1.7e5]
