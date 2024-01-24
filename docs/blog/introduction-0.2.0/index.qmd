@@ -1,5 +1,5 @@
 ---
-title: "Great Tables `v0.2.0`: Now You Can Colorize Your Data"
+title: "Great Tables `v0.2.0`: Easy Data Coloring"
 html-table-processing: none
 author: Rich Iannone
 date: 2024-01-24
@@ -75,6 +75,6 @@ wide_pops = (
 )
 ```
 
-This was just a sampler of what you can do with the all-new `data_color()` method. Take a look at the [*Colorizing with Data*](./get-started/colorizing-with-data.qmd) page in the *Get Started* Guide. It provides more details on how to use `data_color()` (many more than we can show you in this blog post).
+This was just a sampler of what you can do with the all-new `data_color()` method. Take a look at the [*Colorizing with Data*](/get-started/colorizing-with-data.qmd) page in the *Get Started* Guide. It provides more details on how to use `data_color()` (many more than we can show you in this blog post).
 
 To conclude, we're happy that this new functionality is now in the **Great Tables** package! We hope you find it useful for your table-generation work. And we'll keep improving upon it so that you'll have more possibilities to make beautiful, and colorful, tables for presentation.
