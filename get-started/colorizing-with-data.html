@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>great_tables - Colorizing with Data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../get-started/column-selection.html" rel="next">
+<link href="../get-started/basic-styling.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">great_tables</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../get-started/index.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Get Started</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../examples/index.html" rel="" target="">
+ <span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/index.html" rel="" target="">
+ <span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../blog/index.html" rel="" target="">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/posit-dev/great-tables" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../get-started/basic-formatting.html">Format and Style</a></li><li class="breadcrumb-item"><a href="../get-started/colorizing-with-data.html">Colorizing with Data</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Intro</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">Table Structure</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/basic-header.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Header and Footer</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/basic-stub.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Stub (Row Labels)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/basic-column-labels.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Column Labels</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Format and Style</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/basic-formatting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Formatting Values</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/basic-styling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Stying the Table Body</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/colorizing-with-data.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Colorizing with Data</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Extra Topics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/column-selection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Column Selection</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../get-started/row-selection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Row Selection</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#setting-palette-colors" id="toc-setting-palette-colors" class="nav-link active" data-scroll-target="#setting-palette-colors">Setting palette colors</a></li>
+  <li><a href="#coloring-missing-values-with-na_color" id="toc-coloring-missing-values-with-na_color" class="nav-link" data-scroll-target="#coloring-missing-values-with-na_color">Coloring missing values with <code>na_color</code></a></li>
+  <li><a href="#using-domain-to-color-values-across-columns" id="toc-using-domain-to-color-values-across-columns" class="nav-link" data-scroll-target="#using-domain-to-color-values-across-columns">Using <code>domain=</code> to color values across columns</a></li>
+  <li><a href="#bringing-it-all-together" id="toc-bringing-it-all-together" class="nav-link" data-scroll-target="#bringing-it-all-together">Bringing it all together</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-body" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Colorizing with Data</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p>You sometimes come across heat maps in data visualization, and they’re used to represent data values with color gradients. This technique is great for identifying patterns, trends, outliers, and missing data when there’s lots of data. Tables can have this sort of treatment as well! Typically, formatted numeric values are shown along with some color treatment coinciding with the underlying data values.</p>
+<p>We can make this possible in <strong>Great Tables</strong> by using the <a href="../reference/GT.data_color.html#great_tables.GT.data_color"><code>data_color()</code></a> method. Let’s start with a simple example, using a Polars DataFrame with three columns of values. We can introduce that data to <a href="../reference/GT.html#great_tables.GT"><code>GT()</code></a> and use <a href="../reference/GT.data_color.html#great_tables.GT.data_color"><code>data_color()</code></a> without any arguments.</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>simple_df <span class="op">=</span> pl.DataFrame(</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"integer"</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>],</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"float"</span>: [<span class="fl">2.3</span>, <span class="fl">1.3</span>, <span class="fl">5.1</span>, <span class="va">None</span>, <span class="fl">4.4</span>],</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"category"</span>: [<span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"three"</span>, <span class="st">"one"</span>, <span class="st">"three"</span>],</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>GT(simple_df).data_color()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+
+<div id="tllrrlrxis" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#tllrrlrxis table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+ #tllrrlrxis thead, tbody, tfoot, tr, td, th { border-style: none; }
+#tllrrlrxis p { margin: 0; padding: 0; }
+ #tllrrlrxis .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #tllrrlrxis .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #tllrrlrxis .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #tllrrlrxis .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #tllrrlrxis .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #tllrrlrxis .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #tllrrlrxis .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #tllrrlrxis .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #tllrrlrxis .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #tllrrlrxis .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #tllrrlrxis .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #tllrrlrxis .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #tllrrlrxis .gt_spanner_row { border-bottom-style: hidden; }
+ #tllrrlrxis .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #tllrrlrxis .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #tllrrlrxis .gt_from_md > :first-child { margin-top: 0; }
+ #tllrrlrxis .gt_from_md > :last-child { margin-bottom: 0; }
+ #tllrrlrxis .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #tllrrlrxis .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #tllrrlrxis .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #tllrrlrxis .gt_row_group_first td { border-top-width: 2px; }
+ #tllrrlrxis .gt_row_group_first th { border-top-width: 2px; }
+ #tllrrlrxis .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #tllrrlrxis .gt_first_summary_row { border-top-style: solid; border-top-color: #D3D3D3; }
+ #tllrrlrxis .gt_first_summary_row.thick { border-top-width: 2px; }
+ #tllrrlrxis .gt_last_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #tllrrlrxis .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #tllrrlrxis .gt_first_grand_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #tllrrlrxis .gt_last_grand_summary_row_top { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #tllrrlrxis .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #tllrrlrxis .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #tllrrlrxis .gt_footnotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #tllrrlrxis .gt_footnote { margin: 0px; font-size: 90%; padding-left: 4px; padding-right: 4px; padding-left: 5px; padding-right: 5px; }
+ #tllrrlrxis .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #tllrrlrxis .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #tllrrlrxis .gt_left { text-align: left; }
+ #tllrrlrxis .gt_center { text-align: center; }
+ #tllrrlrxis .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #tllrrlrxis .gt_font_normal { font-weight: normal; }
+ #tllrrlrxis .gt_font_bold { font-weight: bold; }
+ #tllrrlrxis .gt_font_italic { font-style: italic; }
+ #tllrrlrxis .gt_super { font-size: 65%; }
+ #tllrrlrxis .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #tllrrlrxis .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="integer">integer</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="float">float</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="category">category</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_right">1</td>
+  <td style="color: #000000; background-color: #75bc54;" class="gt_row gt_right">2.3</td>
+  <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_left">one</td>
+</tr>
+<tr>
+  <td style="color: #000000; background-color: #80b256;" class="gt_row gt_right">2</td>
+  <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_right">1.3</td>
+  <td style="color: #000000; background-color: #4cbd81;" class="gt_row gt_left">two</td>
+</tr>
+<tr>
+  <td style="color: #000000; background-color: #25bee5;" class="gt_row gt_right">3</td>
+  <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">5.1</td>
+  <td style="color: #FFFFFF; background-color: #9653ca;" class="gt_row gt_left">three</td>
+</tr>
+<tr>
+  <td style="color: #000000; background-color: #d73992;" class="gt_row gt_right">4</td>
+  <td style="color: #000000; background-color: #808080;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_left">one</td>
+</tr>
+<tr>
+  <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">5</td>
+  <td style="color: #000000; background-color: #e99042;" class="gt_row gt_right">4.4</td>
+  <td style="color: #FFFFFF; background-color: #9653ca;" class="gt_row gt_left">three</td>
+</tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+<p>This works but doesn’t look all too appealing. However, we can take note of a few things straight away. The first thing is that <a href="../reference/GT.data_color.html#great_tables.GT.data_color"><code>data_color()</code></a> doesn’t format the values but rather it applies color fill values to the cells. The second thing is that you don’t have to intervene and modify the text color so that there’s enough contrast, <strong>Great Tables</strong> will do that for you (this behavior <em>can</em> be deactivated with the <code>autocolor_text=</code> argument though).</p>
+<section id="setting-palette-colors" class="level2">
+<h2 class="anchored" data-anchor-id="setting-palette-colors">Setting palette colors</h2>
+<p>While this first example illustrated some basic things, the common thing to do in practices to provide a list of colors to the <code>palette=</code> argument. Let’s choose two colors <code>"green"</code> and <code>"red"</code> and place them in that order.</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>GT(simple_df).data_color(palette<span class="op">=</span>[<span class="st">"blue"</span>, <span class="st">"red"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+
+<div id="fnhfsdzrxb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#fnhfsdzrxb table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+ #fnhfsdzrxb thead, tbody, tfoot, tr, td, th { border-style: none; }
+#fnhfsdzrxb p { margin: 0; padding: 0; }
+ #fnhfsdzrxb .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #fnhfsdzrxb .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #fnhfsdzrxb .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #fnhfsdzrxb .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #fnhfsdzrxb .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #fnhfsdzrxb .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #fnhfsdzrxb .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #fnhfsdzrxb .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #fnhfsdzrxb .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #fnhfsdzrxb .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #fnhfsdzrxb .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #fnhfsdzrxb .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #fnhfsdzrxb .gt_spanner_row { border-bottom-style: hidden; }
+ #fnhfsdzrxb .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #fnhfsdzrxb .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #fnhfsdzrxb .gt_from_md > :first-child { margin-top: 0; }
+ #fnhfsdzrxb .gt_from_md > :last-child { margin-bottom: 0; }
+ #fnhfsdzrxb .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #fnhfsdzrxb .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #fnhfsdzrxb .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #fnhfsdzrxb .gt_row_group_first td { border-top-width: 2px; }
+ #fnhfsdzrxb .gt_row_group_first th { border-top-width: 2px; }
+ #fnhfsdzrxb .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #fnhfsdzrxb .gt_first_summary_row { border-top-style: solid; border-top-color: #D3D3D3; }
+ #fnhfsdzrxb .gt_first_summary_row.thick { border-top-width: 2px; }
+ #fnhfsdzrxb .gt_last_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #fnhfsdzrxb .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #fnhfsdzrxb .gt_first_grand_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #fnhfsdzrxb .gt_last_grand_summary_row_top { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #fnhfsdzrxb .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #fnhfsdzrxb .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #fnhfsdzrxb .gt_footnotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #fnhfsdzrxb .gt_footnote { margin: 0px; font-size: 90%; padding-left: 4px; padding-right: 4px; padding-left: 5px; padding-right: 5px; }
+ #fnhfsdzrxb .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #fnhfsdzrxb .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #fnhfsdzrxb .gt_left { text-align: left; }
+ #fnhfsdzrxb .gt_center { text-align: center; }
+ #fnhfsdzrxb .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #fnhfsdzrxb .gt_font_normal { font-weight: normal; }
+ #fnhfsdzrxb .gt_font_bold { font-weight: bold; }
+ #fnhfsdzrxb .gt_font_italic { font-style: italic; }
+ #fnhfsdzrxb .gt_super { font-size: 65%; }
+ #fnhfsdzrxb .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #fnhfsdzrxb .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="integer">integer</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="float">float</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="category">category</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td style="color: #FFFFFF; background-color: #0000ff;" class="gt_row gt_right">1</td>
+  <td style="color: #FFFFFF; background-color: #4300bc;" class="gt_row gt_right">2.3</td>
+  <td style="color: #FFFFFF; background-color: #0000ff;" class="gt_row gt_left">one</td>
+</tr>
+<tr>
+  <td style="color: #FFFFFF; background-color: #4000bf;" class="gt_row gt_right">2</td>
+  <td style="color: #FFFFFF; background-color: #0000ff;" class="gt_row gt_right">1.3</td>
+  <td style="color: #FFFFFF; background-color: #5500aa;" class="gt_row gt_left">two</td>
+</tr>
+<tr>
+  <td style="color: #FFFFFF; background-color: #80007f;" class="gt_row gt_right">3</td>
+  <td style="color: #000000; background-color: #ff0000;" class="gt_row gt_right">5.1</td>
+  <td style="color: #FFFFFF; background-color: #aa0055;" class="gt_row gt_left">three</td>
+</tr>
+<tr>
+  <td style="color: #FFFFFF; background-color: #bf0040;" class="gt_row gt_right">4</td>
+  <td style="color: #000000; background-color: #808080;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #0000ff;" class="gt_row gt_left">one</td>
+</tr>
+<tr>
+  <td style="color: #000000; background-color: #ff0000;" class="gt_row gt_right">5</td>
+  <td style="color: #FFFFFF; background-color: #d0002f;" class="gt_row gt_right">4.4</td>
+  <td style="color: #FFFFFF; background-color: #aa0055;" class="gt_row gt_left">three</td>
+</tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+<p>Now that we’ve moved away from the default palette and specified colors, we can see that lower numerical values are closer to blue and higher values are closer to red (those in the middle have colors that are a blend of the two; in this case, more in the purple range). Categorical values behave similarly, they take on ordinal values based on their first appearance (from top to bottom) and those values are used to generate the background colors.</p>
+</section>
+<section id="coloring-missing-values-with-na_color" class="level2">
+<h2 class="anchored" data-anchor-id="coloring-missing-values-with-na_color">Coloring missing values with <code>na_color</code></h2>
+<p>There is a lone <code>"None"</code> value in the <code>float</code> column, and it has a gray background. Thoughout the <strong>Great Tables</strong> package, missing values are treated in different ways and, in this case, it’s given a default color value. We can change that with the <code>na_color=</code> argument. Let’s try it now:</p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>GT(simple_df).data_color(palette<span class="op">=</span>[<span class="st">"blue"</span>, <span class="st">"red"</span>], na_color<span class="op">=</span><span class="st">"#FFE4C4"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+
+<div id="udfbcrawhm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#udfbcrawhm table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+ #udfbcrawhm thead, tbody, tfoot, tr, td, th { border-style: none; }
+#udfbcrawhm p { margin: 0; padding: 0; }
+ #udfbcrawhm .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #udfbcrawhm .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #udfbcrawhm .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #udfbcrawhm .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #udfbcrawhm .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #udfbcrawhm .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #udfbcrawhm .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #udfbcrawhm .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #udfbcrawhm .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #udfbcrawhm .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #udfbcrawhm .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #udfbcrawhm .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #udfbcrawhm .gt_spanner_row { border-bottom-style: hidden; }
+ #udfbcrawhm .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #udfbcrawhm .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #udfbcrawhm .gt_from_md > :first-child { margin-top: 0; }
+ #udfbcrawhm .gt_from_md > :last-child { margin-bottom: 0; }
+ #udfbcrawhm .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #udfbcrawhm .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #udfbcrawhm .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #udfbcrawhm .gt_row_group_first td { border-top-width: 2px; }
+ #udfbcrawhm .gt_row_group_first th { border-top-width: 2px; }
+ #udfbcrawhm .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #udfbcrawhm .gt_first_summary_row { border-top-style: solid; border-top-color: #D3D3D3; }
+ #udfbcrawhm .gt_first_summary_row.thick { border-top-width: 2px; }
+ #udfbcrawhm .gt_last_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #udfbcrawhm .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #udfbcrawhm .gt_first_grand_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #udfbcrawhm .gt_last_grand_summary_row_top { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #udfbcrawhm .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #udfbcrawhm .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #udfbcrawhm .gt_footnotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #udfbcrawhm .gt_footnote { margin: 0px; font-size: 90%; padding-left: 4px; padding-right: 4px; padding-left: 5px; padding-right: 5px; }
+ #udfbcrawhm .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #udfbcrawhm .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #udfbcrawhm .gt_left { text-align: left; }
+ #udfbcrawhm .gt_center { text-align: center; }
+ #udfbcrawhm .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #udfbcrawhm .gt_font_normal { font-weight: normal; }
+ #udfbcrawhm .gt_font_bold { font-weight: bold; }
+ #udfbcrawhm .gt_font_italic { font-style: italic; }
+ #udfbcrawhm .gt_super { font-size: 65%; }
+ #udfbcrawhm .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #udfbcrawhm .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="integer">integer</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="float">float</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="category">category</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td style="color: #FFFFFF; background-color: #0000ff;" class="gt_row gt_right">1</td>
+  <td style="color: #FFFFFF; background-color: #4300bc;" class="gt_row gt_right">2.3</td>
+  <td style="color: #FFFFFF; background-color: #0000ff;" class="gt_row gt_left">one</td>
+</tr>
+<tr>
+  <td style="color: #FFFFFF; background-color: #4000bf;" class="gt_row gt_right">2</td>
+  <td style="color: #FFFFFF; background-color: #0000ff;" class="gt_row gt_right">1.3</td>
+  <td style="color: #FFFFFF; background-color: #5500aa;" class="gt_row gt_left">two</td>
+</tr>
+<tr>
+  <td style="color: #FFFFFF; background-color: #80007f;" class="gt_row gt_right">3</td>
+  <td style="color: #000000; background-color: #ff0000;" class="gt_row gt_right">5.1</td>
+  <td style="color: #FFFFFF; background-color: #aa0055;" class="gt_row gt_left">three</td>
+</tr>
+<tr>
+  <td style="color: #FFFFFF; background-color: #bf0040;" class="gt_row gt_right">4</td>
+  <td style="color: #000000; background-color: #FFE4C4;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #0000ff;" class="gt_row gt_left">one</td>
+</tr>
+<tr>
+  <td style="color: #000000; background-color: #ff0000;" class="gt_row gt_right">5</td>
+  <td style="color: #FFFFFF; background-color: #d0002f;" class="gt_row gt_right">4.4</td>
+  <td style="color: #FFFFFF; background-color: #aa0055;" class="gt_row gt_left">three</td>
+</tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+<p>Now, the gray color has been changed to Bisque. Note that when it comes to colors, you can use any combination of CSS/X11 color names and hexadecimal color codes.</p>
+</section>
+<section id="using-domain-to-color-values-across-columns" class="level2">
+<h2 class="anchored" data-anchor-id="using-domain-to-color-values-across-columns">Using <code>domain=</code> to color values across columns</h2>
+<p>The previous usages of the <a href="../reference/GT.data_color.html#great_tables.GT.data_color"><code>data_color()</code></a> method were such that the color ranges encompassed the boundaries of the data values. That can be changed with the <code>domain=</code> argument, which expects a list of two values (a lower and an upper value). Let’s use the range <code>[0, 10]</code> on the first two columns, <code>integer</code> and <code>float</code>, and not the third (since a numerical domain is incompatible with string-based values). Here’s the table code for that:</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    GT(simple_df)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .data_color(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>[<span class="st">"integer"</span>, <span class="st">"float"</span>],</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        palette<span class="op">=</span>[<span class="st">"blue"</span>, <span class="st">"red"</span>],</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        domain<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">10</span>],</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        na_color<span class="op">=</span><span class="st">"white"</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+
+<div id="wxemdzdnqm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#wxemdzdnqm table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+ #wxemdzdnqm thead, tbody, tfoot, tr, td, th { border-style: none; }
+#wxemdzdnqm p { margin: 0; padding: 0; }
+ #wxemdzdnqm .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #wxemdzdnqm .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #wxemdzdnqm .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #wxemdzdnqm .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #wxemdzdnqm .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #wxemdzdnqm .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #wxemdzdnqm .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #wxemdzdnqm .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #wxemdzdnqm .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #wxemdzdnqm .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #wxemdzdnqm .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #wxemdzdnqm .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #wxemdzdnqm .gt_spanner_row { border-bottom-style: hidden; }
+ #wxemdzdnqm .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #wxemdzdnqm .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #wxemdzdnqm .gt_from_md > :first-child { margin-top: 0; }
+ #wxemdzdnqm .gt_from_md > :last-child { margin-bottom: 0; }
+ #wxemdzdnqm .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #wxemdzdnqm .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #wxemdzdnqm .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #wxemdzdnqm .gt_row_group_first td { border-top-width: 2px; }
+ #wxemdzdnqm .gt_row_group_first th { border-top-width: 2px; }
+ #wxemdzdnqm .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #wxemdzdnqm .gt_first_summary_row { border-top-style: solid; border-top-color: #D3D3D3; }
+ #wxemdzdnqm .gt_first_summary_row.thick { border-top-width: 2px; }
+ #wxemdzdnqm .gt_last_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #wxemdzdnqm .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #wxemdzdnqm .gt_first_grand_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #wxemdzdnqm .gt_last_grand_summary_row_top { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #wxemdzdnqm .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #wxemdzdnqm .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #wxemdzdnqm .gt_footnotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #wxemdzdnqm .gt_footnote { margin: 0px; font-size: 90%; padding-left: 4px; padding-right: 4px; padding-left: 5px; padding-right: 5px; }
+ #wxemdzdnqm .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #wxemdzdnqm .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #wxemdzdnqm .gt_left { text-align: left; }
+ #wxemdzdnqm .gt_center { text-align: center; }
+ #wxemdzdnqm .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #wxemdzdnqm .gt_font_normal { font-weight: normal; }
+ #wxemdzdnqm .gt_font_bold { font-weight: bold; }
+ #wxemdzdnqm .gt_font_italic { font-style: italic; }
+ #wxemdzdnqm .gt_super { font-size: 65%; }
+ #wxemdzdnqm .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #wxemdzdnqm .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="integer">integer</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="float">float</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="category">category</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td style="color: #FFFFFF; background-color: #1a00e5;" class="gt_row gt_right">1</td>
+  <td style="color: #FFFFFF; background-color: #3b00c4;" class="gt_row gt_right">2.3</td>
+  <td class="gt_row gt_left">one</td>
+</tr>
+<tr>
+  <td style="color: #FFFFFF; background-color: #3300cc;" class="gt_row gt_right">2</td>
+  <td style="color: #FFFFFF; background-color: #2100de;" class="gt_row gt_right">1.3</td>
+  <td class="gt_row gt_left">two</td>
+</tr>
+<tr>
+  <td style="color: #FFFFFF; background-color: #4d00b2;" class="gt_row gt_right">3</td>
+  <td style="color: #FFFFFF; background-color: #82007d;" class="gt_row gt_right">5.1</td>
+  <td class="gt_row gt_left">three</td>
+</tr>
+<tr>
+  <td style="color: #FFFFFF; background-color: #660099;" class="gt_row gt_right">4</td>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td class="gt_row gt_left">one</td>
+</tr>
+<tr>
+  <td style="color: #FFFFFF; background-color: #80007f;" class="gt_row gt_right">5</td>
+  <td style="color: #FFFFFF; background-color: #70008f;" class="gt_row gt_right">4.4</td>
+  <td class="gt_row gt_left">three</td>
+</tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+<p>Nice! We can clearly see that the color ramp in the first column (<code>integer</code>) only proceeds from blue (value: <code>1</code>) to purple (value: <code>5</code>) and there isn’t a reddish color in sight (would need a value close to 10).</p>
+</section>
+<section id="bringing-it-all-together" class="level2">
+<h2 class="anchored" data-anchor-id="bringing-it-all-together">Bringing it all together</h2>
+<p>For a more advanced treatment of data colorization in the table, let’s take the <code>sza</code> dataset (available in the <code>great_tables.data</code> submodule) and vigorously reshape it with <strong>Polars</strong> so that solar zenith angles are arranged as rows by month, and the half-hourly clock times are the columns (from early morning to solar noon).</p>
+<p>Once the <code>pivot()</code>ing is done, we can introduce that that table to the <a href="../reference/GT.html#great_tables.GT"><code>GT()</code></a> class, placing the names of the months in the table stub. We will use <a href="../reference/GT.data_color.html#great_tables.GT.data_color"><code>data_color()</code></a> with a domain that runs from <code>90</code> to <code>0</code> (here, 90° is sunrise, and 0° is represents the sun angle that’s directly overhead). There are months where the sun rises later in the morning, before the sunrise times we’ll see missing values in the dataset, and <code>na_color="white"</code> will handle those cases. Okay, that’s the plan, and now here’s the code:</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> html</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> sza</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars.selectors <span class="im">as</span> cs</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>sza_pivot <span class="op">=</span> (</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    pl.from_pandas(sza)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>((pl.col(<span class="st">"latitude"</span>) <span class="op">==</span> <span class="st">"20"</span>) <span class="op">&amp;</span> (pl.col(<span class="st">"tst"</span>) <span class="op">&lt;=</span> <span class="st">"1200"</span>))</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    .select(pl.col(<span class="st">"*"</span>).exclude(<span class="st">"latitude"</span>))</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    .drop_nulls()</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    .pivot(values<span class="op">=</span><span class="st">"sza"</span>, index<span class="op">=</span><span class="st">"month"</span>, columns<span class="op">=</span><span class="st">"tst"</span>, sort_columns<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    GT(sza_pivot, rowname_col<span class="op">=</span><span class="st">"month"</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    .data_color(</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        domain<span class="op">=</span>[<span class="dv">90</span>, <span class="dv">0</span>],</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        palette<span class="op">=</span>[<span class="st">"rebeccapurple"</span>, <span class="st">"white"</span>, <span class="st">"orange"</span>],</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        na_color<span class="op">=</span><span class="st">"white"</span>,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">"Solar Zenith Angles from 05:30 to 12:00"</span>,</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        subtitle<span class="op">=</span>html(<span class="st">"Average monthly values at latitude of 20&amp;deg;N."</span>),</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+
+<div id="uddzwdakvn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#uddzwdakvn table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+ #uddzwdakvn thead, tbody, tfoot, tr, td, th { border-style: none; }
+#uddzwdakvn p { margin: 0; padding: 0; }
+ #uddzwdakvn .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #uddzwdakvn .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #uddzwdakvn .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #uddzwdakvn .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #uddzwdakvn .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #uddzwdakvn .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #uddzwdakvn .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #uddzwdakvn .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #uddzwdakvn .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #uddzwdakvn .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #uddzwdakvn .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #uddzwdakvn .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #uddzwdakvn .gt_spanner_row { border-bottom-style: hidden; }
+ #uddzwdakvn .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #uddzwdakvn .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #uddzwdakvn .gt_from_md > :first-child { margin-top: 0; }
+ #uddzwdakvn .gt_from_md > :last-child { margin-bottom: 0; }
+ #uddzwdakvn .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #uddzwdakvn .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #uddzwdakvn .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #uddzwdakvn .gt_row_group_first td { border-top-width: 2px; }
+ #uddzwdakvn .gt_row_group_first th { border-top-width: 2px; }
+ #uddzwdakvn .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #uddzwdakvn .gt_first_summary_row { border-top-style: solid; border-top-color: #D3D3D3; }
+ #uddzwdakvn .gt_first_summary_row.thick { border-top-width: 2px; }
+ #uddzwdakvn .gt_last_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #uddzwdakvn .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #uddzwdakvn .gt_first_grand_summary_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #uddzwdakvn .gt_last_grand_summary_row_top { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #uddzwdakvn .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #uddzwdakvn .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #uddzwdakvn .gt_footnotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #uddzwdakvn .gt_footnote { margin: 0px; font-size: 90%; padding-left: 4px; padding-right: 4px; padding-left: 5px; padding-right: 5px; }
+ #uddzwdakvn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #uddzwdakvn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #uddzwdakvn .gt_left { text-align: left; }
+ #uddzwdakvn .gt_center { text-align: center; }
+ #uddzwdakvn .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #uddzwdakvn .gt_font_normal { font-weight: normal; }
+ #uddzwdakvn .gt_font_bold { font-weight: bold; }
+ #uddzwdakvn .gt_font_italic { font-style: italic; }
+ #uddzwdakvn .gt_super { font-size: 65%; }
+ #uddzwdakvn .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #uddzwdakvn .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead class="gt_header">  <tr>
+    <th colspan="15" class="gt_heading gt_title gt_font_normal">Solar Zenith Angles from 05:30 to 12:00
+  </th></tr>
+  <tr>
+    <th colspan="15" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Average monthly values at latitude of 20°N.
+  </th></tr></thead>
+<tbody><tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="0530">0530</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="0600">0600</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="0630">0630</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="0700">0700</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="0730">0730</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="0800">0800</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="0830">0830</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="0900">0900</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="0930">0930</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="1000">1000</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="1030">1030</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="1100">1100</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="1130">1130</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="1200">1200</th></tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <th class="gt_row gt_left gt_stub">jan</th>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #7749a4;" class="gt_row gt_right">84.9</td>
+  <td style="color: #000000; background-color: #8c66b3;" class="gt_row gt_right">78.7</td>
+  <td style="color: #000000; background-color: #a181c0;" class="gt_row gt_right">72.7</td>
+  <td style="color: #000000; background-color: #b8a0cf;" class="gt_row gt_right">66.1</td>
+  <td style="color: #000000; background-color: #c7b5da;" class="gt_row gt_right">61.5</td>
+  <td style="color: #000000; background-color: #d8cbe5;" class="gt_row gt_right">56.5</td>
+  <td style="color: #000000; background-color: #e6deef;" class="gt_row gt_right">52.1</td>
+  <td style="color: #000000; background-color: #f4f0f7;" class="gt_row gt_right">48.3</td>
+  <td style="color: #000000; background-color: #fdfdfe;" class="gt_row gt_right">45.5</td>
+  <td style="color: #000000; background-color: #fffdf8;" class="gt_row gt_right">43.6</td>
+  <td style="color: #000000; background-color: #fffbf4;" class="gt_row gt_right">43.0</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">feb</th>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #6a389b;" class="gt_row gt_right">88.9</td>
+  <td style="color: #FFFFFF; background-color: #7f55aa;" class="gt_row gt_right">82.5</td>
+  <td style="color: #000000; background-color: #9673b9;" class="gt_row gt_right">75.8</td>
+  <td style="color: #000000; background-color: #ac90c7;" class="gt_row gt_right">69.6</td>
+  <td style="color: #000000; background-color: #c1add6;" class="gt_row gt_right">63.3</td>
+  <td style="color: #000000; background-color: #d4c6e3;" class="gt_row gt_right">57.7</td>
+  <td style="color: #000000; background-color: #e6deef;" class="gt_row gt_right">52.2</td>
+  <td style="color: #000000; background-color: #f7f5fa;" class="gt_row gt_right">47.4</td>
+  <td style="color: #000000; background-color: #fffbf4;" class="gt_row gt_right">43.1</td>
+  <td style="color: #000000; background-color: #fff5e2;" class="gt_row gt_right">40.0</td>
+  <td style="color: #000000; background-color: #fff1d6;" class="gt_row gt_right">37.8</td>
+  <td style="color: #000000; background-color: #ffefd2;" class="gt_row gt_right">37.2</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">mar</th>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #7446a3;" class="gt_row gt_right">85.7</td>
+  <td style="color: #000000; background-color: #8c66b3;" class="gt_row gt_right">78.8</td>
+  <td style="color: #000000; background-color: #a385c2;" class="gt_row gt_right">72.0</td>
+  <td style="color: #000000; background-color: #baa3d1;" class="gt_row gt_right">65.2</td>
+  <td style="color: #000000; background-color: #d1c1e0;" class="gt_row gt_right">58.6</td>
+  <td style="color: #000000; background-color: #e6deef;" class="gt_row gt_right">52.3</td>
+  <td style="color: #000000; background-color: #fbf9fc;" class="gt_row gt_right">46.2</td>
+  <td style="color: #000000; background-color: #fff6e6;" class="gt_row gt_right">40.5</td>
+  <td style="color: #000000; background-color: #ffecca;" class="gt_row gt_right">35.5</td>
+  <td style="color: #000000; background-color: #ffe4b2;" class="gt_row gt_right">31.4</td>
+  <td style="color: #000000; background-color: #ffdea2;" class="gt_row gt_right">28.6</td>
+  <td style="color: #000000; background-color: #ffdc9c;" class="gt_row gt_right">27.7</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">apr</th>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #6b399c;" class="gt_row gt_right">88.5</td>
+  <td style="color: #FFFFFF; background-color: #8359ac;" class="gt_row gt_right">81.5</td>
+  <td style="color: #000000; background-color: #9b79bc;" class="gt_row gt_right">74.4</td>
+  <td style="color: #000000; background-color: #b399cc;" class="gt_row gt_right">67.4</td>
+  <td style="color: #000000; background-color: #cbb9dc;" class="gt_row gt_right">60.3</td>
+  <td style="color: #000000; background-color: #e3d9ec;" class="gt_row gt_right">53.4</td>
+  <td style="color: #000000; background-color: #faf8fb;" class="gt_row gt_right">46.5</td>
+  <td style="color: #000000; background-color: #fff4e0;" class="gt_row gt_right">39.7</td>
+  <td style="color: #000000; background-color: #ffe7bc;" class="gt_row gt_right">33.2</td>
+  <td style="color: #000000; background-color: #ffdb98;" class="gt_row gt_right">26.9</td>
+  <td style="color: #000000; background-color: #ffcf78;" class="gt_row gt_right">21.3</td>
+  <td style="color: #000000; background-color: #ffc862;" class="gt_row gt_right">17.2</td>
+  <td style="color: #000000; background-color: #ffc458;" class="gt_row gt_right">15.5</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">may</th>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #7749a4;" class="gt_row gt_right">85.0</td>
+  <td style="color: #000000; background-color: #8e68b3;" class="gt_row gt_right">78.2</td>
+  <td style="color: #000000; background-color: #a688c3;" class="gt_row gt_right">71.2</td>
+  <td style="color: #000000; background-color: #bea8d3;" class="gt_row gt_right">64.3</td>
+  <td style="color: #000000; background-color: #d6c8e3;" class="gt_row gt_right">57.2</td>
+  <td style="color: #000000; background-color: #eee8f3;" class="gt_row gt_right">50.2</td>
+  <td style="color: #000000; background-color: #fffbf4;" class="gt_row gt_right">43.2</td>
+  <td style="color: #000000; background-color: #ffedcc;" class="gt_row gt_right">36.1</td>
+  <td style="color: #000000; background-color: #ffdfa4;" class="gt_row gt_right">29.1</td>
+  <td style="color: #000000; background-color: #ffd994;" class="gt_row gt_right">26.1</td>
+  <td style="color: #000000; background-color: #ffc356;" class="gt_row gt_right">15.2</td>
+  <td style="color: #000000; background-color: #ffb732;" class="gt_row gt_right">8.8</td>
+  <td style="color: #000000; background-color: #ffaf1c;" class="gt_row gt_right">5.0</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">jun</th>
+  <td style="color: #FFFFFF; background-color: #68369b;" class="gt_row gt_right">89.2</td>
+  <td style="color: #FFFFFF; background-color: #7f55aa;" class="gt_row gt_right">82.7</td>
+  <td style="color: #000000; background-color: #9673b9;" class="gt_row gt_right">76.0</td>
+  <td style="color: #000000; background-color: #ad91c8;" class="gt_row gt_right">69.3</td>
+  <td style="color: #000000; background-color: #c4b0d7;" class="gt_row gt_right">62.5</td>
+  <td style="color: #000000; background-color: #dacee7;" class="gt_row gt_right">55.7</td>
+  <td style="color: #000000; background-color: #f2eef7;" class="gt_row gt_right">48.8</td>
+  <td style="color: #000000; background-color: #fff9ee;" class="gt_row gt_right">41.9</td>
+  <td style="color: #000000; background-color: #ffebc6;" class="gt_row gt_right">35.0</td>
+  <td style="color: #000000; background-color: #ffdda0;" class="gt_row gt_right">28.1</td>
+  <td style="color: #000000; background-color: #ffcf78;" class="gt_row gt_right">21.1</td>
+  <td style="color: #000000; background-color: #ffc150;" class="gt_row gt_right">14.2</td>
+  <td style="color: #000000; background-color: #ffb42a;" class="gt_row gt_right">7.3</td>
+  <td style="color: #000000; background-color: #ffa90c;" class="gt_row gt_right">2.0</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">jul</th>
+  <td style="color: #FFFFFF; background-color: #6a389b;" class="gt_row gt_right">88.8</td>
+  <td style="color: #FFFFFF; background-color: #8056ab;" class="gt_row gt_right">82.3</td>
+  <td style="color: #000000; background-color: #9775ba;" class="gt_row gt_right">75.7</td>
+  <td style="color: #000000; background-color: #ad91c8;" class="gt_row gt_right">69.1</td>
+  <td style="color: #000000; background-color: #c4b0d7;" class="gt_row gt_right">62.3</td>
+  <td style="color: #000000; background-color: #dcd0e7;" class="gt_row gt_right">55.5</td>
+  <td style="color: #000000; background-color: #f2eef7;" class="gt_row gt_right">48.7</td>
+  <td style="color: #000000; background-color: #fff8ec;" class="gt_row gt_right">41.8</td>
+  <td style="color: #000000; background-color: #ffebc6;" class="gt_row gt_right">35.0</td>
+  <td style="color: #000000; background-color: #ffdda0;" class="gt_row gt_right">28.1</td>
+  <td style="color: #000000; background-color: #ffcf78;" class="gt_row gt_right">21.2</td>
+  <td style="color: #000000; background-color: #ffc252;" class="gt_row gt_right">14.3</td>
+  <td style="color: #000000; background-color: #ffb52c;" class="gt_row gt_right">7.7</td>
+  <td style="color: #000000; background-color: #ffab12;" class="gt_row gt_right">3.1</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">aug</th>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #7c50a7;" class="gt_row gt_right">83.8</td>
+  <td style="color: #000000; background-color: #926eb7;" class="gt_row gt_right">77.1</td>
+  <td style="color: #000000; background-color: #a98dc6;" class="gt_row gt_right">70.2</td>
+  <td style="color: #000000; background-color: #c1add6;" class="gt_row gt_right">63.3</td>
+  <td style="color: #000000; background-color: #d8cbe5;" class="gt_row gt_right">56.4</td>
+  <td style="color: #000000; background-color: #f0ebf5;" class="gt_row gt_right">49.4</td>
+  <td style="color: #000000; background-color: #fffaf0;" class="gt_row gt_right">42.4</td>
+  <td style="color: #000000; background-color: #ffecc8;" class="gt_row gt_right">35.4</td>
+  <td style="color: #000000; background-color: #ffdda0;" class="gt_row gt_right">28.3</td>
+  <td style="color: #000000; background-color: #ffcf78;" class="gt_row gt_right">21.3</td>
+  <td style="color: #000000; background-color: #ffc252;" class="gt_row gt_right">14.3</td>
+  <td style="color: #000000; background-color: #ffb42a;" class="gt_row gt_right">7.3</td>
+  <td style="color: #000000; background-color: #ffa90a;" class="gt_row gt_right">1.9</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">sep</th>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #70409f;" class="gt_row gt_right">87.2</td>
+  <td style="color: #FFFFFF; background-color: #8860af;" class="gt_row gt_right">80.2</td>
+  <td style="color: #000000; background-color: #a080bf;" class="gt_row gt_right">73.2</td>
+  <td style="color: #000000; background-color: #b8a0cf;" class="gt_row gt_right">66.1</td>
+  <td style="color: #000000; background-color: #d0c0df;" class="gt_row gt_right">59.1</td>
+  <td style="color: #000000; background-color: #e6deef;" class="gt_row gt_right">52.1</td>
+  <td style="color: #000000; background-color: #fefeff;" class="gt_row gt_right">45.1</td>
+  <td style="color: #000000; background-color: #fff1d8;" class="gt_row gt_right">38.1</td>
+  <td style="color: #000000; background-color: #ffe4b2;" class="gt_row gt_right">31.3</td>
+  <td style="color: #000000; background-color: #ffd68c;" class="gt_row gt_right">24.7</td>
+  <td style="color: #000000; background-color: #ffca6a;" class="gt_row gt_right">18.6</td>
+  <td style="color: #000000; background-color: #ffc14e;" class="gt_row gt_right">13.7</td>
+  <td style="color: #000000; background-color: #ffbc42;" class="gt_row gt_right">11.6</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">oct</th>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #7a4ea7;" class="gt_row gt_right">84.1</td>
+  <td style="color: #000000; background-color: #926eb7;" class="gt_row gt_right">77.1</td>
+  <td style="color: #000000; background-color: #a98dc6;" class="gt_row gt_right">70.2</td>
+  <td style="color: #000000; background-color: #c1add6;" class="gt_row gt_right">63.3</td>
+  <td style="color: #000000; background-color: #d8cbe5;" class="gt_row gt_right">56.5</td>
+  <td style="color: #000000; background-color: #efe9f4;" class="gt_row gt_right">49.9</td>
+  <td style="color: #000000; background-color: #fffcf6;" class="gt_row gt_right">43.5</td>
+  <td style="color: #000000; background-color: #fff0d4;" class="gt_row gt_right">37.5</td>
+  <td style="color: #000000; background-color: #ffe5b6;" class="gt_row gt_right">32.0</td>
+  <td style="color: #000000; background-color: #ffdc9c;" class="gt_row gt_right">27.4</td>
+  <td style="color: #000000; background-color: #ffd68a;" class="gt_row gt_right">24.3</td>
+  <td style="color: #000000; background-color: #ffd382;" class="gt_row gt_right">23.1</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">nov</th>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #6d3d9e;" class="gt_row gt_right">87.8</td>
+  <td style="color: #FFFFFF; background-color: #845bad;" class="gt_row gt_right">81.3</td>
+  <td style="color: #000000; background-color: #9b79bc;" class="gt_row gt_right">74.5</td>
+  <td style="color: #000000; background-color: #af95ca;" class="gt_row gt_right">68.3</td>
+  <td style="color: #000000; background-color: #c6b3d9;" class="gt_row gt_right">61.8</td>
+  <td style="color: #000000; background-color: #d9cde6;" class="gt_row gt_right">56.0</td>
+  <td style="color: #000000; background-color: #eee8f3;" class="gt_row gt_right">50.2</td>
+  <td style="color: #000000; background-color: #fefeff;" class="gt_row gt_right">45.3</td>
+  <td style="color: #000000; background-color: #fff6e6;" class="gt_row gt_right">40.7</td>
+  <td style="color: #000000; background-color: #fff0d4;" class="gt_row gt_right">37.4</td>
+  <td style="color: #000000; background-color: #ffebc6;" class="gt_row gt_right">35.1</td>
+  <td style="color: #000000; background-color: #ffe9c2;" class="gt_row gt_right">34.4</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">dec</th>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #000000; background-color: #FFFFFF;" class="gt_row gt_right">None</td>
+  <td style="color: #FFFFFF; background-color: #794da6;" class="gt_row gt_right">84.3</td>
+  <td style="color: #000000; background-color: #8f69b4;" class="gt_row gt_right">78.0</td>
+  <td style="color: #000000; background-color: #a486c3;" class="gt_row gt_right">71.8</td>
+  <td style="color: #000000; background-color: #b8a0cf;" class="gt_row gt_right">66.1</td>
+  <td style="color: #000000; background-color: #cbb9dc;" class="gt_row gt_right">60.5</td>
+  <td style="color: #000000; background-color: #dacee7;" class="gt_row gt_right">55.6</td>
+  <td style="color: #000000; background-color: #ebe5f2;" class="gt_row gt_right">50.9</td>
+  <td style="color: #000000; background-color: #f7f5fa;" class="gt_row gt_right">47.2</td>
+  <td style="color: #000000; background-color: #fffdfa;" class="gt_row gt_right">44.2</td>
+  <td style="color: #000000; background-color: #fffaf0;" class="gt_row gt_right">42.4</td>
+  <td style="color: #000000; background-color: #fff8ec;" class="gt_row gt_right">41.8</td>
+</tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+<p>Because this is a table for presentation, we can’t neglect using <a href="../reference/GT.tab_header.html#great_tables.GT.tab_header"><code>tab_header()</code></a>. A <em>title</em> and <em>subtitle</em> can provide just enough information to guide the reader out through your table visualization.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+
+<nav class="page-navigation column-body">
+  <div class="nav-page nav-page-previous">
+      <a href="../get-started/basic-styling.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Stying the Table Body</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../get-started/column-selection.html" class="pagination-link">
+        <span class="nav-page-text">Column Selection</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>
