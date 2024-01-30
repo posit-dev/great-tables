@@ -41,6 +41,7 @@ from great_tables._spanners import (
     cols_move_to_start,
     cols_move_to_end,
     cols_hide,
+    cols_width
 )
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import tab_stubhead
@@ -223,6 +224,7 @@ class GT(
     cols_move_to_start = cols_move_to_start
     cols_move_to_end = cols_move_to_end
     cols_hide = cols_hide
+    cols_width = cols_width
 
     tab_stubhead = tab_stubhead
 
