@@ -467,6 +467,22 @@ class Boxhead(_Sequence[ColInfo]):
 
         return n_data_cols
 
+    def _set_column_width(self, colname: str, width: str) -> Self:
+        out_cols: List[ColInfo] = []
+
+        colnames = [x.var for x in self._d]
+
+        if colname not in colnames:
+            raise ValueError(f"Column name {colname} not found in table.")
+
+        for x in self._d:
+            if x.var == colname:
+                out_cols.append(replace(x, column_width=width))
+            else:
+                out_cols.append(x)
+
+        return self.__class__(out_cols)
+
 
 # Stub ----
 __Stub = None
