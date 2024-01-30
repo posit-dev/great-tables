@@ -558,3 +558,33 @@ def seq_groups(seq: list[str]):
 
 def is_equal(x: Any, y: Any) -> bool:
     return x is not None and x == y
+
+
+def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
+    """Set the widths of columns.
+
+    Manual specifications of column widths can be performed using the `cols_width()` method. We
+    choose which columns get specific widths. This can be in units of pixels or as percentages.
+    Width assignments are supplied inside of a dictionary where columns are the keys and the
+    corresponding width is the value.
+
+    Parameters
+    ----------
+    cases : Dict[str, str]
+        A dictionary where the keys are column names and the values are the widths. Widths can be
+        specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`).
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    """
+
+    curr_boxhead = data._boxhead
+
+    for col, width in cases.items():
+        curr_boxhead = curr_boxhead._set_column_width(col, width)
+
+    return data._replace(_boxhead=curr_boxhead)
