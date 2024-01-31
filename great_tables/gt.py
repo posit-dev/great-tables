@@ -41,6 +41,7 @@ from great_tables._spanners import (
     cols_move_to_start,
     cols_move_to_end,
     cols_hide,
+    cols_width,
 )
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import tab_stubhead
@@ -51,6 +52,7 @@ from great_tables._utils_render_html import (
     create_body_component_h,
     create_source_notes_component_h,
     create_footnotes_component_h,
+    _get_table_defs,
 )
 from great_tables._tab_create_modify import tab_style
 
@@ -223,6 +225,7 @@ class GT(
     cols_move_to_start = cols_move_to_start
     cols_move_to_end = cols_move_to_end
     cols_hide = cols_hide
+    cols_width = cols_width
 
     tab_stubhead = tab_stubhead
 
@@ -277,13 +280,26 @@ class GT(
         source_notes_component = create_source_notes_component_h(data=self)
         footnotes_component = create_footnotes_component_h(data=self)
 
-        # Determine whether Quarto processing of the table is enabled
-        quarto_disable_processing = self._options.quarto_disable_processing.value
-        quarto_use_bootstrap = self._options.quarto_use_bootstrap.value
-        quarto_disable_processing = str(quarto_disable_processing).lower()
-        quarto_use_bootstrap = str(quarto_use_bootstrap).lower()
+        # Get attributes for the table
+        table_defs = _get_table_defs(data=self)
 
-        html_table = f"""<table class=\"gt_table\" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">
+        # Determine whether Quarto processing of the table is enabled
+        quarto_disable_processing = str(self._options.quarto_disable_processing.value).lower()
+        quarto_use_bootstrap = str(self._options.quarto_use_bootstrap.value).lower()
+
+        # If table_defs["table_colgroups"] is None, then we set table_colgroups to an empty string;
+        # if present, wrap the value with newlines
+        if table_defs["table_colgroups"] is None:
+            table_colgroups = ""
+        else:
+            table_colgroups = f"\n{table_defs['table_colgroups']}\n"
+
+        if table_defs["table_style"] is None:
+            table_tag_open = f'<table class="gt_table" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">'
+        else:
+            table_tag_open = f'<table style="{table_defs["table_style"]}" class="gt_table" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">'
+
+        html_table = f"""{table_tag_open}{table_colgroups}
 {heading_component.make_string()}
 {column_labels_component}
 {body_component}
@@ -323,6 +339,23 @@ class GT(
         """
 
         return finalized_table
+
+    def _finalize_html_table(
+        style: str, quarto_disable_processing: str, quarto_use_bootstrap: str, *args: Any
+    ) -> str:
+        from htmltools import tags, HTML, css, TagList
+
+        html_tbl = tags.table(
+            data_quarto_disable_processing=quarto_disable_processing,
+            data_quarto_bootstrap=quarto_use_bootstrap,
+            *args,
+            class_="gt_table",
+            style=style,
+        )
+
+        html_tbl = str(html_tbl)
+
+        return html_tbl
 
 
 # =============================================================================

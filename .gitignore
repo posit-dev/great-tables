@@ -106,7 +106,10 @@ typings/
 docs/source/generated/
 docs/source/reference/
 
-# Playground Scripts
+# Playground Scripts and temporary outputs
 playground*.py
+playground*.qmd
+playground.html
+playground_files
 manual-testing.py
 manual-testing.ipynb

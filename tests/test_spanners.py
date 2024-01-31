@@ -179,3 +179,48 @@ def test_cols_move_polars():
 
     new_gt = cols_move(src_gt, columns=cs.starts_with("a"), after="b")
     assert [col.var for col in new_gt._boxhead] == ["b", "a", "c"]
+
+
+def test_cols_width_partial_set():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df).cols_width({"a": "10px"})
+
+    assert gt_tbl._boxhead[0].column_width == "10px"
+    assert gt_tbl._boxhead[1].column_width == None
+    assert gt_tbl._boxhead[2].column_width == None
+
+
+def test_cols_width_fully_set():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df).cols_width({"a": "10px", "b": "20px", "c": "30px"})
+
+    assert gt_tbl._boxhead[0].column_width == "10px"
+    assert gt_tbl._boxhead[1].column_width == "20px"
+    assert gt_tbl._boxhead[2].column_width == "30px"
+
+
+def test_cols_width_partial_set_pct():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df).cols_width({"a": "20%"})
+
+    assert gt_tbl._boxhead[0].column_width == "20%"
+    assert gt_tbl._boxhead[1].column_width == None
+    assert gt_tbl._boxhead[2].column_width == None
+
+
+def test_cols_width_fully_set_pct():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df).cols_width({"a": "20%", "b": "20%", "c": "60%"})
+
+    assert gt_tbl._boxhead[0].column_width == "20%"
+    assert gt_tbl._boxhead[1].column_width == "20%"
+    assert gt_tbl._boxhead[2].column_width == "60%"
+
+
+def test_cols_width_fully_set_pct_2():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df).cols_width({"a": "10%", "b": "10%", "c": "40%"})
+
+    assert gt_tbl._boxhead[0].column_width == "10%"
+    assert gt_tbl._boxhead[1].column_width == "10%"
+    assert gt_tbl._boxhead[2].column_width == "40%"

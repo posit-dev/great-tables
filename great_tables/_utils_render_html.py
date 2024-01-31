@@ -639,30 +639,30 @@ def _get_spanners_matrix_height(
 
 
 # Get the attributes needed for the <table> tag
-def _get_table_defs(data: GTData):
+def _get_table_defs(data: GTData) -> dict[str, Any]:
     # Get the `table-layout` value, which is set in `_options`
     table_layout = data._options.table_layout.value
     table_style = f"table-layout: {table_layout};"
 
     # Get the number of columns that have a width set
-    n_column_width = len(data._boxhead._get_column_widths())
+    column_widths = data._boxhead._get_column_widths()
 
-    # In the case that column widths are not set for any columns,
-    # there should not be a `<colgroup>` tag requirement
-    if n_column_width < 1:
+    # If all values in the `column_widths` lists are None, then return a dictionary with
+    # `table_style` and `table_colgroups` set to None; this is the case where column widths are
+    # not set for any columns and, as a result, there should not be a `<colgroup>` tag requirement
+    if all(width is None for width in column_widths):
         return dict(table_style=None, table_colgroups=None)
 
     # Get the table's width (which or may not have been set)
     table_width = data._options.table_width.value
 
-    # Get all the widths for the columns as a list where None values mean
-    # that the width is not set for that column
+    # Get all the widths for the columns as a list where None values mean that the width is
+    # not set for that column
     # TODO: ensure that the stub column is set first in the list
     widths = data._boxhead._get_column_widths()
 
-    # If all of the widths are defined as px values for all columns,
-    # then ensure that the width values are strictly respected as
-    # absolute width values (even if a table width has already been set)
+    # If all of the widths are defined as px values for all columns, then ensure that the width
+    # values are strictly respected as absolute width values (even if table width already set)
     if (
         all(isinstance(width, str) and width is not None and "px" in width for width in widths)
         and table_width == "auto"
@@ -685,4 +685,6 @@ def _get_table_defs(data: GTData):
     # Create the `<colgroup>` tag
     table_colgroups = tags.colgroup([tags.col(style=css(width=width)) for width in widths])
 
-    return dict(table_style=table_style, table_colgroups=table_colgroups)
+    table_defs_dict = dict(table_style=table_style, table_colgroups=table_colgroups)
+
+    return table_defs_dict

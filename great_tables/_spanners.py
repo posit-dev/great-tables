@@ -558,3 +558,116 @@ def seq_groups(seq: list[str]):
 
 def is_equal(x: Any, y: Any) -> bool:
     return x is not None and x == y
+
+
+def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
+    """Set the widths of columns.
+
+    Manual specifications of column widths can be performed using the `cols_width()` method. We
+    choose which columns get specific widths. This can be in units of pixels or as percentages.
+    Width assignments are supplied inside of a dictionary where columns are the keys and the
+    corresponding width is the value.
+
+    Parameters
+    ----------
+    cases : Dict[str, str]
+        A dictionary where the keys are column names and the values are the widths. Widths can be
+        specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`).
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use select columns from the [`exibble`] dataset to create a new table. We can specify the
+    widths of columns with `cols_width()`. This is done by specifying the exact widths for table
+    columns in a dictionary. In this example, we'll set the width of the `num` column to `150px`,
+    the `char` column to `100px`, the `date` column to `300px`. All other columns won't be affected
+    (their widths will be automatically set by their content).
+
+    ```{python}
+    import great_tables as gt
+    from great_tables.data import exibble
+
+    exibble_mini = exibble[[\"num\", \"char\", \"date\", \"datetime\", \"row\"]].head(5)
+
+    (
+        gt.GT(exibble_mini)
+        .cols_width(
+            cases={
+                "num": \"150px\",
+                "char": \"100px\",
+                "date": \"300px\"
+            }
+        )
+    )
+    ```
+
+    We can also specify the widths of columns as percentages. In this example, we'll set the width
+    of the `num` column to `20%`, the `char` column to `10%`, and the `date` column to `30%`. Note
+    that the percentages are relative and don't need to sum to 100%.
+
+    ```{python}
+    (
+        gt.GT(exibble_mini)
+        .cols_width(
+            cases={
+                "num": \"20%\",
+                "char": \"10%\",
+                "date": \"30%\"
+            }
+        )
+    )
+    ```
+
+    We can also mix and match pixel and percentage widths. In this example, we'll set the width of
+    the `num` column to `150px`, the `char` column to `10%`, and the `date` column to `30%`.
+
+    ```{python}
+    (
+        gt.GT(exibble_mini)
+        .cols_width(
+            cases={
+                "num": \"150px\",
+                "char": \"10%\",
+                "date": \"30%\"
+            }
+        )
+    )
+    ```
+
+    If we set the width of all columns, the table will be forced to use the specified widths (i.e.,
+    a column width less than the content width will be honored). In this next example, we'll set
+    widths for all columns. This is a good way to ensure that the widths you specify are fully
+    respected (and not overridden by automatic width calculations).
+
+    ```{python}
+    (
+        gt.GT(exibble_mini)
+        .cols_width(
+            cases={
+                "num": \"30px\",
+                "char": \"100px\",
+                "date": \"100px\",
+                "datetime": \"200px\",
+                "row": \"50px\"
+            }
+        )
+    )
+    ```
+
+    Notice that in the above example, the `num` column is very small (only `30px`) and the content
+    overflows. When not specifying the width of all columns, the table will automatically adjust the
+    column widths based on the content (and you wouldn't get the overflowing behavior seen in the
+    previous example).
+    """
+
+    curr_boxhead = data._boxhead
+
+    for col, width in cases.items():
+        curr_boxhead = curr_boxhead._set_column_width(col, width)
+
+    return data._replace(_boxhead=curr_boxhead)
