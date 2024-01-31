@@ -108,5 +108,6 @@ docs/source/reference/
 
 # Playground Scripts
 playground*.py
+playground*.qmd
 manual-testing.py
 manual-testing.ipynb
