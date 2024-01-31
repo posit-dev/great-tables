@@ -661,9 +661,8 @@ def _get_table_defs(data: GTData) -> dict[str, Any]:
     # TODO: ensure that the stub column is set first in the list
     widths = data._boxhead._get_column_widths()
 
-    # If all of the widths are defined as px values for all columns,
-    # then ensure that the width values are strictly respected as
-    # absolute width values (even if a table width has already been set)
+    # If all of the widths are defined as px values for all columns, then ensure that the width
+    # values are strictly respected as absolute width values (even if table width already set)
     if (
         all(isinstance(width, str) and width is not None and "px" in width for width in widths)
         and table_width == "auto"
