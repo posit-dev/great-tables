@@ -639,7 +639,8 @@ def _get_spanners_matrix_height(
 
 
 # Get the attributes needed for the <table> tag
-def _get_table_defs(data: GTData):
+def _get_table_defs(data: GTData) -> dict[str, Any]:
+
     # Get the `table-layout` value, which is set in `_options`
     table_layout = data._options.table_layout.value
     table_style = f"table-layout: {table_layout};"
