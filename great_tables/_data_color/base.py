@@ -75,8 +75,8 @@ def data_color(
     Examples
     --------
 
-    The `data_color()` method can be used without any supplied arguments to colorize a table. Let's\
-    do this with the [`exibble`] dataset:
+    The `data_color()` method can be used without any supplied arguments to colorize a table. Let's
+    do this with the `exibble` dataset:
 
     ```{python}
     import great_tables as gt
