@@ -639,9 +639,10 @@ def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
     )
     ```
 
-    If we set the width of all columns, the table will be forced to use the specified widths. In
-    this example, we'll set widths for all columns. This is a good way to ensure that the widths
-    you specify are fully respected (and not overridden by automatic width calculations).
+    If we set the width of all columns, the table will be forced to use the specified widths (i.e.,
+    a column width less than the content width will be honored). In this next example, we'll set
+    widths for all columns. This is a good way to ensure that the widths you specify are fully
+    respected (and not overridden by automatic width calculations).
 
     ```{python}
     (
@@ -657,6 +658,11 @@ def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
         )
     )
     ```
+
+    Notice that in the above example, the `num` column is very small (only `30px`) and the content
+    overflows. When not specifying the width of all columns, the table will automatically adjust the
+    column widths based on the content (and you wouldn't get the overflowing behavior seen in the
+    previous example).
     """
 
     curr_boxhead = data._boxhead
