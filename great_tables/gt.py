@@ -294,7 +294,12 @@ class GT(
         else:
             table_colgroups = f"\n{table_defs['table_colgroups']}\n"
 
-        html_table = f"""<table class=\"gt_table\" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">{table_colgroups}
+        if table_defs["table_style"] is None:
+            table_tag_open = f'<table class="gt_table" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">'
+        else:
+            table_tag_open = f'<table class="gt_table" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">'
+
+        html_table = f"""{table_tag_open}{table_colgroups}
 {heading_component.make_string()}
 {column_labels_component}
 {body_component}
