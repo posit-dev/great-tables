@@ -115,6 +115,7 @@ quartodoc:
         `cols_move*()` methods).
       contents:
         - GT.cols_align
+        - GT.cols_width
         - GT.cols_label
         - GT.cols_move
         - GT.cols_move_to_start
