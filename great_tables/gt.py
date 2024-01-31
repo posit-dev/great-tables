@@ -287,8 +287,14 @@ class GT(
         quarto_disable_processing = str(self._options.quarto_disable_processing.value).lower()
         quarto_use_bootstrap = str(self._options.quarto_use_bootstrap.value).lower()
 
-        html_table = f"""<table class=\"gt_table\" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">
-{table_defs["table_colgroups"]}
+        # If table_defs["table_colgroups"] is None, then we set table_colgroups to an empty string;
+        # if present, wrap the value with newlines
+        if table_defs["table_colgroups"] is None:
+            table_colgroups = ""
+        else:
+            table_colgroups = f"\n{table_defs['table_colgroups']}\n"
+
+        html_table = f"""<table class=\"gt_table\" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">{table_colgroups}
 {heading_component.make_string()}
 {column_labels_component}
 {body_component}
