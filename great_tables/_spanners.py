@@ -582,7 +582,7 @@ def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
 
     Examples
     --------
-    Let's use select columns from the [`exibble`] dataset to create a new table. We can specify the
+    Let's use select columns from the `exibble` dataset to create a new table. We can specify the
     widths of columns with `cols_width()`. This is done by specifying the exact widths for table
     columns in a dictionary. In this example, we'll set the width of the `num` column to `150px`,
     the `char` column to `100px`, the `date` column to `300px`. All other columns won't be affected
