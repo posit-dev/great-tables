@@ -170,151 +170,344 @@ def tab_options(
 
     Parameters
     ----------
-    container_width, container_height : str
-        The width and height of the table's container. Can be specified as a single-length
+    container_width : str
+        The width of the table's container. Can be specified as a single-length
         character with units of pixels or as a percentage. If provided as a scalar numeric
-        value, it is assumed that the value is given in units of pixels. The `px()` and `pct()`
-        helpers can also be used to pass in numeric values and obtain values as pixel or percent
-        units.
-    container_overflow_x, container_overflow_y : bool
-        Options to enable scrolling in the horizontal and vertical directions when the table
-        content overflows the container dimensions. Using `True` (the default for both) means
-        that horizontal or vertical scrolling is enabled to view the entire table in those
-        directions. With `False`, the table may be clipped if the table width or height exceeds
-        the `container_width` or `container_height`.
-    table_width
+        value, it is assumed that the value is given in units of pixels.
+    container_height: str
+        The height of the table's container.
+    container_overflow_x : bool
+        An option to enable scrolling in the horizontal direction when the table content overflows
+        the container dimensions. Using `True` (the default) means that horizontal scrolling is
+        enabled to view the entire table in those directions. With `False`, the table may be clipped
+        if the table width or height exceeds the `container_width`.
+    container_overflow_y : bool
+        An option to enable scrolling in the vertical direction when the table content overflows.
+        Same rules apply as for `container_overflow_x`; the dependency here is that of the table
+        height (`container_height`).
+    table_width: str
         The width of the table. Can be specified as a string with units of pixels or as a
         percentage. If provided as a numeric value, it is assumed that the value is given in
-        units of pixels. The `px()` and `pct()` helpers can also be used to pass in numeric
-        values and obtain values as pixel or percent units.
-    table_layout
+        units of pixels.
+    table_layout: str
         The value for the `table-layout` CSS style in the HTML output context. By default, this
         is `"fixed"` but another valid option is `"auto"`.
-    table_align
+    table_align: str
         The horizontal alignment of the table in its container. By default, this is `"center"`.
-        Other options are `"left"` and `"right"`. This will automatically set
-        `table_margin_left` and `table_margin_right` to the appropriate values.
-    table_margin_left,table_margin_right
-        The size of the margins on the left and right of the table within the container. Can be
-        specified as a single-length character with units of pixels or as a percentage. If
+        Other options are `"left"` and `"right"`. This will automatically set `table_margin_left`
+        and `table_margin_right` to the appropriate values.
+    table_margin_left: str
+        The size of the margins on the left of the table within the container. Can be
+        specified as a single-length value with units of pixels or as a percentage. If
         provided as a numeric value, it is assumed that the value is given in units of pixels.
-        The `px()` and `pct()` helpers can also be used to pass in numeric values and obtain
-        values as pixel or percent units. Using `table_margin_left` or `table_margin_right` will
-        overwrite any values set by `table_align`.
-    table_background_color,heading_background_color,column_labels_background_color,row_group_background_color,stub_background_color,summary_row_background_color,grand_summary_row_background_color,footnotes_background_color,source_notes_background_color
-        Background colors for the parent element `table` and the following child elements:
-        `heading`, `column_labels`, `row_group`, `stub`, `summary_row`, `grand_summary_row`,
-        `footnotes`, and `source_notes`. A color name or a hexadecimal color code should be
+        Using `table_margin_left` will overwrite any values set by `table_align`.
+    table_margin_right: str
+        The size of the margins on the right of the table within the container. Same rules apply
+        as for `table_margin_left`. Using `table_margin_right` will overwrite any values set by
+        `table_align`.
+    table_background_color: str
+        The background color for the table. A color name or a hexadecimal color code should be
         provided.
-    table_additional_css
+    heading_background_color: str
+        The background color for the heading. A color name or a hexadecimal color code should be
+        provided.
+    column_labels_background_color: str
+        The background color for the column labels. A color name or a hexadecimal color code should
+        be provided.
+    row_group_background_color: str
+        The background color for the row group labels. A color name or a hexadecimal color code
+        should be provided.
+    stub_background_color: str
+        The background color for the stub. A color name or a hexadecimal color code should be
+        provided.
+    summary_row_background_color: str
+        The background color for all summary rows present in the table. A color name or a
+        hexadecimal color code should be provided.
+    grand_summary_row_background_color: str
+        The background color for any grand summary rows present in the table. A color name or a
+        hexadecimal color code should be provided.
+    footnotes_background_color: str
+        The background color for the footnotes. A color name or a hexadecimal color code should be
+        provided.
+    source_notes_background_color: str
+        The background color for the source notes. A color name or a hexadecimal color code should
+        be provided.
+    table_additional_css: str
         This option can be used to supply an additional block of CSS rules to be applied after
         the automatically generated table CSS.
-    table_font_names
+    table_font_names: List[str]
         The names of the fonts used for the table. This should be provided as a list of font
         names. If the first font isn't available, then the next font is tried (and so on).
-    table_font_style
+    table_font_style: str
         The font style for the table. Can be one of either `"normal"`, `"italic"`, or `"oblique"`.
-    table_font_color,table_font_color_light
-        The text color used throughout the table. There are two variants: `table_font_color` is
-        for text overlaid on lighter background colors, and `table_font_color_light` is
-        automatically used when text needs to be overlaid on darker background colors. A color
-        name or a hexadecimal color code should be provided.
-    table_font_size,heading_title_font_size,heading_subtitle_font_size,column_labels_font_size,row_group_font_size,stub_font_size,footnotes_font_size,source_notes_font_size
-        The font sizes for the parent text element `table` and the following child elements:
-        `heading_title`, `heading_subtitle`, `column_labels`, `row_group`, `footnotes`, and
-        `source_notes`. Can be specified as a string with units of pixels (e.g., `"12px"`) or as
-        a percentage (e.g., `"80%"`). If provided as a scalar numeric value, it is assumed that
-        the value is given in units of pixels. The `px()` and `pct()` helpers can also be used
-        to pass in numeric values and obtain values as pixel or percentage units.
-    heading_align
+    table_font_color: str
+        The text color used throughout the table. This applies for text overlaid on lighter
+        background colors. A color name or a hexadecimal color code should be provided.
+    table_font_color_light: str
+        The text color used throughout the table. This applies for text overlaid on darker
+        background colors. A color name or a hexadecimal color code should be provided.
+    table_font_size: str
+        The font size for the table. Can be specified as a string with units of pixels or as a
+        percentage. If provided as a numeric value, it is assumed that the value is given in
+        units of pixels.
+    heading_title_font_size: str
+        The font size for the heading title element.
+    heading_subtitle_font_size: str
+        The font size for the heading subtitle element.
+    column_labels_font_size: str
+        The font size to use for all column labels.
+    row_group_font_size: str
+        The font size to use for all row group labels.
+    stub_font_size: str
+        The font size to use for all row labels present in the table stub.
+    footnotes_font_size: str
+        The font size to use for all footnote text.
+    source_notes_font_size: str
+        The font size to use for all source note text.
+    heading_align: str
         Controls the horizontal alignment of the heading title and subtitle. We can either use
         `"center"`, `"left"`, or `"right"`.
-    table_font_weight,heading_title_font_weight,heading_subtitle_font_weight,column_labels_font_weight,row_group_font_weight,stub_font_weight
-        The font weights of the table, `heading_title`, `heading_subtitle`, `column_labels`,
-        `row_group`, and `stub` text elements. Can be a text-based keyword such as `"normal"`,
-        `"bold"`, `"lighter"`, `"bolder"`, or, a numeric value between `1` and `1000`,
-        inclusive. Note that only variable fonts may support the numeric mapping of weight.
-    column_labels_text_transform,row_group_text_transform,stub_text_transform,summary_row_text_transform,grand_summary_row_text_transform
-        Options to apply text transformations to the `column_labels`, `row_group`, `stub`,
-        `summary_row`, and `grand_summary_row` text elements. Either of the `"uppercase"`,
-        `"lowercase"`, or `"capitalize"` keywords can be used.
-    heading_padding,column_labels_padding,data_row_padding,row_group_padding,summary_row_padding,grand_summary_row_padding,footnotes_padding,source_notes_padding
-        The amount of vertical padding to incorporate in the `heading` (title and subtitle), the
-        `column_labels` (this includes the column spanners), the row group labels
-        (`row_group_padding`), in the body/stub rows (`data_row_padding`), in summary rows
-        (`summary_row_padding` or `grand_summary_row_padding`), or in the footnotes and source
-        notes (`footnotes_padding` and `source_notes_padding`).
-    heading_padding_horizontal,column_labels_padding_horizontal,data_row_padding_horizontal,row_group_padding_horizontal,summary_row_padding_horizontal,grand_summary_row_padding_horizontal,footnotes_padding_horizontal,source_notes_padding_horizontal
-        The amount of horizontal padding to incorporate in the `heading` (title and subtitle),
-        the `column_labels` (this includes the column spanners), the row group labels
-        (`row_group_padding_horizontal`), in the body/stub rows (`data_row_padding`), in summary
-        rows (`summary_row_padding_horizontal` or `grand_summary_row_padding_horizontal`), or in
-        the footnotes and source notes (`footnotes_padding_horizontal` and
-        `source_notes_padding_horizontal`).
-    table_border_top_style,table_border_top_width,table_border_top_color,table_border_right_style,table_border_right_width,table_border_right_color,table_border_bottom_style,table_border_bottom_width,table_border_bottom_color,table_border_left_style,table_border_left_width,table_border_left_color
-        The style, width, and color properties of the table's absolute top and absolute bottom
-        borders.
-    heading_border_bottom_style,heading_border_bottom_width,heading_border_bottom_color
-        The style, width, and color properties of the header's bottom border. This border shares
-        space with that of the `column_labels` location. If the `width` of this border is
-        larger, then it will be the visible border.
-    heading_border_lr_style,heading_border_lr_width,heading_border_lr_color
-        The style, width, and color properties for the left and right borders of the `heading`
-        location.
-    column_labels_vlines_style,column_labels_vlines_width,column_labels_vlines_color
-        The style, width, and color properties for all vertical lines ('vlines') of the the
-        `column_labels`.
-    column_labels_border_top_style,column_labels_border_top_width,column_labels_border_top_color
-        The style, width, and color properties for the top border of the `column_labels`
-        location. This border shares space with that of the `heading` location. If the `width`
-        of this border is larger, then it will be the visible border.
-    column_labels_border_bottom_style,column_labels_border_bottom_width,column_labels_border_bottom_color
-        The style, width, and color properties for the bottom border of the `column_labels`
-        location.
-    column_labels_border_lr_style,column_labels_border_lr_width,column_labels_border_lr_color
-        The style, width, and color properties for the left and right borders of the
-        `column_labels` location.
-    column_labels_hidden
-        An option to hide the column labels. If providing `TRUE` then the entire `column_labels`
+    table_font_weight: str
+        The font weight of the table. Can be a text-based keyword such as `"normal"`, `"bold"`,
+        `"lighter"`, `"bolder"`, or, a numeric value between `1` and `1000`, inclusive. Note that
+        only variable fonts may support the numeric mapping of weight.
+    heading_title_font_weight: str
+        The font weight of the heading title.
+    heading_subtitle_font_weight: str
+        The font weight of the heading subtitle.
+    column_labels_font_weight: str
+        The font weight of the table's column labels.
+    row_group_font_weight: str
+        The font weight for all row group labels present in the table.
+    stub_font_weight: str
+        The font weight for all row labels present in the table stub.
+    column_labels_text_transform: str
+        The text transformation for the column labels. Either of the `"uppercase"`, `"lowercase"`,
+        or `"capitalize"` keywords can be used.
+    row_group_text_transform: str
+        The text transformation for the row group labels.
+    stub_text_transform: str
+        The text transformation for the row labels present in the table stub.
+    summary_row_text_transform: str
+        The text transformation for all summary rows present in the table.
+    grand_summary_row_text_transform: str
+        The text transformation for any grand summary rows present in the table.
+    heading_padding: str
+        The amount of vertical padding to incorporate in the `heading` (title and subtitle). Can be
+        specified as a string with units of pixels or as a percentage. If provided as a numeric
+        value, it is assumed that the value is given in units of pixels.
+    column_labels_padding: str
+        The amount of vertical padding to incorporate in the `column_labels` (this includes the
+        column spanners).
+    data_row_padding: str
+        The amount of vertical padding to incorporate in the body/stub rows.
+    row_group_padding: str
+        The amount of vertical padding to incorporate in the row group labels.
+    summary_row_padding: str
+        The amount of vertical padding to incorporate in the summary rows.
+    grand_summary_row_padding: str
+        The amount of vertical padding to incorporate in the grand summary rows.
+    footnotes_padding: str
+        The amount of vertical padding to incorporate in the footnotes.
+    source_notes_padding: str
+        The amount of vertical padding to incorporate in the source notes.
+    heading_padding_horizontal: str
+        The amount of horizontal padding to incorporate in the `heading` (title and subtitle). Can
+        be specified as a string with units of pixels or as a percentage. If provided as a numeric
+        value, it is assumed that the value is given in units of pixels.
+    column_labels_padding_horizontal: str
+        The amount of horizontal padding to incorporate in the `column_labels` (this includes the
+        column spanners).
+    data_row_padding_horizontal: str
+        The amount of horizontal padding to incorporate in the body/stub rows.
+    row_group_padding_horizontal: str
+        The amount of horizontal padding to incorporate in the row group labels.
+    summary_row_padding_horizontal: str
+        The amount of horizontal padding to incorporate in the summary rows.
+    grand_summary_row_padding_horizontal: str
+        The amount of horizontal padding to incorporate in the grand summary rows.
+    footnotes_padding_horizontal: str
+        The amount of horizontal padding to incorporate in the footnotes.
+    source_notes_padding_horizontal: str
+        The amount of horizontal padding to incorporate in the source notes.
+    table_border_top_style: str
+        The style of the table's absolute top border. Can be one of either `"solid"`, `"dotted"`,
+        `"dashed"`, `"double"`, `"groove"`, `"ridge"`, `"inset"`, or `"outset"`.
+    table_border_top_width: str
+        The width of the table's absolute top border. Can be specified as a string with units of
+        pixels or as a percentage. If provided as a numeric value, it is assumed that the value is
+        given in units of pixels.
+    table_border_top_color: str
+        The color of the table's absolute top border. A color name or a hexadecimal color code
+        should be provided.
+    table_border_right_style: str
+        The style of the table's absolute right border.
+    table_border_right_width: str
+        The width of the table's absolute right border.
+    table_border_right_color: str
+        The color of the table's absolute right border.
+    table_border_bottom_style: str
+        The style of the table's absolute bottom border.
+    table_border_bottom_width: str
+        The width of the table's absolute bottom border.
+    table_border_bottom_color: str
+        The color of the table's absolute bottom border.
+    table_border_left_style: str
+        The style of the table's absolute left border.
+    table_border_left_width: str
+        The width of the table's absolute left border.
+    table_border_left_color: str
+        The color of the table's absolute left border.
+    heading_border_bottom_style: str
+        The style of the header's bottom border.
+    heading_border_bottom_width: str
+        The width of the header's bottom border. If the `width` of this border is larger, then it
+        will be the visible border.
+    heading_border_bottom_color: str
+        The color of the header's bottom border.
+    heading_border_lr_style: str
+        The style of the left and right borders of the `heading` location.
+    heading_border_lr_width: str
+        The width of the left and right borders of the `heading` location. If the `width` of this
+        border is larger, then it will be the visible border.
+    heading_border_lr_color: str
+        The color of the left and right borders of the `heading` location.
+    column_labels_vlines_style: str
+        The style of all vertical lines ('vlines') of the `column_labels`.
+    column_labels_vlines_width: str
+        The width of all vertical lines ('vlines') of the `column_labels`.
+    column_labels_vlines_color: str
+        The color of all vertical lines ('vlines') of the `column_labels`.
+    column_labels_border_top_style: str
+        The style of the top border of the `column_labels` location.
+    column_labels_border_top_width: str
+        The width of the top border of the `column_labels` location. If the `width` of this border
+        is larger, then it will be the visible border.
+    column_labels_border_top_color: str
+        The color of the top border of the `column_labels` location.
+    column_labels_border_bottom_style: str
+        The style of the bottom border of the `column_labels` location.
+    column_labels_border_bottom_width: str
+        The width of the bottom border of the `column_labels` location. If the `width` of this
+        border is larger, then it will be the visible border.
+    column_labels_border_bottom_color: str
+        The color of the bottom border of the `column_labels` location.
+    column_labels_border_lr_style: str
+        The style of the left and right borders of the `column_labels` location.
+    column_labels_border_lr_width: str
+        The width of the left and right borders of the `column_labels` location. If the `width` of
+        this border is larger, then it will be the visible border.
+    column_labels_border_lr_color: str
+        The color of the left and right borders of the `column_labels` location.
+    column_labels_hidden: bool
+        An option to hide the column labels. If providing `True` then the entire `column_labels`
         location won't be seen and the table header (if present) will collapse downward.
-    row_group_border_top_style,row_group_border_top_width,row_group_border_top_color,row_group_border_bottom_style,row_group_border_bottom_width,row_group_border_bottom_color,row_group_border_left_style,row_group_border_left_width,row_group_border_left_color,row_group_border_right_style,row_group_border_right_width,row_group_border_right_color
-        The style, width, and color properties for all top, bottom, left, and right borders of
-        the `row_group` location.
-    table_body_hlines_style,table_body_hlines_width,table_body_hlines_color,table_body_vlines_style,table_body_vlines_width,table_body_vlines_color
-        The style, width, and color properties for all horizontal lines ('hlines') and vertical
-        lines ('vlines') in the `table_body`.
-    table_body_border_top_style,table_body_border_top_width,table_body_border_top_color,table_body_border_bottom_style,table_body_border_bottom_width,table_body_border_bottom_color
-        The style, width, and color properties for all top and bottom borders of the
-        `table_body` location.
-    stub_border_style,stub_border_width,stub_border_color
-        The style, width, and color properties for the vertical border of the table stub.
-    stub_row_group_font_size,stub_row_group_font_weight,stub_row_group_text_transform,stub_row_group_border_style,stub_row_group_border_width,stub_row_group_border_color
-        Options for the row group column in the stub (made possible when using
-        `row_group_as_column=True`). The defaults for these options mirror that of the `stub.*`
-        variants (except for `stub_row_group_border_width`, which is `"1px"` instead of
-        `"2px"`).
-    row_group_default_label
+    row_group_border_top_style: str
+        The style of the top border of the `row_group` location.
+    row_group_border_top_width: str
+        The width of the top border of the `row_group` location. If the `width` of this border is
+        larger, then it will be the visible border.
+    row_group_border_top_color: str
+        The color of the top border of the `row_group` location.
+    row_group_border_bottom_style: str
+        The style of the bottom border of the `row_group` location.
+    row_group_border_bottom_width: str
+        The width of the bottom border of the `row_group` location. If the `width` of this border
+        is larger, then it will be the visible border.
+    row_group_border_bottom_color: str
+        The color of the bottom border of the `row_group` location.
+    row_group_border_left_style: str
+        The style of the left border of the `row_group` location.
+    row_group_border_left_width: str
+        The width of the left border of the `row_group` location. If the `width` of this border is
+        larger, then it will be the visible border.
+    row_group_border_left_color: str
+        The color of the left border of the `row_group` location.
+    row_group_border_right_style: str
+        The style of the right border of the `row_group` location.
+    row_group_border_right_width: str
+        The width of the right border of the `row_group` location. If the `width` of this border is
+    row_group_border_right_color: str
+        The color of the right border of the `row_group` location.
+    table_body_hlines_style: str
+        The style of all horizontal lines ('hlines') in the `table_body`.
+    table_body_hlines_width: str
+        The width of all horizontal lines ('hlines') in the `table_body`.
+    table_body_hlines_color: str
+        The color of all horizontal lines ('hlines') in the `table_body`.
+    table_body_vlines_style: str
+        The style of all vertical lines ('vlines') in the `table_body`.
+    table_body_vlines_width: str
+        The width of all vertical lines ('vlines') in the `table_body`.
+    table_body_vlines_color: str
+        The color of all vertical lines ('vlines') in the `table_body`.
+    table_body_border_top_style: str
+        The style of the top border of the `table_body` location.
+    table_body_border_top_width: str
+        The width of the top border of the `table_body` location. If the `width` of this border is
+        larger, then it will be the visible border.
+    table_body_border_top_color: str
+        The color of the top border of the `table_body` location.
+    table_body_border_bottom_style: str
+        The style of the bottom border of the `table_body` location.
+    table_body_border_bottom_width: str
+        The width of the bottom border of the `table_body` location. If the `width` of this border
+    table_body_border_bottom_color: str
+        The color of the bottom border of the `table_body` location.
+    stub_border_style: str
+        The style of the vertical border of the table stub.
+    stub_border_width: str
+        The width of the vertical border of the table stub.
+    stub_border_color: str
+        The color of the vertical border of the table stub.
+    stub_row_group_font_size: str
+        The font size for the row group column in the stub.
+    stub_row_group_font_weight: str
+        The font weight for the row group column in the stub.
+    stub_row_group_text_transform: str
+        The text transformation for the row group column in the stub.
+    stub_row_group_border_style: str
+        The style of the vertical border of the row group column in the stub.
+    stub_row_group_border_width: str
+        The width of the vertical border of the row group column in the stub.
+    stub_row_group_border_color: str
+        The color of the vertical border of the row group column in the stub.
+    row_group_default_label: str
         An option to set a default row group label for any rows not formally placed in a row
-        group named by `group` in any call of `tab_row_group()`. If this is set as `None` and
+        group named by `group` in any use of `tab_row_group()`. If this is set as `None` and
         there are rows that haven't been placed into a row group (where one or more row groups
         already exist), those rows will be automatically placed into a row group without a label.
-    row_group_as_column
+    row_group_as_column: bool
         How should row groups be structured? By default, they are separate rows that lie above
         the each of the groups. Setting this to `True` will structure row group labels are
         columns to the far left of the table.
-    summary_row_border_style,summary_row_border_width,summary_row_border_color
-        The style, width, and color properties for all horizontal borders of the `summary_row`
-        location.
-    grand_summary_row_border_style,grand_summary_row_border_width,grand_summary_row_border_color
-        The style, width, and color properties for the top borders of the `grand_summary_row`
-        location.
-    footnotes_border_bottom_style,footnotes_border_bottom_width,footnotes_border_bottom_color
-        The style, width, and color properties for the bottom border of the `footnotes`
-        location.
-    footnotes_border_lr_style,footnotes_border_lr_width,footnotes_border_lr_color
-        The style, width, and color properties for the left and right borders of the
-        `footnotes` location.
-    footnotes_marks
+    summary_row_border_style: str
+        The style of the horizontal borders of the `summary_row` location.
+    summary_row_border_width: str
+        The width of the horizontal borders of the `summary_row` location.
+    summary_row_border_color: str
+        The color of the horizontal borders of the `summary_row` location.
+    grand_summary_row_border_style: str
+        The style of the horizontal borders of the `grand_summary_row` location.
+    grand_summary_row_border_width: str
+        The width of the horizontal borders of the `grand_summary_row` location.
+    grand_summary_row_border_color: str
+        The color of the horizontal borders of the `grand_summary_row` location.
+    footnotes_border_bottom_style: str
+        The style of the bottom border of the `footnotes` location.
+    footnotes_border_bottom_width: str
+        The width of the bottom border of the `footnotes` location. If the `width` of this border is
+        larger, then it will be the visible border.
+    footnotes_border_bottom_color: str
+        The color of the bottom border of the `footnotes` location.
+    footnotes_border_lr_style: str
+        The style of the left and right borders of the `footnotes` location.
+    footnotes_border_lr_width: str
+        The width of the left and right borders of the `footnotes` location. If the `width` of this
+        border is larger, then it will be the visible border.
+    footnotes_border_lr_color: str
+        The color of the left and right borders of the `footnotes` location.
+    footnotes_marks: Union[str, List[str]]
         The set of sequential marks used to reference and identify each of the footnotes (same
         input as the [opt_footnote_marks()] function. We can supply a list that represents the
         series of footnote marks. This list is recycled when its usage goes beyond the length of
@@ -324,26 +517,42 @@ def tab_options(
         lowercase `"letters"` or uppercase `"LETTERS"`. There is the option for using a
         traditional symbol set where `"standard"` provides four symbols, and, `"extended"` adds
         two more symbols, making six.
-    footnotes_multiline,source_notes_multiline
-        An option to either put footnotes and source notes in separate lines (the default, or
-        `True`) or render them as a continuous line of text with `footnotes_sep` providing the
-        separator (by default `" "`) between notes.
-    footnotes_sep,source_notes_sep
-        The separating characters between adjacent footnotes and source notes in their
-        respective footer sections when rendered as a continuous line of text (when
-        `footnotes_multiline is False`). The default value is a single space character (`" "`).
-    source_notes_border_bottom_style,source_notes_border_bottom_width,source_notes_border_bottom_color
-        The style, width, and color properties for the bottom border of the `source_notes`
-        location.
-    source_notes_border_lr_style,source_notes_border_lr_width,source_notes_border_lr_color
-        The style, width, and color properties for the left and right borders of the
-        `source_notes` location.
-    row_striping_background_color
-        The background color for striped table body rows. A color name or a hexadecimal color
-        code should be provided.
-    row_striping_include_stub
+    footnotes_multiline: bool
+        An option to either put footnotes in separate lines (the default, or `True`) or render
+        them as a continuous line of text with `footnotes_sep` providing the separator (by
+        default `" "`) between notes.
+    source_notes_multiline: bool
+        An option to either put source notes in separate lines (the default, or `True`) or render
+        them as a continuous line of text with `source_notes_sep` providing the separator (by
+        default `" "`) between notes.
+    footnotes_sep: str
+        The separating characters between adjacent footnotes when rendered as a continuous line
+        of text (when `footnotes_multiline` is `False`). The default value is a single space
+        character (`" "`).
+    source_notes_sep: str
+        The separating characters between adjacent source notes when rendered as a continuous line
+        of text (when `source_notes_multiline` is `False`). The default value is a single space
+        character (`" "`).
+    source_notes_border_bottom_style: str
+        The style of the bottom border of the `source_notes` location.
+    source_notes_border_bottom_width: str
+        The width of the bottom border of the `source_notes` location. If the `width` of this border
+        is larger, then it will be the visible border.
+    source_notes_border_bottom_color: str
+        The color of the bottom border of the `source_notes` location.
+    source_notes_border_lr_style: str
+        The style of the left and right borders of the `source_notes` location.
+    source_notes_border_lr_width: str
+        The width of the left and right borders of the `source_notes` location. If the `width` of
+        this border is larger, then it will be the visible border.
+    source_notes_border_lr_color: str
+        The color of the left and right borders of the `source_notes` location.
+    row_striping_background_color: str
+        The background color for striped table body rows. A color name or a hexadecimal color value
+        should be provided.
+    row_striping_include_stub: bool
         An option for whether to include the stub when striping rows.
-    row_striping_include_table_body
+    row_striping_include_table_body: bool
         An option for whether to include the table body when striping rows.
 
     Returns
@@ -351,6 +560,65 @@ def tab_options(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+
+    Using select columns from the `exibble` dataset, let's create a new table with a number of table
+    components added. We can use this object going forward to demonstrate some of the features
+    available in the `tab_options()` method.
+
+    ```{python}
+    from great_tables import GT, exibble, md
+
+    gt_tbl = (
+      GT(
+        exibble[[\"num\", \"char\", \"currency\", \"row\", \"group\"]],
+        rowname_col = \"row\",
+        groupname_col = \"group\"
+      )
+      .tab_header(
+        title = md(\"Data listing from **exibble**\"),
+        subtitle = md(\"`exibble` is a **Great Tables** dataset.\")
+      )
+      .fmt_number(columns = \"num\")
+      .fmt_currency(columns = \"currency\")
+      .tab_source_note(source_note = \"This is only a subset of the dataset.\")
+    )
+
+    gt_tbl
+    ```
+
+    We can modify the table width to be set as `"100%`". In effect, this spans the table to entirely
+    fill the content width area. This is done with the `table_width` option.
+
+    ```{python}
+    gt_tbl.tab_options(table_width="100%")
+    ```
+
+    With the `table_background_color` option, we can modify the table's background color. Here, we
+    want that to be `"lightcyan"`.
+
+    ```{python}
+    gt_tbl.tab_options(table_background_color="lightcyan")
+    ```
+
+    The data rows of a table typically take up the most physical space but we have some control over
+    the extent of that. With the `data_row_padding` option, it's possible to modify the top and
+    bottom padding of data rows. We'll do just that in the following example, reducing the padding
+    to a value of `"3px"`.
+
+    ```{python}
+    gt_tbl.tab_options(data_row_padding="3px")
+    ```
+
+    The size of the title and the subtitle text in the header of the table can be altered with the
+    `heading_title_font_size` and `heading_subtitle_font_size` options. Here, we'll use the
+    `"small"` and `"x-small"` keyword values.
+
+    ```{python}
+    gt_tbl.tab_options(heading_title_font_size="small", heading_subtitle_font_size="x-small")
+    ```
     """
     saved_args = locals()
 

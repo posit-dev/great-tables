@@ -87,6 +87,7 @@ quartodoc:
         - GT.tab_stubhead
         - GT.tab_source_note
         - GT.tab_style
+        - GT.tab_options
     - title: Formatting column data
       desc: >
         Columns of data can be formatted with the `fmt_*()` methods. We can specify the rows of
