@@ -144,8 +144,6 @@ quartodoc:
         - md
         - html
         - from_column
-        #- px
-        #- pct
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of
