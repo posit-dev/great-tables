@@ -351,6 +351,65 @@ def tab_options(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+
+    Using select columns from the `exibble` dataset, let's create a new table with a number of table
+    components added. We can use this object going forward to demonstrate some of the features
+    available in the `tab_options()` method.
+
+    ```{python}
+    from great_tables import GT, exibble, md
+
+    gt_tbl = (
+      GT(
+        exibble[[\"num\", \"char\", \"currency\", \"row\", \"group\"]],
+        rowname_col = \"row\",
+        groupname_col = \"group\"
+      )
+      .tab_header(
+        title = md(\"Data listing from **exibble**\"),
+        subtitle = md(\"`exibble` is a **Great Tables** dataset.\")
+      )
+      .fmt_number(columns = \"num\")
+      .fmt_currency(columns = \"currency\")
+      .tab_source_note(source_note = \"This is only a subset of the dataset.\")
+    )
+
+    gt_tbl
+    ```
+
+    We can modify the table width to be set as `"100%`". In effect, this spans the table to entirely
+    fill the content width area. This is done with the `table_width` option.
+
+    ```{python}
+    gt_tbl.tab_options(table_width="100%")
+    ```
+
+    With the `table_background_color` option, we can modify the table's background color. Here, we
+    want that to be `"lightcyan"`.
+
+    ```{python}
+    gt_tbl.tab_options(table_background_color="lightcyan")
+    ```
+
+    The data rows of a table typically take up the most physical space but we have some control over
+    the extent of that. With the `data_row_padding` option, it's possible to modify the top and
+    bottom padding of data rows. We'll do just that in the following example, reducing the padding
+    to a value of `"3px"`.
+
+    ```{python}
+    gt_tbl.tab_options(data_row_padding="3px")
+    ```
+
+    The size of the title and the subtitle text in the header of the table can be altered with the
+    `heading_title_font_size` and `heading_subtitle_font_size` options. Here, we'll use the
+    `"small"` and `"x-small"` keyword values.
+
+    ```{python}
+    gt_tbl.tab_options(heading_title_font_size="small", heading_subtitle_font_size="x-small")
+    ```
     """
     saved_args = locals()
 
