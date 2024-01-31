@@ -580,6 +580,31 @@ def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
+    Examples
+    --------
+    Let's use select columns from the [`exibble`] dataset to create a new table. We can specify the
+    widths of columns with `cols_width()`. This is done by specifying the exact widths for table
+    columns in a dictionary. In this example, we'll set the width of the `num` column to `150px`,
+    the `char` column to `100px`, the `date` column to `300px`. All other columns won't be affected
+    (their widths will be automatically set by their content).
+
+    ```python
+    import great_tables as gt
+    from great_tables.data import exibble
+
+    exibble_mini = exibble[[\"num\", \"char\", \"date\", \"datetime\", \"row\"]].head(5)
+
+    (
+        gt.GT(exibble_mini)
+        .cols_width(
+            cases={
+                "num": \"150px\",
+                "char": \"100px\",
+                "date": \"300px\"
+            }
+        )
+    )
+    ```
     """
 
     curr_boxhead = data._boxhead
