@@ -588,7 +588,7 @@ def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
     the `char` column to `100px`, the `date` column to `300px`. All other columns won't be affected
     (their widths will be automatically set by their content).
 
-    ```python
+    ```{python}
     import great_tables as gt
     from great_tables.data import exibble
 
@@ -610,7 +610,7 @@ def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
     of the `num` column to `20%`, the `char` column to `10%`, and the `date` column to `30%`. Note
     that the percentages are relative and don't need to sum to 100%.
 
-    ```python
+    ```{python}
     (
         gt.GT(exibble_mini)
         .cols_width(
@@ -626,7 +626,7 @@ def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
     We can also mix and match pixel and percentage widths. In this example, we'll set the width of
     the `num` column to `150px`, the `char` column to `10%`, and the `date` column to `30%`.
 
-    ```python
+    ```{python}
     (
         gt.GT(exibble_mini)
         .cols_width(
@@ -643,7 +643,7 @@ def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
     this example, we'll set widths for all columns. This is a good way to ensure that the widths
     you specify are fully respected (and not overridden by automatic width calculations).
 
-    ```python
+    ```{python}
     (
         gt.GT(exibble_mini)
         .cols_width(
