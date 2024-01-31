@@ -4,6 +4,7 @@ project:
 website:
   title: great_tables
   page-navigation: true
+  google-analytics: "G-CN7Z82M6R7"
   navbar:
     left:
       - text: Get Started
