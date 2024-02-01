@@ -736,16 +736,16 @@ def opt_align_table_header(self: GTSelf, align: str = "center") -> GTSelf:
     (
       GT(
         exibble[["num", "char", "currency", "row", "group"]],
-        rowname_col = "row",
-        groupname_col = "group"
+        rowname_col="row",
+        groupname_col="group"
       )
       .tab_header(
-        title = md("Data listing from **exibble**"),
-        subtitle = md("`exibble` is a **Great Tables** dataset.")
+        title=md("Data listing from **exibble**"),
+        subtitle=md("`exibble` is a **Great Tables** dataset.")
       )
-      .fmt_number(columns = "num")
-      .fmt_currency(columns = "currency")
-      .tab_source_note(source_note = "This is only a subset of the dataset.")
+      .fmt_number(columns="num")
+      .fmt_currency(columns="currency")
+      .tab_source_note(source_note="This is only a subset of the dataset.")
       .opt_align_table_header(align="left")
     )
     ```
@@ -756,9 +756,218 @@ def opt_align_table_header(self: GTSelf, align: str = "center") -> GTSelf:
     return tab_options(self, heading_align=align)
 
 
-# TODO: create the `opt_vertical_padding()` method
+def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
+    """
+    Option to scale the vertical padding of the table.
 
-# TODO: create the `opt_horizontal_padding()` method
+    This method allows us to scale the vertical padding of the table by a factor of `scale`. The
+    default value is `1.0` and this method serves as a convenient shortcut for
+    `gt.tab_options(heading_padding=<new_val>, column_labels_padding=<new_val>,
+    data_row_padding=<new_val>, row_group_padding=<new_val>, summary_row_padding=<new_val>,
+    grand_summary_row_padding=<new_val>, footnotes_padding=<new_val>,
+    source_notes_padding=<new_val>)`.
+
+    Parameters
+    ----------
+    scale : float
+        The factor by which to scale the vertical padding. The default value is `1.0`. A value
+        less than `1.0` will reduce the padding, and a value greater than `1.0` will increase the
+        padding. The value must be between `0` and `3`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Using select columns from the `exibble` dataset, let's create a table with a number of
+    components added. Following that, we'll scale the vertical padding of the table by a factor of
+    `3` using the `opt_vertical_padding()` method.
+
+    ```{python}
+    from great_tables import GT, exibble, md
+
+    gt_tbl = (
+        GT(
+            exibble[["num", "char", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group"
+        )
+        .tab_header(
+            title=md("Data listing from **exibble**"),
+            subtitle=md("`exibble` is a **Great Tables** dataset.")
+        )
+        .fmt_number(columns = "num")
+        .fmt_currency(columns = "currency")
+        .tab_source_note(source_note = "This is only a subset of the dataset.")
+    )
+
+    gt_tbl.opt_vertical_padding(scale=3)
+    ```
+
+    Now that's a tall table! The overall effect of scaling the vertical padding is that the table
+    will appear taller and there will be more buffer space between the table elements. A value of
+    `3` is pretty extreme and is likely to be too much in most cases, so, feel free to experiment
+    with different values when looking to increase the vertical padding.
+
+    Let's go the other way (using a value less than `1`) and try to condense the content vertically
+    with a `scale` factor of `0.5`. This will reduce the top and bottom padding globally and make
+    the table appear more compact.
+
+    ```{python}
+    gt_tbl.opt_vertical_padding(scale=0.5)
+    ```
+
+    A value of `0.5` provides a reasonable amount of vertical padding and the table will appear more
+    compact. This is useful when space is limited and, in such a situation, this is a practical
+    solution to that problem.
+    """
+
+    # Stop if `scale` is beyond an acceptable range
+    if scale < 0 or scale > 3:
+        raise ValueError("`scale` must be a value between `0` and `3`.")
+
+    # Get the parameters from the options that relate to vertical padding
+    vertical_padding_params = [
+        "heading_padding",
+        "column_labels_padding",
+        "data_row_padding",
+        "row_group_padding",
+        "summary_row_padding",
+        "grand_summary_row_padding",
+        "footnotes_padding",
+        "source_notes_padding",
+    ]
+
+    # Get the current values for the vertical padding parameters
+    vertical_padding_vals = [
+        self._options.heading_padding.value,
+        self._options.column_labels_padding.value,
+        self._options.data_row_padding.value,
+        self._options.row_group_padding.value,
+        self._options.summary_row_padding.value,
+        self._options.grand_summary_row_padding.value,
+        self._options.footnotes_padding.value,
+        self._options.source_notes_padding.value,
+    ]
+
+    # Multiply each of the padding values by the `scale` factor but strip off the units first
+    # then reattach the units after the multiplication
+    # TODO: a current limitation is that the padding values must be in pixels and not percentages
+    # TODO: another limitation is that the returned values must be in integer pixel values
+    new_vertical_padding_vals = [
+        str(int(float(v.split("px")[0]) * scale)) + "px" for v in vertical_padding_vals
+    ]
+
+    return tab_options(self, **dict(zip(vertical_padding_params, new_vertical_padding_vals)))
+
+
+def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
+    """
+    Option to scale the horizontal padding of the table.
+
+    This method allows us to scale the horizontal padding of the table by a factor of `scale`. The
+    default value is `1.0` and this method serves as a convenient shortcut for `gt.tab_options(
+    heading_padding_horizontal=<new_val>, column_labels_padding_horizontal=<new_val>,
+    data_row_padding_horizontal=<new_val>, row_group_padding_horizontal=<new_val>,
+    summary_row_padding_horizontal=<new_val>, grand_summary_row_padding_horizontal=<new_val>,
+    footnotes_padding_horizontal=<new_val>, source_notes_padding_horizontal=<new_val>)`.
+
+    Parameters
+    ----------
+    scale : float
+        The factor by which to scale the horizontal padding. The default value is `1.0`. A value
+        less than `1.0` will reduce the padding, and a value greater than `1.0` will increase the
+        padding. The value must be between `0` and `3`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Using select columns from the `exibble` dataset, let's create a table with a number of
+    components added. Following that, we'll scale the horizontal padding of the table by a factor of
+    `3` using the `opt_horizontal_padding()` method.
+
+    ```{python}
+    from great_tables import GT, exibble, md
+
+    gt_tbl = (
+        GT(
+            exibble[["num", "char", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group"
+        )
+        .tab_header(
+            title=md("Data listing from **exibble**"),
+            subtitle=md("`exibble` is a **Great Tables** dataset.")
+        )
+        .fmt_number(columns = "num")
+        .fmt_currency(columns = "currency")
+        .tab_source_note(source_note = "This is only a subset of the dataset.")
+    )
+
+    gt_tbl.opt_horizontal_padding(scale=3)
+    ```
+
+    The overall effect of scaling the horizontal padding is that the table will appear wider or
+    and there will added buffer space between the table elements. The overall look of the table will
+    be more spacious and neigboring pieces of text will be less cramped.
+
+    Let's go the other way and scale the horizontal padding of the table by a factor of `0.5` using
+    the `opt_horizontal_padding()` method.
+
+    ```{python}
+    gt_tbl.opt_horizontal_padding(scale=0.5)
+    ```
+
+    What you get in this case is more condensed text across the horizontal axis. This may not always
+    be desired when cells consist mainly of text, but it could be useful when the table is more
+    visual and the cells are filled with graphics or other non-textual elements.
+    """
+
+    # Stop if `scale` is beyond an acceptable range
+    if scale < 0 or scale > 3:
+        raise ValueError("`scale` must be a value between `0` and `3`.")
+
+    # Get the parameters from the options that relate to horizontal padding
+    horizontal_padding_params = [
+        "heading_padding_horizontal",
+        "column_labels_padding_horizontal",
+        "data_row_padding_horizontal",
+        "row_group_padding_horizontal",
+        "summary_row_padding_horizontal",
+        "grand_summary_row_padding_horizontal",
+        "footnotes_padding_horizontal",
+        "source_notes_padding_horizontal",
+    ]
+
+    # Get the current values for the horizontal padding parameters
+    horizontal_padding_vals = [
+        self._options.heading_padding_horizontal.value,
+        self._options.column_labels_padding_horizontal.value,
+        self._options.data_row_padding_horizontal.value,
+        self._options.row_group_padding_horizontal.value,
+        self._options.summary_row_padding_horizontal.value,
+        self._options.grand_summary_row_padding_horizontal.value,
+        self._options.footnotes_padding_horizontal.value,
+        self._options.source_notes_padding_horizontal.value,
+    ]
+
+    # Multiply each of the padding values by the `scale` factor but strip off the units first
+    # then reattach the units after the multiplication
+    # TODO: a current limitation is that the padding values must be in pixels and not percentages
+    # TODO: another limitation is that the returned values must be in integer pixel values
+    new_horizontal_padding_vals = [
+        str(int(float(v.split("px")[0]) * scale)) + "px" for v in horizontal_padding_vals
+    ]
+
+    return tab_options(self, **dict(zip(horizontal_padding_params, new_horizontal_padding_vals)))
 
 
 def opt_all_caps(
