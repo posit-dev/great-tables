@@ -1,6 +1,6 @@
-from typing import Union, List
+from typing import Union, List, Literal
 import random
-
+from typing_extensions import TypeAlias
 from ._text import Text
 
 
