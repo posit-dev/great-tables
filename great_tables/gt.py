@@ -33,6 +33,7 @@ from great_tables._options import (
     opt_all_caps,
     opt_footnote_marks,
     opt_row_striping,
+    opt_vertical_padding,
 )
 from great_tables._source_notes import tab_source_note
 from great_tables._spanners import (
@@ -216,6 +217,7 @@ class GT(
     opt_all_caps = opt_all_caps
     opt_footnote_marks = opt_footnote_marks
     opt_row_striping = opt_row_striping
+    opt_vertical_padding = opt_vertical_padding
 
     tab_header = tab_header
 
