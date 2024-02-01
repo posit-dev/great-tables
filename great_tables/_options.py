@@ -708,9 +708,9 @@ def opt_align_table_header(self: GTSelf, align: str = "center") -> GTSelf:
     Option to align the table header.
 
     By default, an added table header will have center alignment for both the title and the subtitle
-    elements. This function allows us to easily set the horizontal alignment of the title and
-    subtitle to the left or right by using the `"align"` argument. This function serves as a
-    convenient shortcut for `gt.tab_options(heading.align=<align>)`.
+    elements. This method allows us to easily set the horizontal alignment of the title and subtitle
+    to the left, right, or center by using the `"align"` argument. This method serves as a
+    convenient shortcut for `gt.tab_options(heading_align=<align>)`.
 
     Parameters
     ----------
