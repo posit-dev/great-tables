@@ -807,16 +807,22 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     gt_tbl.opt_vertical_padding(scale=3)
     ```
 
-    Let's go the other way and scale the vertical padding of the table by a factor of `0.5` using
-    the `opt_vertical_padding()` method.
+    Now that's a tall table! The overall effect of scaling the vertical padding is that the table
+    will appear taller and there will be more buffer space between the table elements. A value of
+    `3` is pretty extreme and is likely to be too much in most cases, so, feel free to experiment
+    with different values when looking to increase the vertical padding.
+
+    Let's go the other way (using a value less than `1`) and try to condense the content vertically
+    with a `scale` factor of `0.5`. This will reduce the top and bottom padding globally and make
+    the table appear more compact.
 
     ```{python}
     gt_tbl.opt_vertical_padding(scale=0.5)
     ```
 
-    Notice that with values less than `1.0` the padding is reduced and more rows will fit into a
-    given space. With values greater than `1.0` the padding is increased and fewer rows will be
-    displayed per unit of space.
+    A value of `0.5` provides a reasonable amount of vertical padding and the table will appear more
+    compact. This is useful when space is limited and, in such a situation, this is a practical
+    solution to that problem.
     """
 
     # Stop if `scale` is beyond an acceptable range
