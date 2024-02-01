@@ -21,7 +21,7 @@ def tab_options(
     table_margin_right: Optional[str] = None,
     table_background_color: Optional[str] = None,
     table_additional_css: Optional[str] = None,
-    table_font_names: Optional[str] = None,
+    table_font_names: Optional[Union[str, List[str]]] = None,
     table_font_size: Optional[str] = None,
     table_font_weight: Optional[str] = None,
     table_font_style: Optional[str] = None,
