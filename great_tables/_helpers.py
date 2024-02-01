@@ -4,6 +4,25 @@ from typing_extensions import TypeAlias
 from ._text import Text
 
 
+FontStackName: TypeAlias = Literal[
+    "system-ui",
+    "transitional",
+    "old-style",
+    "humanist",
+    "geometric-humanist",
+    "classical-humanist",
+    "neo-grotesque",
+    "monospace-slab-serif",
+    "monospace-code",
+    "industrial",
+    "rounded-sans",
+    "slab-serif",
+    "antique",
+    "didone",
+    "handwritten",
+]
+
+
 def px(x: Union[int, float]) -> str:
     """
     Helper for providing a CSS length value in pixels.
