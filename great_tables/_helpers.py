@@ -206,6 +206,33 @@ def LETTERS() -> List[str]:
     ]
 
     return lett
+
+
+def system_fonts(name: FontStackName = "system-ui") -> List[str]:
+    """Get a themed font stack that works well across systems.
+
+    A font stack can be obtained from `system_fonts()` using one of various keywords such as
+    `"system-ui"`, `"old-style"`, and `"humanist"` (there are 15 in total) representing a themed set
+    of fonts. These sets comprise a font family that has been tested to work across a wide range of
+    computer systems.
+
+    Parameters
+    ----------
+    name : FontStackName, optional
+        The name of a font stack. Must be drawn from the set of `"system-ui"` (the default),
+        `"transitional"`, `"old-style"`, `"humanist"`, `"geometric-humanist"`,
+        `"classical-humanist"`, `"neo-grotesque"`, `"monospace-slab-serif"`, `"monospace-code"`,
+        `"industrial"`, `"rounded-sans"`, `"slab-serif"`, `"antique"`, `"didone"`, and
+        `"handwritten"`.
+
+    Returns
+    -------
+    List[str]
+        A list of font names that make up the font stack.
+    """
+    return _get_font_stack(name)
+
+
 def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[str]:
     font_stack_names = [
         "system-ui",
