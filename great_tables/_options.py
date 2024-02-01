@@ -235,7 +235,7 @@ def tab_options(
     table_additional_css : str
         This option can be used to supply an additional block of CSS rules to be applied after
         the automatically generated table CSS.
-    table_font_names : List[str]
+    table_font_names : Union[str, List[str]]
         The names of the fonts used for the table. This should be provided as a list of font
         names. If the first font isn't available, then the next font is tried (and so on).
     table_font_style : str
