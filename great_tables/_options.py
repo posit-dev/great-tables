@@ -21,7 +21,7 @@ def tab_options(
     table_margin_right: Optional[str] = None,
     table_background_color: Optional[str] = None,
     table_additional_css: Optional[str] = None,
-    table_font_names: Optional[str] = None,
+    table_font_names: Optional[Union[str, List[str]]] = None,
     table_font_size: Optional[str] = None,
     table_font_weight: Optional[str] = None,
     table_font_style: Optional[str] = None,
@@ -235,7 +235,7 @@ def tab_options(
     table_additional_css : str
         This option can be used to supply an additional block of CSS rules to be applied after
         the automatically generated table CSS.
-    table_font_names : List[str]
+    table_font_names : Union[str, List[str]]
         The names of the fonts used for the table. This should be provided as a list of font
         names. If the first font isn't available, then the next font is tried (and so on).
     table_font_style : str
@@ -624,6 +624,13 @@ def tab_options(
     del saved_args["self"]
 
     modified_args = {k: v for k, v in saved_args.items() if v is not None}
+
+    # Intercept modified args and modify before replacing options:
+    # - `table_font_names` should be a list but if given as a string, ensure it is list
+    if "table_font_names" in modified_args:
+        if isinstance(modified_args["table_font_names"], str):
+            modified_args["table_font_names"] = [modified_args["table_font_names"]]
+
     new_options_info = {
         k: replace(getattr(self._options, k), value=v) for k, v in modified_args.items()
     }
