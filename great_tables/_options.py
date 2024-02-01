@@ -624,6 +624,13 @@ def tab_options(
     del saved_args["self"]
 
     modified_args = {k: v for k, v in saved_args.items() if v is not None}
+
+    # Intercept modified args and modify before replacing options:
+    # - `table_font_names` should be a list but if given as a string, ensure it is list
+    if "table_font_names" in modified_args:
+        if isinstance(modified_args["table_font_names"], str):
+            modified_args["table_font_names"] = [modified_args["table_font_names"]]
+
     new_options_info = {
         k: replace(getattr(self._options, k), value=v) for k, v in modified_args.items()
     }
