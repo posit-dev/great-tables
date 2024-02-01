@@ -931,14 +931,14 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 
     # Get the current values for the horizontal padding parameters
     horizontal_padding_vals = [
-        self._options.heading_padding.value,
-        self._options.column_labels_padding.value,
-        self._options.data_row_padding.value,
-        self._options.row_group_padding.value,
-        self._options.summary_row_padding.value,
-        self._options.grand_summary_row_padding.value,
-        self._options.footnotes_padding.value,
-        self._options.source_notes_padding.value,
+        self._options.heading_padding_horizontal.value,
+        self._options.column_labels_padding_horizontal.value,
+        self._options.data_row_padding_horizontal.value,
+        self._options.row_group_padding_horizontal.value,
+        self._options.summary_row_padding_horizontal.value,
+        self._options.grand_summary_row_padding_horizontal.value,
+        self._options.footnotes_padding_horizontal.value,
+        self._options.source_notes_padding_horizontal.value,
     ]
 
     # Multiply each of the padding values by the `scale` factor but strip off the units first
