@@ -771,10 +771,9 @@ def opt_all_caps(
 
     Sometimes an all-capitalized look is suitable for a table. By using `opt_all_caps()`, we can
     transform characters in the column labels, the stub, and in all row groups in this way (and
-    there's control over which of these locations are transformed). This function serves as a
-    convenient shortcut for `tab_options(<location>.text_transform="uppercase",
-    <location>.font.size=gt.pct(80), <location>.font.weight="bolder")` (for all `locations`
-    selected).
+    there's control over which of these locations are transformed). This method serves as a
+    convenient shortcut for `tab_options(<location>_text_transform="uppercase",
+    <location>_font_size="80%", <location>_font_weight="bolder")` (for all `locations` selected).
 
     Parameters
     ----------
