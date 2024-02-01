@@ -206,3 +206,134 @@ def LETTERS() -> List[str]:
     ]
 
     return lett
+def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[str]:
+    font_stack_names = [
+        "system-ui",
+        "transitional",
+        "old-style",
+        "humanist",
+        "geometric-humanist",
+        "classical-humanist",
+        "neo-grotesque",
+        "monospace-slab-serif",
+        "monospace-code",
+        "industrial",
+        "rounded-sans",
+        "slab-serif",
+        "antique",
+        "didone",
+        "handwritten",
+    ]
+
+    if name not in font_stack_names:
+        raise ValueError(f"Invalid font stack name: {name}")
+
+    if name == "system-ui":
+        font_stack = ["system-ui", "sans-serif"]
+    elif name == "transitional":
+        font_stack = ["Charter", "Bitstream Charter", "Sitka Text", "Cambria", "serif"]
+    elif name == "old-style":
+        font_stack = ["Iowan Old Style", "Palatino Linotype", "URW Palladio L", "P052", "serif"]
+    elif name == "humanist":
+        font_stack = [
+            "Seravek",
+            "Gill Sans Nova",
+            "Ubuntu",
+            "Calibri",
+            "DejaVu Sans",
+            "source-sans-pro",
+            "sans-serif",
+        ]
+    elif name == "geometric-humanist":
+        font_stack = [
+            "Avenir",
+            "Montserrat",
+            "Corbel",
+            "URW Gothic",
+            "source-sans-pro",
+            "sans-serif",
+        ]
+    elif name == "classical-humanist":
+        font_stack = ["Optima", "Candara", "Noto Sans", "source-sans-pro", "sans-serif"]
+    elif name == "neo-grotesque":
+        font_stack = [
+            "Inter",
+            "Roboto",
+            "Helvetica Neue",
+            "Arial Nova",
+            "Nimbus Sans",
+            "Arial",
+            "sans-serif",
+        ]
+    elif name == "monospace-slab-serif":
+        font_stack = ["Nimbus Mono PS", "Courier New", "monospace"]
+    elif name == "monospace-code":
+        font_stack = [
+            "ui-monospace",
+            "Cascadia Code",
+            "Source Code Pro",
+            "Menlo",
+            "Consolas",
+            "DejaVu Sans Mono",
+            "monospace",
+        ]
+    elif name == "industrial":
+        font_stack = [
+            "Bahnschrift",
+            "DIN Alternate",
+            "Franklin Gothic Medium",
+            "Nimbus Sans Narrow",
+            "sans-serif-condensed",
+            "sans-serif",
+        ]
+    elif name == "rounded-sans":
+        font_stack = [
+            "ui-rounded",
+            "Hiragino Maru Gothic ProN",
+            "Quicksand",
+            "Comfortaa",
+            "Manjari",
+            "Arial Rounded MT",
+            "Arial Rounded MT Bold",
+            "Calibri",
+            "source-sans-pro",
+            "sans-serif",
+        ]
+    elif name == "slab-serif":
+        font_stack = [
+            "Rockwell",
+            "Rockwell Nova",
+            "Roboto Slab",
+            "DejaVu Serif",
+            "Sitka Small",
+            "serif",
+        ]
+    elif name == "antique":
+        font_stack = [
+            "Superclarendon",
+            "Bookman Old Style",
+            "URW Bookman",
+            "URW Bookman L",
+            "Georgia Pro",
+            "Georgia",
+            "serif",
+        ]
+    elif name == "didone":
+        font_stack = [
+            "Didot",
+            "Bodoni MT",
+            "Noto Serif Display",
+            "URW Palladio L",
+            "P052",
+            "Sylfaen",
+            "serif",
+        ]
+    elif name == "handwritten":
+        font_stack = ["Segoe Print", "Bradley Hand", "Chilanka", "TSCu_Comic", "casual", "cursive"]
+
+    if add_emoji:
+        font_stack.extend(
+            ["Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"]
+        )
+
+    return font_stack
