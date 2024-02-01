@@ -784,7 +784,7 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     --------
     Using select columns from the `exibble` dataset, let's create a table with a number of
     components added. Following that, we'll scale the vertical padding of the table by a factor of
-    `1.5` using the `opt_vertical_padding()` method.
+    `3` using the `opt_vertical_padding()` method.
 
     ```{python}
     from great_tables import GT, exibble, md
@@ -804,7 +804,7 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         .tab_source_note(source_note = "This is only a subset of the dataset.")
     )
 
-    gt_tbl.opt_vertical_padding(scale=1.5)
+    gt_tbl.opt_vertical_padding(scale=3)
     ```
 
     Let's go the other way and scale the vertical padding of the table by a factor of `0.5` using
@@ -813,6 +813,10 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     ```{python}
     gt_tbl.opt_vertical_padding(scale=0.5)
     ```
+
+    Notice that with values less than `1.0` the padding is reduced and more rows will fit into a
+    given space. With values greater than `1.0` the padding is increased and fewer rows will be
+    displayed per unit of space.
     """
 
     # Stop if `scale` is beyond an acceptable range
@@ -882,7 +886,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     --------
     Using select columns from the `exibble` dataset, let's create a table with a number of
     components added. Following that, we'll scale the horizontal padding of the table by a factor of
-    `1.5` using the `opt_horizontal_padding()` method.
+    `3` using the `opt_horizontal_padding()` method.
 
     ```{python}
     from great_tables import GT, exibble, md
@@ -902,8 +906,12 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         .tab_source_note(source_note = "This is only a subset of the dataset.")
     )
 
-    gt_tbl.opt_horizontal_padding(scale=1.5)
+    gt_tbl.opt_horizontal_padding(scale=3)
     ```
+
+    The overall effect of scaling the horizontal padding is that the table will appear wider or
+    and there will added buffer space between the table elements. The overall look of the table will
+    be more spacious and neigboring pieces of text will be less cramped.
 
     Let's go the other way and scale the horizontal padding of the table by a factor of `0.5` using
     the `opt_horizontal_padding()` method.
@@ -911,6 +919,10 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     ```{python}
     gt_tbl.opt_horizontal_padding(scale=0.5)
     ```
+
+    What you get in this case is more condensed text across the horizontal axis. This may not always
+    be desired when cells consist mainly of text, but it could be useful when the table is more
+    visual and the cells are filled with graphics or other non-textual elements.
     """
 
     # Stop if `scale` is beyond an acceptable range
