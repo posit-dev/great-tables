@@ -771,10 +771,9 @@ def opt_all_caps(
 
     Sometimes an all-capitalized look is suitable for a table. By using `opt_all_caps()`, we can
     transform characters in the column labels, the stub, and in all row groups in this way (and
-    there's control over which of these locations are transformed). This function serves as a
-    convenient shortcut for `tab_options(<location>.text_transform="uppercase",
-    <location>.font.size=gt.pct(80), <location>.font.weight="bolder")` (for all `locations`
-    selected).
+    there's control over which of these locations are transformed). This method serves as a
+    convenient shortcut for `tab_options(<location>_text_transform="uppercase",
+    <location>_font_size="80%", <location>_font_weight="bolder")` (for all `locations` selected).
 
     Parameters
     ----------
@@ -792,6 +791,32 @@ def opt_all_caps(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+    Using select columns from the `exibble` dataset, let's create a table with a number of
+    components added. Following that, we'll ensure that all text in the column labels, the stub, and
+    in all row groups is transformed to all caps using the `opt_all_caps()` method.
+
+    ```{python}
+    from great_tables import GT, exibble, md
+
+    (
+      GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col = "row",
+        groupname_col = "group"
+      )
+      .tab_header(
+        title = md("Data listing from **exibble**"),
+        subtitle = md("`exibble` is a **Great Tables** dataset.")
+      )
+      .fmt_number(columns = "num")
+      .fmt_currency(columns = "currency")
+      .tab_source_note(source_note = "This is only a subset of the dataset.")
+      .opt_all_caps()
+    )
+    ```
     """
 
     # If providing a scalar string value, normalize it to be in a list
