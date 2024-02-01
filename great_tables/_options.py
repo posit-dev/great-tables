@@ -563,7 +563,6 @@ def tab_options(
 
     Examples
     --------
-
     Using select columns from the `exibble` dataset, let's create a new table with a number of table
     components added. We can use this object going forward to demonstrate some of the features
     available in the `tab_options()` method.
@@ -658,7 +657,6 @@ def opt_footnote_marks(self: GTSelf, marks: Union[str, List[str]] = "numbers") -
 
     Parameters
     ----------
-
     marks : Union[str, List[str]]
         Either a list of strings that will represent the series of marks or a keyword string
         that represents a preset sequence of marks. The valid keywords are: `"numbers"` (for
@@ -717,14 +715,40 @@ def opt_align_table_header(self: GTSelf, align: str = "center") -> GTSelf:
     Parameters
     ----------
     align : str
-        The alignment of the title and subtitle elements in the table header. Options are
-        `"center"` (the default), `"left"`, or `"right"`.
+        The alignment of the title and subtitle elements in the table header. Options are `"center"`
+        (the default), `"left"`, or `"right"`.
 
     Returns
     -------
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+    Using select columns from the `exibble` dataset, let's create a table with a number of
+    components added. Following that, we'll align the header contents (consisting of the title and
+    the subtitle) to the left with the `opt_align_table_header()` method.
+
+    ```{python}
+    from great_tables import GT, exibble, md
+
+    (
+      GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col = "row",
+        groupname_col = "group"
+      )
+      .tab_header(
+        title = md("Data listing from **exibble**"),
+        subtitle = md("`exibble` is a **Great Tables** dataset.")
+      )
+      .fmt_number(columns = "num")
+      .fmt_currency(columns = "currency")
+      .tab_source_note(source_note = "This is only a subset of the dataset.")
+      .opt_align_table_header(align="left")
+    )
+    ```
     """
 
     align = _utils._match_arg(x=align, lst=["left", "center", "right"])
