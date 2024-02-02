@@ -933,7 +933,7 @@ class Options:
     table_margin_left: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
     table_margin_right: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
     table_background_color: OptionsInfo = OptionsInfo(True, "table", "value", "#FFFFFF")
-    table_additional_css: OptionsInfo = OptionsInfo(False, "table", "values", None)
+    # table_additional_css: OptionsInfo = OptionsInfo(False, "table", "values", None)
     table_font_names: OptionsInfo = OptionsInfo(False, "table", "values", default_fonts_list)
     table_font_size: OptionsInfo = OptionsInfo(True, "table", "px", "16px")
     table_font_weight: OptionsInfo = OptionsInfo(True, "table", "value", "normal")
@@ -1017,7 +1017,7 @@ class Options:
     row_group_border_left_style: OptionsInfo = OptionsInfo(True, "row_group", "value", "none")
     row_group_border_left_width: OptionsInfo = OptionsInfo(True, "row_group", "px", "1px")
     row_group_border_left_color: OptionsInfo = OptionsInfo(True, "row_group", "value", "#D3D3D3")
-    row_group_default_label: OptionsInfo = OptionsInfo(False, "row_group", "value", None)
+    # row_group_default_label: OptionsInfo = OptionsInfo(False, "row_group", "value", None)
     row_group_as_column: OptionsInfo = OptionsInfo(False, "row_group", "boolean", False)
     table_body_hlines_style: OptionsInfo = OptionsInfo(True, "table_body", "value", "solid")
     table_body_hlines_width: OptionsInfo = OptionsInfo(True, "table_body", "px", "1px")
@@ -1049,46 +1049,46 @@ class Options:
     stub_row_group_border_style: OptionsInfo = OptionsInfo(True, "stub", "value", "solid")
     stub_row_group_border_width: OptionsInfo = OptionsInfo(True, "stub", "px", "2px")
     stub_row_group_border_color: OptionsInfo = OptionsInfo(True, "stub", "value", "#D3D3D3")
-    summary_row_padding: OptionsInfo = OptionsInfo(True, "summary_row", "px", "8px")
-    summary_row_padding_horizontal: OptionsInfo = OptionsInfo(True, "summary_row", "px", "5px")
-    summary_row_background_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", None)
-    summary_row_text_transform: OptionsInfo = OptionsInfo(True, "summary_row", "value", "inherit")
-    summary_row_border_style: OptionsInfo = OptionsInfo(True, "summary_row", "value", "solid")
-    summary_row_border_width: OptionsInfo = OptionsInfo(True, "summary_row", "px", "2px")
-    summary_row_border_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", "#D3D3D3")
-    grand_summary_row_padding: OptionsInfo = OptionsInfo(True, "grand_summary_row", "px", "8px")
-    grand_summary_row_padding_horizontal: OptionsInfo = OptionsInfo(
-        True, "grand_summary_row", "px", "5px"
-    )
-    grand_summary_row_background_color: OptionsInfo = OptionsInfo(
-        True, "grand_summary_row", "value", None
-    )
-    grand_summary_row_text_transform: OptionsInfo = OptionsInfo(
-        True, "grand_summary_row", "value", "inherit"
-    )
-    grand_summary_row_border_style: OptionsInfo = OptionsInfo(
-        True, "grand_summary_row", "value", "double"
-    )
-    grand_summary_row_border_width: OptionsInfo = OptionsInfo(
-        True, "grand_summary_row", "px", "6px"
-    )
-    grand_summary_row_border_color: OptionsInfo = OptionsInfo(
-        True, "grand_summary_row", "value", "#D3D3D3"
-    )
-    footnotes_font_size: OptionsInfo = OptionsInfo(True, "footnotes", "px", "90%")
-    footnotes_padding: OptionsInfo = OptionsInfo(True, "footnotes", "px", "4px")
-    footnotes_padding_horizontal: OptionsInfo = OptionsInfo(True, "footnotes", "px", "5px")
-    footnotes_background_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", None)
-    footnotes_margin: OptionsInfo = OptionsInfo(True, "footnotes", "px", "0px")
-    footnotes_border_bottom_style: OptionsInfo = OptionsInfo(True, "footnotes", "value", "none")
-    footnotes_border_bottom_width: OptionsInfo = OptionsInfo(True, "footnotes", "px", "2px")
-    footnotes_border_bottom_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", "#D3D3D3")
-    footnotes_border_lr_style: OptionsInfo = OptionsInfo(True, "footnotes", "value", "none")
-    footnotes_border_lr_width: OptionsInfo = OptionsInfo(True, "footnotes", "px", "2px")
-    footnotes_border_lr_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", "#D3D3D3")
-    footnotes_marks: OptionsInfo = OptionsInfo(False, "footnotes", "values", "numbers")
-    footnotes_multiline: OptionsInfo = OptionsInfo(False, "footnotes", "boolean", True)
-    footnotes_sep: OptionsInfo = OptionsInfo(False, "footnotes", "value", " ")
+    # summary_row_padding: OptionsInfo = OptionsInfo(True, "summary_row", "px", "8px")
+    # summary_row_padding_horizontal: OptionsInfo = OptionsInfo(True, "summary_row", "px", "5px")
+    # summary_row_background_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", None)
+    # summary_row_text_transform: OptionsInfo = OptionsInfo(True, "summary_row", "value", "inherit")
+    # summary_row_border_style: OptionsInfo = OptionsInfo(True, "summary_row", "value", "solid")
+    # summary_row_border_width: OptionsInfo = OptionsInfo(True, "summary_row", "px", "2px")
+    # summary_row_border_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", "#D3D3D3")
+    # grand_summary_row_padding: OptionsInfo = OptionsInfo(True, "grand_summary_row", "px", "8px")
+    # grand_summary_row_padding_horizontal: OptionsInfo = OptionsInfo(
+    #    True, "grand_summary_row", "px", "5px"
+    # )
+    # grand_summary_row_background_color: OptionsInfo = OptionsInfo(
+    #    True, "grand_summary_row", "value", None
+    # )
+    # grand_summary_row_text_transform: OptionsInfo = OptionsInfo(
+    #    True, "grand_summary_row", "value", "inherit"
+    # )
+    # grand_summary_row_border_style: OptionsInfo = OptionsInfo(
+    #    True, "grand_summary_row", "value", "double"
+    # )
+    # grand_summary_row_border_width: OptionsInfo = OptionsInfo(
+    #    True, "grand_summary_row", "px", "6px"
+    # )
+    # grand_summary_row_border_color: OptionsInfo = OptionsInfo(
+    #    True, "grand_summary_row", "value", "#D3D3D3"
+    # )
+    # footnotes_font_size: OptionsInfo = OptionsInfo(True, "footnotes", "px", "90%")
+    # footnotes_padding: OptionsInfo = OptionsInfo(True, "footnotes", "px", "4px")
+    # footnotes_padding_horizontal: OptionsInfo = OptionsInfo(True, "footnotes", "px", "5px")
+    # footnotes_background_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", None)
+    # footnotes_margin: OptionsInfo = OptionsInfo(True, "footnotes", "px", "0px")
+    # footnotes_border_bottom_style: OptionsInfo = OptionsInfo(True, "footnotes", "value", "none")
+    # footnotes_border_bottom_width: OptionsInfo = OptionsInfo(True, "footnotes", "px", "2px")
+    # footnotes_border_bottom_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", "#D3D3D3")
+    # footnotes_border_lr_style: OptionsInfo = OptionsInfo(True, "footnotes", "value", "none")
+    # footnotes_border_lr_width: OptionsInfo = OptionsInfo(True, "footnotes", "px", "2px")
+    # footnotes_border_lr_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", "#D3D3D3")
+    # footnotes_marks: OptionsInfo = OptionsInfo(False, "footnotes", "values", "numbers")
+    # footnotes_multiline: OptionsInfo = OptionsInfo(False, "footnotes", "boolean", True)
+    # footnotes_sep: OptionsInfo = OptionsInfo(False, "footnotes", "value", " ")
     source_notes_padding: OptionsInfo = OptionsInfo(True, "source_notes", "px", "4px")
     source_notes_padding_horizontal: OptionsInfo = OptionsInfo(True, "source_notes", "px", "5px")
     source_notes_background_color: OptionsInfo = OptionsInfo(True, "source_notes", "value", None)
@@ -1107,29 +1107,29 @@ class Options:
     )
     source_notes_multiline: OptionsInfo = OptionsInfo(False, "source_notes", "boolean", True)
     source_notes_sep: OptionsInfo = OptionsInfo(False, "source_notes", "value", " ")
-    row_striping_background_color: OptionsInfo = OptionsInfo(
-        True, "row", "value", "rgba(128,128,128,0.05)"
-    )
-    row_striping_include_stub: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
-    row_striping_include_table_body: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
+    # row_striping_background_color: OptionsInfo = OptionsInfo(
+    #     True, "row", "value", "rgba(128,128,128,0.05)"
+    # )
+    # row_striping_include_stub: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
+    # row_striping_include_table_body: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
     container_width: OptionsInfo = OptionsInfo(False, "container", "px", "auto")
     container_height: OptionsInfo = OptionsInfo(False, "container", "px", "auto")
     container_padding_x: OptionsInfo = OptionsInfo(False, "container", "px", "0px")
     container_padding_y: OptionsInfo = OptionsInfo(False, "container", "px", "10px")
     container_overflow_x: OptionsInfo = OptionsInfo(False, "container", "overflow", "auto")
     container_overflow_y: OptionsInfo = OptionsInfo(False, "container", "overflow", "auto")
-    page_orientation: OptionsInfo = OptionsInfo(False, "page", "value", "portrait")
-    page_numbering: OptionsInfo = OptionsInfo(False, "page", "boolean", False)
-    page_header_use_tbl_headings: OptionsInfo = OptionsInfo(False, "page", "boolean", False)
-    page_footer_use_tbl_notes: OptionsInfo = OptionsInfo(False, "page", "boolean", False)
-    page_width: OptionsInfo = OptionsInfo(False, "page", "value", "8.5in")
-    page_height: OptionsInfo = OptionsInfo(False, "page", "value", "11.0in")
-    page_margin_left: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
-    page_margin_right: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
-    page_margin_top: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
-    page_margin_bottom: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
-    page_header_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
-    page_footer_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
+    # page_orientation: OptionsInfo = OptionsInfo(False, "page", "value", "portrait")
+    # page_numbering: OptionsInfo = OptionsInfo(False, "page", "boolean", False)
+    # page_header_use_tbl_headings: OptionsInfo = OptionsInfo(False, "page", "boolean", False)
+    # page_footer_use_tbl_notes: OptionsInfo = OptionsInfo(False, "page", "boolean", False)
+    # page_width: OptionsInfo = OptionsInfo(False, "page", "value", "8.5in")
+    # page_height: OptionsInfo = OptionsInfo(False, "page", "value", "11.0in")
+    # page_margin_left: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
+    # page_margin_right: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
+    # page_margin_top: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
+    # page_margin_bottom: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
+    # page_header_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
+    # page_footer_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
     quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
     quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
 
