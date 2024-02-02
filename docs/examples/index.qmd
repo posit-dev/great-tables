@@ -20,18 +20,13 @@ from great_tables.data import islands
 islands_mini = islands.head(10)
 
 (
-    GT(islands_mini, rowname_col = "name")
-    .tab_header(
-        title = "Large Landmasses of the World",
-        subtitle = "The top ten largest are presented"
-    )
+    GT(islands_mini, rowname_col="name")
+    .tab_header(title="Large Landmasses of the World", subtitle="The top ten largest are presented")
+    .tab_source_note(source_note="Source: The World Almanac and Book of Facts, 1975, page 406.")
     .tab_source_note(
-        source_note = "Source: The World Almanac and Book of Facts, 1975, page 406."
+        source_note=md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
     )
-    .tab_source_note(
-        source_note = md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
-    )
-    . tab_stubhead(label = "landmass")
+    .tab_stubhead(label="landmass")
 )
 ```
 
@@ -40,7 +35,7 @@ islands_mini = islands.head(10)
 :::{.g-col-lg-6 .g-col-12}
 
 ```{python}
-from great_tables import GT, md, html
+from great_tables import GT, html
 from great_tables.data import airquality
 
 airquality_mini = airquality.head(10).assign(Year = 1973)
@@ -48,18 +43,18 @@ airquality_mini = airquality.head(10).assign(Year = 1973)
 (
     GT(airquality_mini)
     .tab_header(
-        title = "New York Air Quality Measurements",
-        subtitle = "Daily measurements in New York City (May 1-10, 1973)"
+        title="New York Air Quality Measurements",
+        subtitle="Daily measurements in New York City (May 1-10, 1973)"
     )
     .tab_spanner(
-        label = "Time",
-        columns = ["Year", "Month", "Day"]
+        label="Time",
+        columns=["Year", "Month", "Day"]
     )
     .tab_spanner(
-        label = "Measurement",
-        columns = ["Ozone", "Solar_R", "Wind", "Temp"]
+        label="Measurement",
+        columns=["Ozone", "Solar_R", "Wind", "Temp"]
     )
-    .cols_move_to_start(columns = ["Year", "Month", "Day"])
+    .cols_move_to_start(columns=["Year", "Month", "Day"])
     .cols_label(
         Ozone = html("Ozone,<br>ppbV"),
         Solar_R = html("Solar R.,<br>cal/m<sup>2</sup>"),
@@ -76,7 +71,6 @@ airquality_mini = airquality.head(10).assign(Year = 1973)
 ```{python}
 from great_tables import GT
 from great_tables.data import countrypops
-
 import polars as pl
 import polars.selectors as cs
 
@@ -88,16 +82,11 @@ countries = {
     "Polynesia": ["PF", "WS", "TO", "TV"],
 }
 
-# a dictionary mapping region to country (e.g. AU -> Australasia)
+# Create a dictionary mapping region to country (e.g. AU -> Australasia)
 region_to_country = {
     region: country for country, regions in countries.items() for region in regions
 }
 
-keep_rows = countrypops.country_code_2.isin(list(region_to_country)) & countrypops.year.isin(
-    [2000, 2010, 2020]
-)
-
-# Create a display table based on a preprocessed `countrypops`
 wide_pops = (
     pl.from_pandas(countrypops)
     .filter(
@@ -122,40 +111,42 @@ wide_pops = (
 :::{.g-col-lg-6 .g-col-12}
 
 ```{python}
-from great_tables import GT, md, html
+from great_tables import GT, html
 from great_tables.data import towny
 
-towny_mini = (towny[["name", "website", "density_2021", "land_area_km2",
-              "latitude", "longitude"]].sort_values("density_2021",
-              ascending=False).head(10))
-
-towny_mini["url_name"] = (["["] + towny_mini["name"] + ["]"] +
-                         ["("] + towny_mini["website"] + [")"])
-
-towny_mini["location"] =( ["[map](http://maps.google.com/?ie=UTF8&hq=&ll="] +
-                          towny_mini["latitude"].astype(str) + [","] +
-                          towny_mini["longitude"].astype(str) + ["&z=13)"])
-
-(
-    GT(towny_mini[["url_name", "location", "land_area_km2","density_2021"]], rowname_col = "url_name")
-    .tab_header(
-        title = "The Municipalities of Ontario",
-        subtitle = "The top 10 highest population density in 2021"
-    )
-
-    .tab_stubhead(label = "Municipality")
-
-    .fmt_markdown(columns = ["url_name","location"])
-
-    .fmt_number(columns = ["land_area_km2", "density_2021"], decimals=1)
-
-    .cols_label(
-        land_area_km2 = html("land area, <br>km<sup>2</sup>"),
-        density_2021 = html("density, <br>people/km<sup>2</sup>")
-    )
+towny_mini = (
+    towny[["name", "website", "density_2021", "land_area_km2", "latitude", "longitude"]]
+    .sort_values("density_2021", ascending=False)
+    .head(10)
 )
 
+towny_mini["url_name"] = ["["] + towny_mini["name"] + ["]"] + ["("] + towny_mini["website"] + [")"]
 
+towny_mini["location"] = (
+    ["[map](http://maps.google.com/?ie=UTF8&hq=&ll="]
+    + towny_mini["latitude"].astype(str)
+    + [","]
+    + towny_mini["longitude"].astype(str)
+    + ["&z=13)"]
+)
+
+(
+    GT(
+        towny_mini[["url_name", "location", "land_area_km2", "density_2021"]],
+        rowname_col="url_name",
+    )
+    .tab_header(
+        title="The Municipalities of Ontario",
+        subtitle="The top 10 highest population density in 2021",
+    )
+    .tab_stubhead(label="Municipality")
+    .fmt_markdown(columns=["url_name", "location"])
+    .fmt_number(columns=["land_area_km2", "density_2021"], decimals=1)
+    .cols_label(
+        land_area_km2=html("land area, <br>km<sup>2</sup>"),
+        density_2021=html("density, <br>people/km<sup>2</sup>"),
+    )
+)
 ```
 
 :::
@@ -163,8 +154,9 @@ towny_mini["location"] =( ["[map](http://maps.google.com/?ie=UTF8&hq=&ll="] +
 :::{.g-col-lg-6 .g-col-12}
 
 ```{python}
-from great_tables import html
+from great_tables import GT, html
 from great_tables.data import sza
+import polars as pl
 import polars.selectors as cs
 
 sza_pivot = (
