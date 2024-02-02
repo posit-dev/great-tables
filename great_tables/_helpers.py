@@ -391,6 +391,38 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     commonplace style. In regards to these types of fonts in tables, one can say that any table
     having a handwritten font will evoke a feeling of gleefulness.
 
+    Examples
+    --------
+    Using select columns from the `exibble` dataset, let's create a table with a number of
+    components added. Following that, we'll set a font for the entire table using the
+    `tab_options()` method with the `table_font_names` parameter. Instead of passing a list of font
+    names, we'll use the `system_fonts()` helper function to get a font stack. In this case, we'll
+    use the `"industrial"` font stack.
+
+    ```{python}
+    from great_tables import GT, exibble, md, system_fonts
+
+    (
+      GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+      )
+      .tab_header(
+        title=md("Data listing from **exibble**"),
+        subtitle=md("`exibble` is a **Great Tables** dataset.")
+      )
+      .fmt_number(columns="num")
+      .fmt_currency(columns="currency")
+      .tab_source_note(source_note="This is only a subset of the dataset.")
+      .opt_align_table_header(align="left")
+      .tab_options(table_font_names=system_fonts("industrial"))
+    )
+    ```
+
+    Invoking the `system_fonts()` helper function with the `"industrial"` argument will return a
+    list of font names that make up the font stack. This is exactly the type of input that the
+    `table_font_names` parameter requires.
     """
     return _get_font_stack(name)
 
