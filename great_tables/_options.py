@@ -676,9 +676,7 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     This method allows us to scale the vertical padding of the table by a factor of `scale`. The
     default value is `1.0` and this method serves as a convenient shortcut for
     `gt.tab_options(heading_padding=<new_val>, column_labels_padding=<new_val>,
-    data_row_padding=<new_val>, row_group_padding=<new_val>, summary_row_padding=<new_val>,
-    grand_summary_row_padding=<new_val>, footnotes_padding=<new_val>,
-    source_notes_padding=<new_val>)`.
+    data_row_padding=<new_val>, row_group_padding=<new_val>, source_notes_padding=<new_val>)`.
 
     Parameters
     ----------
@@ -748,9 +746,6 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         "column_labels_padding",
         "data_row_padding",
         "row_group_padding",
-        "summary_row_padding",
-        "grand_summary_row_padding",
-        "footnotes_padding",
         "source_notes_padding",
     ]
 
@@ -760,9 +755,6 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         self._options.column_labels_padding.value,
         self._options.data_row_padding.value,
         self._options.row_group_padding.value,
-        self._options.summary_row_padding.value,
-        self._options.grand_summary_row_padding.value,
-        self._options.footnotes_padding.value,
         self._options.source_notes_padding.value,
     ]
 
@@ -785,8 +777,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     default value is `1.0` and this method serves as a convenient shortcut for `gt.tab_options(
     heading_padding_horizontal=<new_val>, column_labels_padding_horizontal=<new_val>,
     data_row_padding_horizontal=<new_val>, row_group_padding_horizontal=<new_val>,
-    summary_row_padding_horizontal=<new_val>, grand_summary_row_padding_horizontal=<new_val>,
-    footnotes_padding_horizontal=<new_val>, source_notes_padding_horizontal=<new_val>)`.
+    source_notes_padding_horizontal=<new_val>)`.
 
     Parameters
     ----------
@@ -854,9 +845,6 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         "column_labels_padding_horizontal",
         "data_row_padding_horizontal",
         "row_group_padding_horizontal",
-        "summary_row_padding_horizontal",
-        "grand_summary_row_padding_horizontal",
-        "footnotes_padding_horizontal",
         "source_notes_padding_horizontal",
     ]
 
@@ -866,9 +854,6 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         self._options.column_labels_padding_horizontal.value,
         self._options.data_row_padding_horizontal.value,
         self._options.row_group_padding_horizontal.value,
-        self._options.summary_row_padding_horizontal.value,
-        self._options.grand_summary_row_padding_horizontal.value,
-        self._options.footnotes_padding_horizontal.value,
         self._options.source_notes_padding_horizontal.value,
     ]
 
