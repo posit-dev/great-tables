@@ -3295,11 +3295,12 @@ def fmt_image(
     --------
 
     ```{python}
-    from great_tables import GT, exibble
+    from great_tables import GT
+    from great_tables.data import metro
     from importlib_resources import files
 
     img_paths = files(\"great_tables\")  / \"data/metro_images\"
-    gt.GT(exibble).fmt_image(\"lines\", path = img_paths, file_pattern=\"metro_{}.svg\")
+    GT(metro).fmt_image(\"lines\", path = img_paths, file_pattern=\"metro_{}.svg\")
     ```
     """
 
