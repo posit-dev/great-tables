@@ -232,7 +232,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
 
     The font stacks and the individual fonts used by platform
     ---------------------------------------------------------
-    ## System UI (`"system-ui"`)
+    ### System UI (`"system-ui"`)
 
     ```css
     font-family: system-ui, sans-serif;
@@ -243,7 +243,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     These typefaces serve as a great starting point for text in data tables and so this font stack
     is the default for **Great Tables**.
 
-    ## Transitional (`"transitional"`)
+    ### Transitional (`"transitional"`)
 
     ```css
     font-family: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
@@ -253,7 +253,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     Modern typefaces. *Times New Roman*, a transitional typeface created for the Times of London
     newspaper, is among the most well-known instances of this style.
 
-    ## Old Style (`"old-style"`)
+    ### Old Style (`"old-style"`)
 
     ```css
     font-family: 'Iowan Old Style', 'Palatino Linotype', 'URW Palladio L', P052, serif;
@@ -263,7 +263,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     stress, a lack of contrast between thick and thin strokes, and rounded serifs. *Garamond* is
     among the most well-known instances of an antique typeface.
 
-    ## Humanist (`"humanist"`)
+    ### Humanist (`"humanist"`)
 
     ```css
     font-family: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans', source-sans-pro, sans-serif;
@@ -274,7 +274,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     are frequently regarded as being more readable and easier to read than other sans serif
     typefaces.
 
-    ## Geometric Humanist (`"geometric-humanist"`)
+    ### Geometric Humanist (`"geometric-humanist"`)
 
     ```css
     font-family: Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif;
@@ -285,7 +285,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     are frequently thought to be contemporary and slick in appearance. A well-known example of this
     classification is *Futura*.
 
-    ## Classical Humanist (`"classical-humanist"`)
+    ### Classical Humanist (`"classical-humanist"`)
 
     ```css
     font-family: Optima, Candara, 'Noto Sans', source-sans-pro, sans-serif;
@@ -295,7 +295,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     serif is what distinguishes classical humanist typefaces. The stone carving on Renaissance-era
     tombstones and classical Roman capitals served as inspiration for these typefaces.
 
-    ## Neo-Grotesque (`"neo-grotesque"`)
+    ### Neo-Grotesque (`"neo-grotesque"`)
 
     ```css
     font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
@@ -305,7 +305,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     centuries. They are distinguished by their crisp, geometric shapes and regular stroke widths.
     *Helvetica* is among the most well-known examples of a Neo-grotesque typeface.
 
-    ## Monospace Slab Serif (`"monospace-slab-serif"`)
+    ### Monospace Slab Serif (`"monospace-slab-serif"`)
 
     ```css
     font-family: 'Nimbus Mono PS', 'Courier New', monospace;
@@ -315,7 +315,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     same width irrespective of their shape, and their straightforward, geometric forms. For reports,
     tabular work, and technical documentation, this technique is used to simulate typewriter output.
 
-    Monospace Code (`"monospace-code"`)
+    ### Monospace Code (`"monospace-code"`)
 
     ```css
     font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
@@ -325,7 +325,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     typefaces are used in these fields. These typefaces are distinguished by their clear, readable
     forms and monospaced design, which ensures that all letters and characters are the same width.
 
-    ## Industrial (`"industrial"`)
+    ### Industrial (`"industrial"`)
 
     ```css
     font-family: Bahnschrift, 'DIN Alternate', 'Franklin Gothic Medium', 'Nimbus Sans Narrow', sans-serif-condensed, sans-serif;
@@ -336,7 +336,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     are distinguished by their strong sans serif letterforms, straightforward appearance, and use of
     geometric shapes and straight lines.
 
-    ## Rounded Sans (`"rounded-sans"`)
+    ### Rounded Sans (`"rounded-sans"`)
 
     ```css
     font-family: ui-rounded, 'Hiragino Maru Gothic ProN', Quicksand, Comfortaa, Manjari, 'Arial Rounded MT', 'Arial Rounded MT Bold', Calibri, source-sans-pro, sans-serif;
@@ -348,7 +348,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     design has gained popularity and is still frequently used in branding, graphic design, and other
     fields.
 
-    ## Slab Serif (`"slab-serif"`)
+    ### Slab Serif (`"slab-serif"`)
 
     ```css
     font-family: Rockwell, 'Rockwell Nova', 'Roboto Slab', 'DejaVu Serif', 'Sitka Small', serif;
@@ -358,7 +358,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     of each letterform. Typically, these serifs are unbracketed, which means that they do not have
     any curved or tapered transitions to the letter's main stroke.
 
-    ## Antique (`"antique"`)
+    ### Antique (`"antique"`)
 
     ```css
     font-family: Superclarendon, 'Bookman Old Style', 'URW Bookman', 'URW Bookman L', 'Georgia Pro', Georgia, serif;
@@ -369,7 +369,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     serifs. The typeface *Clarendon* is a highly regarded example of this style and *Superclarendon*
     is a modern take on that revered typeface.
 
-    ## Didone (`"didone"`)
+    ### Didone (`"didone"`)
 
     ```css
     font-family: Didot, 'Bodoni MT', 'Noto Serif Display', 'URW Palladio L', P052, Sylfaen, serif;
@@ -380,7 +380,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     The Didone style first appeared in the late 18th century and became well-known in the early
     19th century. *Bodoni* and *Didot* are two of the most well-known typefaces in this category.
 
-    ## Handwritten (`"handwritten"`)
+    ### Handwritten (`"handwritten"`)
 
     ```css
     font-family: 'Segoe Print', 'Bradley Hand', Chilanka, TSCu_Comic, casual, cursive;
