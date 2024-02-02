@@ -23,6 +23,7 @@ import pandas as pd
 import math
 from datetime import datetime, date, time
 from babel.dates import format_date, format_time, format_datetime
+from pathlib import Path
 
 
 if TYPE_CHECKING:
@@ -3261,3 +3262,159 @@ def _validate_datetime_obj(x: Any) -> None:
         raise ValueError(f"Invalid datetime object: '{x}'. The object must be a datetime object.")
 
     return
+
+
+def fmt_image(
+    self: GTSelf,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    height: str | int | None = None,
+    width: str | int | None = None,
+    sep: str = " ",
+    path: str | Path | None = None,
+    file_pattern: str = "{}",
+    encode: bool = True,
+) -> GTSelf:
+    """
+    Parameters
+    ----------
+    columns:
+    rows:
+    height, width:
+        Height and width of images.
+    sep:
+        Separator between images.
+    path:
+        Path to image files.
+    file_pattern:
+        File pattern specification.
+    encode:
+        Whether to use Base64 encoding.
+
+    Examples
+    --------
+
+    ```{python}
+    import great_tables as gt, exibble
+    from metadata.resources import files
+
+    img_paths = files(\"great_tables\")  / \"data/metro_images\"
+    gt.GT(exibble).fmt_image(\"lines\", path = img_paths, file_pattern=\"metro_{}.svg\")
+    ```
+    """
+
+    if not encode:
+        raise NotImplementedError()
+
+    # TODO: most parameter options should allow a polars expression (or from_column) ----
+    # can other fmt functions do this kind of thing?
+    expr_cols = [height, width, sep, path, file_pattern, encode]
+
+    if any(isinstance(x, PlExpr) for x in expr_cols):
+        raise NotImplementedError(
+            "fmt_image currently does not support polars expressions for arguments other than"
+            " columns and rows"
+        )
+
+    if height is None and width is None:
+        height = "2em"
+
+    formatter = FmtImage(height, width, sep, str(path), file_pattern, encode)
+    return fmt(self, fns=formatter.to_html, columns=columns, rows=rows)
+
+
+from dataclasses import dataclass
+
+
+@dataclass
+class FmtImage:
+    height: str | None
+    width: str | None
+    sep: str
+    path: str
+    file_pattern: str
+    encode: bool
+
+    def to_html(self, val: Any):
+        import re
+        from pathlib import Path
+
+        # TODO: handle NA values
+        # TODO: are we assuming val is a string? (or coercing?)
+
+        # otherwise...
+
+        if "," in val:
+            files = re.split(r",\s*", val)
+        else:
+            files = [val]
+
+        # TODO: these are not the only numeric values that might end up here
+        # e.g. bespoke types like np int64, etc..
+        # we need to know the underlying table class (e.g. pandas DataFrame) to do a full check
+        if isinstance(self.height, (int, float)):
+            height = f"{self.height}px"
+        else:
+            height = self.height
+
+        full_files = self._apply_pattern(self.file_pattern, files)
+
+        out: list[str] = []
+        for file in full_files:
+            # Case 1: from url
+            if self.path.startswith("http://") or self.path.startswith("https://"):
+                norm_path = re.sub(r"/\s+$", self.path)
+                uri = f"{norm_path}/{file}"
+
+            # Case 2:
+            else:
+                filename = (Path(self.path) / file).expanduser().absolute()
+
+                if self.encode:
+                    uri = self._get_image_uri(filename)
+                else:
+                    uri = filename
+
+            style_string = "".join(
+                [
+                    f"height: {self.height};" if self.height is not None else "",
+                    f"width: {self.width};" if self.width is not None else "",
+                    "vertical-align: middle;",
+                ]
+            )
+
+            # TODO: do we have a way to create tags, that is good at escaping, etc..?
+            out.append(f'<img src="{uri}" style="{style_string}">')
+
+        spans = [f'<span style="white-space:nowrap;">{img}</span>' for img in out]
+        return self.sep.join(spans)
+
+    @staticmethod
+    def _apply_pattern(file_pattern: str, files: list[str]) -> list[str]:
+        return [file_pattern.format(file) for file in files]
+
+    @classmethod
+    def _get_image_uri(cls, filename: str) -> str:
+        import base64
+
+        with open(filename, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode()
+
+        mime_type = cls._get_mime_type(filename)
+
+        return f"data: {mime_type}; base64,{encoded}"
+        ...
+
+    @staticmethod
+    def _get_mime_type(filename: str) -> str:
+        from pathlib import Path
+
+        # note that we strip off the leading "."
+        suffix = Path(filename).suffix[1:]
+
+        if suffix == "svg":
+            return "image/svg+xml"
+        elif suffix == "jpg":
+            return "image/jpeg"
+
+        return f"image/{suffix}"
