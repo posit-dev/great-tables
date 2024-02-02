@@ -146,6 +146,7 @@ quartodoc:
         - md
         - html
         - from_column
+        - system_fonts
     - title: Table options
       desc: >
         With the `opt_*()` functions, we have an easy way to set commonly-used table options without
