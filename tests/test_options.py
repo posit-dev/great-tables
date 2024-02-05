@@ -1,7 +1,9 @@
 import pandas as pd
-
-from great_tables._options import tab_options
+import pytest
 from great_tables import GT
+from great_tables._scss import compile_scss
+
+
 
 
 def test_options_no_mutate():
