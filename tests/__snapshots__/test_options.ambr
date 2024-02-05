@@ -1,0 +1,343 @@
+# serializer version: 1
+# name: test_scss_default_generated
+  '''
+  #abc table {
+            font-family: Arial, Helvetica, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+  
+  #abc thead,
+  tbody,
+  tfoot,
+  tr,
+  td,
+  th {
+    border-style: none;
+  }
+  
+  #abc p {
+    margin: 0;
+    padding: 0;
+  }
+  
+  #abc .gt_table {
+    display: table;
+    border-collapse: collapse;
+    line-height: normal;
+    margin-left: 10px;
+    margin-right: 10px;
+    color: lightred;
+    font-size: 12px;
+    font-weight: bold;
+    font-style: bold;
+    background-color: red;
+    width: 100px;
+    border-top-style: solid;
+    border-top-width: 5px;
+    border-top-color: red;
+    border-right-style: solid;
+    border-right-width: 5px;
+    border-right-color: red;
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: red;
+    border-left-style: solid;
+    border-left-width: 5px;
+    border-left-color: red;
+  }
+  
+  #abc .gt_caption {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  
+  #abc .gt_title {
+    color: lightred;
+    font-size: 12px;
+    font-weight: bold;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-bottom-color: red;
+    border-bottom-width: 0;
+  }
+  
+  #abc .gt_subtitle {
+    color: lightred;
+    font-size: 12px;
+    font-weight: bold;
+    padding-top: 4px;
+    padding-bottom: 6px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-top-color: red;
+    border-top-width: 0;
+  }
+  
+  #abc .gt_heading {
+    background-color: red;
+    text-align: right;
+    border-bottom-color: red;
+    border-left-style: solid;
+    border-left-width: 5px;
+    border-left-color: red;
+    border-right-style: solid;
+    border-right-width: 5px;
+    border-right-color: red;
+  }
+  
+  #abc .gt_bottom_border {
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: red;
+  }
+  
+  #abc .gt_col_headings {
+    border-top-style: solid;
+    border-top-width: 5px;
+    border-top-color: red;
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: red;
+    border-left-style: solid;
+    border-left-width: 5px;
+    border-left-color: red;
+    border-right-style: solid;
+    border-right-width: 5px;
+    border-right-color: red;
+  }
+  
+  #abc .gt_col_heading {
+    color: lightred;
+    background-color: red;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-left-style: solid;
+    border-left-width: 5px;
+    border-left-color: red;
+    border-right-style: solid;
+    border-right-width: 5px;
+    border-right-color: red;
+    vertical-align: bottom;
+    padding-top: 5px;
+    padding-bottom: 6px;
+    padding-left: 5px;
+    padding-right: 5px;
+    overflow-x: hidden;
+  }
+  
+  #abc .gt_column_spanner_outer {
+    color: lightred;
+    background-color: red;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  
+  #abc .gt_column_spanner_outer:first-child {
+    padding-left: 0;
+  }
+  
+  #abc .gt_column_spanner_outer:last-child {
+    padding-right: 0;
+  }
+  
+  #abc .gt_column_spanner {
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: red;
+    vertical-align: bottom;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    overflow-x: hidden;
+    display: inline-block;
+    width: 100%;
+  }
+  
+  #abc .gt_spanner_row {
+    border-bottom-style: hidden;
+  }
+  
+  #abc .gt_group_heading {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    color: lightred;
+    background-color: red;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-top-style: solid;
+    border-top-width: 5px;
+    border-top-color: red;
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: red;
+    border-left-style: solid;
+    border-left-width: 5px;
+    border-left-color: red;
+    border-right-style: solid;
+    border-right-width: 5px;
+    border-right-color: red;
+    vertical-align: middle;
+    text-align: left;
+  }
+  
+  #abc .gt_empty_group_heading {
+    padding: 0.5px;
+    color: lightred;
+    background-color: red;
+    font-size: 12px;
+    font-weight: bold;
+    border-top-style: solid;
+    border-top-width: 5px;
+    border-top-color: red;
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: red;
+    vertical-align: middle;
+  }
+  
+  #abc .gt_from_md> :first-child {
+    margin-top: 0;
+  }
+  
+  #abc .gt_from_md> :last-child {
+    margin-bottom: 0;
+  }
+  
+  #abc .gt_row {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin: 10px;
+    border-top-style: solid;
+    border-top-width: 5px;
+    border-top-color: red;
+    border-left-style: solid;
+    border-left-width: 5px;
+    border-left-color: red;
+    border-right-style: solid;
+    border-right-width: 5px;
+    border-right-color: red;
+    vertical-align: middle;
+    overflow-x: hidden;
+  }
+  
+  #abc .gt_stub {
+    color: lightred;
+    background-color: red;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-right-style: solid;
+    border-right-width: 5px;
+    border-right-color: red;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  
+  #abc .gt_stub_row_group {
+    color: lightred;
+    background-color: red;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-right-style: solid;
+    border-right-width: 5px;
+    border-right-color: red;
+    padding-left: 5px;
+    padding-right: 5px;
+    vertical-align: top;
+  }
+  
+  #abc .gt_row_group_first td {
+    border-top-width: 5px;
+  }
+  
+  #abc .gt_row_group_first th {
+    border-top-width: 5px;
+  }
+  
+  #abc .gt_table_body {
+    border-top-style: solid;
+    border-top-width: 5px;
+    border-top-color: red;
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: red;
+  }
+  
+  #abc .gt_sourcenotes {
+    color: lightred;
+    background-color: red;
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: red;
+    border-left-style: solid;
+    border-left-width: 5px;
+    border-left-color: red;
+    border-right-style: solid;
+    border-right-width: 5px;
+    border-right-color: red;
+  }
+  
+  #abc .gt_sourcenote {
+    font-size: 12px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  
+  #abc .gt_left {
+    text-align: left;
+  }
+  
+  #abc .gt_center {
+    text-align: center;
+  }
+  
+  #abc .gt_right {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  #abc .gt_font_normal {
+    font-weight: normal;
+  }
+  
+  #abc .gt_font_bold {
+    font-weight: bold;
+  }
+  
+  #abc .gt_font_italic {
+    font-style: italic;
+  }
+  
+  #abc .gt_super {
+    font-size: 65%;
+  }
+  
+  #abc .gt_footnote_marks {
+    font-size: 75%;
+    vertical-align: 0.4em;
+    position: initial;
+  }
+  
+  #abc .gt_asterisk {
+    font-size: 100%;
+    vertical-align: 0;
+  }
+  
+  '''
+# ---
