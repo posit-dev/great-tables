@@ -1,5 +1,9 @@
-
-thead, tbody, tfoot, tr, td, th {
+thead,
+tbody,
+tfoot,
+tr,
+td,
+th {
   border-style: none;
 }
 
@@ -127,9 +131,11 @@ p {
   padding-left: 4px;
   padding-right: 4px;
 }
+
 .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
+
 .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
@@ -191,11 +197,11 @@ p {
   vertical-align: middle;
 }
 
-.gt_from_md > :first-child {
+.gt_from_md> :first-child {
   margin-top: 0;
 }
 
-.gt_from_md > :last-child {
+.gt_from_md> :last-child {
   margin-bottom: 0;
 }
 
@@ -253,69 +259,6 @@ p {
   border-top-width: $row_group_border_top_width;
 }
 
-.gt_summary_row {
-  color: $font_color_summary_row_background_color;
-  background-color: $summary_row_background_color;
-  text-transform: $summary_row_text_transform;
-  padding-top: $summary_row_padding;
-  padding-bottom: $summary_row_padding;
-  padding-left: $summary_row_padding_horizontal;
-  padding-right: $summary_row_padding_horizontal;
-}
-
-.gt_first_summary_row {
-  border-top-style: $summary_row_border_style;
-  border-top-color: $summary_row_border_color;
-}
-
-.gt_first_summary_row.thick {
-  border-top-width: $summary_row_border_width;
-}
-
-.gt_last_summary_row {
-  padding-top: $summary_row_padding;
-  padding-bottom: $summary_row_padding;
-  padding-left: $summary_row_padding_horizontal;
-  padding-right: $summary_row_padding_horizontal;
-  border-bottom-style: $summary_row_border_style;
-  border-bottom-width: $summary_row_border_width;
-  border-bottom-color: $summary_row_border_color;
-}
-
-.gt_grand_summary_row {
-  color: $font_color_grand_summary_row_background_color;
-  background-color: $grand_summary_row_background_color;
-  text-transform: $grand_summary_row_text_transform;
-  padding-top: $grand_summary_row_padding;
-  padding-bottom: $grand_summary_row_padding;
-  padding-left: $grand_summary_row_padding_horizontal;
-  padding-right: $grand_summary_row_padding_horizontal;
-}
-
-.gt_first_grand_summary_row {
-  padding-top: $grand_summary_row_padding;
-  padding-bottom: $grand_summary_row_padding;
-  padding-left: $grand_summary_row_padding_horizontal;
-  padding-right: $grand_summary_row_padding_horizontal;
-  border-top-style: $grand_summary_row_border_style;
-  border-top-width: $grand_summary_row_border_width;
-  border-top-color: $grand_summary_row_border_color;
-}
-
-.gt_last_grand_summary_row_top {
-  padding-top: $grand_summary_row_padding;
-  padding-bottom: $grand_summary_row_padding;
-  padding-left: $grand_summary_row_padding_horizontal;
-  padding-right: $grand_summary_row_padding_horizontal;
-  border-bottom-style: $grand_summary_row_border_style;
-  border-bottom-width: $grand_summary_row_border_width;
-  border-bottom-color: $grand_summary_row_border_color;
-}
-
-.gt_striped {
-   background-color: $row_striping_background_color;
-}
-
 .gt_table_body {
   border-top-style: $table_body_border_top_style;
   border-top-width: $table_body_border_top_width;
@@ -323,29 +266,6 @@ p {
   border-bottom-style: $table_body_border_bottom_style;
   border-bottom-width: $table_body_border_bottom_width;
   border-bottom-color: $table_body_border_bottom_color;
-}
-
-.gt_footnotes {
-  color: $font_color_footnotes_background_color;
-  background-color: $footnotes_background_color;
-  border-bottom-style: $footnotes_border_bottom_style;
-  border-bottom-width: $footnotes_border_bottom_width;
-  border-bottom-color: $footnotes_border_bottom_color;
-  border-left-style: $footnotes_border_lr_style;
-  border-left-width: $footnotes_border_lr_width;
-  border-left-color: $footnotes_border_lr_color;
-  border-right-style: $footnotes_border_lr_style;
-  border-right-width: $footnotes_border_lr_width;
-  border-right-color: $footnotes_border_lr_color;
-}
-
-.gt_footnote {
-  margin: $footnotes_margin;
-  font-size: $footnotes_font_size;
-  padding-left: $footnotes_padding;
-  padding-right: $footnotes_padding;
-  padding-left: $footnotes_padding_horizontal;
-  padding-right: $footnotes_padding_horizontal;
 }
 
 .gt_sourcenotes {
