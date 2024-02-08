@@ -2,7 +2,7 @@
 jupyter: python3
 html-table-processing: none
 title: "Using Polars to Win at Superbowl Squares"
-author: ""
+author: "Michael Chow"
 date: 2024-02-08
 freeze: true
 ---
@@ -109,6 +109,8 @@ Using Polars with Great Tables was a total delight. To learn more about how we a
 
 ## Appendix: analysis and code
 
+### Method
+
 In order to calculate the probability of a given square winning, we focused on the joint probability
 of observing a final digit for the home team AND a final digit for the away team.
 
@@ -123,7 +125,9 @@ This essentially makes two assumptions:
 
 Another way to think about this is that digit is being modeled as if each team is drawing a ball numbered 0-9 from their own urn. We are modelling the chance of observing a pair of numbers, corresponding to a draw from each team's urns.
 
-The code for this analysis is in this python script on github, and is included below:
+The code for this analysis is in [this python script on github](https://github.com/posit-dev/great-tables/blob/main/docs/blog/superbowl-squares/_code.py), and is included below:
+
+### Code
 
 ```{python}
 {{< include _code.py >}}
