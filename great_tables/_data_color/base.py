@@ -72,9 +72,51 @@ def data_color(
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
+    Color palette access from **RColorBrewer**
+    ------------------------------------------
+    All palettes from the **RColorBrewer** package can be accessed by providing the palette name in
+    `palette=`. There are 35 available palettes:
+
+    |    | Palette Name      | Colors  | Category    | Colorblind Friendly |
+    |----|-------------------|---------|-------------|---------------------|
+    | 1  | `"BrBG"`          | 11      | Diverging   | Yes                 |
+    | 2  | `"PiYG"`          | 11      | Diverging   | Yes                 |
+    | 3  | `"PRGn"`          | 11      | Diverging   | Yes                 |
+    | 4  | `"PuOr"`          | 11      | Diverging   | Yes                 |
+    | 5  | `"RdBu"`          | 11      | Diverging   | Yes                 |
+    | 6  | `"RdYlBu"`        | 11      | Diverging   | Yes                 |
+    | 7  | `"RdGy"`          | 11      | Diverging   | No                  |
+    | 8  | `"RdYlGn"`        | 11      | Diverging   | No                  |
+    | 9  | `"Spectral"`      | 11      | Diverging   | No                  |
+    | 10 | `"Dark2"`         | 8       | Qualitative | Yes                 |
+    | 11 | `"Paired"`        | 12      | Qualitative | Yes                 |
+    | 12 | `"Set1"`          | 9       | Qualitative | No                  |
+    | 13 | `"Set2"`          | 8       | Qualitative | Yes                 |
+    | 14 | `"Set3"`          | 12      | Qualitative | No                  |
+    | 15 | `"Accent"`        | 8       | Qualitative | No                  |
+    | 16 | `"Pastel1"`       | 9       | Qualitative | No                  |
+    | 17 | `"Pastel2"`       | 8       | Qualitative | No                  |
+    | 18 | `"Blues"`         | 9       | Sequential  | Yes                 |
+    | 19 | `"BuGn"`          | 9       | Sequential  | Yes                 |
+    | 20 | `"BuPu"`          | 9       | Sequential  | Yes                 |
+    | 21 | `"GnBu"`          | 9       | Sequential  | Yes                 |
+    | 22 | `"Greens"`        | 9       | Sequential  | Yes                 |
+    | 23 | `"Greys"`         | 9       | Sequential  | Yes                 |
+    | 24 | `"Oranges"`       | 9       | Sequential  | Yes                 |
+    | 25 | `"OrRd"`          | 9       | Sequential  | Yes                 |
+    | 26 | `"PuBu"`          | 9       | Sequential  | Yes                 |
+    | 27 | `"PuBuGn"`        | 9       | Sequential  | Yes                 |
+    | 28 | `"PuRd"`          | 9       | Sequential  | Yes                 |
+    | 29 | `"Purples"`       | 9       | Sequential  | Yes                 |
+    | 30 | `"RdPu"`          | 9       | Sequential  | Yes                 |
+    | 31 | `"Reds"`          | 9       | Sequential  | Yes                 |
+    | 32 | `"YlGn"`          | 9       | Sequential  | Yes                 |
+    | 33 | `"YlGnBu"`        | 9       | Sequential  | Yes                 |
+    | 34 | `"YlOrBr"`        | 9       | Sequential  | Yes                 |
+    | 35 | `"YlOrRd"`        | 9       | Sequential  | Yes                 |
+
     Examples
     --------
-
     The `data_color()` method can be used without any supplied arguments to colorize a table. Let's
     do this with the `exibble` dataset:
 
@@ -130,7 +172,12 @@ def data_color(
     if palette is None:
         palette = DEFAULT_PALETTE
     elif isinstance(palette, str):
-        palette = [palette]
+        # Check if the palette is a ColorBrewer palette and, if it is, then convert it to a list of
+        # hexadecimal color values; otherwise, convert it to a list
+        if palette in COLOR_NAME_TO_HEX:
+            palette = _colorbrewer_palette_to_hex(palette)
+        else:
+            palette = [palette]
 
     # Reverse the palette if `reverse` is set to `True`
     if reverse:
@@ -454,6 +501,19 @@ def _color_name_to_hex(colors: List[str]) -> List[str]:
         i += 1
 
     return colors
+
+
+def _colorbrewer_palette_to_hex(palette: str) -> List[str]:
+    # If the palette is not in the set of colorbrewer palettes, then throw an error
+    if palette not in COLOR_NAME_TO_HEX:
+        raise ValueError(
+            f"Invalid colorbrewer palette provided ({palette}). Please ensure that all colorbrewer palettes are valid."
+        )
+
+    # Get the hexadecimal values for the colors in the palette
+    hex_colors = COLOR_NAME_TO_HEX[palette]
+
+    return hex_colors
 
 
 def _check_named_colors(colors: Union[str, List[str]]) -> None:
