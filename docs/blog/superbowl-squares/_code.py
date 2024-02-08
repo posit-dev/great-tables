@@ -62,7 +62,7 @@ joint = (
     .tab_stubhead("KC Chiefs")
     .tab_source_note(
         md(
-            '<span style="float: right;">Source: [Lee Sharpe, nflverse](https://github.com/nflverse/nfldata)</span>'
+            '<span style="float: right;">Source data: [Lee Sharpe, nflverse](https://github.com/nflverse/nfldata)</span>'
         )
     )
 )
