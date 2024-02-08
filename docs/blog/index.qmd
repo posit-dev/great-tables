@@ -2,6 +2,7 @@
 title: "Great Blogposts"
 listing:
   type: table
+  sort: "date desc"
   contents:
     - "**.qmd"
     #- title: "Title"
