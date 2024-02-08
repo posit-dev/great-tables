@@ -690,7 +690,7 @@ COLOR_NAME_TO_HEX = {
 # The ColorBrewer palettes are licensed under an Apache 2.0 license.
 # https://www.colorbrewer2.org/about/
 
-colorbrewer_palettes = {
+COLORBREWER_NAME_TO_PALETTE = {
     "BrBG": [
         "#543005",
         "#8C510A",
