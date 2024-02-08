@@ -6,7 +6,7 @@ from typing import (
     Optional,
     Tuple,
 )
-from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX
+from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX, COLORBREWER_NAME_TO_PALETTE
 from great_tables._tbl_data import is_na, DataFrameLike
 from great_tables.style import fill, text
 from great_tables.loc import body
@@ -174,7 +174,7 @@ def data_color(
     elif isinstance(palette, str):
         # Check if the palette is a ColorBrewer palette and, if it is, then convert it to a list of
         # hexadecimal color values; otherwise, convert it to a list
-        if palette in COLOR_NAME_TO_HEX:
+        if palette in COLORBREWER_NAME_TO_PALETTE:
             palette = _colorbrewer_palette_to_hex(palette)
         else:
             palette = [palette]
@@ -505,13 +505,13 @@ def _color_name_to_hex(colors: List[str]) -> List[str]:
 
 def _colorbrewer_palette_to_hex(palette: str) -> List[str]:
     # If the palette is not in the set of colorbrewer palettes, then throw an error
-    if palette not in COLOR_NAME_TO_HEX:
+    if palette not in COLORBREWER_NAME_TO_PALETTE:
         raise ValueError(
             f"Invalid colorbrewer palette provided ({palette}). Please ensure that all colorbrewer palettes are valid."
         )
 
     # Get the hexadecimal values for the colors in the palette
-    hex_colors = COLOR_NAME_TO_HEX[palette]
+    hex_colors = COLORBREWER_NAME_TO_PALETTE[palette]
 
     return hex_colors
 
