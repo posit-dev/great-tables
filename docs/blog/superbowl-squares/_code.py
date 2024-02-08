@@ -1,6 +1,6 @@
 import polars as pl
 import polars.selectors as cs
-from great_tables import GT
+from great_tables import GT, md
 
 
 # Utilities -----
@@ -60,4 +60,9 @@ joint = (
     .tab_stubhead("")
     .tab_spanner("San Francisco 49ers", cs.all())
     .tab_stubhead("KC Chiefs")
+    .tab_source_note(
+        md(
+            '<span style="float: right;">Source: [Lee Sharpe, nflverse](https://github.com/nflverse/nfldata)</span>'
+        )
+    )
 )
