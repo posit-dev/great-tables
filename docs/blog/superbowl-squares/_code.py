@@ -1,6 +1,6 @@
 import polars as pl
 import polars.selectors as cs
-from great_tables import GT, style, loc
+from great_tables import GT
 
 
 # Utilities -----
@@ -34,12 +34,12 @@ games = pl.read_csv("./games.csv").filter(
     pl.col("season") >= 2015,
 )
 
-# individual probabilities of final digits per team
+# Individual probabilities of final digits per team
 home = team_final_digits(games, "KC")
 away = team_final_digits(games, "SF")
 
-# cross and multiply p(digit | team=KC)p(digit | team=SF) to get the joint
-# probability p(digit_KC, digit_SF | KC, SF)
+# Cross and multiply p(digit | team=KC)p(digit | team=SF) to get
+# the joint probability p(digit_KC, digit_SF | KC, SF)
 joint = (
     home.join(away, on="final_digit", how="cross")
     .with_columns(joint=pl.col("prop") * pl.col("prop_right"))
@@ -48,11 +48,11 @@ joint = (
     .with_columns((cs.all().exclude("final_digit") * 100).round(1))
 )
 
-# Hide everything above in single variable or something
+# Display -----
+
 (
     GT(joint, rowname_col="final_digit")
     .data_color(domain=[0, 4], palette=["red", "grey", "blue"])
-    # This is copied from the article, so we should change it
     .tab_header(
         "Super Bowl Squares | Final Score Probabilities",
         "Based on all NFL regular season and playoff games (2015-2023)",
@@ -60,5 +60,4 @@ joint = (
     .tab_stubhead("")
     .tab_spanner("San Francisco 49ers", cs.all())
     .tab_stubhead("KC Chiefs")
-    # .tab_stubhead("Kansas City Chiefs")
 )
