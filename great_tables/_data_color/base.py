@@ -49,7 +49,9 @@ def data_color(
         provided in a list.
     palette : str | List[str] | None
         The color palette to use. This should be a list of colors (e.g., `["#FF0000", "#00FF00",
-        "#0000FF"]`). If `None`, then a default palette will be used.
+        "#0000FF"]`). A ColorBrewer palette could also be used, just supply the name (reference
+        available in the *Color palette access from ColorBrewer* section). If `None`, then a default
+        palette will be used.
     domain : List[float] | List[int] | List[str] | None
         The domain of values to use for the color scheme. This can be a list of floats, integers, or
         strings. If `None`, then the domain will be inferred from the data values.
@@ -72,9 +74,9 @@ def data_color(
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
-    Color palette access from **RColorBrewer**
-    ------------------------------------------
-    All palettes from the **RColorBrewer** package can be accessed by providing the palette name in
+    Color palette access from ColorBrewer
+    ---------------------------------------
+    All palettes from the ColorBrewer package can be accessed by providing the palette name in
     `palette=`. There are 35 available palettes:
 
     |    | Palette Name      | Colors  | Category    | Colorblind Friendly |
@@ -137,8 +139,8 @@ def data_color(
     ```{python}
 
     gt.GT(gt.data.exibble).data_color(
-        columns=[\"num\", \"currency\"],
-        palette=[\"red\", \"green\"]
+        columns=["num", "currency"],
+        palette=["red", "green"]
     )
     ```
 
@@ -154,10 +156,10 @@ def data_color(
 
     ```{python}
     gt.GT(gt.data.exibble).data_color(
-        columns=\"currency\",
-        palette=[\"red\", \"green\"],
+        columns="currency",
+        palette=["red", "green"],
         domain=[0, 50],
-        na_color=\"lightgray\"
+        na_color="lightgray"
     )
     ```
     """
