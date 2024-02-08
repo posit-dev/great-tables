@@ -1079,3 +1079,44 @@ def test_html_color(color: str, x_out: str):
 def test_html_color_with_alpha(color: str, x_out: str, alpha: float):
     x = _html_color(colors=[color], alpha=alpha)
     assert x == [x_out]
+
+
+def test_fmt_image_single():
+    from great_tables._formats import FmtImage
+
+    formatter = FmtImage(sep=" ", file_pattern="{}.svg", encode=False)
+    res = formatter.to_html("/a")
+    dst = (
+        '<span style="white-space:nowrap;"><img src="a.svg" style="vertical-align: middle;"></span>'
+    )
+
+    assert res == dst
+
+
+def test_fmt_image_multiple():
+    from great_tables._formats import FmtImage
+
+    formatter = FmtImage(sep="---", file_pattern="{}.svg", encode=False)
+    res = formatter.to_html("/a,/b")
+    dst = (
+        '<span style="white-space:nowrap;"><img src="/a.svg" style="vertical-align: middle;"></span>'
+        "---"
+        '<span style="white-space:nowrap;"><img src="/b.svg" style="vertical-align: middle;"></span>'
+    )
+
+    assert res == dst
+
+
+def test_fmt_image_encode(tmpdir):
+    from great_tables._formats import FmtImage
+    from base64 import b64encode
+    from pathlib import Path
+
+    content = "abc"
+    p_svg = Path(tmpdir) / "some.svg"
+    p_svg.write_text(content)
+
+    formatter = FmtImage(sep=" ", file_pattern="{}.svg", encode=True)
+    res = formatter.to_html("some")
+
+    assert res == dst

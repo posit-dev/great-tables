@@ -3304,9 +3304,6 @@ def fmt_image(
     ```
     """
 
-    if not encode:
-        raise NotImplementedError()
-
     # TODO: most parameter options should allow a polars expression (or from_column) ----
     # can other fmt functions do this kind of thing?
     expr_cols = [height, width, sep, path, file_pattern, encode]
@@ -3329,12 +3326,12 @@ from dataclasses import dataclass
 
 @dataclass
 class FmtImage:
-    height: str | None
-    width: str | None
-    sep: str
-    path: str
-    file_pattern: str
-    encode: bool
+    height: str | None = None
+    width: str | None = None
+    sep: str = " "
+    path: str | None = None
+    file_pattern: str = "{}"
+    encode: bool = True
 
     def to_html(self, val: Any):
         import re
@@ -3363,13 +3360,13 @@ class FmtImage:
         out: list[str] = []
         for file in full_files:
             # Case 1: from url
-            if self.path.startswith("http://") or self.path.startswith("https://"):
+            if self.path and (self.path.startswith("http://") or self.path.startswith("https://")):
                 norm_path = re.sub(r"/\s+$", self.path)
                 uri = f"{norm_path}/{file}"
 
             # Case 2:
             else:
-                filename = (Path(self.path) / file).expanduser().absolute()
+                filename = (Path(self.path or "") / file).expanduser().absolute()
 
                 if self.encode:
                     uri = self._get_image_uri(filename)
