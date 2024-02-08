@@ -102,3 +102,17 @@ def test_data_color_autocolor_text_false(snapshot, df: DataFrameLike):
     )
 
     assert_rendered_body(snapshot, gt)
+
+
+def test_data_color_colorbrewer_snap(snapshot):
+    df = pd.DataFrame(
+        {
+            "A": [1, 2, 3, 4, 5],
+            "B": [10, 9, 8, 7, 6],
+            "C": ["one", "two", "three", "four", "five"],
+        }
+    )
+
+    new_gt = GT(df).data_color(columns=["A", "B"], palette="Greens")
+
+    assert_rendered_body(snapshot, new_gt)
