@@ -29,7 +29,10 @@ def team_final_digits(game: pl.DataFrame, team_code: str) -> pl.DataFrame:
 
 # Analysis -----
 
-games = pl.read_csv("./games.csv").filter(pl.col("game_id") != "2023_22_SF_KC")
+games = pl.read_csv("./games.csv").filter(
+    pl.col("game_id") != "2023_22_SF_KC",
+    pl.col("season") >= 2015,
+)
 
 # individual probabilities of final digits per team
 home = team_final_digits(games, "KC")
@@ -52,7 +55,7 @@ joint = (
     # This is copied from the article, so we should change it
     .tab_header(
         "Super Bowl Squares | Final Score Probabilities",
-        "Based on all NFL regular season and playoff games (1999-2023)",
+        "Based on all NFL regular season and playoff games (2015-2023)",
     )
     .tab_stubhead("")
     .tab_spanner("San Francisco 49ers", cs.all())

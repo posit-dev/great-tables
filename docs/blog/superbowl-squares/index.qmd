@@ -1,7 +1,7 @@
 ---
 jupyter: python3
 html-table-processing: none
-title: "Using Polars to Win at Superbowl Squares"
+title: "Using Polars to Win at Super Bowl Squares"
 author: "Michael Chow"
 date: 2024-02-08
 freeze: true
@@ -15,16 +15,16 @@ import polars.selectors as cs
 from great_tables import GT, style, loc
 ```
 
-The Superbowl is upon us, and with it the glittering squares of chance.
-Maybe you've seen Superbowl Squares at your work.
+The Super Bowl is upon us, and with it the glittering squares of chance.
+Maybe you've seen Super Bowl Squares at your work.
 Maybe you've played it with your pals.
 Or maybe you have no idea what it is.
 
-Whether you're a Square-head or not, this post will help you win with data.
+Whether you're a Squares-head or not, this post will help you win with data.
 
-## What is Superbowl Squares?
+## What is Super Bowl Squares?
 
-Superbowl Squares is a betting game, where you bet on the final digits of each team in a game.
+Super Bowl Squares is a betting game, where you bet on the final digits of each team in a game.
 
 For example, here are some scores with the final digit bolded:
 
@@ -40,7 +40,7 @@ Let's say you choose the digits above, and write this as 4/7---meaning a final d
 You would mark yourself on this square:
 
 ```{python}
-#| echo: false
+#| code-fold: true
 df = (
     pl.DataFrame({"x": list(range(10))})
     .join(
@@ -58,7 +58,8 @@ df = (
     GT(df, rowname_col = "x")
     .tab_header("Example Superbowl Square")
     .tab_spanner("Home", cs.all())
-    .tab_style(style.fill("lightgreen"), loc.body(columns = "4", rows=pl.col("index") == 7))
+    .tab_style(style.fill("green"), loc.body(columns = "4", rows=pl.col("index") == 7))
+    .tab_style(style.text(color="#FFFFFF", weight="bold"), loc.body())
     .cols_hide("index")
     .tab_stubhead("Away")
 )
@@ -66,14 +67,18 @@ df = (
 
 
 If the final score ends up being Home 4, Away 7---ding ding ding, big winner---you win the pool,
-and hopefully take home some combination of money and glory. (TODO: some link out to pool payout rules?).
+and hopefully take home some combination of money and glory. For more details on playing, see [this WikiHow article](https://www.wikihow.com/Play-Football-Squares).
 
 ## Why analyze squares?
 
-Not all options in a Superbowl Square are created equal.
+Not all options in a Super Bowl Squares are created equal.
 This is because there are specific point values you can add to your score.
 For example, touchdowns often to result in 7 points, and its common to score 3 points via a field goal.
 This means that ending up with a final digit of 5 is uncommon.
+
+Analyzing the chance of each square winning let's you pick the best ones.
+(In some versions of Super Bowl Squares, the squares get randomly assigned to people.
+In that case, knowing the chance of winning tells you whether you got a bum deal or not ;).
 
 ## What squares are most likely to win?
 
@@ -115,7 +120,7 @@ In order to calculate the probability of a given square winning, we focused on t
 of observing a final digit for the home team AND a final digit for the away team.
 
 This can be expressed as `p(home_digit, away_digit | home="SF", away="KC")`.
-Note that the probability is conditioned on the teams playing in the superbowl. In order to estimate this,
+Note that the probability is conditioned on the teams playing in the Super Bowl. In order to estimate this,
 we `p(digit | team="SF")*p(digit | team="KC")`.
 
 This essentially makes two assumptions:
