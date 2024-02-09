@@ -6,7 +6,12 @@ from typing import (
     Optional,
     Tuple,
 )
-from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX, COLORBREWER_NAME_TO_PALETTE
+from .constants import (
+    DEFAULT_PALETTE,
+    COLOR_NAME_TO_HEX,
+    COLORBREWER_NAME_TO_PALETTE,
+    VIRIDIS_NAME_TO_PALETTE,
+)
 from great_tables._tbl_data import is_na, DataFrameLike
 from great_tables.style import fill, text
 from great_tables.loc import body
