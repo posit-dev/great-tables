@@ -178,6 +178,8 @@ def data_color(
         # hexadecimal color values; otherwise, convert it to a list
         if palette in COLORBREWER_NAME_TO_PALETTE:
             palette = _colorbrewer_palette_to_hex(palette)
+        elif palette in VIRIDIS_NAME_TO_PALETTE:
+            palette = _viridis_palette_to_hex(palette)
         else:
             palette = [palette]
 
