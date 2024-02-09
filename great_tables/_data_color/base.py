@@ -117,6 +117,9 @@ def data_color(
     | 34 | `"YlOrBr"`        | 9       | Sequential  | Yes                 |
     | 35 | `"YlOrRd"`        | 9       | Sequential  | Yes                 |
 
+    We can also use the *viridis* and associated color palettes by providing to `palette=` any of
+    the following string values: `"viridis"`, `"plasma"`, `"inferno"`, `"magma"`, or `"cividis"`.
+
     Examples
     --------
     The `data_color()` method can be used without any supplied arguments to colorize a table. Let's
