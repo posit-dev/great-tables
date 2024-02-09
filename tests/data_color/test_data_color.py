@@ -104,6 +104,50 @@ def test_data_color_autocolor_text_false(snapshot, df: DataFrameLike):
     assert_rendered_body(snapshot, gt)
 
 
+def test_data_color_colorbrewer_palettes(df: DataFrameLike):
+    palettes = [
+        "Accent",
+        "Blues",
+        "BrBG",
+        "BuGn",
+        "BuPu",
+        "Dark2",
+        "GnBu",
+        "Greens",
+        "Greys",
+        "OrRd",
+        "Oranges",
+        "PRGn",
+        "Paired",
+        "Pastel1",
+        "Pastel2",
+        "PiYG",
+        "PuBu",
+        "PuBuGn",
+        "PuOr",
+        "PuRd",
+        "Purples",
+        "RdBu",
+        "RdGy",
+        "RdPu",
+        "RdYlBu",
+        "RdYlGn",
+        "Reds",
+        "Set1",
+        "Set2",
+        "Set3",
+        "Spectral",
+        "YlGn",
+        "YlGnBu",
+        "YlOrBr",
+        "YlOrRd",
+    ]
+
+    for palette in palettes:
+        gt = GT(df).data_color(columns=["num", "currency"], palette=palette)
+        assert isinstance(gt, GT)
+
+
 def test_data_color_colorbrewer_snap(snapshot):
     df = pd.DataFrame(
         {
