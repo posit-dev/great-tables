@@ -512,6 +512,13 @@ def _colorbrewer_palette_to_hex(palette: str) -> List[str]:
     return hex_colors
 
 
+def _viridis_palette_to_hex(palette: str) -> List[str]:
+    # Get the hexadecimal values for the colors in the palette
+    hex_colors = VIRIDIS_NAME_TO_PALETTE[palette]
+
+    return hex_colors
+
+
 def _check_named_colors(colors: Union[str, List[str]]) -> None:
     # Ensure that all incoming color names are set in lowercase letters since CSS color names
     # are often shown with uppercase letters and X11/R color names are always shown with lowercase
