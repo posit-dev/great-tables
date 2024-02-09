@@ -148,6 +148,20 @@ def test_data_color_colorbrewer_palettes(df: DataFrameLike):
         assert isinstance(gt, GT)
 
 
+def test_data_color_viridis_palettes(df: DataFrameLike):
+    palettes = [
+        "viridis",
+        "plasma",
+        "inferno",
+        "magma",
+        "cividis",
+    ]
+
+    for palette in palettes:
+        gt = GT(df).data_color(columns=["num", "currency"], palette=palette)
+        assert isinstance(gt, GT)
+
+
 def test_data_color_colorbrewer_snap(snapshot):
     df = pd.DataFrame(
         {
@@ -158,5 +172,19 @@ def test_data_color_colorbrewer_snap(snapshot):
     )
 
     new_gt = GT(df).data_color(columns=["A", "B"], palette="Greens")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+def test_data_color_viridis_snap(snapshot):
+    df = pd.DataFrame(
+        {
+            "A": [1, 2, 3, 4, 5],
+            "B": [10, 9, 8, 7, 6],
+            "C": ["one", "two", "three", "four", "five"],
+        }
+    )
+
+    new_gt = GT(df).data_color(columns=["A", "B"], palette="viridis")
 
     assert_rendered_body(snapshot, new_gt)
