@@ -506,12 +506,6 @@ def _color_name_to_hex(colors: List[str]) -> List[str]:
 
 
 def _colorbrewer_palette_to_hex(palette: str) -> List[str]:
-    # If the palette is not in the set of colorbrewer palettes, then throw an error
-    if palette not in COLORBREWER_NAME_TO_PALETTE:
-        raise ValueError(
-            f"Invalid colorbrewer palette provided ({palette}). Please ensure that all colorbrewer palettes are valid."
-        )
-
     # Get the hexadecimal values for the colors in the palette
     hex_colors = COLORBREWER_NAME_TO_PALETTE[palette]
 
