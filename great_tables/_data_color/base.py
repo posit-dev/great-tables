@@ -74,8 +74,8 @@ def data_color(
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
-    Color palette access from ColorBrewer
-    ---------------------------------------
+    Color palette access from ColorBrewer and viridis
+    -------------------------------------------------
     All palettes from the ColorBrewer package can be accessed by providing the palette name in
     `palette=`. There are 35 available palettes:
 
