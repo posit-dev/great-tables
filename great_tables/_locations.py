@@ -312,7 +312,7 @@ def resolve_rows_i(
         return selected
     elif isinstance(expr, PlExpr):
         # TODO: decide later on the name supplied to `name`
-        result = data._tbl_data.with_row_count(name="__row_number__").filter(expr)
+        result = data._tbl_data.with_row_index(name="__row_number__").filter(expr)
         # print([(row_names[ii], ii) for ii in result["__row_number__"]])
         return [(row_names[ii], ii) for ii in result["__row_number__"]]
     elif callable(expr):
