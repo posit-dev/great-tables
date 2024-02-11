@@ -121,6 +121,8 @@ def fmt_number(
     sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign: bool = False,
+    null_rep: str = "None",
+    nan_rep: str | None = None,
     locale: Union[str, None] = None,
 ) -> GTSelf:
     """
@@ -198,6 +200,10 @@ def fmt_number(
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
+    null_rep : str
+        The string to use for representing null values. The default is `"None"`.
+    nan_rep : Optional[str]
+        The string to use for representing NaN values. If None, calls str on the value.
     locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -265,6 +271,9 @@ def fmt_number(
         dec_mark: str = dec_mark,
         force_sign: bool = force_sign,
     ):
+        if pd.isna(x):
+            return format_nan_or_null(x, null_rep=null_rep, nan_rep=nan_rep)
+
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
@@ -320,6 +329,8 @@ def fmt_integer(
     pattern: str = "{x}",
     sep_mark: str = ",",
     force_sign: bool = False,
+    null_rep: str = "None",
+    nan_rep: str | None = None,
     locale: Union[str, None] = None,
 ) -> GTSelf:
     """
@@ -373,6 +384,10 @@ def fmt_integer(
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
+    null_rep : str
+        The string to use for representing null values. The default is `"None"`.
+    nan_rep : Optional[str]
+        The string to use for representing NaN values. If None, calls str on the value.
     locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -424,13 +439,9 @@ def fmt_integer(
 
     # Generate a function that will operate on single `x` values in
     # the table body
-    def fmt_integer_fn(
-        x: float,
-        scale_by: float = scale_by,
-    ):
-        # If the `x` value is a Pandas 'NA', then return the same value
+    def fmt_integer_fn(x: float, scale_by: float = scale_by):
         if pd.isna(x):
-            return x
+            return format_nan_or_null(x, null_rep=null_rep, nan_rep=nan_rep)
 
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
@@ -492,6 +503,8 @@ def fmt_scientific(
     dec_mark: str = ".",
     force_sign_m: bool = False,
     force_sign_n: bool = False,
+    null_rep: str = "None",
+    nan_rep: str | None = None,
     locale: Union[str, None] = None,
 ) -> GTSelf:
     """
@@ -573,6 +586,10 @@ def fmt_scientific(
         would effectively show a sign for all values except zero on the second numeric component of
         the notation. If so, use `True` (the default for this is `False`), where only negative
         numbers will display a sign.
+    null_rep : str
+        The string to use for representing null values. The default is `"None"`.
+    nan_rep : Optional[str]
+        The string to use for representing NaN values. If None, calls str on the value.
     locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -641,9 +658,8 @@ def fmt_scientific(
         force_sign_m: bool = force_sign_m,
         force_sign_n: bool = force_sign_n,
     ):
-        # If the `x` value is a Pandas 'NA', then return the same value
         if pd.isna(x):
-            return x
+            return format_nan_or_null(x, null_rep=null_rep, nan_rep=nan_rep)
 
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
@@ -751,6 +767,8 @@ def fmt_percent(
     force_sign: bool = False,
     placement: str = "right",
     incl_space: bool = False,
+    null_rep: str = "None",
+    nan_rep: str | None = None,
     locale: Union[str, None] = None,
 ) -> GTSelf:
     """
@@ -827,6 +845,10 @@ def fmt_percent(
     incl_space : bool
         An option for whether to include a space between the value and the percent sign. The default
         is to not introduce a space character.
+    null_rep : str
+        The string to use for representing null values. The default is `"None"`.
+    nan_rep : Optional[str]
+        The string to use for representing NaN values. If None, calls str on the value.
     locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -884,9 +906,8 @@ def fmt_percent(
         placement: str = placement,
         incl_space: bool = incl_space,
     ):
-        # If the `x` value is a Pandas 'NA', then return the same value
         if pd.isna(x):
-            return x
+            return format_nan_or_null(x, null_rep=null_rep, nan_rep=nan_rep)
 
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
@@ -954,6 +975,8 @@ def fmt_currency(
     force_sign: bool = False,
     placement: str = "left",
     incl_space: bool = False,
+    null_rep: str = "None",
+    nan_rep: str | None = None,
     locale: Union[str, None] = None,
 ) -> GTSelf:
     """
@@ -1033,6 +1056,10 @@ def fmt_currency(
     incl_space : bool
         An option for whether to include a space between the value and the currency symbol. The
         default is to not introduce a space character.
+    null_rep : str
+        The string to use for representing null values. The default is `"None"`.
+    nan_rep : Optional[str]
+        The string to use for representing NaN values. If None, calls str on the value.
     locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -1115,7 +1142,7 @@ def fmt_currency(
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
         if pd.isna(x):
-            return x
+            return format_nan_or_null(x, null_rep=null_rep, nan_rep=nan_rep)
 
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
@@ -1180,6 +1207,8 @@ def fmt_roman(
     rows: Union[int, List[int], None] = None,
     case: str = "upper",
     pattern: str = "{x}",
+    null_rep: str = "None",
+    nan_rep: str | None = None,
 ) -> GTSelf:
     """
     Format values as Roman numerals.
@@ -1203,6 +1232,10 @@ def fmt_roman(
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
+    null_rep : str
+        The string to use for representing null values. The default is `"None"`.
+    nan_rep : Optional[str]
+        The string to use for representing NaN values. If None, calls str on the value.
 
     Returns
     -------
@@ -1240,9 +1273,8 @@ def fmt_roman(
         x: float,
         case: str = case,
     ):
-        # If the `x` value is a Pandas 'NA', then return the same value
         if pd.isna(x):
-            return x
+            return format_nan_or_null(x, null_rep=null_rep, nan_rep=nan_rep)
 
         # Get the absolute value of `x` so that negative values are handled
         x = abs(x)
@@ -1296,6 +1328,8 @@ def fmt_bytes(
     dec_mark: str = ".",
     force_sign: bool = False,
     incl_space: bool = True,
+    null_rep: str = "None",
+    nan_rep: str | None = None,
     locale: Union[str, None] = None,
 ) -> GTSelf:
     """
@@ -1368,6 +1402,10 @@ def fmt_bytes(
     incl_space : bool
         An option for whether to include a space between the value and the currency symbol. The
         default is to not introduce a space character.
+    null_rep : str
+        The string to use for representing null values. The default is `"None"`.
+    nan_rep : Optional[str]
+        The string to use for representing NaN values. If None, calls str on the value.
     locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -1447,9 +1485,8 @@ def fmt_bytes(
         force_sign: bool = force_sign,
         incl_space: bool = incl_space,
     ):
-        # If the `x` value is a Pandas 'NA', then return the same value
         if pd.isna(x):
-            return x
+            return format_nan_or_null(x, null_rep=null_rep, nan_rep=nan_rep)
 
         # Truncate all byte values by casting to an integer; this is done because bytes
         # are always whole numbers
@@ -1522,6 +1559,8 @@ def fmt_date(
     rows: Union[int, List[int], None] = None,
     date_style: DateStyle = "iso",
     pattern: str = "{x}",
+    null_rep: str = "None",
+    nan_rep: str | None = None,
     locale: Union[str, None] = None,
 ) -> GTSelf:
     """
@@ -1547,6 +1586,10 @@ def fmt_date(
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
+    null_rep : str
+        The string to use for representing null values. The default is `"None"`.
+    nan_rep : Optional[str]
+        The string to use for representing NaN values. If None, calls str on the value.
     locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -1629,7 +1672,7 @@ def fmt_date(
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
         if pd.isna(x):
-            return x
+            return format_nan_or_null(x, null_rep=null_rep, nan_rep=nan_rep)
 
         # If `x` is a string, we assume it is an ISO date string and convert it to a date object
         if isinstance(x, str):
@@ -1667,6 +1710,8 @@ def fmt_time(
     rows: Union[int, List[int], None] = None,
     time_style: TimeStyle = "iso",
     pattern: str = "{x}",
+    null_rep: str = "None",
+    nan_rep: str | None = None,
     locale: Union[str, None] = None,
 ) -> GTSelf:
     """
@@ -1692,6 +1737,10 @@ def fmt_time(
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
+    null_rep : str
+        The string to use for representing null values. The default is `"None"`.
+    nan_rep : Optional[str]
+        The string to use for representing NaN values. If None, calls str on the value.
     locale : str | None
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -1805,6 +1854,8 @@ def fmt_datetime(
     time_style: TimeStyle = "iso",
     sep: str = " ",
     pattern: str = "{x}",
+    null_rep: str = "None",
+    nan_rep: str | None = None,
     locale: Union[str, None] = None,
 ) -> GTSelf:
     """
@@ -1831,6 +1882,13 @@ def fmt_datetime(
         The time style to use. By default this is the short name `"iso"` which corresponds to how
         times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
         their short names can be viewed using `info_time_style()`.
+    null_rep : str
+        The string to use for representing null values. The default is `"None"`.
+    nan_rep : Optional[str]
+        The string to use for representing NaN values. If None, calls str on the value.
+    locale : str | None
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
     Formatting with the `date_style` and `time_style` arguments
     ------------------------------------------------------------
@@ -1925,7 +1983,7 @@ def fmt_datetime(
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
         if pd.isna(x):
-            return x
+            return format_nan_or_null(x, null_rep=null_rep, nan_rep=nan_rep)
 
         # From the date and time format strings, create a datetime format string
         datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
@@ -2016,6 +2074,8 @@ def fmt_markdown(
     self: GTSelf,
     columns: Union[str, List[str], None] = None,
     rows: Union[int, List[int], None] = None,
+    null_rep: str = "None",
+    nan_rep: str | None = None,
 ) -> GTSelf:
     """
     Format Markdown text.
@@ -2032,6 +2092,10 @@ def fmt_markdown(
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
+    null_rep : str
+        The string to use for representing null values. The default is `"None"`.
+    nan_rep : Optional[str]
+        The string to use for representing NaN values. If None, calls str on the value.
 
     Returns
     -------
@@ -2050,7 +2114,7 @@ def fmt_markdown(
     def fmt_markdown_fn(x: Any) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
         if pd.isna(x):
-            return x
+            return format_nan_or_null(x, null_rep=null_rep, nan_rep=nan_rep)
 
         x_str: str = str(x)
 
@@ -3261,3 +3325,15 @@ def _validate_datetime_obj(x: Any) -> None:
         raise ValueError(f"Invalid datetime object: '{x}'. The object must be a datetime object.")
 
     return
+
+
+def format_nan_or_null(x: float | None, null_rep: str, nan_rep: str | None = None) -> str:
+    """
+    Format a NaN or None value as a string, if nan_rep is not passed, it will be str(x). Assumed
+    pd.isna(x) is True for x passed to this method.
+    """
+    if x is None:
+        return null_rep
+    if nan_rep is None:
+        return str(x)  # can be different for np.nan and pd.NaT
+    return nan_rep
