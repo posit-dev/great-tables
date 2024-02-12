@@ -323,7 +323,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li><code>Month</code>, <code>Day</code>: the numeric month and day of month for the record</li>
 </ul>
 <p>We know that all measurements took place in 1973, so a <code>year</code> column will be added to the dataset before it is passed to the <a href="../reference/GT.html#great_tables.GT"><code>GT()</code></a> class.</p>
-<div id="b29f006c" class="cell" data-execution_count="1">
+<div id="db279598" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, html</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> airquality</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -455,7 +455,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="adding-column-spanners" class="level2">
 <h2 class="anchored" data-anchor-id="adding-column-spanners">Adding Column Spanners</h2>
 <p>Let’s organize the time information under a <code>Time</code> <em>spanner label</em>, and put the other columns under a <code>Measurement</code> <em>spanner label</em>. We can do this with the <a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner"><code>tab_spanner()</code></a> method.</p>
-<div id="1d10ce48" class="cell" data-execution_count="2">
+<div id="ba469cd5" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gt_airquality <span class="op">=</span> (</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    GT(airquality_mini)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
@@ -468,56 +468,56 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"Measurement"</span>,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>[<span class="st">"Ozone"</span>, <span class="st">"Solar.R"</span>, <span class="st">"Wind"</span>, <span class="st">"Temp"</span>]</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>[<span class="st">"Ozone"</span>, <span class="st">"Solar_R"</span>, <span class="st">"Wind"</span>, <span class="st">"Temp"</span>]</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>gt_airquality</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-<div id="uereumzpvg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="cwglfettnw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#uereumzpvg table {
+#cwglfettnw table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#uereumzpvg thead, tbody, tfoot, tr, td, th { border-style: none; }
-#uereumzpvg p { margin: 0; padding: 0; }
- #uereumzpvg .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #uereumzpvg .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #uereumzpvg .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #uereumzpvg .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #uereumzpvg .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #uereumzpvg .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #uereumzpvg .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #uereumzpvg .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #uereumzpvg .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #uereumzpvg .gt_column_spanner_outer:first-child { padding-left: 0; }
- #uereumzpvg .gt_column_spanner_outer:last-child { padding-right: 0; }
- #uereumzpvg .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #uereumzpvg .gt_spanner_row { border-bottom-style: hidden; }
- #uereumzpvg .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #uereumzpvg .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #uereumzpvg .gt_from_md> :first-child { margin-top: 0; }
- #uereumzpvg .gt_from_md> :last-child { margin-bottom: 0; }
- #uereumzpvg .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #uereumzpvg .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #uereumzpvg .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #uereumzpvg .gt_row_group_first td { border-top-width: 2px; }
- #uereumzpvg .gt_row_group_first th { border-top-width: 2px; }
- #uereumzpvg .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #uereumzpvg .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #uereumzpvg .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #uereumzpvg .gt_left { text-align: left; }
- #uereumzpvg .gt_center { text-align: center; }
- #uereumzpvg .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #uereumzpvg .gt_font_normal { font-weight: normal; }
- #uereumzpvg .gt_font_bold { font-weight: bold; }
- #uereumzpvg .gt_font_italic { font-style: italic; }
- #uereumzpvg .gt_super { font-size: 65%; }
- #uereumzpvg .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #uereumzpvg .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#cwglfettnw thead, tbody, tfoot, tr, td, th { border-style: none; }
+#cwglfettnw p { margin: 0; padding: 0; }
+ #cwglfettnw .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #cwglfettnw .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #cwglfettnw .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #cwglfettnw .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #cwglfettnw .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #cwglfettnw .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #cwglfettnw .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #cwglfettnw .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #cwglfettnw .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #cwglfettnw .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #cwglfettnw .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #cwglfettnw .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #cwglfettnw .gt_spanner_row { border-bottom-style: hidden; }
+ #cwglfettnw .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #cwglfettnw .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #cwglfettnw .gt_from_md> :first-child { margin-top: 0; }
+ #cwglfettnw .gt_from_md> :last-child { margin-bottom: 0; }
+ #cwglfettnw .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #cwglfettnw .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #cwglfettnw .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #cwglfettnw .gt_row_group_first td { border-top-width: 2px; }
+ #cwglfettnw .gt_row_group_first th { border-top-width: 2px; }
+ #cwglfettnw .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #cwglfettnw .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #cwglfettnw .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #cwglfettnw .gt_left { text-align: left; }
+ #cwglfettnw .gt_center { text-align: center; }
+ #cwglfettnw .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #cwglfettnw .gt_font_normal { font-weight: normal; }
+ #cwglfettnw .gt_font_bold { font-weight: bold; }
+ #cwglfettnw .gt_font_italic { font-style: italic; }
+ #cwglfettnw .gt_super { font-size: 65%; }
+ #cwglfettnw .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #cwglfettnw .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -528,16 +528,16 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <th colspan="7" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Daily measurements in New York City (May 1-10, 1973)
   </th></tr></thead>
 <tbody><tr class="gt_col_headings gt_spanner_row">
-  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Measurement">
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="4" scope="colgroup" id="Measurement">
     <span class="gt_column_spanner">Measurement</span>
   </th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" scope="col" id="Solar_R">Solar_R</th>
   <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Time">
     <span class="gt_column_spanner">Time</span>
   </th>
 </tr>
 <tr class="gt_col_headings">
   <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Ozone">Ozone</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Solar_R">Solar_R</th>
   <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Wind">Wind</th>
   <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Temp">Temp</th>
   <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Year">Year</th>
@@ -547,90 +547,90 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </tbody><tbody class="gt_table_body">
 <tr>
   <td class="gt_row gt_right">41.0</td>
+  <td class="gt_row gt_right">190.0</td>
   <td class="gt_row gt_right">7.4</td>
   <td class="gt_row gt_right">67</td>
-  <td class="gt_row gt_right">190.0</td>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">1</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">36.0</td>
+  <td class="gt_row gt_right">118.0</td>
   <td class="gt_row gt_right">8.0</td>
   <td class="gt_row gt_right">72</td>
-  <td class="gt_row gt_right">118.0</td>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">2</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">12.0</td>
+  <td class="gt_row gt_right">149.0</td>
   <td class="gt_row gt_right">12.6</td>
   <td class="gt_row gt_right">74</td>
-  <td class="gt_row gt_right">149.0</td>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">3</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">18.0</td>
+  <td class="gt_row gt_right">313.0</td>
   <td class="gt_row gt_right">11.5</td>
   <td class="gt_row gt_right">62</td>
-  <td class="gt_row gt_right">313.0</td>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">4</td>
 </tr>
 <tr>
   <td class="gt_row gt_right"><na></na></td>
+  <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_right">14.3</td>
   <td class="gt_row gt_right">56</td>
-  <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">5</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">28.0</td>
+  <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_right">14.9</td>
   <td class="gt_row gt_right">66</td>
-  <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">6</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">23.0</td>
+  <td class="gt_row gt_right">299.0</td>
   <td class="gt_row gt_right">8.6</td>
   <td class="gt_row gt_right">65</td>
-  <td class="gt_row gt_right">299.0</td>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">7</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">19.0</td>
+  <td class="gt_row gt_right">99.0</td>
   <td class="gt_row gt_right">13.8</td>
   <td class="gt_row gt_right">59</td>
-  <td class="gt_row gt_right">99.0</td>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">8</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">8.0</td>
+  <td class="gt_row gt_right">19.0</td>
   <td class="gt_row gt_right">20.1</td>
   <td class="gt_row gt_right">61</td>
-  <td class="gt_row gt_right">19.0</td>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">9</td>
 </tr>
 <tr>
   <td class="gt_row gt_right"><na></na></td>
+  <td class="gt_row gt_right">194.0</td>
   <td class="gt_row gt_right">8.6</td>
   <td class="gt_row gt_right">69</td>
-  <td class="gt_row gt_right">194.0</td>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">10</td>
@@ -653,7 +653,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li>customize the column labels so that they are more descriptive (using <a href="../reference/GT.cols_label.html#great_tables.GT.cols_label"><code>cols_label()</code></a>)</li>
 </ul>
 <p>Let’s do both of these things in the next example:</p>
-<div id="89a58bdd" class="cell" data-execution_count="3">
+<div id="d4f4d1ba" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    gt_airquality</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    .cols_move_to_start(columns<span class="op">=</span>[<span class="st">"Year"</span>, <span class="st">"Month"</span>, <span class="st">"Day"</span>])</span>
@@ -665,50 +665,50 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<div id="wrkzzmfnfh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="cljqbpdnbm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#wrkzzmfnfh table {
+#cljqbpdnbm table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#wrkzzmfnfh thead, tbody, tfoot, tr, td, th { border-style: none; }
-#wrkzzmfnfh p { margin: 0; padding: 0; }
- #wrkzzmfnfh .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #wrkzzmfnfh .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #wrkzzmfnfh .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #wrkzzmfnfh .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #wrkzzmfnfh .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #wrkzzmfnfh .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #wrkzzmfnfh .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #wrkzzmfnfh .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #wrkzzmfnfh .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #wrkzzmfnfh .gt_column_spanner_outer:first-child { padding-left: 0; }
- #wrkzzmfnfh .gt_column_spanner_outer:last-child { padding-right: 0; }
- #wrkzzmfnfh .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #wrkzzmfnfh .gt_spanner_row { border-bottom-style: hidden; }
- #wrkzzmfnfh .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #wrkzzmfnfh .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #wrkzzmfnfh .gt_from_md> :first-child { margin-top: 0; }
- #wrkzzmfnfh .gt_from_md> :last-child { margin-bottom: 0; }
- #wrkzzmfnfh .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #wrkzzmfnfh .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #wrkzzmfnfh .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #wrkzzmfnfh .gt_row_group_first td { border-top-width: 2px; }
- #wrkzzmfnfh .gt_row_group_first th { border-top-width: 2px; }
- #wrkzzmfnfh .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #wrkzzmfnfh .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #wrkzzmfnfh .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #wrkzzmfnfh .gt_left { text-align: left; }
- #wrkzzmfnfh .gt_center { text-align: center; }
- #wrkzzmfnfh .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #wrkzzmfnfh .gt_font_normal { font-weight: normal; }
- #wrkzzmfnfh .gt_font_bold { font-weight: bold; }
- #wrkzzmfnfh .gt_font_italic { font-style: italic; }
- #wrkzzmfnfh .gt_super { font-size: 65%; }
- #wrkzzmfnfh .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #wrkzzmfnfh .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#cljqbpdnbm thead, tbody, tfoot, tr, td, th { border-style: none; }
+#cljqbpdnbm p { margin: 0; padding: 0; }
+ #cljqbpdnbm .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #cljqbpdnbm .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #cljqbpdnbm .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #cljqbpdnbm .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #cljqbpdnbm .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #cljqbpdnbm .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #cljqbpdnbm .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #cljqbpdnbm .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #cljqbpdnbm .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #cljqbpdnbm .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #cljqbpdnbm .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #cljqbpdnbm .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #cljqbpdnbm .gt_spanner_row { border-bottom-style: hidden; }
+ #cljqbpdnbm .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #cljqbpdnbm .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #cljqbpdnbm .gt_from_md> :first-child { margin-top: 0; }
+ #cljqbpdnbm .gt_from_md> :last-child { margin-bottom: 0; }
+ #cljqbpdnbm .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #cljqbpdnbm .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #cljqbpdnbm .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #cljqbpdnbm .gt_row_group_first td { border-top-width: 2px; }
+ #cljqbpdnbm .gt_row_group_first th { border-top-width: 2px; }
+ #cljqbpdnbm .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #cljqbpdnbm .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #cljqbpdnbm .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #cljqbpdnbm .gt_left { text-align: left; }
+ #cljqbpdnbm .gt_center { text-align: center; }
+ #cljqbpdnbm .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #cljqbpdnbm .gt_font_normal { font-weight: normal; }
+ #cljqbpdnbm .gt_font_bold { font-weight: bold; }
+ #cljqbpdnbm .gt_font_italic { font-style: italic; }
+ #cljqbpdnbm .gt_super { font-size: 65%; }
+ #cljqbpdnbm .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #cljqbpdnbm .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -722,16 +722,16 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Time">
     <span class="gt_column_spanner">Time</span>
   </th>
-  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Measurement">
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="4" scope="colgroup" id="Measurement">
     <span class="gt_column_spanner">Measurement</span>
   </th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" scope="col" id="Solar R.,<br>cal/m<sup>2</sup>">Solar R.,<br>cal/m<sup>2</sup></th>
 </tr>
 <tr class="gt_col_headings">
   <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Year">Year</th>
   <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Month">Month</th>
   <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Day">Day</th>
   <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Ozone,<br>ppbV">Ozone,<br>ppbV</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Solar R.,<br>cal/m<sup>2</sup>">Solar R.,<br>cal/m<sup>2</sup></th>
   <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Wind,<br>mph">Wind,<br>mph</th>
   <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Temp,<br>&amp;deg;F">Temp,<br>°F</th>
 </tr>
@@ -741,90 +741,90 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">1</td>
   <td class="gt_row gt_right">41.0</td>
+  <td class="gt_row gt_right">190.0</td>
   <td class="gt_row gt_right">7.4</td>
   <td class="gt_row gt_right">67</td>
-  <td class="gt_row gt_right">190.0</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">2</td>
   <td class="gt_row gt_right">36.0</td>
+  <td class="gt_row gt_right">118.0</td>
   <td class="gt_row gt_right">8.0</td>
   <td class="gt_row gt_right">72</td>
-  <td class="gt_row gt_right">118.0</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">3</td>
   <td class="gt_row gt_right">12.0</td>
+  <td class="gt_row gt_right">149.0</td>
   <td class="gt_row gt_right">12.6</td>
   <td class="gt_row gt_right">74</td>
-  <td class="gt_row gt_right">149.0</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">4</td>
   <td class="gt_row gt_right">18.0</td>
+  <td class="gt_row gt_right">313.0</td>
   <td class="gt_row gt_right">11.5</td>
   <td class="gt_row gt_right">62</td>
-  <td class="gt_row gt_right">313.0</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right"><na></na></td>
+  <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_right">14.3</td>
   <td class="gt_row gt_right">56</td>
-  <td class="gt_row gt_right"><na></na></td>
 </tr>
 <tr>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">6</td>
   <td class="gt_row gt_right">28.0</td>
+  <td class="gt_row gt_right"><na></na></td>
   <td class="gt_row gt_right">14.9</td>
   <td class="gt_row gt_right">66</td>
-  <td class="gt_row gt_right"><na></na></td>
 </tr>
 <tr>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">7</td>
   <td class="gt_row gt_right">23.0</td>
+  <td class="gt_row gt_right">299.0</td>
   <td class="gt_row gt_right">8.6</td>
   <td class="gt_row gt_right">65</td>
-  <td class="gt_row gt_right">299.0</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">8</td>
   <td class="gt_row gt_right">19.0</td>
+  <td class="gt_row gt_right">99.0</td>
   <td class="gt_row gt_right">13.8</td>
   <td class="gt_row gt_right">59</td>
-  <td class="gt_row gt_right">99.0</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">9</td>
   <td class="gt_row gt_right">8.0</td>
+  <td class="gt_row gt_right">19.0</td>
   <td class="gt_row gt_right">20.1</td>
   <td class="gt_row gt_right">61</td>
-  <td class="gt_row gt_right">19.0</td>
 </tr>
 <tr>
   <td class="gt_row gt_right">1973</td>
   <td class="gt_row gt_right">5</td>
   <td class="gt_row gt_right">10</td>
   <td class="gt_row gt_right"><na></na></td>
+  <td class="gt_row gt_right">194.0</td>
   <td class="gt_row gt_right">8.6</td>
   <td class="gt_row gt_right">69</td>
-  <td class="gt_row gt_right">194.0</td>
 </tr>
 </tbody>
 
@@ -842,56 +842,56 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <h2 class="anchored" data-anchor-id="targeting-columns-for-columns">Targeting Columns for <code>columns=</code></h2>
 <p>In the above examples, we selected columns to span or move using a list of column names (as strings). However, <strong>Great Tables</strong> supports a wide range of ways to select columns.</p>
 <p>For example, you can use a lambda function:</p>
-<div id="5bed67bf" class="cell" data-execution_count="4">
+<div id="c4b54d21" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    GT(airquality_mini)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .cols_move_to_start(columns<span class="op">=</span><span class="kw">lambda</span> colname: colname.endswith(<span class="st">"R"</span>))</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<div id="ihtwmhowaa" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ylxvyfheqe" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#ihtwmhowaa table {
+#ylxvyfheqe table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#ihtwmhowaa thead, tbody, tfoot, tr, td, th { border-style: none; }
-#ihtwmhowaa p { margin: 0; padding: 0; }
- #ihtwmhowaa .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #ihtwmhowaa .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #ihtwmhowaa .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #ihtwmhowaa .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #ihtwmhowaa .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ihtwmhowaa .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ihtwmhowaa .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ihtwmhowaa .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #ihtwmhowaa .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #ihtwmhowaa .gt_column_spanner_outer:first-child { padding-left: 0; }
- #ihtwmhowaa .gt_column_spanner_outer:last-child { padding-right: 0; }
- #ihtwmhowaa .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #ihtwmhowaa .gt_spanner_row { border-bottom-style: hidden; }
- #ihtwmhowaa .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #ihtwmhowaa .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #ihtwmhowaa .gt_from_md> :first-child { margin-top: 0; }
- #ihtwmhowaa .gt_from_md> :last-child { margin-bottom: 0; }
- #ihtwmhowaa .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #ihtwmhowaa .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #ihtwmhowaa .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #ihtwmhowaa .gt_row_group_first td { border-top-width: 2px; }
- #ihtwmhowaa .gt_row_group_first th { border-top-width: 2px; }
- #ihtwmhowaa .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ihtwmhowaa .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ihtwmhowaa .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #ihtwmhowaa .gt_left { text-align: left; }
- #ihtwmhowaa .gt_center { text-align: center; }
- #ihtwmhowaa .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #ihtwmhowaa .gt_font_normal { font-weight: normal; }
- #ihtwmhowaa .gt_font_bold { font-weight: bold; }
- #ihtwmhowaa .gt_font_italic { font-style: italic; }
- #ihtwmhowaa .gt_super { font-size: 65%; }
- #ihtwmhowaa .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #ihtwmhowaa .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#ylxvyfheqe thead, tbody, tfoot, tr, td, th { border-style: none; }
+#ylxvyfheqe p { margin: 0; padding: 0; }
+ #ylxvyfheqe .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #ylxvyfheqe .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #ylxvyfheqe .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #ylxvyfheqe .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #ylxvyfheqe .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ylxvyfheqe .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ylxvyfheqe .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ylxvyfheqe .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #ylxvyfheqe .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #ylxvyfheqe .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #ylxvyfheqe .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #ylxvyfheqe .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #ylxvyfheqe .gt_spanner_row { border-bottom-style: hidden; }
+ #ylxvyfheqe .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #ylxvyfheqe .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #ylxvyfheqe .gt_from_md> :first-child { margin-top: 0; }
+ #ylxvyfheqe .gt_from_md> :last-child { margin-bottom: 0; }
+ #ylxvyfheqe .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #ylxvyfheqe .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #ylxvyfheqe .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #ylxvyfheqe .gt_row_group_first td { border-top-width: 2px; }
+ #ylxvyfheqe .gt_row_group_first th { border-top-width: 2px; }
+ #ylxvyfheqe .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ylxvyfheqe .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #ylxvyfheqe .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #ylxvyfheqe .gt_left { text-align: left; }
+ #ylxvyfheqe .gt_center { text-align: center; }
+ #ylxvyfheqe .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #ylxvyfheqe .gt_font_normal { font-weight: normal; }
+ #ylxvyfheqe .gt_font_bold { font-weight: bold; }
+ #ylxvyfheqe .gt_font_italic { font-style: italic; }
+ #ylxvyfheqe .gt_super { font-size: 65%; }
+ #ylxvyfheqe .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #ylxvyfheqe .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
