@@ -6,12 +6,7 @@ from typing import (
     Optional,
     Tuple,
 )
-from .constants import (
-    DEFAULT_PALETTE,
-    COLOR_NAME_TO_HEX,
-    COLORBREWER_NAME_TO_PALETTE,
-    VIRIDIS_NAME_TO_PALETTE,
-)
+from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX, ALL_PALETTES
 from great_tables._tbl_data import is_na, DataFrameLike
 from great_tables.style import fill, text
 from great_tables.loc import body
@@ -182,12 +177,11 @@ def data_color(
     if palette is None:
         palette = DEFAULT_PALETTE
     elif isinstance(palette, str):
-        # Check if the palette is a ColorBrewer palette and, if it is, then convert it to a list of
-        # hexadecimal color values; otherwise, convert it to a list
-        if palette in COLORBREWER_NAME_TO_PALETTE:
-            palette = _colorbrewer_palette_to_hex(palette)
-        elif palette in VIRIDIS_NAME_TO_PALETTE:
-            palette = _viridis_palette_to_hex(palette)
+        # Check if the `palette` value refers to a ColorBrewer or viridis palette
+        # and, if it is, then convert it to a list of hexadecimal color values; otherwise,
+        # convert it to a list (this assumes that the value is a single color)
+        if palette in ALL_PALETTES:
+            palette = ALL_PALETTES[palette]
         else:
             palette = [palette]
 
@@ -513,20 +507,6 @@ def _color_name_to_hex(colors: List[str]) -> List[str]:
         i += 1
 
     return colors
-
-
-def _colorbrewer_palette_to_hex(palette: str) -> List[str]:
-    # Get the hexadecimal values for the colors in the palette
-    hex_colors = COLORBREWER_NAME_TO_PALETTE[palette]
-
-    return hex_colors
-
-
-def _viridis_palette_to_hex(palette: str) -> List[str]:
-    # Get the hexadecimal values for the colors in the palette
-    hex_colors = VIRIDIS_NAME_TO_PALETTE[palette]
-
-    return hex_colors
 
 
 def _check_named_colors(colors: Union[str, List[str]]) -> None:
