@@ -50,6 +50,7 @@ jobs:
           logs: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Netlify docs preview
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           npm install -g netlify-cli
           # push main branch to production, others to preview --
