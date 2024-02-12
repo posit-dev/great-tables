@@ -66,7 +66,7 @@ islands_mini = islands.head(10)
     .tab_source_note(
         source_note=md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
     )
-    . tab_stubhead(label="landmass")
+    .tab_stubhead(label="landmass")
 )
 ```
 

@@ -75,7 +75,7 @@ fmt_number_5 = vals.fmt_number([1.64, 3.26, 3000.63, 236742.37], locale="es")
 print(fmt_number_1, fmt_number_2, fmt_number_3, fmt_number_4, fmt_number_5, sep="\n")
 ```
 
-Scientific notation can be done with [`vals.fmt_scientific()`](`great_tables.vals.fmt_scientific`)`.
+Scientific notation can be done with [`vals.fmt_scientific()`](`great_tables.vals.fmt_scientific`).
 
 ```{python}
 fmt_sci_1 = vals.fmt_scientific([0.00064, 7.353, 863454.63])

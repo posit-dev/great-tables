@@ -42,7 +42,7 @@ gt_airquality = (
     )
     .tab_spanner(
         label="Measurement",
-        columns=["Ozone", "Solar.R", "Wind", "Temp"]
+        columns=["Ozone", "Solar_R", "Wind", "Temp"]
     )
 )
 
