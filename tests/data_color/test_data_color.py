@@ -102,3 +102,89 @@ def test_data_color_autocolor_text_false(snapshot, df: DataFrameLike):
     )
 
     assert_rendered_body(snapshot, gt)
+
+
+def test_data_color_colorbrewer_palettes(df: DataFrameLike):
+    palettes = [
+        "Accent",
+        "Blues",
+        "BrBG",
+        "BuGn",
+        "BuPu",
+        "Dark2",
+        "GnBu",
+        "Greens",
+        "Greys",
+        "OrRd",
+        "Oranges",
+        "PRGn",
+        "Paired",
+        "Pastel1",
+        "Pastel2",
+        "PiYG",
+        "PuBu",
+        "PuBuGn",
+        "PuOr",
+        "PuRd",
+        "Purples",
+        "RdBu",
+        "RdGy",
+        "RdPu",
+        "RdYlBu",
+        "RdYlGn",
+        "Reds",
+        "Set1",
+        "Set2",
+        "Set3",
+        "Spectral",
+        "YlGn",
+        "YlGnBu",
+        "YlOrBr",
+        "YlOrRd",
+    ]
+
+    for palette in palettes:
+        gt = GT(df).data_color(columns=["num", "currency"], palette=palette)
+        assert isinstance(gt, GT)
+
+
+def test_data_color_viridis_palettes(df: DataFrameLike):
+    palettes = [
+        "viridis",
+        "plasma",
+        "inferno",
+        "magma",
+        "cividis",
+    ]
+
+    for palette in palettes:
+        gt = GT(df).data_color(columns=["num", "currency"], palette=palette)
+        assert isinstance(gt, GT)
+
+
+def test_data_color_colorbrewer_snap(snapshot):
+    df = pd.DataFrame(
+        {
+            "A": [1, 2, 3, 4, 5],
+            "B": [10, 9, 8, 7, 6],
+            "C": ["one", "two", "three", "four", "five"],
+        }
+    )
+
+    new_gt = GT(df).data_color(columns=["A", "B"], palette="Greens")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+def test_data_color_viridis_snap(snapshot):
+    df = pd.DataFrame(
+        {
+            "A": [1, 2, 3, 4, 5],
+            "B": [10, 9, 8, 7, 6],
+            "C": ["one", "two", "three", "four", "five"],
+        }
+    )
+
+    new_gt = GT(df).data_color(columns=["A", "B"], palette="viridis")
+
+    assert_rendered_body(snapshot, new_gt)
