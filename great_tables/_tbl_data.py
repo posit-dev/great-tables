@@ -241,7 +241,12 @@ def _(data: PlDataFrame, group_key: str) -> Dict[Any, List[int]]:
     # TODO: should ensure row count name isn't already in data
     import polars as pl
 
-    groups = data.with_row_count("__row_count__").group_by(group_key).agg(pl.col("__row_count__"))
+    # with_row_index supercedes with_row_count
+    meth_row_number = getattr(data, "with_row_index", None)
+    if not meth_row_number:
+        meth_row_number = data.with_row_count
+
+    groups = meth_row_number("__row_count__").group_by(group_key).agg(pl.col("__row_count__"))
 
     res = dict(zip(groups[group_key].to_list(), groups["__row_count__"].to_list()))
     return res
