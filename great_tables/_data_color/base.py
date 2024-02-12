@@ -6,7 +6,7 @@ from typing import (
     Optional,
     Tuple,
 )
-from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX
+from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX, ALL_PALETTES
 from great_tables._tbl_data import is_na, DataFrameLike
 from great_tables.style import fill, text
 from great_tables.loc import body
@@ -49,7 +49,9 @@ def data_color(
         provided in a list.
     palette : str | List[str] | None
         The color palette to use. This should be a list of colors (e.g., `["#FF0000", "#00FF00",
-        "#0000FF"]`). If `None`, then a default palette will be used.
+        "#0000FF"]`). A ColorBrewer palette could also be used, just supply the name (reference
+        available in the *Color palette access from ColorBrewer* section). If `None`, then a default
+        palette will be used.
     domain : List[float] | List[int] | List[str] | None
         The domain of values to use for the color scheme. This can be a list of floats, integers, or
         strings. If `None`, then the domain will be inferred from the data values.
@@ -72,9 +74,54 @@ def data_color(
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
+    Color palette access from ColorBrewer and viridis
+    -------------------------------------------------
+    All palettes from the ColorBrewer package can be accessed by providing the palette name in
+    `palette=`. There are 35 available palettes:
+
+    |    | Palette Name      | Colors  | Category    | Colorblind Friendly |
+    |----|-------------------|---------|-------------|---------------------|
+    | 1  | `"BrBG"`          | 11      | Diverging   | Yes                 |
+    | 2  | `"PiYG"`          | 11      | Diverging   | Yes                 |
+    | 3  | `"PRGn"`          | 11      | Diverging   | Yes                 |
+    | 4  | `"PuOr"`          | 11      | Diverging   | Yes                 |
+    | 5  | `"RdBu"`          | 11      | Diverging   | Yes                 |
+    | 6  | `"RdYlBu"`        | 11      | Diverging   | Yes                 |
+    | 7  | `"RdGy"`          | 11      | Diverging   | No                  |
+    | 8  | `"RdYlGn"`        | 11      | Diverging   | No                  |
+    | 9  | `"Spectral"`      | 11      | Diverging   | No                  |
+    | 10 | `"Dark2"`         | 8       | Qualitative | Yes                 |
+    | 11 | `"Paired"`        | 12      | Qualitative | Yes                 |
+    | 12 | `"Set1"`          | 9       | Qualitative | No                  |
+    | 13 | `"Set2"`          | 8       | Qualitative | Yes                 |
+    | 14 | `"Set3"`          | 12      | Qualitative | No                  |
+    | 15 | `"Accent"`        | 8       | Qualitative | No                  |
+    | 16 | `"Pastel1"`       | 9       | Qualitative | No                  |
+    | 17 | `"Pastel2"`       | 8       | Qualitative | No                  |
+    | 18 | `"Blues"`         | 9       | Sequential  | Yes                 |
+    | 19 | `"BuGn"`          | 9       | Sequential  | Yes                 |
+    | 20 | `"BuPu"`          | 9       | Sequential  | Yes                 |
+    | 21 | `"GnBu"`          | 9       | Sequential  | Yes                 |
+    | 22 | `"Greens"`        | 9       | Sequential  | Yes                 |
+    | 23 | `"Greys"`         | 9       | Sequential  | Yes                 |
+    | 24 | `"Oranges"`       | 9       | Sequential  | Yes                 |
+    | 25 | `"OrRd"`          | 9       | Sequential  | Yes                 |
+    | 26 | `"PuBu"`          | 9       | Sequential  | Yes                 |
+    | 27 | `"PuBuGn"`        | 9       | Sequential  | Yes                 |
+    | 28 | `"PuRd"`          | 9       | Sequential  | Yes                 |
+    | 29 | `"Purples"`       | 9       | Sequential  | Yes                 |
+    | 30 | `"RdPu"`          | 9       | Sequential  | Yes                 |
+    | 31 | `"Reds"`          | 9       | Sequential  | Yes                 |
+    | 32 | `"YlGn"`          | 9       | Sequential  | Yes                 |
+    | 33 | `"YlGnBu"`        | 9       | Sequential  | Yes                 |
+    | 34 | `"YlOrBr"`        | 9       | Sequential  | Yes                 |
+    | 35 | `"YlOrRd"`        | 9       | Sequential  | Yes                 |
+
+    We can also use the *viridis* and associated color palettes by providing to `palette=` any of
+    the following string values: `"viridis"`, `"plasma"`, `"inferno"`, `"magma"`, or `"cividis"`.
+
     Examples
     --------
-
     The `data_color()` method can be used without any supplied arguments to colorize a table. Let's
     do this with the `exibble` dataset:
 
@@ -95,8 +142,8 @@ def data_color(
     ```{python}
 
     gt.GT(gt.data.exibble).data_color(
-        columns=[\"num\", \"currency\"],
-        palette=[\"red\", \"green\"]
+        columns=["num", "currency"],
+        palette=["red", "green"]
     )
     ```
 
@@ -112,10 +159,10 @@ def data_color(
 
     ```{python}
     gt.GT(gt.data.exibble).data_color(
-        columns=\"currency\",
-        palette=[\"red\", \"green\"],
+        columns="currency",
+        palette=["red", "green"],
         domain=[0, 50],
-        na_color=\"lightgray\"
+        na_color="lightgray"
     )
     ```
     """
@@ -130,7 +177,13 @@ def data_color(
     if palette is None:
         palette = DEFAULT_PALETTE
     elif isinstance(palette, str):
-        palette = [palette]
+        # Check if the `palette` value refers to a ColorBrewer or viridis palette
+        # and, if it is, then convert it to a list of hexadecimal color values; otherwise,
+        # convert it to a list (this assumes that the value is a single color)
+        if palette in ALL_PALETTES:
+            palette = ALL_PALETTES[palette]
+        else:
+            palette = [palette]
 
     # Reverse the palette if `reverse` is set to `True`
     if reverse:

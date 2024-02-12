@@ -51,6 +51,37 @@
   </tbody>
   '''
 # ---
+# name: test_data_color_colorbrewer_snap
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="color: #000000; background-color: #f7fcf5;" class="gt_row gt_right">1</td>
+    <td style="color: #FFFFFF; background-color: #00441b;" class="gt_row gt_right">10</td>
+    <td class="gt_row gt_left">one</td>
+  </tr>
+  <tr>
+    <td style="color: #000000; background-color: #c7e9c0;" class="gt_row gt_right">2</td>
+    <td style="color: #000000; background-color: #238b45;" class="gt_row gt_right">9</td>
+    <td class="gt_row gt_left">two</td>
+  </tr>
+  <tr>
+    <td style="color: #000000; background-color: #73c476;" class="gt_row gt_right">3</td>
+    <td style="color: #000000; background-color: #73c476;" class="gt_row gt_right">8</td>
+    <td class="gt_row gt_left">three</td>
+  </tr>
+  <tr>
+    <td style="color: #000000; background-color: #238b45;" class="gt_row gt_right">4</td>
+    <td style="color: #000000; background-color: #c7e9c0;" class="gt_row gt_right">7</td>
+    <td class="gt_row gt_left">four</td>
+  </tr>
+  <tr>
+    <td style="color: #FFFFFF; background-color: #00441b;" class="gt_row gt_right">5</td>
+    <td style="color: #000000; background-color: #f7fcf5;" class="gt_row gt_right">6</td>
+    <td class="gt_row gt_left">five</td>
+  </tr>
+  </tbody>
+  '''
+# ---
 # name: test_data_color_domain_na_color_reverse_snap[pandas]
   '''
   <tbody class="gt_table_body">
@@ -380,6 +411,37 @@
     <td class="gt_row gt_right">444.4</td>
     <td class="gt_row gt_left">durian</td>
     <td style="color: #000000; background-color: #FF0000;" class="gt_row gt_right">65100.0</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_data_color_viridis_snap
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="color: #FFFFFF; background-color: #440154;" class="gt_row gt_right">1</td>
+    <td style="color: #000000; background-color: #fde725;" class="gt_row gt_right">10</td>
+    <td class="gt_row gt_left">one</td>
+  </tr>
+  <tr>
+    <td style="color: #FFFFFF; background-color: #3b518a;" class="gt_row gt_right">2</td>
+    <td style="color: #000000; background-color: #5fc761;" class="gt_row gt_right">9</td>
+    <td class="gt_row gt_left">two</td>
+  </tr>
+  <tr>
+    <td style="color: #000000; background-color: #22908b;" class="gt_row gt_right">3</td>
+    <td style="color: #000000; background-color: #22908b;" class="gt_row gt_right">8</td>
+    <td class="gt_row gt_left">three</td>
+  </tr>
+  <tr>
+    <td style="color: #000000; background-color: #5fc761;" class="gt_row gt_right">4</td>
+    <td style="color: #FFFFFF; background-color: #3b518a;" class="gt_row gt_right">7</td>
+    <td class="gt_row gt_left">four</td>
+  </tr>
+  <tr>
+    <td style="color: #000000; background-color: #fde725;" class="gt_row gt_right">5</td>
+    <td style="color: #FFFFFF; background-color: #440154;" class="gt_row gt_right">6</td>
+    <td class="gt_row gt_left">five</td>
   </tr>
   </tbody>
   '''
