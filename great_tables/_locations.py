@@ -11,7 +11,7 @@ from typing_extensions import TypeAlias
 # resolve generic, but we need to import at runtime, due to singledispatch looking
 # up annotations
 from ._gt_data import GTData, FootnoteInfo, Spanners, ColInfoTypeEnum, StyleInfo, FootnotePlacement
-from ._tbl_data import eval_select, eval_transform, PlExpr
+from ._tbl_data import eval_select, eval_transform, PlExpr, PlDataFrame
 from ._styles import CellStyle
 
 
@@ -312,8 +312,13 @@ def resolve_rows_i(
         return selected
     elif isinstance(expr, PlExpr):
         # TODO: decide later on the name supplied to `name`
-        result = data._tbl_data.with_row_index(name="__row_number__").filter(expr)
-        # print([(row_names[ii], ii) for ii in result["__row_number__"]])
+        # with_row_index supercedes with_row_count
+        frame: PlDataFrame = data._tbl_data
+        meth_row_number = getattr(frame, "with_row_index", None)
+        if not meth_row_number:
+            meth_row_number = frame.with_row_count
+
+        result = meth_row_number(name="__row_number__").filter(expr)
         return [(row_names[ii], ii) for ii in result["__row_number__"]]
     elif callable(expr):
         res: "list[bool]" = eval_transform(data._tbl_data, expr)
