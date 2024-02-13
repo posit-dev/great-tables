@@ -33,10 +33,10 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
     Parameters
     ----------
     **kwargs : str
-        The column names and new labels. The column names are provided as keyword arguments
-        and the new labels are provided as the values for those keyword arguments. For example,
-        `cols_label(col1="Column 1", col2="Column 2")` would relabel columns `col1`
-        and `col2` with the labels `"Column 1"` and `"Column 2"`, respectively.
+        The column names and new labels. The column names are provided as keyword arguments and the
+        new labels are provided as the values for those keyword arguments. For example,
+        `cols_label(col1="Column 1", col2="Column 2")` would relabel columns `col1` and `col2` with
+        the labels `"Column 1"` and `"Column 2"`, respectively.
 
     Returns
     -------
@@ -51,33 +51,36 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
     case we are supplying the name of the column as the key, and the label text as the value.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT
     from great_tables.data import countrypops
 
-    countrypops_mini = countrypops.loc[countrypops[\"country_name\"] == \"Uganda\"][
-        [\"country_name\", \"year\", \"population\"]
+    countrypops_mini = countrypops.loc[countrypops["country_name"] == "Uganda"][
+        ["country_name", "year", "population"]
     ].tail(5)
 
     (
-        gt.GT(countrypops_mini)
+        GT(countrypops_mini)
         .cols_label(
-            country_name=\"Name\",
-            year=\"Year\",
-            population=\"Population\"
+            country_name="Name",
+            year="Year",
+            population="Population"
         )
     )
     ```
 
     We can also use Markdown formatting for the column labels. In this example, we'll use
-    `gt.md("*Population*")` to make the label italicized.
+    `md("*Population*")` to make the label italicized.
 
     ```{python}
+    from great_tables import GT, md
+    from great_tables.data import countrypops
+
     (
-        gt.GT(countrypops_mini)
+        GT(countrypops_mini)
         .cols_label(
-            country_name=\"Name\",
-            year=\"Year\",
-            population=gt.md(\"*Population*\")
+            country_name="Name",
+            year="Year",
+            population=md("*Population*")
         )
     )
     ```
@@ -132,16 +135,16 @@ def cols_align(self: GTSelf, align: str = "left", columns: Optional[str] = None)
     `population` will be aligned to the left.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT
     from great_tables.data import countrypops
 
-    countrypops_mini = countrypops.loc[countrypops[\"country_name\"] == \"San Marino\"][
-        [\"country_name\", \"year\", \"population\"]
+    countrypops_mini = countrypops.loc[countrypops["country_name"] == "San Marino"][
+        ["country_name", "year", "population"]
     ].tail(5)
 
     (
-        gt.GT(countrypops_mini, rowname_col=\"year\", groupname_col=\"country_name\")
-        .cols_align(align=\"left\", columns=\"population\")
+        GT(countrypops_mini, rowname_col="year", groupname_col="country_name")
+        .cols_align(align="left", columns="population")
     )
     ```
 
