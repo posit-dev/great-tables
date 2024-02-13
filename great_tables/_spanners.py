@@ -115,7 +115,7 @@ def tab_spanner(
     gtcars_mini = gtcars[colnames].head(10)
 
     (
-        gt.GT(gtcars_mini)
+        GT(gtcars_mini)
         .tab_spanner(
             label=md("*Performance*"),
             columns=["hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"]
