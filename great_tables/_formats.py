@@ -3276,11 +3276,16 @@ def fmt_image(
     file_pattern: str = "{}",
     encode: bool = True,
 ) -> GTSelf:
-    """
+    """Format values as images to display.
+
+    This function can either display a file on disk, or encode the image into the table.
+
     Parameters
     ----------
     columns:
+        The columns to format.
     rows:
+        The rows to format, specified using row numbers.
     height, width:
         Height and width of images.
     sep:
