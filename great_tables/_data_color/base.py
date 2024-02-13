@@ -173,7 +173,7 @@ def data_color(
     else:
         na_color = _html_color(colors=[na_color], alpha=alpha)[0]
 
-    if isinstance(palette, (list, str)):
+    if isinstance(palette, (list, str, type(None))):
         palette = _process_palette(palette, reverse, alpha)
 
     # Set a flag to indicate whether or not the domain should be calculated automatically
