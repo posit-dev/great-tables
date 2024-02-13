@@ -13,6 +13,7 @@ from great_tables._formats import (
     _format_number_fixed_decimals,
     _expand_exponential_to_full_string,
     fmt,
+    FmtImage,
 )
 from great_tables._locations import RowSelectExpr
 
@@ -1082,33 +1083,26 @@ def test_html_color_with_alpha(color: str, x_out: str, alpha: float):
 
 
 def test_fmt_image_single():
-    from great_tables._formats import FmtImage
-
     formatter = FmtImage(sep=" ", file_pattern="{}.svg", encode=False)
     res = formatter.to_html("/a")
-    dst = '<span style="white-space:nowrap;"><img src="/a.svg" style="vertical-align: middle;"></span>'
+    dst = formatter.SPAN_TEMPLATE.format('<img src="/a.svg" style="vertical-align: middle;">')
 
     assert res == dst
 
 
 def test_fmt_image_multiple():
-    from great_tables._formats import FmtImage
-
     formatter = FmtImage(sep="---", file_pattern="{}.svg", encode=False)
     res = formatter.to_html("/a,/b")
-    dst = (
-        '<span style="white-space:nowrap;">'
+    dst = formatter.SPAN_TEMPLATE.format(
         '<img src="/a.svg" style="vertical-align: middle;">'
         "---"
         '<img src="/b.svg" style="vertical-align: middle;">'
-        "</span>"
     )
 
     assert res == dst
 
 
 def test_fmt_image_encode(tmpdir):
-    from great_tables._formats import FmtImage
     from base64 import b64encode
     from pathlib import Path
 
@@ -1121,6 +1115,21 @@ def test_fmt_image_encode(tmpdir):
 
     b64_content = b64encode(content.encode()).decode()
     img_src = f"data: image/svg+xml; base64,{b64_content}"
-    dst = f'<span style="white-space:nowrap;"><img src="{img_src}" style="vertical-align: middle;"></span>'
+    dst = formatter.SPAN_TEMPLATE.format(f'<img src="{img_src}" style="vertical-align: middle;">')
 
     assert res == dst
+
+
+def test_fmt_image_width_height_str():
+    formatter = FmtImage(encode=False, width="20px", height="30px")
+    res = formatter.to_html("/a")
+    dst_img = '<img src="/a" style="height: 30px;width: 20px;vertical-align: middle;">'
+    dst = formatter.SPAN_TEMPLATE.format(dst_img)
+
+    assert res == dst
+
+
+def test_fmt_image_path():
+    formatter = FmtImage(encode=False, path="/a/b")
+    res = formatter.to_html("c")
+    assert 'src="/a/b/c"' in res

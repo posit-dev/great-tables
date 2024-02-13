@@ -4,6 +4,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ClassVar,
     TypeVar,
     Union,
     List,
@@ -3326,12 +3327,14 @@ from dataclasses import dataclass
 
 @dataclass
 class FmtImage:
-    height: str | None = None
+    height: str | int | None = None
     width: str | None = None
     sep: str = " "
     path: str | None = None
     file_pattern: str = "{}"
     encode: bool = True
+
+    SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
 
     def to_html(self, val: Any):
         import re
@@ -3373,19 +3376,11 @@ class FmtImage:
                 else:
                     uri = filename
 
-            style_string = "".join(
-                [
-                    f"height: {self.height};" if self.height is not None else "",
-                    f"width: {self.width};" if self.width is not None else "",
-                    "vertical-align: middle;",
-                ]
-            )
-
             # TODO: do we have a way to create tags, that is good at escaping, etc..?
-            out.append(f'<img src="{uri}" style="{style_string}">')
+            out.append(self._build_img_tag(uri, height, self.width))
 
         img_tags = self.sep.join(out)
-        span = f'<span style="white-space:nowrap;">{img_tags}</span>'
+        span = self.SPAN_TEMPLATE.format(img_tags)
 
         return span
 
@@ -3418,3 +3413,15 @@ class FmtImage:
             return "image/jpeg"
 
         return f"image/{suffix}"
+
+    @staticmethod
+    def _build_img_tag(uri: str, height: str | None = None, width: str | None = None) -> str:
+        style_string = "".join(
+            [
+                f"height: {height};" if height is not None else "",
+                f"width: {width};" if width is not None else "",
+                "vertical-align: middle;",
+            ]
+        )
+
+        return f'<img src="{uri}" style="{style_string}">'
