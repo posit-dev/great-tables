@@ -478,17 +478,17 @@ def tab_options(
 
     gt_tbl = (
       GT(
-        exibble[[\"num\", \"char\", \"currency\", \"row\", \"group\"]],
-        rowname_col = \"row\",
-        groupname_col = \"group\"
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
       )
       .tab_header(
-        title = md(\"Data listing from **exibble**\"),
-        subtitle = md(\"`exibble` is a **Great Tables** dataset.\")
+        title=md("Data listing from **exibble**"),
+        subtitle=md("`exibble` is a **Great Tables** dataset.")
       )
-      .fmt_number(columns = \"num\")
-      .fmt_currency(columns = \"currency\")
-      .tab_source_note(source_note = \"This is only a subset of the dataset.\")
+      .fmt_number(columns="num")
+      .fmt_currency(columns="currency")
+      .tab_source_note(source_note="This is only a subset of the dataset.")
     )
 
     gt_tbl
@@ -710,9 +710,9 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
             title=md("Data listing from **exibble**"),
             subtitle=md("`exibble` is a **Great Tables** dataset.")
         )
-        .fmt_number(columns = "num")
-        .fmt_currency(columns = "currency")
-        .tab_source_note(source_note = "This is only a subset of the dataset.")
+        .fmt_number(columns="num")
+        .fmt_currency(columns="currency")
+        .tab_source_note(source_note="This is only a subset of the dataset.")
     )
 
     gt_tbl.opt_vertical_padding(scale=3)
@@ -811,9 +811,9 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
             title=md("Data listing from **exibble**"),
             subtitle=md("`exibble` is a **Great Tables** dataset.")
         )
-        .fmt_number(columns = "num")
-        .fmt_currency(columns = "currency")
-        .tab_source_note(source_note = "This is only a subset of the dataset.")
+        .fmt_number(columns="num")
+        .fmt_currency(columns="currency")
+        .tab_source_note(source_note="This is only a subset of the dataset.")
     )
 
     gt_tbl.opt_horizontal_padding(scale=3)
@@ -911,16 +911,16 @@ def opt_all_caps(
     (
       GT(
         exibble[["num", "char", "currency", "row", "group"]],
-        rowname_col = "row",
-        groupname_col = "group"
+        rowname_col="row",
+        groupname_col="group"
       )
       .tab_header(
-        title = md("Data listing from **exibble**"),
-        subtitle = md("`exibble` is a **Great Tables** dataset.")
+        title=md("Data listing from **exibble**"),
+        subtitle=md("`exibble` is a **Great Tables** dataset.")
       )
-      .fmt_number(columns = "num")
-      .fmt_currency(columns = "currency")
-      .tab_source_note(source_note = "This is only a subset of the dataset.")
+      .fmt_number(columns="num")
+      .fmt_currency(columns="currency")
+      .tab_source_note(source_note="This is only a subset of the dataset.")
       .opt_all_caps()
     )
     ```
