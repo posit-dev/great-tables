@@ -89,16 +89,17 @@ def tab_spanner(
     performance under a unifying label.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT
+    from great_tables.data import gtcars
 
-    colnames = [\"model\", \"hp\", \"hp_rpm\", \"trq\", \"trq_rpm\", \"mpg_c\", \"mpg_h\"]
-    gtcars_mini = gt.data.gtcars[colnames].head(10)
+    colnames = ["model", "hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"]
+    gtcars_mini = gtcars[colnames].head(10)
 
     (
-        gt.GT(gtcars_mini)
+        GT(gtcars_mini)
         .tab_spanner(
-            label=\"performance\",
-            columns=[\"hp\", \"hp_rpm\", \"trq\", \"trq_rpm\", \"mpg_c\", \"mpg_h\"]
+            label="performance",
+            columns=["hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"]
         )
     )
     ```
@@ -107,11 +108,17 @@ def tab_spanner(
     `gt.md("*Performance*")` to make the label italicized.
 
     ```{python}
+    from great_tables import GT, md
+    from great_tables.data import gtcars
+
+    colnames = ["model", "hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"]
+    gtcars_mini = gtcars[colnames].head(10)
+
     (
         gt.GT(gtcars_mini)
         .tab_spanner(
-            label=gt.md(\"*Performance*\"),
-            columns=[\"hp\", \"hp_rpm\", \"trq\", \"trq_rpm\", \"mpg_c\", \"mpg_h\"]
+            label=md("*Performance*"),
+            columns=["hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"]
         )
     )
     ```
@@ -227,18 +234,18 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
     column after the `country_name` column by using the `cols_move()` method.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT
     from great_tables.data import countrypops
 
-    countrypops_mini = countrypops.loc[countrypops[\"country_name\"] == \"Japan\"][
-        [\"country_name\", \"year\", \"population\"]
+    countrypops_mini = countrypops.loc[countrypops["country_name"] == "Japan"][
+        ["country_name", "year", "population"]
     ].tail(5)
 
     (
-        gt.GT(countrypops_mini)
+        GT(countrypops_mini)
         .cols_move(
-            columns=\"population\",
-            after=\"country_name\"
+            columns="population",
+            after="country_name"
         )
     )
     ```
@@ -309,21 +316,22 @@ def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
     the `cols_move_to_start()` method.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT
     from great_tables.data import countrypops
 
-    countrypops_mini = countrypops.loc[countrypops[\"country_name\"] == \"Fiji\"][
-        [\"country_name\", \"year\", \"population\"]
+    countrypops_mini = countrypops.loc[countrypops["country_name"] == "Fiji"][
+        ["country_name", "year", "population"]
     ].tail(5)
 
-    gt.GT(countrypops_mini).cols_move_to_start(columns=\"year\")
+    GT(countrypops_mini).cols_move_to_start(columns="year")
     ```
 
-    We can also move multiple columns at a time. With the same `countrypops`-based table, let's move
-    both the `year` and `population` columns to the start of the column series.
+    We can also move multiple columns at a time. With the same `countrypops`-based table
+    (`countrypops_mini`), let's move both the `year` and `population` columns to the start of the
+    column series.
 
     ```{python}
-    gt.GT(countrypops_mini).cols_move_to_start(columns=[\"year\", \"population\"])
+    GT(countrypops_mini).cols_move_to_start(columns=["year", "population"])
     ```
     """
 
@@ -377,21 +385,22 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
     the `cols_move_to_end()` method.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT
     from great_tables.data import countrypops
 
-    countrypops_mini = countrypops.loc[countrypops[\"country_name\"] == \"Benin\"][
-        [\"country_name\", \"year\", \"population\"]
+    countrypops_mini = countrypops.loc[countrypops["country_name"] == "Benin"][
+        ["country_name", "year", "population"]
     ].tail(5)
 
-    gt.GT(countrypops_mini).cols_move_to_end(columns=\"year\")
+    GT(countrypops_mini).cols_move_to_end(columns="year")
     ```
 
-    We can also move multiple columns at a time. With the same `countrypops`-based table, let's move
-    both the `year` and `country_name` columns to the end of the column series.
+    We can also move multiple columns at a time. With the same `countrypops`-based table
+    (`countrypops_mini`), let's move both the `year` and `country_name` columns to the end of the
+    column series.
 
     ```{python}
-    gt.GT(countrypops_mini).cols_move_to_end(columns=[\"year\", \"country_name\"])
+    GT(countrypops_mini).cols_move_to_end(columns=["year", "country_name"])
     """
 
     # If `columns` is a string, convert it to a list
@@ -584,56 +593,55 @@ def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
     --------
     Let's use select columns from the `exibble` dataset to create a new table. We can specify the
     widths of columns with `cols_width()`. This is done by specifying the exact widths for table
-    columns in a dictionary. In this example, we'll set the width of the `num` column to `150px`,
-    the `char` column to `100px`, the `date` column to `300px`. All other columns won't be affected
-    (their widths will be automatically set by their content).
+    columns in a dictionary. In this example, we'll set the width of the `num` column to `"150px"`,
+    the `char` column to `"100px"`, the `date` column to `"300px"`. All other columns won't be
+    affected (their widths will be automatically set by their content).
 
     ```{python}
-    import great_tables as gt
-    from great_tables.data import exibble
+    from great_tables import GT, exibble
 
-    exibble_mini = exibble[[\"num\", \"char\", \"date\", \"datetime\", \"row\"]].head(5)
+    exibble_mini = exibble[["num", "char", "date", "datetime", "row"]].head(5)
 
     (
-        gt.GT(exibble_mini)
+        GT(exibble_mini)
         .cols_width(
             cases={
-                "num": \"150px\",
-                "char": \"100px\",
-                "date": \"300px\"
+                "num": "150px",
+                "char": "100px",
+                "date": "300px"
             }
         )
     )
     ```
 
     We can also specify the widths of columns as percentages. In this example, we'll set the width
-    of the `num` column to `20%`, the `char` column to `10%`, and the `date` column to `30%`. Note
-    that the percentages are relative and don't need to sum to 100%.
+    of the `num` column to `"20%"`, the `char` column to `"10%"`, and the `date` column to `"30%"`.
+    Note that the percentages are relative and don't need to sum to 100%.
 
     ```{python}
     (
-        gt.GT(exibble_mini)
+        GT(exibble_mini)
         .cols_width(
             cases={
-                "num": \"20%\",
-                "char": \"10%\",
-                "date": \"30%\"
+                "num": "20%",
+                "char": "10%",
+                "date": "30%"
             }
         )
     )
     ```
 
     We can also mix and match pixel and percentage widths. In this example, we'll set the width of
-    the `num` column to `150px`, the `char` column to `10%`, and the `date` column to `30%`.
+    the `num` column to `"150px"`, the `char` column to `"10%"`, and the `date` column to `"30%"`.
 
     ```{python}
     (
-        gt.GT(exibble_mini)
+        GT(exibble_mini)
         .cols_width(
             cases={
-                "num": \"150px\",
-                "char": \"10%\",
-                "date": \"30%\"
+                "num": "150px",
+                "char": "10%",
+                "date": "30%"
             }
         )
     )
@@ -646,14 +654,14 @@ def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
 
     ```{python}
     (
-        gt.GT(exibble_mini)
+        GT(exibble_mini)
         .cols_width(
             cases={
-                "num": \"30px\",
-                "char": \"100px\",
-                "date": \"100px\",
-                "datetime": \"200px\",
-                "row": \"50px\"
+                "num": "30px",
+                "char": "100px",
+                "date": "100px",
+                "datetime": "200px",
+                "row": "50px"
             }
         )
     )
