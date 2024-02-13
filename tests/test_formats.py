@@ -1117,7 +1117,7 @@ def test_fmt_image_encode(tmpdir):
     p_svg.write_text(content)
 
     formatter = FmtImage(sep=" ", file_pattern="{}.svg", encode=True)
-    res = formatter.to_html("some")
+    res = formatter.to_html(f"{tmpdir}/some")
 
     b64_content = b64encode(content.encode()).decode()
     img_src = f"data: image/svg+xml; base64,{b64_content}"
