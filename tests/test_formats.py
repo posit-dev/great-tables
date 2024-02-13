@@ -1,4 +1,6 @@
 from typing import Union
+
+import numpy as np
 import pandas as pd
 import polars as pl
 import pytest
@@ -1079,3 +1081,70 @@ def test_html_color(color: str, x_out: str):
 def test_html_color_with_alpha(color: str, x_out: str, alpha: float):
     x = _html_color(colors=[color], alpha=alpha)
     assert x == [x_out]
+
+
+@pytest.fixture
+def df_with_na() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "bytes": pd.Series([None, np.nan, 1024], dtype="object"),
+            "currency": pd.Series([None, np.nan, 19.99], dtype="object"),
+            "date": pd.Series([None, np.nan, pd.Timestamp("2023-01-01")], dtype="object"),
+            "datetime": pd.Series([None, np.nan, pd.Timestamp("2023-01-01 15:00")], dtype="object"),
+            "integer": pd.Series([None, np.nan, 123], dtype="object"),
+            "markdown": pd.Series([None, np.nan, "**bold**"], dtype="object"),
+            "number": pd.Series([None, np.nan, 123.456], dtype="object"),
+            "percent": pd.Series([None, np.nan, 0.85], dtype="object"),
+            "roman": pd.Series([None, np.nan, 4], dtype="object"),
+            "scientific": pd.Series([None, np.nan, 0.00012345], dtype="object"),
+            "time": pd.Series(
+                [None, np.nan, pd.Timestamp("2023-01-01 15:00").time()], dtype="object"
+            ),
+        }
+    )
+
+
+@pytest.fixture
+def polars_df_with_na(df_with_na) -> pl.DataFrame:
+    df = pl.from_pandas(df_with_na)
+    dtypes_with_nan = pl.selectors.float()
+    # from_pandas converts NaN to null, so we need to replace NaNs for columns that can contain NaN
+    return (
+        df.with_row_index("row_nr")
+        .with_columns(
+            pl.when(pl.col("row_nr") == 1)
+            .then(dtypes_with_nan.fill_null(np.nan))
+            .otherwise(dtypes_with_nan)
+        )
+        .drop("row_nr")
+    )
+
+
+def _apply_formats_for_na_rep_tests(gt: GT):
+    rep_kwargs = dict(nan_rep="nan_rep", null_rep="null_rep")
+    gt = (
+        gt.fmt_bytes("bytes", **rep_kwargs)
+        .fmt_currency("currency", **rep_kwargs)
+        .fmt_date("date", **rep_kwargs)
+        .fmt_datetime("datetime", **rep_kwargs)
+        .fmt_integer("integer", **rep_kwargs)
+        .fmt_number("number", **rep_kwargs)
+        .fmt_percent("percent", **rep_kwargs)
+        .fmt_roman("roman", **rep_kwargs)
+        .fmt_scientific("scientific", **rep_kwargs)
+        .fmt_time("time", **rep_kwargs)
+        .fmt_markdown("markdown", **rep_kwargs)
+    )
+    return gt
+
+
+def test_nan_and_null_reps(df_with_na):
+    gt = GT(df_with_na)
+    gt = _apply_formats_for_na_rep_tests(gt)
+    # TODO: some asserts...
+
+
+def test_polars_na_reps(polars_df_with_na):
+    gt = GT(polars_df_with_na)
+    gt = _apply_formats_for_na_rep_tests(gt)
+    # TOOD: soem asserts
