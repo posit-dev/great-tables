@@ -3350,13 +3350,18 @@ class FmtImage:
         else:
             files = [val]
 
-        # TODO: these are not the only numeric values that might end up here
-        # e.g. bespoke types like np int64, etc..
-        # we need to know the underlying table class (e.g. pandas DataFrame) to do a full check
+        # TODO: if we allowing height and width to be set based on column values, then
+        # they could end up as bespoke types like np int64, etc..
+        # We should ensure we process those before hitting FmtImage
         if isinstance(self.height, (int, float)):
             height = f"{self.height}px"
         else:
             height = self.height
+
+        # TODO: note that only height can be numeric in the R program. Is this on purpose?
+        # In any event, raising explicitly for numeric width below.
+        if isinstance(self.width, (int, float)):
+            raise NotImplementedError("The width argument must be specified as a string.")
 
         full_files = self._apply_pattern(self.file_pattern, files)
 

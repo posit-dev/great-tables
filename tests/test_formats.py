@@ -1129,6 +1129,22 @@ def test_fmt_image_width_height_str():
     assert res == dst
 
 
+def test_fmt_image_height_int():
+    formatter = FmtImage(encode=False, height=30)
+    res = formatter.to_html("/a")
+    dst_img = '<img src="/a" style="height: 30px;vertical-align: middle;">'
+    dst = formatter.SPAN_TEMPLATE.format(dst_img)
+
+    assert res == dst
+
+
+def test_fmt_image_width_int():
+    formatter = FmtImage(encode=False, width=20)
+
+    with pytest.raises(NotImplementedError):
+        formatter.to_html("/a")
+
+
 def test_fmt_image_path():
     formatter = FmtImage(encode=False, path="/a/b")
     res = formatter.to_html("c")
