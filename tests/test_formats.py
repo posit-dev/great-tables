@@ -1086,9 +1086,7 @@ def test_fmt_image_single():
 
     formatter = FmtImage(sep=" ", file_pattern="{}.svg", encode=False)
     res = formatter.to_html("/a")
-    dst = (
-        '<span style="white-space:nowrap;"><img src="a.svg" style="vertical-align: middle;"></span>'
-    )
+    dst = '<span style="white-space:nowrap;"><img src="/a.svg" style="vertical-align: middle;"></span>'
 
     assert res == dst
 
@@ -1099,9 +1097,11 @@ def test_fmt_image_multiple():
     formatter = FmtImage(sep="---", file_pattern="{}.svg", encode=False)
     res = formatter.to_html("/a,/b")
     dst = (
-        '<span style="white-space:nowrap;"><img src="/a.svg" style="vertical-align: middle;"></span>'
+        '<span style="white-space:nowrap;">'
+        '<img src="/a.svg" style="vertical-align: middle;">'
         "---"
-        '<span style="white-space:nowrap;"><img src="/b.svg" style="vertical-align: middle;"></span>'
+        '<img src="/b.svg" style="vertical-align: middle;">'
+        "</span>"
     )
 
     assert res == dst
@@ -1118,5 +1118,9 @@ def test_fmt_image_encode(tmpdir):
 
     formatter = FmtImage(sep=" ", file_pattern="{}.svg", encode=True)
     res = formatter.to_html("some")
+
+    b64_content = b64encode(content.encode()).decode()
+    img_src = f"data: image/svg+xml; base64,{b64_content}"
+    dst = f'<span style="white-space:nowrap;"><img src="{img_src}" style="vertical-align: middle;"></span>'
 
     assert res == dst
