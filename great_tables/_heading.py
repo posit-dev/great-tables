@@ -50,15 +50,16 @@ def tab_header(
     formatting is interpreted and transformed.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT, md
+    from great_tables.data import gtcars
 
-    gtcars_mini = gt.data.gtcars[[\"mfr\", \"model\", \"msrp\"]].head(5)
+    gtcars_mini = gtcars[["mfr", "model", "msrp"]].head(5)
 
     (
-        gt.GT(gtcars_mini)
+        GT(gtcars_mini)
         .tab_header(
-            title=gt.md(\"Data listing from **gtcars**\"),
-            subtitle=gt.md(\"`gtcars` is an R dataset\")
+            title=md("Data listing from **gtcars**"),
+            subtitle=md("`gtcars` is an R dataset")
         )
     )
     ```
@@ -67,11 +68,16 @@ def tab_header(
     elements in the text.
 
     ```{python}
+    from great_tables import GT, md, html
+    from great_tables.data import gtcars
+
+    gtcars_mini = gtcars[["mfr", "model", "msrp"]].head(5)
+
     (
-        gt.GT(gtcars_mini)
+        GT(gtcars_mini)
         .tab_header(
-            title=gt.md("Data listing <strong>gtcars</strong>"),
-            subtitle=gt.html("From <span style='color:red;'>gtcars</span>")
+            title=md("Data listing <strong>gtcars</strong>"),
+            subtitle=html("From <span style='color:red;'>gtcars</span>")
         )
     )
     ```
