@@ -38,13 +38,14 @@ def tab_source_note(data: GTSelf, source_note: Union[str, Text]) -> GTSelf:
     component of the table.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT
+    from great_tables.data import gtcars
 
-    gtcars_mini = gt.data.gtcars[[\"mfr\", \"model\", \"msrp\"]].head(5)
+    gtcars_mini = gtcars[["mfr", "model", "msrp"]].head(5)
 
     (
-        gt.GT(gtcars_mini, rowname_col=\"model\")
-        .tab_source_note(source_note=\"From edmunds.com\")
+        GT(gtcars_mini, rowname_col="model")
+        .tab_source_note(source_note="From edmunds.com")
     )
     ```
     """
