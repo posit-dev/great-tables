@@ -13,6 +13,7 @@ from great_tables._formats import (
     _format_number_fixed_decimals,
     _expand_exponential_to_full_string,
     fmt,
+    FmtImage,
 )
 from great_tables._locations import RowSelectExpr
 
@@ -1079,3 +1080,72 @@ def test_html_color(color: str, x_out: str):
 def test_html_color_with_alpha(color: str, x_out: str, alpha: float):
     x = _html_color(colors=[color], alpha=alpha)
     assert x == [x_out]
+
+
+def test_fmt_image_single():
+    formatter = FmtImage(sep=" ", file_pattern="{}.svg", encode=False)
+    res = formatter.to_html("/a")
+    dst = formatter.SPAN_TEMPLATE.format('<img src="/a.svg" style="vertical-align: middle;">')
+
+    assert res == dst
+
+
+def test_fmt_image_multiple():
+    formatter = FmtImage(sep="---", file_pattern="{}.svg", encode=False)
+    res = formatter.to_html("/a,/b")
+    dst = formatter.SPAN_TEMPLATE.format(
+        '<img src="/a.svg" style="vertical-align: middle;">'
+        "---"
+        '<img src="/b.svg" style="vertical-align: middle;">'
+    )
+
+    assert res == dst
+
+
+def test_fmt_image_encode(tmpdir):
+    from base64 import b64encode
+    from pathlib import Path
+
+    content = "abc"
+    p_svg = Path(tmpdir) / "some.svg"
+    p_svg.write_text(content)
+
+    formatter = FmtImage(sep=" ", file_pattern="{}.svg", encode=True)
+    res = formatter.to_html(f"{tmpdir}/some")
+
+    b64_content = b64encode(content.encode()).decode()
+    img_src = f"data: image/svg+xml; base64,{b64_content}"
+    dst = formatter.SPAN_TEMPLATE.format(f'<img src="{img_src}" style="vertical-align: middle;">')
+
+    assert res == dst
+
+
+def test_fmt_image_width_height_str():
+    formatter = FmtImage(encode=False, width="20px", height="30px")
+    res = formatter.to_html("/a")
+    dst_img = '<img src="/a" style="height: 30px;width: 20px;vertical-align: middle;">'
+    dst = formatter.SPAN_TEMPLATE.format(dst_img)
+
+    assert res == dst
+
+
+def test_fmt_image_height_int():
+    formatter = FmtImage(encode=False, height=30)
+    res = formatter.to_html("/a")
+    dst_img = '<img src="/a" style="height: 30px;vertical-align: middle;">'
+    dst = formatter.SPAN_TEMPLATE.format(dst_img)
+
+    assert res == dst
+
+
+def test_fmt_image_width_int():
+    formatter = FmtImage(encode=False, width=20)
+
+    with pytest.raises(NotImplementedError):
+        formatter.to_html("/a")
+
+
+def test_fmt_image_path():
+    formatter = FmtImage(encode=False, path="/a/b")
+    res = formatter.to_html("c")
+    assert 'src="/a/b/c"' in res

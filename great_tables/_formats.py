@@ -4,6 +4,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ClassVar,
     TypeVar,
     Union,
     List,
@@ -23,6 +24,7 @@ import pandas as pd
 import math
 from datetime import datetime, date, time
 from babel.dates import format_date, format_time, format_datetime
+from pathlib import Path
 
 
 if TYPE_CHECKING:
@@ -3261,3 +3263,175 @@ def _validate_datetime_obj(x: Any) -> None:
         raise ValueError(f"Invalid datetime object: '{x}'. The object must be a datetime object.")
 
     return
+
+
+def fmt_image(
+    self: GTSelf,
+    columns: Union[str, List[str], None] = None,
+    rows: Union[int, List[int], None] = None,
+    height: str | int | None = None,
+    width: str | int | None = None,
+    sep: str = " ",
+    path: str | Path | None = None,
+    file_pattern: str = "{}",
+    encode: bool = True,
+) -> GTSelf:
+    """Format values as images to display.
+
+    This function can either display a file on disk, or encode the image into the table.
+
+    Parameters
+    ----------
+    columns:
+        The columns to format.
+    rows:
+        The rows to format, specified using row numbers.
+    height, width:
+        Height and width of images.
+    sep:
+        Separator between images.
+    path:
+        Path to image files.
+    file_pattern:
+        File pattern specification.
+    encode:
+        Whether to use Base64 encoding.
+
+    Examples
+    --------
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import metro
+    from importlib_resources import files
+
+    img_paths = files("great_tables")  / "data/metro_images"
+    GT(metro).fmt_image("lines", path = img_paths, file_pattern="metro_{}.svg")
+    ```
+    """
+
+    # TODO: most parameter options should allow a polars expression (or from_column) ----
+    # can other fmt functions do this kind of thing?
+    expr_cols = [height, width, sep, path, file_pattern, encode]
+
+    if any(isinstance(x, PlExpr) for x in expr_cols):
+        raise NotImplementedError(
+            "fmt_image currently does not support polars expressions for arguments other than"
+            " columns and rows"
+        )
+
+    if height is None and width is None:
+        height = "2em"
+
+    formatter = FmtImage(height, width, sep, str(path), file_pattern, encode)
+    return fmt(self, fns=formatter.to_html, columns=columns, rows=rows)
+
+
+from dataclasses import dataclass
+
+
+@dataclass
+class FmtImage:
+    height: str | int | None = None
+    width: str | None = None
+    sep: str = " "
+    path: str | None = None
+    file_pattern: str = "{}"
+    encode: bool = True
+
+    SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
+
+    def to_html(self, val: Any):
+        import re
+        from pathlib import Path
+
+        # TODO: handle NA values
+        # TODO: are we assuming val is a string? (or coercing?)
+
+        # otherwise...
+
+        if "," in val:
+            files = re.split(r",\s*", val)
+        else:
+            files = [val]
+
+        # TODO: if we allowing height and width to be set based on column values, then
+        # they could end up as bespoke types like np int64, etc..
+        # We should ensure we process those before hitting FmtImage
+        if isinstance(self.height, (int, float)):
+            height = f"{self.height}px"
+        else:
+            height = self.height
+
+        # TODO: note that only height can be numeric in the R program. Is this on purpose?
+        # In any event, raising explicitly for numeric width below.
+        if isinstance(self.width, (int, float)):
+            raise NotImplementedError("The width argument must be specified as a string.")
+
+        full_files = self._apply_pattern(self.file_pattern, files)
+
+        out: list[str] = []
+        for file in full_files:
+            # Case 1: from url
+            if self.path and (self.path.startswith("http://") or self.path.startswith("https://")):
+                norm_path = re.sub(r"/\s+$", self.path)
+                uri = f"{norm_path}/{file}"
+
+            # Case 2:
+            else:
+                filename = (Path(self.path or "") / file).expanduser().absolute()
+
+                if self.encode:
+                    uri = self._get_image_uri(filename)
+                else:
+                    uri = filename
+
+            # TODO: do we have a way to create tags, that is good at escaping, etc..?
+            out.append(self._build_img_tag(uri, height, self.width))
+
+        img_tags = self.sep.join(out)
+        span = self.SPAN_TEMPLATE.format(img_tags)
+
+        return span
+
+    @staticmethod
+    def _apply_pattern(file_pattern: str, files: list[str]) -> list[str]:
+        return [file_pattern.format(file) for file in files]
+
+    @classmethod
+    def _get_image_uri(cls, filename: str) -> str:
+        import base64
+
+        with open(filename, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode()
+
+        mime_type = cls._get_mime_type(filename)
+
+        return f"data: {mime_type}; base64,{encoded}"
+        ...
+
+    @staticmethod
+    def _get_mime_type(filename: str) -> str:
+        from pathlib import Path
+
+        # note that we strip off the leading "."
+        suffix = Path(filename).suffix[1:]
+
+        if suffix == "svg":
+            return "image/svg+xml"
+        elif suffix == "jpg":
+            return "image/jpeg"
+
+        return f"image/{suffix}"
+
+    @staticmethod
+    def _build_img_tag(uri: str, height: str | None = None, width: str | None = None) -> str:
+        style_string = "".join(
+            [
+                f"height: {height};" if height is not None else "",
+                f"width: {width};" if width is not None else "",
+                "vertical-align: middle;",
+            ]
+        )
+
+        return f'<img src="{uri}" style="{style_string}">'
