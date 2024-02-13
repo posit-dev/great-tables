@@ -3341,6 +3341,7 @@ def fmt_image(
             file_pattern="metro_{}.svg"
         )
         .fmt_integer(columns="passengers")
+    )
     ```
     """
 
