@@ -3299,8 +3299,8 @@ def fmt_image(
     from great_tables.data import metro
     from importlib_resources import files
 
-    img_paths = files(\"great_tables\")  / \"data/metro_images\"
-    GT(metro).fmt_image(\"lines\", path = img_paths, file_pattern=\"metro_{}.svg\")
+    img_paths = files("great_tables")  / "data/metro_images"
+    GT(metro).fmt_image("lines", path = img_paths, file_pattern="metro_{}.svg")
     ```
     """
 
@@ -3384,8 +3384,10 @@ class FmtImage:
             # TODO: do we have a way to create tags, that is good at escaping, etc..?
             out.append(f'<img src="{uri}" style="{style_string}">')
 
-        spans = [f'<span style="white-space:nowrap;">{img}</span>' for img in out]
-        return self.sep.join(spans)
+        img_tags = self.sep.join(out)
+        span = f'<span style="white-space:nowrap;">{img_tags}</span>'
+
+        return span
 
     @staticmethod
     def _apply_pattern(file_pattern: str, files: list[str]) -> list[str]:
