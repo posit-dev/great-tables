@@ -2,6 +2,7 @@
 title: Examples
 jupyter: python3
 html-table-processing: none
+notebook-links: false
 format:
   html:
     code-fold: true
