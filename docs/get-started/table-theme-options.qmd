@@ -3,18 +3,97 @@ title: Table theme options
 jupyter: python3
 ---
 
+Great Tables exposes options to customize the appearance of tables via two methods:
+
+* [](`~great_tables.GT.tab_style`) - targeted styles (e.g. color a specific cell of data).
+* [](`~great_tables.GT.tab_options`) - broad styles (e.g. color the header and source notes).
+
+Both methods target parts of the table, as shown in the diagram below.
+
+![](/assets/gt_parts_of_a_table.svg)
+
+This page covers how to style and theme your table using `GT.tab_options()`,
+which is meant to quickly set a broad range of styles.
+In the future, even more granular options will become available via `GT.tab_style()`.
+
 ```{python}
 from great_tables import GT, exibble
 
-(GT(exibble)
-    .tab_header("The title", "A subtitle")
+(GT(exibble, rowname_col="row", groupname_col="group")
+    .tab_header("THE HEADING", "(a subtitle)")
+    .tab_stubhead("THE STUBHEAD")
+    .tab_source_note("THE SOURCE NOTE")
     .tab_options(
-        heading_background_color = "lightgreen",
-        stub_background_color="purple",
-        row_group_background_color="blue",
-        table_background_color="orange",
-        source_notes_background_color="yellow",
-        column_labels_background_color="red"
+        container_width = "100%",
+        table_background_color="lightblue",
+        heading_background_color = "gold",
+        column_labels_background_color="aquamarine",
+        row_group_background_color="lightyellow",
+        stub_background_color="lightgreen",
+        source_notes_background_color="#f1e2af",
     )
 )
 ```
+
+## Option part
+
+* container
+* table
+* heading
+* column_labels
+* row_group
+* stub
+* stub_row
+* table_body
+* row_group
+
+## A basic theme
+
+```{python}
+from great_tables import GT, exibble
+
+# TODO: are there names we can give the three colors?
+# e.g. primary = "#0076BA", etc..
+
+(GT(exibble, rowname_col="row", groupname_col="group")
+    .tab_header("THE HEADING", "(a subtitle)")
+    .tab_stubhead("THE STUBHEAD")
+    .tab_source_note("THE SOURCE NOTE")
+    .tab_options(
+        # table ----
+        table_border_top_color="#004D80",
+        table_border_bottom_color="#004D80",
+
+        # heading ----
+        heading_border_bottom_color="#0076BA",
+
+        # column labels ----
+        column_labels_border_top_color="#0076BA",
+        column_labels_border_bottom_color="#0076BA",
+        column_labels_background_color="#FFFFFF",
+
+        # row group ----
+        row_group_border_top_color="#0076BA",
+        row_group_border_bottom_color="#0076BA",
+
+        # stub ----
+        stub_background_color="#0076BA",
+        stub_border_style="solid",
+        stub_border_color="#0076BA",
+
+        # table body ----
+        table_body_border_top_color="#0076BA",
+        table_body_border_bottom_color="#0076BA",
+        table_body_hlines_style="none",
+        table_body_vlines_style="none",
+
+        # misc ----
+        #row_striping_background_color="#F4F4F4"
+    )
+
+)
+```
+
+## Composite options
+
+Find which options are handled in a special way (e.g. `row_group_as_column = True`)
