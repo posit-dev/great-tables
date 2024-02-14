@@ -170,7 +170,7 @@ class GT(
     from great_tables import GT, exibble
 
     (
-        GT(gt.exibble, rowname_col="row", locale="fr")
+        GT(exibble, rowname_col="row", locale="fr")
         .fmt_currency(columns="currency")
         .fmt_scientific(columns="num")
         .fmt_date(columns="date", date_style="day_month_year")
