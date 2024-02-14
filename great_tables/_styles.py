@@ -45,7 +45,7 @@ class FromColumn:
     import polars as pl
     from great_tables import GT, exibble, from_column, loc, style
 
-    df_polars = GT(pl.from_pandas(df))
+    df_polars = pl.from_pandas(df)
 
     (
         GT(df_polars)
