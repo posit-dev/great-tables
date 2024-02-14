@@ -1073,11 +1073,15 @@ def fmt_currency(
     format the `currency` column to display monetary values.
 
     ```{python}
-    from great_tables import GT
+    from great_tables import GT, exibble
 
     (
         GT(exibble)
-        .fmt_currency(columns="currency", decimals=3, use_seps=False)
+        .fmt_currency(
+            columns="currency",
+            decimals=3,
+            use_seps=False
+        )
     )
     ```
 
