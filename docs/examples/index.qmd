@@ -187,7 +187,7 @@ sza_pivot = (
 
 :::{.g-col-lg-6 .g-col-12}
 
-<a href="https://github.com/posit-dev/great-tables/blob/docs-examples-sports/docs/examples/sports-earnings/index.ipynb" target="_blank">View notebook ⬀</a>
+<a href="https://github.com/posit-dev/great-tables/blob/main/docs/examples/sports-earnings/index.ipynb" target="_blank">View notebook ⬀</a>
 
 
 
