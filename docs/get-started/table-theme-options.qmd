@@ -1,0 +1,20 @@
+---
+title: Table theme options
+jupyter: python3
+---
+
+```{python}
+from great_tables import GT, exibble
+
+(GT(exibble)
+    .tab_header("The title", "A subtitle")
+    .tab_options(
+        heading_background_color = "lightgreen",
+        stub_background_color="purple",
+        row_group_background_color="blue",
+        table_background_color="orange",
+        source_notes_background_color="yellow",
+        column_labels_background_color="red"
+    )
+)
+```

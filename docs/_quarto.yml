@@ -35,6 +35,7 @@ website:
             - get-started/basic-formatting.qmd
             - get-started/basic-styling.qmd
             - get-started/colorizing-with-data.qmd
+            - get-started/table-theme-options.qmd
         - section: Extra Topics
           contents:
             - get-started/column-selection.qmd
