@@ -77,10 +77,10 @@ class GT(
     take advantage of numerous methods to get the desired display table for publication.
 
     There are a few table structuring options we can consider at this stage. We can choose to create
-    a table stub containing row labels through the use of the `rowname_col` argument. Further to
-    this, row groups can be created with the `groupname_col` argument. Both arguments take the name
-    of a column in the input table data. Typically, the data in the `groupname_col` column will
-    consist of categorical text whereas the data in the `rowname_col` column will often contain
+    a table stub containing row labels through the use of the `rowname_col=` argument. Further to
+    this, row groups can be created with the `groupname_col=` argument. Both arguments take the name
+    of a column in the input table data. Typically, the data in the `groupname_col=` column will
+    consist of categorical text whereas the data in the `rowname_col=` column will often contain
     unique labels (perhaps being unique across the entire table or unique only within the different
     row groups).
 
@@ -89,14 +89,14 @@ class GT(
     data : Any
         A DataFrame object.
     rowname_col : str | None
-        The column name in the input `data` table to use as row labels to be placed in the table
+        The column name in the input `data=` table to use as row labels to be placed in the table
         stub.
     groupname_col : str | None
-        The column name in the input `data` table to use as group labels for generation of row
+        The column name in the input `data=` table to use as group labels for generation of row
         groups.
     auto_align : bool
         Optionally have column data be aligned depending on the content contained in each column of
-        the input `data`.
+        the input `data=`.
     locale : str
         An optional locale identifier that can be set as the default locale for all functions that
         take a `locale` argument. Examples include `"en"` for English (United States) and `"fr"`
@@ -114,29 +114,33 @@ class GT(
     dataset as the input.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT, exibble
 
-    gt.GT(gt.exibble)
+    GT(exibble)
     ```
 
     This dataset has the `row` and `group` columns. The former contains unique values that are ideal
     for labeling rows, and this often happens in what is called the 'stub' (a reserved area that
     serves to label rows). With the `GT()` class, we can immediately place the contents of the `row`
-    column into the stub column. To do this, we use the `rowname_col` argument with the appropriate
+    column into the stub column. To do this, we use the `rowname_col=` argument with the appropriate
     column name.
 
     ```{python}
-    gt.GT(gt.exibble, rowname_col=\"row\")
+    from great_tables import GT, exibble
+
+    GT(exibble, rowname_col="row")
     ```
 
     This sets up a table with a stub, the row labels are placed within the stub column, and a
     vertical dividing line has been placed on the right-hand side.
 
     The `group` column contains categorical values that are ideal for grouping rows. We can use the
-    `groupname_col` argument to place these values into row groups.
+    `groupname_col=` argument to place these values into row groups.
 
     ```{python}
-    gt.GT(gt.exibble, rowname_col=\"row\", groupname_col=\"group\")
+    from great_tables import GT, exibble
+
+    GT(exibble, rowname_col="row", groupname_col="group")
     ```
 
     By default, values in the body of a table (and their column labels) are automatically aligned.
@@ -144,28 +148,32 @@ class GT(
     of auto-alignment, the `auto_align=False` option can be taken.
 
     ```{python}
-    gt.GT(gt.exibble, rowname_col=\"row\", auto_align=False)
+    from great_tables import GT, exibble
+
+    GT(exibble, rowname_col="row", auto_align=False)
     ```
 
     What you'll get from that is center-alignment of all table body values and all column labels.
-    Note that row labels in the the stub are still left-aligned; and `auto_align` has no effect on
+    Note that row labels in the the stub are still left-aligned; and `auto_align=` has no effect on
     alignment within the table stub.
 
     However which way you generate the initial table object, you can modify it with a huge variety
     of methods to further customize the presentation. Formatting body cells is commonly done with
     the family of formatting methods (e.g., `fmt_number()`, `fmt_date()`, etc.). The package
     supports formatting with internationalization ('i18n' features) and so locale-aware methods
-    all come with a `locale` argument. To avoid having to use that argument repeatedly, the `GT()`
-    class has its own `locale` argument. Setting a locale in that will make it available globally.
+    all come with a `locale=` argument. To avoid having to use that argument repeatedly, the `GT()`
+    class has its own `locale=` argument. Setting a locale in that will make it available globally.
     Here's an example of how that works in practice when setting `locale = "fr"` in `GT()` prior to
     using formatting methods:
 
     ```{python}
+    from great_tables import GT, exibble
+
     (
-        gt.GT(gt.exibble, rowname_col=\"row\", locale=\"fr\")
-          .fmt_currency(columns=\"currency\")
-          .fmt_scientific(columns=\"num\")
-          .fmt_date(columns=\"date\", date_style=\"day_month_year\")
+        GT(exibble, rowname_col="row", locale="fr")
+        .fmt_currency(columns="currency")
+        .fmt_scientific(columns="num")
+        .fmt_date(columns="date", date_style="day_month_year")
     )
     ```
 

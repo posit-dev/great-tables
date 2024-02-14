@@ -30,10 +30,12 @@ class FromColumn:
 
     df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
 
-    gt = GT(df)
-    gt.tab_style(
-        style = style.text(color = from_column("color")),
-        locations = loc.body(columns = ["x"])
+    (
+        GT(df)
+        .tab_style(
+            style=style.text(color=from_column("color")),
+            locations=loc.body(columns=["x"])
+        )
     )
     ```
 
@@ -41,11 +43,16 @@ class FromColumn:
 
     ```{python}
     import polars as pl
+    from great_tables import GT, exibble, from_column, loc, style
 
-    gt_polars = GT(pl.from_pandas(df))
-    gt_polars.tab_style(
-        style = style.text(color = pl.col("color")),    # <-- polars expression
-        locations = loc.body(columns = ["x"])
+    df_polars = pl.from_pandas(df)
+
+    (
+        GT(df_polars)
+        .tab_style(
+            style=style.text(color=pl.col("color")),
+            locations=loc.body(columns=["x"])
+        )
     )
     ```
     """

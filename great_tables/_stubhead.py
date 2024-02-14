@@ -38,18 +38,28 @@ def tab_stubhead(self: GTSelf, label: Union[str, Text]) -> GTSelf:
     describe what's in the stub.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT
+    from great_tables.data import gtcars
 
-    gtcars_mini = gt.data.gtcars[[\"model\", \"year\", \"hp\", \"trq\"]].head(5)
+    gtcars_mini = gtcars[["model", "year", "hp", "trq"]].head(5)
 
-    gt.GT(gtcars_mini, rowname_col=\"model\").tab_stubhead(label=\"car\")
+    (
+        GT(gtcars_mini, rowname_col="model")
+        .tab_stubhead(label="car")
+    )
     ```
 
     We can also use Markdown formatting for the stubhead label. In this example, we'll use
     `md("*Car*")` to make the label italicized.
 
     ```{python}
-    gt.GT(gtcars_mini, rowname_col="model").tab_stubhead(label=gt.md("*Car*"))
+    from great_tables import GT, md
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars_mini, rowname_col="model")
+        .tab_stubhead(label=md("*Car*"))
+    )
     ```
     """
 

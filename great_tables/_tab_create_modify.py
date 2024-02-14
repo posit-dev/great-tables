@@ -49,14 +49,12 @@ def tab_style(
     larger font size to the cells in the `fctr` column for the last four rows of the table.
 
     ```{python}
-    import great_tables as gt
-    from great_tables import style, loc
-    from great_tables import exibble
+    from great_tables import GT, style, loc, exibble
 
     exibble_sm = exibble[["num", "fctr", "row", "group"]]
 
     (
-        gt.GT(exibble_sm, rowname_col="row", groupname_col="group")
+        GT(exibble_sm, rowname_col="row", groupname_col="group")
         .tab_style(
             style=style.fill(color="lightcyan"),
             locations=loc.body(columns="num", rows=["row_1", "row_2"]),
@@ -76,10 +74,12 @@ def tab_style(
     the use of `loc.body()`, which is used here with different columns being targeted.
 
     ```{python}
+    from great_tables import GT, style, loc, exibble
+
     (
-        gt.GT(exibble[["num", "currency"]])
-        .fmt_number(columns = "num", decimals=1)
-        .fmt_currency(columns = "currency")
+        GT(exibble[["num", "currency"]])
+        .fmt_number(columns="num", decimals=1)
+        .fmt_currency(columns="currency")
         .tab_style(
             style=[
                 style.fill(color="lightcyan"),
@@ -89,8 +89,8 @@ def tab_style(
         )
         .tab_style(
             style=[
-                style.fill(color = "#F9E3D6"),
-                style.text(style = "italic")
+                style.fill(color="#F9E3D6"),
+                style.text(style="italic")
             ],
             locations=loc.body(columns="currency")
         )

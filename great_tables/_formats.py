@@ -229,9 +229,12 @@ def fmt_number(
     separators (with `use_seps=False`).
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT, exibble
 
-    gt.GT(gt.data.exibble).fmt_number(columns=\"num\", decimals=3, use_seps=False)
+    (
+        GT(exibble)
+        .fmt_number(columns="num", decimals=3, use_seps=False)
+    )
     ```
 
     See Also
@@ -403,9 +406,12 @@ def fmt_integer(
     `use_seps=False` option).
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT, exibble
 
-    gt.GT(gt.data.exibble).fmt_integer(columns=\"num\", use_seps=False)
+    (
+        GT(exibble)
+        .fmt_integer(columns="num", use_seps=False)
+    )
     ```
 
     See Also
@@ -604,9 +610,12 @@ def fmt_scientific(
     formatting.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT, exibble
 
-    gt.GT(gt.data.exibble).fmt_scientific(columns=\"num\")
+    (
+        GT(exibble)
+        .fmt_scientific(columns="num")
+    )
     ```
 
     See Also
@@ -1064,9 +1073,16 @@ def fmt_currency(
     format the `currency` column to display monetary values.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT, exibble
 
-    gt.GT(gt.data.exibble).fmt_currency(columns=\"currency\", decimals=3, use_seps=False)
+    (
+        GT(exibble)
+        .fmt_currency(
+            columns="currency",
+            decimals=3,
+            use_seps=False
+        )
+    )
     ```
 
     See Also
@@ -1220,11 +1236,14 @@ def fmt_roman(
 
     ```{python}
     import pandas as pd
-    import great_tables as gt
+    from great_tables import GT
 
-    numbers_tbl = pd.DataFrame({\"arabic\": [1, 8, 24, 85], \"roman\": [1, 8, 24, 85]})
+    numbers_tbl = pd.DataFrame({"arabic": [1, 8, 24, 85], "roman": [1, 8, 24, 85]})
 
-    gt.GT(numbers_tbl, rowname_col=\"arabic\").fmt_roman(columns=\"roman\")
+    (
+        GT(numbers_tbl, rowname_col="arabic")
+        .fmt_roman(columns="roman")
+    )
     ```
 
     See Also
@@ -1399,9 +1418,12 @@ def fmt_bytes(
     method.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT, exibble
 
-    gt.GT(gt.data.exibble[[\"num\"]]).fmt_bytes(columns=\"num\", standard=\"decimal\")
+    (
+        GT(exibble[["num"]])
+        .fmt_bytes(columns="num", standard="decimal")
+    )
     ```
 
     See Also
@@ -1603,11 +1625,14 @@ def fmt_date(
     dates formatted with the `"month_day_year"` date style.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT, exibble
 
-    exibble_mini = gt.data.exibble[[\"date\", \"time\"]]
+    exibble_mini = exibble[["date", "time"]]
 
-    gt.GT(exibble_mini).fmt_date(columns=\"date\", date_style=\"month_day_year\")
+    (
+        GT(exibble_mini)
+        .fmt_date(columns="date", date_style="month_day_year")
+    )
     ```
 
     See Also
@@ -1736,11 +1761,14 @@ def fmt_time(
     times formatted with the `"h_m_s_p"` time style.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT, exibble
 
-    exibble_mini = gt.data.exibble[[\"date\", \"time\"]]
+    exibble_mini = exibble[["date", "time"]]
 
-    gt.GT(exibble_mini).fmt_time(columns=\"time\", time_style=\"h_m_s_p\")
+    (
+        GT(exibble_mini)
+        .fmt_time(columns="time", time_style="h_m_s_p")
+    )
     ```
 
     See Also
@@ -1890,16 +1918,16 @@ def fmt_datetime(
     formatted with the `"h_m_s_p"` time style.
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT, exibble
 
-    exibble_mini = gt.data.exibble[[\"date\", \"time\"]]
+    exibble_mini = exibble[["date", "time"]]
 
     (
-        gt.GT(exibble_mini)
+        GT(exibble_mini)
         .fmt_datetime(
-            columns=\"date\",
-            date_style=\"month_day_year\",
-            time_style=\"h_m_s_p\"
+            columns="date",
+            date_style="month_day_year",
+            time_style="h_m_s_p"
         )
     )
     ```
@@ -3305,8 +3333,19 @@ def fmt_image(
     from great_tables.data import metro
     from importlib_resources import files
 
-    img_paths = files("great_tables")  / "data/metro_images"
-    GT(metro).fmt_image("lines", path = img_paths, file_pattern="metro_{}.svg")
+    img_paths = files("great_tables") / "data/metro_images"
+
+    metro_mini = metro[["name", "lines", "passengers"]].head(5)
+
+    (
+        GT(metro_mini)
+        .fmt_image(
+            columns="lines",
+            path=img_paths,
+            file_pattern="metro_{}.svg"
+        )
+        .fmt_integer(columns="passengers")
+    )
     ```
     """
 
