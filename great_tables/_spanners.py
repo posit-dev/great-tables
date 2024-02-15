@@ -158,7 +158,7 @@ def tab_spanner(
     else:
         spanner_ids = []
 
-    if not len(selected_column_names) and not len(spanner_ids):
+    if len(selected_column_names) == 0 and len(spanner_ids) == 0:
         return data
 
     # get column names associated with selected spanners ----
@@ -191,7 +191,7 @@ def tab_spanner(
 
     new_data = data._replace(_spanners=spanners)
 
-    if gather and not len(spanner_ids) and level == 0:
+    if gather and len(spanner_ids) == 0 and level == 0:
         return cols_move(new_data, columns=column_names, after=column_names[0])
 
     return new_data
@@ -261,14 +261,14 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
 
     vars = [col.var for col in data._boxhead]
 
-    if not len(sel_after):
+    if len(sel_after) == 0:
         raise ValueError(f"Column {after} not found in table.")
     elif len(sel_after) > 1:
         raise ValueError(
             f"Only 1 value should be supplied to `after`, recieved argument: {sel_after}"
         )
 
-    if not len(sel_cols):
+    if len(sel_cols) == 0:
         raise Exception("No columns selected.")
     elif not all([col in vars for col in sel_cols]):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
@@ -343,7 +343,7 @@ def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     vars = [col.var for col in data._boxhead]
 
-    if not len(sel_cols):
+    if len(sel_cols) == 0:
         raise Exception("No columns selected.")
     elif not all([col in vars for col in sel_cols]):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
@@ -411,7 +411,7 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     vars = [col.var for col in data._boxhead]
 
-    if not len(sel_cols):
+    if len(sel_cols) == 0:
         raise Exception("No columns selected.")
     elif not all([col in vars for col in sel_cols]):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
@@ -465,7 +465,7 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     vars = [col.var for col in data._boxhead]
 
-    if not len(sel_cols):
+    if len(sel_cols) == 0:
         raise Exception("No columns selected.")
     elif not all([col in vars for col in columns]):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
