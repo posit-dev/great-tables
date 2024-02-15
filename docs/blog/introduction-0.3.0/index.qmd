@@ -1,0 +1,25 @@
+---
+title: "Great Tables `v0.3.0`: Easy Data Coloring"
+html-table-processing: none
+author: Rich Iannone
+date: 2024-02-16
+freeze: true
+jupyter: python3
+---
+
+As our work on **Great Tables** continues, we want you to be able to produce increasingly sophisticated tables. The look of an HTML table really matters and we believe aesthetics can elevate the presentation of tabular data. In the `v0.3.0` release, we've implemented features that are concerned with modifying the visual aspects of a table. Let's get down to what's new in this version.
+
+### Modifying the widths of columns
+
+Before `v0.3.0`, you could not alter the widths of individual columns. This meant that to great extent your content decided the width of individual columns. Even though browsers do an adequate job in sizing the widths of table columns, it doesn't always result in a pleasing-to-look-at table. What if you want more space? Maybe you want consistently-sized columns? There's many reasons to want to have a choice in the matter and the new `cols_width()` method now makes this possible. Here's an example of a table where the column widths are defined with that method.
+
+```{python}
+
+```
+
+
+### Setting options across the entire table
+
+
+### Using the `opt_*()` methods to do more complex tasks with table options
+
