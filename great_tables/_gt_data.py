@@ -728,7 +728,7 @@ class Spanners(_Sequence[SpannerInfo]):
         Spanners whose columns do not overlap are put on the same level.
         """
 
-        if not len(self):
+        if len(self) == 0:
             return 0
 
         overlapping_levels = [
