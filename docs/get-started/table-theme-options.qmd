@@ -150,9 +150,10 @@ gt_ex.tab_options(
 
 Based on the sections above, we can design an overall theme for a table.
 
-This requires setting a decent number of options. The code below uses `.tab_options()` to create a blue theme, in order to help you get started with theming.
+This requires setting a decent number of options, but makes a big difference when presenting a table! Below is a table with a simple, blue theme. (The code is hidden by default, but can be expanded to see all the options set).
 
 ```{python}
+#| code-fold: true
 from great_tables import GT, exibble
 
 # TODO: are there names we can give the three colors?
