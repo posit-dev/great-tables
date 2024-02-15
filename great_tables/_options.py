@@ -1003,8 +1003,7 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     ```{python}
     from great_tables import GT, exibble, md
 
-    gt_tbl =
-        (
+    gt_tbl = (
           GT(
             exibble[["num", "char", "currency", "row", "group"]],
             rowname_col="row",
