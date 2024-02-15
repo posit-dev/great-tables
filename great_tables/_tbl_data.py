@@ -516,7 +516,7 @@ def _(df: PdDataFrame) -> PdDataFrame:
 
     # case 2: duplicate column names ----
     dupes = df.columns[df.columns.duplicated()]
-    if len(dupes):
+    if dupes:
         raise ValueError(
             f"Column names must be unique. Detected duplicate columns:\n\n {list(dupes)}"
         )
