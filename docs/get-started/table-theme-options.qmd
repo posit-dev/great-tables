@@ -50,7 +50,7 @@ The code below illustrates the table parts `.tab_options()` can target, by setti
 
 Notice two important pieces:
 
-* The argument `heading_background_color="gold"` set the heading part's background to gold.
+* The argument `heading_background_color="gold"` sets the heading part's background to gold.
 * Parts like `container` and `table` are the broadest. They cover all the other parts of the table.
 
 
@@ -89,7 +89,6 @@ gt_ex.tab_options(
 )
 ```
 
-Notice that this
 
 ## Styling background color
 
