@@ -47,7 +47,7 @@ In the previous example, the width settings govern the preferred sizes of the co
 )
 ```
 
-### Setting options across the entire table
+### Setting options across the entire table with `tab_options()`
 
 The new `tab_options()` method gives you the freedom to specify any of dozens of global style and layout options for the table. Want a font that's used across all cells? Use the `table_font_names` option. Do you need to make the text smaller, but only in the stub? Use `stub_font_size` for that. The number of options is perhaps overwhelming at first but we think you'll enjoy having them around nonetheless. It makes styling the table (and developing your own table themes) a relatively simple task.
 
@@ -88,8 +88,7 @@ One more (there are potentially 1000s of examples) where the background color of
 gt_tbl.tab_options(table_background_color="lightcyan")
 ```
 
-
-### Using the `opt_*()` methods to do more complex tasks with table options
+### Using the new `opt_*()` methods to do more complex tasks with table options
 
 While `tab_options()` is a great method for setting global table options, sometimes you want to set a number of them at once for a combined effect. For that type of operation, we have the `opt_*()` series of methods. A common thing you might do is align the content in the table header, we can make that an easy thing with `opt_align_table_header()`:
 
@@ -113,6 +112,6 @@ Here's one last example, this time using `opt_vertical_padding()`. You'd use tha
 gt_tbl.opt_vertical_padding(scale=0.5)
 ```
 
-### Wrapping Up
+### Wrapping up
 
 This `v0.3.0` release has some great new methods that add value to most any table-making endeavor. We also fixed a few bugs along the way so that you'll have a painless experience when building beautiful tables. As ever, we'll work toward more and more improvements to give you more creative possibilities!
