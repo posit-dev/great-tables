@@ -14,12 +14,12 @@ def get_row_reorder_df(groups: RowGroups, stub_df: Stub) -> list[TupleStartFinal
     n_stub_entries = len([entry for entry in stub_df if entry.group_id is not None])
 
     # Raise a ValueError if there are row group entries but no RowGroups
-    if n_stub_entries and not len(groups):
+    if n_stub_entries and len(groups) == 0:
         raise ValueError(f"Detected {n_stub_entries} but only {len(groups)} row groups.")
 
     # If there aren't any row groups then return a list of tuples that don't lead
     # to any resorting later on (e.g., `[(0, 0), (1, 1), (2, 2) ... (n, n)]`)
-    if not len(groups):
+    if len(groups) == 0:
         indices = range(len(stub_df))
 
         # TODO: is this used in indexing? If so, we may need to use
