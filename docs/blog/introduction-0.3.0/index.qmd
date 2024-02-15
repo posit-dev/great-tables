@@ -140,8 +140,6 @@ metro_mini = metro[["name", "lines", "passengers"]].head(5)
 
 The package has some graphics stored in the `data/metro_images` directory. They are SVGs are they look *very* nice in this table!
 
-{{< embed sports-earnings/index.ipynb#table-output >}}
-
 ### Wrapping up
 
 This `v0.3.0` release has some great new methods that add value to most any table-making endeavor. We also fixed a few bugs along the way so that you'll have a painless experience when building beautiful tables. As ever, we'll work toward more and more improvements to give you more creative possibilities!
