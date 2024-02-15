@@ -112,6 +112,36 @@ Here's one last example, this time using `opt_vertical_padding()`. You'd use tha
 gt_tbl.opt_vertical_padding(scale=0.5)
 ```
 
+### A new formatting method: `fmt_image()`
+
+Wouldn't it be great to add graphics to your table? I mean, you can already do that with `fmt_markdown()` by creating a link to an image resource, but `fmt_image()` provides an easier way to add image files on disk into table body cells. This method allows for one or more images to be placed in the targeted cells. The cells need to contain some reference to an image file, either: (1) complete http/https or local paths to the files; (2) the file names, where a common path can be provided via the `path=` arg; or (3) a fragment of the file name, where the `file_pattern=` arg helps to compose the entire file name and `path=` provides the path information.
+
+Here's an example using the `metro` dataset that's included within **Great Tables**.
+
+```{python}
+from great_tables.data import metro
+from importlib_resources import files
+
+img_paths = files("great_tables") / "data/metro_images"
+metro_mini = metro[["name", "lines", "passengers"]].head(5)
+
+(
+    GT(metro_mini)
+    .fmt_image(columns="lines", path=img_paths, file_pattern="metro_{}.svg")
+    .fmt_integer(columns="passengers")
+    .cols_label(
+        name="Station",
+        lines="Metro Lines",
+        passengers="Passengers per Year (2021)"
+    )
+    .tab_options(table_width="700px")
+)
+```
+
+The package has some graphics stored in the `data/metro_images` directory. They are SVGs are they look *very* nice in this table!
+
+{{< embed sports-earnings/index.ipynb#table-output >}}
+
 ### Wrapping up
 
 This `v0.3.0` release has some great new methods that add value to most any table-making endeavor. We also fixed a few bugs along the way so that you'll have a painless experience when building beautiful tables. As ever, we'll work toward more and more improvements to give you more creative possibilities!
