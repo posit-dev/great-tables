@@ -499,7 +499,7 @@ def spanners_print_matrix(
     _vars = [set(span.vars) & set(vars) for span in spanners]
     _lvls = sorted({span.spanner_level for span in spanners})
 
-    non_empty_spans = [span for crnt_vars, span in zip(_vars, spanners) if crnt_vars]
+    non_empty_spans = [span for crnt_vars, span in zip(_vars, spanners) if len(crnt_vars)]
     new_levels = [_lvls.index(span.spanner_level) for span in non_empty_spans]
 
     crnt_spans = Spanners(non_empty_spans).relevel(new_levels)

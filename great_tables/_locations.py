@@ -214,7 +214,7 @@ def resolve_cols_i(
 
         # TODO: special handling of "stub()"
         if isinstance(expr, list) and "stub()" in expr:
-            if stub_var:
+            if len(stub_var):
                 return [(stub_var[0], 1)]
 
             return []
@@ -248,7 +248,7 @@ def resolve_cols_i(
             # always excluded but in certain cases (i.e., `rows_add()`)
             # we may want to include this column
             _group_vars = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
-            group_var = _group_vars[0] if _group_vars else None
+            group_var = _group_vars[0] if len(_group_vars) else None
         else:
             group_var = None
 
