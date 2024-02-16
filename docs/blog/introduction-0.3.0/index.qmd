@@ -11,7 +11,7 @@ As our work on **Great Tables** continues, we want you to be able to produce inc
 
 ### Modifying the widths of columns
 
-Before `v0.3.0`, you could not alter the widths of individual columns. This meant that to great extent your content decided the width of individual columns. Even though browsers do an adequate job in sizing the widths of table columns, it doesn't always result in a pleasing-to-look-at table. What if you want more space? Maybe you want consistently-sized columns? There's many reasons to want to have a choice in the matter and the new [cols_width()](`great_tables.GT.cols_width`) method now makes this possible.
+Before `v0.3.0`, you could not alter the widths of individual columns. This meant that to great extent your content decided the width of individual columns. Even though browsers do an adequate job in sizing the widths of table columns, it doesn't always result in a pleasing-to-look-at table. What if you want more space? Maybe you want consistently-sized columns? There's many reasons to want to have a choice in the matter and the new [`cols_width()`](`great_tables.GT.cols_width`) method now makes this possible.
 
 Here's an example where the widths of all columns are set with our preferred length values (in `px`).
 
@@ -33,13 +33,13 @@ exibble_mini = exibble[["num", "char", "date", "datetime", "row"]].head(5)
 )
 ```
 
-You don't have to define widths for all columns with [cols_width()](`great_tables.GT.cols_width`), and you're free to use either `px` or `%` values when defined widths. See the [reference page](`great_tables.GT.cols_width`) for more information and relevant examples.
+You don't have to define widths for all columns with [`cols_width()`](`great_tables.GT.cols_width`), and you're free to use either `px` or `%` values when defined widths. See the [reference page](`great_tables.GT.cols_width`) for more information and relevant examples.
 
 ### Setting options across the entire table with `tab_options()`
 
-The new [tab_options()](`great_tables.GT.tab_options`) method gives you the freedom to specify any of dozens of global style and layout options for the table. Want a font that's used across all cells? Use the `table_font_names=` option. Do you need to make the text smaller, but only in the stub? Use `stub_font_size=` for that. The number of options is perhaps overwhelming at first but we think you'll enjoy having them around nonetheless. It makes styling the table (and developing your own table themes) a relatively simple task.
+The new [`tab_options()`](`great_tables.GT.tab_options`) method gives you the freedom to specify any of dozens of global style and layout options for the table. Want a font that's used across all cells? Use the `table_font_names=` option. Do you need to make the text smaller, but only in the stub? Use `stub_font_size=` for that. The number of options is perhaps overwhelming at first but we think you'll enjoy having them around nonetheless. It makes styling the table (and developing your own table themes) a relatively simple task.
 
-Here's an example that creates a table with a few common components and then uses [tab_options()](`great_tables.GT.tab_options`) to set up a collection of fonts for the table with the (also new) `system_fonts()` function:
+Here's an example that creates a table with a few common components and then uses [`tab_options()`](`great_tables.GT.tab_options`) to set up a collection of fonts for the table with the (also new) `system_fonts()` function:
 
 ```{python}
 from great_tables import md, system_fonts
@@ -76,27 +76,27 @@ One more where the background color of the table is set to `"lightcyan"`:
 gt_tbl.tab_options(table_background_color="lightcyan")
 ```
 
-There are many more options available in [tab_options()](`great_tables.GT.tab_options`), so have a look at its [reference page](`great_tables.GT.tab_options`) for more information and useful examples.
+There are many more options available in [`tab_options()`](`great_tables.GT.tab_options`), so have a look at its [reference page](`great_tables.GT.tab_options`) for more information and useful examples.
 
 ### Using the new `opt_*()` methods to do more complex tasks with table options
 
-While [tab_options()](`great_tables.GT.tab_options`) is a great method for setting global table options, sometimes you want to set a number of them at once for a combined effect. For that type of operation, we have the `opt_*()` series of methods. A common thing you might do is align the content in the table header, we can make that an easy thing with [opt_align_table_header()](`great_tables.GT.opt_align_table_header`)`:
+While [`tab_options()`](`great_tables.GT.tab_options`) is a great method for setting global table options, sometimes you want to set a number of them at once for a combined effect. For that type of operation, we have the `opt_*()` series of methods. A common thing you might do is align the content in the table header, we can make that an easy thing with [`opt_align_table_header()`](`great_tables.GT.opt_align_table_header`)`:
 
 ```{python}
 gt_tbl.opt_align_table_header(align="left")
 ```
 
-With that, you don't have to hunt through the myriad options within [tab_options()](`great_tables.GT.tab_options`) to find the two args you need to get the job done.
+With that, you don't have to hunt through the myriad options within [`tab_options()`](`great_tables.GT.tab_options`) to find the two args you need to get the job done.
 
-The [opt_all_caps()](`great_tables.GT.opt_all_caps`) method transforms the text within the column labels, the stub, and in all row groups so that we get an all-capitalized (yet somewhat sized down) look that better differentiates the labels from the data. It's rather easy to use, just do this:
+The [`opt_all_caps()`](`great_tables.GT.opt_all_caps`) method transforms the text within the column labels, the stub, and in all row groups so that we get an all-capitalized (yet somewhat sized down) look that better differentiates the labels from the data. It's rather easy to use, just do this:
 
 ```{python}
 gt_tbl.opt_all_caps()
 ```
 
-This sets nine options you'd otherwise set in [tab_options()](`great_tables.GT.tab_options`) all at once, making life generally easier.
+This sets nine options you'd otherwise set in [`tab_options()`](`great_tables.GT.tab_options`) all at once, making life generally easier.
 
-Here's one last example, this time using [opt_vertical_padding()](`great_tables.GT.opt_vertical_padding`). You'd use that if you're dissatisfied with the level of top/bottom padding within cells of all locations (e.g., in the table body, in the column labels, etc.). You can either make a table taller or more 'compressed' with a single argument: `scale=`. Here's an example where the amount of vertical padding is reduced, resulting in a table taking up less vertical space.
+Here's one last example, this time using [`opt_vertical_padding()`](`great_tables.GT.opt_vertical_padding`). You'd use that if you're dissatisfied with the level of top/bottom padding within cells of all locations (e.g., in the table body, in the column labels, etc.). You can either make a table taller or more 'compressed' with a single argument: `scale=`. Here's an example where the amount of vertical padding is reduced, resulting in a table taking up less vertical space.
 
 ```{python}
 gt_tbl.opt_vertical_padding(scale=0.5)
@@ -104,16 +104,16 @@ gt_tbl.opt_vertical_padding(scale=0.5)
 
 We have the following methods available in the `opt_*()` family:
 
-- [opt_align_table_header()](`great_tables.GT.opt_align_table_header`)
-- [opt_all_caps()](`great_tables.GT.opt_all_caps`)
-- [opt_vertical_padding()](`great_tables.GT.opt_vertical_padding`)
-- [opt_horizontal_padding()](`great_tables.GT.opt_horizontal_padding`)
+- [`opt_align_table_header()`](`great_tables.GT.opt_align_table_header`)
+- [`opt_all_caps()`](`great_tables.GT.opt_all_caps`)
+- [`opt_vertical_padding()`](`great_tables.GT.opt_vertical_padding`)
+- [`opt_horizontal_padding()`](`great_tables.GT.opt_horizontal_padding`)
 
 We plan to add more `opt_*()` methods in future releases.
 
 ### A new formatting method: `fmt_image()`
 
-Wouldn't it be great to add graphics to your table? The [fmt_image()](`great_tables.GT.fmt_image`) method provides an easy way to add image files on disk into table body cells. The cells need to contain some reference to an image file. The `path=` and `file_pattern=` arguments give you some flexibility in defining exactly where the image files live.
+Wouldn't it be great to add graphics to your table? The [`fmt_image()`](`great_tables.GT.fmt_image`) method provides an easy way to add image files on disk into table body cells. The cells need to contain some reference to an image file. The `path=` and `file_pattern=` arguments give you some flexibility in defining exactly where the image files live.
 
 Here's an example using the `metro` dataset that's included within **Great Tables**.
 
@@ -139,10 +139,11 @@ metro_mini = metro[["name", "lines", "passengers"]].head(5)
 
 Notice that `path=img_paths` specified the folder the images live in, and `file_pattern="metro_{}.svg"` provided a template for converting each value in the lines column to an SVG file name.
 
-The [fmt_image()](`great_tables.GT.fmt_image`) method supports 3 kinds of files as inputs, either: (1) complete http/https or local paths to the files; (2) the file names, where a common path can be provided via the `path=` arg; or (3) a fragment of the file name, as shown in the example above.
+The [`fmt_image()`](`great_tables.GT.fmt_image`) method supports 3 kinds of files as inputs, either: (1) complete http/https or local paths to the files; (2) the file names, where a common path can be provided via the `path=` arg; or (3) a fragment of the file name, as shown in the example above.
 
 The package has some graphics stored in the `data/metro_images` directory. They are SVGs and they look *very* nice in this table!
-See the [fmt_image()](`great_tables.GT.fmt_image`) reference page for more information.
+
+See the [`fmt_image()`](`great_tables.GT.fmt_image`) reference page for more information.
 
 ### Wrapping up
 
