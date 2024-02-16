@@ -143,8 +143,8 @@ The [`fmt_image()`](`great_tables.GT.fmt_image`) method supports three kinds of 
 
 The package has some graphics stored in the `data/metro_images` directory. They are SVGs and they look *very* nice in the example table!
 
-See the [`fmt_image()`](`great_tables.GT.fmt_image`) reference page for more information.
+See the [`fmt_image()`](`great_tables.GT.fmt_image`) reference page for more information on this new method.
 
 ### Wrapping up
 
-This `v0.3.0` release has some great new methods that add value to most any table-making endeavor. We also fixed a few bugs along the way so that you'll have a painless experience when building beautiful tables. As ever, we'll work toward more and more improvements to give you more creative possibilities!
+This `v0.3.0` release has some great new methods that add value to most any table-making endeavor. We also fixed a few bugs along the way so that you'll have a overall smoother experience when building beautiful tables. As ever, we'll work toward more and more improvements to give you more creative possibilities!
