@@ -82,7 +82,7 @@ Here's another example where we set the width of the table to span across the en
 gt_tbl.tab_options(table_width="100%")
 ```
 
-One more (there are potentially 1000s of examples) where the background color of the table is set to `"lightcyan"`:
+One more where the background color of the table is set to `"lightcyan"`:
 
 ```{python}
 gt_tbl.tab_options(table_background_color="lightcyan")
