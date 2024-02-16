@@ -22,7 +22,13 @@ exibble_mini = exibble[["num", "char", "date", "datetime", "row"]].head(5)
 
 (
     GT(exibble_mini).cols_width(
-        cases={"num": "30px", "char": "100px", "date": "100px", "datetime": "200px", "row": "50px"}
+        cases={
+            "num": "30px",
+            "char": "100px",
+            "date": "100px",
+            "datetime": "200px",
+            "row": "50px"
+        }
     )
 )
 ```
