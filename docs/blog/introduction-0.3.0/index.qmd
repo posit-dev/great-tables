@@ -25,7 +25,7 @@ exibble_mini = exibble[["num", "char", "date", "datetime", "row"]].head(5)
         cases={
             "num": "30px",
             "char": "100px",
-            "date": "100px",
+            "date": "150px",
             "datetime": "200px",
             "row": "50px"
         }
