@@ -1,5 +1,5 @@
 ---
-title: "Great Tables `v0.3.0`: So Many More Options!"
+title: "Great Tables `v0.3.0`: So Many Style Options!"
 html-table-processing: none
 author: Rich Iannone
 date: 2024-02-16
