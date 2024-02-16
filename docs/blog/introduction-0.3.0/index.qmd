@@ -18,16 +18,11 @@ Here's an example where the widths of all columns are set with our preferred len
 ```{python}
 from great_tables import GT, exibble
 
+exibble_mini = exibble[["num", "char", "date", "datetime", "row"]].head(5)
+
 (
-    GT(exibble_mini)
-    .cols_width(
-        cases={
-            "num": "30px",
-            "char": "100px",
-            "date": "100px",
-            "datetime": "200px",
-            "row": "50px"
-        }
+    GT(exibble_mini).cols_width(
+        cases={"num": "30px", "char": "100px", "date": "100px", "datetime": "200px", "row": "50px"}
     )
 )
 ```
