@@ -139,6 +139,7 @@ metro_mini = metro[["name", "lines", "passengers"]].head(5)
 ```
 
 The package has some graphics stored in the `data/metro_images` directory. They are SVGs are they look *very* nice in this table!
+See the [fmt_image()](`great_tables.GT.fmt_image`) reference page for more information.
 
 ### Wrapping up
 
