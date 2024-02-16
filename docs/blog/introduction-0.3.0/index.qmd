@@ -46,6 +46,7 @@ In the previous example, the width settings govern the preferred sizes of the co
     )
 )
 ```
+See the [cols_width()](`great_tables.GT.cols_width`) API reference page for information.
 
 ### Setting options across the entire table with `tab_options()`
 
