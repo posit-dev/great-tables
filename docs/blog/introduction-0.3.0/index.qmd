@@ -72,7 +72,7 @@ gt_tbl = (
     .tab_source_note(source_note="This is only a subset of the dataset.")
 )
 
-gt_tbl.tab_options(table_font_names=system_fonts("industrial"))
+gt_tbl.tab_options(table_font_names=system_fonts(name="industrial"))
 ```
 
 Note that `table_font_names=` accepts a list of fonts that operate as fallbacks for users across different systems (i.e., they may not have the font you have). And the `system_fonts()` helper function in **Great Tables** makes this easy by providing you with themed, local font stacks that are meant to work across different computing platforms.
