@@ -5,6 +5,7 @@ from typing import List, Any, cast
 from htmltools import tags, HTML, css, TagList
 from itertools import groupby, chain
 from ._text import StringBuilder, _process_text, _process_text_id
+from .utils_render_common import get_row_reorder_df
 
 
 def create_heading_component_h(data: GTData) -> StringBuilder:
@@ -436,7 +437,9 @@ def create_body_component_h(data: GTData) -> str:
 
     body_rows: List[str] = []
 
-    for i in range(n_rows(tbl_data)):
+    # iterate over rows (ordered by groupings)
+    ordered_indx = [dst for _, dst in get_row_reorder_df(data._row_groups, data._stub)]
+    for i in ordered_indx:
         body_cells: List[str] = []
 
         if has_stub_column and has_groups and not has_two_col_stub:
