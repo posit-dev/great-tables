@@ -39,7 +39,7 @@ You don't have to define widths for all columns with [`cols_width()`](`great_tab
 
 The new [`tab_options()`](`great_tables.GT.tab_options`) method gives you the freedom to specify any of dozens of global style and layout options for the table. Want a font that's used across all cells? Use the `table_font_names=` option. Do you need to make the text smaller, but only in the stub? Use `stub_font_size=` for that. The number of options is perhaps overwhelming at first but we think you'll enjoy having them around nonetheless. It makes styling the table (and developing your own table themes) a relatively simple task.
 
-Here's an example that creates a table with a few common components and then uses [`tab_options()`](`great_tables.GT.tab_options`) to set up a collection of fonts for the table with the (also new) `system_fonts()` function:
+Here's an example that creates a table with a few common components and then uses [`tab_options()`](`great_tables.GT.tab_options`) to set up a collection of fonts for the table with the (also new) [`system_fonts()`](`great_tables.system_fonts`) function:
 
 ```{python}
 from great_tables import md, system_fonts
@@ -62,7 +62,7 @@ gt_tbl = (
 gt_tbl.tab_options(table_font_names=system_fonts(name="industrial"))
 ```
 
-Note that `table_font_names=` accepts a list of fonts that operate as fallbacks for users across different systems (i.e., they may not have the font you have). And the `system_fonts()` helper function in **Great Tables** makes this easy by providing you with themed, local font stacks that are meant to work across different computing platforms.
+Note that `table_font_names=` accepts a list of fonts that operate as fallbacks for users across different systems (i.e., they may not have the font you have). And the [`system_fonts()`](`great_tables.system_fonts`) helper function in **Great Tables** makes this easy by providing you with themed, local font stacks that are meant to work across different computing platforms.
 
 Here's another example where we set the width of the table to span across the entire page (or containing element).
 
