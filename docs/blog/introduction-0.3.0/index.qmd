@@ -80,7 +80,7 @@ There are many more options available in [`tab_options()`](`great_tables.GT.tab_
 
 ### Using the new `opt_*()` methods to do more complex tasks with table options
 
-While [`tab_options()`](`great_tables.GT.tab_options`) is a great method for setting global table options, sometimes you want to set a number of them at once for a combined effect. For that type of operation, we have the `opt_*()` series of methods. A common thing you might do is align the content in the table header, we can make that an easy thing with [`opt_align_table_header()`](`great_tables.GT.opt_align_table_header`)`:
+While [`tab_options()`](`great_tables.GT.tab_options`) is a great method for setting global table options, sometimes you want to set a number of them at once for a combined effect. For that type of operation, we have the `opt_*()` series of methods. A common thing you might do is align the content in the table header, we can make that an easy thing with [`opt_align_table_header()`](`great_tables.GT.opt_align_table_header`):
 
 ```{python}
 gt_tbl.opt_align_table_header(align="left")
@@ -102,14 +102,14 @@ Here's one last example, this time using [`opt_vertical_padding()`](`great_table
 gt_tbl.opt_vertical_padding(scale=0.5)
 ```
 
-We have the following methods available in the `opt_*()` family:
+We have the following methods available in the `opt_*()` family
 
 - [`opt_align_table_header()`](`great_tables.GT.opt_align_table_header`)
 - [`opt_all_caps()`](`great_tables.GT.opt_all_caps`)
 - [`opt_vertical_padding()`](`great_tables.GT.opt_vertical_padding`)
 - [`opt_horizontal_padding()`](`great_tables.GT.opt_horizontal_padding`)
 
-We plan to add more `opt_*()` methods in future releases.
+and we plan to add more `opt_*()` methods in future releases.
 
 ### A new formatting method: `fmt_image()`
 
