@@ -74,7 +74,7 @@ gt_tbl = (
 gt_tbl.tab_options(table_font_names=system_fonts("industrial"))
 ```
 
-The reason why it's `table_font_names=` and not the singular `table_font_name=` is because we typically provide a list of fonts that operate as fallbacks fors users across different systems (i.e., they may not have the font you have). And the `system_fonts()` helper function in **Great Tables** makes this easy by providing you with themed, local font stacks that are meant to work across different computing platforms.
+Note that `table_font_names=` accepts a list of fonts that operate as fallbacks for users across different systems (i.e., they may not have the font you have). And the `system_fonts()` helper function in **Great Tables** makes this easy by providing you with themed, local font stacks that are meant to work across different computing platforms.
 
 Here's another example where we set the width of the table to span across the entire page (or containing element).
 
