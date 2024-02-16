@@ -115,7 +115,7 @@ gt_tbl.opt_vertical_padding(scale=0.5)
 
 ### A new formatting method: `fmt_image()`
 
-Wouldn't it be great to add graphics to your table? I mean, you can already do that with `fmt_markdown()` by creating a link to an image resource, but `fmt_image()` provides an easier way to add image files on disk into table body cells. This method allows for one or more images to be placed in the targeted cells. The cells need to contain some reference to an image file, either: (1) complete http/https or local paths to the files; (2) the file names, where a common path can be provided via the `path=` arg; or (3) a fragment of the file name, where the `file_pattern=` arg helps to compose the entire file name and `path=` provides the path information.
+Wouldn't it be great to add graphics to your table? `fmt_image()` provides an easy way to add image files on disk into table body cells. The cells need to contain some reference to an image file. The `path=` and `file_pattern=` arguments give you some flexibility in defining exactly where the image files live.
 
 Here's an example using the `metro` dataset that's included within **Great Tables**.
 
