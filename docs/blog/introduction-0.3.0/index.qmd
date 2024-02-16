@@ -33,7 +33,7 @@ exibble_mini = exibble[["num", "char", "date", "datetime", "row"]].head(5)
 )
 ```
 
-You don't have to define widths for all columns with [`cols_width()`](`great_tables.GT.cols_width`), and you're free to use either `px` or `%` values when defined widths. See the [reference page](`great_tables.GT.cols_width`) for more information and relevant examples.
+You don't have to define widths for all columns with [`cols_width()`](`great_tables.GT.cols_width`), and you're free to use either `px` or `%` values when defining widths. See the [reference page](`great_tables.GT.cols_width`) for more information and relevant examples.
 
 ### Setting options across the entire table with `tab_options()`
 
