@@ -137,7 +137,7 @@ metro_mini = metro[["name", "lines", "passengers"]].head(5)
 )
 ```
 
-Notice that `path=img_paths` specified the folder the images live in, and `file_pattern="metro_{}.svg"` provided a template for converting each value in the lines column to an SVG file name.
+Notice that `path=img_paths` specified the folder the images live in, and `file_pattern="metro_{}.svg"` provided a template for converting each value in the `lines` column to an SVG file name.
 
 The [`fmt_image()`](`great_tables.GT.fmt_image`) method supports three kinds of files as inputs, either: (1) complete http/https or local paths to the files; (2) the file names, where a common path can be provided via the `path=` arg; or (3) a fragment of the file name, as shown in the example above.
 
