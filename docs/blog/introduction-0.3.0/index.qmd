@@ -11,26 +11,9 @@ As our work on **Great Tables** continues, we want you to be able to produce inc
 
 ### Modifying the widths of columns
 
-Before `v0.3.0`, you could not alter the widths of individual columns. This meant that to great extent your content decided the width of individual columns. Even though browsers do an adequate job in sizing the widths of table columns, it doesn't always result in a pleasing-to-look-at table. What if you want more space? Maybe you want consistently-sized columns? There's many reasons to want to have a choice in the matter and the new `cols_width()` method now makes this possible. Here's an example of a table where the column widths are defined with `cols_width()`, using a mix of pixel and percentage widths applied to select columns.
+Before `v0.3.0`, you could not alter the widths of individual columns. This meant that to great extent your content decided the width of individual columns. Even though browsers do an adequate job in sizing the widths of table columns, it doesn't always result in a pleasing-to-look-at table. What if you want more space? Maybe you want consistently-sized columns? There's many reasons to want to have a choice in the matter and the new `cols_width()` method now makes this possible.
 
-```{python}
-from great_tables import GT, exibble
-
-exibble_mini = exibble[["num", "char", "date", "datetime", "row"]].head(5)
-
-(
-    GT(exibble_mini)
-    .cols_width(
-        cases={
-            "num": "150px",
-            "char": "10%",
-            "date": "30%"
-        }
-    )
-)
-```
-
-In the previous example, the width settings govern the preferred sizes of the columns. But, depending on the nature of the content, the browser has license to make adjustments. An interesting thing happens if we set the width of all columns with pixel values: the table must use the specified widths as provided. In this next example we'll set widths for all columns, ensuring that the widths you specify are fully respected.
+Here's an example where the widths of all columns are set with our preferred length values (in `px`).
 
 ```{python}
 (
@@ -46,7 +29,8 @@ In the previous example, the width settings govern the preferred sizes of the co
     )
 )
 ```
-See the [cols_width()](`great_tables.GT.cols_width`) API reference page for information.
+
+You don't have to define widths for all columns with `cols_width()`, and you're free to use either `px` or `%` values when defined widths. See the [cols_width()](`great_tables.GT.cols_width`) API reference page for more information and relevant examples.
 
 ### Setting options across the entire table with `tab_options()`
 
