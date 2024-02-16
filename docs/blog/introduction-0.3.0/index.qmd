@@ -16,6 +16,8 @@ Before `v0.3.0`, you could not alter the widths of individual columns. This mean
 Here's an example where the widths of all columns are set with our preferred length values (in `px`).
 
 ```{python}
+from great_tables import GT, exibble
+
 (
     GT(exibble_mini)
     .cols_width(
@@ -39,7 +41,7 @@ The new `tab_options()` method gives you the freedom to specify any of dozens of
 Here's an example that creates a table with a few common components and then uses `tab_options()` to set up a collection of fonts for the table with the (also new) `system_fonts()` function:
 
 ```{python}
-from great_tables import GT, exibble, md, system_fonts
+from great_tables import md, system_fonts
 
 gt_tbl = (
     GT(
@@ -72,6 +74,8 @@ One more where the background color of the table is set to `"lightcyan"`:
 ```{python}
 gt_tbl.tab_options(table_background_color="lightcyan")
 ```
+
+There are many more options available in `tab_options()`, so have a look at its [reference page](`great_tables.GT.tab_options`) for more information and useful examples.
 
 ### Using the new `opt_*()` methods to do more complex tasks with table options
 
