@@ -1040,10 +1040,7 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     # Get the style parameters based on the `style` and `color` arguments
     params = _dict_styles_colors_params[f"{color}-{style}"]
 
-    # Add or remove row striping based on the `add_row_striping` argument
-    if add_row_striping is False:
-        params["row_striping_background_color"] = "inherit"
-
+    # Apply the style parameters to the table
     res = tab_options(
         self,
         table_border_top_color=params["table_hlines_color"],
