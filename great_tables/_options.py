@@ -975,18 +975,23 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     """
     Stylize your table with a colorful look.
 
-    This method allows us to apply a predefined style to the table. The style is a combination of
-    color, font, and border settings. The `style` argument is an integer that represents a
-    particular style. The `color` argument is a string that represents a particular color scheme.
+    With the `opt_stylize()` method you can quickly style your table with a carefully curated set of
+    background colors, line colors, and line styles. There are six styles to choose from and they
+    largely vary in the extent of coloring applied to different table locations. Some have table
+    borders applied, some apply darker colors to the table stub and summary sections, and, some even
+    have vertical lines. In addition to choosing a `style` preset, there are six `color` variations
+    that each use a range of five color tints. Each of the color tints have been fine-tuned to
+    maximize the contrast between text and its background. There are 36 combinations of `style` and
+    `color` to choose from.
 
     Parameters
     ----------
     style : int
-        The style of the table. The default value is `1`. The valid values are integer values
-        between `1` and `6`.
+        Six numbered styles are available. Simply provide a number from `1` (the default) to `6` to
+        choose a distinct look.
     color : str
-        The color scheme of the table. The default value is `"blue"`. The valid values are
-        `"gray"`, `"blue"`, `"cyan"`, `"pink"`, `"green"`, and `"red"`.
+        The color scheme of the table. The default value is `"blue"`. The valid values are `"blue"`,
+        `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`.
 
     Returns
     -------
