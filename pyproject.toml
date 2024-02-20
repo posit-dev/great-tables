@@ -38,6 +38,7 @@ classifiers = [
 dependencies = [
     "commonmark>=0.9.1",
     "htmltools>=0.4.1",
+    "html2image>=2.0.4.3",
     "importlib-metadata",
     "typing_extensions>=3.10.0.0",
     "packaging>=20.9",
