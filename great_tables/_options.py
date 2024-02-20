@@ -973,7 +973,7 @@ def opt_all_caps(
 
 def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     """
-    Option to stylize a table with a predefined style.
+    Stylize your table with a colorful look.
 
     This method allows us to apply a predefined style to the table. The style is a combination of
     color, font, and border settings. The `style` argument is an integer that represents a
