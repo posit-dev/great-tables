@@ -1047,36 +1047,27 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     # Get the style parameters based on the `style` and `color` arguments
     params = _dict_styles_colors_params[f"{color}-{style}"]
 
+    # Omit keys that are not needed for the `tab_options()` method
+    # TODO: the omitted keys are for future use when:
+    #  (1) row striping is implemented
+    #  (2) summary rows are implemented
+    #  (3) grand summary rows are implemented
+    omit_keys = {
+        "summary_row_background_color",
+        "grand_summary_row_background_color",
+        "row_striping_background_color",
+        "table_outline_color",
+    }
+
+    def dict_omit_keys(dict, omit_keys) -> Dict[str, str]:
+        return {x: dict[x] for x in dict if x not in omit_keys}
+
+    params = dict_omit_keys(dict=params, omit_keys=omit_keys)
+
+    mapped_params = StyleMapper(**params).map_all()
+
     # Apply the style parameters to the table using the `tab_options()` method
-    # TODO: the commented out lines are for future use when:
-    #   (1) row striping is implemented
-    #   (2) summary rows are implemented
-    #   (3) grand summary rows are implemented
-    res = tab_options(
-        self,
-        table_border_top_color=params["table_hlines_color"],
-        table_border_bottom_color=params["table_hlines_color"],
-        heading_border_bottom_color=params["location_hlines_color"],
-        column_labels_border_top_color=params["location_hlines_color"],
-        column_labels_border_bottom_color=params["location_hlines_color"],
-        row_group_border_top_color=params["location_hlines_color"],
-        row_group_border_bottom_color=params["location_hlines_color"],
-        # summary_row_border_color=params["location_hlines_color"],
-        # grand_summary_row_border_color=params["location_hlines_color"],
-        column_labels_background_color=params["column_labels_background_color"],
-        stub_background_color=params["stub_background_color"],
-        stub_border_style=params["stub_border_style"],
-        stub_border_color=params["stub_border_color"],
-        table_body_border_top_color=params["location_hlines_color"],
-        table_body_border_bottom_color=params["location_hlines_color"],
-        table_body_hlines_style=params["data_hlines_style"],
-        table_body_hlines_color=params["data_hlines_color"],
-        table_body_vlines_style=params["data_vlines_style"],
-        table_body_vlines_color=params["data_vlines_color"],
-        # summary_row_background_color=params["summary_row_background_color"],
-        # grand_summary_row_background_color=params["grand_summary_row_background_color"],
-        # row_striping_background_color=params["row_striping_background_color"],
-    )
+    res = tab_options(self=self, **mapped_params)
 
     return res
 
