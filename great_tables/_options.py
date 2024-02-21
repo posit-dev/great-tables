@@ -1,6 +1,6 @@
 from __future__ import annotations
-from dataclasses import replace
-from typing import TYPE_CHECKING, Optional, Union, List, cast
+from dataclasses import dataclass, fields, replace
+from typing import TYPE_CHECKING, ClassVar, Optional, Union, List, cast, Dict, Any
 from great_tables import _utils
 
 
@@ -969,3 +969,710 @@ def opt_all_caps(
         res = tab_options(res, row_group_text_transform="inherit")
 
     return res
+
+
+def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
+    """
+    Stylize your table with a colorful look.
+
+    With the `opt_stylize()` method you can quickly style your table with a carefully curated set of
+    background colors, line colors, and line styles. There are six styles to choose from and they
+    largely vary in the extent of coloring applied to different table locations. Some have table
+    borders applied, some apply darker colors to the table stub and summary sections, and, some even
+    have vertical lines. In addition to choosing a `style` preset, there are six `color` variations
+    that each use a range of five color tints. Each of the color tints have been fine-tuned to
+    maximize the contrast between text and its background. There are 36 combinations of `style` and
+    `color` to choose from.
+
+    Parameters
+    ----------
+    style
+        Six numbered styles are available. Simply provide a number from `1` (the default) to `6` to
+        choose a distinct look.
+    color
+        The color scheme of the table. The default value is `"blue"`. The valid values are `"blue"`,
+        `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Using select columns from the `exibble` dataset, let's create a table with a number of
+    components added. Following that, we'll apply a predefined style to the table using the
+    `opt_stylize()` method.
+
+    ```{python}
+    from great_tables import GT, exibble, md
+
+    gt_tbl = (
+          GT(
+            exibble[["num", "char", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group"
+          )
+          .tab_header(
+            title=md("Data listing from **exibble**"),
+            subtitle=md("`exibble` is a **Great Tables** dataset.")
+          )
+          .fmt_number(columns="num")
+          .fmt_currency(columns="currency")
+          .tab_source_note(source_note="This is only a subset of the dataset.")
+          .opt_stylize()
+        )
+
+    gt_tbl
+    ```
+
+    The table has been stylized with the default style and color. The default style is `1` and the
+    default color is `"blue"`. The resulting table style is a combination of color and border
+    settings that are applied to the table.
+
+    We can modify the overall style and choose a different color theme by providing different values
+    to the `style=` and `color=` arguments.
+
+    ```{python}
+    gt_tbl.opt_stylize(style=2, color="green")
+    ```
+    """
+
+    # Validate the `style` and `color` arguments
+    if style not in [1, 2, 3, 4, 5, 6]:
+        raise ValueError("`style` must be an integer value from `1` to `6`.")
+    color = _utils._match_arg(x=color, lst=["gray", "blue", "cyan", "pink", "green", "red"])
+
+    # Get the style parameters based on the `style` and `color` arguments
+    params = _dict_styles_colors_params[f"{color}-{style}"]
+
+    # Omit keys that are not needed for the `tab_options()` method
+    # TODO: the omitted keys are for future use when:
+    #  (1) row striping is implemented
+    #  (2) summary rows are implemented
+    #  (3) grand summary rows are implemented
+    omit_keys = {
+        "summary_row_background_color",
+        "grand_summary_row_background_color",
+        "row_striping_background_color",
+        "table_outline_color",
+    }
+
+    def dict_omit_keys(dict, omit_keys) -> Dict[str, str]:
+        return {x: dict[x] for x in dict if x not in omit_keys}
+
+    params = dict_omit_keys(dict=params, omit_keys=omit_keys)
+
+    mapped_params = StyleMapper(**params).map_all()
+
+    # Apply the style parameters to the table using the `tab_options()` method
+    res = tab_options(self=self, **mapped_params)
+
+    return res
+
+
+@dataclass
+class StyleMapper:
+    table_hlines_color: str
+    location_hlines_color: str
+    column_labels_background_color: str
+    stub_background_color: str
+    stub_border_style: str
+    stub_border_color: str
+    data_hlines_style: str
+    data_hlines_color: str
+    data_vlines_style: str
+    data_vlines_color: str
+
+    mappings: ClassVar[dict[str, list[str]]] = {
+        "table_hlines_color": ["table_border_top_color", "table_border_bottom_color"],
+        "location_hlines_color": [
+            "heading_border_bottom_color",
+            "column_labels_border_top_color",
+            "column_labels_border_bottom_color",
+            "row_group_border_top_color",
+            "row_group_border_bottom_color",
+            "table_body_border_top_color",
+            "table_body_border_bottom_color",
+        ],
+        "column_labels_background_color": ["column_labels_background_color"],
+        "stub_background_color": ["stub_background_color"],
+        "stub_border_style": ["stub_border_style"],
+        "stub_border_color": ["stub_border_color"],
+        "data_hlines_style": ["table_body_hlines_style"],
+        "data_hlines_color": ["table_body_hlines_color"],
+        "data_vlines_style": ["table_body_vlines_style"],
+        "data_vlines_color": ["table_body_vlines_color"],
+    }
+
+    def map_entry(self, name: str):
+        return {k: getattr(self, name) for k in self.mappings[name]}
+
+    def map_all(self):
+        items = {}
+        for field in fields(self):
+            items.update(self.map_entry(field.name))
+        return items
+
+
+_dict_styles_colors_params = {
+    "gray-1": {
+        "table_hlines_color": "#000000",
+        "location_hlines_color": "#5F5F5F",
+        "column_labels_background_color": "#FFFFFF",
+        "stub_background_color": "#5F5F5F",
+        "stub_border_style": "solid",
+        "stub_border_color": "#5F5F5F",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "blue-1": {
+        "table_hlines_color": "#004D80",
+        "location_hlines_color": "#0076BA",
+        "column_labels_background_color": "#FFFFFF",
+        "stub_background_color": "#0076BA",
+        "stub_border_style": "solid",
+        "stub_border_color": "#0076BA",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#89D3FE",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#89D3FE",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#89D3FE",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "cyan-1": {
+        "table_hlines_color": "#016763",
+        "location_hlines_color": "#01837B",
+        "column_labels_background_color": "#FFFFFF",
+        "stub_background_color": "#01837B",
+        "stub_border_style": "solid",
+        "stub_border_color": "#01837B",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#A5FEF2",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#A5FEF2",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#A5FEF2",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "pink-1": {
+        "table_hlines_color": "#99195F",
+        "location_hlines_color": "#CB2A7B",
+        "column_labels_background_color": "#FFFFFF",
+        "stub_background_color": "#CB2A7B",
+        "stub_border_style": "solid",
+        "stub_border_color": "#CB2A7B",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#FFC6E3",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#FFC6E3",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#FFC6E3",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "green-1": {
+        "table_hlines_color": "#027101",
+        "location_hlines_color": "#038901",
+        "column_labels_background_color": "#FFFFFF",
+        "stub_background_color": "#038901",
+        "stub_border_style": "solid",
+        "stub_border_color": "#038901",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#CAFFAF",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#CAFFAF",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#CAFFAF",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "red-1": {
+        "table_hlines_color": "#A81600",
+        "location_hlines_color": "#E4220C",
+        "column_labels_background_color": "#FFFFFF",
+        "stub_background_color": "#E4220C",
+        "stub_border_style": "solid",
+        "stub_border_color": "#E4220C",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#FFCCC7",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#FFCCC7",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#FFCCC7",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "gray-2": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#000000",
+        "stub_background_color": "#FFFFFF",
+        "stub_border_style": "solid",
+        "stub_border_color": "#5F5F5F",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#D5D5D5",
+        "grand_summary_row_background_color": "#929292",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "blue-2": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#004D80",
+        "stub_background_color": "#FFFFFF",
+        "stub_border_style": "solid",
+        "stub_border_color": "#5F5F5F",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#89D3FE",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#89D3FE",
+        "summary_row_background_color": "#89D3FE",
+        "grand_summary_row_background_color": "#00A1FF",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "cyan-2": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#016763",
+        "stub_background_color": "#FFFFFF",
+        "stub_border_style": "solid",
+        "stub_border_color": "#5F5F5F",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#A5FEF2",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#A5FEF2",
+        "summary_row_background_color": "#A5FEF2",
+        "grand_summary_row_background_color": "#7FE9DB",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "pink-2": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#99195F",
+        "stub_background_color": "#FFFFFF",
+        "stub_border_style": "solid",
+        "stub_border_color": "#5F5F5F",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#FFC6E3",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#FFC6E3",
+        "summary_row_background_color": "#FFC6E3",
+        "grand_summary_row_background_color": "#EF5FA7",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "green-2": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#027101",
+        "stub_background_color": "#FFFFFF",
+        "stub_border_style": "solid",
+        "stub_border_color": "#5F5F5F",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#CAFFAF",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#CAFFAF",
+        "summary_row_background_color": "#CAFFAF",
+        "grand_summary_row_background_color": "#89FD61",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "red-2": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#A81600",
+        "stub_background_color": "#FFFFFF",
+        "stub_border_style": "solid",
+        "stub_border_color": "#5F5F5F",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#FFCCC7",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#FFCCC7",
+        "summary_row_background_color": "#FFCCC7",
+        "grand_summary_row_background_color": "#FF644E",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "gray-3": {
+        "table_hlines_color": "#929292",
+        "location_hlines_color": "#929292",
+        "column_labels_background_color": "#000000",
+        "stub_background_color": "#D5D5D5",
+        "stub_border_style": "none",
+        "stub_border_color": "#FFFFFF",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#929292",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#929292",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "blue-3": {
+        "table_hlines_color": "#929292",
+        "location_hlines_color": "#929292",
+        "column_labels_background_color": "#004D80",
+        "stub_background_color": "#D5D5D5",
+        "stub_border_style": "none",
+        "stub_border_color": "#FFFFFF",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#929292",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#929292",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "cyan-3": {
+        "table_hlines_color": "#929292",
+        "location_hlines_color": "#929292",
+        "column_labels_background_color": "#016763",
+        "stub_background_color": "#D5D5D5",
+        "stub_border_style": "none",
+        "stub_border_color": "#FFFFFF",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#929292",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#929292",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "pink-3": {
+        "table_hlines_color": "#929292",
+        "location_hlines_color": "#929292",
+        "column_labels_background_color": "#99195F",
+        "stub_background_color": "#D5D5D5",
+        "stub_border_style": "none",
+        "stub_border_color": "#FFFFFF",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#929292",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#929292",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "green-3": {
+        "table_hlines_color": "#929292",
+        "location_hlines_color": "#929292",
+        "column_labels_background_color": "#027101",
+        "stub_background_color": "#D5D5D5",
+        "stub_border_style": "none",
+        "stub_border_color": "#FFFFFF",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#929292",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#929292",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "red-3": {
+        "table_hlines_color": "#929292",
+        "location_hlines_color": "#929292",
+        "column_labels_background_color": "#A81600",
+        "stub_background_color": "#D5D5D5",
+        "stub_border_style": "none",
+        "stub_border_color": "#FFFFFF",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#929292",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#929292",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "gray-4": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#5F5F5F",
+        "stub_background_color": "#929292",
+        "stub_border_style": "dashed",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "dashed",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#5F5F5F",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "blue-4": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#0076BA",
+        "stub_background_color": "#929292",
+        "stub_border_style": "dashed",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "dashed",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#0076BA",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "cyan-4": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#01837B",
+        "stub_background_color": "#929292",
+        "stub_border_style": "dashed",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "dashed",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#01837B",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "pink-4": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#CB2A7B",
+        "stub_background_color": "#929292",
+        "stub_border_style": "dashed",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "dashed",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#CB2A7B",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "green-4": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#038901",
+        "stub_background_color": "#929292",
+        "stub_border_style": "dashed",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "dashed",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#038901",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "red-4": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#E4220C",
+        "stub_background_color": "#929292",
+        "stub_border_style": "dashed",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "dashed",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "dashed",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#E4220C",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "gray-5": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#000000",
+        "stub_background_color": "#929292",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#5F5F5F",
+        "grand_summary_row_background_color": "#929292",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "blue-5": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#004D80",
+        "stub_background_color": "#929292",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#5F5F5F",
+        "grand_summary_row_background_color": "#929292",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "cyan-5": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#016763",
+        "stub_background_color": "#929292",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#5F5F5F",
+        "grand_summary_row_background_color": "#929292",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "pink-5": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#99195F",
+        "stub_background_color": "#929292",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#5F5F5F",
+        "grand_summary_row_background_color": "#929292",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "green-5": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#027101",
+        "stub_background_color": "#929292",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#5F5F5F",
+        "grand_summary_row_background_color": "#929292",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "red-5": {
+        "table_hlines_color": "#D5D5D5",
+        "location_hlines_color": "#D5D5D5",
+        "column_labels_background_color": "#A81600",
+        "stub_background_color": "#929292",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "solid",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "solid",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#5F5F5F",
+        "grand_summary_row_background_color": "#929292",
+        "row_striping_background_color": "#F4F4F4",
+        "table_outline_color": "#D5D5D5",
+    },
+    "gray-6": {
+        "table_hlines_color": "#5F5F5F",
+        "location_hlines_color": "#5F5F5F",
+        "column_labels_background_color": "#5F5F5F",
+        "stub_background_color": "#D5D5D5",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#F4F4F4",
+    },
+    "blue-6": {
+        "table_hlines_color": "#5F5F5F",
+        "location_hlines_color": "#5F5F5F",
+        "column_labels_background_color": "#0076BA",
+        "stub_background_color": "#89D3FE",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#EDF7FC",
+    },
+    "cyan-6": {
+        "table_hlines_color": "#5F5F5F",
+        "location_hlines_color": "#5F5F5F",
+        "column_labels_background_color": "#01837B",
+        "stub_background_color": "#A5FEF2",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#EBFBF9",
+    },
+    "pink-6": {
+        "table_hlines_color": "#5F5F5F",
+        "location_hlines_color": "#5F5F5F",
+        "column_labels_background_color": "#CB2A7B",
+        "stub_background_color": "#FFC6E3",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#FCF2F7",
+    },
+    "green-6": {
+        "table_hlines_color": "#5F5F5F",
+        "location_hlines_color": "#5F5F5F",
+        "column_labels_background_color": "#038901",
+        "stub_background_color": "#CAFFAF",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#EDF6E8",
+    },
+    "red-6": {
+        "table_hlines_color": "#5F5F5F",
+        "location_hlines_color": "#5F5F5F",
+        "column_labels_background_color": "#E4220C",
+        "stub_background_color": "#FFCCC7",
+        "stub_border_style": "solid",
+        "stub_border_color": "#D5D5D5",
+        "data_hlines_style": "none",
+        "data_hlines_color": "#D5D5D5",
+        "data_vlines_style": "none",
+        "data_vlines_color": "#D5D5D5",
+        "summary_row_background_color": "#FFFFFF",
+        "grand_summary_row_background_color": "#D5D5D5",
+        "row_striping_background_color": "#FEEDEC",
+    },
+}
