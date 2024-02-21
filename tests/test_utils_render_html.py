@@ -1,3 +1,6 @@
+import pandas as pd
+import pytest
+
 from great_tables import GT, exibble, md, html, style, loc
 from great_tables._utils_render_html import create_source_notes_component_h, create_body_component_h
 
@@ -28,6 +31,17 @@ def test_source_notes_snap(snapshot):
     )
 
     assert_rendered_source_notes(snapshot, new_gt)
+
+
+@pytest.mark.xfail
+def test_render_groups_reordered(snapshot):
+    df = pd.DataFrame(
+        {"row": [0, 1, 2, 3], "g": ["A", "B", "A", "B"], "x": ["00", "11", "22", "33"]}
+    )
+
+    new_gt = GT(df, rowname_col="row", groupname_col="g")
+
+    assert_rendered_body(snapshot, new_gt)
 
 
 def test_body_multiple_locations(snapshot):
