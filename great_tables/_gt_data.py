@@ -669,15 +669,8 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
         return self.__class__(reordered)
 
-    def indices_map(self) -> dict[int, str]:
-        list_dicts = [{ind: info.defaulted_label() for ind in info.indices} for info in self]
-        final = {}
-
-        for entry in list_dicts:
-            key, value = list(entry.items())[0]
-            final.update({key: value})
-
-        return final
+    def indices_map(self) -> list[tuple[int, str]]:
+        return [(ind, info.defaulted_label()) for info in self for ind in info.indices]
 
 
 # Spanners ----

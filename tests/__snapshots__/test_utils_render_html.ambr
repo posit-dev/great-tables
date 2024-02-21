@@ -44,13 +44,13 @@
     <td class="gt_row gt_right">00</td>
   </tr>
   <tr>
+    <th class="gt_row gt_left gt_stub">1</th>
+    <td class="gt_row gt_right">11</td>
+  </tr>
+  <tr>
   <tr class=gt_group_heading_row>  <th class="gt_group_heading" colspan="2">B</th></tr>
     <th class="gt_row gt_left gt_stub">2</th>
     <td class="gt_row gt_right">22</td>
-  </tr>
-  <tr>
-    <th class="gt_row gt_left gt_stub">1</th>
-    <td class="gt_row gt_right">11</td>
   </tr>
   <tr>
     <th class="gt_row gt_left gt_stub">3</th>

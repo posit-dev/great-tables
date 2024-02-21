@@ -33,7 +33,6 @@ def test_source_notes_snap(snapshot):
     assert_rendered_source_notes(snapshot, new_gt)
 
 
-@pytest.mark.xfail
 def test_render_groups_reordered(snapshot):
     df = pd.DataFrame(
         {"row": [0, 1, 2, 3], "g": ["A", "B", "A", "B"], "x": ["00", "11", "22", "33"]}

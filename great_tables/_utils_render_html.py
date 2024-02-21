@@ -418,8 +418,6 @@ def create_body_component_h(data: GTData) -> str:
     # Filter list of StyleInfo to only those that apply to the body (where locname="data")
     styles_body = [x for x in data._styles if x.locname == "data"]
 
-    grp_idx_to_label = data._group_rows.indices_map()
-
     # Get the default column vars
     column_vars = data._boxhead._get_default_columns()
 
@@ -438,8 +436,12 @@ def create_body_component_h(data: GTData) -> str:
     body_rows: List[str] = []
 
     # iterate over rows (ordered by groupings)
-    ordered_indx = [dst for _, dst in get_row_reorder_df(data._row_groups, data._stub)]
-    for i in ordered_indx:
+    prev_group_label = None
+    ordered_index = data._group_rows.indices_map()
+    if not ordered_index:
+        ordered_index = [(ii, None) for ii in range(n_rows(data._tbl_data))]
+
+    for i, group_label in ordered_index:
         body_cells: List[str] = []
 
         if has_stub_column and has_groups and not has_two_col_stub:
@@ -449,9 +451,7 @@ def create_body_component_h(data: GTData) -> str:
 
             # Generate a row that contains the row group label (this spans the entire row) but
             # only if `i` indicates there should be a row group label
-            if i in grp_idx_to_label:
-                group_label = grp_idx_to_label[i]
-
+            if group_label != prev_group_label:
                 group_class = (
                     "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
                 )
@@ -497,6 +497,7 @@ def create_body_component_h(data: GTData) -> str:
                     f'  <td {cell_styles}class="gt_row gt_{cell_alignment}">' + cell_str + "</td>"
                 )
 
+        prev_group_label = group_label
         body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
 
     all_body_rows = "\n".join(body_rows)
