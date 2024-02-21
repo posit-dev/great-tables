@@ -38,15 +38,16 @@ classifiers = [
 dependencies = [
     "commonmark>=0.9.1",
     "htmltools>=0.4.1",
-    "html2image>=2.0.4.3",
     "importlib-metadata",
     "typing_extensions>=3.10.0.0",
     "packaging>=20.9",
     "pandas>=1.4.2",
+    "Pillow>=10.2.0",
     "numpy>=1.22.4",
     "Babel>=2.13.1",
     "mizani>=0.9.3",
-    "webcolors",
+    "selenium>=4.18.1",
+    "webcolors>=1.13",
 ]
 requires-python = ">=3.7"
 
