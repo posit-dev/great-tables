@@ -406,12 +406,15 @@ def as_raw_html(gt: GT) -> str:
     """
     Returns the GTData object as raw HTML.
 
-    Args:
-        gt (GT): The GTData object to convert to raw HTML.
-        context (str): The context in which to build the output.
+    Parameters
+    ----------
+    gt : GT
+        A GT object.
 
-    Returns:
-        str: The GTData object as raw HTML.
+    Returns
+    -------
+    str
+        An HTML fragment containing a table.
     """
     gt_built = gt._build_data(context="html")
     html_table = gt_built._render_as_html()
