@@ -1,6 +1,6 @@
 from __future__ import annotations
-from dataclasses import replace
-from typing import TYPE_CHECKING, Optional, Union, List, cast, Dict, Any
+from dataclasses import dataclass, fields, replace
+from typing import TYPE_CHECKING, ClassVar, Optional, Union, List, cast, Dict, Any
 from great_tables import _utils
 
 
