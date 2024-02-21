@@ -419,3 +419,76 @@ def as_raw_html(gt: GT) -> str:
     gt_built = gt._build_data(context="html")
     html_table = gt_built._render_as_html()
     return html_table
+
+
+def gtsave(gt: GT, filename: str, path: Optional[str] = None):
+
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from PIL import Image
+    from io import BytesIO
+
+    # Get the HTML content from the displayed output
+    html_content = as_raw_html(gt)
+
+    # Create a temp directory to store the HTML file
+    temp_dir = tempfile.mkdtemp()
+
+    # Create a temp file to store the HTML file; use the .html file extension
+    temp_file = tempfile.mkstemp(dir=temp_dir, suffix=".html")
+
+    # Write the HTML content to the temp file
+    with open(temp_file[1], "w") as f:
+        f.write(html_content)
+
+    # Generate output file path from filename and optional path
+    output_path = filename
+    if path:
+        # If path has a trailing slash, remove it
+        if path[-1] == "/":
+            path = path[:-1]
+        output_path = path + "/" + filename
+
+    # Set up the Chrome webdriver options
+    options = webdriver.ChromeOptions()
+
+    # Use headless mode with a large window size
+    options.add_argument("--headless")
+    options.add_argument("--window-size=6000, 5000")
+
+    # Instantiate a Chrome webdriver with the selected options
+    chrome = webdriver.Chrome(options=options)
+
+    # Open the HTML file in the Chrome browser
+    chrome.get("file://" + temp_file[1])
+    chrome.execute_script("document.body.style.zoom = '300%'")
+
+    # Get only the 'table' element from the page
+    element = chrome.find_element(by=By.TAG_NAME, value="table")
+
+    # Get the location and size of the table element; this will be used
+    # to crop the screenshot later
+    location = element.location
+    size = element.size
+
+    # Get a screenshot of the entire page
+    png = chrome.get_screenshot_as_png()
+
+    # Close the Chrome browser
+    chrome.quit()
+
+    # Open the screenshot as an image with the PIL library
+    image = Image.open(fp=BytesIO(png))
+
+    # Crop the image to only include the table element; the scaling factor
+    # of 6 is used to account for the zoom level of 300% set earlier
+    left = location["x"] * 6
+    top = location["y"] * 6
+    right = (location["x"] + size["width"]) * 6
+    bottom = (location["y"] + size["height"]) * 6
+
+    # Save the cropped image to the output path
+    image = image.crop((left, top, right, bottom))
+
+    # Save the image to the output path as a PNG file
+    image.save(fp=output_path, format="png")
