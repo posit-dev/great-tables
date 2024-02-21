@@ -986,10 +986,10 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
 
     Parameters
     ----------
-    style : int
+    style
         Six numbered styles are available. Simply provide a number from `1` (the default) to `6` to
         choose a distinct look.
-    color : str
+    color
         The color scheme of the table. The default value is `"blue"`. The valid values are `"blue"`,
         `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`.
 
