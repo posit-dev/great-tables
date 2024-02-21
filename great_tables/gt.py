@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any, List, Optional
 from typing_extensions import Self
 
+import tempfile
 import copy
 
 from great_tables._gt_data import GTData
