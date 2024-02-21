@@ -1081,6 +1081,50 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     return res
 
 
+@dataclass
+class StyleMapper:
+    table_hlines_color: str
+    location_hlines_color: str
+    column_labels_background_color: str
+    stub_background_color: str
+    stub_border_style: str
+    stub_border_color: str
+    data_hlines_style: str
+    data_hlines_color: str
+    data_vlines_style: str
+    data_vlines_color: str
+
+    mappings: ClassVar[dict[str, list[str]]] = {
+        "table_hlines_color": ["table_border_top_color", "table_border_bottom_color"],
+        "location_hlines_color": [
+            "heading_border_bottom_color",
+            "column_labels_border_top_color",
+            "column_labels_border_bottom_color",
+            "row_group_border_top_color",
+            "row_group_border_bottom_color",
+            "table_body_border_top_color",
+            "table_body_border_bottom_color",
+        ],
+        "column_labels_background_color": ["column_labels_background_color"],
+        "stub_background_color": ["stub_background_color"],
+        "stub_border_style": ["stub_border_style"],
+        "stub_border_color": ["stub_border_color"],
+        "data_hlines_style": ["table_body_hlines_style"],
+        "data_hlines_color": ["table_body_hlines_color"],
+        "data_vlines_style": ["table_body_vlines_style"],
+        "data_vlines_color": ["table_body_vlines_color"],
+    }
+
+    def map_entry(self, name: str):
+        return {k: getattr(self, name) for k in self.mappings[name]}
+
+    def map_all(self):
+        items = {}
+        for field in fields(self):
+            items.update(self.map_entry(field.name))
+        return items
+
+
 _dict_styles_colors_params = {
     "gray-1": {
         "table_hlines_color": "#000000",
