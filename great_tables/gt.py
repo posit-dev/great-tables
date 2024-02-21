@@ -402,7 +402,7 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
     return cell_values
 
 
-def _as_raw_html(gt: GT) -> str:
+def as_raw_html(gt: GT) -> str:
     """
     Returns the GTData object as raw HTML.
 
