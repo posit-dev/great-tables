@@ -1028,9 +1028,11 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     ```
 
     The table has been stylized with the default style and color. The default style is `1` and the
-    default color is `"blue"`. The default style is a combination of color and border settings that
-    are applied to the table. The default style and color can be modified by providing the `style=`
-    and `color=` arguments.
+    default color is `"blue"`. The resulting table style is a combination of color and border
+    settings that are applied to the table.
+
+    We can modify the overall style and choose a different color theme by providing different values
+    to the `style=` and `color=` arguments.
 
     ```{python}
     gt_tbl.opt_stylize(style=2, color="green")
