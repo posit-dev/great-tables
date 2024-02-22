@@ -12,6 +12,7 @@ from great_tables._gt_data import GTData
 from great_tables._body import body_reassemble
 from great_tables._boxhead import cols_align, cols_label
 from great_tables._data_color import data_color
+from great_tables._export import as_raw_html, save
 from great_tables._formats import (
     fmt,
     fmt_number,
@@ -196,7 +197,7 @@ class GT(
         auto_align: bool = True,
         locale: str | None = None,
     ):
-        # This is a bad idea ----
+
         gtdata = GTData.from_data(
             data,
             locale=locale,
@@ -206,11 +207,7 @@ class GT(
         )
         super().__init__(**gtdata.__dict__)
 
-    # TODO: Refactor API methods -----
-    cols_align = cols_align
-    cols_label = cols_label
     fmt = fmt
-
     fmt_number = fmt_number
     fmt_integer = fmt_integer
     fmt_percent = fmt_percent
@@ -223,10 +220,9 @@ class GT(
     fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
     fmt_image = fmt_image
-
     data_color = data_color
 
-    tab_options = tab_options
+    opt_stylize = opt_stylize
     opt_align_table_header = opt_align_table_header
     opt_all_caps = opt_all_caps
     opt_footnote_marks = opt_footnote_marks
@@ -234,21 +230,24 @@ class GT(
     opt_vertical_padding = opt_vertical_padding
     opt_horizontal_padding = opt_horizontal_padding
     opt_table_outline = opt_table_outline
-    opt_stylize = opt_stylize
 
-    tab_header = tab_header
-
-    tab_spanner = tab_spanner
-    tab_source_note = tab_source_note
+    cols_align = cols_align
+    cols_width = cols_width
+    cols_label = cols_label
     cols_move = cols_move
     cols_move_to_start = cols_move_to_start
     cols_move_to_end = cols_move_to_end
     cols_hide = cols_hide
-    cols_width = cols_width
 
+    tab_header = tab_header
+    tab_source_note = tab_source_note
+    tab_spanner = tab_spanner
     tab_stubhead = tab_stubhead
-
     tab_style = tab_style
+    tab_options = tab_options
+
+    save = save
+    as_raw_html = as_raw_html
 
     # -----
 
@@ -426,130 +425,3 @@ def as_raw_html(gt: GT) -> str:
     gt_built = gt._build_data(context="html")
     html_table = gt_built._render_as_html()
     return html_table
-
-
-def gtsave(
-    gt: GT,
-    filename: str,
-    path: Optional[str] = None,
-    selector: str = "table",
-    zoom: int = 2,
-    expand: int = 5,
-) -> None:
-    """
-    Save a table as an image file.
-
-    The `gtsave()` function makes it easy to save a table object as an image file. The function
-    produces a high-resolution PNG file of the table. The image is created by taking a screenshot of
-    the table using a headless Chrome browser. The screenshot is then cropped to only include the
-    table element, and the resulting image is saved to the specified file path.
-
-    Parameters
-    ----------
-    gt
-        A GT object.
-    filename
-        The name of the file to save the image to.
-    path
-        An optional path to save the image to. If not provided, the image will be saved to the
-        current working directory.
-    selector
-        The HTML element selector to use to select the table. By default, this is set to "table",
-        which selects the first table element in the HTML content.
-    zoom
-        The zoom level to use when taking the screenshot. By default, this is set to 2. Lowering
-        this to 1 will result in a smaller image, while increasing it will result in a much larger
-        (yet more detailed) image.
-    expand
-        The number of pixels to expand the screenshot by. By default, this is set to 5. This can be
-        increased to capture more of the surrounding area, or decreased to capture less.
-
-    Returns
-    -------
-    None
-        This function does not return anything; it simply saves the image to the specified file
-        path.
-    """
-
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from PIL import Image
-    from io import BytesIO
-
-    # Get the HTML content from the displayed output
-    html_content = as_raw_html(gt)
-
-    # Create a temp directory to store the HTML file
-    temp_dir = tempfile.mkdtemp()
-
-    # Create a temp file to store the HTML file; use the .html file extension
-    temp_file = tempfile.mkstemp(dir=temp_dir, suffix=".html")
-
-    # Write the HTML content to the temp file
-    with open(temp_file[1], "w") as f:
-        f.write(html_content)
-
-    # Generate output file path from filename and optional path
-    output_path = filename
-    if path:
-        # If path has a trailing slash, remove it
-        if path[-1] == "/":
-            path = path[:-1]
-        output_path = path + "/" + filename
-
-    # Set up the Chrome webdriver options
-    options = webdriver.ChromeOptions()
-
-    # Use headless mode with an extremely large window size
-    options.add_argument("--headless")
-    options.add_argument("--window-size=6000, 5000")
-
-    # Instantiate a Chrome webdriver with the selected options
-    chrome = webdriver.Chrome(options=options)
-
-    # Normalize zoom level
-    zoom = zoom - 1
-
-    # Convert the zoom level to a percentage string
-    zoom_level = str(zoom * 100) + "%"
-
-    # Get the scaling factor by multiplying the zoom by 2
-    scaling_factor = zoom * 2
-
-    # Adjust the expand value by the scaling factor
-    expansion_amount = expand * scaling_factor
-
-    # Open the HTML file in the Chrome browser
-    chrome.get("file://" + temp_file[1])
-    chrome.execute_script(f"document.body.style.zoom = '{zoom_level}'")
-
-    # Get only the chosen element from the page; by default, this is
-    # the table element
-    element = chrome.find_element(by=By.TAG_NAME, value=selector)
-
-    # Get the location and size of the table element; this will be used
-    # to crop the screenshot later
-    location = element.location
-    size = element.size
-
-    # Get a screenshot of the entire page
-    png = chrome.get_screenshot_as_png()
-
-    # Close the Chrome browser
-    chrome.quit()
-
-    # Open the screenshot as an image with the PIL library
-    image = Image.open(fp=BytesIO(png))
-
-    # Crop the image to only include the table element; the scaling factor
-    # of 6 is used to account for the zoom level of 300% set earlier
-    left = (location["x"] * scaling_factor) - expansion_amount
-    top = (location["y"] * scaling_factor) - expansion_amount
-    right = ((location["x"] + size["width"]) * scaling_factor) + expansion_amount
-    bottom = ((location["y"] + size["height"]) * scaling_factor) + expansion_amount
-
-    # Save the cropped image to the output path
-    image = image.crop((left, top, right, bottom))
-
-    # Save the image to the output path as a PNG file
-    image.save(fp=output_path, format="png")
