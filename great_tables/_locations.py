@@ -93,10 +93,10 @@ class LocBody(Loc):
 
     Parameters
     ----------
-    columns : SelectExpr
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : list[str | int]
+    rows
         The rows to target. Can either be a single row name or a series of row names provided in a
         list.
 
