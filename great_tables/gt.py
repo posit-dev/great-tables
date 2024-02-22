@@ -101,6 +101,10 @@ class GT(
     auto_align
         Optionally have column data be aligned depending on the content contained in each column of
         the input `data=`.
+    id
+        By default (with `None`) the table ID will be a random, ten-letter string as generated
+        through internal use of the `random_id()` function. A custom table ID can be used here by
+        providing a string.
     locale
         An optional locale identifier that can be set as the default locale for all functions that
         take a `locale` argument. Examples include `"en"` for English (United States) and `"fr"`
@@ -195,15 +199,17 @@ class GT(
         rowname_col: str | None = None,
         groupname_col: str | None = None,
         auto_align: bool = True,
+        id: str | None = None,
         locale: str | None = None,
     ):
 
         gtdata = GTData.from_data(
             data,
-            locale=locale,
             rowname_col=rowname_col,
             groupname_col=groupname_col,
             auto_align=auto_align,
+            id=id,
+            locale=locale,
         )
         super().__init__(**gtdata.__dict__)
 
@@ -326,7 +332,7 @@ class GT(
 </table>
 """
 
-        # Obtain the `table_id` value (might be set, might be None)
+        # Obtain the `table_id` value from the Options (might be set, might be None)
         table_id = self._options.table_id.value
 
         if table_id is None:
@@ -361,7 +367,7 @@ class GT(
     def _finalize_html_table(
         style: str, quarto_disable_processing: str, quarto_use_bootstrap: str, *args: Any
     ) -> str:
-        from htmltools import tags, HTML, css, TagList
+        from htmltools import tags
 
         html_tbl = tags.table(
             data_quarto_disable_processing=quarto_disable_processing,
