@@ -1019,6 +1019,13 @@ def opt_table_outline(
         "table_border_left_color": color,
         "table_border_right_color": color,
     }
+
+    # Set the table outline options
+    res = tab_options(self=self, **params)
+
+    return res
+
+
 def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     """
     Stylize your table with a colorful look.
