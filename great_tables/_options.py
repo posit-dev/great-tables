@@ -974,6 +974,32 @@ def opt_all_caps(
 def opt_table_outline(
     self: GTSelf, style: str = "solid", width: str = "3px", color: str = "#D3D3D3"
 ) -> GTSelf:
+    """
+    Option to wrap an outline around the entire table.
+
+    The `opt_table_outline()` method puts an outline of consistent `style=`, `width=`, and `color=`
+    around the entire table. It'll write over any existing outside lines so long as the `width=`
+    value is larger that of the existing lines. The default value of `style=` (`"solid"`) will draw
+    a solid outline, whereas using `"none"` will remove any present outline.
+
+    Parameters
+    ----------
+    style
+        The style of the table outline. The default value is `"solid"`. The valid values are
+        `"solid"`, `"dashed"`, `"dotted"`, and `"none"`.
+    width
+        The width of the table outline. The default value is `"3px"`. The value must be in pixels
+        and it must be an integer value.
+    color
+        The color of the table outline, where the default is `"#D3D3D3"`. The value must either a
+        hexadecimal color code or a color name.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+    """
 def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     """
     Stylize your table with a colorful look.
