@@ -1004,6 +1004,21 @@ def opt_table_outline(
     # Validate the `style` argument
     style = _utils._match_arg(x=style, lst=["solid", "dashed", "dotted", "none"])
 
+    # Create a dictionary of parameters to pass to the `tab_options()` method
+    params = {
+        "table_border_top_style": style,
+        "table_border_bottom_style": style,
+        "table_border_left_style": style,
+        "table_border_right_style": style,
+        "table_border_top_width": width,
+        "table_border_bottom_width": width,
+        "table_border_left_width": width,
+        "table_border_right_width": width,
+        "table_border_top_color": color,
+        "table_border_bottom_color": color,
+        "table_border_left_color": color,
+        "table_border_right_color": color,
+    }
 def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     """
     Stylize your table with a colorful look.
