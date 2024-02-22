@@ -32,7 +32,7 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
 
     Parameters
     ----------
-    **kwargs : str
+    **kwargs
         The column names and new labels. The column names are provided as keyword arguments and the
         new labels are provided as the values for those keyword arguments. For example,
         `cols_label(col1="Column 1", col2="Column 2")` would relabel columns `col1` and `col2` with
@@ -116,9 +116,9 @@ def cols_align(self: GTSelf, align: str = "left", columns: Optional[str] = None)
 
     Parameters
     ----------
-    align : str
+    align
         The alignment to apply. Must be one of `"left"`, `"center"`, or `"right"`.
-    columns : Union[str, List[str], None]
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list. If `None`, the alignment is applied to all columns.
 

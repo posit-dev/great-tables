@@ -157,6 +157,7 @@ quartodoc:
         - GT.opt_all_caps
         - GT.opt_vertical_padding
         - GT.opt_horizontal_padding
+        - GT.opt_stylize
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of

@@ -14,7 +14,7 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
-from ._tbl_data import PlExpr, n_rows
+from ._tbl_data import PlExpr
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
 from ._locations import resolve_rows_i
@@ -77,12 +77,12 @@ def fmt(
 
     Parameters
     ----------
-    fns : Union[FormatFn, FormatFns]
+    fns
         Either a single formatting function or a named list of functions.
-    columns : Union[str, List[str], None]
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : Union[int, List[int], None]
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in `columns` being formatted.
         Alternatively, we can supply a list of row indices.
@@ -145,62 +145,62 @@ def fmt_number(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    decimals : int
+    decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
         can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the
         [`fmt_integer()`](`great_tables.GT.fmt_integer`) method should be considered.
-    n_sigfig : Optional[int]
+    n_sigfig
         A option to format numbers to *n* significant figures. By default, this is `None` and thus
         number values will be formatted according to the number of decimal places set via
         `decimals`. If opting to format according to the rules of significant figures, `n_sigfig`
         must be a number greater than or equal to `1`. Any values passed to the `decimals` and
         `drop_trailing_zeros` arguments will be ignored.
-    drop_trailing_zeros : bool
+    drop_trailing_zeros
         A boolean value that allows for removal of trailing zeros (those redundant zeros after the
         decimal mark).
-    drop_trailing_dec_mark : bool
+    drop_trailing_dec_mark
         A boolean value that determines whether decimal marks should always appear even if there are
         no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
         default trailing decimal marks are not shown.
-    use_seps : bool
+    use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
-    scale_by : float
+    scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
-    compact : bool
+    compact
         A boolean value that allows for compact formatting of numeric values. Values will be scaled
         and decorated with the appropriate suffixes (e.g., `1230` becomes `1.23K`, and `1230000`
         becomes `1.23M`). The `compact` option is `False` by default.
-    pattern : str
+    pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    sep_mark : str
+    sep_mark
         The string to use as a separator between groups of digits. For example, using `sep_mark=","`
         with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
         ignored if a `locale` is supplied (i.e., is not `None`).
-    dec_mark : str
+    dec_mark
         The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
         `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
         `locale` is supplied (i.e., is not `None`).
-    force_sign : bool
+    force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
-    locale : str | None
+    locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -346,39 +346,39 @@ def fmt_integer(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    use_seps : bool
+    use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
-    scale_by : float
+    scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
-    compact : bool
+    compact
         A boolean value that allows for compact formatting of numeric values. Values will be scaled
         and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
         becomes `1M`). The `compact` option is `False` by default.
-    pattern : str
+    pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    sep_mark : str
+    sep_mark
         The string to use as a separator between groups of digits. For example, using `sep_mark=","`
         with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
         ignored if a `locale` is supplied (i.e., is not `None`).
-    force_sign : bool
+    force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
-    locale : str | None
+    locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -505,7 +505,7 @@ def fmt_scientific(
     """
     Format values to scientific notation.
 
-    With numeric values in a **gt** table, we can perform formatting so that the targeted values are
+    With numeric values in a table, we can perform formatting so that the targeted values are
     rendered in scientific notation, where extremely large or very small numbers can be expressed in
     a more practical fashion. Here, numbers are written in the form of a mantissa (`m`) and an
     exponent (`n`) with the construction *m* x 10^*n* or *m*E*n*. The mantissa component is a number
@@ -525,63 +525,63 @@ def fmt_scientific(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    decimals : int
+    decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
         can be removed with `drop_trailing_zeros=True`.
-    n_sigfig : Optional[int]
+    n_sigfig
         A option to format numbers to *n* significant figures. By default, this is `None` and thus
         number values will be formatted according to the number of decimal places set via
         `decimals`. If opting to format according to the rules of significant figures, `n_sigfig`
         must be a number greater than or equal to `1`. Any values passed to the `decimals` and
         `drop_trailing_zeros` arguments will be ignored.
-    drop_trailing_zeros : bool
+    drop_trailing_zeros
         A boolean value that allows for removal of trailing zeros (those redundant zeros after the
         decimal mark).
-    drop_trailing_dec_mark : bool
+    drop_trailing_dec_mark
         A boolean value that determines whether decimal marks should always appear even if there are
         no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
         default trailing decimal marks are not shown.
-    scale_by : float
+    scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
-    exp_style : str
+    exp_style
         Style of formatting to use for the scientific notation formatting. By default this is
         `"x10n"` but other options include using a single letter (e.g., `"e"`, `"E"`, etc.), a
         letter followed by a `"1"` to signal a minimum digit width of one, or `"low-ten"` for using
         a stylized `"10"` marker.
-    pattern : str
+    pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    sep_mark : str
+    sep_mark
         The string to use as a separator between groups of digits. For example, using `sep_mark=","`
         with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
         ignored if a `locale` is supplied (i.e., is not `None`).
-    dec_mark : str
+    dec_mark
         The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
         `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
         `locale` is supplied (i.e., is not `None`).
-    force_sign_m : bool
+    force_sign_m
         Should the plus sign be shown for positive values of the mantissa (first component)? This
         would effectively show a sign for all values except zero on the first numeric component of
         the notation. If so, use `True` (the default for this is `False`), where only negative
         numbers will display a sign.
-    force_sign_n : bool
+    force_sign_n
         Should the plus sign be shown for positive values of the exponent (second component)? This
         would effectively show a sign for all values except zero on the second numeric component of
         the notation. If so, use `True` (the default for this is `False`), where only negative
         numbers will display a sign.
-    locale : str | None
+    locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -787,58 +787,58 @@ def fmt_percent(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    decimals : int
+    decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
         can be removed with `drop_trailing_zeros=True`.
-    drop_trailing_zeros : bool
+    drop_trailing_zeros
         A boolean value that allows for removal of trailing zeros (those redundant zeros after the
         decimal mark).
-    drop_trailing_dec_mark : bool
+    drop_trailing_dec_mark
         A boolean value that determines whether decimal marks should always appear even if there are
         no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
         default trailing decimal marks are not shown.
-    scale_values : bool
+    scale_values
         Should the values be scaled through multiplication by 100? By default this scaling is
         performed since the expectation is that incoming values are usually proportional. Setting to
         `False` signifies that the values are already scaled and require only the percent sign when
         formatted.
-    use_seps : bool
+    use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
-    pattern : str
+    pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    sep_mark : str
+    sep_mark
         The string to use as a separator between groups of digits. For example, using `sep_mark=","`
         with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
         ignored if a `locale` is supplied (i.e., is not `None`).
-    dec_mark : str
+    dec_mark
         The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
         `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
         `locale` is supplied (i.e., is not `None`).
-    force_sign : bool
+    force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
-    placement : str
+    placement
         This option governs the placement of the percent sign. This can be either be `"right"` (the
         default) or `"left"`.
-    incl_space : bool
+    incl_space
         An option for whether to include a space between the value and the percent sign. The default
         is to not introduce a space character.
-    locale : str | None
+    locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -989,62 +989,62 @@ def fmt_currency(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    currency : str | None
+    currency
         The currency to use for the numeric value. This input can be supplied as a 3-letter currency
         code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency).
-    use_subunits: bool
+    use_subunits
         An option for whether the subunits portion of a currency value should be displayed. For
         example, with an input value of `273.81`, the default formatting will produce `"$273.81"`.
         Removing the subunits (with `use_subunits = False`) will give us `"$273"`.
-    decimals : int
+    decimals
         The `decimals` values corresponds to the exact number of decimal places to use. This value
         is optional as a currency has an intrinsic number of decimal places (i.e., the subunits).
         A value such as `2.34` can, for example, be formatted with `0` decimal places and if the
         currency used is `"USD"` it would result in `"$2"`. With `4` decimal places, the formatted
         value becomes `"$2.3400"`.
-    drop_trailing_dec_mark : bool
+    drop_trailing_dec_mark
         A boolean value that determines whether decimal marks should always appear even if there are
         no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
         default trailing decimal marks are not shown.
-    use_seps : bool
+    use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
-    scale_by : float
+    scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
-    pattern : str
+    pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    sep_mark : str
+    sep_mark
         The string to use as a separator between groups of digits. For example, using `sep_mark=","`
         with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
         ignored if a `locale` is supplied (i.e., is not `None`).
-    dec_mark : str
+    dec_mark
         The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
         `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
         `locale` is supplied (i.e., is not `None`).
-    force_sign : bool
+    force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
-    placement : str
+    placement
         The placement of the currency symbol. This can be either be `"left"` (as in `"$450"`) or
         `"right"` (which yields `"450$"`).
-    incl_space : bool
+    incl_space
         An option for whether to include a space between the value and the currency symbol. The
         default is to not introduce a space character.
-    locale : str | None
+    locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -1207,17 +1207,17 @@ def fmt_roman(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    case : str
+    case
         Should Roman numerals should be rendered as uppercase (`"upper"`) or lowercase (`"lower"`)
         letters? By default, this is set to `"upper"`.
-    pattern : str
+    pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
@@ -1341,55 +1341,55 @@ def fmt_bytes(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    standard: str
+    standard
         The form of expressing large byte sizes is divided between: (1) decimal units (powers of
         1000; e.g., `"kB"` and `"MB"`), and (2) binary units (powers of 1024; e.g., `"KiB"` and
         `"MiB"`). The default is to use decimal units with the `"decimal"` option. The alternative
         is to use binary units with the `"binary"` option.
-    decimals : int
+    decimals
         This corresponds to the exact number of decimal places to use. A value such as `2.34` can,
         for example, be formatted with `0` decimal places and it would result in `"2"`. With `4`
         decimal places, the formatted value becomes `"2.3400"`. The trailing zeros can be removed
         with `drop_trailing_zeros=True`.
-    drop_trailing_zeros : bool
+    drop_trailing_zeros
         A boolean value that allows for removal of trailing zeros (those redundant zeros after the
         decimal mark).
-    drop_trailing_dec_mark : bool
+    drop_trailing_dec_mark
         A boolean value that determines whether decimal marks should always appear even if there are
         no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
         default trailing decimal marks are not shown.
-    use_seps : bool
+    use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
-    pattern : str
+    pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    sep_mark : str
+    sep_mark
         The string to use as a separator between groups of digits. For example, using `sep_mark=","`
         with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
         ignored if a `locale` is supplied (i.e., is not `None`).
-    dec_mark : str
+    dec_mark
         The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
         `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
         `locale` is supplied (i.e., is not `None`).
-    force_sign : bool
+    force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign. This option is disregarded when using accounting
         notation with `accounting = True`.
-    incl_space : bool
+    incl_space
         An option for whether to include a space between the value and the currency symbol. The
         default is to not introduce a space character.
-    locale : str | None
+    locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -1556,22 +1556,22 @@ def fmt_date(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    date_style: str
+    date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
         ISO 8601 date formatting. There are 41 date styles in total and their short names can be
         viewed using `info_date_style()`.
-    pattern : str
+    pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    locale : str | None
+    locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -1704,22 +1704,22 @@ def fmt_time(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    time_style: str
+    time_style
         The time style to use. By default this is the short name `"iso"` which corresponds to how
         times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
         their short names can be viewed using `info_time_style()`.
-    pattern : str
+    pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    locale : str | None
+    locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
@@ -1846,18 +1846,18 @@ def fmt_datetime(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
-    date_style: str
+    date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
         ISO 8601 date formatting. There are 41 date styles in total and their short names can be
         viewed using `info_date_style()`.
-    time_style: str
+    time_style
         The time style to use. By default this is the short name `"iso"` which corresponds to how
         times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
         their short names can be viewed using `info_time_style()`.
@@ -1999,7 +1999,7 @@ def _validate_iso_datetime_str(x: str) -> None:
 
     Parameters
     ----------
-    x : str
+    x
         The string to validate.
 
     Raises
@@ -2026,7 +2026,7 @@ def _normalize_iso_datetime_str(x: str) -> str:
 
     Parameters
     ----------
-    x : str
+    x
         The string to normalize.
 
     Returns
@@ -2055,10 +2055,10 @@ def fmt_markdown(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows : int | List[int] | None
+    rows
         In conjunction with `columns`, we can specify which of their rows should undergo formatting.
         The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
         we can supply a list of row indices.
@@ -2467,14 +2467,10 @@ def _listify(
 
     Parameters
     ----------
-
-    x : Union[T, List[T], None]
-
+    x
         The input value to be converted into a list. It can be a single value of type T, a list of
         values of type T, or None.
-
-    default : Callable[[], List[T]]
-
+    default
         A callable that returns a default list when the input value is None.
 
     Returns
@@ -3310,24 +3306,25 @@ def fmt_image(
 
     Parameters
     ----------
-    columns:
+    columns
         The columns to format.
-    rows:
+    rows
         The rows to format, specified using row numbers.
-    height, width:
-        Height and width of images.
-    sep:
+    height
+        The height of the rendered images.
+    width
+        The width of the rendered images.
+    sep
         Separator between images.
-    path:
+    path
         Path to image files.
-    file_pattern:
+    file_pattern
         File pattern specification.
-    encode:
+    encode
         Whether to use Base64 encoding.
 
     Examples
     --------
-
     ```{python}
     from great_tables import GT
     from great_tables.data import metro

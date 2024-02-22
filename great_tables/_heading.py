@@ -24,15 +24,15 @@ def tab_header(
 
     Parameters
     ----------
-    title : str | Text
+    title
         Text to be used in the table title. We can elect to use the [`md()`](`great_tables.md`) and
         [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to retain
         HTML elements in the text.
-    subtitle : Optional[str | Text]
+    subtitle
         Text to be used in the table subtitle. We can elect to use the [`md()`](`great_tables.md`)
         and [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to
         retain HTML elements in the text.
-    preheader: Optional[str | List[str]]
+    preheader
         Optional preheader content that is rendered above the table. Can be supplied as a list
         of strings.
 
