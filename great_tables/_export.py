@@ -70,6 +70,7 @@ def save(
     from selenium.webdriver.common.by import By
     from PIL import Image
     from io import BytesIO
+    from pathlib import Path
 
     # Get the HTML content from the displayed output
     html_content = as_raw_html(self=self)
@@ -87,10 +88,15 @@ def save(
     # Generate output file path from filename and optional path
     output_path = filename
     if path:
-        # If path has a trailing slash, remove it
-        if path[-1] == "/":
-            path = path[:-1]
-        output_path = path + "/" + filename
+        # If path has a trailing slash, remove it; use the Path class to handle this
+        path = Path(path)
+        if path.is_dir():
+            output_path = path / filename
+        else:
+            path = path.parent
+            output_path = path / filename
+    else:
+        output_path = Path.cwd() / filename
 
     # Set up the Chrome webdriver options
     options = webdriver.ChromeOptions()
