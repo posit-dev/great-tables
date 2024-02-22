@@ -106,7 +106,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
+    <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
@@ -136,17 +136,10 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#api-reference" id="toc-api-reference" class="nav-link active" data-scroll-target="#api-reference">API Reference</a>
+  <li><a href="#great_tables.GT.opt_table_outline" id="toc-great_tables.GT.opt_table_outline" class="nav-link active" data-scroll-target="#great_tables.GT.opt_table_outline">GT.opt_table_outline</a>
   <ul class="collapse">
-  <li><a href="#table-creation" id="toc-table-creation" class="nav-link" data-scroll-target="#table-creation">Table Creation</a></li>
-  <li><a href="#creating-or-modifying-parts-of-a-table" id="toc-creating-or-modifying-parts-of-a-table" class="nav-link" data-scroll-target="#creating-or-modifying-parts-of-a-table">Creating or modifying parts of a table</a></li>
-  <li><a href="#formatting-column-data" id="toc-formatting-column-data" class="nav-link" data-scroll-target="#formatting-column-data">Formatting column data</a></li>
-  <li><a href="#modifying-columns" id="toc-modifying-columns" class="nav-link" data-scroll-target="#modifying-columns">Modifying columns</a></li>
-  <li><a href="#location-targeting-and-styling-classes" id="toc-location-targeting-and-styling-classes" class="nav-link" data-scroll-target="#location-targeting-and-styling-classes">Location Targeting and Styling Classes</a></li>
-  <li><a href="#helper-functions" id="toc-helper-functions" class="nav-link" data-scroll-target="#helper-functions">Helper functions</a></li>
-  <li><a href="#table-options" id="toc-table-options" class="nav-link" data-scroll-target="#table-options">Table options</a></li>
-  <li><a href="#value-formatting-functions" id="toc-value-formatting-functions" class="nav-link" data-scroll-target="#value-formatting-functions">Value formatting functions</a></li>
-  <li><a href="#built-in-datasets" id="toc-built-in-datasets" class="nav-link" data-scroll-target="#built-in-datasets">Built in datasets</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -157,324 +150,63 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 
 
-<section id="api-reference" class="level1 doc doc-index">
-<h1 class="doc doc-index">API Reference</h1>
-<section id="table-creation" class="level2">
-<h2 class="anchored" data-anchor-id="table-creation">Table Creation</h2>
-<p>All tables created in <strong>Great Tables</strong> begin by using <a href="../reference/GT.html#great_tables.GT"><code>GT()</code></a>. With this class, we supply the input data table and some basic options for creating a stub and row groups (with the <code>rowname_col=</code> and <code>groupname_col=</code> arguments).</p>
+<section id="great_tables.GT.opt_table_outline" class="level1">
+<h1>GT.opt_table_outline</h1>
+<p><code>GT.opt_table_outline(self, style='solid', width='3px', color='#D3D3D3')</code></p>
+<p>Option to wrap an outline around the entire table.</p>
+<p>The <code>opt_table_outline()</code> method puts an outline of consistent <code>style=</code>, <code>width=</code>, and <code>color=</code> around the entire table. It’ll write over any existing outside lines so long as the <code>width=</code> value is larger that of the existing lines. The default value of <code>style=</code> (<code>"solid"</code>) will draw a solid outline, whereas using <code>"none"</code> will remove any present outline.</p>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 78%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>style</code></td>
+<td><code>str</code></td>
+<td>The style of the table outline. The default value is <code>"solid"</code>. The valid values are <code>"solid"</code>, <code>"dashed"</code>, <code>"dotted"</code>, and <code>"none"</code>.</td>
+<td><code>'solid'</code></td>
+</tr>
+<tr class="even">
+<td><code>width</code></td>
+<td><code>str</code></td>
+<td>The width of the table outline. The default value is <code>"3px"</code>. The value must be in pixels and it must be an integer value.</td>
+<td><code>'3px'</code></td>
+</tr>
+<tr class="odd">
+<td><code>color</code></td>
+<td><code>str</code></td>
+<td>The color of the table outline, where the default is <code>"#D3D3D3"</code>. The value must either a hexadecimal color code or a color name.</td>
+<td><code>'#D3D3D3'</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2">
+<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
 <td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
-<td>Create a <strong>Great Tables</strong> object.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="creating-or-modifying-parts-of-a-table" class="level2">
-<h2 class="anchored" data-anchor-id="creating-or-modifying-parts-of-a-table">Creating or modifying parts of a table</h2>
-<p>A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can perform styling on targeted table locations with the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method.</p>
-<table class="table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.tab_header.html#great_tables.GT.tab_header">GT.tab_header</a></td>
-<td>Add a table header.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner">GT.tab_spanner</a></td>
-<td>Insert a spanner above a selection of column headings.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.tab_stubhead.html#great_tables.GT.tab_stubhead">GT.tab_stubhead</a></td>
-<td>Add label text to the stubhead.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.tab_source_note.html#great_tables.GT.tab_source_note">GT.tab_source_note</a></td>
-<td>Add a source note citation.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.tab_style.html#great_tables.GT.tab_style">GT.tab_style</a></td>
-<td>Add custom style to one or more cells</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.tab_options.html#great_tables.GT.tab_options">GT.tab_options</a></td>
-<td>Modify the table output options.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="formatting-column-data" class="level2">
-<h2 class="anchored" data-anchor-id="formatting-column-data">Formatting column data</h2>
-<p>Columns of data can be formatted with the <code>fmt_*()</code> methods. We can specify the rows of these columns quite precisely with the <code>rows</code> argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the <a href="../reference/GT.fmt.html#great_tables.GT.fmt"><code>fmt()</code></a> method and define your own formatter.</p>
-<table class="table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_number.html#great_tables.GT.fmt_number">GT.fmt_number</a></td>
-<td>Format numeric values.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_integer.html#great_tables.GT.fmt_integer">GT.fmt_integer</a></td>
-<td>Format values as integers.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_percent.html#great_tables.GT.fmt_percent">GT.fmt_percent</a></td>
-<td>Format values as a percentage.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_scientific.html#great_tables.GT.fmt_scientific">GT.fmt_scientific</a></td>
-<td>Format values to scientific notation.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_currency.html#great_tables.GT.fmt_currency">GT.fmt_currency</a></td>
-<td>Format values as currencies.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_bytes.html#great_tables.GT.fmt_bytes">GT.fmt_bytes</a></td>
-<td>Format values as bytes.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_roman.html#great_tables.GT.fmt_roman">GT.fmt_roman</a></td>
-<td>Format values as Roman numerals.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_date.html#great_tables.GT.fmt_date">GT.fmt_date</a></td>
-<td>Format values as dates.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_time.html#great_tables.GT.fmt_time">GT.fmt_time</a></td>
-<td>Format values as times.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime">GT.fmt_datetime</a></td>
-<td>Format values as datetimes.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_markdown.html#great_tables.GT.fmt_markdown">GT.fmt_markdown</a></td>
-<td>Format Markdown text.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_image.html#great_tables.GT.fmt_image">GT.fmt_image</a></td>
-<td>Format values as images to display.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt.html#great_tables.GT.fmt">GT.fmt</a></td>
-<td>Set a column format with a formatter function.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.data_color.html#great_tables.GT.data_color">GT.data_color</a></td>
-<td>Perform data cell colorization.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="modifying-columns" class="level2">
-<h2 class="anchored" data-anchor-id="modifying-columns">Modifying columns</h2>
-<p>The <code>cols_*()</code> methods allow for modifications that act on entire columns. This includes alignment of the data in columns (<a href="../reference/GT.cols_align.html#great_tables.GT.cols_align"><code>cols_align()</code></a>), hiding columns from view (<a href="../reference/GT.cols_hide.html#great_tables.GT.cols_hide"><code>cols_hide()</code></a>), re-labeling the column labels (<a href="../reference/GT.cols_label.html#great_tables.GT.cols_label"><code>cols_label()</code></a>), and moving columns around (with the <code>cols_move*()</code> methods).</p>
-<table class="table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.cols_align.html#great_tables.GT.cols_align">GT.cols_align</a></td>
-<td>Set the alignment of one or more columns.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.cols_width.html#great_tables.GT.cols_width">GT.cols_width</a></td>
-<td>Set the widths of columns.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.cols_label.html#great_tables.GT.cols_label">GT.cols_label</a></td>
-<td>Relabel one or more columns.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.cols_move.html#great_tables.GT.cols_move">GT.cols_move</a></td>
-<td>Move one or more columns.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.cols_move_to_start.html#great_tables.GT.cols_move_to_start">GT.cols_move_to_start</a></td>
-<td>Move one or more columns to the start.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.cols_move_to_end.html#great_tables.GT.cols_move_to_end">GT.cols_move_to_end</a></td>
-<td>Move one or more columns to the end.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.cols_hide.html#great_tables.GT.cols_hide">GT.cols_hide</a></td>
-<td>Hide one or more columns.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="location-targeting-and-styling-classes" class="level2">
-<h2 class="anchored" data-anchor-id="location-targeting-and-styling-classes">Location Targeting and Styling Classes</h2>
-<p>Location targeting is a powerful feature of <strong>Great Tables</strong>. It allows for the precise selection of table locations for styling (using the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method). The styling classes allow for the specification of the styling properties to be applied to the targeted locations.</p>
-<table class="table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/loc.body.html#great_tables.loc.body">loc.body</a></td>
-<td>A location specification for targeting data cells in the table body.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/style.fill.html#great_tables.style.fill">style.fill</a></td>
-<td>A style specification for the background fill of targeted cells.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/style.text.html#great_tables.style.text">style.text</a></td>
-<td>A style specification for cell text.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/style.borders.html#great_tables.style.borders">style.borders</a></td>
-<td>A style specification for cell borders.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="helper-functions" class="level2">
-<h2 class="anchored" data-anchor-id="helper-functions">Helper functions</h2>
-<p>An assortment of helper functions is available in the <strong>Great Tables</strong> package. The <a href="../reference/md.html#great_tables.md"><code>md()</code></a> and <a href="../reference/html.html#great_tables.html"><code>html()</code></a> helper functions can used during label creation with the <a href="../reference/GT.tab_header.html#great_tables.GT.tab_header"><code>tab_header()</code></a>, <a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner"><code>tab_spanner()</code></a>, <a href="../reference/GT.tab_stubhead.html#great_tables.GT.tab_stubhead"><code>tab_stubhead()</code></a>, and <a href="../reference/GT.tab_source_note.html#great_tables.GT.tab_source_note"><code>tab_source_note()</code></a> methods.</p>
-<table class="table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/md.html#great_tables.md">md</a></td>
-<td>Interpret input text as Markdown-formatted text.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/html.html#great_tables.html">html</a></td>
-<td>Interpret input text as HTML-formatted text.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/from_column.html#great_tables.from_column">from_column</a></td>
-<td>Specify that a style value should be fetched from a column in the data.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/system_fonts.html#great_tables.system_fonts">system_fonts</a></td>
-<td>Get a themed font stack that works well across systems.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="table-options" class="level2">
-<h2 class="anchored" data-anchor-id="table-options">Table options</h2>
-<p>With the <code>opt_*()</code> functions, we have an easy way to set commonly-used table options without having to use <code>tab_options()</code> directly.</p>
-<table class="table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.opt_align_table_header.html#great_tables.GT.opt_align_table_header">GT.opt_align_table_header</a></td>
-<td>Option to align the table header.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps">GT.opt_all_caps</a></td>
-<td>Option to use all caps in select table locations.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.opt_vertical_padding.html#great_tables.GT.opt_vertical_padding">GT.opt_vertical_padding</a></td>
-<td>Option to scale the vertical padding of the table.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.opt_horizontal_padding.html#great_tables.GT.opt_horizontal_padding">GT.opt_horizontal_padding</a></td>
-<td>Option to scale the horizontal padding of the table.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.opt_table_outline.html#great_tables.GT.opt_table_outline">GT.opt_table_outline</a></td>
-<td>Option to wrap an outline around the entire table.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.opt_stylize.html#great_tables.GT.opt_stylize">GT.opt_stylize</a></td>
-<td>Stylize your table with a colorful look.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="value-formatting-functions" class="level2">
-<h2 class="anchored" data-anchor-id="value-formatting-functions">Value formatting functions</h2>
-<p>If you have single values (or lists of them) in need of formatting, we have a set of <code>val_fmt_*()</code> functions that have been adapted from the corresponding <code>fmt_*()</code> methods.</p>
-<table class="table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_number.html#great_tables.vals.fmt_number">vals.fmt_number</a></td>
-<td>Format numeric values.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/vals.fmt_integer.html#great_tables.vals.fmt_integer">vals.fmt_integer</a></td>
-<td>Format values as integers.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_scientific.html#great_tables.vals.fmt_scientific">vals.fmt_scientific</a></td>
-<td>Format values to scientific notation.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/vals.fmt_percent.html#great_tables.vals.fmt_percent">vals.fmt_percent</a></td>
-<td>Format values as a percentage.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_currency.html#great_tables.vals.fmt_currency">vals.fmt_currency</a></td>
-<td>Format values as currencies.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/vals.fmt_roman.html#great_tables.vals.fmt_roman">vals.fmt_roman</a></td>
-<td>Format values as Roman numerals.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_bytes.html#great_tables.vals.fmt_bytes">vals.fmt_bytes</a></td>
-<td>Format values as bytes.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/vals.fmt_date.html#great_tables.vals.fmt_date">vals.fmt_date</a></td>
-<td>Format values as dates.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_time.html#great_tables.vals.fmt_time">vals.fmt_time</a></td>
-<td>Format values as times.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/vals.fmt_markdown.html#great_tables.vals.fmt_markdown">vals.fmt_markdown</a></td>
-<td>Format Markdown text.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="built-in-datasets" class="level2">
-<h2 class="anchored" data-anchor-id="built-in-datasets">Built in datasets</h2>
-<p>The <strong>Great Tables</strong> package is equipped with ten datasets that come in all shapes and sizes. Many examples thoughout the help docs use these datasets to quickly demonstrate the awesome features of the package!</p>
-<table class="table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/data.countrypops.html#great_tables.data.countrypops">data.countrypops</a></td>
-<td>Yearly populations of countries from 1960 to 2022.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.sza.html#great_tables.data.sza">data.sza</a></td>
-<td>Twice hourly solar zenith angles by month &amp; latitude.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/data.gtcars.html#great_tables.data.gtcars">data.gtcars</a></td>
-<td>Deluxe automobiles from the 2014-2017 period.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.sp500.html#great_tables.data.sp500">data.sp500</a></td>
-<td>Daily S&amp;P 500 Index data from 1950 to 2015.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/data.pizzaplace.html#great_tables.data.pizzaplace">data.pizzaplace</a></td>
-<td>A year of pizza sales from a pizza place.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.exibble.html#great_tables.data.exibble">data.exibble</a></td>
-<td>A toy example table for testing with great_tables: exibble.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/data.towny.html#great_tables.data.towny">data.towny</a></td>
-<td>Populations of all municipalities in Ontario from 1996 to 2021.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.metro.html#great_tables.data.metro">data.metro</a></td>
-<td>The stations of the Paris Metro.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/data.constants.html#great_tables.data.constants">data.constants</a></td>
-<td>The fundamental physical constants.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.illness.html#great_tables.data.illness">data.illness</a></td>
-<td>Lab tests for one suffering from an illness.</td>
+<td>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</td>
 </tr>
 </tbody>
 </table>
