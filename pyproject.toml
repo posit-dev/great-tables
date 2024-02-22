@@ -42,19 +42,24 @@ dependencies = [
     "typing_extensions>=3.10.0.0",
     "packaging>=20.9",
     "pandas>=1.4.2",
-    "Pillow>=10.2.0",
     "numpy>=1.22.4",
     "Babel>=2.13.1",
     "mizani>=0.9.3",
-    "selenium>=4.18.1",
     "webcolors>=1.13",
 ]
 requires-python = ">=3.7"
 
-[project.urls]
-homepage = "https://github.com/posit-dev/great_tables"
-
 [project.optional-dependencies]
+all = [
+    "great_tables[extra]",
+    "great_tables[dev]",
+]
+
+extra = [
+    "selenium>=4.18.1",
+    "Pillow>=10.2.0",
+]
+
 dev = [
     "jupyter",
     "quartodoc>=0.7.1; python_version >= '3.9'",
@@ -67,6 +72,10 @@ dev = [
     "shiny",
     "syrupy"
 ]
+
+[project.urls]
+homepage = "https://github.com/posit-dev/great-tables"
+documentation = "https://posit-dev.github.io/great-tables/"
 
 [tool.flake8]
 exclude = ["docs", ".venv", "tests/*"]
