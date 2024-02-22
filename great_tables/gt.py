@@ -406,11 +406,14 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
 
 def as_raw_html(gt: GT) -> str:
     """
-    Returns the GTData object as raw HTML.
+    Get the HTML content of a GT object.
+
+    Get the HTML content from a GT object as a string. This function is useful for obtaining the
+    HTML content of a GT object for use in other contexts.
 
     Parameters
     ----------
-    gt : GT
+    gt
         A GT object.
 
     Returns
@@ -424,6 +427,17 @@ def as_raw_html(gt: GT) -> str:
 
 
 def gtsave(gt: GT, filename: str, path: Optional[str] = None):
+    """
+    Save a gt table as an image file.
+
+    The `gtsave()` function makes it easy to save a table object as an image file. The function
+    produces a high-resolution PNG file of the table, which can be used in a variety of contexts.
+
+    Parameters
+    ----------
+    gt
+        A GT object.
+    """
 
     from selenium import webdriver
     from selenium.webdriver.common.by import By
