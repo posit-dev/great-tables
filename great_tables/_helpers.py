@@ -34,7 +34,7 @@ def px(x: Union[int, float]) -> str:
 
     Parameters
     ----------
-    x : Union[int, float]
+    x
         The integer or float value to format as a string (e.g., `"12px"`) for some arguments that
         can take values as units of pixels.
 
@@ -61,7 +61,7 @@ def pct(x: Union[int, float]) -> str:
 
     Parameters
     ----------
-    x : Union[int, float]
+    x
         The integer or float value to format as a string-based percentage value for some arguments
         that can take percentage values.
 
@@ -84,7 +84,7 @@ def md(text: str) -> Text:
 
     Parameters
     ----------
-    text : str
+    text
         The text that is understood to contain Markdown formatting.
 
     Returns
@@ -105,7 +105,7 @@ def html(text: str) -> Text:
 
     Parameters
     ----------
-    text : str
+    text
         The text that is understood to contain HTML formatting.
 
     Returns
@@ -121,7 +121,7 @@ def random_id(n: int = 10) -> str:
 
     Parameters
     ----------
-    n : int
+    n
         The number of lowercase letters to use in the random ID string. Defaults to 10.
 
     Returns
@@ -218,7 +218,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
 
     Parameters
     ----------
-    name : FontStackName, optional
+    name
         The name of a font stack. Must be drawn from the set of `"system-ui"` (the default),
         `"transitional"`, `"old-style"`, `"humanist"`, `"geometric-humanist"`,
         `"classical-humanist"`, `"neo-grotesque"`, `"monospace-slab-serif"`, `"monospace-code"`,

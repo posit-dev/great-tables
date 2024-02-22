@@ -19,7 +19,7 @@ def tab_source_note(data: GTSelf, source_note: Union[str, Text]) -> GTSelf:
 
     Parameters
     ----------
-    source_note : str | Text
+    source_note
         Text to be used in the source note. We can optionally use the [`md()`](`great_tables.md`) or
         [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to retain
         HTML elements in the text.

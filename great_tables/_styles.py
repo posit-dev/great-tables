@@ -135,41 +135,41 @@ class CellStyleText(CellStyle):
 
     Parameters
     ----------
-    color : str | None
+    color
         The text color can be modified through the `color` argument.
-    font : str | None
+    font
         The font or collection of fonts (subsequent font names are) used as fallbacks.
-    size : str | None
+    size
         The size of the font. Can be provided as a number that is assumed to represent `px` values
         (or could be wrapped in the `px()` helper function). We can also use one of the following
         absolute size keywords: `"xx-small"`, `"x-small"`, `"small"`, `"medium"`, `"large"`,
         `"x-large"`, or `"xx-large"`.
-    align : Literal["center", "left", "right", "justify"] | None
+    align
         The text in a cell can be horizontally aligned though one of the following options:
         `"center"`, `"left"`, `"right"`, or `"justify"`.
-    v_align : Literal["middle", "top", "bottom"] | None
+    v_align
         The vertical alignment of the text in the cell can be modified through the options
         `"middle"`, `"top"`, or `"bottom"`.
-    style : Literal["normal", "italic", "oblique"] | None
+    style
         Can be one of either `"normal"`, `"italic"`, or `"oblique"`.
-    weight : Literal["normal", "bold", "bolder", "lighter"] | None)
+    weight
         The weight of the font can be modified thorough a text-based option such as `"normal"`,
         `"bold"`, `"lighter"`, `"bolder"`, or, a numeric value between `1` and `1000`, inclusive.
         Note that only variable fonts may support the numeric mapping of weight.
-    stretch : Literal["normal", "condensed", "ultra-condensed", "extra-condensed", "semi-condensed", "semi-expanded", "expanded", "extra-expanded", "ultra-expanded"] | None
+    stretch
         Allows for text to either be condensed or expanded. We can use one of the following
         text-based keywords to describe the degree of condensation/expansion: `"ultra-condensed"`,
         `"extra-condensed"`, `"condensed"`, `"semi-condensed"`, `"normal"`, `"semi-expanded"`,
         `"expanded"`, `"extra-expanded"`, or `"ultra-expanded"`. Alternatively, we can supply
         percentage values from `0%` to `200%`, inclusive. Negative percentage values are not
         allowed.
-    decorate : Literal["overline", "line-through", "underline", "underline overline"] | None
+    decorate
         Allows for text decoration effect to be applied. Here, we can use `"overline"`,
         `"line-through"`, or `"underline"`.
-    transform : Literal["uppercase", "lowercase", "capitalize"] | None
+    transform
         Allows for the transformation of text. Options are `"uppercase"`, `"lowercase"`, or
         `"capitalize"`.
-    whitespace : Literal["normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"] | None
+    whitespace
         A white-space preservation option. By default, runs of white-space will be collapsed into
         single spaces but several options exist to govern how white-space is collapsed and how lines
         might wrap at soft-wrap opportunities. The options are `"normal"`, `"nowrap"`, `"pre"`,
@@ -189,24 +189,30 @@ class CellStyleText(CellStyle):
     v_align: Literal["middle", "top", "bottom"] | ColumnExpr | None = None
     style: Literal["normal", "italic", "oblique"] | ColumnExpr | None = None
     weight: Literal["normal", "bold", "bolder", "lighter"] | ColumnExpr | None = None
-    stretch: Literal[
-        "normal",
-        "condensed",
-        "ultra-condensed",
-        "extra-condensed",
-        "semi-condensed",
-        "semi-expanded",
-        "expanded",
-        "extra-expanded",
-        "ultra-expanded",
-    ] | ColumnExpr | None = None
-    decorate: Literal[
-        "overline", "line-through", "underline", "underline overline"
-    ] | ColumnExpr | None = None
+    stretch: (
+        Literal[
+            "normal",
+            "condensed",
+            "ultra-condensed",
+            "extra-condensed",
+            "semi-condensed",
+            "semi-expanded",
+            "expanded",
+            "extra-expanded",
+            "ultra-expanded",
+        ]
+        | ColumnExpr
+        | None
+    ) = None
+    decorate: (
+        Literal["overline", "line-through", "underline", "underline overline"] | ColumnExpr | None
+    ) = None
     transform: Literal["uppercase", "lowercase", "capitalize"] | ColumnExpr | None = None
-    whitespace: Literal[
-        "normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"
-    ] | ColumnExpr | None = None
+    whitespace: (
+        Literal["normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"]
+        | ColumnExpr
+        | None
+    ) = None
 
     def _to_html_style(self) -> str:
         rendered = ""
@@ -247,7 +253,7 @@ class CellStyleFill(CellStyle):
 
     Parameters
     ----------
-    color : str
+    color
         The color to use for the cell background fill. This can be any valid CSS color value, such
         as a hex code, a named color, or an RGB value.
 
@@ -276,16 +282,16 @@ class CellStyleBorders(CellStyle):
 
     Parameters
     ----------
-    sides : Literal["all", "top", "bottom", "left", "right"]
+    sides
         The border sides to be modified. Options include `"left"`, `"right"`, `"top"`, and
         `"bottom"`. For all borders surrounding the selected cells, we can use the `"all"` option.
-    color : str
+    color
         The border `color` can be defined with any valid CSS color value, such as a hex code, a
         named color, or an RGB value. The default `color` value is `"#000000"` (black).
-    style : str
+    style
         The border `style` can be one of either `"solid"` (the default), `"dashed"`, `"dotted"`,
         `"hidden"`, or `"double"`.
-    weight : str
+    weight
         The default value for `weight` is `"1px"` and higher values will become more visually
         prominent.
 
@@ -295,9 +301,11 @@ class CellStyleBorders(CellStyle):
         A CellStyleBorders object, which is used for a `styles` argument if specifying cell borders.
     """
 
-    sides: Literal["all", "top", "bottom", "left", "right"] | List[
+    sides: (
         Literal["all", "top", "bottom", "left", "right"]
-    ] | ColumnExpr = "all"
+        | List[Literal["all", "top", "bottom", "left", "right"]]
+        | ColumnExpr
+    ) = "all"
     color: str | ColumnExpr = "#000000"
     style: str | ColumnExpr = "solid"
     weight: str | ColumnExpr = "1px"

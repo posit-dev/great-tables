@@ -42,23 +42,23 @@ def tab_spanner(
 
     Parameters
     ----------
-    label : str
+    label
         The text to use for the spanner label. We can optionally use the [`md()`](`great_tables.md`)
         and [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to
         retain HTML elements in the text.
-    columns : SelectExpr
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    spanners : str | list[str] | None
+    spanners
         The spanners that should be spanned over, should they already be defined. One or more
         spanner ID values (in quotes) can be supplied here. This argument works in tandem with the
         `columns` argument.
-    level : Optional[int]
+    level
         An explicit level to which the spanner should be placed. If not provided, **Great Tables**
         will choose the level based on the inputs provided within `columns` and `spanners`, placing
         the spanner label where it will fit. The first spanner level (right above the column labels)
         is `0`.
-    id : Optional[str]
+    id
         The ID for the spanner. When accessing a spanner through the `spanners` argument of
         `tab_spanner()` the `id` value is used as the reference (and not the `label`). If an `id`
         is not explicitly provided here, it will be taken from the `label` value. It is advisable to
@@ -66,11 +66,11 @@ def tab_spanner(
         text is complicated (e.g., contains markup, is lengthy, or both). Finally, when providing
         an `id` value you must ensure that it is unique across all ID values set for spanner labels
         (the method will throw an error if `id` isn't unique).
-    gather : bool
+    gather
         An option to move the specified `columns` such that they are unified under the spanner.
         Ordering of the moved-into-place columns will be preserved in all cases. By default, this
         is set to `True`.
-    replace : bool
+    replace
         Should new spanners be allowed to partially or fully replace existing spanners? (This is a
         possibility if setting spanners at an already populated `level`.) By default, this is set to
         `False` and an error will occur if some replacement is attempted.
@@ -215,10 +215,10 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
 
     Parameters
     ----------
-    columns : SelectExpr
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    after : str
+    after
         The column after which the `columns` should be placed. This can be any column name that
         exists in the table.
 
@@ -299,7 +299,7 @@ def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     Parameters
     ----------
-    columns : SelectExpr
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
 
@@ -368,7 +368,7 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     Parameters
     ----------
-    columns : SelectExpr
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
 
@@ -436,7 +436,7 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     Parameters
     ----------
-    columns : SelectExpr
+    columns
         The columns to hide in the output display table. Can either be a single column name or a
         series of column names provided in a list.
 
@@ -579,7 +579,7 @@ def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
 
     Parameters
     ----------
-    cases : Dict[str, str]
+    cases
         A dictionary where the keys are column names and the values are the widths. Widths can be
         specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`).
 
