@@ -971,6 +971,9 @@ def opt_all_caps(
     return res
 
 
+def opt_table_outline(
+    self: GTSelf, style: str = "solid", width: str = "3px", color: str = "#D3D3D3"
+) -> GTSelf:
 def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     """
     Stylize your table with a colorful look.
