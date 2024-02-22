@@ -488,6 +488,9 @@ def gtsave(
     # Get the scaling factor by multiplying the zoom by 2
     scaling_factor = zoom * 2
 
+    # Adjust the expand value by the scaling factor
+    expansion_amount = expand * scaling_factor
+
     # Open the HTML file in the Chrome browser
     chrome.get("file://" + temp_file[1])
     chrome.execute_script(f"document.body.style.zoom = '{zoom_level}'")
@@ -512,10 +515,10 @@ def gtsave(
 
     # Crop the image to only include the table element; the scaling factor
     # of 6 is used to account for the zoom level of 300% set earlier
-    left = location["x"] * scaling_factor
-    top = location["y"] * scaling_factor
-    right = (location["x"] + size["width"]) * scaling_factor
-    bottom = (location["y"] + size["height"]) * scaling_factor
+    left = (location["x"] * scaling_factor) - expansion_amount
+    top = (location["y"] * scaling_factor) - expansion_amount
+    right = ((location["x"] + size["width"]) * scaling_factor) + expansion_amount
+    bottom = ((location["y"] + size["height"]) * scaling_factor) + expansion_amount
 
     # Save the cropped image to the output path
     image = image.crop((left, top, right, bottom))
