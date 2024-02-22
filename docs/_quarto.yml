@@ -164,8 +164,8 @@ quartodoc:
         function for that is `gtsave()`, which allows us to save the table as a standalone image
         file. You can also get the table code as an HTML fragment with the `as_raw_html()` function.
       contents:
-        - GT.gtsave
-        - GT.as_raw_html
+        - gtsave
+        - as_raw_html
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of
