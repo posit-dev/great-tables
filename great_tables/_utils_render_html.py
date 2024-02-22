@@ -5,6 +5,7 @@ from typing import List, Any, cast
 from htmltools import tags, HTML, css, TagList
 from itertools import groupby, chain
 from ._text import StringBuilder, _process_text, _process_text_id
+from .utils_render_common import get_row_reorder_df
 
 
 def create_heading_component_h(data: GTData) -> StringBuilder:
@@ -417,8 +418,6 @@ def create_body_component_h(data: GTData) -> str:
     # Filter list of StyleInfo to only those that apply to the body (where locname="data")
     styles_body = [x for x in data._styles if x.locname == "data"]
 
-    grp_idx_to_label = data._group_rows.indices_map()
-
     # Get the default column vars
     column_vars = data._boxhead._get_default_columns()
 
@@ -436,7 +435,12 @@ def create_body_component_h(data: GTData) -> str:
 
     body_rows: List[str] = []
 
-    for i in range(n_rows(tbl_data)):
+    # iterate over rows (ordered by groupings)
+    prev_group_label = None
+
+    ordered_index = data._group_rows.indices_map(n_rows(data._tbl_data))
+
+    for i, group_label in ordered_index:
         body_cells: List[str] = []
 
         if has_stub_column and has_groups and not has_two_col_stub:
@@ -446,9 +450,7 @@ def create_body_component_h(data: GTData) -> str:
 
             # Generate a row that contains the row group label (this spans the entire row) but
             # only if `i` indicates there should be a row group label
-            if i in grp_idx_to_label:
-                group_label = grp_idx_to_label[i]
-
+            if group_label != prev_group_label:
                 group_class = (
                     "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
                 )
@@ -494,6 +496,7 @@ def create_body_component_h(data: GTData) -> str:
                     f'  <td {cell_styles}class="gt_row gt_{cell_alignment}">' + cell_str + "</td>"
                 )
 
+        prev_group_label = group_label
         body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
 
     all_body_rows = "\n".join(body_rows)
