@@ -468,7 +468,7 @@ def gtsave(gt: GT, filename: str, path: Optional[str] = None) -> None:
     # Set up the Chrome webdriver options
     options = webdriver.ChromeOptions()
 
-    # Use headless mode with a large window size
+    # Use headless mode with an extremely large window size
     options.add_argument("--headless")
     options.add_argument("--window-size=6000, 5000")
 
