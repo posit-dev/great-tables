@@ -37,6 +37,7 @@ from great_tables._options import (
     opt_row_striping,
     opt_vertical_padding,
     opt_horizontal_padding,
+    opt_table_outline,
     opt_stylize,
 )
 from great_tables._source_notes import tab_source_note
@@ -232,6 +233,7 @@ class GT(
     opt_row_striping = opt_row_striping
     opt_vertical_padding = opt_vertical_padding
     opt_horizontal_padding = opt_horizontal_padding
+    opt_table_outline = opt_table_outline
     opt_stylize = opt_stylize
 
     tab_header = tab_header

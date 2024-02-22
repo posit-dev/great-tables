@@ -971,6 +971,61 @@ def opt_all_caps(
     return res
 
 
+def opt_table_outline(
+    self: GTSelf, style: str = "solid", width: str = "3px", color: str = "#D3D3D3"
+) -> GTSelf:
+    """
+    Option to wrap an outline around the entire table.
+
+    The `opt_table_outline()` method puts an outline of consistent `style=`, `width=`, and `color=`
+    around the entire table. It'll write over any existing outside lines so long as the `width=`
+    value is larger that of the existing lines. The default value of `style=` (`"solid"`) will draw
+    a solid outline, whereas using `"none"` will remove any present outline.
+
+    Parameters
+    ----------
+    style
+        The style of the table outline. The default value is `"solid"`. The valid values are
+        `"solid"`, `"dashed"`, `"dotted"`, and `"none"`.
+    width
+        The width of the table outline. The default value is `"3px"`. The value must be in pixels
+        and it must be an integer value.
+    color
+        The color of the table outline, where the default is `"#D3D3D3"`. The value must either a
+        hexadecimal color code or a color name.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+    """
+
+    # Validate the `style` argument
+    style = _utils._match_arg(x=style, lst=["solid", "dashed", "dotted", "none"])
+
+    # Create a dictionary of parameters to pass to the `tab_options()` method
+    params = {
+        "table_border_top_style": style,
+        "table_border_bottom_style": style,
+        "table_border_left_style": style,
+        "table_border_right_style": style,
+        "table_border_top_width": width,
+        "table_border_bottom_width": width,
+        "table_border_left_width": width,
+        "table_border_right_width": width,
+        "table_border_top_color": color,
+        "table_border_bottom_color": color,
+        "table_border_left_color": color,
+        "table_border_right_color": color,
+    }
+
+    # Set the table outline options
+    res = tab_options(self=self, **params)
+
+    return res
+
+
 def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     """
     Stylize your table with a colorful look.
