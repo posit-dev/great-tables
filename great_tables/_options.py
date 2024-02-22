@@ -1000,6 +1000,10 @@ def opt_table_outline(
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
     """
+
+    # Validate the `style` argument
+    style = _utils._match_arg(x=style, lst=["solid", "dashed", "dotted", "none"])
+
 def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     """
     Stylize your table with a colorful look.
