@@ -302,7 +302,6 @@ def test_scss_default_generated(gt_tbl: GT, snapshot):
 
 
 def test_scss_from_opt_table_outline(gt_tbl: GT, snapshot):
-
     gt_tbl_outline = (
         GT(
             exibble[["num", "char", "currency", "row", "group"]],
