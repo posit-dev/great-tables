@@ -60,6 +60,7 @@ class GTData:
         rowname_col: str | None = None,
         groupname_col: str | None = None,
         auto_align: bool = True,
+        id: str | None = None,
         locale: str | None = None,
     ):
         data = validate_frame(data)
@@ -71,7 +72,7 @@ class GTData:
         row_groups = stub._to_row_groups()
         group_rows = GroupRows(data, group_key=groupname_col).reorder(row_groups)
 
-        return cls(
+        cls_settings = cls(
             _tbl_data=data,
             _body=Body.from_empty(data),
             _boxhead=boxhead,  # uses get_tbl_data()
@@ -89,6 +90,16 @@ class GTData:
             _options=Options(),
         )
 
+        if id is not None:
+            # Replace only the 'table_id' value in the '_options' attribute
+            cls_settings = cls_settings._replace(
+                _options=cls_settings._options._replace(
+                    table_id=OptionsInfo(True, "table", "value", id)
+                )
+            )
+
+        return cls_settings
+
 
 class _Sequence(Sequence[T]):
     _d: list[T]
@@ -97,16 +108,13 @@ class _Sequence(Sequence[T]):
         self._d = data
 
     @overload
-    def __getitem__(self, ii: int) -> T:
-        ...
+    def __getitem__(self, ii: int) -> T: ...
 
     @overload
-    def __getitem__(self, ii: slice) -> Self[T]:
-        ...
+    def __getitem__(self, ii: slice) -> Self[T]: ...
 
     @overload
-    def __getitem__(self, ii: list[int]) -> Self[T]:
-        ...
+    def __getitem__(self, ii: list[int]) -> Self[T]: ...
 
     def __getitem__(self, ii: int | slice | list[int]) -> T | Self[T]:
         if isinstance(ii, slice):
@@ -1135,6 +1143,9 @@ class Options:
     # page_footer_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
     quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
     quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
+
+    def _replace(self, **kwargs: OptionsInfo) -> Self:
+        return replace(self, **kwargs)
 
     def _get_all_options_keys(self) -> List[Union[str, None]]:
         return [x.parameter for x in self._options.values()]
