@@ -7,7 +7,7 @@ del _v
 
 # Main gt imports ----
 
-from .gt import GT, as_raw_html, gtsave
+from .gt import GT
 from . import data
 from . import vals
 from . import loc
@@ -32,8 +32,6 @@ __all__ = (
     "vals",
     "loc",
     "style",
-    "as_raw_html",
-    "gtsave",
 )
 
 
