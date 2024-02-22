@@ -482,6 +482,9 @@ def gtsave(
     # Instantiate a Chrome webdriver with the selected options
     chrome = webdriver.Chrome(options=options)
 
+    # Normalize zoom level
+    zoom = zoom - 1
+
     # Convert the zoom level to a percentage string
     zoom_level = str(zoom * 100) + "%"
 
