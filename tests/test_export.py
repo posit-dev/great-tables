@@ -26,7 +26,6 @@ def gt_tbl():
 
 
 def test_html_string_generated(gt_tbl: GT, snapshot):
-
     assert snapshot == gt_tbl.as_raw_html()
 
 

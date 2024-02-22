@@ -202,7 +202,6 @@ class GT(
         id: str | None = None,
         locale: str | None = None,
     ):
-
         gtdata = GTData.from_data(
             data,
             rowname_col=rowname_col,
