@@ -170,295 +170,295 @@ def tab_options(
 
     Parameters
     ----------
-    container_width : str
+    container_width
         The width of the table's container. Can be specified as a single-length
         character with units of pixels or as a percentage. If provided as a scalar numeric
         value, it is assumed that the value is given in units of pixels.
-    container_height: str
+    container_height
         The height of the table's container.
-    container_overflow_x : bool
+    container_overflow_x
         An option to enable scrolling in the horizontal direction when the table content overflows
         the container dimensions. Using `True` (the default) means that horizontal scrolling is
         enabled to view the entire table in those directions. With `False`, the table may be clipped
         if the table width or height exceeds the `container_width`.
-    container_overflow_y : bool
+    container_overflow_y
         An option to enable scrolling in the vertical direction when the table content overflows.
         Same rules apply as for `container_overflow_x`; the dependency here is that of the table
         height (`container_height`).
-    table_width : str
+    table_width
         The width of the table. Can be specified as a string with units of pixels or as a
         percentage. If provided as a numeric value, it is assumed that the value is given in
         units of pixels.
-    table_layout : str
+    table_layout
         The value for the `table-layout` CSS style in the HTML output context. By default, this
         is `"fixed"` but another valid option is `"auto"`.
-    table_margin_left : str
+    table_margin_left
         The size of the margins on the left of the table within the container. Can be
         specified as a single-length value with units of pixels or as a percentage. If
         provided as a numeric value, it is assumed that the value is given in units of pixels.
         Using `table_margin_left` will overwrite any values set by `table_align`.
-    table_margin_right : str
+    table_margin_right
         The size of the margins on the right of the table within the container. Same rules apply
         as for `table_margin_left`. Using `table_margin_right` will overwrite any values set by
         `table_align`.
-    table_background_color : str
+    table_background_color
         The background color for the table. A color name or a hexadecimal color code should be
         provided.
-    table_font_names : Union[str, List[str]]
+    table_font_names
         The names of the fonts used for the table. This should be provided as a list of font
         names. If the first font isn't available, then the next font is tried (and so on).
-    table_font_size : str
+    table_font_size
         The font size for the table. Can be specified as a string with units of pixels or as a
         percentage. If provided as a numeric value, it is assumed that the value is given in
         units of pixels.
-    table_font_weight : str
+    table_font_weight
         The font weight of the table. Can be a text-based keyword such as `"normal"`, `"bold"`,
         `"lighter"`, `"bolder"`, or, a numeric value between `1` and `1000`, inclusive. Note that
         only variable fonts may support the numeric mapping of weight.
-    table_font_style : str
+    table_font_style
         The font style for the table. Can be one of either `"normal"`, `"italic"`, or `"oblique"`.
-    table_font_color : str
+    table_font_color
         The text color used throughout the table. A color name or a hexadecimal color code should be
         provided.
-    table_font_color_light : str
+    table_font_color_light
         The text color used throughout the table when the background color is dark. A color name or
         a hexadecimal color code should be provided.
-    table_border_top_style : str
+    table_border_top_style
         The style of the table's absolute top border. Can be one of either `"solid"`, `"dotted"`,
         `"dashed"`, `"double"`, `"groove"`, `"ridge"`, `"inset"`, or `"outset"`.
-    table_border_top_width : str
+    table_border_top_width
         The width of the table's absolute top border. Can be specified as a string with units of
         pixels or as a percentage. If provided as a numeric value, it is assumed that the value is
         given in units of pixels.
-    table_border_top_color : str
+    table_border_top_color
         The color of the table's absolute top border. A color name or a hexadecimal color code
         should be provided.
-    table_border_bottom_style : str
+    table_border_bottom_style
         The style of the table's absolute bottom border.
-    table_border_bottom_width : str
+    table_border_bottom_width
         The width of the table's absolute bottom border.
-    table_border_bottom_color : str
+    table_border_bottom_color
         The color of the table's absolute bottom border.
-    table_border_left_style : str
+    table_border_left_style
         The style of the table's absolute left border.
-    table_border_left_width : str
+    table_border_left_width
         The width of the table's absolute left border.
-    table_border_left_color : str
+    table_border_left_color
         The color of the table's absolute left border.
-    table_border_right_style : str
+    table_border_right_style
         The style of the table's absolute right border.
-    table_border_right_width : str
+    table_border_right_width
         The width of the table's absolute right border.
-    table_border_right_color : str
+    table_border_right_color
         The color of the table's absolute right border.
-    heading_background_color : str
+    heading_background_color
         The background color for the heading. A color name or a hexadecimal color code should be
         provided.
-    heading_align : str
+    heading_align
         Controls the horizontal alignment of the heading title and subtitle. We can either use
         `"center"`, `"left"`, or `"right"`.
-    heading_title_font_size : str
+    heading_title_font_size
         The font size for the heading title element.
-    heading_title_font_weight : str
+    heading_title_font_weight
         The font weight of the heading title.
-    heading_subtitle_font_size : str
+    heading_subtitle_font_size
         The font size for the heading subtitle element.
-    heading_subtitle_font_weight : str
+    heading_subtitle_font_weight
         The font weight of the heading subtitle.
-    heading_padding : str
+    heading_padding
         The amount of vertical padding to incorporate in the `heading` (title and subtitle). Can be
         specified as a string with units of pixels or as a percentage. If provided as a numeric
         value, it is assumed that the value is given in units of pixels.
-    heading_padding_horizontal : str
+    heading_padding_horizontal
         The amount of horizontal padding to incorporate in the `heading` (title and subtitle). Can
         be specified as a string with units of pixels or as a percentage. If provided as a numeric
         value, it is assumed that the value is given in units of pixels.
-    heading_border_bottom_style : str
+    heading_border_bottom_style
         The style of the header's bottom border.
-    heading_border_bottom_width : str
+    heading_border_bottom_width
         The width of the header's bottom border. If the `width` of this border is larger, then it
         will be the visible border.
-    heading_border_bottom_color : str
+    heading_border_bottom_color
         The color of the header's bottom border.
-    heading_border_lr_style : str
+    heading_border_lr_style
         The style of the left and right borders of the `heading` location.
-    heading_border_lr_width : str
+    heading_border_lr_width
         The width of the left and right borders of the `heading` location. If the `width` of this
         border is larger, then it will be the visible border.
-    heading_border_lr_color : str
+    heading_border_lr_color
         The color of the left and right borders of the `heading` location.
-    column_labels_background_color : str
+    column_labels_background_color
         The background color for the column labels. A color name or a hexadecimal color code should
         be provided.
-    column_labels_font_size : str
+    column_labels_font_size
         The font size to use for all column labels.
-    column_labels_font_weight : str
+    column_labels_font_weight
         The font weight of the table's column labels.
-    column_labels_text_transform : str
+    column_labels_text_transform
         The text transformation for the column labels. Either of the `"uppercase"`, `"lowercase"`,
         or `"capitalize"` keywords can be used.
-    column_labels_padding : str
+    column_labels_padding
         The amount of vertical padding to incorporate in the `column_labels` (this includes the
         column spanners).
-    column_labels_padding_horizontal : str
+    column_labels_padding_horizontal
         The amount of horizontal padding to incorporate in the `column_labels` (this includes the
         column spanners).
-    column_labels_vlines_style : str
+    column_labels_vlines_style
         The style of all vertical lines ('vlines') of the `column_labels`.
-    column_labels_vlines_width : str
+    column_labels_vlines_width
         The width of all vertical lines ('vlines') of the `column_labels`.
-    column_labels_vlines_color : str
+    column_labels_vlines_color
         The color of all vertical lines ('vlines') of the `column_labels`.
-    column_labels_border_top_style : str
+    column_labels_border_top_style
         The style of the top border of the `column_labels` location.
-    column_labels_border_top_width : str
+    column_labels_border_top_width
         The width of the top border of the `column_labels` location. If the `width` of this border
         is larger, then it will be the visible border.
-    column_labels_border_top_color : str
+    column_labels_border_top_color
         The color of the top border of the `column_labels` location.
-    column_labels_border_bottom_style : str
+    column_labels_border_bottom_style
         The style of the bottom border of the `column_labels` location.
-    column_labels_border_bottom_width : str
+    column_labels_border_bottom_width
         The width of the bottom border of the `column_labels` location. If the `width` of this
         border is larger, then it will be the visible border.
-    column_labels_border_bottom_color : str
+    column_labels_border_bottom_color
         The color of the bottom border of the `column_labels` location.
-    column_labels_border_lr_style : str
+    column_labels_border_lr_style
         The style of the left and right borders of the `column_labels` location.
-    column_labels_border_lr_width: str
+    column_labels_border_lr_width
         The width of the left and right borders of the `column_labels` location. If the `width` of
         this border is larger, then it will be the visible border.
-    column_labels_border_lr_color : str
+    column_labels_border_lr_color
         The color of the left and right borders of the `column_labels` location.
-    column_labels_hidden : bool
+    column_labels_hidden
         An option to hide the column labels. If providing `True` then the entire `column_labels`
         location won't be seen and the table header (if present) will collapse downward.
-    row_group_background_color : str
+    row_group_background_color
         The background color for the row group labels. A color name or a hexadecimal color code
         should be provided.
-    row_group_font_weight : str
+    row_group_font_weight
         The font weight for all row group labels present in the table.
-    row_group_font_size : str
+    row_group_font_size
         The font size to use for all row group labels.
-    row_group_padding : str
+    row_group_padding
         The amount of vertical padding to incorporate in the row group labels.
-    row_group_border_top_style : str
+    row_group_border_top_style
         The style of the top border of the `row_group` location.
-    row_group_border_top_width : str
+    row_group_border_top_width
         The width of the top border of the `row_group` location. If the `width` of this border is
         larger, then it will be the visible border.
-    row_group_border_top_color : str
+    row_group_border_top_color
         The color of the top border of the `row_group` location.
-    row_group_border_bottom_style : str
+    row_group_border_bottom_style
         The style of the bottom border of the `row_group` location.
-    row_group_border_bottom_width : str
+    row_group_border_bottom_width
         The width of the bottom border of the `row_group` location. If the `width` of this border
         is larger, then it will be the visible border.
-    row_group_border_bottom_color : str
+    row_group_border_bottom_color
         The color of the bottom border of the `row_group` location.
-    row_group_border_left_style : str
+    row_group_border_left_style
         The style of the left border of the `row_group` location.
-    row_group_border_left_width : str
+    row_group_border_left_width
         The width of the left border of the `row_group` location. If the `width` of this border is
         larger, then it will be the visible border.
-    row_group_border_left_color : str
+    row_group_border_left_color
         The color of the left border of the `row_group` location.
-    row_group_border_right_style : str
+    row_group_border_right_style
         The style of the right border of the `row_group` location.
-    row_group_border_right_width : str
+    row_group_border_right_width
         The width of the right border of the `row_group` location. If the `width` of this border is
-    row_group_border_right_color : str
+    row_group_border_right_color
         The color of the right border of the `row_group` location.
-    row_group_as_column : bool
+    row_group_as_column
         An option to render the row group labels as a column. If `True`, then the row group labels
         will be rendered as a column to the left of the table body. If `False`, then the row group
         labels will be rendered as a separate row above the grouping of rows.
-    table_body_hlines_style : str
+    table_body_hlines_style
         The style of all horizontal lines ('hlines') in the `table_body`.
-    table_body_hlines_width : str
+    table_body_hlines_width
         The width of all horizontal lines ('hlines') in the `table_body`.
-    table_body_hlines_color : str
+    table_body_hlines_color
         The color of all horizontal lines ('hlines') in the `table_body`.
-    table_body_vlines_style : str
+    table_body_vlines_style
         The style of all vertical lines ('vlines') in the `table_body`.
-    table_body_vlines_width : str
+    table_body_vlines_width
         The width of all vertical lines ('vlines') in the `table_body`.
-    table_body_vlines_color : str
+    table_body_vlines_color
         The color of all vertical lines ('vlines') in the `table_body`.
-    table_body_border_top_style : str
+    table_body_border_top_style
         The style of the top border of the `table_body` location.
-    table_body_border_top_width : str
+    table_body_border_top_width
         The width of the top border of the `table_body` location. If the `width` of this border is
         larger, then it will be the visible border.
-    table_body_border_top_color : str
+    table_body_border_top_color
         The color of the top border of the `table_body` location.
-    table_body_border_bottom_style : str
+    table_body_border_bottom_style
         The style of the bottom border of the `table_body` location.
-    table_body_border_bottom_width : str
+    table_body_border_bottom_width
         The width of the bottom border of the `table_body` location. If the `width` of this border
-    table_body_border_bottom_color : str
+    table_body_border_bottom_color
         The color of the bottom border of the `table_body` location.
-    stub_background_color : str
+    stub_background_color
         The background color for the stub. A color name or a hexadecimal color code should be
         provided.
-    stub_font_size : str
+    stub_font_size
         The font size to use for all row labels present in the table stub.
-    stub_font_weight : str
+    stub_font_weight
         The font weight for all row labels present in the table stub.
-    stub_text_transform : str
+    stub_text_transform
         The text transformation for the row labels present in the table stub.
-    stub_border_style : str
+    stub_border_style
         The style of the vertical border of the table stub.
-    stub_border_width : str
+    stub_border_width
         The width of the vertical border of the table stub.
-    stub_border_color : str
+    stub_border_color
         The color of the vertical border of the table stub.
-    stub_row_group_font_size : str
+    stub_row_group_font_size
         The font size for the row group column in the stub.
-    stub_row_group_font_weight : str
+    stub_row_group_font_weight
         The font weight for the row group column in the stub.
-    stub_row_group_text_transform : str
+    stub_row_group_text_transform
         The text transformation for the row group column in the stub.
-    stub_row_group_border_style : str
+    stub_row_group_border_style
         The style of the vertical border of the row group column in the stub.
-    stub_row_group_border_width : str
+    stub_row_group_border_width
         The width of the vertical border of the row group column in the stub.
-    stub_row_group_border_color : str
+    stub_row_group_border_color
         The color of the vertical border of the row group column in the stub.
-    data_row_padding : str
+    data_row_padding
         The amount of vertical padding to incorporate in the body/stub rows.
-    data_row_padding_horizontal : str
+    data_row_padding_horizontal
         The amount of horizontal padding to incorporate in the body/stub rows.
-    source_notes_background_color : str
+    source_notes_background_color
         The background color for the source notes. A color name or a hexadecimal color code should
         be provided.
-    source_notes_font_size : str
+    source_notes_font_size
         The font size to use for all source note text.
-    source_notes_padding : str
+    source_notes_padding
         The amount of vertical padding to incorporate in the source notes.
-    source_notes_padding_horizontal : str
+    source_notes_padding_horizontal
         The amount of horizontal padding to incorporate in the source notes.
-    source_notes_multiline : bool
+    source_notes_multiline
         An option to either put source notes in separate lines (the default, or `True`) or render
         them as a continuous line of text with `source_notes_sep` providing the separator (by
         default `" "`) between notes.
-    source_notes_sep : str
+    source_notes_sep
         The separating characters between adjacent source notes when rendered as a continuous line
         of text (when `source_notes_multiline` is `False`). The default value is a single space
         character (`" "`).
-    source_notes_border_bottom_style : str
+    source_notes_border_bottom_style
         The style of the bottom border of the `source_notes` location.
-    source_notes_border_bottom_width : str
+    source_notes_border_bottom_width
         The width of the bottom border of the `source_notes` location. If the `width` of this border
         is larger, then it will be the visible border.
-    source_notes_border_bottom_color : str
+    source_notes_border_bottom_color
         The color of the bottom border of the `source_notes` location.
-    source_notes_border_lr_style : str
+    source_notes_border_lr_style
         The style of the left and right borders of the `source_notes` location.
-    source_notes_border_lr_width : str
+    source_notes_border_lr_width
         The width of the left and right borders of the `source_notes` location. If the `width` of
         this border is larger, then it will be the visible border.
-    source_notes_border_lr_color : str
+    source_notes_border_lr_color
         The color of the left and right borders of the `source_notes` location.
 
     Returns
@@ -570,7 +570,7 @@ def opt_footnote_marks(self: GTSelf, marks: Union[str, List[str]] = "numbers") -
 
     Parameters
     ----------
-    marks : Union[str, List[str]]
+    marks
         Either a list of strings that will represent the series of marks or a keyword string
         that represents a preset sequence of marks. The valid keywords are: `"numbers"` (for
         numeric marks), `"letters"` and `"LETTERS"` (for lowercase and uppercase alphabetic
@@ -603,7 +603,7 @@ def opt_row_striping(self: GTSelf, row_striping: bool = True) -> GTSelf:
 
     Parameters
     ----------
-    row_striping : bool
+    row_striping
         A boolean that indicates whether row striping should be added or removed. Defaults to
         `True`.
 
@@ -627,7 +627,7 @@ def opt_align_table_header(self: GTSelf, align: str = "center") -> GTSelf:
 
     Parameters
     ----------
-    align : str
+    align
         The alignment of the title and subtitle elements in the table header. Options are `"center"`
         (the default), `"left"`, or `"right"`.
 
@@ -680,7 +680,7 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 
     Parameters
     ----------
-    scale : float
+    scale
         The factor by which to scale the vertical padding. The default value is `1.0`. A value
         less than `1.0` will reduce the padding, and a value greater than `1.0` will increase the
         padding. The value must be between `0` and `3`.
@@ -781,7 +781,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 
     Parameters
     ----------
-    scale : float
+    scale
         The factor by which to scale the horizontal padding. The default value is `1.0`. A value
         less than `1.0` will reduce the padding, and a value greater than `1.0` will increase the
         padding. The value must be between `0` and `3`.
@@ -884,11 +884,11 @@ def opt_all_caps(
 
     Parameters
     ----------
-    all_caps : bool
+    all_caps
         Indicates whether the text transformation to all caps should be performed (`True`, the
         default) or reset to default values (`False`) for the `locations` targeted.
 
-    locations : Union[str, List[str]]
+    locations
         Which locations should undergo this text transformation? By default it includes all of
         the `"column_labels"`, the `"stub"`, and the `"row_group"` locations. However, we could
         just choose one or two of those.
