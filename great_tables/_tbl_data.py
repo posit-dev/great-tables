@@ -488,8 +488,11 @@ def _(df: PdDataFrame, x: Any) -> bool:
 @is_na.register
 def _(df: PlDataFrame, x: Any) -> bool:
     import polars as pl
+    import numpy as np
 
-    return isinstance(x, (pl.Null, type(None)))
+    from math import nan
+
+    return isinstance(x, (pl.Null, type(None))) or x is np.nan or x is nan
 
 
 @singledispatch

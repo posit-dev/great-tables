@@ -255,7 +255,7 @@ def data_color(
         color_vals = color_scale_fn(scaled_vals)
 
         # Replace 'None' and 'np.nan' values in `color_vals` with the `na_color=` color
-        color_vals = [na_color if x is None or x != x else x for x in color_vals]
+        color_vals = [na_color if is_na(data_table, x) else x for x in color_vals]
 
         # for every color value in color_vals, apply a fill to the corresponding cell
         # by using `tab_style()`
