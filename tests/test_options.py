@@ -299,3 +299,28 @@ def test_options_all_available(gt_tbl: GT):
 
 def test_scss_default_generated(gt_tbl: GT, snapshot):
     assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+
+
+def test_scss_from_opt_table_outline(gt_tbl: GT, snapshot):
+
+    gt_tbl_outline = (
+        GT(
+            exibble[["num", "char", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group",
+        )
+        .tab_header(
+            title=md("Data listing from **exibble**"),
+            subtitle=md("`exibble` is a **Great Tables** dataset."),
+        )
+        .opt_table_outline(width="10px", style="dotted", color="blue")
+    )
+
+    assert gt_tbl._options.source_notes_border_bottom_color.value == css_color_val
+
+    for part in ["top", "right", "bottom", "left"]:
+        assert getattr(gt_tbl_outline._options, f"table_border_{part}_style").value == "dotted"
+        assert getattr(gt_tbl_outline._options, f"table_border_{part}_width").value == "10px"
+        assert getattr(gt_tbl_outline._options, f"table_border_{part}_color").value == "blue"
+
+    assert snapshot == compile_scss(gt_tbl_outline, id="abc", compress=False)
