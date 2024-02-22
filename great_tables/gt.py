@@ -435,15 +435,38 @@ def gtsave(
     expand: int = 5,
 ) -> None:
     """
-    Save a gt table as an image file.
+    Save a table as an image file.
 
     The `gtsave()` function makes it easy to save a table object as an image file. The function
-    produces a high-resolution PNG file of the table, which can be used in a variety of contexts.
+    produces a high-resolution PNG file of the table. The image is created by taking a screenshot of
+    the table using a headless Chrome browser. The screenshot is then cropped to only include the
+    table element, and the resulting image is saved to the specified file path.
 
     Parameters
     ----------
     gt
         A GT object.
+    filename
+        The name of the file to save the image to.
+    path
+        An optional path to save the image to. If not provided, the image will be saved to the
+        current working directory.
+    selector
+        The HTML element selector to use to select the table. By default, this is set to "table",
+        which selects the first table element in the HTML content.
+    zoom
+        The zoom level to use when taking the screenshot. By default, this is set to 2. Lowering
+        this to 1 will result in a smaller image, while increasing it will result in a much larger
+        (yet more detailed) image.
+    expand
+        The number of pixels to expand the screenshot by. By default, this is set to 5. This can be
+        increased to capture more of the surrounding area, or decreased to capture less.
+
+    Returns
+    -------
+    None
+        This function does not return anything; it simply saves the image to the specified file
+        path.
     """
 
     from selenium import webdriver
