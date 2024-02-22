@@ -426,7 +426,14 @@ def as_raw_html(gt: GT) -> str:
     return html_table
 
 
-def gtsave(gt: GT, filename: str, path: Optional[str] = None) -> None:
+def gtsave(
+    gt: GT,
+    filename: str,
+    path: Optional[str] = None,
+    selector: str = "table",
+    zoom: int = 2,
+    expand: int = 5,
+) -> None:
     """
     Save a gt table as an image file.
 
@@ -475,12 +482,19 @@ def gtsave(gt: GT, filename: str, path: Optional[str] = None) -> None:
     # Instantiate a Chrome webdriver with the selected options
     chrome = webdriver.Chrome(options=options)
 
+    # Convert the zoom level to a percentage string
+    zoom_level = str(zoom * 100) + "%"
+
+    # Get the scaling factor by multiplying the zoom by 2
+    scaling_factor = zoom * 2
+
     # Open the HTML file in the Chrome browser
     chrome.get("file://" + temp_file[1])
-    chrome.execute_script("document.body.style.zoom = '300%'")
+    chrome.execute_script(f"document.body.style.zoom = '{zoom_level}'")
 
-    # Get only the 'table' element from the page
-    element = chrome.find_element(by=By.TAG_NAME, value="table")
+    # Get only the chosen element from the page; by default, this is
+    # the table element
+    element = chrome.find_element(by=By.TAG_NAME, value=selector)
 
     # Get the location and size of the table element; this will be used
     # to crop the screenshot later
@@ -498,10 +512,10 @@ def gtsave(gt: GT, filename: str, path: Optional[str] = None) -> None:
 
     # Crop the image to only include the table element; the scaling factor
     # of 6 is used to account for the zoom level of 300% set earlier
-    left = location["x"] * 6
-    top = location["y"] * 6
-    right = (location["x"] + size["width"]) * 6
-    bottom = (location["y"] + size["height"]) * 6
+    left = location["x"] * scaling_factor
+    top = location["y"] * scaling_factor
+    right = (location["x"] + size["width"]) * scaling_factor
+    bottom = (location["y"] + size["height"]) * scaling_factor
 
     # Save the cropped image to the output path
     image = image.crop((left, top, right, bottom))
