@@ -43,3 +43,5 @@ def test_save_image_file(gt_tbl: GT):
             time.sleep(1)
 
     assert Path("test_image.png").exists()
+
+    Path("test_image.png").unlink()
