@@ -212,6 +212,8 @@ def data_color(
     else:
         columns_resolved = columns
 
+    gt_obj = self
+
     # For each column targeted, get the data values as a new list object
     for col in columns_resolved:
         column_vals = data_table[col].to_list()
@@ -219,7 +221,7 @@ def data_color(
         # If there only a single value in `column_vals`, and it is not missing,
         # then use the first value from the palette
         if len(column_vals) == 1 and not is_na(data_table, column_vals[0]):
-            self = self.tab_style(
+            gt_obj = gt_obj.tab_style(
                 style=fill(color=palette[0]), locations=body(columns=col, rows=[0])
             )
 
@@ -237,7 +239,7 @@ def data_color(
             )
 
             # Apply the first color from the palette to the non-missing value
-            self = self.tab_style(
+            gt_obj = gt_obj.tab_style(
                 style=fill(color=palette[0]), locations=body(columns=col, rows=[non_missing_index])
             )
 
@@ -245,7 +247,7 @@ def data_color(
             missing_indices = [i for i, x in enumerate(column_vals) if is_na(data_table, x)]
 
             # Apply the `na_color=` color to all missing values
-            self = self.tab_style(
+            gt_obj = gt_obj.tab_style(
                 style=fill(color=na_color), locations=body(columns=col, rows=missing_indices)
             )
 
@@ -254,7 +256,7 @@ def data_color(
         # If the entire column contains NA values, then apply the `na_color=` color to the
         # entire column and then move on to the next column
         if all(is_na(data_table, x) for x in column_vals):
-            self = self.tab_style(style=fill(color=na_color), locations=body(columns=col))
+            gt_obj = gt_obj.tab_style(style=fill(color=na_color), locations=body(columns=col))
             continue
 
         # Filter out NA values from `column_vals`
@@ -264,7 +266,9 @@ def data_color(
         # `column_vals`, then apply the `na_color=` color to the entire column and
         # then move on to the next column
         if all(is_na(data_table, x) for x in filtered_column_vals):
-            self = self.tab_style(style=fill(color=na_color), locations=body(columns=col, rows=[0]))
+            gt_obj = gt_obj.tab_style(
+                style=fill(color=na_color), locations=body(columns=col, rows=[0])
+            )
             continue
 
         # The methodology for domain calculation and rescaling depends on column values being:
@@ -311,17 +315,16 @@ def data_color(
             if autocolor_text:
                 fgnd_color = _ideal_fgnd_color(bgnd_color=color_vals[i])
 
-                self = self.tab_style(
+                gt_obj = gt_obj.tab_style(
                     style=[text(color=fgnd_color), fill(color=color_vals[i])],
                     locations=body(columns=col, rows=[i]),
                 )
 
             else:
-                self = self.tab_style(
+                gt_obj = gt_obj.tab_style(
                     style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
                 )
-
-    return self
+    return gt_obj
 
 
 def _ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000000") -> str:
