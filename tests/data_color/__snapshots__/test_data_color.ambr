@@ -1,4 +1,32 @@
 # serializer version: 1
+# name: test_all_missing_from_multiple_rows_pd
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="background-color: #FF0000;" class="gt_row gt_right"><NA></td>
+    <td class="gt_row gt_right">3</td>
+  </tr>
+  <tr>
+    <td style="background-color: #FF0000;" class="gt_row gt_right"><NA></td>
+    <td class="gt_row gt_right">6</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_all_missing_from_multiple_rows_pl
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="background-color: #FF0000;" class="gt_row gt_center">None</td>
+    <td class="gt_row gt_right">3</td>
+  </tr>
+  <tr>
+    <td style="background-color: #FF0000;" class="gt_row gt_center">None</td>
+    <td class="gt_row gt_right">6</td>
+  </tr>
+  </tbody>
+  '''
+# ---
 # name: test_data_color_autocolor_text_false[pandas]
   '''
   <tbody class="gt_table_body">
@@ -442,6 +470,74 @@
     <td style="color: #000000; background-color: #fde725;" class="gt_row gt_right">5</td>
     <td style="color: #FFFFFF; background-color: #440154;" class="gt_row gt_right">6</td>
     <td class="gt_row gt_left">five</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_single_value_and_missing_pd
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="background-color: #FF0000;" class="gt_row gt_right"><NA></td>
+    <td class="gt_row gt_right">3</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_single_value_and_missing_pl
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="background-color: #FF0000;" class="gt_row gt_center">None</td>
+    <td class="gt_row gt_right">3</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_single_value_from_multiple_rows_pd
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="background-color: #008000;" class="gt_row gt_right">1.0</td>
+    <td class="gt_row gt_right">3</td>
+  </tr>
+  <tr>
+    <td style="background-color: #FF0000;" class="gt_row gt_right"><NA></td>
+    <td class="gt_row gt_right">4</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_single_value_from_multiple_rows_pl
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="background-color: #008000;" class="gt_row gt_right">1</td>
+    <td class="gt_row gt_right">3</td>
+  </tr>
+  <tr>
+    <td style="background-color: #FF0000;" class="gt_row gt_right">None</td>
+    <td class="gt_row gt_right">4</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_single_value_pd
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="background-color: #008000;" class="gt_row gt_right">1</td>
+    <td class="gt_row gt_right">3</td>
+  </tr>
+  </tbody>
+  '''
+# ---
+# name: test_single_value_pl
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="background-color: #008000;" class="gt_row gt_right">1</td>
+    <td class="gt_row gt_right">3</td>
   </tr>
   </tbody>
   '''
