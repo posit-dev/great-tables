@@ -72,7 +72,12 @@ class GTData:
         row_groups = stub._to_row_groups()
         group_rows = GroupRows(data, group_key=groupname_col).reorder(row_groups)
 
-        cls_settings = cls(
+        if id is not None:
+            options = Options(table_id=OptionsInfo(True, "table", "value", id))
+        else:
+            options = Options()
+
+        return cls(
             _tbl_data=data,
             _body=Body.from_empty(data),
             _boxhead=boxhead,  # uses get_tbl_data()
@@ -87,18 +92,8 @@ class GTData:
             _styles=[],
             _locale=Locale(locale),
             _formats=[],
-            _options=Options(),
+            _options=options,
         )
-
-        if id is not None:
-            # Replace only the 'table_id' value in the '_options' attribute
-            cls_settings = cls_settings._replace(
-                _options=cls_settings._options._replace(
-                    table_id=OptionsInfo(True, "table", "value", id)
-                )
-            )
-
-        return cls_settings
 
 
 class _Sequence(Sequence[T]):
