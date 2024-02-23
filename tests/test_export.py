@@ -30,15 +30,16 @@ def test_html_string_generated(gt_tbl: GT, snapshot: str):
 
 
 @pytest.mark.extra
-def test_save_image_file(gt_tbl: GT, tmp_path: str):
-    gt_tbl.save(filename="test_image.png", path=tmp_path)
+def test_save_image_file(gt_tbl: GT):
+
+    gt_tbl.save(file="test_image.png")
 
     # Wait for the file to be created before checking; wait up to
     # 5 seconds for the async save to complete
     for _ in range(5):
-        if (Path(tmp_path) / "test_image.png").exists():
+        if Path("test_image.png").exists():
             break
         else:
             time.sleep(1)
 
-    assert (Path(tmp_path) / "test_image.png").exists()
+    assert Path("test_image.png").exists()
