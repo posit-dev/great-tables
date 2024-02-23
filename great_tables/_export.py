@@ -35,7 +35,7 @@ def save(
     window_size: tuple[int, int] = (6000, 6000),
 ) -> None:
     """
-    Save a table as an image file.
+    Save a table as an image file or a PDF document.
 
     The `save()` method makes it easy to save a table object as an image file. The function produces
     a high-resolution image file or PDF of the table. The output file is create by first taking a
