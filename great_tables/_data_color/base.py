@@ -44,27 +44,27 @@ def data_color(
 
     Parameters
     ----------
-    columns : str | List[str] | None
+    columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    palette : str | List[str] | None
+    palette
         The color palette to use. This should be a list of colors (e.g., `["#FF0000", "#00FF00",
         "#0000FF"]`). A ColorBrewer palette could also be used, just supply the name (reference
         available in the *Color palette access from ColorBrewer* section). If `None`, then a default
         palette will be used.
-    domain : List[float] | List[int] | List[str] | None
+    domain
         The domain of values to use for the color scheme. This can be a list of floats, integers, or
         strings. If `None`, then the domain will be inferred from the data values.
-    na_color : str | None
+    na_color
         The color to use for missing values. If `None`, then the default color (`"#808080"`) will be
         used.
-    alpha : int | float | None
+    alpha
         An optional, fixed alpha transparency value that will be applied to all color palette
         values.
-    reverse : bool
+    reverse
         Should the colors computed operate in the reverse order? If `True` then colors that normally
         change from red to blue will change in the opposite direction.
-    autocolor_text : bool
+    autocolor_text
         Whether or not to automatically color the text of the data values. If `True`, then the text
         will be colored according to the background color of the cell.
 
@@ -294,9 +294,9 @@ def _get_wcag_contrast_ratio(color_1: str, color_2: str) -> float:
 
     Parameters
     ----------
-    color_1 : str
+    color_1
         The first color.
-    color_2 : str
+    color_2
         The second color.
 
     Returns
@@ -325,7 +325,7 @@ def _hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
 
     Parameters
     ----------
-    hex_color : str
+    hex_color
         The hexadecimal color value.
 
     Returns
@@ -351,7 +351,7 @@ def _relative_luminance(rgb: Tuple[int, int, int]) -> float:
 
     Parameters
     ----------
-    rgb : Tuple[int, int, int]
+    rgb
         The RGB color.
 
     Returns
@@ -375,7 +375,7 @@ def _srgb(x: int) -> float:
 
     Parameters
     ----------
-    x : int
+    x
         The integer to convert.
 
     Returns
@@ -474,7 +474,7 @@ def _float_to_hex(x: float) -> str:
 
     Parameters
     ----------
-    x : float
+    x
         The float value to convert.
 
     Returns
