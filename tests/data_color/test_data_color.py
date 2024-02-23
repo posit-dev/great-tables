@@ -1,11 +1,17 @@
-from great_tables import GT
+from great_tables import GT, style
 from great_tables.data import exibble
 from great_tables._utils_render_html import create_body_component_h
+from great_tables._gt_data import StyleInfo, CellStyle
+from typing import Type, TypeVar
+
+import numpy as np
 import pandas as pd
 import polars as pl
 import pytest
 from great_tables._tbl_data import DataFrameLike
 
+
+T_CellStyle = TypeVar("T_CellStyle", bound=CellStyle)
 
 params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars")]
 
@@ -20,6 +26,14 @@ def assert_rendered_body(snapshot, gt):
     body = create_body_component_h(built)
 
     assert snapshot == body
+
+
+def get_first_style(obj: StyleInfo, cls: Type[T_CellStyle]) -> Type[T_CellStyle]:
+    for cell_style in obj.styles:
+        if isinstance(cell_style, cls):
+            return cell_style
+
+    raise KeyError(f"No style entry of type {cls} found.")
 
 
 def test_data_color_simple_df_snap(snapshot: str):
@@ -42,7 +56,24 @@ def test_data_color_simple_exibble_snap(snapshot: str, df: DataFrameLike):
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_palette_snap(snapshot: str, df: DataFrameLike):
+@pytest.mark.parametrize("none_val", [None, np.nan, float("nan"), pd.NA])
+@pytest.mark.parametrize("df_cls", [pd.DataFrame, pl.DataFrame])
+def test_data_color_missing_value(df_cls, none_val):
+    from great_tables import GT
+
+    # skip the case where pd.NA would be passed to polars
+    # since it raises an error on DataFrame construction
+    if df_cls is pl.DataFrame and none_val is pd.NA:
+        pytest.skip()
+
+    df = df_cls({"x": [1.0, 2.0, none_val], "y": [3, 4, 5]})
+    new_gt = GT(df).data_color("x", na_color="#FFFFF0")
+    assert len(new_gt._styles) == 3
+    assert get_first_style(new_gt._styles[-1], style.fill).color == "#FFFFF0"
+
+
+def test_data_color_palette_snap(snapshot, df: DataFrameLike):
+
     gt = GT(df).data_color(columns=["num", "currency"], palette=["red", "green"])
 
     assert_rendered_body(snapshot, gt)
