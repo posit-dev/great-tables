@@ -82,10 +82,7 @@ def save(
 
     Details
     -------
-    We create the output file based on the HTML version of the table. With the filename extension
-    .png, we get a PNG image file. Using .pdf will yield a PDF document. The other file extensions
-    supported are .gif, .bmp, .tif, and .tiff. The file extension is used to determine the format of
-    the output file.
+    We create the output file based on the HTML version of the table.
 
     This process is facilitated by two libraries:
 
