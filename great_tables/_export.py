@@ -38,9 +38,10 @@ def save(
     Save a table as an image file.
 
     The `save()` method makes it easy to save a table object as an image file. The function produces
-    a high-resolution PNG file of the table. The image is created by taking a screenshot of
-    the table using a headless Chrome browser. The screenshot is then cropped to only include the
-    table element, and the resulting image is saved to the specified file path.
+    a high-resolution image file or PDF of the table. The output file is create by first taking a
+    screenshot of the table using a headless Chrome browser. Then, the screenshot is then cropped to
+    only include the table element. Finally, and the resulting image is saved to the specified file
+    path in the format specified (via the file extension).
 
     Parameters
     ----------
