@@ -145,7 +145,8 @@ def save(
     # Close the Chrome browser
     chrome.quit()
 
-    # Open the screenshot as an image with the PIL library
+    # Open the screenshot as an image with the PIL library; since the screenshot will be large
+    # (due to the large window size), we use the BytesIO class to handle the large image data
     image = Image.open(fp=BytesIO(png))
 
     # Crop the image to only include the table element; the scaling factor
