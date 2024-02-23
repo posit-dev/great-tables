@@ -18,6 +18,3 @@ jobs:
         with:
           python-version: "3.10"
       - uses: pre-commit/action@v3.0.1
-        with:
-          pre-commit_version: "latest"
-          extra-args: install
