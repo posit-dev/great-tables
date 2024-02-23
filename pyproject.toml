@@ -46,12 +46,20 @@ dependencies = [
     "Babel>=2.13.1",
     "mizani>=0.9.3",
     "webcolors>=1.13",
-    "selenium>=4.18.1",
-    "Pillow>=10.2.0",
 ]
 requires-python = ">=3.7"
 
 [project.optional-dependencies]
+all = [
+    "great_tables[extra]",
+    "great_tables[dev]",
+]
+
+extra = [
+    "selenium>=4.18.1",
+    "Pillow>=10.2.0",
+]
+
 dev = [
     "jupyter",
     "quartodoc>=0.7.1; python_version >= '3.9'",
