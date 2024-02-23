@@ -1,5 +1,6 @@
 from __future__ import annotations
 from ._gt_data import GTData
+from ._utils import _try_import
 from typing import Optional
 
 import tempfile
@@ -114,6 +115,10 @@ def save(
     capture less (to a natural limit of `0`). The table is always captured on a white background, so
     the `expand=` value can be useful to add some padding around the table in the image file.
     """
+
+    # Import the required packages
+    _try_import(name="selenium", pip_install_line="pip install selenium")
+    _try_import(name="PIL", pip_install_line="pip install pillow")
 
     from selenium import webdriver
     from selenium.webdriver.common.by import By
