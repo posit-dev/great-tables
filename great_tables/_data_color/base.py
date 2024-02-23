@@ -212,6 +212,8 @@ def data_color(
     else:
         columns_resolved = columns
 
+    gt_obj = self
+
     # For each column targeted, get the data values as a new list object
     for col in columns_resolved:
         column_vals = data_table[col].to_list()
@@ -222,7 +224,9 @@ def data_color(
         # The methodology for domain calculation and rescaling depends on column values being:
         # (1) numeric (integers or floats), then the method should be 'numeric'
         # (2) strings, then the method should be 'factor'
-        if all(isinstance(x, (int, float)) for x in filtered_column_vals):
+        if len(filtered_column_vals) and all(
+            isinstance(x, (int, float)) for x in filtered_column_vals
+        ):
             # If `domain` is not provided, then infer it from the data values
             if autocalc_domain:
                 domain = _get_domain_numeric(df=data_table, vals=column_vals)
@@ -263,17 +267,16 @@ def data_color(
             if autocolor_text:
                 fgnd_color = _ideal_fgnd_color(bgnd_color=color_vals[i])
 
-                self = self.tab_style(
+                gt_obj = gt_obj.tab_style(
                     style=[text(color=fgnd_color), fill(color=color_vals[i])],
                     locations=body(columns=col, rows=[i]),
                 )
 
             else:
-                self = self.tab_style(
+                gt_obj = gt_obj.tab_style(
                     style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
                 )
-
-    return self
+    return gt_obj
 
 
 def _ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000000") -> str:
@@ -597,8 +600,12 @@ def _rescale_numeric(
     # Get the range of values in `domain`
     domain_range = domain_max - domain_min
 
-    # Rescale the values in `vals` to the range [0, 1], pass through NA values
-    scaled_vals = [(x - domain_min) / domain_range if not is_na(df, x) else x for x in vals]
+    if domain_range == 0:
+        # In the case where the domain range is 0, all scaled values in `vals` will be `0`
+        scaled_vals = [0.0 if not is_na(df, x) else x for x in vals]
+    else:
+        # Rescale the values in `vals` to the range [0, 1], pass through NA values
+        scaled_vals = [(x - domain_min) / domain_range if not is_na(df, x) else x for x in vals]
 
     # Add NA values to any values in `scaled_vals` that are not in the [0, 1] range
     scaled_vals = [x if not is_na(df, x) and (x >= 0 and x <= 1) else np.nan for x in scaled_vals]
