@@ -216,8 +216,57 @@ def data_color(
     for col in columns_resolved:
         column_vals = data_table[col].to_list()
 
+        # If there only a single value in `column_vals`, and it is not missing,
+        # then use the first value from the palette
+        if len(column_vals) == 1 and not is_na(data_table, column_vals[0]):
+            self = self.tab_style(
+                style=fill(color=palette[0]), locations=body(columns=col, rows=[0])
+            )
+
+            continue
+
+        # Obtain a count of non-missing values in `column_vals`
+        non_missing_count = sum(1 for x in column_vals if not is_na(data_table, x))
+
+        # If `non_missing_count` is 1, then identify the index of the non-missing value
+        # and use the first color from the palette
+        if non_missing_count == 1:
+
+            # Find the index of the non-missing value in `column_vals`
+            non_missing_index = column_vals.index(
+                next(x for x in column_vals if not is_na(data_table, x))
+            )
+
+            # Apply the first color from the palette to the non-missing value
+            self = self.tab_style(
+                style=fill(color=palette[0]), locations=body(columns=col, rows=[non_missing_index])
+            )
+
+            # Find the indices of all missing values in `column_vals`
+            missing_indices = [i for i, x in enumerate(column_vals) if is_na(data_table, x)]
+
+            # Apply the `na_color=` color to all missing values
+            self = self.tab_style(
+                style=fill(color=na_color), locations=body(columns=col, rows=missing_indices)
+            )
+
+            continue
+
+        # If the entire column contains NA values, then apply the `na_color=` color to the
+        # entire column and then move on to the next column
+        if all(is_na(data_table, x) for x in column_vals):
+            self = self.tab_style(style=fill(color=na_color), locations=body(columns=col))
+            continue
+
         # Filter out NA values from `column_vals`
         filtered_column_vals = [x for x in column_vals if not is_na(data_table, x)]
+
+        # If there are only NA values in `column_vals`, regardless of the length of
+        # `column_vals`, then apply the `na_color=` color to the entire column and
+        # then move on to the next column
+        if all(is_na(data_table, x) for x in filtered_column_vals):
+            self = self.tab_style(style=fill(color=na_color), locations=body(columns=col, rows=[0]))
+            continue
 
         # The methodology for domain calculation and rescaling depends on column values being:
         # (1) numeric (integers or floats), then the method should be 'numeric'
