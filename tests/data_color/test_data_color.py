@@ -223,6 +223,14 @@ def test_single_value_and_missing_pd(snapshot: str):
     assert_rendered_body(snapshot, new_gt)
 
 
+# Pandas: Non-missing values have a domain range of 0; applies `na_color=` to the missing values
+def test_all_values_have_zero_range_domain(snapshot: str):
+    df = pd.DataFrame({"x": [2, 2, None, None], "y": [3, 4, 5, 6]})
+    new_gt = GT(df).data_color("x", palette=["green", "blue"], domain=[0, 0])
+
+    assert_rendered_body(snapshot, new_gt)
+
+
 # Polars: Single value -- single color; uses first color from palette
 def test_single_value_pl(snapshot: str):
     df = pl.DataFrame({"x": [1], "y": [3]})
@@ -252,5 +260,13 @@ def test_all_missing_from_multiple_rows_pl(snapshot: str):
 def test_single_value_and_missing_pl(snapshot: str):
     df = pl.DataFrame({"x": [None], "y": [3]})
     new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+# Polars: Non-missing values have a domain range of 0; applies `na_color=` to the missing values
+def test_all_values_have_zero_range_domain(snapshot: str):
+    df = pl.DataFrame({"x": [2, 2, None, None], "y": [3, 4, 5, 6]})
+    new_gt = GT(df).data_color("x", palette=["green", "blue"], domain=[0, 0])
 
     assert_rendered_body(snapshot, new_gt)

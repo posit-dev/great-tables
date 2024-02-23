@@ -27,6 +27,28 @@
   </tbody>
   '''
 # ---
+# name: test_all_values_have_zero_range_domain
+  '''
+  <tbody class="gt_table_body">
+  <tr>
+    <td style="color: #FFFFFF; background-color: #008000;" class="gt_row gt_right">2</td>
+    <td class="gt_row gt_right">3</td>
+  </tr>
+  <tr>
+    <td style="color: #FFFFFF; background-color: #008000;" class="gt_row gt_right">2</td>
+    <td class="gt_row gt_right">4</td>
+  </tr>
+  <tr>
+    <td style="color: #000000; background-color: #808080;" class="gt_row gt_right">None</td>
+    <td class="gt_row gt_right">5</td>
+  </tr>
+  <tr>
+    <td style="color: #000000; background-color: #808080;" class="gt_row gt_right">None</td>
+    <td class="gt_row gt_right">6</td>
+  </tr>
+  </tbody>
+  '''
+# ---
 # name: test_data_color_autocolor_text_false[pandas]
   '''
   <tbody class="gt_table_body">
