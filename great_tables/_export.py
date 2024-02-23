@@ -232,5 +232,5 @@ def save(
     # Save the cropped image to the output path
     image = image.crop((left, top, right, bottom))
 
-    # Save the image to the output path as a PNG file
-    image.save(fp=output_path, format="png")
+    # Save the image to the output path in the specified format
+    image.save(fp=output_path, format=pil_format)
