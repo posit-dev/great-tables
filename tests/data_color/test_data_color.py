@@ -22,7 +22,7 @@ def assert_rendered_body(snapshot, gt):
     assert snapshot == body
 
 
-def test_data_color_simple_df_snap(snapshot):
+def test_data_color_simple_df_snap(snapshot: str):
     df = pd.DataFrame(
         {
             "A": [1, 2, 3],
@@ -36,19 +36,19 @@ def test_data_color_simple_df_snap(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
-def test_data_color_simple_exibble_snap(snapshot, df: DataFrameLike):
+def test_data_color_simple_exibble_snap(snapshot: str, df: DataFrameLike):
     gt = GT(df).data_color()
 
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_palette_snap(snapshot, df: DataFrameLike):
+def test_data_color_palette_snap(snapshot: str, df: DataFrameLike):
     gt = GT(df).data_color(columns=["num", "currency"], palette=["red", "green"])
 
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_domain_na_color_snap(snapshot, df: DataFrameLike):
+def test_data_color_domain_na_color_snap(snapshot: str, df: DataFrameLike):
     """`data_color` works with `domain` and `na_color`."""
     gt = GT(df).data_color(
         columns="currency", palette=["red", "green"], domain=[0, 50], na_color="blue"
@@ -57,7 +57,7 @@ def test_data_color_domain_na_color_snap(snapshot, df: DataFrameLike):
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_domain_na_color_reverse_snap(snapshot, df: DataFrameLike):
+def test_data_color_domain_na_color_reverse_snap(snapshot: str, df: DataFrameLike):
     """`data_color` works with `domain`, `na_color`, and `reverse`."""
     gt = GT(df).data_color(
         columns="currency", palette=["red", "green"], domain=[0, 50], na_color="blue", reverse=True
@@ -66,7 +66,7 @@ def test_data_color_domain_na_color_reverse_snap(snapshot, df: DataFrameLike):
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_overlapping_domain(snapshot, df: DataFrameLike):
+def test_data_color_overlapping_domain(snapshot: str, df: DataFrameLike):
     """`data_color` works with overlapping `domain` (RHS domain extends outside the data range)."""
     gt = GT(df).data_color(
         columns="currency",
@@ -78,7 +78,7 @@ def test_data_color_overlapping_domain(snapshot, df: DataFrameLike):
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_subset_domain(snapshot, df: DataFrameLike):
+def test_data_color_subset_domain(snapshot: str, df: DataFrameLike):
     """`data_color` works with subset `domain`."""
     gt = GT(df).data_color(
         columns="currency",
@@ -90,7 +90,7 @@ def test_data_color_subset_domain(snapshot, df: DataFrameLike):
     assert_rendered_body(snapshot, gt)
 
 
-def test_data_color_autocolor_text_false(snapshot, df: DataFrameLike):
+def test_data_color_autocolor_text_false(snapshot: str, df: DataFrameLike):
     """`data_color` works with `autocolor_text=False`."""
     gt = GT(df).data_color(
         columns="currency",
@@ -162,7 +162,7 @@ def test_data_color_viridis_palettes(df: DataFrameLike):
         assert isinstance(gt, GT)
 
 
-def test_data_color_colorbrewer_snap(snapshot):
+def test_data_color_colorbrewer_snap(snapshot: str):
     df = pd.DataFrame(
         {
             "A": [1, 2, 3, 4, 5],
@@ -176,7 +176,7 @@ def test_data_color_colorbrewer_snap(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
-def test_data_color_viridis_snap(snapshot):
+def test_data_color_viridis_snap(snapshot: str):
     df = pd.DataFrame(
         {
             "A": [1, 2, 3, 4, 5],
@@ -186,5 +186,71 @@ def test_data_color_viridis_snap(snapshot):
     )
 
     new_gt = GT(df).data_color(columns=["A", "B"], palette="viridis")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+# Pandas: Single value -- single color; uses first color from palette
+def test_single_value_pd(snapshot: str):
+    df = pd.DataFrame({"x": [1], "y": [3]})
+    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+# Pandas: Single value -- multiple rows (rest of the rows are missing); uses first color
+# from palette and applies `na_color=` to the missing rows
+def test_single_value_from_multiple_rows_pd(snapshot: str):
+    df = pd.DataFrame({"x": [1, None], "y": [3, 4]})
+    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+# Pandas: Multiple rows in a column but all are missing; applies `na_color=` to all rows
+def test_all_missing_from_multiple_rows_pd(snapshot: str):
+    df = pd.DataFrame({"x": [None, None], "y": [3, 6]})
+    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+# Pandas: Single missing value from a single row; applies `na_color=` to the missing value
+def test_single_value_and_missing_pd(snapshot: str):
+    df = pd.DataFrame({"x": [None], "y": [3]})
+    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+# Polars: Single value -- single color; uses first color from palette
+def test_single_value_pl(snapshot: str):
+    df = pl.DataFrame({"x": [1], "y": [3]})
+    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+# Polars: Single value -- multiple rows (rest of the rows are missing); uses first color
+# from palette and applies `na_color=` to the missing rows
+def test_single_value_from_multiple_rows_pl(snapshot: str):
+    df = pl.DataFrame({"x": [1, None], "y": [3, 4]})
+    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+# Polars: Multiple rows in a column but all are missing; applies `na_color=` to all rows
+def test_all_missing_from_multiple_rows_pl(snapshot: str):
+    df = pl.DataFrame({"x": [None, None], "y": [3, 6]})
+    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+# Polars: Single missing value from a single row; applies `na_color=` to the missing value
+def test_single_value_and_missing_pl(snapshot: str):
+    df = pl.DataFrame({"x": [None], "y": [3]})
+    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
 
     assert_rendered_body(snapshot, new_gt)
