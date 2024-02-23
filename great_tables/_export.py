@@ -102,18 +102,6 @@ def save(
     pip install great_tables[extra]
     ```
 
-    One of the arguments for saving is `scale=`, which defaults to a scale value of `1.0`. This
-    default provides adequate image quality for most use cases given that text and lines are
-    rendered clearly. However, if you need a higher resolution, you can increase the `scale` level.
-    Keep in mind that file sizes will increase quite a bit with higher scale levels. At the default
-    scale level you should expect that `GT(exibble).save("exibble.png")` will produce a file of
-    about 150 KB. At a scale level of `2.0`, the file size will be about 320 KB; on the flipside, a
-    scale level of `0.5` yields a ~70 KB image.
-
-    The `expand=` argument adds whitespace pixels around the cropped table image. This has a default
-    value of `5`. This can be increased to capture more of the surrounding area, or decreased to
-    capture less (to a natural limit of `0`). The table is always captured on a white background, so
-    the `expand=` value can be useful to add some padding around the table in the image file.
     """
 
     # Import the required packages
