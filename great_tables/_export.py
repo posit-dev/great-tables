@@ -72,6 +72,8 @@ def save(
     from io import BytesIO
     from pathlib import Path
 
+    Image.MAX_IMAGE_PIXELS = None
+
     # Get the HTML content from the displayed output
     html_content = as_raw_html(self=self)
 
