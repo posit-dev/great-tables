@@ -28,8 +28,7 @@ def as_raw_html(self: GTData) -> str:
 
 def save(
     self: GTData,
-    filename: str,
-    path: Optional[str] = None,
+    file: str,
     selector: str = "table",
     scale: float = 1.0,
     expand: int = 5,
@@ -46,11 +45,9 @@ def save(
 
     Parameters
     ----------
-    filename
-        The name of the file to save the image to. Accepts names ending with .png, .bmp, and other image extensions. Also accepts the extension .pdf.
-    path
-        An optional path to save the image to. If not provided, the image will be saved to the
-        current working directory.
+    file
+        The name of the file to save the image to. Accepts names ending with .png, .bmp, and other
+        image extensions. Also accepts the extension .pdf.
     selector
         The HTML element selector to use to select the table. By default, this is set to "table",
         which selects the first table element in the HTML content.
@@ -113,15 +110,16 @@ def save(
 
     Image.MAX_IMAGE_PIXELS = None
 
-    # Get the file extension from the filename
-    file_extension = filename.split(".")[-1]
+    # Get the file extension from the file name
+    file_extension = file.split(".")[-1]
 
     # If there is no file extension, add the .png extension
-    if len(file_extension) == len(filename):
-        filename += ".png"
+    if len(file_extension) == len(file):
+        file += ".png"
         file_extension = "png"
 
     pil_format = file_extension
+
     # Get the HTML content from the displayed output
     html_content = as_raw_html(self=self)
 
@@ -134,19 +132,6 @@ def save(
     # Write the HTML content to the temp file
     with open(temp_file[1], "w") as f:
         f.write(html_content)
-
-    # Generate output file path from filename and optional path
-    output_path = filename
-    if path:
-        # If path has a trailing slash, remove it; use the Path class to handle this
-        path = Path(path)
-        if path.is_dir():
-            output_path = path / filename
-        else:
-            path = path.parent
-            output_path = path / filename
-    else:
-        output_path = Path.cwd() / filename
 
     # Set up the Chrome webdriver options
     options = webdriver.ChromeOptions()
@@ -205,4 +190,4 @@ def save(
     image = image.crop((left, top, right, bottom))
 
     # Save the image to the output path in the specified format
-    image.save(fp=output_path, format=pil_format)
+    image.save(fp=file)
