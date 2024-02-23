@@ -212,7 +212,7 @@ def save(
     location = element.location
     size = element.size
 
-    # Get a screenshot of the entire page
+    # Get a screenshot of the entire page as a PNG image
     png = chrome.get_screenshot_as_png()
 
     # Close the Chrome browser
