@@ -116,9 +116,6 @@ def save(
     # If there is no file extension, add the .png extension
     if len(file_extension) == len(file):
         file += ".png"
-        file_extension = "png"
-
-    pil_format = file_extension
 
     # Get the HTML content from the displayed output
     html_content = as_raw_html(self=self)
