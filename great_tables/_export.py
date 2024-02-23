@@ -32,6 +32,7 @@ def save(
     selector: str = "table",
     zoom: int = 2,
     expand: int = 5,
+    window_size: tuple[int, int] = (6000, 6000),
 ) -> None:
     """
     Save a table as an image file.
@@ -105,7 +106,10 @@ def save(
 
     # Use headless mode with an extremely large window size
     options.add_argument("--headless")
-    options.add_argument("--window-size=6000, 5000")
+
+    # Set the window size (x by y) to a large value to ensure the entire table
+    # is visible in the screenshot; this is settable via the `window_size=` argument
+    options.add_argument(f"--window-size={window_size[0]},{window_size[1]}")
 
     # Instantiate a Chrome webdriver with the selected options
     chrome = webdriver.Chrome(options=options)
