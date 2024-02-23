@@ -1139,9 +1139,6 @@ class Options:
     quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
     quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
 
-    def _replace(self, **kwargs: OptionsInfo) -> Self:
-        return replace(self, **kwargs)
-
     def _get_all_options_keys(self) -> List[Union[str, None]]:
         return [x.parameter for x in self._options.values()]
 
