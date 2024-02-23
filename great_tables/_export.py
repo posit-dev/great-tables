@@ -127,8 +127,8 @@ def save(
     temp_file = tempfile.mkstemp(dir=temp_dir, suffix=".html")
 
     # Write the HTML content to the temp file
-    with open(temp_file[1], "w") as f:
-        f.write(html_content)
+    with open(temp_file[1], "w") as fp:
+        fp.write(html_content)
 
     # Set up the Chrome webdriver options
     options = webdriver.ChromeOptions()
@@ -171,6 +171,9 @@ def save(
 
     # Close the Chrome browser
     chrome.quit()
+
+    # Remove the temporary file and directory
+    Path(temp_file[1]).unlink()
 
     # Open the screenshot as an image with the PIL library; since the screenshot will be large
     # (due to the large window size), we use the BytesIO class to handle the large image data
