@@ -231,7 +231,6 @@ def data_color(
         # If `non_missing_count` is 1, then identify the index of the non-missing value
         # and use the first color from the palette
         if non_missing_count == 1:
-
             # Find the index of the non-missing value in `column_vals`
             non_missing_index = column_vals.index(
                 next(x for x in column_vals if not is_na(data_table, x))
