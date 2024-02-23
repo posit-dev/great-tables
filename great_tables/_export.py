@@ -47,7 +47,7 @@ def save(
     Parameters
     ----------
     filename
-        The name of the file to save the image to.
+        The name of the file to save the image to. Accepts names ending with .png, .bmp, and other image extensions. Also accepts the extension .pdf.
     path
         An optional path to save the image to. If not provided, the image will be saved to the
         current working directory.
