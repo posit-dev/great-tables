@@ -73,7 +73,6 @@ def test_data_color_missing_value(df_cls, none_val):
 
 
 def test_data_color_palette_snap(snapshot, df: DataFrameLike):
-
     gt = GT(df).data_color(columns=["num", "currency"], palette=["red", "green"])
 
     assert_rendered_body(snapshot, gt)
