@@ -30,7 +30,7 @@ def save(
     filename: str,
     path: Optional[str] = None,
     selector: str = "table",
-    zoom: int = 2,
+    scale: float = 1.0,
     expand: int = 5,
     window_size: tuple[int, int] = (6000, 6000),
 ) -> None:
@@ -114,14 +114,12 @@ def save(
     # Instantiate a Chrome webdriver with the selected options
     chrome = webdriver.Chrome(options=options)
 
-    # Normalize zoom level
-    zoom = zoom - 1
+    # Convert the scale value to a percentage string used by the
+    # Chrome browser for zooming
+    zoom_level = str(scale * 100) + "%"
 
-    # Convert the zoom level to a percentage string
-    zoom_level = str(zoom * 100) + "%"
-
-    # Get the scaling factor by multiplying the zoom by 2
-    scaling_factor = zoom * 2
+    # Get the scaling factor by multiplying `scale` by 2
+    scaling_factor = scale * 2
 
     # Adjust the expand value by the scaling factor
     expansion_amount = expand * scaling_factor
