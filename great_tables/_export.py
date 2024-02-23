@@ -118,6 +118,38 @@ def save(
 
     Image.MAX_IMAGE_PIXELS = None
 
+    # Get the file extension from the filename
+    file_extension = filename.split(".")[-1]
+
+    # If there is no file extension, add the .png extension
+    if len(file_extension) == len(filename):
+        filename += ".png"
+        file_extension = "png"
+
+    # Accepted file extensions
+    accepted_extensions = ["png", "gif", "bmp", "tif", "tiff", "pdf"]
+
+    # If the file extension provided is not in the accepted list, raise an error
+    if file_extension not in accepted_extensions:
+        raise ValueError(
+            """The file extension provided is not supported.
+                         - please use one of the following file extensions: \
+                            "png", "gif", "bmp", "tif", "tiff", or "pdf"."""
+        )
+
+    # Map file extensions to the corresponding PIL format
+    pil_formats = {
+        "png": "png",
+        "gif": "gif",
+        "bmp": "bmp",
+        "tif": "tiff",
+        "tiff": "tiff",
+        "pdf": "pdf",
+    }
+
+    # Get the PIL format from the file extension
+    pil_format = pil_formats[file_extension]
+
     # Get the HTML content from the displayed output
     html_content = as_raw_html(self=self)
 
