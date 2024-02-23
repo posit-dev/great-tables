@@ -29,6 +29,7 @@ def test_html_string_generated(gt_tbl: GT, snapshot: str):
     assert snapshot == gt_tbl.as_raw_html()
 
 
+@pytest.mark.extra
 def test_save_image_file(gt_tbl: GT, tmp_path: str):
     gt_tbl.save(filename="test_image.png", path=tmp_path)
 
