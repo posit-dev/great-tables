@@ -80,8 +80,12 @@ def save(
 
     Details
     -------
-    We create the image file based on the HTML version of the table. With the filename extension
-    .png, we get a PNG image file. This process is facilitated by two libraries:
+    We create the output file based on the HTML version of the table. With the filename extension
+    .png, we get a PNG image file. Using .pdf will yield a PDF document. The other file extensions
+    supported are .gif, .bmp, .tif, and .tiff. The file extension is used to determine the format of
+    the output file.
+
+    This process is facilitated by two libraries:
 
     - `selenium`, which is used to control the Chrome browser and take a screenshot of the table.
     - `PIL`, which is used to crop the screenshot to only include the table element of the page.
