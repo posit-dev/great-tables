@@ -648,8 +648,12 @@ def _rescale_numeric(
     # Get the range of values in `domain`
     domain_range = domain_max - domain_min
 
-    # Rescale the values in `vals` to the range [0, 1], pass through NA values
-    scaled_vals = [(x - domain_min) / domain_range if not is_na(df, x) else x for x in vals]
+    if domain_range == 0:
+        # In the case where the domain range is 0, all scaled values in `vals` will be `0`
+        scaled_vals = [0.0 if not is_na(df, x) else x for x in vals]
+    else:
+        # Rescale the values in `vals` to the range [0, 1], pass through NA values
+        scaled_vals = [(x - domain_min) / domain_range if not is_na(df, x) else x for x in vals]
 
     # Add NA values to any values in `scaled_vals` that are not in the [0, 1] range
     scaled_vals = [x if not is_na(df, x) and (x >= 0 and x <= 1) else np.nan for x in scaled_vals]
