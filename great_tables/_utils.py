@@ -12,9 +12,9 @@ def _try_import(name: str, pip_install_line: Optional[str] = None) -> ModuleType
     except ImportError:
         if pip_install_line is not None:
             raise ImportError(
-                f"""Module {name} not found
-                - run `{pip_install_line}` to install."""
-            )
+                f"Module {name} not found. Run the following to install."
+                f"\n\n`{pip_install_line}`"
+            ) from None
         else:
             raise ImportError(f"Module {name} not found.")
 
