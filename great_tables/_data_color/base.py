@@ -274,7 +274,9 @@ def data_color(
         # The methodology for domain calculation and rescaling depends on column values being:
         # (1) numeric (integers or floats), then the method should be 'numeric'
         # (2) strings, then the method should be 'factor'
-        if all(isinstance(x, (int, float)) for x in filtered_column_vals):
+        if len(filtered_column_vals) and all(
+            isinstance(x, (int, float)) for x in filtered_column_vals
+        ):
             # If `domain` is not provided, then infer it from the data values
             if autocalc_domain:
                 domain = _get_domain_numeric(df=data_table, vals=column_vals)
