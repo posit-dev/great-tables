@@ -96,7 +96,7 @@ def save(
     pip install great_tables[extra]
     ```
 
-    One of the arguments for PNG saving is `scale=`, which defaults to a scale value of `1.0`. This
+    One of the arguments for saving is `scale=`, which defaults to a scale value of `1.0`. This
     default provides adequate image quality for most use cases given that text and lines are
     rendered clearly. However, if you need a higher resolution, you can increase the `scale` level.
     Keep in mind that file sizes will increase quite a bit with higher scale levels. At the default
