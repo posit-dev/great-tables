@@ -52,19 +52,62 @@ def save(
     selector
         The HTML element selector to use to select the table. By default, this is set to "table",
         which selects the first table element in the HTML content.
-    zoom
-        The zoom level to use when taking the screenshot. By default, this is set to 2. Lowering
-        this to 1 will result in a smaller image, while increasing it will result in a much larger
-        (yet more detailed) image.
+    scale
+        The scaling factor that will be used when generating the image. By default, this is set to a
+        value of `1.0`. Lowering this will result in a smaller image, whereas increasing it will
+        result in a much higher-resolution image. This can be considered a quality setting, yet it
+        also affects the file size. The default value of `1.0` is a good balance between file size
+        and quality.
     expand
         The number of pixels to expand the screenshot by. By default, this is set to 5. This can be
         increased to capture more of the surrounding area, or decreased to capture less.
+    window_size
+        The size of the window to use when taking the screenshot. This is a tuple of two integers,
+        representing the width and height of the window. By default, this is set to `(6000, 6000)`,
+        a large size that should be sufficient for most tables. If the table is larger than this
+        (and this will be obvious once inspecting the image file) you can increase the appropriate
+        values of the tuple. If the table is very small, then a reduction in these these values will
+        result in a speed gain during image capture. Please note that the window size is *not* the
+        same as the final image size. The table will be captured at the same size as it is displayed
+        in the headless browser, and the window size is used to ensure that the entire table is
+        visible in the screen capture before the cropping process occurs.
 
     Returns
     -------
     None
         This function does not return anything; it simply saves the image to the specified file
         path.
+
+    Details
+    -------
+    We create the image file based on the HTML version of the table. With the filename extension
+    .png, we get a PNG image file. This process is facilitated by two libraries:
+
+    - `selenium`, which is used to control the Chrome browser and take a screenshot of the table.
+    - `PIL`, which is used to crop the screenshot to only include the table element of the page.
+
+    Both of these packages needs to be installed before attempting to save any table as an image
+    file. The `selenium` package also requires the Chrome browser to be installed on the system.
+
+    A pip-based reinstallation of **Great Tables** through the following command will install these
+    required packages:
+
+    ```bash
+    pip install great_tables[extra]
+    ```
+
+    One of the arguments for PNG saving is `scale=`, which defaults to a scale value of `1.0`. This
+    default provides adequate image quality for most use cases given that text and lines are
+    rendered clearly. However, if you need a higher resolution, you can increase the `scale` level.
+    Keep in mind that file sizes will increase quite a bit with higher scale levels. At the default
+    scale level you should expect that `GT(exibble).save("exibble.png")` will produce a file of
+    about 150 KB. At a scale level of `2.0`, the file size will be about 320 KB; on the flipside, a
+    scale level of `0.5` yields a ~70 KB image.
+
+    The `expand=` argument adds whitespace pixels around the cropped table image. This has a default
+    value of `5`. This can be increased to capture more of the surrounding area, or decreased to
+    capture less (to a natural limit of `0`). The table is always captured on a white background, so
+    the `expand=` value can be useful to add some padding around the table in the image file.
     """
 
     from selenium import webdriver
