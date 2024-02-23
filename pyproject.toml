@@ -88,6 +88,7 @@ ignore = [
     "E203",    # whitespace before ':'
     "F401",    # 'module' imported but unused
     "F841",    # local variable 'name' is assigned to but never used
+    "E701",    # multiple statements on one line (colon)
 ]
 
 max-line-length = 100
