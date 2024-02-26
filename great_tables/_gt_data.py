@@ -60,6 +60,7 @@ class GTData:
         rowname_col: str | None = None,
         groupname_col: str | None = None,
         auto_align: bool = True,
+        id: str | None = None,
         locale: str | None = None,
     ):
         data = validate_frame(data)
@@ -70,6 +71,11 @@ class GTData:
 
         row_groups = stub._to_row_groups()
         group_rows = GroupRows(data, group_key=groupname_col).reorder(row_groups)
+
+        if id is not None:
+            options = Options(table_id=OptionsInfo(True, "table", "value", id))
+        else:
+            options = Options()
 
         return cls(
             _tbl_data=data,
@@ -86,7 +92,7 @@ class GTData:
             _styles=[],
             _locale=Locale(locale),
             _formats=[],
-            _options=Options(),
+            _options=options,
         )
 
 
@@ -97,16 +103,13 @@ class _Sequence(Sequence[T]):
         self._d = data
 
     @overload
-    def __getitem__(self, ii: int) -> T:
-        ...
+    def __getitem__(self, ii: int) -> T: ...
 
     @overload
-    def __getitem__(self, ii: slice) -> Self[T]:
-        ...
+    def __getitem__(self, ii: slice) -> Self[T]: ...
 
     @overload
-    def __getitem__(self, ii: list[int]) -> Self[T]:
-        ...
+    def __getitem__(self, ii: list[int]) -> Self[T]: ...
 
     def __getitem__(self, ii: int | slice | list[int]) -> T | Self[T]:
         if isinstance(ii, slice):

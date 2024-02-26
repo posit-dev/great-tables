@@ -46,13 +46,11 @@ async def GtTransformer(_meta: TransformerMetadata, _fn: ValueFn[GT | None]) -> 
 
 
 @overload
-def render_gt() -> GtTransformer.OutputRendererDecorator:
-    ...
+def render_gt() -> GtTransformer.OutputRendererDecorator: ...
 
 
 @overload
-def render_gt(_fn: GtTransformer.ValueFn) -> GtTransformer.OutputRenderer:
-    ...
+def render_gt(_fn: GtTransformer.ValueFn) -> GtTransformer.OutputRenderer: ...
 
 
 def render_gt(

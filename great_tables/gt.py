@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any, List, Optional
 from typing_extensions import Self
 
+import tempfile
 import copy
 
 from great_tables._gt_data import GTData
@@ -11,6 +12,7 @@ from great_tables._gt_data import GTData
 from great_tables._body import body_reassemble
 from great_tables._boxhead import cols_align, cols_label
 from great_tables._data_color import data_color
+from great_tables._export import as_raw_html, save
 from great_tables._formats import (
     fmt,
     fmt_number,
@@ -99,6 +101,10 @@ class GT(
     auto_align
         Optionally have column data be aligned depending on the content contained in each column of
         the input `data=`.
+    id
+        By default (with `None`) the table ID will be a random, ten-letter string as generated
+        through internal use of the `random_id()` function. A custom table ID can be used here by
+        providing a string.
     locale
         An optional locale identifier that can be set as the default locale for all functions that
         take a `locale` argument. Examples include `"en"` for English (United States) and `"fr"`
@@ -193,23 +199,20 @@ class GT(
         rowname_col: str | None = None,
         groupname_col: str | None = None,
         auto_align: bool = True,
+        id: str | None = None,
         locale: str | None = None,
     ):
-        # This is a bad idea ----
         gtdata = GTData.from_data(
             data,
-            locale=locale,
             rowname_col=rowname_col,
             groupname_col=groupname_col,
             auto_align=auto_align,
+            id=id,
+            locale=locale,
         )
         super().__init__(**gtdata.__dict__)
 
-    # TODO: Refactor API methods -----
-    cols_align = cols_align
-    cols_label = cols_label
     fmt = fmt
-
     fmt_number = fmt_number
     fmt_integer = fmt_integer
     fmt_percent = fmt_percent
@@ -222,10 +225,9 @@ class GT(
     fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
     fmt_image = fmt_image
-
     data_color = data_color
 
-    tab_options = tab_options
+    opt_stylize = opt_stylize
     opt_align_table_header = opt_align_table_header
     opt_all_caps = opt_all_caps
     opt_footnote_marks = opt_footnote_marks
@@ -233,21 +235,24 @@ class GT(
     opt_vertical_padding = opt_vertical_padding
     opt_horizontal_padding = opt_horizontal_padding
     opt_table_outline = opt_table_outline
-    opt_stylize = opt_stylize
 
-    tab_header = tab_header
-
-    tab_spanner = tab_spanner
-    tab_source_note = tab_source_note
+    cols_align = cols_align
+    cols_width = cols_width
+    cols_label = cols_label
     cols_move = cols_move
     cols_move_to_start = cols_move_to_start
     cols_move_to_end = cols_move_to_end
     cols_hide = cols_hide
-    cols_width = cols_width
 
+    tab_header = tab_header
+    tab_source_note = tab_source_note
+    tab_spanner = tab_spanner
     tab_stubhead = tab_stubhead
-
     tab_style = tab_style
+    tab_options = tab_options
+
+    save = save
+    as_raw_html = as_raw_html
 
     # -----
 
@@ -326,7 +331,7 @@ class GT(
 </table>
 """
 
-        # Obtain the `table_id` value (might be set, might be None)
+        # Obtain the `table_id` value from the Options (might be set, might be None)
         table_id = self._options.table_id.value
 
         if table_id is None:
@@ -361,7 +366,7 @@ class GT(
     def _finalize_html_table(
         style: str, quarto_disable_processing: str, quarto_use_bootstrap: str, *args: Any
     ) -> str:
-        from htmltools import tags, HTML, css, TagList
+        from htmltools import tags
 
         html_tbl = tags.table(
             data_quarto_disable_processing=quarto_disable_processing,
@@ -405,16 +410,22 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
     return cell_values
 
 
-def _as_raw_html(gt: GT) -> str:
+def as_raw_html(gt: GT) -> str:
     """
-    Returns the GTData object as raw HTML.
+    Get the HTML content of a GT object.
 
-    Args:
-        gt (GT): The GTData object to convert to raw HTML.
-        context (str): The context in which to build the output.
+    Get the HTML content from a GT object as a string. This function is useful for obtaining the
+    HTML content of a GT object for use in other contexts.
 
-    Returns:
-        str: The GTData object as raw HTML.
+    Parameters
+    ----------
+    gt
+        A GT object.
+
+    Returns
+    -------
+    str
+        An HTML fragment containing a table.
     """
     gt_built = gt._build_data(context="html")
     html_table = gt_built._render_as_html()

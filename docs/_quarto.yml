@@ -161,6 +161,14 @@ quartodoc:
         - GT.opt_horizontal_padding
         - GT.opt_table_outline
         - GT.opt_stylize
+    - title: Export
+      desc: >
+        There may come a day when you need to export a table to some specific format. A great method
+        for that is `save()`, which allows us to save the table as a standalone image file. You can
+        also get the table code as an HTML fragment with the `as_raw_html()` method.
+      contents:
+        - GT.save
+        - GT.as_raw_html
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of
