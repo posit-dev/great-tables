@@ -1,5 +1,5 @@
 ---
-title: Table theme options
+title: Table Theme Options
 jupyter: python3
 ---
 
@@ -16,14 +16,19 @@ This page covers how to style and theme your table using `GT.tab_options()`,
 which is meant to quickly set a broad range of styles.
 In the future, even more granular options will become available via `GT.tab_style()`.
 
+We'll use the basic GT object below for most examples, since it marks some of the table parts.
+
 ```{python}
 from great_tables import GT, exibble
 
-gt_ex = (GT(exibble.head(5), rowname_col="row", groupname_col="group")
+gt_ex = (
+    GT(exibble.head(5), rowname_col="row", groupname_col="group")
     .tab_header("THE HEADING", "(a subtitle)")
     .tab_stubhead("THE STUBHEAD")
     .tab_source_note("THE SOURCE NOTE")
 )
+
+gt_ex
 ```
 
 ## Table option parts
@@ -85,7 +90,8 @@ This is shown below for column labels.
 ```{python}
 gt_ex.tab_options(
     column_labels_border_top_color="blue",
-    column_labels_border_top_style="solid"
+    column_labels_border_top_style="solid",
+    column_labels_border_top_width="5px"
 )
 ```
 
@@ -197,7 +203,3 @@ from great_tables import GT, exibble
 
 )
 ```
-
-## Composite options
-
-TODO: which options are handled in a special way? (e.g. `row_group_as_column = True`)
