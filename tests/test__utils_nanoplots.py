@@ -1,5 +1,5 @@
 import numpy as np
-from great_tables._utils_nanoplots import _normalize_vals
+from great_tables._utils_nanoplots import _normalize_vals, _normalize_to_dict
 
 
 def test_normalize_vals():
@@ -29,3 +29,29 @@ def test_normalize_vals():
         1.0,
     ]
     assert _normalize_vals(x) == expected_output
+
+
+def test_normalize_to_dict():
+    # Test case 1: Normalization with no missing values
+    assert _normalize_to_dict(a=3.5, b=-0.3) == {"a": 1.0, "b": 0.0}
+
+    # Test case 2: Normalization with missing values
+    assert _normalize_to_dict(a=3.5, b=np.nan, c=4.0) == {"a": 0, "b": np.nan, "c": 1.0}
+
+    # Test case 3: Normalization with negative values
+    assert _normalize_to_dict(a=3.5, b=np.nan, c=4.0, werwdf=-5) == {
+        "a": 0.9444444444444444,
+        "b": np.nan,
+        "c": 1.0,
+        "werwdf": 0.0,
+    }
+
+    # Test case 4: Normalization with non-unique values
+    res = _normalize_to_dict(a=5, b=5, c=5)
+
+    # Get values from res into a list and sort them
+    res = sorted(list(res.values()))
+
+    assert res[0] == 0.0
+    assert res[1] > 0.0 and res[1] < 1.0
+    assert res[2] == 1.0
