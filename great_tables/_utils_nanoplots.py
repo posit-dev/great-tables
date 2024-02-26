@@ -160,7 +160,9 @@ def _generate_ref_line_from_keyword(vals: List[Union[int, float]], keyword: str)
     return ref_line
 
 
-def _normalize_vals(x: List[Union[int, float]]) -> List[Union[int, float]]:
+def _normalize_vals(
+    x: Union[List[Union[int, float]], List[int], List[float]]
+) -> List[Union[int, float]]:
     x_missing = [i for i, val in enumerate(x) if pd.isna(val)]
     mean_x = np.mean([val for val in x if not pd.isna(val)])
     x = [mean_x if pd.isna(val) else val for val in x]
