@@ -478,7 +478,7 @@ def _generate_nanoplot(
                         vals=y_vals, keyword=y_ref_area_2
                     )
 
-                y_ref_area_lines_sorted = [y_ref_area_line_1, y_ref_area_line_2].sort()
+                y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
                 y_ref_area_l = y_ref_area_lines_sorted[0]
                 y_ref_area_u = y_ref_area_lines_sorted[1]
 
