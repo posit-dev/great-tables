@@ -1,4 +1,4 @@
-from typing import Optional, List, Union, Any
+from typing import Optional, List, Union, Any, Dict
 import pandas as pd
 import numpy as np
 from great_tables._utils import _match_arg
@@ -178,17 +178,27 @@ def _jitter_vals(x: List[Union[int, float]], amount: float) -> List[Union[int, f
     return [val + np.random.uniform(-amount, amount) for val in x]
 
 
-def _normalize_to_list(*args) -> list:
+def _normalize_to_dict(**kwargs) -> Dict[str, List[Union[int, float]]]:
 
-    value_list = list(args)
+    # Ensure that at least two values are provided
+    if len(kwargs) < 2:
+        raise ValueError("At least two values must be provided.")
 
-    # If all values are the same, we must jitter the values
-    if len(set(args)) == 1:
-        value_list = _jitter_vals(args, amount=1 / 100000)
+    # Get args as a dictionary
+    args = dict(kwargs)
 
-    values_normalized = _normalize_vals(value_list)
+    # Extract the values from the dictionary as a list
+    vals = list(args.values())
 
-    values_normalized
+    # If numeric values are all the same, jitter the values; disregard any missing values
+    if all(x == vals[0] for x in vals if not pd.isna(x)):
+        vals = _jitter_vals(vals, 0.01)
+
+    # Normalize the values
+    normalized_vals = _normalize_vals(vals)
+
+    # Return the normalized values as a dictionary with the same keys
+    return dict(zip(args.keys(), normalized_vals))
 
 
 def _generate_nanoplot(
@@ -479,7 +489,7 @@ def _generate_nanoplot(
             )
 
             # Scale to proportional values
-            y_proportions_list = _normalize_to_list(
+            y_proportions_list = _normalize_to_dict(
                 vals=y_vals,
                 ref_line=y_ref_line[0],
                 ref_area_l=y_ref_area_l,
@@ -513,7 +523,7 @@ def _generate_nanoplot(
             y_scale_min = _get_extreme_value([y_vals, y_ref_line, expand_y], stat="min")
 
             # Scale to proportional values
-            y_proportions_list = _normalize_to_list(
+            y_proportions_list = _normalize_to_dict(
                 vals=y_vals, ref_line=y_ref_line, expand_y=expand_y
             )
 
@@ -524,6 +534,7 @@ def _generate_nanoplot(
             data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
 
         elif show_ref_area:
+            pass
 
             # Case where there is a reference area
 
