@@ -32,11 +32,11 @@ def tab_style(
 
     Parameters
     ----------
-    style : CellStyle | list[CellStyle]
+    style
         The styles to use for the cells at the targeted `locations`. The `style.text()`,
         `style.fill()`, and `style.borders()` classes can be used here to more easily generate valid
         styles.
-    location : Loc | list[Loc]
+    location
         The cell or set of cells to be associated with the style. The `loc.body()` class can be used
         here to easily target body cell locations.
 
@@ -130,12 +130,12 @@ def tab_footnote(
 
     Parameters
     ----------
-    footnote:
+    footnote
         The footnote text.
-    locations:
+    locations
         The location to place the footnote. If None, then a footnote is created without
         a correesponding marker on the table (TODO: double check this).
-    placement:
+    placement
         Where to affix the footnote marks to the table content.
 
     """

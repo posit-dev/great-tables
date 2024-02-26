@@ -19,7 +19,7 @@ def tab_stubhead(self: GTSelf, label: Union[str, Text]) -> GTSelf:
 
     Parameters
     ----------
-    label : str | Text
+    label
         The text to be used as the stubhead label. We can optionally use the
         [`md()`](`great_tables.md`) and [`html()`](`great_tables.html`) helper functions to style
         the text as Markdown or to retain HTML elements in the text.

@@ -36,6 +36,8 @@ from great_tables._options import (
     opt_row_striping,
     opt_vertical_padding,
     opt_horizontal_padding,
+    opt_table_outline,
+    opt_stylize,
 )
 from great_tables._source_notes import tab_source_note
 from great_tables._spanners import (
@@ -86,18 +88,18 @@ class GT(
 
     Parameters
     ----------
-    data : Any
+    data
         A DataFrame object.
-    rowname_col : str | None
+    rowname_col
         The column name in the input `data=` table to use as row labels to be placed in the table
         stub.
-    groupname_col : str | None
+    groupname_col
         The column name in the input `data=` table to use as group labels for generation of row
         groups.
-    auto_align : bool
+    auto_align
         Optionally have column data be aligned depending on the content contained in each column of
         the input `data=`.
-    locale : str
+    locale
         An optional locale identifier that can be set as the default locale for all functions that
         take a `locale` argument. Examples include `"en"` for English (United States) and `"fr"`
         for French (France).
@@ -230,6 +232,8 @@ class GT(
     opt_row_striping = opt_row_striping
     opt_vertical_padding = opt_vertical_padding
     opt_horizontal_padding = opt_horizontal_padding
+    opt_table_outline = opt_table_outline
+    opt_stylize = opt_stylize
 
     tab_header = tab_header
 

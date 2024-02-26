@@ -669,15 +669,18 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
         return self.__class__(reordered)
 
-    def indices_map(self) -> dict[int, str]:
-        list_dicts = [{ind: info.defaulted_label() for ind in info.indices} for info in self]
-        final = {}
+    def indices_map(self, n: int) -> list[tuple[int, str | None]]:
+        """Return pairs of row index, group label for all rows in data.
 
-        for entry in list_dicts:
-            key, value = list(entry.items())[0]
-            final.update({key: value})
+        Note that when no groupings exist, n is used to return from range(n).
+        In this case, None is used to indicate there is no grouping. This is
+        distinct from MISSING_GROUP (which may currently be unused?).
 
-        return final
+        """
+
+        if not len(self._d):
+            return [(ii, None) for ii in range(n)]
+        return [(ind, info.defaulted_label()) for info in self for ind in info.indices]
 
 
 # Spanners ----
