@@ -123,13 +123,6 @@ def save(
     # Create a temp directory to store the HTML file
     temp_dir = tempfile.mkdtemp()
 
-    # Create a temp file to store the HTML file; use the .html file extension
-    temp_file = tempfile.mkstemp(dir=temp_dir, suffix=".html")
-
-    # Write the HTML content to the temp file
-    with open(temp_file[1], "w") as fp:
-        fp.write(html_content)
-
     # Set up the Chrome webdriver options
     options = webdriver.ChromeOptions()
 
@@ -140,40 +133,38 @@ def save(
     # is visible in the screenshot; this is settable via the `window_size=` argument
     options.add_argument(f"--window-size={window_size[0]},{window_size[1]}")
 
-    # Instantiate a Chrome webdriver with the selected options
-    chrome = webdriver.Chrome(options=options)
+    with tempfile.NamedTemporaryFile(suffix=".html", dir=temp_dir) as temp_file, webdriver.Chrome(
+        options=options
+    ) as chrome:
 
-    # Convert the scale value to a percentage string used by the
-    # Chrome browser for zooming
-    zoom_level = str(scale * 100) + "%"
+        # Write the HTML content to the temp file
+        with open(temp_file.name, "w") as fp:
+            fp.write(html_content)
 
-    # Get the scaling factor by multiplying `scale` by 2
-    scaling_factor = scale * 2
+        # Convert the scale value to a percentage string used by the
+        # Chrome browser for zooming
+        zoom_level = str(scale * 100) + "%"
 
-    # Adjust the expand value by the scaling factor
-    expansion_amount = expand * scaling_factor
+        # Get the scaling factor by multiplying `scale` by 2
+        scaling_factor = scale * 2
 
-    # Open the HTML file in the Chrome browser
-    chrome.get("file://" + temp_file[1])
-    chrome.execute_script(f"document.body.style.zoom = '{zoom_level}'")
+        # Adjust the expand value by the scaling factor
+        expansion_amount = expand * scaling_factor
 
-    # Get only the chosen element from the page; by default, this is
-    # the table element
-    element = chrome.find_element(by=By.TAG_NAME, value=selector)
+        # Open the HTML file in the Chrome browser
+        chrome.get("file://" + temp_file.name)
+        chrome.execute_script(f"document.body.style.zoom = '{zoom_level}'")
 
-    # Get the location and size of the table element; this will be used
-    # to crop the screenshot later
-    location = element.location
-    size = element.size
+        # Get only the chosen element from the page; by default, this is the table element
+        element = chrome.find_element(by=By.TAG_NAME, value=selector)
 
-    # Get a screenshot of the entire page as a PNG image
-    png = chrome.get_screenshot_as_png()
+        # Get the location and size of the table element; this will be used
+        # to crop the screenshot later
+        location = element.location
+        size = element.size
 
-    # Close the Chrome browser
-    chrome.quit()
-
-    # Remove the temporary file and directory
-    Path(temp_file[1]).unlink()
+        # Get a screenshot of the entire page as a PNG image
+        png = chrome.get_screenshot_as_png()
 
     # Open the screenshot as an image with the PIL library; since the screenshot will be large
     # (due to the large window size), we use the BytesIO class to handle the large image data
