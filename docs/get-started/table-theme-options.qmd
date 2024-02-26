@@ -1,0 +1,205 @@
+---
+title: Table Theme Options
+jupyter: python3
+---
+
+Great Tables exposes options to customize the appearance of tables via two methods:
+
+* [](`~great_tables.GT.tab_style`) - targeted styles (e.g. color a specific cell of data).
+* [](`~great_tables.GT.tab_options`) - broad styles (e.g. color the header and source notes).
+
+Both methods target parts of the table, as shown in the diagram below.
+
+![](/assets/gt_parts_of_a_table.svg)
+
+This page covers how to style and theme your table using `GT.tab_options()`,
+which is meant to quickly set a broad range of styles.
+In the future, even more granular options will become available via `GT.tab_style()`.
+
+We'll use the basic GT object below for most examples, since it marks some of the table parts.
+
+```{python}
+from great_tables import GT, exibble
+
+gt_ex = (
+    GT(exibble.head(5), rowname_col="row", groupname_col="group")
+    .tab_header("THE HEADING", "(a subtitle)")
+    .tab_stubhead("THE STUBHEAD")
+    .tab_source_note("THE SOURCE NOTE")
+)
+
+gt_ex
+```
+
+## Table option parts
+
+As the graph above showed, tables are made of many parts---such as the heading, column labels, and stub. `.tab_options()` organizes options based on table part.
+
+The code below illustrates the table parts `.tab_options()` can target, by setting the background color for various parts.
+
+
+```{python}
+(
+    gt_ex
+    .tab_options(
+        container_width = "100%",
+        table_background_color="lightblue",
+        heading_background_color = "gold",
+        column_labels_background_color="aquamarine",
+        row_group_background_color="lightyellow",
+        stub_background_color="lightgreen",
+        source_notes_background_color="#f1e2af",
+    )
+)
+```
+
+Notice two important pieces:
+
+* The argument `heading_background_color="gold"` sets the heading part's background to gold.
+* Parts like `container` and `table` are the broadest. They cover all the other parts of the table.
+
+
+## Finding options: part, type, attribute
+
+Option names follow this format:
+
+```python
+{part name}_{type}_{attribute}
+```
+
+For example, the option `row_group_border_top_color` has these pieces:
+
+* **part**: `row_group`
+* **type**: `border_top`
+* **attribute**: `color`
+
+:::{.callout-note}
+Here are the parts supported in `.tab_options()`:
+
+* container, table
+* heading, source_note
+* column_labels, row_group, stub, stub_row
+* table_body
+:::
+
+## Styling borders
+
+Many table parts support customizing border colors and style.
+This is shown below for column labels.
+
+```{python}
+gt_ex.tab_options(
+    column_labels_border_top_color="blue",
+    column_labels_border_top_style="solid",
+    column_labels_border_top_width="5px"
+)
+```
+
+
+## Styling background color
+
+```{python}
+gt_ex.tab_options(
+    heading_background_color="purple"
+)
+```
+
+## Styling body cells
+
+The table body can style the lines between individual cells. Use the `hline` and `vline` option types to specify cell line color, style, and width.
+
+For example, the code below changes horizontal lines (`hline`) between cells to be red, dashed lines.
+
+```{python}
+gt_ex.tab_options(
+    table_body_hlines_color="red",
+    table_body_hlines_style="dashed",
+    table_body_hlines_width="4px",
+)
+```
+
+In order to define the vertical lines between cells, set `vline` styles. For example, the code below makes both horizontal and vertical lines between cells solid.
+
+
+```{python}
+gt_ex.tab_options(
+    table_body_hlines_style="solid",
+    table_body_vlines_style="solid",
+)
+```
+
+## Set options across table parts
+
+Some options starting with `table_` apply to all parts of the table.
+For example, fonts and background color apply everywhere.
+
+```{python}
+
+gt_ex.tab_options(
+    table_background_color="green",
+    table_font_color="darkblue",
+    table_font_style="italic",
+    table_font_names="Times New Roman"
+)
+```
+
+Options set across the whole table, can be overriden by styling a specific part.
+
+```{python}
+gt_ex.tab_options(
+    table_background_color="orange",
+    heading_background_color="pink"
+)
+```
+
+## A basic theme
+
+Based on the sections above, we can design an overall theme for a table.
+
+This requires setting a decent number of options, but makes a big difference when presenting a table! Below is a table with a simple, blue theme. (The code is hidden by default, but can be expanded to see all the options set).
+
+```{python}
+#| code-fold: true
+from great_tables import GT, exibble
+
+# TODO: are there names we can give the three colors?
+# e.g. primary = "#0076BA", etc..
+
+(GT(exibble, rowname_col="row", groupname_col="group")
+    .tab_header("THE HEADING", "(a subtitle)")
+    .tab_stubhead("THE STUBHEAD")
+    .tab_source_note("THE SOURCE NOTE")
+    .tab_options(
+        # table ----
+        table_border_top_color="#004D80",
+        table_border_bottom_color="#004D80",
+
+        # heading ----
+        heading_border_bottom_color="#0076BA",
+
+        # column labels ----
+        column_labels_border_top_color="#0076BA",
+        column_labels_border_bottom_color="#0076BA",
+        column_labels_background_color="#FFFFFF",
+
+        # row group ----
+        row_group_border_top_color="#0076BA",
+        row_group_border_bottom_color="#0076BA",
+
+        # stub ----
+        stub_background_color="#0076BA",
+        stub_border_style="solid",
+        stub_border_color="#0076BA",
+
+        # table body ----
+        table_body_border_top_color="#0076BA",
+        table_body_border_bottom_color="#0076BA",
+        table_body_hlines_style="none",
+        table_body_vlines_style="none",
+
+        # misc ----
+        #row_striping_background_color="#F4F4F4"
+    )
+
+)
+```

@@ -1,0 +1,87 @@
+---
+title: Premade Themes
+jupyter: python3
+---
+
+Great Tables provides convenience methods starting with `opt_` (e.g. `GT.opt_row_striping()`), as a shortcut for various styles that can be set via `GT.tab_options()`.
+
+There are two important kinds of `GT.opt_*()` methods:
+
+* `GT.opt_stylize()`: allows setting one of six premade table themes.
+* The remaining `GT.opt_*()` methods: shortcuts for common uses of `GT.tab_options()`.
+
+We'll use the basic GT object below for most examples, since it marks some of the table parts.
+
+
+```{python}
+from great_tables import GT, exibble
+
+lil_exibble = exibble.head(5)[["num", "char", "row", "group"]]
+
+gt_ex = (
+    GT(lil_exibble, rowname_col="row", groupname_col="group")
+    .tab_header("THE HEADING", "(a subtitle)")
+    .tab_stubhead("THE STUBHEAD")
+    .tab_source_note("THE SOURCE NOTE")
+)
+
+gt_ex
+```
+
+
+## `opt_stylize()`: premade themes
+
+Below are the first two premade styles. The first uses `color="blue"`, and the second uses `color="red"`.
+
+:::::: {.grid}
+:::{.g-col-lg-6 .g-col-12}
+
+```{python}
+gt_ex.opt_stylize(style = 1, color = "blue")
+```
+
+:::
+:::{.g-col-lg-6 .g-col-12}
+```{python}
+gt_ex.opt_stylize(style = 2, color = "red")
+```
+:::
+::::::
+
+Notice that first table (blue) emphasizes the row labels with a solid background color. The second table (red) emphasizes the column labels, and uses solid lines to separate the body cell values.
+
+There are six styles available, each emphasizing different table parts. The styles are currently numbered 1-6. The options for colors are `"blue"`, `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`.
+
+
+## `opt_*()` convenience methods
+
+This section shows the different `GT.opt_*()` methods available. They serve as convenience methods for common `GT.tab_options()` tasks.
+
+### Align table header
+
+```{python}
+gt_ex.opt_align_table_header("left")
+```
+
+
+### Make text ALL CAPS
+
+```{python}
+gt_ex.opt_all_caps()
+```
+
+### Reduce or expand padding
+
+```{python}
+gt_ex.opt_vertical_padding(.3)
+```
+
+```{python}
+gt_ex.opt_horizontal_padding(2.99)
+```
+
+### Set table outline
+
+```{python}
+gt_ex.opt_table_outline()
+```
