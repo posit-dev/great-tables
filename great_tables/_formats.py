@@ -3300,31 +3300,56 @@ def fmt_image(
     file_pattern: str = "{}",
     encode: bool = True,
 ) -> GTSelf:
-    """Format values as images to display.
+    """Format image paths to generate images in cells.
 
-    This function can either display a file on disk, or encode the image into the table.
+    To more easily insert graphics into body cells, we can use the `fmt_image()` method. This allows
+    for one or more images to be placed in the targeted cells. The cells need to contain some
+    reference to an image file, either: (1) complete http/https or local paths to the files; (2) the
+    file names, where a common path can be provided via `path=`; or (3) a fragment of the file name,
+    where the `file_pattern=` argument helps to compose the entire file name and `path=` provides
+    the path information. This should be expressly used on columns that contain *only* references to
+    image files (i.e., no image references as part of a larger block of text). Multiple images can
+    be included per cell by separating image references by commas. The `sep=` argument allows for a
+    common separator to be applied between images.
 
     Parameters
     ----------
     columns
-        The columns to format.
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
     rows
-        The rows to format, specified using row numbers.
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
     height
         The height of the rendered images.
     width
         The width of the rendered images.
     sep
-        Separator between images.
+        In the output of images within a body cell, `sep=` provides the separator between each
+        image.
     path
-        Path to image files.
+        An optional path to local image files (this is combined with all filenames).
     file_pattern
-        File pattern specification.
+        The pattern to use for mapping input values in the body cells to the names of the graphics
+        files. The string supplied should use `"{}"` in the pattern to map filename fragments to
+        input strings.
     encode
-        Whether to use Base64 encoding.
+        The option to always use Base64 encoding for image paths that are determined to be local. By
+        default, this is `True`.
 
     Examples
     --------
+    Using a small portion of [`metro`] dataset, let's create a **gt** table. We will only include a
+    few columns and rows from that table. The `lines` column has comma-separated listings of numbers
+    corresponding to lines served at each station. We have a directory of SVG graphics for all of
+    these lines in the package (the path for the image directory can be accessed via
+    `files("great_tables") / "data/metro_images"`, using the `importlib_resources` package). The
+    filenames roughly corresponds to the data in the `lines` column. The `fmt_image()` function can
+    be used with these inputs since the `path=` and `file_pattern=` arguments allow us to compose
+    complete and valid file locations. What you get from this are sequences of images in the table
+    cells, taken from the referenced graphics files on disk.
+
     ```{python}
     from great_tables import GT
     from great_tables.data import metro
