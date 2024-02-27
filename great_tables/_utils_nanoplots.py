@@ -776,6 +776,20 @@ def _generate_nanoplot(
 
         data_path_tags = "\n".join(data_path_tags)
     #
+    # Generate background with repeating line pattern
+    #
+
+    svg_defs = (
+        f"<defs>"
+        f'<pattern id="area_pattern" width="8" height="8" patternUnits="userSpaceOnUse">'
+        f'<path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="'
+        f"{data_area_fill_color}"
+        f'" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision">'
+        f"</pattern>"
+        f"</defs>"
+    )
+
+    #
     # Generate style tag for vertical guidelines and y-axis
     #
 
