@@ -699,3 +699,21 @@ def _generate_nanoplot(
     data_bar_fill_color = _normalize_option_list(
         option_list=data_bar_fill_color, num_y_vals=num_y_vals
     )
+
+    #
+    # Generate data segments by defining `start` and `end` vectors (these
+    # are guaranteed to be of the same length); these the segments of data
+    # they receive line segments and adjoining areas
+    #
+
+    # Use run-length encoding to determine the segments of data
+
+    # rle_data_y_points = pd.Series(data_y_points).diff().ne(0).cumsum()
+
+    # end_data_y_points = np.cumsum(rle_data_y_points.lengths)
+
+    # start_data_y_points = end_data_y_points - rle_data_y_points.lengths + 1
+
+    start_data_y_points = [1]
+    end_data_y_points = [len(data_y_points)]
+    n_segments = 1
