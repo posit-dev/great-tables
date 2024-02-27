@@ -592,7 +592,6 @@ def _generate_nanoplot(
             data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
 
         elif show_ref_area:
-            pass
 
             # Case where there is a reference area
 
