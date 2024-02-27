@@ -775,5 +775,13 @@ def _generate_nanoplot(
             data_path_tags.append(data_path_tags_i)
 
         data_path_tags = "\n".join(data_path_tags)
+    nanoplot_svg = _construct_nanoplot_svg(
+        viewbox=viewbox,
+        svg_height=svg_height,
+        svg_defs=svg_defs,
+        svg_style=svg_style,
+        data_path_tags=data_path_tags,
+        circle_tags=circle_tags,
+    )
 
     return _svg_path_string(viewbox, svg_height, data_path_tags)
