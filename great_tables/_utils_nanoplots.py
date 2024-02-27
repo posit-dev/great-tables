@@ -540,10 +540,10 @@ def _generate_nanoplot(
 
             # Recompute the `y` scale min and max values
             y_scale_max = _get_extreme_value(
-                [y_vals, y_ref_line[0], y_ref_area_l, y_ref_area_u, expand_y], stat="max"
+                y_vals, y_ref_line[0], y_ref_area_l, y_ref_area_u, expand_y, stat="max"
             )
             y_scale_min = _get_extreme_value(
-                [y_vals, y_ref_line[0], y_ref_area_l, y_ref_area_u, expand_y], stat="min"
+                y_vals, y_ref_line[0], y_ref_area_l, y_ref_area_u, expand_y, stat="min"
             )
 
             # Scale to proportional values
@@ -577,8 +577,8 @@ def _generate_nanoplot(
                 y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
 
             # Recompute the `y` scale min and max values
-            y_scale_max = _get_extreme_value([y_vals, y_ref_line, expand_y], stat="max")
-            y_scale_min = _get_extreme_value([y_vals, y_ref_line, expand_y], stat="min")
+            y_scale_max = _get_extreme_value(y_vals, y_ref_line, expand_y, stat="max")
+            y_scale_min = _get_extreme_value(y_vals, y_ref_line, expand_y, stat="min")
 
             # Scale to proportional values
             y_proportions_list = _normalize_to_dict(
