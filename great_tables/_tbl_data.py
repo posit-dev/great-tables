@@ -310,7 +310,8 @@ def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) 
         raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
     # I don't think there's a way to get the columns w/o running the selection
-    return [(col, col_pos[col]) for col in data.select(expr).columns]
+    final_columns = selectors.expand_selector(data, expr)
+    return [(col, col_pos[col]) for col in final_columns]
 
 
 def _eval_select_from_list(columns: list[str], expr: list[str | int]) -> list[tuple[str, int]]:
