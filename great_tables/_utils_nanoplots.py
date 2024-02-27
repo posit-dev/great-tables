@@ -714,7 +714,7 @@ def _generate_nanoplot(
 
     # start_data_y_points = end_data_y_points - rle_data_y_points.lengths + 1
 
-    start_data_y_points = [1]
+    start_data_y_points = [0]
     end_data_y_points = [len(data_y_points)]
     n_segments = 1
 
