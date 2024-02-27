@@ -808,6 +808,14 @@ def _generate_nanoplot(
             circle_strings.append(circle_strings_i)
 
         circle_tags = "".join(circle_strings)
+
+    #
+    # Generate data bars
+    #
+
+    if plot_type == "bar" and single_horizontal_bar is False:
+        pass
+
     #
     # Generate background with repeating line pattern
     #
