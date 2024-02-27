@@ -845,6 +845,13 @@ def _generate_nanoplot(
         pass
 
     #
+    # Generate reference area
+    #
+
+    if show_ref_area:
+        pass
+
+    #
     # Generate background with repeating line pattern
     #
 
