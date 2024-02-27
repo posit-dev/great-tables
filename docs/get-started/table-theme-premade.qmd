@@ -60,7 +60,7 @@ This section shows the different `GT.opt_*()` methods available. They serve as c
 ### Align table header
 
 ```{python}
-gt_ex.opt_align_table_header("left")
+gt_ex.opt_align_table_header(align="left")
 ```
 
 
@@ -73,11 +73,11 @@ gt_ex.opt_all_caps()
 ### Reduce or expand padding
 
 ```{python}
-gt_ex.opt_vertical_padding(.3)
+gt_ex.opt_vertical_padding(scale=0.3)
 ```
 
 ```{python}
-gt_ex.opt_horizontal_padding(2.99)
+gt_ex.opt_horizontal_padding(scale=3)
 ```
 
 ### Set table outline
