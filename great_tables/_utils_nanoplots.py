@@ -717,3 +717,36 @@ def _generate_nanoplot(
     start_data_y_points = [1]
     end_data_y_points = [len(data_y_points)]
     n_segments = 1
+
+    #
+    # Generate a curved data line
+    #
+
+    if plot_type == "line" and show_data_line and line_type == "curved":
+
+        data_path_tags = []
+
+        for i in range(n_segments):
+
+            curve_x = data_x_points[start_data_y_points[i] : end_data_y_points[i]]
+            curve_y = data_y_points[start_data_y_points[i] : end_data_y_points[i]]
+
+            curved_path_string = [f"M {curve_x[0]},{curve_y[0]}"]
+
+            for j in range(1, len(curve_x)):
+
+                point_b1 = f"{curve_x[j - 1] + x_d / 2},{curve_y[j - 1]}"
+                point_b2 = f"{curve_x[j] - x_d / 2},{curve_y[j]}"
+                point_i = f"{curve_x[j]},{curve_y[j]}"
+
+                path_string_j = f"C {point_b1} {point_b2} {point_i}"
+
+                curved_path_string.append(path_string_j)
+
+            curved_path_string_i = " ".join(curved_path_string)
+
+            data_path_tags_i = f'<path d="{curved_path_string_i}" stroke="{data_line_stroke_color}" stroke-width="{data_line_stroke_width}" fill="none"></path>'
+
+            data_path_tags.append(data_path_tags_i)
+
+        data_path_tags = "\n".join(data_path_tags)
