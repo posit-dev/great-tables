@@ -775,6 +775,25 @@ def _generate_nanoplot(
             data_path_tags.append(data_path_tags_i)
 
         data_path_tags = "\n".join(data_path_tags)
+    #
+    # Generate style tag for vertical guidelines and y-axis
+    #
+
+    hover_param = ":hover" if interactive_data_values else ""
+
+    svg_style = (
+        f"<style> text {{ font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; }} "
+        f".vert-line{hover_param} rect {{ fill: {vertical_guide_stroke_color}; fill-opacity: 40%; stroke: #FFFFFF60; color: red; }} "
+        f".vert-line{hover_param} text {{ stroke: white; fill: #212427; }} "
+        f".horizontal-line{hover_param} text {{stroke: white; fill: #212427; }} "
+        f".ref-line{hover_param} rect {{ stroke: #FFFFFF60; }} "
+        f".ref-line{hover_param} line {{ stroke: #FF0000; }} "
+        f".ref-line{hover_param} text {{ stroke: white; fill: #212427; }} "
+        f".y-axis-line{hover_param} rect {{ fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; }} "
+        f".y-axis-line{hover_param} text {{ stroke: white; stroke-width: 0.20em; fill: #1A1C1F; }} "
+        f"</style>"
+    )
+
     nanoplot_svg = _construct_nanoplot_svg(
         viewbox=viewbox,
         svg_height=svg_height,
