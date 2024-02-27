@@ -750,3 +750,18 @@ def _generate_nanoplot(
             data_path_tags.append(data_path_tags_i)
 
         data_path_tags = "\n".join(data_path_tags)
+
+    if plot_type == "line" and show_data_line and line_type == "straight":
+
+        data_path_tags = []
+
+        for i in range(n_segments):
+
+            line_x = data_x_points[start_data_y_points[i] : end_data_y_points[i]]
+            line_y = data_y_points[start_data_y_points[i] : end_data_y_points[i]]
+
+            data_path_tags_i = f'<polyline points="{" ".join(f"{line_x},{line_y}")}" stroke="{data_line_stroke_color}" stroke-width="{data_line_stroke_width}" fill="none"></polyline>'
+
+            data_path_tags = [data_path_tags, data_path_tags_i]
+
+        data_path_tags = "\n".join(data_path_tags)
