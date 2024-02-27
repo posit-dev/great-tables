@@ -641,4 +641,3 @@ def _generate_nanoplot(
             data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
             data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
 
-    return ""
