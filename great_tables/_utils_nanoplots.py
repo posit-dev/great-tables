@@ -859,6 +859,13 @@ def _generate_nanoplot(
         pass
 
     #
+    # Generate vertical data point guidelines
+    #
+
+    if show_vertical_guides:
+        pass
+
+    #
     # Generate background with repeating line pattern
     #
 
