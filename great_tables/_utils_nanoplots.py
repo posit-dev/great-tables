@@ -594,5 +594,51 @@ def _generate_nanoplot(
         elif show_ref_area:
 
             # Case where there is a reference area
+            if y_ref_area is not None:
+
+                # TODO: Validate input for `y_ref_area`
+
+                y_ref_area_1 = y_ref_area[0]
+                y_ref_area_2 = y_ref_area[1]
+
+                if _val_is_numeric(y_ref_area_1):
+                    y_ref_area_line_1 = y_ref_area_1
+                if _val_is_numeric(y_ref_area_2):
+                    y_ref_area_line_2 = y_ref_area_2
+
+                if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
+                    y_ref_area_line_1 = _generate_ref_line_from_keyword(
+                        vals=y_vals, keyword=y_ref_area_1
+                    )
+
+                if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
+                    y_ref_area_line_2 = _generate_ref_line_from_keyword(
+                        vals=y_vals, keyword=y_ref_area_2
+                    )
+
+                y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
+                y_ref_area_l = y_ref_area_lines_sorted[0]
+                y_ref_area_u = y_ref_area_lines_sorted[1]
+
+            # Recompute the `y` scale min and max values
+            y_scale_max = _get_extreme_value(
+                y_vals, y_ref_area_l, y_ref_area_u, expand_y, stat="max"
+            )
+            y_scale_min = _get_extreme_value(
+                y_vals, y_ref_area_l, y_ref_area_u, expand_y, stat="min"
+            )
+
+            # Scale to proportional values
+            y_proportions_list = _normalize_to_dict(
+                vals=y_vals, ref_area_l=y_ref_area_l, ref_area_u=y_ref_area_u, expand_y=expand_y
+            )
+
+            y_proportions = y_proportions_list["vals"]
+            y_proportions_ref_area_l = y_proportions_list["ref_area_l"]
+            y_proportions_ref_area_u = y_proportions_list["ref_area_u"]
+
+            # Scale reference area boundaries
+            data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
+            data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
 
     return ""
