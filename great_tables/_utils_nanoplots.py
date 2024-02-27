@@ -656,3 +656,21 @@ def _generate_nanoplot(
 
     if plot_type == "bar" or plot_type == "boxplot":
         pass
+
+    # If x values are present then normalize them between [0, 1]; if
+    # there are no x values, generate equally-spaced x values according
+    # to the number of y values
+    if plot_type == "line" and x_vals is not None:
+        pass
+    else:
+        x_proportions = np.linspace(0, 1, num_y_vals)
+
+    # Create normalized (and inverted for SVG) data `x` and `y` values
+    for i in range(len(y_proportions)):
+        y_proportions[i] = safe_y_d + ((1 - y_proportions[i]) * data_y_height)
+
+    for i in range(len(x_proportions)):
+        x_proportions[i] = (data_x_width * x_proportions[i]) + safe_x_d
+
+    data_y_points = y_proportions
+    data_x_points = x_proportions
