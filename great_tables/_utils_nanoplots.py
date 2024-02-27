@@ -220,17 +220,38 @@ def _normalize_to_dict(**kwargs) -> Dict[str, List[Union[int, float]]]:
     args = dict(kwargs)
 
     # Extract the values from the dictionary as a list
-    vals = list(args.values())
+    all_vals = list(args.values())
+    all_keys = list(args.keys())
 
-    # If numeric values are all the same, jitter the values; disregard any missing values
-    if all(x == vals[0] for x in vals if not pd.isna(x)):
-        vals = _jitter_vals(vals, 0.01)
+    # Remove any None values from the `all_vals` list
+    all_vals = [val for val in all_vals if val is not None]
 
-    # Normalize the values
-    normalized_vals = _normalize_vals(vals)
+    # Get the length of each arg in the args dictionary (if single value, length is 1; if
+    # a list, length is the length of the list)
+    arg_lens = [len(val) if type(val) is list else 1 for val in all_vals]
 
-    # Return the normalized values as a dictionary with the same keys
-    return dict(zip(args.keys(), normalized_vals))
+    # Flatten the `all_vals` list which may contain lists and scalar values
+    all_vals = _flatten_list(all_vals)
+
+    # If all values are the same, then jitter the values
+    if len(set(all_vals)) == 1:
+        all_vals = _jitter_vals(all_vals, 0.1)
+
+    # Get the normalized values across the collection of all values
+    normalized_vals = _normalize_vals(all_vals)
+
+    # Use the `arg_lens` list to put the sequence of normalized values back into
+    # the original structure of args; do this with iteration
+    for i in range(len(arg_lens)):
+        normalized_vals_i = normalized_vals[0 : arg_lens[i]]
+
+        # Assign these values back to the original args dictionary at the ith key
+        args[all_keys[i]] = normalized_vals_i
+
+        # Remove the first n elements from `normalized_vals` and assign the result
+        normalized_vals = normalized_vals[arg_lens[i] :]
+
+    return args
 
 
 def _generate_nanoplot(
