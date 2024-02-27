@@ -784,4 +784,6 @@ def _generate_nanoplot(
         circle_tags=circle_tags,
     )
 
-    return _svg_path_string(viewbox, svg_height, data_path_tags)
+    print(nanoplot_svg)
+
+    return nanoplot_svg
