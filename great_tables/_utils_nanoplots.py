@@ -674,3 +674,28 @@ def _generate_nanoplot(
 
     data_y_points = y_proportions
     data_x_points = x_proportions
+
+    #
+    # Ensure that certain options have their lengths checked and
+    # expanded to length `num_y_vals`
+    #
+
+    data_point_radius = _normalize_option_list(option_list=data_point_radius, num_y_vals=num_y_vals)
+    data_point_stroke_color = _normalize_option_list(
+        option_list=data_point_stroke_color, num_y_vals=num_y_vals
+    )
+    data_point_stroke_width = _normalize_option_list(
+        option_list=data_point_stroke_width, num_y_vals=num_y_vals
+    )
+    data_point_fill_color = _normalize_option_list(
+        option_list=data_point_fill_color, num_y_vals=num_y_vals
+    )
+    data_bar_stroke_color = _normalize_option_list(
+        option_list=data_bar_stroke_color, num_y_vals=num_y_vals
+    )
+    data_bar_stroke_width = _normalize_option_list(
+        option_list=data_bar_stroke_width, num_y_vals=num_y_vals
+    )
+    data_bar_fill_color = _normalize_option_list(
+        option_list=data_bar_fill_color, num_y_vals=num_y_vals
+    )
