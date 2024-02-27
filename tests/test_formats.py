@@ -17,6 +17,8 @@ from great_tables._formats import (
 )
 from great_tables._locations import RowSelectExpr
 
+from typing import Any
+
 
 def assert_rendered_body(snapshot, gt):
     built = gt._build_data("html")
@@ -63,6 +65,20 @@ def test_format_repr_snap(snapshot):
     )
 
     assert_repr_html(snapshot, new_gt)
+
+
+@pytest.mark.parametrize("expr", [[0, -1], pl.selectors.all().exclude("y")])
+def test_format_col_selection(expr: Any):
+    df = pd.DataFrame({"x": [1], "y": [2], "z": [3]})
+
+    if isinstance(expr, pl.Expr):
+        gt = GT(pl.from_pandas(df))
+    else:
+        gt = GT(df)
+
+    res = gt.fmt(lambda x: x, columns=expr, rows=None)
+    assert len(res._formats) == 1
+    assert res._formats[0].cells.cols == ["x", "z"]
 
 
 @pytest.mark.parametrize(
