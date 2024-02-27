@@ -50,6 +50,21 @@ def _remove_na_from_list(x: List[Union[int, float]]) -> List[Union[int, float]]:
     return [val for val in x if not _val_is_missing(val)]
 
 
+def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) -> List[Any]:
+
+    # If `option_list` is a single value, then make it a list
+    if not isinstance(option_list, list):
+        option_list = [option_list]
+
+    if len(option_list) != 1 and len(option_list) != num_y_vals:
+        raise ValueError("Every option must have either length 1 or `length(y_vals)`.")
+
+    if len(option_list) == 1:
+        option_list = [option_list[0]] * num_y_vals
+
+    return option_list
+
+
 #
 # Collection of general functions to calculate the mean, min, max, median,
 # and other statistical measures from a list of values; the list should not
