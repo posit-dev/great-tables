@@ -117,14 +117,14 @@ def _gt_q3(x: List[Union[int, float]]) -> float:
 
 # Function to get either the max or min value from a list of values
 def _get_extreme_value(
-    val_list: List[
-        Union[
-            int,
-            float,
-        ]
-    ],
+    *args,
     stat: str = "max",
 ):
+    # Remove any None values from the `args` list
+    args = [val for val in args if val is not None]
+
+    # Flatten the `args` list
+    val_list = [val for sublist in args for val in sublist]
 
     # Ensure that `stat` is either 'max' or 'min'
     _match_arg(stat, lst=["max", "min"])
