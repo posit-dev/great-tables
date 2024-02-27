@@ -775,7 +775,39 @@ def _generate_nanoplot(
 
             data_path_tags.append(data_path_tags_i)
 
-        data_path_tags = "\n".join(data_path_tags)
+        data_path_tags = "".join(data_path_tags)
+
+    #
+    # Generate data points
+    #
+
+    if plot_type == "line" and show_data_points:
+
+        circle_strings = []
+
+        for i, _ in enumerate(data_x_points):
+
+            data_point_radius_i = data_point_radius[i]
+            data_point_stroke_color_i = data_point_stroke_color[i]
+            data_point_stroke_width_i = data_point_stroke_width[i]
+            data_point_fill_color_i = data_point_fill_color[i]
+
+            if data_y_points[i] is None:
+
+                if missing_vals == "marker":
+
+                    # Create a symbol that should denote that a missing value is present
+                    circle_strings_i = f'<circle cx="{data_x_points[i]}" cy="{safe_y_d + (data_y_height / 2)}" r="{data_point_radius_i + (data_point_radius_i / 2)}" stroke="red" stroke-width="{data_point_stroke_width_i}" fill="white"></circle>'
+
+                else:
+                    continue
+
+            else:
+                circle_strings_i = f'<circle cx="{data_x_points[i]}" cy="{data_y_points[i]}" r="{data_point_radius_i}" stroke="{data_point_stroke_color_i}" stroke-width="{data_point_stroke_width_i}" fill="{data_point_fill_color_i}"></circle>'
+
+            circle_strings.append(circle_strings_i)
+
+        circle_tags = "".join(circle_strings)
     #
     # Generate background with repeating line pattern
     #
