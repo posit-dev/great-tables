@@ -641,3 +641,18 @@ def _generate_nanoplot(
             data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
             data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
 
+        else:
+
+            # Case where there is no reference line or reference area
+
+            # Recompute the `y` scale min and max values
+            y_scale_max = _get_extreme_value(y_vals, expand_y, stat="max")
+            y_scale_min = _get_extreme_value(y_vals, expand_y, stat="min")
+
+            # Scale to proportional values
+            y_proportions_list = _normalize_to_dict(vals=y_vals, expand_y=expand_y)
+
+            y_proportions = y_proportions_list["vals"]
+
+    if plot_type == "bar" or plot_type == "boxplot":
+        pass
