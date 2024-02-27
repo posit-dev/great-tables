@@ -852,6 +852,13 @@ def _generate_nanoplot(
         pass
 
     #
+    # Generate y-axis guide
+    #
+
+    if show_y_axis_guide:
+        pass
+
+    #
     # Generate background with repeating line pattern
     #
 
