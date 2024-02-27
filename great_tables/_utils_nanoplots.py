@@ -817,6 +817,13 @@ def _generate_nanoplot(
         pass
 
     #
+    # Generate single horizontal data bars
+    #
+
+    if plot_type == "bar" and single_horizontal_bar:
+        pass
+
+    #
     # Generate background with repeating line pattern
     #
 
