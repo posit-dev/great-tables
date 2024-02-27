@@ -824,6 +824,13 @@ def _generate_nanoplot(
         pass
 
     #
+    # Generate box plots
+    #
+
+    if plot_type == "boxplot":
+        pass
+
+    #
     # Generate background with repeating line pattern
     #
 
