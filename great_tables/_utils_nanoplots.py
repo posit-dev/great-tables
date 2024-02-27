@@ -256,6 +256,7 @@ def _normalize_to_dict(**kwargs) -> Dict[str, List[Union[int, float]]]:
 
 def _svg_path_string(viewbox, svg_height, data_path_tags) -> str:
 
+    # FIXME: remove the style attribute on the surrounding div
     return f'<div style="width:500px;height:200px"><svg role="img" "viewBox="{viewbox} "style=height:{svg_height};margin-left:auto;margin-right:auto;font-size:inherit;overflow:visible;vertical-align:middle;position:relative;">{data_path_tags}</svg></div>'
 
 
