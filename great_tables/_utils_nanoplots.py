@@ -333,7 +333,7 @@ def _generate_nanoplot(
     g_y_axis_tags = None
     g_guide_tags = None
 
-    # Initialize the `single_horizontal_bar` variable with `FALSE`
+    # Initialize the `single_horizontal_bar` variable with `False`
     single_horizontal_bar = False
 
     # If the number of `y` values is zero or if all consist of NA values,
