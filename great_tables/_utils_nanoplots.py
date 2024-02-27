@@ -340,6 +340,7 @@ def _generate_nanoplot(
     # return an empty string
     if len(y_vals) == 0:
         return ""
+
     # If all `y` values are NA, return an empty string
     # TODO: Do this with the `pd_na()` function
     if all(pd.isna(y_vals)):
