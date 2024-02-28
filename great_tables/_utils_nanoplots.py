@@ -402,6 +402,7 @@ def _construct_nanoplot_svg(
     ref_area_tags: Optional[str] = None,
     area_path_tags: Optional[str] = None,
     data_path_tags: Optional[str] = None,
+    zero_line_tags: Optional[str] = None,
     bar_tags: Optional[str] = None,
     ref_line_tags: Optional[str] = None,
     circle_tags: Optional[str] = None,
@@ -420,7 +421,7 @@ def _construct_nanoplot_svg(
     g_guide_tags = "" if g_guide_tags is None else g_guide_tags
 
     # FIXME: remove the style attribute on the surrounding div
-    return f'<div style="width:500px;height:200px"><svg role="img" "viewBox="{viewbox} "style=height:{svg_height};margin-left:auto;margin-right:auto;font-size:inherit;overflow:visible;vertical-align:middle;position:relative;">{svg_defs}{svg_style}{ref_area_tags}{area_path_tags}{data_path_tags}{bar_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}{g_guide_tags}</svg></div>'
+    return f'<div style="width:500px;height:200px"><svg role="img" "viewBox="{viewbox} "style=height:{svg_height};margin-left:auto;margin-right:auto;font-size:inherit;overflow:visible;vertical-align:middle;position:relative;">{svg_defs}{svg_style}{ref_area_tags}{area_path_tags}{data_path_tags}{zero_line_tags}{bar_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}{g_guide_tags}</svg></div>'
 
 
 def _generate_nanoplot(
@@ -1210,7 +1211,11 @@ def _generate_nanoplot(
     #
 
     if plot_type == "bar" and single_horizontal_bar is False:
-        pass
+
+        stroke = "#BFBFBF"
+        stroke_width = 2
+
+        zero_line_tags = f'<line x1="{data_x_points[0] - 27.5}" y1="{data_y0_point}" x2="{data_x_points[-1] + 27.5}" y2="{data_y0_point}" stroke="{stroke}" stroke-width="{stroke_width}"></line>'
 
     #
     # Generate reference line
@@ -1375,6 +1380,7 @@ def _generate_nanoplot(
         ref_area_tags=ref_area_tags,
         area_path_tags=area_path_tags,
         data_path_tags=data_path_tags,
+        zero_line_tags=zero_line_tags,
         bar_tags=bar_tags,
         ref_line_tags=ref_line_tags,
         circle_tags=circle_tags,
