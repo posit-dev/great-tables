@@ -259,6 +259,7 @@ def _construct_nanoplot_svg(
     svg_height: str,
     svg_defs: str,
     svg_style: str,
+    area_path_tags: str,
     data_path_tags: str,
     circle_tags: str,
 ) -> str:
