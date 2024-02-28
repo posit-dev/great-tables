@@ -446,8 +446,8 @@ def _generate_nanoplot(
         # Expand the `y` scale, centering around the `y_scale_min` value
         expand_y = [y_scale_min - expand_y_dist, y_scale_min + expand_y_dist]
 
-    # Ensure that a reference line or reference area isn't shown if NULL or
-    # any of its directives is NA
+    # Ensure that a reference line or reference area isn't shown if None or
+    # any of its directives is missing
     if y_ref_line is None or (y_ref_line is not None and pd.isna(y_ref_line)):
         show_ref_line = False
 
