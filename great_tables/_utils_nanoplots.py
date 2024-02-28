@@ -406,6 +406,7 @@ def _construct_nanoplot_svg(
     svg_height: str,
     svg_defs: str,
     svg_style: str,
+    ref_area_tags: str,
     area_path_tags: str,
     data_path_tags: str,
     ref_line_tags: str,
@@ -415,7 +416,7 @@ def _construct_nanoplot_svg(
 ) -> str:
 
     # FIXME: remove the style attribute on the surrounding div
-    return f'<div style="width:500px;height:200px"><svg role="img" "viewBox="{viewbox} "style=height:{svg_height};margin-left:auto;margin-right:auto;font-size:inherit;overflow:visible;vertical-align:middle;position:relative;">{svg_defs}{svg_style}{area_path_tags}{data_path_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}{g_guide_tags}</svg></div>'
+    return f'<div style="width:500px;height:200px"><svg role="img" "viewBox="{viewbox} "style=height:{svg_height};margin-left:auto;margin-right:auto;font-size:inherit;overflow:visible;vertical-align:middle;position:relative;">{svg_defs}{svg_style}{ref_area_tags}{area_path_tags}{data_path_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}{g_guide_tags}</svg></div>'
 
 
 def _generate_nanoplot(
@@ -699,16 +700,16 @@ def _generate_nanoplot(
 
             # Recompute the `y` scale min and max values
             y_scale_max = _get_extreme_value(
-                y_vals, y_ref_line[0], y_ref_area_l, y_ref_area_u, expand_y, stat="max"
+                y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="max"
             )
             y_scale_min = _get_extreme_value(
-                y_vals, y_ref_line[0], y_ref_area_l, y_ref_area_u, expand_y, stat="min"
+                y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="min"
             )
 
             # Scale to proportional values
             y_proportions_list = _normalize_to_dict(
                 vals=y_vals,
-                ref_line=y_ref_line[0],
+                ref_line=y_ref_line,
                 ref_area_l=y_ref_area_l,
                 ref_area_u=y_ref_area_u,
                 expand_y=expand_y,
@@ -1010,7 +1011,17 @@ def _generate_nanoplot(
     #
 
     if show_ref_area:
-        pass
+
+        fill = reference_area_fill_color
+
+        p_ul = f"{data_x_points[0]},{data_y_ref_area_u}"
+        p_ur = f"{data_x_points[-1]},{data_y_ref_area_u}"
+        p_lr = f"{data_x_points[-1]},{data_y_ref_area_l}"
+        p_ll = f"{data_x_points[0]},{data_y_ref_area_l}"
+
+        ref_area_path = f"M{p_ul},{p_ur},{p_lr},{p_ll}Z"
+
+        ref_area_tags = f'<path d="{ref_area_path}" stroke="transparent" stroke-width="2" fill="{fill}" fill-opacity="0.8"></path>'
 
     #
     # Generate y-axis guide
@@ -1136,6 +1147,7 @@ def _generate_nanoplot(
         svg_height=svg_height,
         svg_defs=svg_defs,
         svg_style=svg_style,
+        ref_area_tags=ref_area_tags,
         area_path_tags=area_path_tags,
         data_path_tags=data_path_tags,
         ref_line_tags=ref_line_tags,
