@@ -822,6 +822,7 @@ def _generate_nanoplot(
 
             y_proportions = y_proportions_list["vals"]
 
+    # TODO: Handle the case where `plot_type` is 'bar' or 'boxplot'
     if plot_type == "bar" or plot_type == "boxplot":
         pass
 
