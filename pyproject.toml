@@ -45,14 +45,21 @@ dependencies = [
     "numpy>=1.22.4",
     "Babel>=2.13.1",
     "mizani>=0.9.3",
-    "webcolors",
+    "webcolors>=1.13",
 ]
 requires-python = ">=3.7"
 
-[project.urls]
-homepage = "https://github.com/posit-dev/great_tables"
-
 [project.optional-dependencies]
+all = [
+    "great_tables[extra]",
+    "great_tables[dev]",
+]
+
+extra = [
+    "selenium>=4.18.1",
+    "Pillow>=10.2.0",
+]
+
 dev = [
     "jupyter",
     "quartodoc>=0.7.1; python_version >= '3.9'",
@@ -66,6 +73,10 @@ dev = [
     "syrupy"
 ]
 
+[project.urls]
+homepage = "https://github.com/posit-dev/great-tables"
+documentation = "https://posit-dev.github.io/great-tables/"
+
 [tool.flake8]
 exclude = ["docs", ".venv", "tests/*"]
 
@@ -77,6 +88,8 @@ ignore = [
     "E203",    # whitespace before ':'
     "F401",    # 'module' imported but unused
     "F841",    # local variable 'name' is assigned to but never used
+    "E702",    # multiple statements on one line (semicolon)
+    "E704",    # multiple statements on one line (def)
 ]
 
 max-line-length = 100
@@ -87,6 +100,10 @@ addopts = "-ra -q --cov=great_tables"
 asyncio_mode = "strict"
 testpaths = [
     "tests"
+]
+
+markers = [
+    "extra: marks tests that require extra dependencies to run",
 ]
 
 [tool.black]

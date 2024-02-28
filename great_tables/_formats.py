@@ -14,10 +14,10 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
-from ._tbl_data import PlExpr
+from ._tbl_data import PlExpr, SelectExpr
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
-from ._locations import resolve_rows_i
+from ._locations import resolve_rows_i, resolve_cols_c
 from ._text import _md_html
 from ._utils import _str_detect, _str_replace
 import pandas as pd
@@ -62,7 +62,7 @@ TimeStyle: TypeAlias = Literal[
 def fmt(
     self: GTSelf,
     fns: Union[FormatFn, FormatFns],
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
 ) -> GTSelf:
     """
@@ -99,18 +99,18 @@ def fmt(
     if isinstance(fns, Callable):
         fns = FormatFns(default=fns)
 
-    columns = _listify(columns, list)
-
     row_res = resolve_rows_i(self, rows)
     row_pos = [name_pos[1] for name_pos in row_res]
 
-    formatter = FormatInfo(fns, columns, row_pos)
+    col_res = resolve_cols_c(self, columns)
+
+    formatter = FormatInfo(fns, col_res, row_pos)
     return self._replace(_formats=[*self._formats, formatter])
 
 
 def fmt_number(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     decimals: int = 2,
     n_sigfig: Optional[int] = None,
@@ -317,7 +317,7 @@ def fmt_number(
 
 def fmt_integer(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     use_seps: bool = True,
     scale_by: float = 1,
@@ -487,7 +487,7 @@ def fmt_integer(
 
 def fmt_scientific(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     decimals: int = 2,
     n_sigfig: Optional[int] = None,
@@ -749,7 +749,7 @@ def fmt_scientific(
 
 def fmt_percent(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     decimals: int = 2,
     drop_trailing_zeros: bool = False,
@@ -951,7 +951,7 @@ def fmt_percent(
 
 def fmt_currency(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     currency: Optional[int] = None,
     use_subunits: bool = True,
@@ -1194,7 +1194,7 @@ def fmt_currency(
 
 def fmt_roman(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     case: str = "upper",
     pattern: str = "{x}",
@@ -1304,7 +1304,7 @@ def fmt_roman(
 
 def fmt_bytes(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     standard: str = "decimal",
     decimals: int = 1,
@@ -1542,7 +1542,7 @@ def fmt_bytes(
 
 def fmt_date(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     date_style: DateStyle = "iso",
     pattern: str = "{x}",
@@ -1690,7 +1690,7 @@ def fmt_date(
 
 def fmt_time(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     time_style: TimeStyle = "iso",
     pattern: str = "{x}",
@@ -1829,7 +1829,7 @@ def fmt_time(
 
 def fmt_datetime(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     date_style: DateStyle = "iso",
     time_style: TimeStyle = "iso",
@@ -2044,7 +2044,7 @@ def _normalize_iso_datetime_str(x: str) -> str:
 
 def fmt_markdown(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
 ) -> GTSelf:
     """
@@ -3291,7 +3291,7 @@ def _validate_datetime_obj(x: Any) -> None:
 
 def fmt_image(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     height: str | int | None = None,
     width: str | int | None = None,
@@ -3300,31 +3300,56 @@ def fmt_image(
     file_pattern: str = "{}",
     encode: bool = True,
 ) -> GTSelf:
-    """Format values as images to display.
+    """Format image paths to generate images in cells.
 
-    This function can either display a file on disk, or encode the image into the table.
+    To more easily insert graphics into body cells, we can use the `fmt_image()` method. This allows
+    for one or more images to be placed in the targeted cells. The cells need to contain some
+    reference to an image file, either: (1) complete http/https or local paths to the files; (2) the
+    file names, where a common path can be provided via `path=`; or (3) a fragment of the file name,
+    where the `file_pattern=` argument helps to compose the entire file name and `path=` provides
+    the path information. This should be expressly used on columns that contain *only* references to
+    image files (i.e., no image references as part of a larger block of text). Multiple images can
+    be included per cell by separating image references by commas. The `sep=` argument allows for a
+    common separator to be applied between images.
 
     Parameters
     ----------
     columns
-        The columns to format.
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
     rows
-        The rows to format, specified using row numbers.
+        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
+        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
+        we can supply a list of row indices.
     height
         The height of the rendered images.
     width
         The width of the rendered images.
     sep
-        Separator between images.
+        In the output of images within a body cell, `sep=` provides the separator between each
+        image.
     path
-        Path to image files.
+        An optional path to local image files (this is combined with all filenames).
     file_pattern
-        File pattern specification.
+        The pattern to use for mapping input values in the body cells to the names of the graphics
+        files. The string supplied should use `"{}"` in the pattern to map filename fragments to
+        input strings.
     encode
-        Whether to use Base64 encoding.
+        The option to always use Base64 encoding for image paths that are determined to be local. By
+        default, this is `True`.
 
     Examples
     --------
+    Using a small portion of [`metro`] dataset, let's create a **gt** table. We will only include a
+    few columns and rows from that table. The `lines` column has comma-separated listings of numbers
+    corresponding to lines served at each station. We have a directory of SVG graphics for all of
+    these lines in the package (the path for the image directory can be accessed via
+    `files("great_tables") / "data/metro_images"`, using the `importlib_resources` package). The
+    filenames roughly corresponds to the data in the `lines` column. The `fmt_image()` function can
+    be used with these inputs since the `path=` and `file_pattern=` arguments allow us to compose
+    complete and valid file locations. What you get from this are sequences of images in the table
+    cells, taken from the referenced graphics files on disk.
+
     ```{python}
     from great_tables import GT
     from great_tables.data import metro

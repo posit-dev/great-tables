@@ -1,7 +1,22 @@
 from typing import Optional, Union, List, Any
 import pandas as pd
+import importlib
+from types import ModuleType
 import json
 import re
+
+
+def _try_import(name: str, pip_install_line: Optional[str] = None) -> ModuleType:
+    try:
+        return importlib.import_module(name)
+    except ImportError:
+        if pip_install_line is not None:
+            raise ImportError(
+                f"Module {name} not found. Run the following to install."
+                f"\n\n`{pip_install_line}`"
+            ) from None
+        else:
+            raise ImportError(f"Module {name} not found.")
 
 
 def heading_has_title(title: Optional[str]) -> bool:
