@@ -566,9 +566,9 @@ def _generate_nanoplot(
             )
 
             y_proportions = y_proportions_list["vals"]
-            y_proportion_ref_line = y_proportions_list["ref_line"]
-            y_proportions_ref_area_l = y_proportions_list["ref_area_l"]
-            y_proportions_ref_area_u = y_proportions_list["ref_area_u"]
+            y_proportion_ref_line = y_proportions_list["ref_line"][0]
+            y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
+            y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
 
             # Scale reference line and reference area boundaries
             data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
@@ -596,9 +596,9 @@ def _generate_nanoplot(
             )
 
             y_proportions = y_proportions_list["vals"]
-            y_proportion_ref_line = y_proportions_list["ref_line"]
+            y_proportion_ref_line = y_proportions_list["ref_line"][0]
 
-            # Scale reference line
+            # Scale the reference line
             data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
 
         elif show_ref_area:
