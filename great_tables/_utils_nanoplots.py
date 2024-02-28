@@ -115,19 +115,34 @@ def _gt_q3(x: List[Union[int, float]]) -> float:
     return _gt_quantile(x, 0.75)
 
 
+def _flatten_list(x) -> List[Any]:
+
+    flat_list = []
+
+    # Iterate through the outer list
+    for element in x:
+        if type(element) is list:
+            # If the element is of type list, iterate through the sublist
+            for item in element:
+                flat_list.append(item)
+        else:
+            flat_list.append(element)
+    return flat_list
+
+
 # Function to get either the max or min value from a list of values
 def _get_extreme_value(
     *args,
     stat: str = "max",
 ):
+    # Ensure that `stat` is either 'max' or 'min'
+    _match_arg(stat, lst=["max", "min"])
+
     # Remove any None values from the `args` list
     args = [val for val in args if val is not None]
 
-    # Flatten the `args` list
-    val_list = [val for sublist in args for val in sublist]
-
-    # Ensure that `stat` is either 'max' or 'min'
-    _match_arg(stat, lst=["max", "min"])
+    # Flatten the `args` list which may contain lists and scalar values
+    val_list = _flatten_list(args)
 
     # Remove missing values from the `val_list`
     val_list = _remove_na_from_list(val_list)
@@ -193,21 +208,6 @@ def _normalize_vals(
 
 def _jitter_vals(x: List[Union[int, float]], amount: float) -> List[Union[int, float]]:
     return [val + np.random.uniform(-amount, amount) for val in x]
-
-
-def _flatten_list(x) -> List[Any]:
-
-    flat_list = []
-
-    # Iterate through the outer list
-    for element in x:
-        if type(element) is list:
-            # If the element is of type list, iterate through the sublist
-            for item in element:
-                flat_list.append(item)
-        else:
-            flat_list.append(element)
-    return flat_list
 
 
 def _normalize_to_dict(**kwargs) -> Dict[str, List[Union[int, float]]]:
