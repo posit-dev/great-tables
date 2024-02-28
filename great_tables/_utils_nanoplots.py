@@ -12,7 +12,7 @@ def _val_is_numeric(x: Any) -> bool:
     if isinstance(x, list):
         ValueError("The input cannot be a list. It must be a single value.")
 
-    isinstance(x, (int, float))
+    return isinstance(x, (int, float))
 
 
 def _val_is_str(x: Any) -> bool:
@@ -21,7 +21,7 @@ def _val_is_str(x: Any) -> bool:
     if isinstance(x, list):
         ValueError("The input cannot be a list. It must be a single value.")
 
-    isinstance(x, (str))
+    return isinstance(x, (str))
 
 
 def _val_is_missing(x: Any) -> bool:
