@@ -974,7 +974,54 @@ def _generate_nanoplot(
     #
 
     if plot_type == "bar" and single_horizontal_bar is False:
-        pass
+
+        bar_strings = []
+
+        for i, _ in enumerate(data_x_points):
+
+            data_point_radius_i = data_point_radius[i]
+            data_bar_stroke_color_i = data_bar_stroke_color[i]
+            data_bar_stroke_width_i = data_bar_stroke_width[i]
+            data_bar_fill_color_i = data_bar_fill_color[i]
+
+            if data_y_points[i] is None:
+
+                if missing_vals == "marker":
+
+                    # Create a symbol that should denote that a missing value is present
+                    bar_strings_i = f'<circle cx="{data_x_points[i]}" cy="{safe_y_d + (data_y_height / 2)}" r="{data_point_radius_i + (data_point_radius_i / 2)}" stroke="red" stroke-width="{data_bar_stroke_width_i}" fill="transparent"></circle>'
+
+                else:
+                    continue
+
+            else:
+
+                if y_vals[i] < 0:
+
+                    y_value_i = data_y0_point
+                    y_height = data_y_points[i] - data_y0_point
+                    data_bar_stroke_color_i = data_bar_negative_stroke_color[0]
+                    data_bar_stroke_width_i = data_bar_negative_stroke_width[0]
+                    data_bar_fill_color_i = data_bar_negative_fill_color[0]
+
+                elif y_vals[i] > 0:
+
+                    y_value_i = data_y_points[i]
+                    y_height = data_y0_point - data_y_points[i]
+
+                elif y_vals[i] == 0:
+
+                    y_value_i = data_y0_point - 1
+                    y_height = 2
+                    data_bar_stroke_color_i = "#808080"
+                    data_bar_stroke_width_i = 4
+                    data_bar_fill_color_i = "#808080"
+
+                bar_strings_i = f'<rect x="{data_x_points[i] - (x_d - 10) / 2}" y="{y_value_i}" width="{x_d - 10}" height="{y_height}" stroke="{data_bar_stroke_color_i}" stroke-width="{data_bar_stroke_width_i}" fill="{data_bar_fill_color_i}"></rect>'
+
+            bar_strings.append(bar_strings_i)
+
+        bar_tags = "".join(bar_strings)
 
     #
     # Generate single horizontal data bars
