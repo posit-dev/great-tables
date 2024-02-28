@@ -410,10 +410,11 @@ def _construct_nanoplot_svg(
     data_path_tags: str,
     ref_line_tags: str,
     circle_tags: str,
+    g_y_axis_tags: str,
 ) -> str:
 
     # FIXME: remove the style attribute on the surrounding div
-    return f'<div style="width:500px;height:200px"><svg role="img" "viewBox="{viewbox} "style=height:{svg_height};margin-left:auto;margin-right:auto;font-size:inherit;overflow:visible;vertical-align:middle;position:relative;">{svg_defs}{svg_style}{area_path_tags}{data_path_tags}{ref_line_tags}{circle_tags}</svg></div>'
+    return f'<div style="width:500px;height:200px"><svg role="img" "viewBox="{viewbox} "style=height:{svg_height};margin-left:auto;margin-right:auto;font-size:inherit;overflow:visible;vertical-align:middle;position:relative;">{svg_defs}{svg_style}{area_path_tags}{data_path_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}</svg></div>'
 
 
 def _generate_nanoplot(
@@ -1015,7 +1016,33 @@ def _generate_nanoplot(
     #
 
     if show_y_axis_guide:
-        pass
+
+        rect_tag = f'<rect x="{left_x}" y="{top_y}" width="{safe_x_d + 15}" height="{bottom_y}" stroke="transparent" stroke-width="0" fill="transparent"></rect>'
+
+        if _is_integerlike(val_list=[y_scale_max]) and _is_integerlike(val_list=[y_scale_min]):
+            y_axis_guide_vals_integerlike = True
+        else:
+            y_axis_guide_vals_integerlike = False
+
+        y_value_max_label = _format_number_compactly(
+            val=y_scale_max,
+            currency=currency,
+            as_integer=y_axis_guide_vals_integerlike,
+            fn=y_axis_fmt_fn,
+        )
+
+        y_value_min_label = _format_number_compactly(
+            val=y_scale_min,
+            currency=currency,
+            as_integer=y_axis_guide_vals_integerlike,
+            fn=y_axis_fmt_fn,
+        )
+
+        text_strings_min = f'<text x="{left_x}" y="{safe_y_d + data_y_height + safe_y_d - data_y_height / 25}" fill="transparent" stroke="transparent" font-size="25">{y_value_min_label}</text>'
+
+        text_strings_max = f'<text x="{left_x}" y="{safe_y_d + data_y_height / 25}" fill="transparent" stroke="transparent" font-size="25">{y_value_max_label}</text>'
+
+        g_y_axis_tags = f'<g class="y-axis-line">{rect_tag}{text_strings_max}{text_strings_min}</g>'
 
     #
     # Generate vertical data point guidelines
@@ -1090,6 +1117,7 @@ def _generate_nanoplot(
         data_path_tags=data_path_tags,
         ref_line_tags=ref_line_tags,
         circle_tags=circle_tags,
+        g_y_axis_tags=g_y_axis_tags,
     )
 
     print(nanoplot_svg)
