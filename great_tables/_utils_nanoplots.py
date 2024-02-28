@@ -514,8 +514,7 @@ def _generate_nanoplot(
 
             if (
                 y_ref_line is not None
-                and type(y_ref_line) == str
-                and len(y_ref_line) == 1
+                and _val_is_str(y_ref_line)
                 and y_ref_line in REFERENCE_LINE_KEYWORDS
             ):
                 y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
@@ -581,7 +580,6 @@ def _generate_nanoplot(
             if (
                 y_ref_line is not None
                 and _val_is_str(y_ref_line)
-                and len(y_ref_line) == 1
                 and y_ref_line in REFERENCE_LINE_KEYWORDS
             ):
                 y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
