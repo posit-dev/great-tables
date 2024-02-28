@@ -879,6 +879,30 @@ def _generate_nanoplot(
         f"</defs>"
     )
 
+    if plot_type == "line" and show_data_area:
+
+        area_path_tags = []
+
+        for i in range(n_segments):
+
+            area_x = data_x_points[start_data_y_points[i] : end_data_y_points[i]]
+            area_y = data_y_points[start_data_y_points[i] : end_data_y_points[i]]
+
+            area_path_string = []
+
+            for j in range(1, len(area_x)):
+
+                area_path_j = f"{area_x[j]},{area_y[j]}"
+                area_path_string.append(area_path_j)
+
+            area_path_i = f"M {' '.join(area_path_string)} {area_x[-1]},{bottom_y - safe_y_d + data_point_radius[0]} {area_x[0]},{bottom_y - safe_y_d + data_point_radius[0]} Z"
+
+            area_path_tag_i = f'<path class="area-closed" d="{area_path_i}" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path>'
+
+            area_path_tags.append(area_path_tag_i)
+
+        area_path_tags = " ".join(area_path_tags)
+
     #
     # Generate style tag for vertical guidelines and y-axis
     #
