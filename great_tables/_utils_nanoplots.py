@@ -1197,7 +1197,103 @@ def _generate_nanoplot(
     #
 
     if plot_type == "bar" and single_horizontal_bar:
-        pass
+
+        # This type of display assumes there is only a single `y` value and there
+        # are possibly several such horizontal bars across different rows that
+        # need to be on a common scale
+
+        bar_thickness = data_point_radius[0] * 4
+
+        if all(val == 0 for val in all_single_y_vals):
+
+            # Handle case where all values across rows are `0`
+
+            y_proportion = 0.5
+            y_proportion_zero = 0.5
+
+        else:
+
+            # Scale to proportional values
+            y_proportions_list = _normalize_to_dict(val=y_vals, all_vals=all_single_y_vals, zero=0)
+
+            y_proportion = y_proportions_list["val"][0]
+            y_proportion_zero = y_proportions_list["zero"][0]
+
+        y0_width = y_proportion_zero * data_x_width
+        y_width = y_proportion * data_x_width
+
+        if y_vals[0] < 0:
+
+            data_bar_stroke_color = data_bar_negative_stroke_color[0]
+            data_bar_stroke_width = data_bar_negative_stroke_width[0]
+            data_bar_fill_color = data_bar_negative_fill_color[0]
+
+            rect_x = y_width
+            rect_width = y0_width - y_width
+
+        elif y_vals[0] > 0:
+
+            data_bar_stroke_color = data_bar_stroke_color[0]
+            data_bar_stroke_width = data_bar_stroke_width[0]
+            data_bar_fill_color = data_bar_fill_color[0]
+
+            rect_x = y0_width
+            rect_width = y_width - y0_width
+
+        elif y_vals[0] == 0:
+
+            data_bar_stroke_color = "#808080"
+            data_bar_stroke_width = 4
+            data_bar_fill_color = "#808080"
+
+            rect_x = y0_width - 2.5
+            rect_width = 5
+
+        # Format number compactly
+        y_value = _format_number_compactly(
+            val=y_vals[0], currency=currency, as_integer=y_vals_integerlike, fn=y_val_fmt_fn
+        )
+
+        rect_strings = f'<rect x="0" y="{bottom_y / 2 - bar_thickness / 2}" width="600" height="{bar_thickness}" stroke="transparent" stroke-width="{vertical_guide_stroke_width}" fill="transparent"></rect>'
+
+        if y_vals[0] > 0:
+
+            text_strings = f'<text x="{y0_width + 10}" y="{safe_y_d + 10}" fill="transparent" stroke="transparent" font-size="30px">{y_value}</text>'
+
+        elif y_vals[0] < 0:
+
+            text_strings = f'<text x="{y0_width - 10}" y="{safe_y_d + 10}" fill="transparent" stroke="transparent" font-size="30px" text-anchor="end">{y_value}</text>'
+
+        elif y_vals[0] == 0:
+
+            if all(val == 0 for val in all_single_y_vals):
+
+                text_anchor = "start"
+                x_position_text = y0_width + 10
+
+            elif all(val < 0 for val in all_single_y_vals):
+
+                text_anchor = "end"
+                x_position_text = y0_width - 10
+
+            else:
+                text_anchor = "start"
+                x_position_text = y0_width + 10
+
+            text_strings = f'<text x="{x_position_text}" y="{bottom_y / 2 + 10}" fill="transparent" stroke="transparent" font-size="30px" text-anchor="{text_anchor}">{y_value}</text>'
+
+        g_guide_tags = f'<g class="horizontal-line">{rect_strings}{text_strings}</g>'
+
+        bar_tags = f'<rect x="{rect_x}" y="{bottom_y / 2 - bar_thickness / 2}" width="{rect_width}" height="{bar_thickness}" stroke="{data_bar_stroke_color}" stroke-width="{data_bar_stroke_width}" fill="{data_bar_fill_color}"></rect>'
+
+        stroke = "#BFBFBF"
+        stroke_width = 5
+
+        zero_line_tags = f'<line x1="{y0_width}" y1="{(bottom_y / 2) - (bar_thickness * 1.5)}" x2="{y0_width}" y2="{(bottom_y / 2) + (bar_thickness * 1.5)}" stroke="{stroke}" stroke-width="{stroke_width}"></line>'
+
+        # Redefine the `viewbox` in terms of the `data_x_width` value; this ensures
+        # that the horizontal bars are centered about their extreme values
+        viewbox = f"{left_x} {top_y} {data_x_width} {bottom_y}"
 
     #
     # Generate box plots
