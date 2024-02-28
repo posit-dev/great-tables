@@ -997,10 +997,9 @@ def _generate_nanoplot(
         stroke_linecap = "round"
         vector_effect = "non-scaling-stroke"
 
-        # TODO: Add the `_format_number_compactly()` function
-        # y_ref_line = _format_number_compactly(
-        #    val=y_ref_line, currency=currency, as_integer=y_vals_integerlike, fn=y_ref_line_fmt_fn
-        # )
+        y_ref_line = _format_number_compactly(
+            val=y_ref_line, currency=currency, as_integer=y_vals_integerlike, fn=y_ref_line_fmt_fn
+        )
 
         ref_line_tags = f'<g class="ref-line"><rect x="{data_x_points[0] - 10}" y="{data_y_ref_line - 10}" width="{data_x_width + 20}" height="20" stroke="transparent" stroke-width="1" fill="transparent"></rect><line class="ref-line" x1="{data_x_points[0]}" y1="{data_y_ref_line}" x2="{data_x_width + safe_x_d}" y2="{data_y_ref_line}" stroke="{stroke}" stroke-width="{stroke_width}" stroke-dasharray="{stroke_dasharray}" transform="{transform}" stroke-linecap="{stroke_linecap}" vector-effect="{vector_effect}"></line><text x="{data_x_width + safe_x_d + 10}" y="{data_y_ref_line + 10}" fill="transparent" stroke="transparent" font-size="30px">{y_ref_line}</text></g>'
 
