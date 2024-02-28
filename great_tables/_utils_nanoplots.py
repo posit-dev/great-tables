@@ -797,8 +797,8 @@ def _generate_nanoplot(
             y_proportions_ref_area_u = y_proportions_list["ref_area_u"]
 
             # Scale reference area boundaries
-            data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
-            data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
+            data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l[0]) * data_y_height)
+            data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u[0]) * data_y_height)
 
         else:
 
