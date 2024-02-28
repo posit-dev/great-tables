@@ -425,15 +425,15 @@ def _construct_nanoplot_svg(
 
 
 def _generate_nanoplot(
-    y_vals: str,
+    y_vals: Union[List[Union[int, float]], List[int], List[float]],
     y_ref_line: Optional[str] = None,
     y_ref_area: Optional[str] = None,
     x_vals: Optional[str] = None,
     expand_x: Optional[str] = None,
     expand_y: Optional[str] = None,
     missing_vals: str = "gap",
-    all_y_vals: Optional[str] = None,
-    all_single_y_vals: Optional[str] = None,
+    all_y_vals: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
+    all_single_y_vals: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
     plot_type: str = "line",
     line_type: str = "curved",
     currency: Optional[str] = None,
