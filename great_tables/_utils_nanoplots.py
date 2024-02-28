@@ -406,13 +406,13 @@ def _construct_nanoplot_svg(
     svg_height: str,
     svg_defs: str,
     svg_style: str,
-    ref_area_tags: str,
-    area_path_tags: str,
-    data_path_tags: str,
-    ref_line_tags: str,
-    circle_tags: str,
-    g_y_axis_tags: str,
-    g_guide_tags: str,
+    ref_area_tags: Optional[str] = None,
+    area_path_tags: Optional[str] = None,
+    data_path_tags: Optional[str] = None,
+    ref_line_tags: Optional[str] = None,
+    circle_tags: Optional[str] = None,
+    g_y_axis_tags: Optional[str] = None,
+    g_guide_tags: Optional[str] = None,
 ) -> str:
 
     # FIXME: remove the style attribute on the surrounding div
