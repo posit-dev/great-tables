@@ -62,7 +62,10 @@ def test_reorder(df: DataFrameLike):
     assert_frame_equal(res, dst)
 
 
-def test_eval_select_with_list(df: DataFrameLike):
+@pytest.mark.parametrize(
+    "expr", [["col2", "col1"], [1, 0], ["col2", 0], pl.selectors.all().exclude("col3")]
+)
+def test_eval_select_with_list(df: DataFrameLike, expr):
     sel = eval_select(df, ["col2", "col1"])
     assert sel == [("col2", 1), ("col1", 0)]
 

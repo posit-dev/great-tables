@@ -14,10 +14,10 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
-from ._tbl_data import PlExpr
+from ._tbl_data import PlExpr, SelectExpr
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
-from ._locations import resolve_rows_i
+from ._locations import resolve_rows_i, resolve_cols_c
 from ._text import _md_html
 from ._utils import _str_detect, _str_replace
 import pandas as pd
@@ -62,7 +62,7 @@ TimeStyle: TypeAlias = Literal[
 def fmt(
     self: GTSelf,
     fns: Union[FormatFn, FormatFns],
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
 ) -> GTSelf:
     """
@@ -99,18 +99,18 @@ def fmt(
     if isinstance(fns, Callable):
         fns = FormatFns(default=fns)
 
-    columns = _listify(columns, list)
-
     row_res = resolve_rows_i(self, rows)
     row_pos = [name_pos[1] for name_pos in row_res]
 
-    formatter = FormatInfo(fns, columns, row_pos)
+    col_res = resolve_cols_c(self, columns)
+
+    formatter = FormatInfo(fns, col_res, row_pos)
     return self._replace(_formats=[*self._formats, formatter])
 
 
 def fmt_number(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     decimals: int = 2,
     n_sigfig: Optional[int] = None,
@@ -317,7 +317,7 @@ def fmt_number(
 
 def fmt_integer(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     use_seps: bool = True,
     scale_by: float = 1,
@@ -487,7 +487,7 @@ def fmt_integer(
 
 def fmt_scientific(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     decimals: int = 2,
     n_sigfig: Optional[int] = None,
@@ -749,7 +749,7 @@ def fmt_scientific(
 
 def fmt_percent(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     decimals: int = 2,
     drop_trailing_zeros: bool = False,
@@ -951,7 +951,7 @@ def fmt_percent(
 
 def fmt_currency(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     currency: Optional[int] = None,
     use_subunits: bool = True,
@@ -1194,7 +1194,7 @@ def fmt_currency(
 
 def fmt_roman(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     case: str = "upper",
     pattern: str = "{x}",
@@ -1304,7 +1304,7 @@ def fmt_roman(
 
 def fmt_bytes(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     standard: str = "decimal",
     decimals: int = 1,
@@ -1542,7 +1542,7 @@ def fmt_bytes(
 
 def fmt_date(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     date_style: DateStyle = "iso",
     pattern: str = "{x}",
@@ -1690,7 +1690,7 @@ def fmt_date(
 
 def fmt_time(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     time_style: TimeStyle = "iso",
     pattern: str = "{x}",
@@ -1829,7 +1829,7 @@ def fmt_time(
 
 def fmt_datetime(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     date_style: DateStyle = "iso",
     time_style: TimeStyle = "iso",
@@ -2044,7 +2044,7 @@ def _normalize_iso_datetime_str(x: str) -> str:
 
 def fmt_markdown(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
 ) -> GTSelf:
     """
@@ -3291,7 +3291,7 @@ def _validate_datetime_obj(x: Any) -> None:
 
 def fmt_image(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
+    columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
     height: str | int | None = None,
     width: str | int | None = None,

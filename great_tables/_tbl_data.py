@@ -276,7 +276,7 @@ def eval_select(data: DataFrameLike, expr: SelectExpr, strict: bool = True) -> _
 def _(
     data: PdDataFrame, expr: Union[List[Union[str, int]], Callable[[str], bool]], strict=True
 ) -> _NamePos:
-    if isinstance(expr, str):
+    if isinstance(expr, (str, int)):
         expr = [expr]
 
     if isinstance(expr, list):
@@ -297,7 +297,7 @@ def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) 
     from polars import Expr
     from polars import selectors
 
-    if isinstance(expr, str):
+    if isinstance(expr, (str, int)):
         expr = [expr]
 
     col_pos = {k: ii for ii, k in enumerate(data.columns)}
@@ -310,7 +310,8 @@ def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) 
         raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
     # I don't think there's a way to get the columns w/o running the selection
-    return [(col, col_pos[col]) for col in data.select(expr).columns]
+    final_columns = selectors.expand_selector(data, expr)
+    return [(col, col_pos[col]) for col in final_columns]
 
 
 def _eval_select_from_list(columns: list[str], expr: list[str | int]) -> list[tuple[str, int]]:
