@@ -66,6 +66,152 @@ def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) 
     return option_list
 
 
+def _format_number_compactly(
+    val, currency: Optional[str] = None, as_integer: bool = False, fn: Any = None
+) -> str:
+
+    if fn is not None and isinstance(fn, Callable):
+        return fn(val)
+
+    if _val_is_missing(val):
+        return "NA"
+
+    if val == 0:
+        return "0"
+
+    if abs(val) < 0.01:
+
+        use_subunits = True
+        decimals = None
+
+        n_sigfig = 2
+        compact = False
+
+    elif abs(val) < 1:
+
+        use_subunits = True
+        decimals = None
+
+        n_sigfig = 2
+        compact = False
+
+    elif abs(val) < 100:
+
+        use_subunits = True
+        decimals = None
+
+        n_sigfig = 3
+        compact = False
+
+    elif abs(val) < 1000:
+
+        use_subunits = True
+        decimals = None
+
+        n_sigfig = 3
+        compact = False
+
+    elif abs(val) < 10000:
+
+        use_subunits = False
+        decimals = 2
+
+        n_sigfig = 3
+        compact = True
+
+    elif abs(val) < 100000:
+
+        use_subunits = False
+        decimals = 1
+
+        n_sigfig = 3
+        compact = True
+
+    elif abs(val) < 1000000:
+
+        use_subunits = False
+        decimals = 0
+
+        n_sigfig = 3
+        compact = True
+
+    elif abs(val) < 1e15:
+
+        use_subunits = False
+        decimals = 1
+
+        n_sigfig = 3
+        compact = True
+
+    else:
+
+        use_subunits = False
+        decimals = None
+        n_sigfig = 2
+        compact = False
+
+    # Format value accordingly
+
+    if currency is not None:
+
+        if abs(val) >= 1e15:
+
+            val_formatted = fmt_currency(
+                1e15,
+                currency=currency,
+                use_subunits=False,
+                decimals=0,
+                # compact=True,
+                # output="html"
+            )
+
+            val_formatted = f">{val_formatted}"
+
+        else:
+
+            val_formatted = fmt_currency(
+                val,
+                currency=currency,
+                use_subunits=use_subunits,
+                decimals=decimals,
+                # compact=compact,
+                # output="html"
+            )
+
+    else:
+
+        if abs(val) < 0.01 or abs(val) >= 1e15:
+
+            val_formatted = fmt_scientific(
+                val,
+                exp_style="E",
+                n_sigfig=n_sigfig,
+                decimals=1,
+                # output="html"
+            )
+
+        else:
+
+            if as_integer and val > -100 and val < 100:
+
+                val_formatted = fmt_integer(
+                    val,
+                    # output="html"
+                )
+
+            else:
+
+                val_formatted = fmt_number(
+                    val,
+                    n_sigfig=n_sigfig,
+                    decimals=1,
+                    compact=compact,
+                    # output="html"
+                )
+
+    return val_formatted[0]
+
+
 #
 # Collection of general functions to calculate the mean, min, max, median,
 # and other statistical measures from a list of values; the list should not
