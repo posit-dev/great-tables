@@ -1,4 +1,4 @@
-from typing import Optional, List, Union, Any, Dict
+from typing import Optional, List, Union, Any, Dict, Callable
 import pandas as pd
 import numpy as np
 from great_tables._utils import _match_arg
