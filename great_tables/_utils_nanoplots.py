@@ -411,10 +411,11 @@ def _construct_nanoplot_svg(
     ref_line_tags: str,
     circle_tags: str,
     g_y_axis_tags: str,
+    g_guide_tags: str,
 ) -> str:
 
     # FIXME: remove the style attribute on the surrounding div
-    return f'<div style="width:500px;height:200px"><svg role="img" "viewBox="{viewbox} "style=height:{svg_height};margin-left:auto;margin-right:auto;font-size:inherit;overflow:visible;vertical-align:middle;position:relative;">{svg_defs}{svg_style}{area_path_tags}{data_path_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}</svg></div>'
+    return f'<div style="width:500px;height:200px"><svg role="img" "viewBox="{viewbox} "style=height:{svg_height};margin-left:auto;margin-right:auto;font-size:inherit;overflow:visible;vertical-align:middle;position:relative;">{svg_defs}{svg_style}{area_path_tags}{data_path_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}{g_guide_tags}</svg></div>'
 
 
 def _generate_nanoplot(
@@ -1049,7 +1050,29 @@ def _generate_nanoplot(
     #
 
     if show_vertical_guides:
-        pass
+
+        g_guide_strings = []
+
+        for i, _ in enumerate(data_x_points):
+
+            rect_strings_i = f'<rect x="{data_x_points[i] - 10}" y="{top_y}" width="20" height="{bottom_y}" stroke="transparent" stroke-width="{vertical_guide_stroke_width}" fill="transparent"></rect>'
+
+            y_value_i = _format_number_compactly(
+                val=y_vals[i], currency=currency, as_integer=y_vals_integerlike, fn=y_val_fmt_fn
+            )
+
+            x_text = data_x_points[i] + 10
+
+            if y_value_i == "NA":
+                x_text = x_text + 2
+
+            text_strings_i = f'<text x="{x_text}" y="{safe_y_d + 5}" fill="transparent" stroke="transparent" font-size="30px">{y_value_i}</text>'
+
+            g_guide_strings_i = f'<g class="vert-line">{rect_strings_i}{text_strings_i}</g>'
+
+            g_guide_strings.append(g_guide_strings_i)
+
+        g_guide_tags = "".join(g_guide_strings)
 
     #
     # Generate background with repeating line pattern
@@ -1118,6 +1141,7 @@ def _generate_nanoplot(
         ref_line_tags=ref_line_tags,
         circle_tags=circle_tags,
         g_y_axis_tags=g_y_axis_tags,
+        g_guide_tags=g_guide_tags,
     )
 
     print(nanoplot_svg)
