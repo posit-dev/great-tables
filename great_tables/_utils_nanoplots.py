@@ -162,7 +162,6 @@ def _format_number_compactly(
                 use_subunits=False,
                 decimals=0,
                 # compact=True,
-                # output="html"
             )
 
             val_formatted = f">{val_formatted}"
@@ -175,7 +174,6 @@ def _format_number_compactly(
                 use_subunits=use_subunits,
                 decimals=decimals,
                 # compact=compact,
-                # output="html"
             )
 
     else:
@@ -187,17 +185,13 @@ def _format_number_compactly(
                 exp_style="E",
                 n_sigfig=n_sigfig,
                 decimals=1,
-                # output="html"
             )
 
         else:
 
             if as_integer and val > -100 and val < 100:
 
-                val_formatted = fmt_integer(
-                    val,
-                    # output="html"
-                )
+                val_formatted = fmt_integer(val)
 
             else:
 
@@ -206,7 +200,6 @@ def _format_number_compactly(
                     n_sigfig=n_sigfig,
                     decimals=1,
                     compact=compact,
-                    # output="html"
                 )
 
     return val_formatted[0]
