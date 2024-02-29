@@ -1554,7 +1554,7 @@ def _generate_nanoplot(
 
             area_path_string = []
 
-            for j in range(1, len(area_x)):
+            for j in range(0, len(area_x)):
 
                 area_path_j = f"{area_x[j]},{area_y[j]}"
                 area_path_string.append(area_path_j)
