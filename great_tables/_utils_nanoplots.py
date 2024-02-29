@@ -1105,8 +1105,20 @@ def _generate_nanoplot(
     # there are no x values, generate equally-spaced x values according
     # to the number of y values
     if plot_type == "line" and x_vals is not None:
-        pass
+
+        if expand_x is not None and _val_is_str(expand_x):
+
+            # Assume that string values are dates and convert them to
+            # timestamps
+            expand_x = pd.to_datetime(expand_x, utc=True).timestamp()
+
+        # Scale to proportional values
+        x_proportions_list = _normalize_to_dict(vals=x_vals, expand_x=expand_x)
+
+        x_proportions = x_proportions_list["vals"]
+
     else:
+
         x_proportions = np.linspace(0, 1, num_y_vals)
 
     # Create normalized (and inverted for SVG) data `x` and `y` values
