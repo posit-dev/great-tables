@@ -1538,6 +1538,7 @@ def _generate_nanoplot(
         f'<path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="'
         f"{data_area_fill_color}"
         f'" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision">'
+        f"</path>"
         f"</pattern>"
         f"</defs>"
     )
