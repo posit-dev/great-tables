@@ -2,8 +2,6 @@ from typing import Optional, List, Union, Any, Dict, Callable
 import pandas as pd
 import numpy as np
 from great_tables._utils import _match_arg
-from great_tables.vals import fmt_currency, fmt_scientific, fmt_integer, fmt_number
-
 
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
 
@@ -109,6 +107,8 @@ def _format_number_compactly(
     """
     Format a single numeric value compactly, using a currency if provided.
     """
+
+    from great_tables.vals import fmt_currency, fmt_scientific, fmt_integer, fmt_number
 
     if fn is not None and isinstance(fn, Callable):
 
