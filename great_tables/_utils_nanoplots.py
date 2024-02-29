@@ -1602,6 +1602,4 @@ def _generate_nanoplot(
         g_guide_tags=g_guide_tags,
     )
 
-    print(nanoplot_svg)
-
     return nanoplot_svg
