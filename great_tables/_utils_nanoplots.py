@@ -4,10 +4,14 @@ import numpy as np
 from great_tables._utils import _match_arg
 from great_tables.vals import fmt_currency, fmt_scientific, fmt_integer, fmt_number
 
+
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
 
 
 def _val_is_numeric(x: Any) -> bool:
+    """
+    Determine whether a scalar value is numeric (i.e., either an integer or a float).
+    """
 
     # If a list then signal a failure
     if isinstance(x, list):
@@ -17,6 +21,9 @@ def _val_is_numeric(x: Any) -> bool:
 
 
 def _val_is_str(x: Any) -> bool:
+    """
+    Determine whether a scalar value is a string.
+    """
 
     # If a list then signal a failure
     if isinstance(x, list):
@@ -26,20 +33,40 @@ def _val_is_str(x: Any) -> bool:
 
 
 def _val_is_missing(x: Any) -> bool:
+    """
+    Determine whether a scalar value is missing (i.e., None or NaN).
+    """
     return pd.isna(x)
 
 
 # This determines whether an entire list of values are integer-like; this skips
 # over missing values and returns a single boolean
-def _is_integerlike(val_list: list) -> bool:
+def _is_integerlike(val_list: List[Any]) -> bool:
+    """
+    Determine whether an entire list of values are integer-like; this skips
+    over missing values and returns a single boolean.
+    """
+
+    # If the list is empty, return False
+    if len(val_list) == 0:
+        return False
+
     return all((isinstance(val, (int, np.integer)) or _val_is_missing(val)) for val in val_list)
 
 
-def _any_na_in_list(x: List[Union[int, float]]) -> bool:
+def _any_na_in_list(x: List[Any]) -> bool:
+    """
+    Determine whether a list of values contains any missing values.
+    """
+
     return any(_val_is_missing(val) for val in x)
 
 
 def _check_any_na_in_list(x: List[Union[int, float]]) -> None:
+    """
+    Check whether a list of values contains any missing values; if so, raise an error.
+    """
+
     if _any_na_in_list(x):
         raise ValueError("The list of values cannot contain missing values.")
 
@@ -48,10 +75,17 @@ def _check_any_na_in_list(x: List[Union[int, float]]) -> None:
 
 # Remove missing values from a list of values
 def _remove_na_from_list(x: List[Union[int, float]]) -> List[Union[int, float]]:
+    """
+    Remove missing values from a list of values.
+    """
+
     return [val for val in x if not _val_is_missing(val)]
 
 
 def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) -> List[Any]:
+    """
+    Normalize an option list to have the same length as the number of `y` values.
+    """
 
     # If `option_list` is a single value, then make it a list
     if not isinstance(option_list, list):
@@ -67,11 +101,24 @@ def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) 
 
 
 def _format_number_compactly(
-    val, currency: Optional[str] = None, as_integer: bool = False, fn: Any = None
+    val: Union[int, float],
+    currency: Optional[str] = None,
+    as_integer: bool = False,
+    fn: Optional[Callable[..., str]] = None,
 ) -> str:
+    """
+    Format a single numeric value compactly, using a currency if provided.
+    """
 
     if fn is not None and isinstance(fn, Callable):
-        return fn(val)
+
+        res = fn(val)
+
+        # Check whether the result is a single string value; if not, raise an error
+        if not isinstance(res, str):
+            raise ValueError("The result of the formatting function must be a single string value.")
+
+        return res
 
     if _val_is_missing(val):
         return "NA"
@@ -213,18 +260,31 @@ def _format_number_compactly(
 
 
 def _gt_mean(x: List[Union[int, float]]) -> float:
+    """
+    Calculate the mean of a list of values.
+    """
+
     return sum(x) / len(x)
 
 
 def _gt_min(x: List[Union[int, float]]) -> Union[int, float]:
+    """
+    Calculate the minimum value from a list of values.
+    """
     return min(x)
 
 
 def _gt_max(x: List[Union[int, float]]) -> Union[int, float]:
+    """
+    Calculate the maximum value from a list of values.
+    """
     return max(x)
 
 
-def _gt_median(x: List[Union[int, float]]) -> float:
+def _gt_median(x: List[Union[int, float]]) -> Union[int, float]:
+    """
+    Calculate the median of a list of values.
+    """
     x.sort()
     n = len(x)
     if n % 2 == 0:
@@ -234,28 +294,46 @@ def _gt_median(x: List[Union[int, float]]) -> float:
 
 
 def _gt_first(x: List[Union[int, float]]) -> Union[int, float]:
+    """
+    Get the first value from a list of values.
+    """
     return x[0]
 
 
 def _gt_last(x: List[Union[int, float]]) -> Union[int, float]:
+    """
+    Get the last value from a list of values.
+    """
     return x[-1]
 
 
-def _gt_quantile(x: List[Union[int, float]], q: float) -> float:
+def _gt_quantile(x: List[Union[int, float]], q: float) -> Union[int, float]:
+    """
+    Calculate the quantile of a list of values.
+    """
     x.sort()
     n = len(x)
     return x[int(n * q)]
 
 
 def _gt_q1(x: List[Union[int, float]]) -> float:
+    """
+    Calculate the first quartile of a list of values.
+    """
     return _gt_quantile(x, 0.25)
 
 
 def _gt_q3(x: List[Union[int, float]]) -> float:
+    """
+    Calculate the third quartile of a list of values.
+    """
     return _gt_quantile(x, 0.75)
 
 
-def _flatten_list(x) -> List[Any]:
+def _flatten_list(x: List[Any]) -> Union[List[float], List[int], List[Union[int, float]]]:
+    """
+    Flatten a list of values.
+    """
 
     flat_list = []
 
@@ -270,11 +348,14 @@ def _flatten_list(x) -> List[Any]:
     return flat_list
 
 
-# Function to get either the max or min value from a list of values
 def _get_extreme_value(
-    *args,
+    *args: Union[int, float],
     stat: str = "max",
-):
+) -> Union[int, float]:
+    """
+    Get either the maximum or minimum value from a list of numeric values.
+    """
+
     # Ensure that `stat` is either 'max' or 'min'
     _match_arg(stat, lst=["max", "min"])
 
@@ -298,7 +379,12 @@ def _get_extreme_value(
     return extreme_val
 
 
-def _generate_ref_line_from_keyword(vals: List[Union[int, float]], keyword: str) -> float:
+def _generate_ref_line_from_keyword(
+    vals: List[Union[int, float]], keyword: str
+) -> Union[int, float]:
+    """
+    Generate a value for a reference line from a valid keyword.
+    """
 
     _match_arg(
         x=keyword,
@@ -333,6 +419,10 @@ def _generate_ref_line_from_keyword(vals: List[Union[int, float]], keyword: str)
 def _normalize_vals(
     x: Union[List[Union[int, float]], List[int], List[float]]
 ) -> List[Union[int, float]]:
+    """
+    Normalize a list of numeric values to be between 0 and 1. Account for missing values.
+    """
+
     x_missing = [i for i, val in enumerate(x) if pd.isna(val)]
     mean_x = np.mean([val for val in x if not pd.isna(val)])
     x = [mean_x if pd.isna(val) else val for val in x]
@@ -347,10 +437,20 @@ def _normalize_vals(
 
 
 def _jitter_vals(x: List[Union[int, float]], amount: float) -> List[Union[int, float]]:
+    """
+    Jitter a list of numeric values by a small amount.
+    """
+
     return [val + np.random.uniform(-amount, amount) for val in x]
 
 
-def _normalize_to_dict(**kwargs) -> Dict[str, List[Union[int, float]]]:
+def _normalize_to_dict(**kwargs: List[Union[int, float]]) -> Dict[str, List[Union[int, float]]]:
+    """
+    Normalize a collection of numeric values to be between 0 and 1. Account for missing values.
+    This only accepts values (scalar or list) associated with keyword arguments. A dictionary
+    is returned with the same keys but the values are normalized lists. This is done so that
+    any disparate collection of normalized values are distinguishable by their original keys.
+    """
 
     # Ensure that at least two values are provided
     if len(kwargs) < 2:
@@ -409,6 +509,9 @@ def _construct_nanoplot_svg(
     g_y_axis_tags: Optional[str] = None,
     g_guide_tags: Optional[str] = None,
 ) -> str:
+    """
+    Construct an SVG nanoplot from a collection of SVG tags.
+    """
 
     # For the optional strings, transform None to an empty string
     ref_area_tags = "" if ref_area_tags is None else ref_area_tags
@@ -467,6 +570,9 @@ def _generate_nanoplot(
     interactive_data_values: bool = True,
     svg_height: str = "2em",
 ) -> str:
+    """
+    Generate a nanoplot SVG from a collection of parameters.
+    """
 
     # Ensure that arguments are matched
     _match_arg(
