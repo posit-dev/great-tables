@@ -58,6 +58,16 @@ TimeStyle: TypeAlias = Literal[
     "h_m_p",
     "h_p",
 ]
+PlotType: TypeAlias = Literal[
+    "line",
+    "bar",
+]
+MissingVals: TypeAlias = Literal[
+    "gap",
+    "marker",
+    "zero",
+    "remove",
+]
 
 
 def fmt(
