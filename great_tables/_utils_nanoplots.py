@@ -1443,6 +1443,7 @@ def _generate_nanoplot(
         stroke_linecap = "round"
         vector_effect = "non-scaling-stroke"
 
+        # Format value in a compact manner
         y_ref_line = _format_number_compactly(
             val=y_ref_line, currency=currency, as_integer=y_vals_integerlike, fn=y_ref_line_fmt_fn
         )
@@ -1479,6 +1480,7 @@ def _generate_nanoplot(
         else:
             y_axis_guide_vals_integerlike = False
 
+        # Format values in a compact manner
         y_value_max_label = _format_number_compactly(
             val=y_scale_max,
             currency=currency,
@@ -1511,6 +1513,7 @@ def _generate_nanoplot(
 
             rect_strings_i = f'<rect x="{data_x_points[i] - 10}" y="{top_y}" width="20" height="{bottom_y}" stroke="transparent" stroke-width="{vertical_guide_stroke_width}" fill="transparent"></rect>'
 
+            # Format value in a compact manner
             y_value_i = _format_number_compactly(
                 val=y_vals[i], currency=currency, as_integer=y_vals_integerlike, fn=y_val_fmt_fn
             )
