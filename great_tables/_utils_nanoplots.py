@@ -523,8 +523,7 @@ def _construct_nanoplot_svg(
     g_y_axis_tags = "" if g_y_axis_tags is None else g_y_axis_tags
     g_guide_tags = "" if g_guide_tags is None else g_guide_tags
 
-    # FIXME: remove the style attribute on the surrounding div
-    return f'<div style="width:500px;height:200px"><svg role="img" "viewBox="{viewbox} "style=height:{svg_height};margin-left:auto;margin-right:auto;font-size:inherit;overflow:visible;vertical-align:middle;position:relative;">{svg_defs}{svg_style}{ref_area_tags}{area_path_tags}{data_path_tags}{zero_line_tags}{bar_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}{g_guide_tags}</svg></div>'
+    return f'<div><svg role="img" viewBox="{viewbox}" style="height: {svg_height}; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;">{svg_defs}{svg_style}{ref_area_tags}{area_path_tags}{data_path_tags}{zero_line_tags}{bar_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}{g_guide_tags}</svg></div>'
 
 
 def _generate_nanoplot(
