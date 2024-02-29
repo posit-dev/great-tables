@@ -953,7 +953,7 @@ def fmt_currency(
     self: GTSelf,
     columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
-    currency: Optional[int] = None,
+    currency: Optional[str] = None,
     use_subunits: bool = True,
     decimals: Optional[int] = None,
     drop_trailing_dec_mark: bool = True,
