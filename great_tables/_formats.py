@@ -3507,3 +3507,89 @@ class FmtImage:
         )
 
         return f'<img src="{uri}" style="{style_string}">'
+
+
+def fmt_nanoplot(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: Union[int, List[int], None] = None,
+    plot_type: PlotType = "line",
+    plot_height: str = "2em",
+    missing_vals: MissingVals = "gap",
+    autoscale: bool = True,
+    columns_x_vals: SelectExpr = None,
+    reference_line: Optional[str] = None,
+    reference_area: Optional[str] = None,
+    expand_x: Optional[str] = None,
+    expand_y: Optional[str] = None,
+) -> GTSelf:
+    """Format data for nanoplot visualizations.
+
+    The `fmt_nanoplot()` method is used to format data for nanoplot visualizations. This method
+    allows for the creation of a variety of different plot types, including line, bar, and scatter
+    plots.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    plot_type
+        The type of plot to create. The default is 'line'.
+    plot_height
+        The height of the plot. The default is '2em'.
+    missing_vals
+        How missing values should be handled. The default is 'gap'.
+    autoscale
+        Whether the plot should be autoscaled. The default is True.
+    columns_x_vals
+        The columns that should be used as x-values.
+    reference_line
+        A reference line.
+    reference_area
+        A reference area.
+    expand_x
+        The amount to expand the x-axis.
+    expand_y
+        The amount to expand the y-axis.
+    """
+
+    # Get the internal data table
+    data_tbl = self._tbl_data
+
+    # Generate a function that will operate on single `x` values in the table body using both
+    # the date and time format strings
+    def fmt_nanoplot_fn(
+        x: Any,
+        plot_type: PlotType = plot_type,
+        plot_height: str = plot_height,
+        missing_vals: MissingVals = missing_vals,
+        autoscale: bool = autoscale,
+        columns_x_vals: SelectExpr = columns_x_vals,
+        reference_line: Optional[str] = reference_line,
+        reference_area: Optional[str] = reference_area,
+        expand_x: Optional[str] = expand_x,
+        expand_y: Optional[str] = expand_y,
+    ) -> str:
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
+        if isinstance(x, str):
+            # If a string, convert to a list of floats
+            x = [float(val) for val in x.split()]
+
+        # If the 'x' value is a scalar, make it a list
+        if not isinstance(x, list):
+            x = [x]
+
+        nanoplot = _generate_nanoplot(
+            y_vals=x,
+            y_ref_line=reference_line,
+            y_ref_area=reference_area,
+            plot_type=plot_type,
+        )
+
+        return nanoplot
+
+    return fmt(self, fns=fmt_nanoplot_fn, columns=columns, rows=rows)
