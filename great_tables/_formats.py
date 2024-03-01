@@ -3680,3 +3680,26 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
 
     return data_vals
 
+
+def _process_number_stream(data_vals: str) -> List[float]:
+    """
+    Process a string of numeric values and convert to a list of floats.
+
+    Args:
+        data_vals (str): The string of numeric values.
+
+    Returns:
+        List[float]: A list of numeric values.
+    """
+
+    import re
+
+    number_stream = re.sub(r"[;,]", " ", data_vals)
+    number_stream = re.sub(r"\\[|\\]", " ", number_stream)
+    number_stream = re.sub(r"^\\s+|\\s+$", "", number_stream)
+    number_stream = [val for val in number_stream.split()]
+    number_stream = [re.sub(r"[\\(\\)a-dA-Df-zF-Z]", "", val) for val in number_stream]
+    number_stream = [float(val) for val in number_stream]
+
+    return number_stream
+
