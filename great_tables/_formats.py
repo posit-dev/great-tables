@@ -3542,8 +3542,6 @@ def fmt_nanoplot(
         How missing values should be handled. The default is 'gap'.
     autoscale
         Whether the plot should be autoscaled. The default is True.
-    columns_x_vals
-        The columns that should be used as x-values.
     reference_line
         A reference line.
     reference_area
