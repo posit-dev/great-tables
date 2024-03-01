@@ -1,4 +1,4 @@
-from typing import Union, List, Literal
+from typing import Union, List, Dict, Literal, Any, Optional, Callable
 import random
 from typing_extensions import TypeAlias
 from ._text import Text
