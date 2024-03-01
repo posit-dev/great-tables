@@ -3696,9 +3696,9 @@ def fmt_nanoplot(
         all_single_y_vals: Optional[
             Union[List[Union[int, float]], List[int], List[float]]
         ] = all_single_y_vals,
-        y_val_fmt_fn: Optional[str] = None,
-        y_axis_fmt_fn: Optional[str] = None,
-        y_ref_line_fmt_fn: Optional[str] = None,
+        y_val_fmt_fn: Optional[Callable[..., str]] = None,
+        y_axis_fmt_fn: Optional[Callable[..., str]] = None,
+        y_ref_line_fmt_fn: Optional[Callable[..., str]] = None,
         data_point_radius: Union[int, List[int]] = 10,
         data_point_stroke_color: Union[str, List[str]] = "#FFFFFF",
         data_point_stroke_width: Union[int, List[int]] = 4,
