@@ -738,6 +738,28 @@ def nanoplot_options(
         currency name (e.g., `"dollar"`, `"pound"`, `"yen"`, etc.).
     """
 
+    data_point_radius = _normalize_listable_nanoplot_options(
+        nano_opt=data_point_radius, option_type=int
+    )
+    data_point_stroke_color = _normalize_listable_nanoplot_options(
+        nano_opt=data_point_stroke_color, option_type=str
+    )
+    data_point_stroke_width = _normalize_listable_nanoplot_options(
+        nano_opt=data_point_stroke_width, option_type=int
+    )
+    data_point_fill_color = _normalize_listable_nanoplot_options(
+        nano_opt=data_point_fill_color, option_type=str
+    )
+    data_bar_stroke_color = _normalize_listable_nanoplot_options(
+        nano_opt=data_bar_stroke_color, option_type=str
+    )
+    data_bar_stroke_width = _normalize_listable_nanoplot_options(
+        nano_opt=data_bar_stroke_width, option_type=int
+    )
+    data_bar_fill_color = _normalize_listable_nanoplot_options(
+        nano_opt=data_bar_fill_color, option_type=str
+    )
+
     data_point_radius = data_point_radius or 10
     data_point_stroke_color = data_point_stroke_color or "#FFFFFF"
     data_point_stroke_width = data_point_stroke_width or 4
