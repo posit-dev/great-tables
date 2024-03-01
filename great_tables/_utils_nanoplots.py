@@ -1353,9 +1353,9 @@ def _generate_nanoplot(
 
         if y_vals[0] < 0:
 
-            data_bar_stroke_color = data_bar_negative_stroke_color[0]
-            data_bar_stroke_width = data_bar_negative_stroke_width[0]
-            data_bar_fill_color = data_bar_negative_fill_color[0]
+            data_bar_stroke_color = data_bar_negative_stroke_color
+            data_bar_stroke_width = data_bar_negative_stroke_width
+            data_bar_fill_color = data_bar_negative_fill_color
 
             rect_x = y_width
             rect_width = y0_width - y_width
