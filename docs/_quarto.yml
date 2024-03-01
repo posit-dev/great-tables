@@ -150,6 +150,7 @@ quartodoc:
         - html
         - from_column
         - system_fonts
+        - nanoplot_options
     - title: Table options
       desc: >
         With the `opt_*()` functions, we have an easy way to set commonly-used table options without
