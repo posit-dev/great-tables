@@ -560,6 +560,26 @@ def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[s
     return font_stack
 
 
+# Check that certain values are either a list or a single value
+def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any):
+
+    if nano_opt is None:
+        return None
+
+    if not isinstance(nano_opt, (option_type, list)):
+        raise ValueError(f"Nanoplot option must be a {option_type} or a list of {option_type}s")
+
+    # If it is a list, check that the values are integers
+    if isinstance(nano_opt, list):
+        if not all(isinstance(x, int) for x in nano_opt):
+            raise ValueError(f"Nanoplot option must be a list of {option_type}s")
+
+    # If it is a single value, convert it to a list
+    if not isinstance(nano_opt, list):
+        nano_opt = [nano_opt]
+
+    return nano_opt
+
 def nanoplot_options(
     data_point_radius: Optional[int] = None,
     data_point_stroke_color: Optional[str] = None,
