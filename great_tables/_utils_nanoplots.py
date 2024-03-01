@@ -609,7 +609,10 @@ def _generate_nanoplot(
         return ""
 
     # Get the number of data points for `y`
-    num_y_vals = len(y_vals)
+    if type(y_vals) is list:
+        num_y_vals = len(y_vals)
+    else:
+        num_y_vals = 1
 
     # Handle case where `x_vals` exists (i.e., is not `NULL`)
     if x_vals is not None:
