@@ -3703,3 +3703,24 @@ def _process_number_stream(data_vals: str) -> List[float]:
 
     return number_stream
 
+
+import re
+from typing import List
+
+
+def _process_time_stream(data_vals: str) -> List[float]:
+    """
+    Process a string of time values and convert to a list of floats.
+
+    Args:
+        data_vals (str): The string of time values.
+
+    Returns:
+        List[float]: A list of time values.
+    """
+
+    time_stream = re.split(r"\s*[;,]\s*", data_vals)
+    time_stream = [val.replace("T", " ") for val in time_stream]
+    time_stream_vals = [float(val) for val in time_stream]
+
+    return time_stream_vals
