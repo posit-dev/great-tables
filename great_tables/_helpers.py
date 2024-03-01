@@ -580,18 +580,19 @@ def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any):
 
     return nano_opt
 
+
 def nanoplot_options(
-    data_point_radius: Optional[int] = None,
-    data_point_stroke_color: Optional[str] = None,
-    data_point_stroke_width: Optional[int] = None,
-    data_point_fill_color: Optional[str] = None,
+    data_point_radius: Optional[Union[int, List[int]]] = None,
+    data_point_stroke_color: Optional[Union[str, List[str]]] = None,
+    data_point_stroke_width: Optional[Union[int, List[int]]] = None,
+    data_point_fill_color: Optional[Union[str, List[str]]] = None,
     data_line_type: Optional[str] = None,
     data_line_stroke_color: Optional[str] = None,
     data_line_stroke_width: Optional[int] = None,
     data_area_fill_color: Optional[str] = None,
-    data_bar_stroke_color: Optional[str] = None,
-    data_bar_stroke_width: Optional[int] = None,
-    data_bar_fill_color: Optional[str] = None,
+    data_bar_stroke_color: Optional[Union[str, List[str]]] = None,
+    data_bar_stroke_width: Optional[Union[int, List[int]]] = None,
+    data_bar_fill_color: Optional[Union[str, List[str]]] = None,
     data_bar_negative_stroke_color: Optional[str] = None,
     data_bar_negative_stroke_width: Optional[int] = None,
     data_bar_negative_fill_color: Optional[str] = None,
