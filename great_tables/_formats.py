@@ -3577,6 +3577,9 @@ def fmt_nanoplot(
         Similar to `expand_x=`, one can have plots expand in the *y* direction. To make this happen,
         provide one or more values to `expand_y=`. If any of the provided values are outside of the
         range of *y*-value data provided, the plot will result in a *y*-scale expansion.
+    options
+        By using the `nanoplot_options()` helper function here, you can alter the layout and styling
+        of the nanoplots in the new column.
 
     Details
     -------
