@@ -598,9 +598,9 @@ def _generate_nanoplot(
     # Initialize the `single_horizontal_bar` variable with `False`
     single_horizontal_bar = False
 
-    # If the number of `y` values is zero or if all consist of NA values,
+    # If the number of `y` values in a list is zero or if all consist of NA values,
     # return an empty string
-    if len(y_vals) == 0:
+    if type(y_vals) is list and len(y_vals) == 0:
         return ""
 
     # If all `y` values are NA, return an empty string
