@@ -3518,10 +3518,10 @@ def fmt_nanoplot(
     plot_height: str = "2em",
     missing_vals: MissingVals = "gap",
     autoscale: bool = True,
-    reference_line: Optional[str] = None,
-    reference_area: Optional[str] = None,
-    expand_x: Optional[str] = None,
-    expand_y: Optional[str] = None,
+    reference_line: Optional[Union[str, int, float]] = None,
+    reference_area: Optional[List[Any]] = None,
+    expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
+    expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
 ) -> GTSelf:
     """Format data for nanoplot visualizations.
 
@@ -3687,10 +3687,10 @@ def fmt_nanoplot(
         plot_height: str = plot_height,
         missing_vals: MissingVals = missing_vals,
         autoscale: bool = autoscale,
-        reference_line: Optional[str] = reference_line,
-        reference_area: Optional[str] = reference_area,
-        expand_x: Optional[str] = expand_x,
-        expand_y: Optional[str] = expand_y,
+        reference_line: Optional[Union[str, int, float]] = reference_line,
+        reference_area: Optional[List[Any]] = reference_area,
+        expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_x,
+        expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_y,
         line_type: str = "curved",
         currency: Optional[str] = None,
         all_single_y_vals: Optional[
