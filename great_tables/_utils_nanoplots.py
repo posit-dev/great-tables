@@ -605,7 +605,7 @@ def _generate_nanoplot(
 
     # If all `y` values are NA, return an empty string
     # TODO: Do this with the `pd_na()` function
-    if all(pd.isna(y_vals)):
+    if type(y_vals) is list and all(pd.isna(y_vals)):
         return ""
 
     # Get the number of data points for `y`
