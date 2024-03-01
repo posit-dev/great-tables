@@ -3646,7 +3646,7 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
         return data_vals
 
     elif isinstance(data_vals, int) or isinstance(data_vals, float):
-        return [data_vals]
+        return data_vals
 
     elif isinstance(data_vals, str):
 
