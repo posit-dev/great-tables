@@ -3522,6 +3522,7 @@ def fmt_nanoplot(
     reference_area: Optional[List[Any]] = None,
     expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
     expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
+    options: Optional[Dict[str, Any]] = None,
 ) -> GTSelf:
     """Format data for nanoplot visualizations.
 
