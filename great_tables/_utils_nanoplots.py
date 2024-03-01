@@ -665,8 +665,11 @@ def _generate_nanoplot(
             # Remove the corresponding `x` values for the removed `y` values
             x_vals = x_vals[y_vals.index]
 
-    # Determine the total number of `y` values available
-    num_y_vals = len(y_vals)
+    # Get the number of data points for `y`
+    if type(y_vals) is list:
+        num_y_vals = len(y_vals)
+    else:
+        num_y_vals = 1
 
     # If the number of y_vals is `1` and we requested a 'bar' plot, then
     # reset several parameters
