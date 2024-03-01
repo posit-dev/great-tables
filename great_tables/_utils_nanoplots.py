@@ -671,9 +671,9 @@ def _generate_nanoplot(
     else:
         num_y_vals = 1
 
-    # If the number of y_vals is `1` and we requested a 'bar' plot, then
+    # If `y_vals` is a scalar value we requested a 'bar' plot, then
     # reset several parameters
-    if num_y_vals == 1 and plot_type == "bar":
+    if type(y_vals) in [int, float] and plot_type == "bar":
 
         single_horizontal_bar = True
         show_data_points = False
