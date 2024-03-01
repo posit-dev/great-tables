@@ -95,7 +95,7 @@ def fmt(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo
+        In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in `columns` being formatted.
         Alternatively, we can supply a list of row indices.
 
@@ -161,9 +161,9 @@ def fmt_number(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -362,9 +362,9 @@ def fmt_integer(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
@@ -541,9 +541,9 @@ def fmt_scientific(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -803,9 +803,9 @@ def fmt_percent(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -1005,9 +1005,9 @@ def fmt_currency(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     currency
         The currency to use for the numeric value. This input can be supplied as a 3-letter currency
         code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency).
@@ -1223,9 +1223,9 @@ def fmt_roman(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     case
         Should Roman numerals should be rendered as uppercase (`"upper"`) or lowercase (`"lower"`)
         letters? By default, this is set to `"upper"`.
@@ -1357,9 +1357,9 @@ def fmt_bytes(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     standard
         The form of expressing large byte sizes is divided between: (1) decimal units (powers of
         1000; e.g., `"kB"` and `"MB"`), and (2) binary units (powers of 1024; e.g., `"KiB"` and
@@ -1572,9 +1572,9 @@ def fmt_date(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
         ISO 8601 date formatting. There are 41 date styles in total and their short names can be
@@ -1720,9 +1720,9 @@ def fmt_time(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     time_style
         The time style to use. By default this is the short name `"iso"` which corresponds to how
         times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
@@ -1862,9 +1862,9 @@ def fmt_datetime(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
         ISO 8601 date formatting. There are 41 date styles in total and their short names can be
@@ -2071,9 +2071,9 @@ def fmt_markdown(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
 
     Returns
     -------
@@ -3330,9 +3330,9 @@ def fmt_image(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     height
         The height of the rendered images.
     width
@@ -3534,22 +3534,82 @@ def fmt_nanoplot(
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     plot_type
-        The type of plot to create. The default is 'line'.
+        Nanoplots can either take the form of a line plot (using `"line"`) or a bar plot (with
+        `"bar"`). A line plot, by default, contains layers for a data line, data points, and a data
+        area. With a bar plot, the always visible layer is that of the data bars.
     plot_height
-        The height of the plot. The default is '2em'.
+        The height of the nanoplots. The default here is a sensible value of `"2em"`.
     missing_vals
-        How missing values should be handled. The default is 'gap'.
+        If missing values are encountered within the input data, there are three strategies
+        available for their handling: (1) `"gap"` will show data gaps at the sites of missing data,
+        where data lines will have discontinuities and bar plots will have missing bars; (2)
+        `"marker"` will behave like `"gap"` but show prominent visual marks at the missing data
+        locations; (3) `"zero"` will replace missing values with zero values; and (4) `"remove"`
+        will remove any incoming missing values.
     autoscale
-        Whether the plot should be autoscaled. The default is True.
+        Using `autoscale=True` will ensure that the bounds of all nanoplots produced are based on
+        the limits of data combined from all input rows. This will result in a shared scale across
+        all of the nanoplots (for *y*- and *x*-axis data), which is useful in those cases where the
+        nanoplot data should be compared across rows.
     reference_line
-        A reference line.
+        A reference line requires a single input to define the line. It could be a numeric value,
+        applied to all nanoplots generated. Or, the input can be one of the following for generating
+        the line from the underlying data: (1) `"mean"`, (2) `"median"`, (3) `"min"`, (4) `"max"`,
+        (5) `"q1"`, (6) `"q3"`, (7) `"first"`, or (8) `"last"`.
     reference_area
-        A reference area.
+        A reference area requires a list of two values for defining bottom and top boundaries (in
+        the *y* direction) for a rectangular area. The types of values supplied are the same as
+        those expected for `reference_line=`, which is either a numeric value or one of the
+        following keywords for the generation of the value: (1) `"mean"`, (2) `"median"`, (3)
+        `"min"`, (4) `"max"`, (5) `"q1"`, (6) `"q3"`, (7) `"first"`, or (8) `"last"`. Input can
+        either be a vector or list with two elements.
     expand_x
-        The amount to expand the x-axis.
+        Should you need to have plots expand in the *x* direction, provide one or more values to
+        `expand_x=`. Any values provided that are outside of the range of *x*-value data provided to
+        the plot will result in a *x*-scale expansion.
     expand_y
-        The amount to expand the y-axis.
+        Similar to `expand_x=`, one can have plots expand in the *y* direction. To make this happen,
+        provide one or more values to `expand_y=`. If any of the provided values are outside of the
+        range of *y*-value data provided, the plot will result in a *y*-scale expansion.
+
+    Details
+    -------
+
+    Nanoplots try to show individual data with reasonably good visibility. Interactivity is included
+    as a basic feature so one can hover over the data points and vertical guides will display the
+    value ascribed to each data point. Because **Great Tables** knows all about numeric formatting,
+    values will be compactly formatted so as to not take up valuable real estate. If you need to
+    create a nanoplot based on monetary values, that can be handled by providing the currency code
+    to the [nanoplot_options()] helper (then hook that up to the `options` argument). A guide on
+    the left-hand side of the plot area will appear on hover and display the minimal and maximal
+    *y* values.
+
+    There are two types of nanoplots available: `"line"` and `"bar"`. A line plot shows individual
+    data points and has smooth connecting lines between them to allow for easier scanning of values.
+    You can opt for straight-line connections between data points, or, no connections at all (it's
+    up to you). You can even eschew the data points and just have a simple line. Regardless of how
+    you mix and match difference plot layers, the plot area focuses on the domain of the data points
+    with the goal of showing you the overall trend of the data. The data you feed into a line plot
+    can consist of a single vector of values (resulting in equally-spaced *y* values), or, you can
+    supply two vectors representative of *x* and *y*.
+
+    A bar plot is built a little bit differently. The focus is on evenly-spaced bars (requiring a
+    single vector of values) that project from a zero line, clearly showing the difference between
+    positive and negative values. By default, any type of nanoplot will have basic interactivity.
+    One can hover over the data points and vertical guides will display values ascribed to each. A
+    guide on the left-hand side of the plot area will display the minimal and maximal *y* values on
+    hover.
+
+    While basic customization options are present in `fmt_nanoplot()`, many more opportunities for
+    customizing nanoplots on a more granular level are possible with the `nanoplot_options()` helper
+    function. That function should be invoked at the `options=` argument of `fmt_nanoplot()`.
+    Through that helper, layers of the nanoplots can be selectively removed and the aesthetics of
+    the remaining plot components can be modified.
     """
 
     # Get the internal data table
