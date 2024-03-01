@@ -3583,7 +3583,6 @@ def fmt_nanoplot(
 
     Details
     -------
-
     Nanoplots try to show individual data with reasonably good visibility. Interactivity is included
     as a basic feature so one can hover over the data points and vertical guides will display the
     value ascribed to each data point. Because **Great Tables** knows all about numeric formatting,
@@ -3636,6 +3635,13 @@ def fmt_nanoplot(
     else:
         all_single_y_vals = None
 
+    if options is None:
+        from great_tables._helpers import nanoplot_options
+
+        options_plots = nanoplot_options()
+    else:
+        options_plots = options
+
     # For autoscale, we need to get the minimum and maximum from all values for the y-axis
     if autoscale:
 
@@ -3658,13 +3664,11 @@ def fmt_nanoplot(
             if isinstance(data_vals_i, dict):
 
                 if len(data_vals_i) == 1:
-
                     # If there is only one key in the dictionary, then we can assume that the
                     # dictionary deals with y-values only
                     data_vals_i = list(data_vals_i.values())[0]
 
                 else:
-
                     # Otherwise assume that the dictionary contains x and y values; extract
                     # the y values
                     data_vals_i = data_vals_i["y"]
@@ -3690,44 +3694,14 @@ def fmt_nanoplot(
         plot_type: PlotType = plot_type,
         plot_height: str = plot_height,
         missing_vals: MissingVals = missing_vals,
-        autoscale: bool = autoscale,
         reference_line: Optional[Union[str, int, float]] = reference_line,
         reference_area: Optional[List[Any]] = reference_area,
         expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_x,
         expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_y,
-        line_type: str = "curved",
-        currency: Optional[str] = None,
         all_single_y_vals: Optional[
             Union[List[Union[int, float]], List[int], List[float]]
         ] = all_single_y_vals,
-        y_val_fmt_fn: Optional[Callable[..., str]] = None,
-        y_axis_fmt_fn: Optional[Callable[..., str]] = None,
-        y_ref_line_fmt_fn: Optional[Callable[..., str]] = None,
-        data_point_radius: Union[int, List[int]] = 10,
-        data_point_stroke_color: Union[str, List[str]] = "#FFFFFF",
-        data_point_stroke_width: Union[int, List[int]] = 4,
-        data_point_fill_color: Union[str, List[str]] = "#FF0000",
-        data_line_stroke_color: str = "#4682B4",
-        data_line_stroke_width: int = 8,
-        data_area_fill_color: str = "#FF0000",
-        data_bar_stroke_color: Union[str, List[str]] = "#3290CC",
-        data_bar_stroke_width: Union[int, List[int]] = 4,
-        data_bar_fill_color: Union[str, List[str]] = "#3FB5FF",
-        data_bar_negative_stroke_color: str = "#CC3243",
-        data_bar_negative_stroke_width: int = 4,
-        data_bar_negative_fill_color: str = "#D75A68",
-        reference_line_color: str = "#75A8B0",
-        reference_area_fill_color: str = "#A6E6F2",
-        vertical_guide_stroke_color: str = "#911EB4",
-        vertical_guide_stroke_width: int = 12,
-        show_data_points: bool = True,
-        show_data_line: bool = True,
-        show_data_area: bool = True,
-        show_ref_line: bool = True,
-        show_ref_area: bool = True,
-        show_vertical_guides: bool = True,
-        show_y_axis_guide: bool = True,
-        interactive_data_values: bool = True,
+        options_plots: Dict[str, Any] = options_plots,
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
         if pd.isna(x):
@@ -3768,36 +3742,36 @@ def fmt_nanoplot(
             missing_vals=missing_vals,
             all_single_y_vals=all_single_y_vals,
             plot_type=plot_type,
-            line_type=line_type,
-            currency=currency,
-            y_val_fmt_fn=y_val_fmt_fn,
-            y_axis_fmt_fn=y_axis_fmt_fn,
-            y_ref_line_fmt_fn=y_ref_line_fmt_fn,
-            data_point_radius=data_point_radius,
-            data_point_stroke_color=data_point_stroke_color,
-            data_point_stroke_width=data_point_stroke_width,
-            data_point_fill_color=data_point_fill_color,
-            data_line_stroke_color=data_line_stroke_color,
-            data_line_stroke_width=data_line_stroke_width,
-            data_area_fill_color=data_area_fill_color,
-            data_bar_stroke_color=data_bar_stroke_color,
-            data_bar_stroke_width=data_bar_stroke_width,
-            data_bar_fill_color=data_bar_fill_color,
-            data_bar_negative_stroke_color=data_bar_negative_stroke_color,
-            data_bar_negative_stroke_width=data_bar_negative_stroke_width,
-            data_bar_negative_fill_color=data_bar_negative_fill_color,
-            reference_line_color=reference_line_color,
-            reference_area_fill_color=reference_area_fill_color,
-            vertical_guide_stroke_color=vertical_guide_stroke_color,
-            vertical_guide_stroke_width=vertical_guide_stroke_width,
-            show_data_points=show_data_points,
-            show_data_line=show_data_line,
-            show_data_area=show_data_area,
-            show_ref_line=show_ref_line,
-            show_ref_area=show_ref_area,
-            show_vertical_guides=show_vertical_guides,
-            show_y_axis_guide=show_y_axis_guide,
-            interactive_data_values=interactive_data_values,
+            line_type=options_plots["data_line_type"],
+            currency=options_plots["currency"],
+            y_val_fmt_fn=options_plots["y_val_fmt_fn"],
+            y_axis_fmt_fn=options_plots["y_axis_fmt_fn"],
+            y_ref_line_fmt_fn=options_plots["y_ref_line_fmt_fn"],
+            data_point_radius=options_plots["data_point_radius"],
+            data_point_stroke_color=options_plots["data_point_stroke_color"],
+            data_point_stroke_width=options_plots["data_point_stroke_width"],
+            data_point_fill_color=options_plots["data_point_fill_color"],
+            data_line_stroke_color=options_plots["data_line_stroke_color"],
+            data_line_stroke_width=options_plots["data_line_stroke_width"],
+            data_area_fill_color=options_plots["data_area_fill_color"],
+            data_bar_stroke_color=options_plots["data_bar_stroke_color"],
+            data_bar_stroke_width=options_plots["data_bar_stroke_width"],
+            data_bar_fill_color=options_plots["data_bar_fill_color"],
+            data_bar_negative_stroke_color=options_plots["data_bar_negative_stroke_color"],
+            data_bar_negative_stroke_width=options_plots["data_bar_negative_stroke_width"],
+            data_bar_negative_fill_color=options_plots["data_bar_negative_fill_color"],
+            reference_line_color=options_plots["reference_line_color"],
+            reference_area_fill_color=options_plots["reference_area_fill_color"],
+            vertical_guide_stroke_color=options_plots["vertical_guide_stroke_color"],
+            vertical_guide_stroke_width=options_plots["vertical_guide_stroke_width"],
+            show_data_points=options_plots["show_data_points"],
+            show_data_line=options_plots["show_data_line"],
+            show_data_area=options_plots["show_data_area"],
+            show_ref_line=options_plots["show_reference_line"],
+            show_ref_area=options_plots["show_reference_area"],
+            show_vertical_guides=options_plots["show_vertical_guides"],
+            show_y_axis_guide=options_plots["show_y_axis_guide"],
+            interactive_data_values=options_plots["interactive_data_values"],
             svg_height=plot_height,
         )
 
