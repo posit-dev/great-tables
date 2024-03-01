@@ -3563,7 +3563,6 @@ def fmt_nanoplot(
         plot_height: str = plot_height,
         missing_vals: MissingVals = missing_vals,
         autoscale: bool = autoscale,
-        columns_x_vals: SelectExpr = columns_x_vals,
         reference_line: Optional[str] = reference_line,
         reference_area: Optional[str] = reference_area,
         expand_x: Optional[str] = expand_x,
