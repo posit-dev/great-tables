@@ -3590,3 +3590,93 @@ def fmt_nanoplot(
         return nanoplot
 
     return fmt(self, fns=fmt_nanoplot_fn, columns=columns, rows=rows)
+
+
+def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float], List[float]]]:
+    """
+    Generate a list of data values from the input data.
+
+    Args:
+        data_vals (Any): The input data values.
+
+    Returns:
+        List[Any]: A list of data values.
+    """
+
+    import re
+
+    if isinstance(data_vals, list):
+
+        # If the list contains string values, determine whether they are date values
+        if all(isinstance(val, str) for val in data_vals):
+            if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals[0]):
+                data_vals = [_iso_to_date(val) for val in data_vals]
+
+                # Transform the date values to numeric values
+                data_vals = [val.toordinal() for val in data_vals]
+
+        # If the cell value is a list of floats/ints, then return the same value
+
+        # Check that the values within the list are numeric; missing values are allowed
+        for val in data_vals:
+            if val is not None and not isinstance(val, (int, float)):
+                raise ValueError("The input data values must be numeric.")
+
+        return data_vals
+
+    elif isinstance(data_vals, int) or isinstance(data_vals, float):
+        return [data_vals]
+
+    elif isinstance(data_vals, str):
+
+        # If the cell value is a string, assume it is a value stream and convert to a list
+
+        # Detect whether there are time values or numeric values in the string
+        if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals):
+            data_vals = _process_time_stream(data_vals)
+        else:
+            data_vals = _process_number_stream(data_vals)
+
+    elif isinstance(data_vals, dict):
+
+        # If the cell value is a dictionary, assume it contains data values
+        # This is possibly for x and for y
+
+        # Determine the number of keys in the dictionary
+        num_keys = len(data_vals.keys())
+
+        # If the dictionary contains only one key, then assume that the values are for y
+        if num_keys == 1:
+
+            data_vals = list(data_vals.values())[0]
+
+            # The data values can be anything, so recursively call this function to process them
+            data_vals = _generate_data_vals(data_vals=data_vals)
+
+        if num_keys >= 2:
+
+            # For two or more keys, we need to see if the 'x' and 'y' keys are present
+            if "x" in data_vals and "y" in data_vals:
+
+                x_vals: Any = data_vals["x"]
+                y_vals: Any = data_vals["y"]
+
+                # The data values can be anything, so recursively call this function to process them
+                x_vals = _generate_data_vals(data_vals=x_vals)
+                y_vals = _generate_data_vals(data_vals=y_vals)
+
+                # Ensure that the lengths of the x and y values are the same
+                if len(x_vals) != len(y_vals):
+                    raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
+
+                return x_vals, y_vals
+
+            else:
+                raise ValueError("The dictionary must contain 'x' and 'y' keys.")
+
+    else:
+        # Raise not implemented
+        raise NotImplementedError("The input data values must be a string.")
+
+    return data_vals
+
