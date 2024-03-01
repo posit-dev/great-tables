@@ -3555,6 +3555,70 @@ def fmt_nanoplot(
     # Get the internal data table
     data_tbl = self._tbl_data
 
+    # If a bar plot is requested and the data consists of single y values, then we need to
+    # obtain a list of all single y values in the targeted column (from `columns`)
+    if plot_type == "bar":
+
+        # Check each cell in the column and get each of them that contains a scalar value
+        all_single_y_vals = []
+        for col in columns:
+            single_y_vals = data_tbl[col].apply(
+                lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+            )
+            all_single_y_vals.extend(single_y_vals)
+
+        autoscale = False
+
+    else:
+        all_single_y_vals = None
+
+    # For autoscale, we need to get the minimum and maximum from all values for the y-axis
+    if autoscale:
+
+        from great_tables._utils_nanoplots import _flatten_list
+
+        all_y_vals_raw = []
+
+        col_i_y_vals_raw = data_tbl[columns].apply(
+            lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+        )
+
+        all_y_vals_raw.extend(col_i_y_vals_raw)
+
+        all_y_vals = []
+
+        for i in range(len(all_y_vals_raw)):
+
+            data_vals_i = all_y_vals_raw[i]
+
+            if isinstance(data_vals_i, dict):
+
+                if len(data_vals_i) == 1:
+
+                    # If there is only one key in the dictionary, then we can assume that the
+                    # dictionary deals with y-values only
+                    data_vals_i = list(data_vals_i.values())[0]
+
+                else:
+
+                    # Otherwise assume that the dictionary contains x and y values; extract
+                    # the y values
+                    data_vals_i = data_vals_i["y"]
+
+            data_vals_i = _generate_data_vals(data_vals=data_vals_i)
+
+            # If not a list, then convert to a list
+            if not isinstance(data_vals_i, list):
+
+                data_vals_i = [data_vals_i]
+
+            all_y_vals.extend(data_vals_i)
+
+        all_y_vals = _flatten_list(all_y_vals)
+
+        # Get the minimum and maximum values from the list
+        expand_y = [min(all_y_vals), max(all_y_vals)]
+
     # Generate a function that will operate on single `x` values in the table body using both
     # the date and time format strings
     def fmt_nanoplot_fn(
