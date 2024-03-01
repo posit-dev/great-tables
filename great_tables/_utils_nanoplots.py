@@ -684,6 +684,12 @@ def _generate_nanoplot(
         show_vertical_guides = False
         show_y_axis_guide = False
 
+        y_vals = [y_vals]
+
+    if type(y_vals) in [int, float] and plot_type == "line":
+
+        y_vals = [y_vals]
+
     # If this is a boxplot, set several parameters
     if plot_type == "boxplot":
 
