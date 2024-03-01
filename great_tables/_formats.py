@@ -3567,6 +3567,39 @@ def fmt_nanoplot(
         reference_area: Optional[str] = reference_area,
         expand_x: Optional[str] = expand_x,
         expand_y: Optional[str] = expand_y,
+        line_type: str = "curved",
+        currency: Optional[str] = None,
+        all_single_y_vals: Optional[
+            Union[List[Union[int, float]], List[int], List[float]]
+        ] = all_single_y_vals,
+        y_val_fmt_fn: Optional[str] = None,
+        y_axis_fmt_fn: Optional[str] = None,
+        y_ref_line_fmt_fn: Optional[str] = None,
+        data_point_radius: Union[int, List[int]] = 10,
+        data_point_stroke_color: Union[str, List[str]] = "#FFFFFF",
+        data_point_stroke_width: Union[int, List[int]] = 4,
+        data_point_fill_color: Union[str, List[str]] = "#FF0000",
+        data_line_stroke_color: str = "#4682B4",
+        data_line_stroke_width: int = 8,
+        data_area_fill_color: str = "#FF0000",
+        data_bar_stroke_color: Union[str, List[str]] = "#3290CC",
+        data_bar_stroke_width: Union[int, List[int]] = 4,
+        data_bar_fill_color: Union[str, List[str]] = "#3FB5FF",
+        data_bar_negative_stroke_color: str = "#CC3243",
+        data_bar_negative_stroke_width: int = 4,
+        data_bar_negative_fill_color: str = "#D75A68",
+        reference_line_color: str = "#75A8B0",
+        reference_area_fill_color: str = "#A6E6F2",
+        vertical_guide_stroke_color: str = "#911EB4",
+        vertical_guide_stroke_width: int = 12,
+        show_data_points: bool = True,
+        show_data_line: bool = True,
+        show_data_area: bool = True,
+        show_ref_line: bool = True,
+        show_ref_area: bool = True,
+        show_vertical_guides: bool = True,
+        show_y_axis_guide: bool = True,
+        interactive_data_values: bool = True,
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
         if pd.isna(x):
@@ -3577,6 +3610,7 @@ def fmt_nanoplot(
 
         # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
         if isinstance(x, tuple):
+
             y_vals = x[1]
             x_vals = x[0]
 
@@ -3604,7 +3638,38 @@ def fmt_nanoplot(
             expand_x=expand_x,
             expand_y=expand_y,
             missing_vals=missing_vals,
+            all_single_y_vals=all_single_y_vals,
             plot_type=plot_type,
+            line_type=line_type,
+            currency=currency,
+            y_val_fmt_fn=y_val_fmt_fn,
+            y_axis_fmt_fn=y_axis_fmt_fn,
+            y_ref_line_fmt_fn=y_ref_line_fmt_fn,
+            data_point_radius=data_point_radius,
+            data_point_stroke_color=data_point_stroke_color,
+            data_point_stroke_width=data_point_stroke_width,
+            data_point_fill_color=data_point_fill_color,
+            data_line_stroke_color=data_line_stroke_color,
+            data_line_stroke_width=data_line_stroke_width,
+            data_area_fill_color=data_area_fill_color,
+            data_bar_stroke_color=data_bar_stroke_color,
+            data_bar_stroke_width=data_bar_stroke_width,
+            data_bar_fill_color=data_bar_fill_color,
+            data_bar_negative_stroke_color=data_bar_negative_stroke_color,
+            data_bar_negative_stroke_width=data_bar_negative_stroke_width,
+            data_bar_negative_fill_color=data_bar_negative_fill_color,
+            reference_line_color=reference_line_color,
+            reference_area_fill_color=reference_area_fill_color,
+            vertical_guide_stroke_color=vertical_guide_stroke_color,
+            vertical_guide_stroke_width=vertical_guide_stroke_width,
+            show_data_points=show_data_points,
+            show_data_line=show_data_line,
+            show_data_area=show_data_area,
+            show_ref_line=show_ref_line,
+            show_ref_area=show_ref_area,
+            show_vertical_guides=show_vertical_guides,
+            show_y_axis_guide=show_y_axis_guide,
+            interactive_data_values=interactive_data_values,
             svg_height=plot_height,
         )
 
