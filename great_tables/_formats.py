@@ -3572,19 +3572,40 @@ def fmt_nanoplot(
         if pd.isna(x):
             return x
 
-        if isinstance(x, str):
-            # If a string, convert to a list of floats
-            x = [float(val) for val in x.split()]
+        # Generate data vals from the input `x` value
+        x = _generate_data_vals(data_vals=x)
 
-        # If the 'x' value is a scalar, make it a list
-        if not isinstance(x, list):
-            x = [x]
+        # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
+        if isinstance(x, tuple):
+            y_vals = x[1]
+            x_vals = x[0]
+
+            # Ensure that both objects are lists
+            if not isinstance(x_vals, list) or not isinstance(y_vals, list):
+                raise ValueError("The 'x' and 'y' values must be lists.")
+
+            # Ensure that the lists contain only numeric values (ints and floats)
+            if not all(isinstance(val, (int, float)) for val in x_vals):
+                raise ValueError("The 'x' values must be numeric.")
+
+            # Ensure that the lengths of the x and y values are the same
+            if len(x_vals) != len(y_vals):
+                raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
+
+        else:
+            y_vals = x
+            x_vals = None
 
         nanoplot = _generate_nanoplot(
-            y_vals=x,
+            y_vals=y_vals,
             y_ref_line=reference_line,
             y_ref_area=reference_area,
+            x_vals=x_vals,
+            expand_x=expand_x,
+            expand_y=expand_y,
+            missing_vals=missing_vals,
             plot_type=plot_type,
+            svg_height=plot_height,
         )
 
         return nanoplot
