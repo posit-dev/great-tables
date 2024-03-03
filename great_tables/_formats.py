@@ -3632,7 +3632,7 @@ def fmt_nanoplot(
 
     # If a bar plot is requested and the data consists of single y values, then we need to
     # obtain a list of all single y values in the targeted column (from `columns`)
-    if plot_type == "bar":
+    if plot_type == "bar" and scalar_vals:
 
         # Check each cell in the column and get each of them that contains a scalar value
         all_single_y_vals = []
