@@ -3615,8 +3615,20 @@ def fmt_nanoplot(
     the remaining plot components can be modified.
     """
 
+    from great_tables._gt_data import get_column_names
+    from great_tables._utils import _str_detect
+
     # Get the internal data table
     data_tbl = self._tbl_data
+
+    column_d_type = data_tbl[columns].dtype
+
+    col_class = str(column_d_type).lower()
+
+    if _str_detect(col_class, "int") or _str_detect(col_class, "float"):
+        scalar_vals = True
+    else:
+        scalar_vals = False
 
     # If a bar plot is requested and the data consists of single y values, then we need to
     # obtain a list of all single y values in the targeted column (from `columns`)
