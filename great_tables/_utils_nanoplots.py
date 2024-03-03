@@ -690,7 +690,7 @@ def _generate_nanoplot(
 
         y_vals = [y_vals]
 
-    # If this is a boxplot, set several parameters
+    # If this is a box plot, set several parameters
     if plot_type == "boxplot":
 
         show_data_points = False
