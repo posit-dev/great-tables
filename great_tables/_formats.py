@@ -3517,7 +3517,7 @@ def fmt_nanoplot(
     plot_type: PlotType = "line",
     plot_height: str = "2em",
     missing_vals: MissingVals = "gap",
-    autoscale: bool = True,
+    autoscale: bool = False,
     reference_line: Optional[Union[str, int, float]] = None,
     reference_area: Optional[List[Any]] = None,
     expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
