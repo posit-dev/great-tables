@@ -3636,11 +3636,11 @@ def fmt_nanoplot(
 
         # Check each cell in the column and get each of them that contains a scalar value
         all_single_y_vals = []
-        for col in columns:
-            single_y_vals = data_tbl[col].apply(
-                lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
-            )
-            all_single_y_vals.extend(single_y_vals)
+
+        single_y_vals = data_tbl[columns].apply(
+            lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+        )
+        all_single_y_vals.extend(single_y_vals)
 
         autoscale = False
 
