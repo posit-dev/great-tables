@@ -178,7 +178,7 @@ You get to customize the line and the data point marker with the latter display 
 
 ## Line plots with paired *x* and *y* values
 
-Aside from a single stream of *y* values, we can plot pairs of *x* and *y* values. This works only for the `"line"` type of plot. We can set up a column of *Struct* values in a Polars DataFrame to have this input data prepared for [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`). Notice that the dictionary values in the enclosed list must have the `"x"` and `"y"` keys. Further to this, the list lengths for each of `"x"` and `"y"` must match (i.e., to make valid pairs of *x* and *y*).
+Aside from a single stream of *y* values, we can plot pairs of *x* and *y* values. This works only for the `"line"` type of plot. We can set up a column of Polars `struct` values in a DataFrame to have this input data prepared for [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`). Notice that the dictionary values in the enclosed list must have the `"x"` and `"y"` keys. Further to this, the list lengths for each of `"x"` and `"y"` must match (i.e., to make valid pairs of *x* and *y*).
 
 ```{python}
 weather_2 = pl.DataFrame(
