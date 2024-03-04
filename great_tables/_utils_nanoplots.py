@@ -986,16 +986,16 @@ def _generate_nanoplot(
 
             # Recompute the `y` scale min and max values
             y_scale_max = _get_extreme_value(
-                y_vals, y_ref_line[0], y_ref_area_l, y_ref_area_u, expand_y, stat="max"
+                y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="max"
             )
             y_scale_min = _get_extreme_value(
-                y_vals, y_ref_line[0], y_ref_area_l, y_ref_area_u, expand_y, stat="min"
+                y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="min"
             )
 
             # Scale to proportional values
             y_proportions_list = _normalize_to_dict(
                 vals=y_vals,
-                ref_line=y_ref_line[0],
+                ref_line=y_ref_line,
                 ref_area_l=y_ref_area_l,
                 ref_area_u=y_ref_area_u,
                 zero=0,
@@ -1010,8 +1010,8 @@ def _generate_nanoplot(
 
             # Scale reference line and reference area boundaries
             data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
-            data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l[0]) * data_y_height)
-            data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u[0]) * data_y_height)
+            data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
+            data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
 
         elif show_ref_line:
 
@@ -1093,8 +1093,8 @@ def _generate_nanoplot(
             y_proportions_zero = y_proportions_list["zero"][0]
 
             # Scale reference area boundaries
-            data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l[0]) * data_y_height)
-            data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u[0]) * data_y_height)
+            data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
+            data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
 
         else:
 
