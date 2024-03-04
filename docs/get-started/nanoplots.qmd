@@ -4,18 +4,18 @@ jupyter: python3
 html-table-processing: none
 ---
 
-Nanoplots are tiny plots you can use in your table. They are simple by design, mainly because there isn't a lot of space to work with. With that simplicity, however, you do get a set of very succinct data visualizations that adapt nicely to the amount of data you feed into them.
+Nanoplots are tiny plots you can use in your table. They are simple by design, mainly because there isn't a lot of space to work with. With that simplicity, however, you do get a set of very succinct data visualizations that adapt nicely to the amount of data you feed into them. Here's some of the main features:
 
-Nanoplots try to show individual data with reasonably good visibility. Interactivity is included as a basic feature so one can hover over the data points and vertical guides will display the value ascribed to each data point. Because **Great Tables** knows all about numeric formatting, values will be compactly formatted so as to not take up valuable real estate.
-
-There are two types of nanoplots available: `"line"` and `"bar"`. A line plot shows individual data points and has smooth connecting lines between them to allow for easier scanning of values. You can opt for straight-line connections between data points, or, no connections at all (it's up to you). You can even eschew the data points and just have a simple line. The data you feed into a line plot can consist
-of a single list of values per cell (resulting in equally-spaced *y* values), you can you can supply two lists representative of *x* and *y* values (resulting in a scatter plot), or there could be a single value per cell (giving you a horizontal line plot).
-
-A bar plot is built a little bit differently. The focus is on evenly-spaced bars (requiring a single vector of values) that project from a zero line, clearly showing the difference between positive and negative values. Horizontal bar plots are also possible, just have a single numeric value per cell.
+- interactivity: you can hover over data and other elements to show values
+- choice of line and bar charting
+- you can annotate plots with a reference line and/or area
+- plenty of easy-to-use options for composing your plots
 
 ## A simple line-based nanoplot
 
-Let's make some simple plots with a Polars DataFrame. Here we are using lists to define data values for each cell in the `numbers` column. The `.fmt_nanoplot()` method understands that these are input values for a line plot. This will look a lot like the familiar sparklines you see in Excel and other places where space for plots is limited. The input values can be considered *y* values and they are evenly spaced along the imaginary *x* axis.
+Let's make some simple plots with a Polars DataFrame. Here we are using lists to define data values for each cell in the `numbers` column. The `.fmt_nanoplot()` method understands that these are input values for a line plot.
+
+
 
 ```{python}
 from great_tables import GT
@@ -36,7 +36,14 @@ random_numbers_df = pl.DataFrame(
 GT(random_numbers_df).fmt_nanoplot(columns="numbers")
 ```
 
-Hovering over (or touching) the values is something of a treat! You'll see the data point values rendered in a compact way. Hovering over the the left of the nanoplot will show you the *y*-axis scale.
+This looks a lot like the familiar sparklines you might see in tables where space for plots is limited. The input values, strings of space-separated values, can be considered here as *y* values and they are evenly spaced along the imaginary *x* axis.
+
+Hovering over (or touching) the values is something of a treat! You might notice that:
+
+- data values are automatically formatted for you in a compact fashion
+- the plot elements also display pertinent values
+
+This sort of interactively is baked into the rendered SVG graphics that `.fmt_nanoplot()` generates from your data and selection of options.
 
 ## The reference line and the reference area
 
@@ -145,4 +152,44 @@ This, interestingly enough, works with the 'line' type of nanoplot. This looks a
 
 ```{python}
 GT(single_vals_df).fmt_nanoplot(columns="numbers")
+```
+
+## Line plots with paired *x* and *y* values
+
+Aside from a single stream of *y* values, we can plot pairs of *x* and *y* values. This works only for the `"line"` type of plot. We can set up a column of *Struct* values in a Polars DataFrame to have this input data prepared for `.fmt_nanoplot()`. Notice that the dictionary values in the enclosed list must have the `"x"` and `"y"` keys. Further to this, the list lengths for each of `x` and `y` must match (i.e., to make pairs of *x* and *y*).
+
+```{python}
+weather_2 = pl.DataFrame(
+    {
+        "station": ["Station " + str(x) for x in range(1, 4)],
+        "temperatures": [
+            {
+                "x": [6, 8, 10, 10.5, 11, 12, 13.1, 15],
+                "y": [24.2, 28.2, 30.2, 30.5, 30.5, 33.1, 33.5, 32.7]
+            },
+            {
+                "x": [7, 8, 10.3, 10.75, 11, 12.5, 13.5, 14],
+                "y": [18.2, 18.1, 20.3, 20.5, 21.4, 21.9, 23.1, 23.3]
+            },
+            {
+                "x": [6, 7, 10, 11, 12, 13.1, 15, 16],
+                "y": [15.2, 17.77, 21.42, 21.63, 25.23, 26.84, 27.2, 27.44]
+            },
+        ]
+    }
+)
+
+(
+    GT(weather_2)
+    .fmt_nanoplot(
+        columns="temperatures",
+        plot_type="line",
+        expand_x=[5, 16],
+        expand_y=[10, 40],
+        options=nanoplot_options(
+            show_data_area=False,
+            show_data_line=False
+        )
+    )
+)
 ```
