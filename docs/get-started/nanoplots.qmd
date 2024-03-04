@@ -45,6 +45,27 @@ Hovering over (or touching) the values is something of a treat! You might notice
 
 This sort of interactively is baked into the rendered SVG graphics that `.fmt_nanoplot()` generates from your data and selection of options.
 
+Polars lets us express 'lists-of-values-per-cell' in different ways and **Great Tables** is pretty good at understanding different column *dtypes*. So, you can alternatively create the same table as above with the following code.
+
+```python
+
+random_numbers_df = pl.DataFrame(
+    {
+        "example": ["Row " + str(x) for x in range(1, 5)],
+        "numbers": [
+            { "val": [20, 23, 6, 7, 37, 23, 21, 4, 7, 16] },
+            { "val": [2.3, 6.8, 9.2, 2.42, 3.5, 12.1, 5.3, 3.6, 7.2, 3.74] },
+            { "val": [-12, -5, 6, 3.7, 0, 8, -7.4] },
+            { "val": [2, 0, 15, 7, 8, 10, 1, 24, 17, 13, 6] },
+        ],
+    }
+)
+
+GT(random_numbers_df).fmt_nanoplot(columns="numbers")
+```
+
+Both forms of the `numbers` column look the same to `.fmt_nanoplot()` so the choice is yours on how you want to prepare those column values.
+
 ## The reference line and the reference area
 
 You can insert two additional things which may be useful: a reference line and a reference area. You can define them either through literal values or via keywords matching stat names.
