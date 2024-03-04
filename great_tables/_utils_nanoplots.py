@@ -604,8 +604,8 @@ def _generate_nanoplot(
     g_y_axis_tags = None
     g_guide_tags = None
 
-    # Initialize the `single_horizontal_bar` variable with `False`
-    single_horizontal_bar = False
+    # Initialize the `single_horizontal_plot` variable with `False`
+    single_horizontal_plot = False
 
     # If the number of `y` values in a list is zero or if all consist of NA values,
     # return an empty string
@@ -680,11 +680,11 @@ def _generate_nanoplot(
     else:
         num_y_vals = 1
 
-    # If `y_vals` is a scalar value we requested a 'bar' plot, then
+    # If `y_vals` is a scalar value we requested a 'line' or 'bar' plot, then
     # reset several parameters
-    if type(y_vals) in [int, float] and plot_type == "bar":
+    if type(y_vals) in [int, float] and plot_type in ["line", "bar"]:
 
-        single_horizontal_bar = True
+        single_horizontal_plot = True
         show_data_points = False
         show_data_line = False
         show_data_area = False
@@ -692,10 +692,6 @@ def _generate_nanoplot(
         show_ref_area = False
         show_vertical_guides = False
         show_y_axis_guide = False
-
-        y_vals = [y_vals]
-
-    if type(y_vals) in [int, float] and plot_type == "line":
 
         y_vals = [y_vals]
 
@@ -744,7 +740,7 @@ def _generate_nanoplot(
     # where `x_vals` aren't present, we'll adjust the final width based
     # on the fixed interval between data points (this is dependent on the
     # number of data points)
-    if x_vals is not None or single_horizontal_bar or plot_type == "boxplot":
+    if x_vals is not None or single_horizontal_plot or plot_type == "boxplot":
         data_x_width = 600
     else:
         # Obtain a sensible, fixed interval between data points in px
@@ -1131,7 +1127,7 @@ def _generate_nanoplot(
     # Generate data bars
     #
 
-    if plot_type == "bar" and single_horizontal_bar is False:
+    if plot_type == "bar" and single_horizontal_plot is False:
 
         bar_strings = []
 
@@ -1185,7 +1181,7 @@ def _generate_nanoplot(
     # Generate single horizontal data bars
     #
 
-    if plot_type == "bar" and single_horizontal_bar:
+    if plot_type == "bar" and single_horizontal_plot:
 
         # This type of display assumes there is only a single `y` value and there
         # are possibly several such horizontal bars across different rows that
@@ -1275,10 +1271,109 @@ def _generate_nanoplot(
 
         bar_tags = f'<rect x="{rect_x}" y="{bottom_y / 2 - bar_thickness / 2}" width="{rect_width}" height="{bar_thickness}" stroke="{data_bar_stroke_color}" stroke-width="{data_bar_stroke_width}" fill="{data_bar_fill_color}"></rect>'
 
-        stroke = "#BFBFBF"
-        stroke_width = 5
+        zero_line_tags = f'<line x1="{y0_width}" y1="{(bottom_y / 2) - (bar_thickness * 1.5)}" x2="{y0_width}" y2="{(bottom_y / 2) + (bar_thickness * 1.5)}" stroke="{zero_line_stroke_color}" stroke-width="{zero_line_stroke_width}"></line>'
 
-        zero_line_tags = f'<line x1="{y0_width}" y1="{(bottom_y / 2) - (bar_thickness * 1.5)}" x2="{y0_width}" y2="{(bottom_y / 2) + (bar_thickness * 1.5)}" stroke="{stroke}" stroke-width="{stroke_width}"></line>'
+        # Redefine the `viewbox` in terms of the `data_x_width` value; this ensures
+        # that the horizontal bars are centered about their extreme values
+        viewbox = f"{left_x} {top_y} {data_x_width} {bottom_y}"
+
+    #
+    # Generate single horizontal data lines
+    #
+
+    # TODO: Make this a line with a single point
+    if plot_type == "line" and single_horizontal_plot:
+
+        # This type of display assumes there is only a single `y` value and there
+        # are possibly several such horizontal bars across different rows that
+        # need to be on a common scale
+
+        data_point_radius_i = data_point_radius[0]
+        data_point_stroke_color_i = data_point_stroke_color[0]
+        data_point_stroke_width_i = data_point_stroke_width[0]
+        data_point_fill_color_i = data_point_fill_color[0]
+
+        bar_thickness = data_point_radius[0] * 4
+
+        if all(val == 0 for val in all_single_y_vals):
+
+            # Handle case where all values across rows are `0`
+
+            y_proportion = 0.5
+            y_proportion_zero = 0.5
+
+        else:
+
+            # Scale to proportional values
+            y_proportions_list = _normalize_to_dict(val=y_vals, all_vals=all_single_y_vals, zero=0)
+
+            y_proportion = y_proportions_list["val"][0]
+            y_proportion_zero = y_proportions_list["zero"][0]
+
+        y0_width = y_proportion_zero * data_x_width
+        y_width = y_proportion * data_x_width
+
+        if y_vals[0] < 0:
+
+            x1_val = y_width
+            x2_val = y0_width
+
+            circle_x_val = x1_val
+
+        elif y_vals[0] > 0:
+
+            x1_val = y0_width
+            x2_val = y_width
+
+            circle_x_val = x2_val
+
+        elif y_vals[0] == 0:
+
+            x1_val = y_width
+            x2_val = y0_width
+
+            circle_x_val = x2_val
+
+        # Format number compactly
+        y_value = _format_number_compactly(
+            val=y_vals[0], currency=currency, as_integer=y_vals_integerlike, fn=y_val_fmt_fn
+        )
+
+        rect_strings = f'<rect x="0" y="{bottom_y / 2 - bar_thickness / 2}" width="600" height="{bar_thickness}" stroke="transparent" stroke-width="{vertical_guide_stroke_width}" fill="transparent"></rect>'
+
+        if y_vals[0] > 0:
+
+            text_strings = f'<text x="{y0_width + 10}" y="{safe_y_d + 10}" fill="transparent" stroke="transparent" font-size="30px">{y_value}</text>'
+
+        elif y_vals[0] < 0:
+
+            text_strings = f'<text x="{y0_width - 10}" y="{safe_y_d + 10}" fill="transparent" stroke="transparent" font-size="30px" text-anchor="end">{y_value}</text>'
+
+        elif y_vals[0] == 0:
+
+            if all(val == 0 for val in all_single_y_vals):
+
+                text_anchor = "start"
+                x_position_text = y0_width + 10
+
+            elif all(val < 0 for val in all_single_y_vals):
+
+                text_anchor = "end"
+                x_position_text = y0_width - 10
+
+            else:
+                text_anchor = "start"
+                x_position_text = y0_width + 15
+
+            text_strings = f'<text x="{x_position_text}" y="{bottom_y / 2 + 10}" fill="transparent" stroke="transparent" font-size="30px" text-anchor="{text_anchor}">{y_value}</text>'
+
+        g_guide_tags = f'<g class="horizontal-line">{rect_strings}{text_strings}</g>'
+
+        data_path_tags = f'<line x1="{x1_val}" y1="{bottom_y / 2}" x2="{x2_val}" y2="{bottom_y / 2}" stroke="{data_line_stroke_color}" stroke-width="{data_line_stroke_width}"></line>'
+
+        circle_tags = f'<circle cx="{circle_x_val}" cy="{bottom_y / 2}" r="{data_point_radius_i}" stroke="{data_point_stroke_color_i}" stroke-width="{data_point_stroke_width_i}" fill="{data_point_fill_color_i}"></circle>'
+
+        zero_line_tags = f'<line x1="{y0_width}" y1="{(bottom_y / 2) - (bar_thickness * 1.5)}" x2="{y0_width}" y2="{(bottom_y / 2) + (bar_thickness * 1.5)}" stroke="{zero_line_stroke_color}" stroke-width="{zero_line_stroke_width}"></line>'
 
         # Redefine the `viewbox` in terms of the `data_x_width` value; this ensures
         # that the horizontal bars are centered about their extreme values
@@ -1292,15 +1387,12 @@ def _generate_nanoplot(
         pass
 
     #
-    # Generate zero line for bar plots
+    # Generate zero line for vertical bar plots
     #
 
-    if plot_type == "bar" and single_horizontal_bar is False:
+    if plot_type == "bar" and single_horizontal_plot is False:
 
-        stroke = "#BFBFBF"
-        stroke_width = 2
-
-        zero_line_tags = f'<line x1="{data_x_points[0] - 27.5}" y1="{data_y0_point}" x2="{data_x_points[-1] + 27.5}" y2="{data_y0_point}" stroke="{stroke}" stroke-width="{stroke_width}"></line>'
+        zero_line_tags = f'<line x1="{data_x_points[0] - 27.5}" y1="{data_y0_point}" x2="{data_x_points[-1] + 27.5}" y2="{data_y0_point}" stroke="{zero_line_stroke_color}" stroke-width="{zero_line_stroke_width}"></line>'
 
     #
     # Generate reference line
