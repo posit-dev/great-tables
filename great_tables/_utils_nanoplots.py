@@ -583,6 +583,8 @@ def _generate_nanoplot(
         lst=["curved", "straight"],
     )
 
+    zero_line_considered = True if plot_type in ["bar", "boxplot"] else False
+
     # Initialize several local `*_tags` variables with `None`
     ref_area_tags = None
     area_path_tags = None
