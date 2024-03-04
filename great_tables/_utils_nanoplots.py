@@ -583,7 +583,14 @@ def _generate_nanoplot(
         lst=["curved", "straight"],
     )
 
+    #
+    # Determine where a zero line is considered and provide the stroke color and width
+    #
+
     zero_line_considered = True if plot_type in ["bar", "boxplot"] else False
+
+    zero_line_stroke_color = "#BFBFBF"
+    zero_line_stroke_width = 4
 
     # Initialize several local `*_tags` variables with `None`
     ref_area_tags = None
