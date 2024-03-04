@@ -692,8 +692,8 @@ def _generate_nanoplot(
     if type(y_vals) in [int, float] and plot_type in ["line", "bar"]:
 
         single_horizontal_plot = True
-        show_data_points = False
-        show_data_line = False
+        show_data_points = True
+        show_data_line = True
         show_data_area = False
         show_ref_line = False
         show_ref_area = False
