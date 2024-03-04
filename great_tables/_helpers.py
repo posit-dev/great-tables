@@ -785,13 +785,13 @@ def nanoplot_options(
     vertical_guide_stroke_color = vertical_guide_stroke_color or "#911EB4"
     vertical_guide_stroke_width = vertical_guide_stroke_width or 12
 
-    show_data_points = show_data_points or True
-    show_data_line = show_data_line or True
-    show_data_area = show_data_area or True
-    show_reference_line = show_reference_line or True
-    show_reference_area = show_reference_area or True
-    show_vertical_guides = show_vertical_guides or True
-    show_y_axis_guide = show_y_axis_guide or True
+    show_data_points = True if show_data_points is None else show_data_points
+    show_data_line = True if show_data_line is None else show_data_line
+    show_data_area = True if show_data_area is None else show_data_area
+    show_reference_line = True if show_reference_line is None else show_reference_line
+    show_reference_area = True if show_reference_area is None else show_reference_area
+    show_vertical_guides = True if show_vertical_guides is None else show_vertical_guides
+    show_y_axis_guide = True if show_y_axis_guide is None else show_y_axis_guide
 
     interactive_data_values = interactive_data_values or True
 
