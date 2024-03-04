@@ -829,28 +829,20 @@ def _generate_nanoplot(
         )
 
         # Scale to proportional values
-        if zero_line_considered:
-            y_proportions_list = _normalize_to_dict(
-                vals=y_vals,
-                ref_line=y_ref_line,
-                ref_area_l=y_ref_area_l,
-                ref_area_u=y_ref_area_u,
-                zero=0,
-                expand_y=expand_y,
-            )
-        else:
-            y_proportions_list = _normalize_to_dict(
-                vals=y_vals,
-                ref_line=y_ref_line,
-                ref_area_l=y_ref_area_l,
-                ref_area_u=y_ref_area_u,
-                expand_y=expand_y,
-            )
+        y_proportions_list = _normalize_to_dict(
+            vals=y_vals,
+            ref_line=y_ref_line,
+            ref_area_l=y_ref_area_l,
+            ref_area_u=y_ref_area_u,
+            zero=0 if zero_line_considered else None,
+            expand_y=expand_y,
+        )
 
         y_proportions = y_proportions_list["vals"]
         y_proportion_ref_line = y_proportions_list["ref_line"][0]
         y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
         y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
+
         if zero_line_considered:
             y_proportions_zero = y_proportions_list["zero"][0]
 
@@ -871,25 +863,21 @@ def _generate_nanoplot(
             y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
 
         # Recompute the `y` scale min and max values
-        if zero_line_considered:
-            y_scale_max = _get_extreme_value(y_vals, y_ref_line, 0, expand_y, stat="max")
-            y_scale_min = _get_extreme_value(y_vals, y_ref_line, 0, expand_y, stat="min")
-        else:
-            y_scale_max = _get_extreme_value(y_vals, y_ref_line, expand_y, stat="max")
-            y_scale_min = _get_extreme_value(y_vals, y_ref_line, expand_y, stat="min")
+        args = [y_vals, y_ref_line, expand_y] + ([0] if zero_line_considered else [])
+        y_scale_max = _get_extreme_value(*args, stat="max")
+        y_scale_min = _get_extreme_value(*args, stat="min")
 
         # Scale to proportional values
-        if zero_line_considered:
-            y_proportions_list = _normalize_to_dict(
-                vals=y_vals, ref_line=y_ref_line, zero=0, expand_y=expand_y
-            )
-        else:
-            y_proportions_list = _normalize_to_dict(
-                vals=y_vals, ref_line=y_ref_line, expand_y=expand_y
-            )
+        y_proportions_list = _normalize_to_dict(
+            vals=y_vals,
+            ref_line=y_ref_line,
+            zero=0 if zero_line_considered else None,
+            expand_y=expand_y,
+        )
 
         y_proportions = y_proportions_list["vals"]
         y_proportion_ref_line = y_proportions_list["ref_line"][0]
+
         if zero_line_considered:
             y_proportions_zero = y_proportions_list["zero"][0]
 
@@ -906,6 +894,7 @@ def _generate_nanoplot(
 
             if _val_is_numeric(y_ref_area_1):
                 y_ref_area_line_1 = y_ref_area_1
+
             if _val_is_numeric(y_ref_area_2):
                 y_ref_area_line_2 = y_ref_area_2
 
@@ -923,38 +912,26 @@ def _generate_nanoplot(
             y_ref_area_u = y_ref_area_lines_sorted[1]
 
         # Recompute the `y` scale min and max values
-        if zero_line_considered:
-            y_scale_max = _get_extreme_value(
-                y_vals, y_ref_area_l, y_ref_area_u, 0, expand_y, stat="max"
-            )
-            y_scale_min = _get_extreme_value(
-                y_vals, y_ref_area_l, y_ref_area_u, 0, expand_y, stat="min"
-            )
-        else:
-            y_scale_max = _get_extreme_value(
-                y_vals, y_ref_area_l, y_ref_area_u, expand_y, stat="max"
-            )
-            y_scale_min = _get_extreme_value(
-                y_vals, y_ref_area_l, y_ref_area_u, expand_y, stat="min"
-            )
 
-        # Scale to proportional values
-        if zero_line_considered:
-            y_proportions_list = _normalize_to_dict(
-                vals=y_vals,
-                ref_area_l=y_ref_area_l,
-                ref_area_u=y_ref_area_u,
-                zero=0,
-                expand_y=expand_y,
-            )
-        else:
-            y_proportions_list = _normalize_to_dict(
-                vals=y_vals, ref_area_l=y_ref_area_l, ref_area_u=y_ref_area_u, expand_y=expand_y
-            )
+        # Recompute the `y` scale min and max values
+        args = [y_vals, y_ref_area_l, y_ref_area_u, expand_y] + (
+            [0] if zero_line_considered else []
+        )
+        y_scale_max = _get_extreme_value(*args, stat="max")
+        y_scale_min = _get_extreme_value(*args, stat="min")
+
+        y_proportions_list = _normalize_to_dict(
+            vals=y_vals,
+            ref_area_l=y_ref_area_l,
+            ref_area_u=y_ref_area_u,
+            zero=0 if zero_line_considered else None,
+            expand_y=expand_y,
+        )
 
         y_proportions = y_proportions_list["vals"]
         y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
         y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
+
         if zero_line_considered:
             y_proportions_zero = y_proportions_list["zero"][0]
 
@@ -967,24 +944,22 @@ def _generate_nanoplot(
         # Case where there is no reference line or reference area
 
         # Recompute the `y` scale min and max values
-        if zero_line_considered:
-            y_scale_max = _get_extreme_value(y_vals, 0, expand_y, stat="max")
-            y_scale_min = _get_extreme_value(y_vals, 0, expand_y, stat="min")
-        else:
-            y_scale_max = _get_extreme_value(y_vals, expand_y, stat="max")
-            y_scale_min = _get_extreme_value(y_vals, expand_y, stat="min")
+        args = [y_vals, expand_y] + ([0] if zero_line_considered else [])
+        y_scale_max = _get_extreme_value(*args, stat="max")
+        y_scale_min = _get_extreme_value(*args, stat="min")
 
-        # Scale to proportional values
-        if zero_line_considered:
-            y_proportions_list = _normalize_to_dict(vals=y_vals, zero=0, expand_y=expand_y)
-        else:
-            y_proportions_list = _normalize_to_dict(vals=y_vals, expand_y=expand_y)
+        y_proportions_list = _normalize_to_dict(
+            vals=y_vals,
+            zero=0 if zero_line_considered else None,
+            expand_y=expand_y,
+        )
 
         y_proportions = y_proportions_list["vals"]
+
         if zero_line_considered:
             y_proportions_zero = y_proportions_list["zero"][0]
 
-    # Only calculated for zero-line-inclusive plots
+    # Calculate the `data_y0_point` value for zero-line-inclusive plots
     if zero_line_considered:
         data_y0_point = safe_y_d + ((1 - y_proportions_zero) * data_y_height)
 
