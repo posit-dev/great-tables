@@ -697,8 +697,8 @@ def _generate_nanoplot(
         show_data_area = False
         show_ref_line = False
         show_ref_area = False
-        show_vertical_guides = False
-        show_y_axis_guide = True
+        show_vertical_guides = True
+        show_y_axis_guide = False
 
         y_vals = [y_vals]
 
