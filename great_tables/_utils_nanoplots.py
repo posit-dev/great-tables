@@ -777,60 +777,68 @@ def _generate_nanoplot(
     # so that there are normalized values in relation to the data points
     #
 
-    if plot_type == "line":
+    if show_ref_line and show_ref_area:
 
-        if show_ref_line and show_ref_area:
+        # Case where there is both a reference line and a reference area
 
-            # Case where there is both a reference line and a reference area
+        #
+        # Resolve the reference line
+        #
 
-            #
-            # Resolve the reference line
-            #
+        if (
+            y_ref_line is not None
+            and _val_is_str(y_ref_line)
+            and y_ref_line in REFERENCE_LINE_KEYWORDS
+        ):
+            y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
 
-            if (
-                y_ref_line is not None
-                and _val_is_str(y_ref_line)
-                and y_ref_line in REFERENCE_LINE_KEYWORDS
-            ):
-                y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
+        #
+        # Resolve the reference area
+        #
 
-            #
-            # Resolve the reference area
-            #
+        if y_ref_area is not None:
+            y_ref_area_1 = y_ref_area[0]
+            y_ref_area_2 = y_ref_area[1]
 
-            if y_ref_area is not None:
-                y_ref_area_1 = y_ref_area[0]
-                y_ref_area_2 = y_ref_area[1]
+            if _val_is_numeric(y_ref_area_1):
+                y_ref_area_line_1 = y_ref_area_1
 
-                if _val_is_numeric(y_ref_area_1):
-                    y_ref_area_line_1 = y_ref_area_1
+            if _val_is_numeric(y_ref_area_2):
+                y_ref_area_line_2 = y_ref_area_2
 
-                if _val_is_numeric(y_ref_area_2):
-                    y_ref_area_line_2 = y_ref_area_2
+            if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
+                y_ref_area_line_1 = _generate_ref_line_from_keyword(
+                    vals=y_vals, keyword=y_ref_area_1
+                )
 
-                if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
-                    y_ref_area_line_1 = _generate_ref_line_from_keyword(
-                        vals=y_vals, keyword=y_ref_area_1
-                    )
+            if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
+                y_ref_area_line_2 = _generate_ref_line_from_keyword(
+                    vals=y_vals, keyword=y_ref_area_2
+                )
 
-                if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
-                    y_ref_area_line_2 = _generate_ref_line_from_keyword(
-                        vals=y_vals, keyword=y_ref_area_2
-                    )
+            y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
+            y_ref_area_l = y_ref_area_lines_sorted[0]
+            y_ref_area_u = y_ref_area_lines_sorted[1]
 
-                y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
-                y_ref_area_l = y_ref_area_lines_sorted[0]
-                y_ref_area_u = y_ref_area_lines_sorted[1]
+        # Recompute the `y` scale min and max values
+        y_scale_max = _get_extreme_value(
+            y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="max"
+        )
+        y_scale_min = _get_extreme_value(
+            y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="min"
+        )
 
-            # Recompute the `y` scale min and max values
-            y_scale_max = _get_extreme_value(
-                y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="max"
+        # Scale to proportional values
+        if zero_line_considered:
+            y_proportions_list = _normalize_to_dict(
+                vals=y_vals,
+                ref_line=y_ref_line,
+                ref_area_l=y_ref_area_l,
+                ref_area_u=y_ref_area_u,
+                zero=0,
+                expand_y=expand_y,
             )
-            y_scale_min = _get_extreme_value(
-                y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="min"
-            )
-
-            # Scale to proportional values
+        else:
             y_proportions_list = _normalize_to_dict(
                 vals=y_vals,
                 ref_line=y_ref_line,
@@ -839,71 +847,90 @@ def _generate_nanoplot(
                 expand_y=expand_y,
             )
 
-            y_proportions = y_proportions_list["vals"]
-            y_proportion_ref_line = y_proportions_list["ref_line"][0]
-            y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
-            y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
+        y_proportions = y_proportions_list["vals"]
+        y_proportion_ref_line = y_proportions_list["ref_line"][0]
+        y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
+        y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
+        if zero_line_considered:
+            y_proportions_zero = y_proportions_list["zero"][0]
 
-            # Scale reference line and reference area boundaries
-            data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
-            data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
-            data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
+        # Scale reference line and reference area boundaries
+        data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
+        data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
+        data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
 
-        elif show_ref_line:
+    elif show_ref_line:
 
-            # Case where there is a reference line
-            if (
-                y_ref_line is not None
-                and _val_is_str(y_ref_line)
-                and y_ref_line in REFERENCE_LINE_KEYWORDS
-            ):
-                y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
+        # Case where there is a reference line
 
-            # Recompute the `y` scale min and max values
+        if (
+            y_ref_line is not None
+            and _val_is_str(y_ref_line)
+            and y_ref_line in REFERENCE_LINE_KEYWORDS
+        ):
+            y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
+
+        # Recompute the `y` scale min and max values
+        if zero_line_considered:
+            y_scale_max = _get_extreme_value(y_vals, y_ref_line, 0, expand_y, stat="max")
+            y_scale_min = _get_extreme_value(y_vals, y_ref_line, 0, expand_y, stat="min")
+        else:
             y_scale_max = _get_extreme_value(y_vals, y_ref_line, expand_y, stat="max")
             y_scale_min = _get_extreme_value(y_vals, y_ref_line, expand_y, stat="min")
 
-            # Scale to proportional values
+        # Scale to proportional values
+        if zero_line_considered:
+            y_proportions_list = _normalize_to_dict(
+                vals=y_vals, ref_line=y_ref_line, zero=0, expand_y=expand_y
+            )
+        else:
             y_proportions_list = _normalize_to_dict(
                 vals=y_vals, ref_line=y_ref_line, expand_y=expand_y
             )
 
-            y_proportions = y_proportions_list["vals"]
-            y_proportion_ref_line = y_proportions_list["ref_line"][0]
+        y_proportions = y_proportions_list["vals"]
+        y_proportion_ref_line = y_proportions_list["ref_line"][0]
+        if zero_line_considered:
+            y_proportions_zero = y_proportions_list["zero"][0]
 
-            # Scale the reference line
-            data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
+        # Scale reference line
+        data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
 
-        elif show_ref_area:
+    elif show_ref_area:
 
-            # Case where there is a reference area
-            if y_ref_area is not None:
+        # Case where there is a reference area
 
-                # TODO: Validate input for `y_ref_area`
+        if y_ref_area is not None:
+            y_ref_area_1 = y_ref_area[0]
+            y_ref_area_2 = y_ref_area[1]
 
-                y_ref_area_1 = y_ref_area[0]
-                y_ref_area_2 = y_ref_area[1]
+            if _val_is_numeric(y_ref_area_1):
+                y_ref_area_line_1 = y_ref_area_1
+            if _val_is_numeric(y_ref_area_2):
+                y_ref_area_line_2 = y_ref_area_2
 
-                if _val_is_numeric(y_ref_area_1):
-                    y_ref_area_line_1 = y_ref_area_1
-                if _val_is_numeric(y_ref_area_2):
-                    y_ref_area_line_2 = y_ref_area_2
+            if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
+                y_ref_area_line_1 = _generate_ref_line_from_keyword(
+                    vals=y_vals, keyword=y_ref_area_1
+                )
+            if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
+                y_ref_area_line_2 = _generate_ref_line_from_keyword(
+                    vals=y_vals, keyword=y_ref_area_2
+                )
 
-                if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
-                    y_ref_area_line_1 = _generate_ref_line_from_keyword(
-                        vals=y_vals, keyword=y_ref_area_1
-                    )
+            y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
+            y_ref_area_l = y_ref_area_lines_sorted[0]
+            y_ref_area_u = y_ref_area_lines_sorted[1]
 
-                if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
-                    y_ref_area_line_2 = _generate_ref_line_from_keyword(
-                        vals=y_vals, keyword=y_ref_area_2
-                    )
-
-                y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
-                y_ref_area_l = y_ref_area_lines_sorted[0]
-                y_ref_area_u = y_ref_area_lines_sorted[1]
-
-            # Recompute the `y` scale min and max values
+        # Recompute the `y` scale min and max values
+        if zero_line_considered:
+            y_scale_max = _get_extreme_value(
+                y_vals, y_ref_area_l, y_ref_area_u, 0, expand_y, stat="max"
+            )
+            y_scale_min = _get_extreme_value(
+                y_vals, y_ref_area_l, y_ref_area_u, 0, expand_y, stat="min"
+            )
+        else:
             y_scale_max = _get_extreme_value(
                 y_vals, y_ref_area_l, y_ref_area_u, expand_y, stat="max"
             )
@@ -911,207 +938,54 @@ def _generate_nanoplot(
                 y_vals, y_ref_area_l, y_ref_area_u, expand_y, stat="min"
             )
 
-            # Scale to proportional values
+        # Scale to proportional values
+        if zero_line_considered:
+            y_proportions_list = _normalize_to_dict(
+                vals=y_vals,
+                ref_area_l=y_ref_area_l,
+                ref_area_u=y_ref_area_u,
+                zero=0,
+                expand_y=expand_y,
+            )
+        else:
             y_proportions_list = _normalize_to_dict(
                 vals=y_vals, ref_area_l=y_ref_area_l, ref_area_u=y_ref_area_u, expand_y=expand_y
             )
 
-            y_proportions = y_proportions_list["vals"]
-            y_proportions_ref_area_l = y_proportions_list["ref_area_l"]
-            y_proportions_ref_area_u = y_proportions_list["ref_area_u"]
+        y_proportions = y_proportions_list["vals"]
+        y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
+        y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
+        if zero_line_considered:
+            y_proportions_zero = y_proportions_list["zero"][0]
 
-            # Scale reference area boundaries
-            data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l[0]) * data_y_height)
-            data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u[0]) * data_y_height)
+        # Scale reference area boundaries
+        data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
+        data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
 
+    else:
+
+        # Case where there is no reference line or reference area
+
+        # Recompute the `y` scale min and max values
+        if zero_line_considered:
+            y_scale_max = _get_extreme_value(y_vals, 0, expand_y, stat="max")
+            y_scale_min = _get_extreme_value(y_vals, 0, expand_y, stat="min")
         else:
-
-            # Case where there is no reference line or reference area
-
-            # Recompute the `y` scale min and max values
             y_scale_max = _get_extreme_value(y_vals, expand_y, stat="max")
             y_scale_min = _get_extreme_value(y_vals, expand_y, stat="min")
 
-            # Scale to proportional values
+        # Scale to proportional values
+        if zero_line_considered:
+            y_proportions_list = _normalize_to_dict(vals=y_vals, zero=0, expand_y=expand_y)
+        else:
             y_proportions_list = _normalize_to_dict(vals=y_vals, expand_y=expand_y)
 
-            y_proportions = y_proportions_list["vals"]
-
-    # TODO: Handle the case where `plot_type` is 'bar' or 'boxplot'
-    if plot_type == "bar" or plot_type == "boxplot":
-
-        if show_ref_line and show_ref_area:
-
-            # Case where there is both a reference line and a reference area
-
-            #
-            # Resolve the reference line
-            #
-
-            if (
-                y_ref_line is not None
-                and _val_is_str(y_ref_line)
-                and y_ref_line in REFERENCE_LINE_KEYWORDS
-            ):
-
-                y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
-
-            #
-            # Resolve the reference area
-            #
-
-            if y_ref_area is not None:
-
-                # TODO: Validate input for `y_ref_area`
-
-                y_ref_area_1 = y_ref_area[0]
-                y_ref_area_2 = y_ref_area[1]
-
-                if _val_is_numeric(y_ref_area_1):
-                    y_ref_area_line_1 = y_ref_area_1
-                if _val_is_numeric(y_ref_area_2):
-                    y_ref_area_line_2 = y_ref_area_2
-
-                if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
-                    y_ref_area_line_1 = _generate_ref_line_from_keyword(
-                        vals=y_vals, keyword=y_ref_area_1
-                    )
-
-                if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
-                    y_ref_area_line_2 = _generate_ref_line_from_keyword(
-                        vals=y_vals, keyword=y_ref_area_2
-                    )
-
-                y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
-                y_ref_area_l = y_ref_area_lines_sorted[0]
-                y_ref_area_u = y_ref_area_lines_sorted[1]
-
-            # Recompute the `y` scale min and max values
-            y_scale_max = _get_extreme_value(
-                y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="max"
-            )
-            y_scale_min = _get_extreme_value(
-                y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="min"
-            )
-
-            # Scale to proportional values
-            y_proportions_list = _normalize_to_dict(
-                vals=y_vals,
-                ref_line=y_ref_line,
-                ref_area_l=y_ref_area_l,
-                ref_area_u=y_ref_area_u,
-                zero=0,
-                expand_y=expand_y,
-            )
-
-            y_proportions = y_proportions_list["vals"]
-            y_proportion_ref_line = y_proportions_list["ref_line"][0]
-            y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
-            y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
+        y_proportions = y_proportions_list["vals"]
+        if zero_line_considered:
             y_proportions_zero = y_proportions_list["zero"][0]
 
-            # Scale reference line and reference area boundaries
-            data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
-            data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
-            data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
-
-        elif show_ref_line:
-
-            # Case where there is a reference line
-
-            if (
-                y_ref_line is not None
-                and _val_is_str(y_ref_line)
-                and y_ref_line in REFERENCE_LINE_KEYWORDS
-            ):
-
-                y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
-
-            # Recompute the `y` scale min and max values
-            y_scale_max = _get_extreme_value(y_vals, y_ref_line, 0, expand_y, stat="max")
-            y_scale_min = _get_extreme_value(y_vals, y_ref_line, 0, expand_y, stat="min")
-
-            # Scale to proportional values
-            y_proportions_list = _normalize_to_dict(
-                vals=y_vals, ref_line=y_ref_line, zero=0, expand_y=expand_y
-            )
-
-            y_proportions = y_proportions_list["vals"]
-            y_proportion_ref_line = y_proportions_list["ref_line"][0]
-            y_proportions_zero = y_proportions_list["zero"][0]
-
-            # Scale reference line
-            data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
-
-        elif show_ref_area:
-
-            # Case where there is a reference area
-
-            if y_ref_area is not None:
-
-                # TODO: Validate input for `y_ref_area`
-
-                y_ref_area_1 = y_ref_area[0]
-                y_ref_area_2 = y_ref_area[1]
-
-                if _val_is_numeric(y_ref_area_1):
-                    y_ref_area_line_1 = y_ref_area_1
-                if _val_is_numeric(y_ref_area_2):
-                    y_ref_area_line_2 = y_ref_area_2
-
-                if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
-                    y_ref_area_line_1 = _generate_ref_line_from_keyword(
-                        vals=y_vals, keyword=y_ref_area_1
-                    )
-                if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
-                    y_ref_area_line_2 = _generate_ref_line_from_keyword(
-                        vals=y_vals, keyword=y_ref_area_2
-                    )
-
-                y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
-                y_ref_area_l = y_ref_area_lines_sorted[0]
-                y_ref_area_u = y_ref_area_lines_sorted[1]
-
-            # Recompute the `y` scale min and max values
-            y_scale_max = _get_extreme_value(
-                y_vals, y_ref_area_l, y_ref_area_u, 0, expand_y, stat="max"
-            )
-            y_scale_min = _get_extreme_value(
-                y_vals, y_ref_area_l, y_ref_area_u, 0, expand_y, stat="min"
-            )
-
-            # Scale to proportional values
-            y_proportions_list = _normalize_to_dict(
-                vals=y_vals,
-                ref_area_l=y_ref_area_l,
-                ref_area_u=y_ref_area_u,
-                zero=0,
-                expand_y=expand_y,
-            )
-
-            y_proportions = y_proportions_list["vals"]
-            y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
-            y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
-            y_proportions_zero = y_proportions_list["zero"][0]
-
-            # Scale reference area boundaries
-            data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
-            data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
-
-        else:
-
-            # Case where there is no reference line or reference area
-
-            # Recompute the `y` scale min and max values
-            y_scale_max = _get_extreme_value(y_vals, 0, expand_y, stat="max")
-            y_scale_min = _get_extreme_value(y_vals, 0, expand_y, stat="min")
-
-            # Scale to proportional values
-            y_proportions_list = _normalize_to_dict(vals=y_vals, zero=0, expand_y=expand_y)
-
-            y_proportions = y_proportions_list["vals"]
-            y_proportions_zero = y_proportions_list["zero"][0]
-
+    # Only calculated for zero-line-inclusive plots
+    if zero_line_considered:
         data_y0_point = safe_y_d + ((1 - y_proportions_zero) * data_y_height)
 
     # If x values are present then normalize them between [0, 1]; if
