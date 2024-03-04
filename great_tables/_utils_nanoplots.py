@@ -1134,7 +1134,11 @@ def _generate_nanoplot(
 
         x_proportions = np.linspace(0, 1, num_y_vals)
 
-    # Create normalized (and inverted for SVG) data `x` and `y` values
+    #
+    # Create normalized (and inverted for SVG) data `x` and `y` values for the
+    # plot area; these are named `data_x_points` and `data_y_points`
+    #
+
     for i in range(len(y_proportions)):
         y_proportions[i] = safe_y_d + ((1 - y_proportions[i]) * data_y_height)
 
