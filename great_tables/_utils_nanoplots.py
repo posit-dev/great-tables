@@ -1121,8 +1121,7 @@ def _generate_nanoplot(
 
         if expand_x is not None and _val_is_str(expand_x):
 
-            # Assume that string values are dates and convert them to
-            # timestamps
+            # Assume that string values are dates and convert them to timestamps
             expand_x = pd.to_datetime(expand_x, utc=True).timestamp()
 
         # Scale to proportional values
@@ -1131,7 +1130,6 @@ def _generate_nanoplot(
         x_proportions = x_proportions_list["vals"]
 
     else:
-
         x_proportions = np.linspace(0, 1, num_y_vals)
 
     #
