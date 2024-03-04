@@ -524,6 +524,7 @@ def _construct_nanoplot_svg(
     ref_area_tags = "" if ref_area_tags is None or show_ref_area is False else ref_area_tags
     area_path_tags = "" if area_path_tags is None or show_data_area is False else area_path_tags
     data_path_tags = "" if data_path_tags is None or show_data_line is False else data_path_tags
+    zero_line_tags = "" if zero_line_tags is None else zero_line_tags
     bar_tags = "" if bar_tags is None else bar_tags
     ref_line_tags = "" if ref_line_tags is None or show_ref_line is False else ref_line_tags
     circle_tags = "" if circle_tags is None or show_data_points is False else circle_tags
