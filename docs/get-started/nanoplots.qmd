@@ -13,9 +13,7 @@ Nanoplots are tiny plots you can use in your table. They are simple by design, m
 
 ## A simple line-based nanoplot
 
-Let's make some simple plots with a Polars DataFrame. Here we are using lists to define data values for each cell in the `numbers` column. The `.fmt_nanoplot()` method understands that these are input values for a line plot.
-
-
+Let's make some simple plots with a Polars DataFrame. Here we are using lists to define data values for each cell in the `numbers` column. The [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) method understands that these are input values for a line plot (the default type of nanoplot).
 
 ```{python}
 from great_tables import GT
@@ -43,12 +41,11 @@ Hovering over (or touching) the values is something of a treat! You might notice
 - data values are automatically formatted for you in a compact fashion
 - the plot elements also display pertinent values
 
-This sort of interactively is baked into the rendered SVG graphics that `.fmt_nanoplot()` generates from your data and selection of options.
+This sort of interactively is baked into the rendered SVG graphics that [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) generates from your data and selection of options.
 
 Polars lets us express 'lists-of-values-per-cell' in different ways and **Great Tables** is pretty good at understanding different column *dtypes*. So, you can alternatively create the same table as above with the following code.
 
 ```python
-
 random_numbers_df = pl.DataFrame(
     {
         "example": ["Row " + str(x) for x in range(1, 5)],
@@ -64,13 +61,11 @@ random_numbers_df = pl.DataFrame(
 GT(random_numbers_df).fmt_nanoplot(columns="numbers")
 ```
 
-Both forms of the `numbers` column look the same to `.fmt_nanoplot()` so the choice is yours on how you want to prepare those column values.
+Both forms of the `numbers` column in the two DataFrames look the same to [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`). The key for the list of values (here, `"val"`) can be anything as long as it's repeated down the column. So the choice is yours on how you want to prepare those column values.
 
 ## The reference line and the reference area
 
-You can insert two additional things which may be useful: a reference line and a reference area. You can define them either through literal values or via keywords matching stat names.
-
-Here's a reference line that corresponds to the mean datapoint value of each nanoplot:
+You can insert two additional things which may be useful: a reference line and a reference area. You can define them either through literal values or via keywords (these are: `"mean"`, `"median"`, `"min"`, `"max"`, `"q1"`, `"q3"`, `"first"`, or `"last"`). Here's a reference line that corresponds to the mean data value of each nanoplot:
 
 ```{python}
 GT(random_numbers_df).fmt_nanoplot(columns="numbers", reference_line="mean")
@@ -82,6 +77,8 @@ This example uses a reference area that bounds the minimum value to the median v
 GT(random_numbers_df).fmt_nanoplot(columns="numbers", reference_area=["min", "median"])
 ```
 
+As an added touch, you don't need to worry about the order of the keywords provided to `reference_area=` (which could be potentially problematic if providing a literal value and a keyword).
+
 ## Using `autoscale=` to have a common *y*-axis scale across plots
 
 There are lots of options. Like, if you want to ensure that the scale is shared across all of the nanoplots (so you can better get a sense of overall magnitude), you can set `autoscale=` to `True`:
@@ -90,11 +87,11 @@ There are lots of options. Like, if you want to ensure that the scale is shared 
 GT(random_numbers_df).fmt_nanoplot(columns="numbers", autoscale=True)
 ```
 
-If you hover along or touch the left side of any of the plots above, you'll see that each *y* scale runs from `-12.0` to `37.0`.
+If you hover along or touch the left side of any of the plots above, you'll see that each *y* scale runs from `-12.0` to `37.0`. Using `autoscale=True` is very useful if you want to compare the magnitudes of values across rows in addition to their trends. It won't, however, make much sense if the overall magnitudes of values vary wildly across rows (e.g., comparing changing currency values or stock prices over time).
 
-## Using the `nanoplot_options()` helper function
+## Using the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function
 
-There are many options for customization. You can radically change the look of a collection of nanoplots with the `nanoplot_options()` helper function.
+There are many options for customization. You can radically change the look of a collection of nanoplots with the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function. With that function, you invoke it in the `options=` argument of [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`). You can modify the sizes and colors of different elements, decide which elements are even present, and much more! Here's an example where a line-based nanoplot retains all of its elements, but the overall appearance is greatly altered.
 
 ```{python}
 from great_tables import nanoplot_options
@@ -118,17 +115,19 @@ from great_tables import nanoplot_options
 )
 ```
 
+As can be seen, you have a lot of fine-grained control over the look of a nanoplot.
+
 ## Making nanoplots with bars using `plot_type="bar"`
 
-We don't just have line plots. We also have the option to show bar plots. The major thing to change is the `plot_type=` argument.
+We don't just support line plots in [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`), we also have the option to show bar plots. The only thing you need to change is the value of `plot_type=` argument to `"bar"`:
 
 ```{python}
 GT(random_numbers_df).fmt_nanoplot(columns="numbers", plot_type="bar")
 ```
 
-A big difference between line plots and bar plots is that bars project from a zero line. Notice that some negative values in the bar-based nanoplot appear red and indeed radiate downward from the gray zero line.
+An important difference between line plots and bar plots is that the bars project from a zero line. Notice that some negative values in the bar-based nanoplot appear red and radiate downward from the gray zero line.
 
-Using `plot_type="bar"` still allows us to supply a reference line and a reference area with `reference_line=` and `reference_area=`. The `autoscale=` option works here as well. We also have a set of options just for nanoplot bar plots within `nanoplot_options()`. Here's an example where we use all of the aforementioned customization possibilities:
+Using `plot_type="bar"` still allows us to supply a reference line and a reference area with `reference_line=` and `reference_area=`. The `autoscale=` option works here as well. We also have a set of options just for bar plots available inside [`nanoplot_options()`](`great_tables.nanoplot_options`). Here's an example where we use all of the aforementioned customization possibilities:
 
 ```{python}
 (
@@ -156,7 +155,7 @@ Using `plot_type="bar"` still allows us to supply a reference line and a referen
 
 ## Horizontal bar and line plots
 
-Single-value bar plots, running in the horizontal direction, can be made by simply invoking `.fmt_nanoplot()` on a column of numeric values. These plots are meant for comparison across rows so the method automatically scales the horizontal bars to facilitate this type of display. Here's a simple example that uses `plot_type="bar"` on the `numbers` column that contains a single numeric value in every cell.
+Single-value bar plots, running in the horizontal direction, can be made by simply invoking [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) on a column of numeric values. These plots are meant for comparison across rows so the method automatically scales the horizontal bars to facilitate this type of display. Here's a simple example that uses `plot_type="bar"` on the `numbers` column that contains a single numeric value in every cell.
 
 ```{python}
 single_vals_df = pl.DataFrame(
@@ -169,15 +168,17 @@ single_vals_df = pl.DataFrame(
 GT(single_vals_df).fmt_nanoplot(columns="numbers", plot_type="bar")
 ```
 
-This, interestingly enough, works with the 'line' type of nanoplot. This looks a bit like a lollipop plot.
+This, interestingly enough, works with the `"line"` type of nanoplot. The result is akin to a lollipop plot:
 
 ```{python}
 GT(single_vals_df).fmt_nanoplot(columns="numbers")
 ```
 
+You get to customize the line and the data point marker with the latter display of single values, and that's a plus. Nonetheless, it is more common to see horizontal bar plots in tables and the extra customization of negative values makes that form of presentation more advantageous.
+
 ## Line plots with paired *x* and *y* values
 
-Aside from a single stream of *y* values, we can plot pairs of *x* and *y* values. This works only for the `"line"` type of plot. We can set up a column of *Struct* values in a Polars DataFrame to have this input data prepared for `.fmt_nanoplot()`. Notice that the dictionary values in the enclosed list must have the `"x"` and `"y"` keys. Further to this, the list lengths for each of `x` and `y` must match (i.e., to make pairs of *x* and *y*).
+Aside from a single stream of *y* values, we can plot pairs of *x* and *y* values. This works only for the `"line"` type of plot. We can set up a column of *Struct* values in a Polars DataFrame to have this input data prepared for [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`). Notice that the dictionary values in the enclosed list must have the `"x"` and `"y"` keys. Further to this, the list lengths for each of `"x"` and `"y"` must match (i.e., to make valid pairs of *x* and *y*).
 
 ```{python}
 weather_2 = pl.DataFrame(
@@ -214,3 +215,5 @@ weather_2 = pl.DataFrame(
     )
 )
 ```
+
+The options for removing the *data area* and the *data line* (though the corresponding `show_*` arguments of [`nanoplot_options()`](`great_tables.nanoplot_options`)) make the finalized nanoplots look somewhat like scatter plots.
