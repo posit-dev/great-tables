@@ -521,14 +521,14 @@ def _construct_nanoplot_svg(
     """
 
     # For the optional strings, transform None to an empty string
-    ref_area_tags = "" if ref_area_tags is None else ref_area_tags
-    area_path_tags = "" if area_path_tags is None else area_path_tags
-    data_path_tags = "" if data_path_tags is None else data_path_tags
+    ref_area_tags = "" if ref_area_tags is None or show_ref_area is False else ref_area_tags
+    area_path_tags = "" if area_path_tags is None or show_data_area is False else area_path_tags
+    data_path_tags = "" if data_path_tags is None or show_data_line is False else data_path_tags
     bar_tags = "" if bar_tags is None else bar_tags
-    ref_line_tags = "" if ref_line_tags is None else ref_line_tags
-    circle_tags = "" if circle_tags is None else circle_tags
-    g_y_axis_tags = "" if g_y_axis_tags is None else g_y_axis_tags
-    g_guide_tags = "" if g_guide_tags is None else g_guide_tags
+    ref_line_tags = "" if ref_line_tags is None or show_ref_line is False else ref_line_tags
+    circle_tags = "" if circle_tags is None or show_data_points is False else circle_tags
+    g_y_axis_tags = "" if g_y_axis_tags is None or show_y_axis_guide is False else g_y_axis_tags
+    g_guide_tags = "" if g_guide_tags is None or show_vertical_guides is False else g_guide_tags
 
     return f'<div><svg role="img" viewBox="{viewbox}" style="height: {svg_height}; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;">{svg_defs}{svg_style}{ref_area_tags}{area_path_tags}{data_path_tags}{zero_line_tags}{bar_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}{g_guide_tags}</svg></div>'
 
