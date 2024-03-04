@@ -3615,7 +3615,6 @@ def fmt_nanoplot(
     be modified.
     """
 
-    from great_tables._gt_data import get_column_names
     from great_tables._utils import _str_detect
 
     # Get the internal data table
