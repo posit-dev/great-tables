@@ -3578,8 +3578,8 @@ def fmt_nanoplot(
         provide one or more values to `expand_y=`. If any of the provided values are outside of the
         range of *y*-value data provided, the plot will result in a *y*-scale expansion.
     options
-        By using the `nanoplot_options()` helper function here, you can alter the layout and styling
-        of the nanoplots in the new column.
+        By using the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function here,
+        you can alter the layout and styling of the nanoplots in the new column.
 
     Details
     -------
@@ -3588,9 +3588,9 @@ def fmt_nanoplot(
     value ascribed to each data point. Because **Great Tables** knows all about numeric formatting,
     values will be compactly formatted so as to not take up valuable real estate. If you need to
     create a nanoplot based on monetary values, that can be handled by providing the currency code
-    to the [nanoplot_options()] helper (then hook that up to the `options` argument). A guide on
-    the left-hand side of the plot area will appear on hover and display the minimal and maximal
-    *y* values.
+    to the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function (then hook that
+    up to the `options=` argument). A guide on the left-hand side of the plot area will appear on
+    hover (or touching the left of the nanoplot) and display the minimal and maximal *y* values.
 
     There are two types of nanoplots available: `"line"` and `"bar"`. A line plot shows individual
     data points and has smooth connecting lines between them to allow for easier scanning of values.
@@ -3609,10 +3609,10 @@ def fmt_nanoplot(
     hover.
 
     While basic customization options are present in `fmt_nanoplot()`, many more opportunities for
-    customizing nanoplots on a more granular level are possible with the `nanoplot_options()` helper
-    function. That function should be invoked at the `options=` argument of `fmt_nanoplot()`.
-    Through that helper, layers of the nanoplots can be selectively removed and the aesthetics of
-    the remaining plot components can be modified.
+    customizing nanoplots on a more granular level are possible with the aforementioned
+    [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function. With that, layers of
+    the nanoplots can be selectively removed and the aesthetics of the remaining plot components can
+    be modified.
     """
 
     from great_tables._gt_data import get_column_names
