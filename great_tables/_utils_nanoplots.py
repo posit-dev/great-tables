@@ -1276,7 +1276,7 @@ def _generate_nanoplot(
 
         g_guide_tags = f'<g class="horizontal-line">{rect_strings}{text_strings}</g>'
 
-        bar_tags = f'<rect x="{rect_x}" y="{bottom_y / 2 - bar_thickness / 2}" width="{rect_width}" height="{bar_thickness}" stroke="{data_bar_stroke_color}" stroke-width="{data_bar_stroke_width}" fill="{data_bar_fill_color}"></rect>'
+        bar_tags = f'<rect x="{rect_x}" y="{bottom_y / 2 - bar_thickness / 2}" width="{rect_width}" height="{bar_thickness}" stroke="{data_bar_stroke_color}" stroke-width="{data_bar_stroke_width}" fill="{data_bar_fill_color}"></rect>{g_guide_tags}'
 
         zero_line_tags = f'<line x1="{y0_width}" y1="{(bottom_y / 2) - (bar_thickness * 1.5)}" x2="{y0_width}" y2="{(bottom_y / 2) + (bar_thickness * 1.5)}" stroke="{zero_line_stroke_color}" stroke-width="{zero_line_stroke_width}"></line>'
 
@@ -1376,7 +1376,7 @@ def _generate_nanoplot(
 
         g_guide_tags = f'<g class="horizontal-line">{rect_strings}{text_strings}</g>'
 
-        data_path_tags = f'<line x1="{x1_val}" y1="{bottom_y / 2}" x2="{x2_val}" y2="{bottom_y / 2}" stroke="{data_line_stroke_color}" stroke-width="{data_line_stroke_width}"></line>'
+        data_path_tags = f'<line x1="{x1_val}" y1="{bottom_y / 2}" x2="{x2_val}" y2="{bottom_y / 2}" stroke="{data_line_stroke_color}" stroke-width="{data_line_stroke_width}"></line>{g_guide_tags}'
 
         circle_tags = f'<circle cx="{circle_x_val}" cy="{bottom_y / 2}" r="{data_point_radius_i}" stroke="{data_point_stroke_color_i}" stroke-width="{data_point_stroke_width_i}" fill="{data_point_fill_color_i}"></circle>'
 
