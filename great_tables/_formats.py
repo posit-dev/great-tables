@@ -64,8 +64,8 @@ PlotType: TypeAlias = Literal[
     "bar",
 ]
 MissingVals: TypeAlias = Literal[
-    "gap",
     "marker",
+    "gap",
     "zero",
     "remove",
 ]
@@ -3516,7 +3516,7 @@ def fmt_nanoplot(
     rows: Union[int, List[int], None] = None,
     plot_type: PlotType = "line",
     plot_height: str = "2em",
-    missing_vals: MissingVals = "gap",
+    missing_vals: MissingVals = "marker",
     autoscale: bool = False,
     reference_line: Optional[Union[str, int, float]] = None,
     reference_area: Optional[List[Any]] = None,

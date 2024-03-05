@@ -541,7 +541,7 @@ def _generate_nanoplot(
     x_vals: Optional[str] = None,
     expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
     expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
-    missing_vals: str = "gap",
+    missing_vals: str = "marker",
     all_y_vals: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
     all_single_y_vals: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
     plot_type: str = "line",
@@ -584,7 +584,7 @@ def _generate_nanoplot(
     # Ensure that arguments are matched
     _match_arg(
         x=missing_vals,
-        lst=["gap", "marker", "zero", "remove"],
+        lst=["marker", "gap", "zero", "remove"],
     )
     _match_arg(
         x=line_type,
@@ -668,6 +668,11 @@ def _generate_nanoplot(
         # If `x` values are present, we cannot use a curved line so
         # we'll force the use of the 'straight' line type
         line_type = "straight"
+
+    # If `missing_vals` is set to 'gap' raise an error
+    # TODO: Implement the 'gap' option for missing values
+    if missing_vals == "gap":
+        raise NotImplementedError("The 'gap' option for missing values is not yet implemented.")
 
     # For the `missing_vals` options of 'zero' or 'remove', either replace NAs
     # with `0` or remove NAs entirely
