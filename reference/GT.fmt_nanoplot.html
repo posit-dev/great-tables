@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>great_tables - Case Study: gtcars</title>
+<title>great_tables</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -131,33 +131,121 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#great_tables.GT.fmt_nanoplot" id="toc-great_tables.GT.fmt_nanoplot" class="nav-link active" data-scroll-target="#great_tables.GT.fmt_nanoplot">GT.fmt_nanoplot</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content column-page" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Case Study: gtcars</h1>
-</div>
-
-
-
-<div class="quarto-title-meta column-page">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
+<main class="content column-page-left" id="quarto-document-content">
 
 
 
 
+<section id="great_tables.GT.fmt_nanoplot" class="level1">
+<h1>GT.fmt_nanoplot</h1>
+<p><code>GT.fmt_nanoplot(self, columns=None, rows=None, plot_type='line', plot_height='2em', missing_vals='marker', autoscale=False, reference_line=None, reference_area=None, expand_x=None, expand_y=None, options=None)</code></p>
+<p>Format data for nanoplot visualizations.</p>
+<p>The <code>fmt_nanoplot()</code> method is used to format data for nanoplot visualizations. This method allows for the creation of a variety of different plot types, including line, bar, and scatter plots.</p>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>columns</code></td>
+<td><code>SelectExpr</code></td>
+<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>rows</code></td>
+<td><code>Union</code>[<code>int</code>, <code>List</code>[<code>int</code>], None]</td>
+<td>In conjunction with <code>columns=</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in targeted columns being formatted. Alternatively, we can supply a list of row indices.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>plot_type</code></td>
+<td><code>PlotType</code></td>
+<td>Nanoplots can either take the form of a line plot (using <code>"line"</code>) or a bar plot (with <code>"bar"</code>). A line plot, by default, contains layers for a data line, data points, and a data area. With a bar plot, the always visible layer is that of the data bars.</td>
+<td><code>'line'</code></td>
+</tr>
+<tr class="even">
+<td><code>plot_height</code></td>
+<td><code>str</code></td>
+<td>The height of the nanoplots. The default here is a sensible value of <code>"2em"</code>.</td>
+<td><code>'2em'</code></td>
+</tr>
+<tr class="odd">
+<td><code>missing_vals</code></td>
+<td><code>MissingVals</code></td>
+<td>If missing values are encountered within the input data, there are three strategies available for their handling: (1) <code>"gap"</code> will show data gaps at the sites of missing data, where data lines will have discontinuities and bar plots will have missing bars; (2) <code>"marker"</code> will behave like <code>"gap"</code> but show prominent visual marks at the missing data locations; (3) <code>"zero"</code> will replace missing values with zero values; and (4) <code>"remove"</code> will remove any incoming missing values.</td>
+<td><code>'marker'</code></td>
+</tr>
+<tr class="even">
+<td><code>autoscale</code></td>
+<td><code>bool</code></td>
+<td>Using <code>autoscale=True</code> will ensure that the bounds of all nanoplots produced are based on the limits of data combined from all input rows. This will result in a shared scale across all of the nanoplots (for <em>y</em>- and <em>x</em>-axis data), which is useful in those cases where the nanoplot data should be compared across rows.</td>
+<td><code>False</code></td>
+</tr>
+<tr class="odd">
+<td><code>reference_line</code></td>
+<td><code>Optional</code>[<code>Union</code>[<code>str</code>, <code>int</code>, <code>float</code>]]</td>
+<td>A reference line requires a single input to define the line. It could be a numeric value, applied to all nanoplots generated. Or, the input can be one of the following for generating the line from the underlying data: (1) <code>"mean"</code>, (2) <code>"median"</code>, (3) <code>"min"</code>, (4) <code>"max"</code>, (5) <code>"q1"</code>, (6) <code>"q3"</code>, (7) <code>"first"</code>, or (8) <code>"last"</code>.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>reference_area</code></td>
+<td><code>Optional</code>[<code>List</code>[<code>Any</code>]]</td>
+<td>A reference area requires a list of two values for defining bottom and top boundaries (in the <em>y</em> direction) for a rectangular area. The types of values supplied are the same as those expected for <code>reference_line=</code>, which is either a numeric value or one of the following keywords for the generation of the value: (1) <code>"mean"</code>, (2) <code>"median"</code>, (3) <code>"min"</code>, (4) <code>"max"</code>, (5) <code>"q1"</code>, (6) <code>"q3"</code>, (7) <code>"first"</code>, or (8) <code>"last"</code>. Input can either be a vector or list with two elements.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>expand_x</code></td>
+<td><code>Optional</code>[<code>Union</code>[<code>List</code>[<code>Union</code>[<code>int</code>, <code>float</code>]], <code>List</code>[<code>int</code>], <code>List</code>[<code>float</code>]]]</td>
+<td>Should you need to have plots expand in the <em>x</em> direction, provide one or more values to <code>expand_x=</code>. Any values provided that are outside of the range of <em>x</em>-value data provided to the plot will result in a <em>x</em>-scale expansion.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>expand_y</code></td>
+<td><code>Optional</code>[<code>Union</code>[<code>List</code>[<code>Union</code>[<code>int</code>, <code>float</code>]], <code>List</code>[<code>int</code>], <code>List</code>[<code>float</code>]]]</td>
+<td>Similar to <code>expand_x=</code>, one can have plots expand in the <em>y</em> direction. To make this happen, provide one or more values to <code>expand_y=</code>. If any of the provided values are outside of the range of <em>y</em>-value data provided, the plot will result in a <em>y</em>-scale expansion.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>options</code></td>
+<td><code>Optional</code>[<code>Dict</code>[<code>str</code>, <code>Any</code>]]</td>
+<td>By using the <a href="../reference/nanoplot_options.html#great_tables.nanoplot_options"><code>nanoplot_options()</code></a> helper function here, you can alter the layout and styling of the nanoplots in the new column.</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="details" class="level2">
+<h2 class="anchored" data-anchor-id="details">Details</h2>
+<p>Nanoplots try to show individual data with reasonably good visibility. Interactivity is included as a basic feature so one can hover over the data points and vertical guides will display the value ascribed to each data point. Because <strong>Great Tables</strong> knows all about numeric formatting, values will be compactly formatted so as to not take up valuable real estate. If you need to create a nanoplot based on monetary values, that can be handled by providing the currency code to the <a href="../reference/nanoplot_options.html#great_tables.nanoplot_options"><code>nanoplot_options()</code></a> helper function (then hook that up to the <code>options=</code> argument). A guide on the left-hand side of the plot area will appear on hover (or touching the left of the nanoplot) and display the minimal and maximal <em>y</em> values.</p>
+<p>There are two types of nanoplots available: <code>"line"</code> and <code>"bar"</code>. A line plot shows individual data points and has smooth connecting lines between them to allow for easier scanning of values. You can opt for straight-line connections between data points, or, no connections at all (it’s up to you). You can even eschew the data points and just have a simple line. Regardless of how you mix and match difference plot layers, the plot area focuses on the domain of the data points with the goal of showing you the overall trend of the data. The data you feed into a line plot can consist of a single vector of values (resulting in equally-spaced <em>y</em> values), or, you can supply two vectors representative of <em>x</em> and <em>y</em>.</p>
+<p>A bar plot is built a little bit differently. The focus is on evenly-spaced bars (requiring a single vector of values) that project from a zero line, clearly showing the difference between positive and negative values. By default, any type of nanoplot will have basic interactivity. One can hover over the data points and vertical guides will display values ascribed to each. A guide on the left-hand side of the plot area will display the minimal and maximal <em>y</em> values on hover.</p>
+<p>While basic customization options are present in <code>fmt_nanoplot()</code>, many more opportunities for customizing nanoplots on a more granular level are possible with the aforementioned <a href="../reference/nanoplot_options.html#great_tables.nanoplot_options"><code>nanoplot_options()</code></a> helper function. With that, layers of the nanoplots can be selectively removed and the aesthetics of the remaining plot components can be modified.</p>
+
+
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
