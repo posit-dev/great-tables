@@ -8,6 +8,7 @@ from typing import (
     TypeVar,
     Union,
     List,
+    Tuple,
     cast,
     Optional,
     Dict,
@@ -20,6 +21,7 @@ from ._locale import _get_locales_data, _get_default_locales_data, _get_currenci
 from ._locations import resolve_rows_i, resolve_cols_c
 from ._text import _md_html
 from ._utils import _str_detect, _str_replace
+from ._utils_nanoplots import _generate_nanoplot
 import pandas as pd
 import math
 from datetime import datetime, date, time
@@ -57,6 +59,16 @@ TimeStyle: TypeAlias = Literal[
     "h_m_p",
     "h_p",
 ]
+PlotType: TypeAlias = Literal[
+    "line",
+    "bar",
+]
+MissingVals: TypeAlias = Literal[
+    "marker",
+    "gap",
+    "zero",
+    "remove",
+]
 
 
 def fmt(
@@ -83,7 +95,7 @@ def fmt(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo
+        In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in `columns` being formatted.
         Alternatively, we can supply a list of row indices.
 
@@ -149,9 +161,9 @@ def fmt_number(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -350,9 +362,9 @@ def fmt_integer(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
@@ -529,9 +541,9 @@ def fmt_scientific(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -791,9 +803,9 @@ def fmt_percent(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -953,7 +965,7 @@ def fmt_currency(
     self: GTSelf,
     columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
-    currency: Optional[int] = None,
+    currency: Optional[str] = None,
     use_subunits: bool = True,
     decimals: Optional[int] = None,
     drop_trailing_dec_mark: bool = True,
@@ -993,9 +1005,9 @@ def fmt_currency(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     currency
         The currency to use for the numeric value. This input can be supplied as a 3-letter currency
         code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency).
@@ -1211,9 +1223,9 @@ def fmt_roman(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     case
         Should Roman numerals should be rendered as uppercase (`"upper"`) or lowercase (`"lower"`)
         letters? By default, this is set to `"upper"`.
@@ -1345,9 +1357,9 @@ def fmt_bytes(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     standard
         The form of expressing large byte sizes is divided between: (1) decimal units (powers of
         1000; e.g., `"kB"` and `"MB"`), and (2) binary units (powers of 1024; e.g., `"KiB"` and
@@ -1560,9 +1572,9 @@ def fmt_date(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
         ISO 8601 date formatting. There are 41 date styles in total and their short names can be
@@ -1708,9 +1720,9 @@ def fmt_time(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     time_style
         The time style to use. By default this is the short name `"iso"` which corresponds to how
         times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
@@ -1850,9 +1862,9 @@ def fmt_datetime(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
         ISO 8601 date formatting. There are 41 date styles in total and their short names can be
@@ -2059,9 +2071,9 @@ def fmt_markdown(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
 
     Returns
     -------
@@ -3318,9 +3330,9 @@ def fmt_image(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     rows
-        In conjunction with `columns`, we can specify which of their rows should undergo formatting.
-        The default is all rows, resulting in all rows in `columns` being formatted. Alternatively,
-        we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
     height
         The height of the rendered images.
     width
@@ -3496,3 +3508,418 @@ class FmtImage:
         )
 
         return f'<img src="{uri}" style="{style_string}">'
+
+
+def fmt_nanoplot(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: Union[int, List[int], None] = None,
+    plot_type: PlotType = "line",
+    plot_height: str = "2em",
+    missing_vals: MissingVals = "marker",
+    autoscale: bool = False,
+    reference_line: Optional[Union[str, int, float]] = None,
+    reference_area: Optional[List[Any]] = None,
+    expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
+    expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
+    options: Optional[Dict[str, Any]] = None,
+) -> GTSelf:
+    """Format data for nanoplot visualizations.
+
+    The `fmt_nanoplot()` method is used to format data for nanoplot visualizations. This method
+    allows for the creation of a variety of different plot types, including line, bar, and scatter
+    plots.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    plot_type
+        Nanoplots can either take the form of a line plot (using `"line"`) or a bar plot (with
+        `"bar"`). A line plot, by default, contains layers for a data line, data points, and a data
+        area. With a bar plot, the always visible layer is that of the data bars.
+    plot_height
+        The height of the nanoplots. The default here is a sensible value of `"2em"`.
+    missing_vals
+        If missing values are encountered within the input data, there are three strategies
+        available for their handling: (1) `"gap"` will show data gaps at the sites of missing data,
+        where data lines will have discontinuities and bar plots will have missing bars; (2)
+        `"marker"` will behave like `"gap"` but show prominent visual marks at the missing data
+        locations; (3) `"zero"` will replace missing values with zero values; and (4) `"remove"`
+        will remove any incoming missing values.
+    autoscale
+        Using `autoscale=True` will ensure that the bounds of all nanoplots produced are based on
+        the limits of data combined from all input rows. This will result in a shared scale across
+        all of the nanoplots (for *y*- and *x*-axis data), which is useful in those cases where the
+        nanoplot data should be compared across rows.
+    reference_line
+        A reference line requires a single input to define the line. It could be a numeric value,
+        applied to all nanoplots generated. Or, the input can be one of the following for generating
+        the line from the underlying data: (1) `"mean"`, (2) `"median"`, (3) `"min"`, (4) `"max"`,
+        (5) `"q1"`, (6) `"q3"`, (7) `"first"`, or (8) `"last"`.
+    reference_area
+        A reference area requires a list of two values for defining bottom and top boundaries (in
+        the *y* direction) for a rectangular area. The types of values supplied are the same as
+        those expected for `reference_line=`, which is either a numeric value or one of the
+        following keywords for the generation of the value: (1) `"mean"`, (2) `"median"`, (3)
+        `"min"`, (4) `"max"`, (5) `"q1"`, (6) `"q3"`, (7) `"first"`, or (8) `"last"`. Input can
+        either be a vector or list with two elements.
+    expand_x
+        Should you need to have plots expand in the *x* direction, provide one or more values to
+        `expand_x=`. Any values provided that are outside of the range of *x*-value data provided to
+        the plot will result in a *x*-scale expansion.
+    expand_y
+        Similar to `expand_x=`, one can have plots expand in the *y* direction. To make this happen,
+        provide one or more values to `expand_y=`. If any of the provided values are outside of the
+        range of *y*-value data provided, the plot will result in a *y*-scale expansion.
+    options
+        By using the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function here,
+        you can alter the layout and styling of the nanoplots in the new column.
+
+    Details
+    -------
+    Nanoplots try to show individual data with reasonably good visibility. Interactivity is included
+    as a basic feature so one can hover over the data points and vertical guides will display the
+    value ascribed to each data point. Because **Great Tables** knows all about numeric formatting,
+    values will be compactly formatted so as to not take up valuable real estate. If you need to
+    create a nanoplot based on monetary values, that can be handled by providing the currency code
+    to the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function (then hook that
+    up to the `options=` argument). A guide on the left-hand side of the plot area will appear on
+    hover (or touching the left of the nanoplot) and display the minimal and maximal *y* values.
+
+    There are two types of nanoplots available: `"line"` and `"bar"`. A line plot shows individual
+    data points and has smooth connecting lines between them to allow for easier scanning of values.
+    You can opt for straight-line connections between data points, or, no connections at all (it's
+    up to you). You can even eschew the data points and just have a simple line. Regardless of how
+    you mix and match difference plot layers, the plot area focuses on the domain of the data points
+    with the goal of showing you the overall trend of the data. The data you feed into a line plot
+    can consist of a single vector of values (resulting in equally-spaced *y* values), or, you can
+    supply two vectors representative of *x* and *y*.
+
+    A bar plot is built a little bit differently. The focus is on evenly-spaced bars (requiring a
+    single vector of values) that project from a zero line, clearly showing the difference between
+    positive and negative values. By default, any type of nanoplot will have basic interactivity.
+    One can hover over the data points and vertical guides will display values ascribed to each. A
+    guide on the left-hand side of the plot area will display the minimal and maximal *y* values on
+    hover.
+
+    While basic customization options are present in `fmt_nanoplot()`, many more opportunities for
+    customizing nanoplots on a more granular level are possible with the aforementioned
+    [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function. With that, layers of
+    the nanoplots can be selectively removed and the aesthetics of the remaining plot components can
+    be modified.
+    """
+
+    from great_tables._utils import _str_detect
+
+    # Get the internal data table
+    data_tbl = self._tbl_data
+
+    column_d_type = data_tbl[columns].dtype
+
+    col_class = str(column_d_type).lower()
+
+    if _str_detect(col_class, "int") or _str_detect(col_class, "float"):
+        scalar_vals = True
+    else:
+        scalar_vals = False
+
+    # If a bar plot is requested and the data consists of single y values, then we need to
+    # obtain a list of all single y values in the targeted column (from `columns`)
+    if plot_type in ["line", "bar"] and scalar_vals:
+
+        # Check each cell in the column and get each of them that contains a scalar value
+        all_single_y_vals = []
+
+        single_y_vals = data_tbl[columns].apply(
+            lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+        )
+        all_single_y_vals.extend(single_y_vals)
+
+        autoscale = False
+
+    else:
+        all_single_y_vals = None
+
+    if options is None:
+        from great_tables._helpers import nanoplot_options
+
+        options_plots = nanoplot_options()
+    else:
+        options_plots = options
+
+    # For autoscale, we need to get the minimum and maximum from all values for the y-axis
+    if autoscale:
+
+        from great_tables._utils_nanoplots import _flatten_list
+
+        all_y_vals_raw = []
+
+        col_i_y_vals_raw = data_tbl[columns].apply(
+            lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+        )
+
+        all_y_vals_raw.extend(col_i_y_vals_raw)
+
+        all_y_vals = []
+
+        for i in range(len(all_y_vals_raw)):
+
+            data_vals_i = all_y_vals_raw[i]
+
+            if isinstance(data_vals_i, dict):
+
+                if len(data_vals_i) == 1:
+                    # If there is only one key in the dictionary, then we can assume that the
+                    # dictionary deals with y-values only
+                    data_vals_i = list(data_vals_i.values())[0]
+
+                else:
+                    # Otherwise assume that the dictionary contains x and y values; extract
+                    # the y values
+                    data_vals_i = data_vals_i["y"]
+
+            data_vals_i = _generate_data_vals(data_vals=data_vals_i)
+
+            # If not a list, then convert to a list
+            if not isinstance(data_vals_i, list):
+
+                data_vals_i = [data_vals_i]
+
+            all_y_vals.extend(data_vals_i)
+
+        all_y_vals = _flatten_list(all_y_vals)
+
+        # Get the minimum and maximum values from the list
+        expand_y = [min(all_y_vals), max(all_y_vals)]
+
+    # Generate a function that will operate on single `x` values in the table body using both
+    # the date and time format strings
+    def fmt_nanoplot_fn(
+        x: Any,
+        plot_type: PlotType = plot_type,
+        plot_height: str = plot_height,
+        missing_vals: MissingVals = missing_vals,
+        reference_line: Optional[Union[str, int, float]] = reference_line,
+        reference_area: Optional[List[Any]] = reference_area,
+        expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_x,
+        expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_y,
+        all_single_y_vals: Optional[
+            Union[List[Union[int, float]], List[int], List[float]]
+        ] = all_single_y_vals,
+        options_plots: Dict[str, Any] = options_plots,
+    ) -> str:
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
+        # Generate data vals from the input `x` value
+        x = _generate_data_vals(data_vals=x)
+
+        # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
+        if isinstance(x, tuple):
+
+            y_vals = x[1]
+            x_vals = x[0]
+
+            # Ensure that both objects are lists
+            if not isinstance(x_vals, list) or not isinstance(y_vals, list):
+                raise ValueError("The 'x' and 'y' values must be lists.")
+
+            # Ensure that the lists contain only numeric values (ints and floats)
+            if not all(isinstance(val, (int, float)) for val in x_vals):
+                raise ValueError("The 'x' values must be numeric.")
+
+            # Ensure that the lengths of the x and y values are the same
+            if len(x_vals) != len(y_vals):
+                raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
+
+        else:
+            y_vals = x
+            x_vals = None
+
+        nanoplot = _generate_nanoplot(
+            y_vals=y_vals,
+            y_ref_line=reference_line,
+            y_ref_area=reference_area,
+            x_vals=x_vals,
+            expand_x=expand_x,
+            expand_y=expand_y,
+            missing_vals=missing_vals,
+            all_single_y_vals=all_single_y_vals,
+            plot_type=plot_type,
+            line_type=options_plots["data_line_type"],
+            currency=options_plots["currency"],
+            y_val_fmt_fn=options_plots["y_val_fmt_fn"],
+            y_axis_fmt_fn=options_plots["y_axis_fmt_fn"],
+            y_ref_line_fmt_fn=options_plots["y_ref_line_fmt_fn"],
+            data_point_radius=options_plots["data_point_radius"],
+            data_point_stroke_color=options_plots["data_point_stroke_color"],
+            data_point_stroke_width=options_plots["data_point_stroke_width"],
+            data_point_fill_color=options_plots["data_point_fill_color"],
+            data_line_stroke_color=options_plots["data_line_stroke_color"],
+            data_line_stroke_width=options_plots["data_line_stroke_width"],
+            data_area_fill_color=options_plots["data_area_fill_color"],
+            data_bar_stroke_color=options_plots["data_bar_stroke_color"],
+            data_bar_stroke_width=options_plots["data_bar_stroke_width"],
+            data_bar_fill_color=options_plots["data_bar_fill_color"],
+            data_bar_negative_stroke_color=options_plots["data_bar_negative_stroke_color"],
+            data_bar_negative_stroke_width=options_plots["data_bar_negative_stroke_width"],
+            data_bar_negative_fill_color=options_plots["data_bar_negative_fill_color"],
+            reference_line_color=options_plots["reference_line_color"],
+            reference_area_fill_color=options_plots["reference_area_fill_color"],
+            vertical_guide_stroke_color=options_plots["vertical_guide_stroke_color"],
+            vertical_guide_stroke_width=options_plots["vertical_guide_stroke_width"],
+            show_data_points=options_plots["show_data_points"],
+            show_data_line=options_plots["show_data_line"],
+            show_data_area=options_plots["show_data_area"],
+            show_ref_line=options_plots["show_reference_line"],
+            show_ref_area=options_plots["show_reference_area"],
+            show_vertical_guides=options_plots["show_vertical_guides"],
+            show_y_axis_guide=options_plots["show_y_axis_guide"],
+            interactive_data_values=options_plots["interactive_data_values"],
+            svg_height=plot_height,
+        )
+
+        return nanoplot
+
+    return fmt(self, fns=fmt_nanoplot_fn, columns=columns, rows=rows)
+
+
+def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float], List[float]]]:
+    """
+    Generate a list of data values from the input data.
+
+    Args:
+        data_vals (Any): The input data values.
+
+    Returns:
+        List[Any]: A list of data values.
+    """
+
+    import re
+
+    if isinstance(data_vals, list):
+
+        # If the list contains string values, determine whether they are date values
+        if all(isinstance(val, str) for val in data_vals):
+            if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals[0]):
+                data_vals = [_iso_to_date(val) for val in data_vals]
+
+                # Transform the date values to numeric values
+                data_vals = [val.toordinal() for val in data_vals]
+
+        # If the cell value is a list of floats/ints, then return the same value
+
+        # Check that the values within the list are numeric; missing values are allowed
+        for val in data_vals:
+            if val is not None and not isinstance(val, (int, float)):
+                raise ValueError("The input data values must be numeric.")
+
+        return data_vals
+
+    elif isinstance(data_vals, int) or isinstance(data_vals, float):
+        return data_vals
+
+    elif isinstance(data_vals, str):
+
+        # If the cell value is a string, assume it is a value stream and convert to a list
+
+        # Detect whether there are time values or numeric values in the string
+        if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals):
+            data_vals = _process_time_stream(data_vals)
+        else:
+            data_vals = _process_number_stream(data_vals)
+
+    elif isinstance(data_vals, dict):
+
+        # If the cell value is a dictionary, assume it contains data values
+        # This is possibly for x and for y
+
+        # Determine the number of keys in the dictionary
+        num_keys = len(data_vals.keys())
+
+        # If the dictionary contains only one key, then assume that the values are for y
+        if num_keys == 1:
+
+            data_vals = list(data_vals.values())[0]
+
+            # The data values can be anything, so recursively call this function to process them
+            data_vals = _generate_data_vals(data_vals=data_vals)
+
+        if num_keys >= 2:
+
+            # For two or more keys, we need to see if the 'x' and 'y' keys are present
+            if "x" in data_vals and "y" in data_vals:
+
+                x_vals: Any = data_vals["x"]
+                y_vals: Any = data_vals["y"]
+
+                # The data values can be anything, so recursively call this function to process them
+                x_vals = _generate_data_vals(data_vals=x_vals)
+                y_vals = _generate_data_vals(data_vals=y_vals)
+
+                # Ensure that the lengths of the x and y values are the same
+                if len(x_vals) != len(y_vals):
+                    raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
+
+                return x_vals, y_vals
+
+            else:
+                raise ValueError("The dictionary must contain 'x' and 'y' keys.")
+
+    else:
+        # Raise not implemented
+        raise NotImplementedError("The input data values must be a string.")
+
+    return data_vals
+
+
+def _process_number_stream(data_vals: str) -> List[float]:
+    """
+    Process a string of numeric values and convert to a list of floats.
+
+    Args:
+        data_vals (str): The string of numeric values.
+
+    Returns:
+        List[float]: A list of numeric values.
+    """
+
+    import re
+
+    number_stream = re.sub(r"[;,]", " ", data_vals)
+    number_stream = re.sub(r"\\[|\\]", " ", number_stream)
+    number_stream = re.sub(r"^\\s+|\\s+$", "", number_stream)
+    number_stream = [val for val in number_stream.split()]
+    number_stream = [re.sub(r"[\\(\\)a-dA-Df-zF-Z]", "", val) for val in number_stream]
+    number_stream = [float(val) for val in number_stream]
+
+    return number_stream
+
+
+import re
+from typing import List
+
+
+def _process_time_stream(data_vals: str) -> List[float]:
+    """
+    Process a string of time values and convert to a list of floats.
+
+    Args:
+        data_vals (str): The string of time values.
+
+    Returns:
+        List[float]: A list of time values.
+    """
+
+    time_stream = re.split(r"\s*[;,]\s*", data_vals)
+    time_stream = [val.replace("T", " ") for val in time_stream]
+    time_stream_vals = [float(val) for val in time_stream]
+
+    return time_stream_vals
