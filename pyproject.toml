@@ -97,16 +97,12 @@ max-line-length = 100
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = [
-    '-ra -q --cov=src',
-    '--cov-report=html:pytest',
-    '--cov-report=term-missing',
-    '--junitxml=report.xml'
+    '-ra -q --cov=great_tables',
+    '--cov-report=xml'
 ]
-asyncio_mode = "strict"
 testpaths = [
     "tests"
 ]
-
 markers = [
     "extra: marks tests that require extra dependencies to run",
 ]
