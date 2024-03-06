@@ -23,14 +23,12 @@ jobs:
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
       - name: Install
         run: |
-          pip install '.[dev]'
+          pip3 debug --verbose .
+          pip3 install '.[dev]'
       - name: pytest unit tests
         run: |
-          make test
+          pytest --cov=great_tables/ --cov-report=xml
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: unittests
-          files: ./report.xml
-          verbose: true
