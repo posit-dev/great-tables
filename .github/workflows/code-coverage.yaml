@@ -26,7 +26,7 @@ jobs:
           pip install '.[dev]'
       - name: pytest unit tests
         run: |
-          pytest --cov ./great_tables --cov-report=term-missing
+          pytest --cov ./great_tables --cov-report --cov-report html:htmlcov --cov-report xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
