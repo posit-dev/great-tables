@@ -530,7 +530,7 @@ def _check_named_colors(colors: Union[str, List[str]]) -> None:
 
 
 def _color_name_list() -> List[str]:
-    return list(COLOR_NAME_TO_HEX)
+    return list(COLOR_NAME_TO_HEX) + ["transparent", "currentcolor", "currentColor"]
 
 
 def _is_short_hex(color: str) -> bool:
