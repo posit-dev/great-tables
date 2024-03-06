@@ -97,7 +97,7 @@ max-line-length = 100
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = [
-    '-ra --cov=src',
+    '-ra -q --cov=src',
     '--cov-report=html:pytest',
     '--cov-report=term-missing',
     '--junitxml=report.xml'
