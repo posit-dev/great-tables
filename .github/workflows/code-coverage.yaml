@@ -23,12 +23,12 @@ jobs:
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
       - name: Install
         run: |
-          pip install '.[dev]'
+          python -m pip install ".[dev]"
       - name: pytest unit tests
         run: |
-          pytest --cov ./great_tables --cov-report=xml
+          pytest --cov ./great_tables --cov-report=term-missing
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4.0.1
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: posit-dev/great-tables
