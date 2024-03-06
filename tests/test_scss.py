@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 
 from great_tables import GT
-from great_tables._scss import font_color, css_add, compile_scss
+from great_tables._scss import _font_color, css_add, compile_scss
 
 
 @pytest.mark.parametrize(
@@ -14,7 +14,7 @@ from great_tables._scss import font_color, css_add, compile_scss
     ],
 )
 def test_font_color(src, dst):
-    res = font_color(src, "dark", "light")
+    res = _font_color(src, "dark", "light")
     assert res == dst
 
 

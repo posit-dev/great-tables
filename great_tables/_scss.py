@@ -39,7 +39,7 @@ FONT_COLOR_VARS = (
 )
 
 
-def font_color(color: str, table_font_color: str, table_font_color_light: str):
+def _font_color(color: str, table_font_color: str, table_font_color_light: str) -> str:
     if color.startswith("#"):
         rgb = wc.hex_to_rgb(color)
     elif color.startswith("rgb") and "%" in color:
@@ -80,7 +80,7 @@ def compile_scss(data: GTData, id: Optional[str], compress: bool = True) -> str:
     # font color variables
     # TODO: at this stage, the params below (e.g. table_font_color) have to exist, right?
     p_font_color = partial(
-        font_color,
+        _font_color,
         table_font_color=params["table_font_color"],
         table_font_color_light=params["table_font_color_light"],
     )
