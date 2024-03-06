@@ -6,7 +6,7 @@ import webcolors as wc
 
 from dataclasses import fields
 from functools import partial
-from typing import Optional
+from typing import Optional, Union
 from string import Template
 
 from ._gt_data import GTData
@@ -40,6 +40,15 @@ FONT_COLOR_VARS = (
 
 
 def _font_color(color: str, table_font_color: str, table_font_color_light: str) -> str:
+
+    if color == "transparent":
+        # With the `transparent` color, the font color should have the same value
+        # as the `table_font_color` option since the background will be transparent
+        return table_font_color
+    if color in ["currentcolor", "currentColor", "inherit", "initial", "unset"]:
+        # For the other valid CSS color attribute values, we should pass them through
+        return color
+
     if color.startswith("#"):
         rgb = wc.hex_to_rgb(color)
     elif color.startswith("rgb") and "%" in color:
@@ -55,7 +64,7 @@ def _font_color(color: str, table_font_color: str, table_font_color_light: str) 
     return table_font_color_light
 
 
-def css_add(value: str | int, amount: int):
+def css_add(value: Union[str, int], amount: int) -> Union[str, int]:
     if isinstance(value, int):
         return value + amount
     elif value.endswith("px"):
