@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pkg_resources
 import re
-import webcolors as wc
 
 from dataclasses import fields
 from functools import partial
@@ -11,6 +10,7 @@ from string import Template
 
 from ._gt_data import GTData
 from ._utils import _as_css_font_family_attr, _unique_set
+from ._utils_color import _ideal_fgnd_color, _html_color
 
 DEFAULTS_TABLE_BACKGROUND = (
     "heading_background_color",
@@ -49,22 +49,20 @@ def _font_color(color: str, table_font_color: str, table_font_color_light: str) 
         # For the other valid CSS color attribute values, we should pass them through
         return color
 
-    if color.startswith("#"):
-        rgb = wc.hex_to_rgb(color)
-    elif color.startswith("rgb") and "%" in color:
-        # TODO: rgb_percent_to_rgb() expects a tuple
-        raise NotImplementedError()
-        rgb = wc.rgb_percent_to_rgb(color)
-    else:
-        rgb = wc.name_to_rgb(color)
+    # Normalize the color to a hexadecimal value
+    color_normalized = _html_color(colors=[color])
 
-    if (rgb.red * 0.299 + rgb.green * 0.587 + rgb.blue * 0.114) > 186:
-        return table_font_color
+    # Determine the ideal font color given the different background colors
+    ideal_font_color = _ideal_fgnd_color(
+        bgnd_color=color_normalized[0],
+        light=table_font_color,
+        dark=table_font_color_light,
+    )
 
-    return table_font_color_light
+    return ideal_font_color
 
 
-def css_add(value: Union[str, int], amount: int) -> Union[str, int]:
+def _css_add(value: Union[str, int], amount: int) -> Union[str, int]:
     if isinstance(value, int):
         return value + amount
     elif value.endswith("px"):
@@ -75,7 +73,7 @@ def css_add(value: Union[str, int], amount: int) -> Union[str, int]:
         raise NotImplementedError(f"Unable to add to CSS value: {value}")
 
 
-def compile_scss(data: GTData, id: Optional[str], compress: bool = True) -> str:
+def _compile_scss(data: GTData, id: Optional[str], compress: bool = True) -> str:
     """Return CSS for styling a table, based on options set."""
 
     # Obtain the SCSS options dictionary
@@ -99,9 +97,9 @@ def compile_scss(data: GTData, id: Optional[str], compress: bool = True) -> str:
     final_params = {
         **scss_params,
         **font_params,
-        "heading_subtitle_padding_top": css_add(scss_params["heading_padding"], -1),
-        "heading_subtitle_padding_bottom": css_add(scss_params["heading_padding"], 1),
-        "heading_padding_bottom": css_add(scss_params["heading_padding"], 1),
+        "heading_subtitle_padding_top": _css_add(scss_params["heading_padding"], -1),
+        "heading_subtitle_padding_bottom": _css_add(scss_params["heading_padding"], 1),
+        "heading_padding_bottom": _css_add(scss_params["heading_padding"], 1),
     }
 
     # Handle table id ----
