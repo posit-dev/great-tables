@@ -63,6 +63,10 @@ def _hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
         The RGB values.
     """
 
+    # If not a valid hexadecimal color value, then attempt to normalize it
+    if not _is_hex_col(colors=[hex_color])[0]:
+        hex_color = _html_color(colors=[hex_color])[0]
+
     # If the hexadecimal color value is in the #RRGGBBAA format, then we need to remove the
     # alpha value from it before converting it to RGB
     if len(hex_color) == 9:
