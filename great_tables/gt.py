@@ -191,9 +191,6 @@ class GT(
     is apparent in the `currency`, `num`, and `date` columns.
     """
 
-    def _repr_html_(self):
-        return self.render(context="html")
-
     def __init__(
         self,
         data: Any,
@@ -258,8 +255,21 @@ class GT(
 
     # -----
 
+    def _repr_html_(self):
+        import os
+
+        # Check if we are rendering in the Quarto environment
+        quarto_enabled = os.environ.get("QUARTO_BIN_PATH") is not None
+
+        all_important = False if quarto_enabled else True
+
+        rendered = self.render(context="html", make_page=False, all_important=all_important)
+
+        return rendered
+
     def _get_has_built(self: GT) -> bool:
-        return self._has_built
+        built = self._has_built
+        return built
 
     def _render_formats(self, context: str) -> Self:
         rendered = copy.copy(self)
@@ -291,14 +301,37 @@ class GT(
 
         return built._replace(_body=final_body, _stub=final_stub)
 
-    def render(self, context: str) -> str:
-        html_table = self._build_data(context=context)._render_as_html()
+    def render(
+        self,
+        context: str,
+        make_page: bool = False,
+        page_background_color: str = "white",
+        all_important: bool = False,
+    ) -> str:
+
+        built_table = self._build_data(context=context)
+
+        if context == "html" and make_page:
+            html_table = built_table._render_as_html(
+                make_page=make_page,
+                page_background_color=page_background_color,
+                all_important=all_important,
+            )
+        else:
+            html_table = built_table._render_as_html(all_important=all_important)
+
         return html_table
 
     # =============================================================================
     # HTML Rendering
     # =============================================================================
-    def _render_as_html(self) -> str:
+    def _render_as_html(
+        self,
+        make_page: bool = False,
+        page_background_color: str = "white",
+        all_important: bool = False,
+    ) -> str:
+
         heading_component = create_heading_component_h(data=self)
         column_labels_component = create_columns_component_h(data=self)
         body_component = create_body_component_h(data=self)
@@ -344,7 +377,7 @@ class GT(
         # Compile the SCSS as CSS
         from ._scss import compile_scss
 
-        css = compile_scss(data=self, id=id)
+        css = compile_scss(data=self, id=id, all_important=all_important)
 
         # Obtain options set for overflow and container dimensions
 
@@ -363,6 +396,20 @@ class GT(
 </div>
         """
 
+        if make_page:
+            # Create an HTML page and place the table within it
+            finalized_table = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<style>body {{ background-color:{page_background_color};}}
+</style>
+</head>
+<body>
+{finalized_table}
+</body>
+</html>
+            """
         return finalized_table
 
     def _finalize_html_table(
