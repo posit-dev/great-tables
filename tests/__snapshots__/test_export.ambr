@@ -10,6 +10,7 @@
           }
   
   #test_table thead, tbody, tfoot, tr, td, th { border-style: none; }
+   tr { background-color: transparent; }
   #test_table p { margin: 0; padding: 0; }
    #test_table .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
    #test_table .gt_caption { padding-top: 4px; padding-bottom: 4px; }
@@ -35,7 +36,7 @@
    #test_table .gt_row_group_first th { border-top-width: 2px; }
    #test_table .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
    #test_table .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-   #test_table .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+   #test_table .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
    #test_table .gt_left { text-align: left; }
    #test_table .gt_center { text-align: center; }
    #test_table .gt_right { text-align: right; font-variant-numeric: tabular-nums; }

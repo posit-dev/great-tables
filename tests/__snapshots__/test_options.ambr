@@ -16,6 +16,10 @@
     border-style: none;
   }
   
+  tr {
+    background-color: transparent;
+  }
+  
   #abc p {
     margin: 0;
     padding: 0;
@@ -297,6 +301,7 @@
     padding-bottom: 5px;
     padding-left: 5px;
     padding-right: 5px;
+    text-align: left;
   }
   
   #abc .gt_left {
@@ -356,6 +361,10 @@
   td,
   th {
     border-style: none;
+  }
+  
+  tr {
+    background-color: transparent;
   }
   
   #abc p {
@@ -639,6 +648,7 @@
     padding-bottom: 4px;
     padding-left: 5px;
     padding-right: 5px;
+    text-align: left;
   }
   
   #abc .gt_left {
