@@ -27,7 +27,7 @@
     line-height: normal;
     margin-left: 10px;
     margin-right: 10px;
-    color: lightred;
+    color: rebeccapurple;
     font-size: 12px;
     font-weight: bold;
     font-style: bold;
@@ -53,7 +53,7 @@
   }
   
   #abc .gt_title {
-    color: lightred;
+    color: rebeccapurple;
     font-size: 12px;
     font-weight: bold;
     padding-top: 5px;
@@ -65,7 +65,7 @@
   }
   
   #abc .gt_subtitle {
-    color: lightred;
+    color: rebeccapurple;
     font-size: 12px;
     font-weight: bold;
     padding-top: 4px;
@@ -110,7 +110,7 @@
   }
   
   #abc .gt_col_heading {
-    color: lightred;
+    color: rebeccapurple;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -130,7 +130,7 @@
   }
   
   #abc .gt_column_spanner_outer {
-    color: lightred;
+    color: rebeccapurple;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -170,7 +170,7 @@
     padding-bottom: 5px;
     padding-left: 5px;
     padding-right: 5px;
-    color: lightred;
+    color: rebeccapurple;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -193,7 +193,7 @@
   
   #abc .gt_empty_group_heading {
     padding: 0.5px;
-    color: lightred;
+    color: rebeccapurple;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -234,7 +234,7 @@
   }
   
   #abc .gt_stub {
-    color: lightred;
+    color: rebeccapurple;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -247,7 +247,7 @@
   }
   
   #abc .gt_stub_row_group {
-    color: lightred;
+    color: rebeccapurple;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -278,7 +278,7 @@
   }
   
   #abc .gt_sourcenotes {
-    color: lightred;
+    color: rebeccapurple;
     background-color: red;
     border-bottom-style: solid;
     border-bottom-width: 5px;

@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 from great_tables import GT, md, exibble
-from great_tables._scss import compile_scss
+from great_tables._scss import _compile_scss
 
 
 def test_options_overwrite():
@@ -31,7 +31,7 @@ css_length_val_margin = "10px"
 css_length_val_small = "5px"
 css_font_size_val = "12px"
 css_color_val = "red"
-css_color_val_light = "lightred"
+css_color_val_light = "rebeccapurple"
 css_style_val = "solid"
 css_font_family_list = ["Arial", "Helvetica", "sans-serif"]
 css_font_weight_val = "bold"
@@ -298,7 +298,7 @@ def test_options_all_available(gt_tbl: GT):
 
 
 def test_scss_default_generated(gt_tbl: GT, snapshot):
-    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+    assert snapshot == _compile_scss(gt_tbl, id="abc", compress=False)
 
 
 def test_scss_from_opt_table_outline(gt_tbl: GT, snapshot):
@@ -322,4 +322,4 @@ def test_scss_from_opt_table_outline(gt_tbl: GT, snapshot):
         assert getattr(gt_tbl_outline._options, f"table_border_{part}_width").value == "10px"
         assert getattr(gt_tbl_outline._options, f"table_border_{part}_color").value == "blue"
 
-    assert snapshot == compile_scss(gt_tbl_outline, id="abc", compress=False)
+    assert snapshot == _compile_scss(gt_tbl_outline, id="abc", compress=False)
