@@ -28,6 +28,7 @@ from great_tables._formats import (
     fmt_markdown,
     fmt_image,
 )
+from great_tables._substitution import sub_missing
 from great_tables._heading import tab_header
 from great_tables._helpers import random_id
 from great_tables._options import (
@@ -191,7 +192,8 @@ class GT(
     """
 
     def _repr_html_(self):
-        return self.render(context="html")
+        html = self.render(context="html")
+        return f"<html>{html}</html>"
 
     def __init__(
         self,
@@ -226,6 +228,8 @@ class GT(
     fmt_markdown = fmt_markdown
     fmt_image = fmt_image
     data_color = data_color
+
+    sub_missing = sub_missing
 
     opt_stylize = opt_stylize
     opt_align_table_header = opt_align_table_header

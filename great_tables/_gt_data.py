@@ -9,6 +9,8 @@ from dataclasses import dataclass, field, replace
 from ._utils import _str_detect
 from ._tbl_data import create_empty_frame, to_list, validate_frame
 
+# TODO: move this class somewhere else (even gt_data could work)
+
 from ._styles import CellStyle
 
 # Note that we replace with with collections.abc after python 3.8
@@ -155,6 +157,9 @@ class Body:
                 raise Exception("Internal Error")
             for col, row in fmt.cells.resolve():
                 result = eval_func(_get_cell(data_tbl, row, col))
+                if isinstance(result, FormatterSkipElement):
+                    continue
+
                 # TODO: I think that this is very inefficient with polars, so
                 # we could either accumulate results and set them per column, or
                 # could always use a pandas DataFrame inside Body?
@@ -842,7 +847,12 @@ from typing import Any, Callable, TypeVar, Union, List, Optional, Tuple
 
 from ._tbl_data import n_rows
 
-FormatFn = Callable[[Any], str]
+
+class FormatterSkipElement:
+    """Represent that nothing should be saved for a formatted value."""
+
+
+FormatFn = Callable[[Any], "str | FormatterSkipElement"]
 
 
 class FormatFns:
