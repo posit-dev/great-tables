@@ -273,14 +273,12 @@ class GT(
 
         all_important = False if quarto_env else True
 
-        # Check if we are rendering in an IPython environment, and if so, whether we are using
-        # the Terminal or ZMQ shell. This is important because the Terminal shell does not support
-        # rendering of HTML fragments.
-        ipython_options = ["TerminalInteractiveShell", "ZMQInteractiveShell"]
-
+        # Depending on the environment, we need to determine whether we want to render the table
+        # within a full page or as an HTML fragment
         if quarto_env or databricks_env:
             make_page = False
         else:
+            ipython_options = ["TerminalInteractiveShell", "ZMQInteractiveShell"]
             make_page = get_ipython().__class__.__name__ not in ipython_options
 
         rendered = self.render(context="html", make_page=make_page, all_important=all_important)
