@@ -21,6 +21,10 @@ def create_heading_component_h(data: GTData) -> StringBuilder:
     if not has_title and not has_subtitle:
         return result
 
+    # Raise an error if there is a subtitle but no title
+    if not has_title and has_subtitle:
+        raise ValueError("A subtitle was provided without a title.")
+
     title = _process_text(title)
     subtitle = _process_text(subtitle)
 
