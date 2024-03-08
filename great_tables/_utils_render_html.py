@@ -162,8 +162,8 @@ def create_columns_component_h(data: GTData) -> str:
                 )
             )
 
-        # Join the <th> cells into a string and separate each with a newline
-        th_cells = "\n".join([str(tag) for tag in table_col_headings])
+        # Join the <th> cells into a string and begin each with a newline
+        th_cells = "\n" + "\n".join(["  " + str(tag) for tag in table_col_headings]) + "\n"
 
         table_col_headings = tags.tr(HTML(th_cells), class_="gt_col_headings")
 
