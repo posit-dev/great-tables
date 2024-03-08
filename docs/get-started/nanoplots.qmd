@@ -197,17 +197,21 @@ weather_2 = pl.DataFrame(
                 "x": [6.3, 7.1, 10.3, 11.0, 12.07, 13.1, 15.12, 16.42],
                 "y": [15.2, 17.77, 21.42, 21.63, 25.23, 26.84, 27.2, 27.44],
             },
-        ],
+        ]
     }
 )
 
 (
-    GT(weather_2).fmt_nanoplot(
+    GT(weather_2)
+    .fmt_nanoplot(
         columns="temperatures",
         plot_type="line",
         expand_x=[5, 16],
         expand_y=[10, 40],
-        options=nanoplot_options(show_data_area=False, show_data_line=False),
+        options=nanoplot_options(
+            show_data_area=False,
+            show_data_line=False
+        )
     )
 )
 ```
