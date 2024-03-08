@@ -256,13 +256,34 @@ class GT(
 
     def _repr_html_(self):
         import os
+        from IPython import get_ipython
+
+        # Some rendering environments expect that the HTML provided is a full page; however, quite
+        # a few others accept a fragment of HTML. We can use the `make_page` argument to control
+        # this behavior. When `make_page=True`, we'll direct the `render()` method to wrap the
+        # table's HTML fragment is wrapped in a full page; when `make_page=False`, the HTML
+        # rendered will just consist of the table fragment.
+        make_page = True
 
         # Check if we are rendering in the Quarto environment
-        quarto_enabled = os.environ.get("QUARTO_BIN_PATH") is not None
+        quarto_env = os.environ.get("QUARTO_BIN_PATH") is not None
 
-        all_important = False if quarto_enabled else True
+        # Check if we are rendering in the Databricks environment
+        databricks_env = os.environ.get("DATABRICKS_RUNTIME_VERSION") is not None
 
-        rendered = self.render(context="html", make_page=False, all_important=all_important)
+        all_important = False if quarto_env else True
+
+        # Check if we are rendering in an IPython environment, and if so, whether we are using
+        # the Terminal or ZMQ shell. This is important because the Terminal shell does not support
+        # rendering of HTML fragments.
+        ipython_options = ["TerminalInteractiveShell", "ZMQInteractiveShell"]
+
+        if quarto_env or databricks_env:
+            make_page = False
+        else:
+            make_page = get_ipython().__class__.__name__ not in ipython_options
+
+        rendered = self.render(context="html", make_page=make_page, all_important=all_important)
 
         return rendered
 
