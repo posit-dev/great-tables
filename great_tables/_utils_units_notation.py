@@ -2,7 +2,7 @@ from typing import Optional, List
 import re
 
 
-def generate_tokens_list(units_notation: str) -> List[str]:
+def _generate_tokens_list(units_notation: str) -> List[str]:
 
     # Remove any surrounding double braces before splitting the string into a list of tokens
     tokens_list = re.split(r"\s+", re.sub(r"^\{\{\s*|\s*\}\}$", "", units_notation))
@@ -44,7 +44,7 @@ class UnitDefinition:
 def define_units(units_notation: str) -> List[UnitDefinition]:
 
     # Get a list of raw tokens
-    tokens_list = generate_tokens_list(units_notation=units_notation)
+    tokens_list = _generate_tokens_list(units_notation=units_notation)
 
     # Initialize a list to store the units
     units_list = []
