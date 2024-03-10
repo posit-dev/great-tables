@@ -28,6 +28,7 @@ class UnitDefinition:
     exponent: Optional[str] = None
     sub_super_overstrike: bool = False
     chemical_formula: bool = False
+    built: Optional[str] = None
 
 
 class UnitDefinitionList:
