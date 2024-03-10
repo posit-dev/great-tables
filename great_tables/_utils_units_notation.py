@@ -135,7 +135,6 @@ class UnitDefinitionList:
         return units_str
 
 
-def define_units(units_notation: str) -> List[UnitDefinition]:
 def _units_to_subscript(content: str) -> str:
     return '<span style="white-space:nowrap;"><sub>' + content + "</sub></span>"
 
@@ -161,11 +160,91 @@ def _replace_units_symbol(text: str, detect: str, pattern: str, replace: str) ->
 
     return text
 
+
+def _units_symbol_replacements(text: str) -> str:
+
+    text = _replace_units_symbol(text, "^-", "^-", "&minus;")
+    text = _replace_units_symbol(text, "^um$", "um", "&micro;m")
+    text = _replace_units_symbol(text, "^uL$", "uL", "&micro;L")
+    text = _replace_units_symbol(text, "^umol", "^umol", "&micro;mol")
+    text = _replace_units_symbol(text, "^ug$", "ug", "&micro;g")
+    text = _replace_units_symbol(text, ":micro:", ":micro:", "&micro;")
+    text = _replace_units_symbol(text, ":mu:", ":mu:", "&micro;")
+    text = _replace_units_symbol(text, "^ohm$", "ohm", "&#8486;")
+    text = _replace_units_symbol(text, ":ohm:", ":ohm:", "&#8486;")
+    text = _replace_units_symbol(text, ":angstrom:", ":angstrom:", "&#8491;")
+    text = _replace_units_symbol(text, ":times:", ":times:", "&times;")
+    text = _replace_units_symbol(text, ":plusminus:", ":plusminus:", "&plusmn;")
+    text = _replace_units_symbol(text, ":permil:", ":permil:", "&permil;")
+    text = _replace_units_symbol(text, ":permille:", ":permille:", "&permil;")
+    text = _replace_units_symbol(text, ":degree:", ":degree:", "&deg;")
+    text = _replace_units_symbol(text, ":degrees:", ":degrees:", "&deg;")
+    text = _replace_units_symbol(text, "degC", "degC", "&deg;C")
+    text = _replace_units_symbol(text, "degF", "degF", "&deg;F")
+    text = _replace_units_symbol(text, ":space:", ":space:", "&nbsp;")
+    text = _replace_units_symbol(text, ":Alpha:", ":Alpha:", "&Alpha;")
+    text = _replace_units_symbol(text, ":alpha:", ":alpha:", "&alpha;")
+    text = _replace_units_symbol(text, ":Beta:", ":Beta:", "&Beta;")
+    text = _replace_units_symbol(text, ":beta:", ":beta:", "&beta;")
+    text = _replace_units_symbol(text, ":Gamma:", ":Gamma:", "&Gamma;")
+    text = _replace_units_symbol(text, ":gamma:", ":gamma:", "&gamma;")
+    text = _replace_units_symbol(text, ":Delta:", ":Delta:", "&Delta;")
+    text = _replace_units_symbol(text, ":delta:", ":delta:", "&delta;")
+    text = _replace_units_symbol(text, ":Epsilon:", ":Epsilon:", "&Epsilon;")
+    text = _replace_units_symbol(text, ":epsilon:", ":epsilon:", "&epsilon;")
+    text = _replace_units_symbol(text, ":Zeta:", ":Zeta:", "&Zeta;")
+    text = _replace_units_symbol(text, ":zeta:", ":zeta:", "&zeta;")
+    text = _replace_units_symbol(text, ":Eta:", ":Eta:", "&Eta;")
+    text = _replace_units_symbol(text, ":eta:", ":eta:", "&eta;")
+    text = _replace_units_symbol(text, ":Theta:", ":Theta:", "&Theta;")
+    text = _replace_units_symbol(text, ":theta:", ":theta:", "&theta;")
+    text = _replace_units_symbol(text, ":Iota:", ":Iota:", "&Iota;")
+    text = _replace_units_symbol(text, ":iota:", ":iota:", "&iota;")
+    text = _replace_units_symbol(text, ":Kappa:", ":Kappa:", "&Kappa;")
+    text = _replace_units_symbol(text, ":kappa:", ":kappa:", "&kappa;")
+    text = _replace_units_symbol(text, ":Lambda:", ":Lambda:", "&Lambda;")
+    text = _replace_units_symbol(text, ":lambda:", ":lambda:", "&lambda;")
+    text = _replace_units_symbol(text, ":Mu:", ":Mu:", "&Mu;")
+    text = _replace_units_symbol(text, ":mu:", ":mu:", "&mu;")
+    text = _replace_units_symbol(text, ":Nu:", ":Nu:", "&Nu;")
+    text = _replace_units_symbol(text, ":nu:", ":nu:", "&nu;")
+    text = _replace_units_symbol(text, ":Xi:", ":Xi:", "&Xi;")
+    text = _replace_units_symbol(text, ":xi:", ":xi:", "&xi;")
+    text = _replace_units_symbol(text, ":Omicron:", ":Omicron:", "&Omicron;")
+    text = _replace_units_symbol(text, ":omicron:", ":omicron:", "&omicron;")
+    text = _replace_units_symbol(text, ":Pi:", ":Pi:", "&Pi;")
+    text = _replace_units_symbol(text, ":pi:", ":pi:", "&pi;")
+    text = _replace_units_symbol(text, ":Rho:", ":Rho:", "&Rho;")
+    text = _replace_units_symbol(text, ":rho:", ":rho:", "&rho;")
+    text = _replace_units_symbol(text, ":Sigma:", ":Sigma:", "&Sigma;")
+    text = _replace_units_symbol(text, ":sigma:", ":sigma:", "&sigma;")
+    text = _replace_units_symbol(text, ":sigmaf:", ":sigmaf:", "&sigmaf;")
+    text = _replace_units_symbol(text, ":Tau:", ":Tau:", "&Tau;")
+    text = _replace_units_symbol(text, ":tau:", ":tau:", "&tau;")
+    text = _replace_units_symbol(text, ":Upsilon:", ":Upsilon:", "&Upsilon;")
+    text = _replace_units_symbol(text, ":upsilon:", ":upsilon:", "&upsilon;")
+    text = _replace_units_symbol(text, ":Phi:", ":Phi:", "&Phi;")
+    text = _replace_units_symbol(text, ":phi:", ":phi:", "&phi;")
+    text = _replace_units_symbol(text, ":Chi:", ":Chi:", "&Chi;")
+    text = _replace_units_symbol(text, ":chi:", ":chi:", "&chi;")
+    text = _replace_units_symbol(text, ":Psi:", ":Psi:", "&Psi;")
+    text = _replace_units_symbol(text, ":psi:", ":psi:", "&psi;")
+    text = _replace_units_symbol(text, ":Omega:", ":Omega:", "&Omega;")
+    text = _replace_units_symbol(text, ":omega:", ":omega:", "&omega;")
+
+    return text
+
+
+def define_units(units_notation: str) -> UnitDefinitionList:
+
     # Get a list of raw tokens
     tokens_list = _generate_tokens_list(units_notation=units_notation)
 
     # Initialize a list to store the units
     units_list = []
+
+    if len(tokens_list) == 0:
+        return UnitDefinitionList(units_list=[])
 
     for i in range(len(tokens_list)):
 
@@ -255,4 +334,4 @@ def _replace_units_symbol(text: str, detect: str, pattern: str, replace: str) ->
         # Append the unit definition to the list of units
         units_list.append(unit_definition)
 
-    return units_list
+    return UnitDefinitionList(units_list=units_list)
