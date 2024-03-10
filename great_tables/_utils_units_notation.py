@@ -1,4 +1,5 @@
 from typing import Optional, List
+from dataclasses import dataclass
 import re
 
 
