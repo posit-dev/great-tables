@@ -3510,6 +3510,34 @@ class FmtImage:
         return f'<img src="{uri}" style="{style_string}">'
 
 
+def fmt_units(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: Union[int, List[int], None] = None,
+    pattern: str = "{x}",
+) -> GTSelf:
+
+    def fmt_units_fn(
+        x: str,
+        pattern: str = pattern,
+    ):
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
+        from great_tables._utils_units_notation import define_units
+
+        x_formatted = define_units(x).to_html()
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    return fmt(self, fns=fmt_units_fn, columns=columns, rows=rows)
+
+
 def fmt_nanoplot(
     self: GTSelf,
     columns: SelectExpr = None,
