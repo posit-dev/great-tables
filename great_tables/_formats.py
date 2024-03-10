@@ -3516,6 +3516,63 @@ def fmt_units(
     rows: Union[int, List[int], None] = None,
     pattern: str = "{x}",
 ) -> GTSelf:
+    """
+    Format measurement units.
+
+    The `fmt_units()` method lets you better format measurement units in the table body. These must
+    conform to the **Great Tables** *units notation*; as an example of this, `"J Hz^-1 mol^-1"` can
+    be used to generate units for the *molar Planck constant*. The notation here provides several
+    conveniences for defining units, so as long as the values to be formatted conform to this
+    syntax, you'll obtain nicely-formatted inline units. Details pertaining to *units notation* can
+    be found in the section entitled *How to use units notation*.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    How to use units notation
+    -------------------------
+    The **Great Tables** units notation involves a shorthand of writing units that feels familiar
+    and is fine-tuned for the task at hand. Each unit is treated as a separate entity (parentheses
+    and other symbols included) and the addition of subscript text and exponents is flexible and
+    relatively easy to formulate. This is all best shown with examples:
+
+    - `"m/s"` and `"m / s"` both render as `"m/s"`
+    - `"m s^-1"` will appear with the `"-1"` exponent intact
+    - `"m /s"` gives the the same result, as `"/<unit>"` is equivalent to `"<unit>^-1"`
+    - `"E_h"` will render an `"E"` with the `"h"` subscript
+    - `"t_i^2.5"` provides a `t` with an `"i"` subscript and a `"2.5"` exponent
+    - `"m[_0^2]"` will use overstriking to set both scripts vertically
+    - `"g/L %C6H12O6%"` uses a chemical formula (enclosed in a pair of `"%"` characters) as a unit
+    partial, and the formula will render correctly with subscripted numbers
+    - Common units that are difficult to write using ASCII text may be implicitly converted to the
+    correct characters (e.g., the `"u"` in `"ug"`, `"um"`, `"uL"`, and `"umol"` will be converted to
+    the Greek *mu* symbol; `"degC"` and `"degF"` will render a degree sign before the temperature
+    unit)
+    - We can transform shorthand symbol/unit names enclosed in `":"` (e.g., `":angstrom:"`,
+    `":ohm:"`, etc.) into proper symbols
+    - Greek letters can added by enclosing the letter name in `":"`; you can use lowercase letters
+    (e.g., `":beta:"`, `":sigma:"`, etc.) and uppercase letters too (e.g., `":Alpha:"`, `":Zeta:"`,
+    etc.)
+    - The components of a unit (unit name, subscript, and exponent) can be fully or partially
+    italicized/emboldened by surrounding text with `"*"` or `"**"`
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+    """
 
     def fmt_units_fn(
         x: str,
