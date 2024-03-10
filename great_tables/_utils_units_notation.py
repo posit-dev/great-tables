@@ -64,6 +64,13 @@ def _units_html_sub_super(content_sub: str, content_sup: str) -> str:
     )
 
 
+def _replace_units_symbol(text: str, detect: str, pattern: str, replace: str) -> str:
+
+    if re.search(detect, text):
+        text = re.sub(pattern, replace, text)
+
+    return text
+
     # Get a list of raw tokens
     tokens_list = _generate_tokens_list(units_notation=units_notation)
 
