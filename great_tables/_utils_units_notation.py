@@ -46,6 +46,23 @@ class UnitDefinitionList:
 
 
 def define_units(units_notation: str) -> List[UnitDefinition]:
+def _units_to_subscript(content: str) -> str:
+    return '<span style="white-space:nowrap;"><sub>' + content + "</sub></span>"
+
+
+def _units_to_superscript(content: str) -> str:
+    return '<span style="white-space:nowrap;"><sup>' + content + "</sup></span>"
+
+
+def _units_html_sub_super(content_sub: str, content_sup: str) -> str:
+    return (
+        '<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">'
+        + content_sup
+        + "<br>"
+        + content_sub
+        + "</span>"
+    )
+
 
     # Get a list of raw tokens
     tokens_list = _generate_tokens_list(units_notation=units_notation)
