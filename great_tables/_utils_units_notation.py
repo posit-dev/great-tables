@@ -47,7 +47,6 @@ class UnitDefinitionList:
     def to_html(self) -> str:
 
         from great_tables._text import _md_html
-        import pandas as pd
 
         for i in range(len(self)):
 
@@ -65,23 +64,23 @@ class UnitDefinitionList:
 
             unit = _units_symbol_replacements(text=unit)
 
-            if not pd.isna(unit) and len(unit) > 2 and "*" in unit:
+            if len(unit) > 2 and "*" in unit:
 
                 unit = _md_html(unit)
 
-            if not pd.isna(unit_subscript) and len(unit_subscript) > 2 and "*" in unit_subscript:
+            if unit_subscript is not None and len(unit_subscript) > 2 and "*" in unit_subscript:
 
                 unit_subscript = _units_symbol_replacements(text=unit_subscript)
                 unit_subscript = _md_html(unit_subscript)
 
-            if not pd.isna(exponent) and len(exponent) > 2 and "*" in exponent:
+            if exponent is not None and len(exponent) > 2 and "*" in exponent:
 
                 exponent = _units_symbol_replacements(text=exponent)
                 exponent = _md_html(exponent)
 
             units_str_i += unit
 
-            if sub_super_overstrike and not pd.isna(unit_subscript) and not pd.isna(exponent):
+            if sub_super_overstrike and unit_subscript is not None and exponent is not None:
 
                 exponent = exponent.replace("-", "&minus;")
 
@@ -99,12 +98,12 @@ class UnitDefinitionList:
 
             else:
 
-                if not pd.isna(unit_subscript):
+                if unit_subscript is not None:
 
                     unit_subscript = _units_to_subscript(content=unit_subscript)
                     units_str_i += unit_subscript
 
-                if not pd.isna(exponent):
+                if exponent is not None:
 
                     exponent = exponent.replace("-", "&minus;")
 
@@ -129,7 +128,7 @@ class UnitDefinitionList:
             if len(units_object) == 3 and units_object[1].unit == "/":
                 spacer = ""
 
-            units_str += spacer + unit_add
+            units_str += f"{spacer}{unit_add}"
 
         units_str = re.sub("^\\s+|\\s+$", "", units_str)
 
