@@ -43,6 +43,96 @@ class UnitDefinitionList:
     def __getitem__(self, index: int) -> UnitDefinition:
         return self.units_list[index]
 
+    def to_html(self) -> str:
+
+        from great_tables._text import _md_html
+        import pandas as pd
+
+        for i in range(len(self)):
+
+            units_str_i = ""
+
+            units_object_i = self[i]
+            unit = units_object_i.unit
+            unit_subscript = units_object_i.unit_subscript
+            exponent = units_object_i.exponent
+            sub_super_overstrike = units_object_i.sub_super_overstrike
+            chemical_formula = units_object_i.chemical_formula
+
+            if "x10" in unit and not chemical_formula:
+                unit = unit.replace("x", "&times;")
+
+            unit = _units_symbol_replacements(text=unit)
+
+            if not pd.isna(unit) and len(unit) > 2 and "*" in unit:
+
+                unit = _md_html(unit)
+
+            if not pd.isna(unit_subscript) and len(unit_subscript) > 2 and "*" in unit_subscript:
+
+                unit_subscript = _units_symbol_replacements(text=unit_subscript)
+                unit_subscript = _md_html(unit_subscript)
+
+            if not pd.isna(exponent) and len(exponent) > 2 and "*" in exponent:
+
+                exponent = _units_symbol_replacements(text=exponent)
+                exponent = _md_html(exponent)
+
+            units_str_i += unit
+
+            if sub_super_overstrike and not pd.isna(unit_subscript) and not pd.isna(exponent):
+
+                exponent = exponent.replace("-", "&minus;")
+
+                units_str_i += _units_html_sub_super(
+                    content_sub=unit_subscript, content_sup=exponent
+                )
+
+            elif chemical_formula:
+
+                units_str_i = re.sub(
+                    "(\\d+)",
+                    '<span style="white-space:nowrap;"><sub>\\1</sub></span>',
+                    units_str_i,
+                )
+
+            else:
+
+                if not pd.isna(unit_subscript):
+
+                    unit_subscript = _units_to_subscript(content=unit_subscript)
+                    units_str_i += unit_subscript
+
+                if not pd.isna(exponent):
+
+                    exponent = exponent.replace("-", "&minus;")
+
+                    exponent = _units_to_superscript(content=exponent)
+                    units_str_i += exponent
+
+            self[i].built = units_str_i
+
+        units_str = ""
+
+        units_object = self.units_list
+
+        for i in range(len(units_object)):
+
+            unit_add = units_object[i].built
+
+            if re.search("\\($|\\[$", units_str) or re.search("^\\)|^\\]", unit_add):
+                spacer = ""
+            else:
+                spacer = " "
+
+            if len(units_object) == 3 and units_object[1].unit == "/":
+                spacer = ""
+
+            units_str += spacer + unit_add
+
+        units_str = re.sub("^\\s+|\\s+$", "", units_str)
+
+        return units_str
 
 
 def define_units(units_notation: str) -> List[UnitDefinition]:
