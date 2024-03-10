@@ -20,23 +20,15 @@ def _generate_tokens_list(units_notation: str) -> List[str]:
     return tokens_list
 
 
-# Define a class to store a single unit definition (i.e., a token and its associated unit)
+@dataclass
 class UnitDefinition:
-    def __init__(
-        self,
-        token: str,
-        unit: str,
-        unit_subscript: Optional[str] = None,
-        exponent: Optional[str] = None,
-        sub_super_overstrike: bool = False,
-        chemical_formula: bool = False,
-    ):
-        self.token = token
-        self.unit = unit
-        self.unit_subscript = unit_subscript
-        self.exponent = exponent
-        self.sub_super_overstrike = sub_super_overstrike
-        self.chemical_formula = chemical_formula
+    token: str
+    unit: str
+    unit_subscript: Optional[str] = None
+    exponent: Optional[str] = None
+    sub_super_overstrike: bool = False
+    chemical_formula: bool = False
+
 
     def __repr__(self) -> str:
         return f"UnitDefinition({self.__dict__})"
