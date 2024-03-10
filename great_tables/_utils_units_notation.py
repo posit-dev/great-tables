@@ -30,8 +30,19 @@ class UnitDefinition:
     chemical_formula: bool = False
 
 
+class UnitDefinitionList:
+    def __init__(self, units_list: List[UnitDefinition]):
+        self.units_list = units_list
+
     def __repr__(self) -> str:
-        return f"UnitDefinition({self.__dict__})"
+        return f"UnitDefinitionList({self.__dict__})"
+
+    def __len__(self) -> int:
+        return len(self.units_list)
+
+    def __getitem__(self, index: int) -> UnitDefinition:
+        return self.units_list[index]
+
 
 
 def define_units(units_notation: str) -> List[UnitDefinition]:
