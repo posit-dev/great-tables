@@ -40,3 +40,10 @@ def test_repr_html_vscode(gt, snapshot):
     assert infer_render_env() == "vscode"
 
     assert_rendered_html_repr(snapshot, gt)
+
+
+def test_repr_html_default(gt, snapshot):
+
+    assert infer_render_env() == "default"
+
+    assert_rendered_html_repr(snapshot, gt)
