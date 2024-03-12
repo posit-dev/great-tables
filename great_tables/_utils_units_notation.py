@@ -196,7 +196,6 @@ UNITS_SYMBOLS_HTML = {
     ":rightarrow:": "&rarr;",
     ":leftarrow:": "&larr;",
     ":micro:": "&micro;",
-    ":mu:": "&micro;",
     ":ohm:": "&#8486;",
     ":angstrom:": "&#8491;",
     ":times:": "&times;",
