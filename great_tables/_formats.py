@@ -3572,6 +3572,38 @@ def fmt_units(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `illness` dataset and create a new table. The `units` column happens to contain
+    string values in *units notation* (e.g., `"x10^9 / L"`). Using the `fmt_units()` method here
+    will improve the formatting of those measurement units.
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import illness
+
+    (
+        GT(illness, rowname_col="test")
+        .fmt_units(columns="units")
+        .fmt_number(columns=lambda x: x.startswith("day"), decimals=2, drop_trailing_zeros=True)
+        .tab_header(title="Laboratory Findings for the YF Patient")
+        .tab_spanner(label="Day", columns=lambda x: x.startswith("day"))
+        .tab_spanner(label="Normal Range", columns=lambda x: x.startswith("norm"))
+        .cols_label(
+          norm_l="Lower",
+          norm_u="Upper",
+          units="Units"
+        )
+        .opt_vertical_padding(scale=0.4)
+        .opt_align_table_header(align="left")
+        .tab_options(heading_padding="10px")
+        .tab_style(
+            locations=loc.body(columns="norm_l"),
+            style=style.borders(sides="left")
+        )
+    )
+    ```
     """
 
     def fmt_units_fn(
