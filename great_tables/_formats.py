@@ -3352,12 +3352,12 @@ def fmt_image(
 
     Examples
     --------
-    Using a small portion of [`metro`] dataset, let's create a **gt** table. We will only include a
-    few columns and rows from that table. The `lines` column has comma-separated listings of numbers
+    Using a small portion of `metro` dataset, let's create a new table. We will only include a few
+    columns and rows from that table. The `lines` column has comma-separated listings of numbers
     corresponding to lines served at each station. We have a directory of SVG graphics for all of
     these lines in the package (the path for the image directory can be accessed via
     `files("great_tables") / "data/metro_images"`, using the `importlib_resources` package). The
-    filenames roughly corresponds to the data in the `lines` column. The `fmt_image()` function can
+    filenames roughly corresponds to the data in the `lines` column. The `fmt_image()` method can
     be used with these inputs since the `path=` and `file_pattern=` arguments allow us to compose
     complete and valid file locations. What you get from this are sequences of images in the table
     cells, taken from the referenced graphics files on disk.
