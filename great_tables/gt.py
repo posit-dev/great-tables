@@ -270,10 +270,6 @@ class GT(
 
         return rendered
 
-    def _get_has_built(self: GT) -> bool:
-        built = self._has_built
-        return built
-
     def _render_formats(self, context: str) -> Self:
         rendered = copy.copy(self)
 
