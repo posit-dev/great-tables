@@ -62,6 +62,7 @@ from great_tables._utils_render_html import (
     _get_table_defs,
 )
 from great_tables._tab_create_modify import tab_style
+from great_tables._render import infer_render_env_defaults
 
 
 __all__ = ["GT"]
@@ -255,33 +256,17 @@ class GT(
     # -----
 
     def _repr_html_(self):
-        import os
-        from IPython import get_ipython
-
         # Some rendering environments expect that the HTML provided is a full page; however, quite
         # a few others accept a fragment of HTML. We can use the `make_page` argument to control
         # this behavior. When `make_page=True`, we'll direct the `render()` method to wrap the
         # table's HTML fragment is wrapped in a full page; when `make_page=False`, the HTML
         # rendered will just consist of the table fragment.
-        make_page = True
 
-        # Check if we are rendering in the Quarto environment
-        quarto_env = os.environ.get("QUARTO_BIN_PATH") is not None
+        defaults = infer_render_env_defaults()
+        make_page = defaults["make_page"]
+        all_important = defaults["all_important"]
 
-        # Check if we are rendering in the Databricks environment
-        databricks_env = os.environ.get("DATABRICKS_RUNTIME_VERSION") is not None
-
-        all_important = False if quarto_env else True
-
-        # Depending on the environment, we need to determine whether we want to render the table
-        # within a full page or as an HTML fragment
-        if quarto_env or databricks_env:
-            make_page = False
-        else:
-            ipython_options = ["TerminalInteractiveShell", "ZMQInteractiveShell"]
-            make_page = get_ipython().__class__.__name__ not in ipython_options
-
-        rendered = self.render(context="html", make_page=make_page, all_important=all_important)
+        rendered = self.as_raw_html(make_page=make_page, all_important=all_important)
 
         return rendered
 
@@ -322,22 +307,11 @@ class GT(
     def render(
         self,
         context: str,
-        make_page: bool = False,
-        page_background_color: str = "white",
-        all_important: bool = False,
     ) -> str:
-
-        built_table = self._build_data(context=context)
-
-        if context == "html" and make_page:
-            html_table = built_table._render_as_html(
-                make_page=make_page,
-                page_background_color=page_background_color,
-                all_important=all_important,
-            )
-        else:
-            html_table = built_table._render_as_html(all_important=all_important)
-
+        # Note ideally, this function will forward to things like .as_raw_html(), using a
+        # context dataclass to set the options on those functions. E.g. a LatexContext
+        # would have the options for a .as_latex() method, etc..
+        html_table = self._build_data(context=context)._render_as_html()
         return html_table
 
     # =============================================================================
@@ -475,25 +449,3 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
         cell_values.append(cell_str)
 
     return cell_values
-
-
-def as_raw_html(gt: GT) -> str:
-    """
-    Get the HTML content of a GT object.
-
-    Get the HTML content from a GT object as a string. This function is useful for obtaining the
-    HTML content of a GT object for use in other contexts.
-
-    Parameters
-    ----------
-    gt
-        A GT object.
-
-    Returns
-    -------
-    str
-        An HTML fragment containing a table.
-    """
-    gt_built = gt._build_data(context="html")
-    html_table = gt_built._render_as_html()
-    return html_table
