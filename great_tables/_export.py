@@ -1,7 +1,7 @@
 from __future__ import annotations
 from ._gt_data import GTData
 from ._utils import _try_import
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 import tempfile
 
@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 def as_raw_html(
     self: GT,
     make_page: bool = False,
-    page_background_color: str = "white",
     all_important: bool = False,
 ) -> str:
     """
@@ -36,7 +35,6 @@ def as_raw_html(
 
     html_table = built_table._render_as_html(
         make_page=make_page,
-        page_background_color=page_background_color,
         all_important=all_important,
     )
 

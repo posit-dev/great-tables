@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any, List, Optional
 from typing_extensions import Self
 
 import copy
@@ -257,16 +257,18 @@ class GT(
 
     def _repr_html_(self):
         # Some rendering environments expect that the HTML provided is a full page; however, quite
-        # a few others accept a fragment of HTML. We can use the `make_page` argument to control
-        # this behavior. When `make_page=True`, we'll direct the `render()` method to wrap the
-        # table's HTML fragment is wrapped in a full page; when `make_page=False`, the HTML
-        # rendered will just consist of the table fragment.
+        # a few others accept a fragment of HTML. Within `as_raw_html()` can use the `make_page=`
+        # argument to control this behavior. When `True` the table's HTML fragment (`<div><table>`)
+        # is wrapped in a full page
 
         defaults = infer_render_env_defaults()
         make_page = defaults["make_page"]
         all_important = defaults["all_important"]
 
-        rendered = self.as_raw_html(make_page=make_page, all_important=all_important)
+        rendered = self.as_raw_html(
+            make_page=make_page,
+            all_important=all_important,
+        )
 
         return rendered
 
@@ -316,7 +318,6 @@ class GT(
     def _render_as_html(
         self,
         make_page: bool = False,
-        page_background_color: str = "white",
         all_important: bool = False,
     ) -> str:
 
@@ -385,12 +386,13 @@ class GT(
         """
 
         if make_page:
+
             # Create an HTML page and place the table within it
             finalized_table = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<style>body {{ background-color:{page_background_color};}}
+<style>body {{ background-color:white; }}
 </style>
 </head>
 <body>
