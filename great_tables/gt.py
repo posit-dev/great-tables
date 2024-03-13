@@ -392,8 +392,6 @@ class GT(
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<style>body {{ background-color:white; }}
-</style>
 </head>
 <body>
 {finalized_table}
