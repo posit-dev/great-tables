@@ -73,7 +73,7 @@ def _css_add(value: Union[str, int], amount: int) -> Union[str, int]:
         raise NotImplementedError(f"Unable to add to CSS value: {value}")
 
 
-def compile_scss(
+def _compile_scss(
     data: GTData, id: Optional[str], compress: bool = True, all_important: bool = False
 ) -> str:
     """Return CSS for styling a table, based on options set."""
