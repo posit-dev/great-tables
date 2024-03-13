@@ -62,6 +62,7 @@ from great_tables._utils_render_html import (
     _get_table_defs,
 )
 from great_tables._tab_create_modify import tab_style
+from great_tables._render import infer_render_env_defaults
 
 
 __all__ = ["GT"]
@@ -190,9 +191,6 @@ class GT(
     is apparent in the `currency`, `num`, and `date` columns.
     """
 
-    def _repr_html_(self):
-        return self.render(context="html")
-
     def __init__(
         self,
         data: Any,
@@ -257,8 +255,22 @@ class GT(
 
     # -----
 
-    def _get_has_built(self: GT) -> bool:
-        return self._has_built
+    def _repr_html_(self):
+        # Some rendering environments expect that the HTML provided is a full page; however, quite
+        # a few others accept a fragment of HTML. Within `as_raw_html()` can use the `make_page=`
+        # argument to control this behavior. When `True` the table's HTML fragment (`<div><table>`)
+        # is wrapped in a full page
+
+        defaults = infer_render_env_defaults()
+        make_page = defaults["make_page"]
+        all_important = defaults["all_important"]
+
+        rendered = self.as_raw_html(
+            make_page=make_page,
+            all_important=all_important,
+        )
+
+        return rendered
 
     def _render_formats(self, context: str) -> Self:
         rendered = copy.copy(self)
@@ -290,14 +302,25 @@ class GT(
 
         return built._replace(_body=final_body, _stub=final_stub)
 
-    def render(self, context: str) -> str:
+    def render(
+        self,
+        context: str,
+    ) -> str:
+        # Note ideally, this function will forward to things like .as_raw_html(), using a
+        # context dataclass to set the options on those functions. E.g. a LatexContext
+        # would have the options for a .as_latex() method, etc..
         html_table = self._build_data(context=context)._render_as_html()
         return html_table
 
     # =============================================================================
     # HTML Rendering
     # =============================================================================
-    def _render_as_html(self) -> str:
+    def _render_as_html(
+        self,
+        make_page: bool = False,
+        all_important: bool = False,
+    ) -> str:
+
         heading_component = create_heading_component_h(data=self)
         column_labels_component = create_columns_component_h(data=self)
         body_component = create_body_component_h(data=self)
@@ -343,7 +366,7 @@ class GT(
         # Compile the SCSS as CSS
         from ._scss import _compile_scss
 
-        css = _compile_scss(data=self, id=id)
+        css = compile_scss(data=self, id=id, all_important=all_important)
 
         # Obtain options set for overflow and container dimensions
 
@@ -362,6 +385,19 @@ class GT(
 </div>
         """
 
+        if make_page:
+
+            # Create an HTML page and place the table within it
+            finalized_table = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+</head>
+<body>
+{finalized_table}
+</body>
+</html>
+            """
         return finalized_table
 
     def _finalize_html_table(
@@ -409,25 +445,3 @@ def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
         cell_values.append(cell_str)
 
     return cell_values
-
-
-def as_raw_html(gt: GT) -> str:
-    """
-    Get the HTML content of a GT object.
-
-    Get the HTML content from a GT object as a string. This function is useful for obtaining the
-    HTML content of a GT object for use in other contexts.
-
-    Parameters
-    ----------
-    gt
-        A GT object.
-
-    Returns
-    -------
-    str
-        An HTML fragment containing a table.
-    """
-    gt_built = gt._build_data(context="html")
-    html_table = gt_built._render_as_html()
-    return html_table

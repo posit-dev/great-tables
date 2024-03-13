@@ -7,6 +7,10 @@ th {
   border-style: none;
 }
 
+tr {
+  background-color: transparent;
+}
+
 p {
   margin: 0;
   padding: 0;
@@ -288,6 +292,7 @@ p {
   padding-bottom: $source_notes_padding;
   padding-left: $source_notes_padding_horizontal;
   padding-right: $source_notes_padding_horizontal;
+  text-align: left;
 }
 
 .gt_left {

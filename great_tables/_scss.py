@@ -73,7 +73,9 @@ def _css_add(value: Union[str, int], amount: int) -> Union[str, int]:
         raise NotImplementedError(f"Unable to add to CSS value: {value}")
 
 
-def _compile_scss(data: GTData, id: Optional[str], compress: bool = True) -> str:
+def compile_scss(
+    data: GTData, id: Optional[str], compress: bool = True, all_important: bool = False
+) -> str:
     """Return CSS for styling a table, based on options set."""
 
     # Obtain the SCSS options dictionary
@@ -146,6 +148,9 @@ def _compile_scss(data: GTData, id: Optional[str], compress: bool = True) -> str
         compiled_css = re.sub(r"\.gt_", f"#{id} .gt_", compiled_css, 0, re.MULTILINE)
         compiled_css = re.sub(r"thead", f"#{id} thead", compiled_css, 0, re.MULTILINE)
         compiled_css = re.sub(r"^( p|p) \{", f"#{id} p {{", compiled_css, 0, re.MULTILINE)
+
+    if all_important:
+        compiled_css = re.sub(r";", " !important;", compiled_css, 0, re.MULTILINE)
 
     finalized_css = f"{gt_table_class_str}\n\n{compiled_css}"
 
