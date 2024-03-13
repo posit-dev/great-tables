@@ -1,12 +1,20 @@
 from __future__ import annotations
 from ._gt_data import GTData
 from ._utils import _try_import
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 import tempfile
 
+if TYPE_CHECKING:
+    # Note that as_raw_html uses methods on the GT class, not just data
+    from .gt import GT
 
-def as_raw_html(self: GTData) -> str:
+
+def as_raw_html(
+    self: GT,
+    make_page: bool = False,
+    all_important: bool = False,
+) -> str:
     """
     Get the HTML content of a GT object.
 
@@ -23,7 +31,14 @@ def as_raw_html(self: GTData) -> str:
     str
         An HTML fragment containing a table.
     """
-    return self._build_data(context="html")._render_as_html()
+    built_table = self._build_data(context="html")
+
+    html_table = built_table._render_as_html(
+        make_page=make_page,
+        all_important=all_important,
+    )
+
+    return html_table
 
 
 def save(
