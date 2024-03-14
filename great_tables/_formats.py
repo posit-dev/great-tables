@@ -2103,6 +2103,157 @@ def fmt_markdown(
     return fmt(self, fns=fmt_markdown_fn, columns=columns, rows=rows)
 
 
+def fmt_units(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: Union[int, List[int], None] = None,
+    pattern: str = "{x}",
+) -> GTSelf:
+    """
+    Format measurement units.
+
+    The `fmt_units()` method lets you better format measurement units in the table body. These must
+    conform to the **Great Tables** *units notation*; as an example of this, `"J Hz^-1 mol^-1"` can
+    be used to generate units for the *molar Planck constant*. The notation here provides several
+    conveniences for defining units, so as long as the values to be formatted conform to this
+    syntax, you'll obtain nicely-formatted inline units. Details pertaining to *units notation* can
+    be found in the section entitled *How to use units notation*.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    How to use units notation
+    -------------------------
+    The **Great Tables** units notation involves a shorthand of writing units that feels familiar
+    and is fine-tuned for the task at hand. Each unit is treated as a separate entity (parentheses
+    and other symbols included) and the addition of subscript text and exponents is flexible and
+    relatively easy to formulate. This is all best shown with examples:
+
+    - `"m/s"` and `"m / s"` both render as `"m/s"`
+    - `"m s^-1"` will appear with the `"-1"` exponent intact
+    - `"m /s"` gives the the same result, as `"/<unit>"` is equivalent to `"<unit>^-1"`
+    - `"E_h"` will render an `"E"` with the `"h"` subscript
+    - `"t_i^2.5"` provides a `t` with an `"i"` subscript and a `"2.5"` exponent
+    - `"m[_0^2]"` will use overstriking to set both scripts vertically
+    - `"g/L %C6H12O6%"` uses a chemical formula (enclosed in a pair of `"%"` characters) as a unit
+    partial, and the formula will render correctly with subscripted numbers
+    - Common units that are difficult to write using ASCII text may be implicitly converted to the
+    correct characters (e.g., the `"u"` in `"ug"`, `"um"`, `"uL"`, and `"umol"` will be converted to
+    the Greek *mu* symbol; `"degC"` and `"degF"` will render a degree sign before the temperature
+    unit)
+    - We can transform shorthand symbol/unit names enclosed in `":"` (e.g., `":angstrom:"`,
+    `":ohm:"`, etc.) into proper symbols
+    - Greek letters can added by enclosing the letter name in `":"`; you can use lowercase letters
+    (e.g., `":beta:"`, `":sigma:"`, etc.) and uppercase letters too (e.g., `":Alpha:"`, `":Zeta:"`,
+    etc.)
+    - The components of a unit (unit name, subscript, and exponent) can be fully or partially
+    italicized/emboldened by surrounding text with `"*"` or `"**"`
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `illness` dataset and create a new table. The `units` column happens to contain
+    string values in *units notation* (e.g., `"x10^9 / L"`). Using the `fmt_units()` method here
+    will improve the formatting of those measurement units.
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import illness
+
+    (
+        GT(illness, rowname_col="test")
+        .fmt_units(columns="units")
+        .fmt_number(columns=lambda x: x.startswith("day"), decimals=2, drop_trailing_zeros=True)
+        .tab_header(title="Laboratory Findings for the YF Patient")
+        .tab_spanner(label="Day", columns=lambda x: x.startswith("day"))
+        .tab_spanner(label="Normal Range", columns=lambda x: x.startswith("norm"))
+        .cols_label(
+          norm_l="Lower",
+          norm_u="Upper",
+          units="Units"
+        )
+        .opt_vertical_padding(scale=0.4)
+        .opt_align_table_header(align="left")
+        .tab_options(heading_padding="10px")
+        .tab_style(
+            locations=loc.body(columns="norm_l"),
+            style=style.borders(sides="left")
+        )
+        .opt_vertical_padding(scale=0.5)
+    )
+    ```
+
+    The `constants` dataset contains values for hundreds of fundamental physical constants. We'll
+    take a subset of values that have some molar basis and generate a new display table from that.
+    Like the `illness` dataset, this one has a `units` column so, again, the `fmt_units()` method
+    will be used to format those units. Here, the preference for typesetting measurement units is to
+    have positive and negative exponents (e.g., not `"<unit_1> / <unit_2>"` but rather
+    `"<unit_1> <unit_2>^-1"`).
+
+    ```{python}
+    from great_tables.data import constants
+    import polars as pl
+    import polars.selectors as cs
+
+    constants_mini = (
+        pl.from_pandas(constants)
+        .filter(pl.col("name").str.contains("molar")).sort("value")
+        .with_columns(
+            name=pl.col("name")
+            .str.to_titlecase()
+            .str.replace("Kpa", "kpa")
+            .str.replace("Of", "of")
+        )
+    )
+
+    (
+        GT(constants_mini)
+        .cols_hide(columns=["uncert", "sf_value", "sf_uncert"])
+        .fmt_units(columns="units")
+        .fmt_scientific(columns="value", decimals=3)
+        .tab_header(title="Physical Constants Having a Molar Basis")
+        .tab_options(column_labels_hidden=True)
+    )
+    ```
+    """
+
+    def fmt_units_fn(
+        x: str,
+        pattern: str = pattern,
+    ):
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if pd.isna(x):
+            return x
+
+        from great_tables._utils_units_notation import define_units
+
+        x_formatted = define_units(x).to_html()
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    return fmt(self, fns=fmt_units_fn, columns=columns, rows=rows)
+
+
 def _value_to_decimal_notation(
     value: Union[int, float],
     decimals: int = 2,
@@ -3508,157 +3659,6 @@ class FmtImage:
         )
 
         return f'<img src="{uri}" style="{style_string}">'
-
-
-def fmt_units(
-    self: GTSelf,
-    columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
-    pattern: str = "{x}",
-) -> GTSelf:
-    """
-    Format measurement units.
-
-    The `fmt_units()` method lets you better format measurement units in the table body. These must
-    conform to the **Great Tables** *units notation*; as an example of this, `"J Hz^-1 mol^-1"` can
-    be used to generate units for the *molar Planck constant*. The notation here provides several
-    conveniences for defining units, so as long as the values to be formatted conform to this
-    syntax, you'll obtain nicely-formatted inline units. Details pertaining to *units notation* can
-    be found in the section entitled *How to use units notation*.
-
-    Parameters
-    ----------
-    columns
-        The columns to target. Can either be a single column name or a series of column names
-        provided in a list.
-    rows
-        In conjunction with `columns=`, we can specify which of their rows should undergo
-        formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
-    pattern
-        A formatting pattern that allows for decoration of the formatted value. The formatted value
-        is represented by the `{x}` (which can be used multiple times, if needed) and all other
-        characters will be interpreted as string literals.
-
-    How to use units notation
-    -------------------------
-    The **Great Tables** units notation involves a shorthand of writing units that feels familiar
-    and is fine-tuned for the task at hand. Each unit is treated as a separate entity (parentheses
-    and other symbols included) and the addition of subscript text and exponents is flexible and
-    relatively easy to formulate. This is all best shown with examples:
-
-    - `"m/s"` and `"m / s"` both render as `"m/s"`
-    - `"m s^-1"` will appear with the `"-1"` exponent intact
-    - `"m /s"` gives the the same result, as `"/<unit>"` is equivalent to `"<unit>^-1"`
-    - `"E_h"` will render an `"E"` with the `"h"` subscript
-    - `"t_i^2.5"` provides a `t` with an `"i"` subscript and a `"2.5"` exponent
-    - `"m[_0^2]"` will use overstriking to set both scripts vertically
-    - `"g/L %C6H12O6%"` uses a chemical formula (enclosed in a pair of `"%"` characters) as a unit
-    partial, and the formula will render correctly with subscripted numbers
-    - Common units that are difficult to write using ASCII text may be implicitly converted to the
-    correct characters (e.g., the `"u"` in `"ug"`, `"um"`, `"uL"`, and `"umol"` will be converted to
-    the Greek *mu* symbol; `"degC"` and `"degF"` will render a degree sign before the temperature
-    unit)
-    - We can transform shorthand symbol/unit names enclosed in `":"` (e.g., `":angstrom:"`,
-    `":ohm:"`, etc.) into proper symbols
-    - Greek letters can added by enclosing the letter name in `":"`; you can use lowercase letters
-    (e.g., `":beta:"`, `":sigma:"`, etc.) and uppercase letters too (e.g., `":Alpha:"`, `":Zeta:"`,
-    etc.)
-    - The components of a unit (unit name, subscript, and exponent) can be fully or partially
-    italicized/emboldened by surrounding text with `"*"` or `"**"`
-
-    Returns
-    -------
-    GT
-        The GT object is returned. This is the same object that the method is called on so that we
-        can facilitate method chaining.
-
-    Examples
-    --------
-    Let's use the `illness` dataset and create a new table. The `units` column happens to contain
-    string values in *units notation* (e.g., `"x10^9 / L"`). Using the `fmt_units()` method here
-    will improve the formatting of those measurement units.
-
-    ```{python}
-    from great_tables import GT, style, loc
-    from great_tables.data import illness
-
-    (
-        GT(illness, rowname_col="test")
-        .fmt_units(columns="units")
-        .fmt_number(columns=lambda x: x.startswith("day"), decimals=2, drop_trailing_zeros=True)
-        .tab_header(title="Laboratory Findings for the YF Patient")
-        .tab_spanner(label="Day", columns=lambda x: x.startswith("day"))
-        .tab_spanner(label="Normal Range", columns=lambda x: x.startswith("norm"))
-        .cols_label(
-          norm_l="Lower",
-          norm_u="Upper",
-          units="Units"
-        )
-        .opt_vertical_padding(scale=0.4)
-        .opt_align_table_header(align="left")
-        .tab_options(heading_padding="10px")
-        .tab_style(
-            locations=loc.body(columns="norm_l"),
-            style=style.borders(sides="left")
-        )
-        .opt_vertical_padding(scale=0.5)
-    )
-    ```
-
-    The `constants` dataset contains values for hundreds of fundamental physical constants. We'll
-    take a subset of values that have some molar basis and generate a new display table from that.
-    Like the `illness` dataset, this one has a `units` column so, again, the `fmt_units()` method
-    will be used to format those units. Here, the preference for typesetting measurement units is to
-    have positive and negative exponents (e.g., not `"<unit_1> / <unit_2>"` but rather
-    `"<unit_1> <unit_2>^-1"`).
-
-    ```{python}
-    from great_tables.data import constants
-    import polars as pl
-    import polars.selectors as cs
-
-    constants_mini = (
-        pl.from_pandas(constants)
-        .filter(pl.col("name").str.contains("molar")).sort("value")
-        .with_columns(
-            name=pl.col("name")
-            .str.to_titlecase()
-            .str.replace("Kpa", "kpa")
-            .str.replace("Of", "of")
-        )
-    )
-
-    (
-        GT(constants_mini)
-        .cols_hide(columns=["uncert", "sf_value", "sf_uncert"])
-        .fmt_units(columns="units")
-        .fmt_scientific(columns="value", decimals=3)
-        .tab_header(title="Physical Constants Having a Molar Basis")
-        .tab_options(column_labels_hidden=True)
-    )
-    ```
-    """
-
-    def fmt_units_fn(
-        x: str,
-        pattern: str = pattern,
-    ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
-            return x
-
-        from great_tables._utils_units_notation import define_units
-
-        x_formatted = define_units(x).to_html()
-
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
-
-        return x_formatted
-
-    return fmt(self, fns=fmt_units_fn, columns=columns, rows=rows)
 
 
 def fmt_nanoplot(
