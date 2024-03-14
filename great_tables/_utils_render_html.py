@@ -21,6 +21,10 @@ def create_heading_component_h(data: GTData) -> StringBuilder:
     if not has_title and not has_subtitle:
         return result
 
+    # Raise an error if there is a subtitle but no title
+    if not has_title and has_subtitle:
+        raise ValueError("A subtitle was provided without a title.")
+
     title = _process_text(title)
     subtitle = _process_text(subtitle)
 
@@ -30,19 +34,23 @@ def create_heading_component_h(data: GTData) -> StringBuilder:
         stub=data._stub, row_groups=data._row_groups, options=data._options
     )
 
-    result.append(
-        f"""  <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}
-  </tr>"""
-    )
-
     if has_subtitle:
-        subtitle_row = f"""  <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}
+        heading = f"""
+  <tr>
+    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}</th>
+  </tr>
+  <tr>
+    <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}</th>
   </tr>"""
-        result.append(f"\n{subtitle_row}")
+    else:
+        heading = f"""
+  <tr>
+    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}</th>
+  </tr>"""
 
-    return StringBuilder('<thead class="gt_header">', result, "</thead>")
+    result.append(heading)
+
+    return StringBuilder('<thead class="gt_header">', result, "\n</thead>")
 
 
 def create_columns_component_h(data: GTData) -> str:
@@ -154,8 +162,8 @@ def create_columns_component_h(data: GTData) -> str:
                 )
             )
 
-        # Join the <th> cells into a string and separate each with a newline
-        th_cells = "\n".join([str(tag) for tag in table_col_headings])
+        # Join the <th> cells into a string and begin each with a newline
+        th_cells = "\n" + "\n".join(["  " + str(tag) for tag in table_col_headings]) + "\n"
 
         table_col_headings = tags.tr(HTML(th_cells), class_="gt_col_headings")
 
