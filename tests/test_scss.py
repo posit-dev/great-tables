@@ -8,13 +8,18 @@ from great_tables._scss import font_color, css_add, compile_scss
 @pytest.mark.parametrize(
     "src,dst",
     [
-        ("#FFFFFF", "dark"),
-        ("#000000", "light"),
-        ("white", "dark"),
+        ("#FFFFFF", "#000000"),
+        ("#000000", "#FFFFFF"),
+        ("white", "#000000"),
+        ("black", "#FFFFFF"),
+        ("silver", "#000000"),
+        ("transparent", "#000000"),
+        ("currentcolor", "currentcolor"),
+        ("currentColor", "currentcolor"),
     ],
 )
 def test_font_color(src, dst):
-    res = font_color(src, "dark", "light")
+    res = font_color(src, "#000000", "#FFFFFF")
     assert res == dst
 
 
