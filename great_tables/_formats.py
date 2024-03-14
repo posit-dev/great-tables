@@ -3602,6 +3602,7 @@ def fmt_units(
             locations=loc.body(columns="norm_l"),
             style=style.borders(sides="left")
         )
+        .opt_vertical_padding(scale=0.5)
     )
     ```
     """
