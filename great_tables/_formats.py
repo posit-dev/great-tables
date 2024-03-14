@@ -3605,6 +3605,39 @@ def fmt_units(
         .opt_vertical_padding(scale=0.5)
     )
     ```
+
+    The `constants` dataset contains values for hundreds of fundamental physical constants. We'll
+    take a subset of values that have some molar basis and generate a new display table from that.
+    Like the `illness` dataset, this one has a `units` column so, again, the `fmt_units()` method
+    will be used to format those units. Here, the preference for typesetting measurement units is to
+    have positive and negative exponents (e.g., not `"<unit_1> / <unit_2>"` but rather
+    `"<unit_1> <unit_2>^-1"`).
+
+    ```{python}
+    from great_tables.data import constants
+    import polars as pl
+    import polars.selectors as cs
+
+    constants_mini = (
+        pl.from_pandas(constants)
+        .filter(pl.col("name").str.contains("molar")).sort("value")
+        .with_columns(
+            name=pl.col("name")
+            .str.to_titlecase()
+            .str.replace("Kpa", "kpa")
+            .str.replace("Of", "of")
+        )
+    )
+
+    (
+        GT(constants_mini)
+        .cols_hide(columns=["uncert", "sf_value", "sf_uncert"])
+        .fmt_units(columns="units")
+        .fmt_scientific(columns="value", decimals=3)
+        .tab_header(title="Physical Constants Having a Molar Basis")
+        .tab_options(column_labels_hidden=True)
+    )
+    ```
     """
 
     def fmt_units_fn(
