@@ -502,14 +502,17 @@ def _float_to_hex(x: float) -> str:
 def _color_name_to_hex(colors: List[str]) -> List[str]:
     # If any of the colors are in the color_name_dict, then replace them with the
     # corresponding hexadecimal value
-    i = 0
-    while i < len(colors):
-        color = colors[i]
-        if color.lower() in COLOR_NAME_TO_HEX:
-            colors[i] = COLOR_NAME_TO_HEX[color.lower()]
-        i += 1
 
-    return colors
+    hex_colors: List[str] = []
+
+    for color in colors:
+
+        if _is_hex_col([color])[0]:
+            hex_colors.append(color)
+        else:
+            hex_colors.append(COLOR_NAME_TO_HEX[color.lower()])
+
+    return hex_colors
 
 
 def _check_named_colors(colors: Union[str, List[str]]) -> None:
