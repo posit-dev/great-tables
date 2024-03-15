@@ -319,10 +319,10 @@ def test_color_name_to_hex():
 
     # Test case 6: Colors with invalid names
     colors = ["#FF0000", "green", "invalid"]
-    with pytest.raises(KeyError) as e:
+    with pytest.raises(ValueError) as e:
         _color_name_to_hex(colors)
 
-    assert e.value.args[0] == "invalid"
+    assert "Invalid color name provided (invalid)" in e.value.args[0]
 
 
 def test_is_short_hex_valid_short_hex():

@@ -414,8 +414,6 @@ def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) ->
     all_hex_colors = all(_is_hex_col(colors=colors))
 
     if not all_hex_colors:
-        # Ensure that all color names are in the set of X11/R color names or CSS color names
-        _check_named_colors(colors=colors)
 
         # Translate named colors to hexadecimal values
         colors = _color_name_to_hex(colors=colors)
@@ -510,26 +508,14 @@ def _color_name_to_hex(colors: List[str]) -> List[str]:
         if _is_hex_col([color])[0]:
             hex_colors.append(color)
         else:
-            hex_colors.append(COLOR_NAME_TO_HEX[color.lower()])
+            try:
+                hex_colors.append(COLOR_NAME_TO_HEX[color.lower()])
+            except KeyError:
+                raise ValueError(
+                    f"Invalid color name provided ({color}). Please ensure that all colors are valid CSS3 or X11 color names."
+                )
 
     return hex_colors
-
-
-def _check_named_colors(colors: Union[str, List[str]]) -> None:
-    # Ensure that all incoming color names are set in lowercase letters since CSS color names
-    # are often shown with uppercase letters and X11/R color names are always shown with lowercase
-    if isinstance(colors, str):
-        colors = [colors]
-
-    valid_color_names = _color_name_list()
-
-    for color in colors:
-        if not _is_hex_col(colors=[color]) and color not in valid_color_names:
-            raise ValueError(
-                f"Invalid color name provided ({color}). Please ensure that all color names are valid."
-            )
-
-    return
 
 
 def _color_name_list() -> List[str]:
