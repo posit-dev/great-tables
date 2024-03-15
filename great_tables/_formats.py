@@ -64,6 +64,7 @@ def fmt(
     fns: Union[FormatFn, FormatFns],
     columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
+    is_substitution=False,
 ) -> GTSelf:
     """
     Set a column format with a formatter function.
@@ -86,6 +87,8 @@ def fmt(
         In conjunction with `columns`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in `columns` being formatted.
         Alternatively, we can supply a list of row indices.
+    is_substitution
+        Whether the formatter is a substitution. Substitutions are run last, after other formatters.
 
     Returns
     -------
@@ -105,6 +108,10 @@ def fmt(
     col_res = resolve_cols_c(self, columns)
 
     formatter = FormatInfo(fns, col_res, row_pos)
+
+    if is_substitution:
+        return self._replace(_substitutions=[*self._substitutions, formatter])
+
     return self._replace(_formats=[*self._formats, formatter])
 
 

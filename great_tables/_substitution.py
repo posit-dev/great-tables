@@ -34,7 +34,7 @@ def sub_missing(
     missing_text: str = "---",
 ) -> GTSelf:
     subber = SubMissing(self._tbl_data, missing_text)
-    return fmt(self, fns=subber.to_html, columns=columns, rows=rows)
+    return fmt(self, fns=subber.to_html, columns=columns, rows=rows, is_substitution=True)
 
 
 def sub_zero(
@@ -44,7 +44,7 @@ def sub_zero(
     zero_text: str = "nil",
 ) -> GTSelf:
     subber = SubZero(zero_text)
-    return fmt(self, fns=subber.to_html, columns=columns, rows=rows)
+    return fmt(self, fns=subber.to_html, columns=columns, rows=rows, is_substitution=True)
 
 
 @dataclass
