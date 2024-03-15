@@ -192,8 +192,7 @@ class GT(
     """
 
     def _repr_html_(self):
-        html = self.render(context="html")
-        return f"<html>{html}</html>"
+        return self.render(context="html")
 
     def __init__(
         self,
