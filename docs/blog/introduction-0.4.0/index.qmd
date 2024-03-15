@@ -1,0 +1,42 @@
+---
+title: "Great Tables `v0.3.1` and `v0.4.0`: Nanoplots and More"
+html-table-processing: none
+author: Rich Iannone
+date: 2024-03-18
+freeze: true
+jupyter: python3
+---
+
+The recent `v0.3.1` and `v0.4.0` releases of **Great Tables** contain a lot of useful new features! We want to highlight just five of the more notable features within this post:
+
+1. nanoplots via `fmt_nanoplot()`
+2. improved HTML table representations in different code environments
+3. integration of Polars selectors in the `columns=` arg of all formatting (`fmt_*()`) methods
+4. the `save()` method for saving a **GT** table as an image file
+5. rendering a **GT** table as an HTML string though `as_raw_html()`
+
+This is all really exciting stuff so let's review each of these features in some detail!
+
+### Nanoplots, small interactive plots in your table
+
+
+
+### Better HTML table representations, especially in VScode
+
+
+
+### Column selection in `fmt_*()` methods via Polars selectors
+
+
+
+### Using `.save()` to get an image of a table
+
+
+
+### Obtaining the raw HTML output of a table (`as_raw_html()`)
+
+
+
+### Wrapping up
+
+These releases are quite exciting to us and we're so happy these features are available for everyone to use.
