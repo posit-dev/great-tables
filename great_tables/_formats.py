@@ -3590,33 +3590,98 @@ def fmt_nanoplot(
     Nanoplots try to show individual data with reasonably good visibility. Interactivity is included
     as a basic feature so one can hover over the data points and vertical guides will display the
     value ascribed to each data point. Because **Great Tables** knows all about numeric formatting,
-    values will be compactly formatted so as to not take up valuable real estate. If you need to
-    create a nanoplot based on monetary values, that can be handled by providing the currency code
-    to the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function (then hook that
-    up to the `options=` argument). A guide on the left-hand side of the plot area will appear on
-    hover (or touching the left of the nanoplot) and display the minimal and maximal *y* values.
-
-    There are two types of nanoplots available: `"line"` and `"bar"`. A line plot shows individual
-    data points and has smooth connecting lines between them to allow for easier scanning of values.
-    You can opt for straight-line connections between data points, or, no connections at all (it's
-    up to you). You can even eschew the data points and just have a simple line. Regardless of how
-    you mix and match difference plot layers, the plot area focuses on the domain of the data points
-    with the goal of showing you the overall trend of the data. The data you feed into a line plot
-    can consist of a single vector of values (resulting in equally-spaced *y* values), or, you can
-    supply two vectors representative of *x* and *y*.
-
-    A bar plot is built a little bit differently. The focus is on evenly-spaced bars (requiring a
-    single vector of values) that project from a zero line, clearly showing the difference between
-    positive and negative values. By default, any type of nanoplot will have basic interactivity.
-    One can hover over the data points and vertical guides will display values ascribed to each. A
-    guide on the left-hand side of the plot area will display the minimal and maximal *y* values on
-    hover.
+    values will be compactly formatted so as to not take up valuable real estate.
 
     While basic customization options are present in `fmt_nanoplot()`, many more opportunities for
     customizing nanoplots on a more granular level are possible with the aforementioned
     [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function. With that, layers of
     the nanoplots can be selectively removed and the aesthetics of the remaining plot components can
     be modified.
+
+    Examples
+    --------
+    Let's create a nanoplot from a Polars DataFrame containing multiple numbers per cell. The
+    numbers are represented here as strings, where spaces separate the values, and the same values
+    are present in two columns: `lines` and `bars`. We will use the `fmt_nanoplot()` method twice
+    to create a line plot and a bar plot from the data in their respective columns.
+
+    ```{python}
+    from great_tables import GT
+    import polars as pl
+
+    random_numbers_df = pl.DataFrame(
+        {
+            "i": range(1, 5),
+            "lines": [
+                "20 23 6 7 37 23 21 4 7 16",
+                "2.3 6.8 9.2 2.42 3.5 12.1 5.3 3.6 7.2 3.74",
+                "-12 -5 6 3.7 0 8 -7.4",
+                "2 0 15 7 8 10 1 24 17 13 6",
+            ],
+        }
+    ).with_columns(bars=pl.col("lines"))
+
+    (
+        GT(random_numbers_df, rowname_col="i")
+        .fmt_nanoplot(columns="lines")
+        .fmt_nanoplot(columns="bars", plot_type="bar")
+    )
+    ```
+
+    We can always represent the input DataFrame in a different way (with list columns) and
+    `fmt_nanoplot()` will still work. While the input data is the same as in the previous example,
+    we'll take the opportunity here to add a reference line and a reference area to the line plot
+    and also to the bar plot.
+
+    ```{python}
+    random_numbers_df = pl.DataFrame(
+        {
+            "i": range(1, 5),
+            "lines": [
+                { "val": [20.0, 23.0, 6.0, 7.0, 37.0, 23.0, 21.0, 4.0, 7.0, 16.0] },
+                { "val": [2.3, 6.8, 9.2, 2.42, 3.5, 12.1, 5.3, 3.6, 7.2, 3.74] },
+                { "val": [-12.0, -5.0, 6.0, 3.7, 0.0, 8.0, -7.4] },
+                { "val": [2.0, 0.0, 15.0, 7.0, 8.0, 10.0, 1.0, 24.0, 17.0, 13.0, 6.0] },
+            ],
+        }
+    ).with_columns(bars=pl.col("lines"))
+
+    (
+        GT(random_numbers_df, rowname_col="i")
+        .fmt_nanoplot(
+            columns="lines",
+            reference_line="mean",
+            reference_area=["min", "q1"]
+        )
+        .fmt_nanoplot(
+            columns="bars",
+            plot_type="bar",
+            reference_line="max",
+            reference_area=["max", "median"])
+    )
+    ```
+
+    Single-value bar plots and line plots can be made with `fmt_nanoplot()`. These run in the
+    horizontal direction, which is ideal for tabular presentation. The key thing here is that
+    `fmt_nanoplot()` expects a column of numeric values. These plots are meant for comparison
+    across rows so the method automatically scales the horizontal bars to facilitate this type of
+    display. The following example shows how `fmt_nanoplot()` can be used to create single-value bar
+    and line plots.
+
+    ```{python}
+    single_vals_df = pl.DataFrame(
+        {
+            "i": range(1, 6),
+            "bars": [4.1, 1.3, -5.3, 0, 8.2],
+            "lines": [12.44, 6.34, 5.2, -8.2, 9.23]
+        }
+    )
+    (
+        GT(single_vals_df, rowname_col="i")
+        .fmt_nanoplot(columns="bars", plot_type="bar")
+        .fmt_nanoplot(columns="lines", plot_type="line")
+    )
+    ```
     """
 
     from great_tables._utils import _str_detect
