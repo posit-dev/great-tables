@@ -3586,27 +3586,7 @@ def fmt_nanoplot(
     Nanoplots try to show individual data with reasonably good visibility. Interactivity is included
     as a basic feature so one can hover over the data points and vertical guides will display the
     value ascribed to each data point. Because **Great Tables** knows all about numeric formatting,
-    values will be compactly formatted so as to not take up valuable real estate. If you need to
-    create a nanoplot based on monetary values, that can be handled by providing the currency code
-    to the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function (then hook that
-    up to the `options=` argument). A guide on the left-hand side of the plot area will appear on
-    hover (or touching the left of the nanoplot) and display the minimal and maximal *y* values.
-
-    There are two types of nanoplots available: `"line"` and `"bar"`. A line plot shows individual
-    data points and has smooth connecting lines between them to allow for easier scanning of values.
-    You can opt for straight-line connections between data points, or, no connections at all (it's
-    up to you). You can even eschew the data points and just have a simple line. Regardless of how
-    you mix and match difference plot layers, the plot area focuses on the domain of the data points
-    with the goal of showing you the overall trend of the data. The data you feed into a line plot
-    can consist of a single vector of values (resulting in equally-spaced *y* values), or, you can
-    supply two vectors representative of *x* and *y*.
-
-    A bar plot is built a little bit differently. The focus is on evenly-spaced bars (requiring a
-    single vector of values) that project from a zero line, clearly showing the difference between
-    positive and negative values. By default, any type of nanoplot will have basic interactivity.
-    One can hover over the data points and vertical guides will display values ascribed to each. A
-    guide on the left-hand side of the plot area will display the minimal and maximal *y* values on
-    hover.
+    values will be compactly formatted so as to not take up valuable real estate.
 
     While basic customization options are present in `fmt_nanoplot()`, many more opportunities for
     customizing nanoplots on a more granular level are possible with the aforementioned
