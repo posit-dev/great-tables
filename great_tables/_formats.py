@@ -3530,6 +3530,10 @@ def fmt_nanoplot(
     allows for the creation of a variety of different plot types, including line, bar, and scatter
     plots.
 
+    :::{.callout-warning}
+    `fmt_nanoplot()` is still experimental.
+    :::
+
     Parameters
     ----------
     columns
