@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pkg_resources
 import re
-import webcolors as wc
 
 from dataclasses import fields
 from functools import partial
@@ -11,6 +10,7 @@ from string import Template
 
 from ._gt_data import GTData
 from ._utils import _as_css_font_family_attr, _unique_set
+from ._data_color.base import _html_color, _ideal_fgnd_color
 
 DEFAULTS_TABLE_BACKGROUND = (
     "heading_background_color",
@@ -39,20 +39,30 @@ FONT_COLOR_VARS = (
 )
 
 
-def font_color(color: str, table_font_color: str, table_font_color_light: str):
-    if color.startswith("#"):
-        rgb = wc.hex_to_rgb(color)
-    elif color.startswith("rgb") and "%" in color:
-        # TODO: rgb_percent_to_rgb() expects a tuple
-        raise NotImplementedError()
-        rgb = wc.rgb_percent_to_rgb(color)
-    else:
-        rgb = wc.name_to_rgb(color)
+def font_color(color: str, table_font_color: str, table_font_color_light: str) -> str:
 
-    if (rgb.red * 0.299 + rgb.green * 0.587 + rgb.blue * 0.114) > 186:
+    if color == "transparent":
+        # With the `transparent` color, the font color should have the same value
+        # as the `table_font_color` option since the background will be transparent
         return table_font_color
+    if color in ["currentcolor", "currentColor"]:
+        # With two variations of `currentColor` value, normalize to `currentcolor`
+        return "currentcolor"
+    if color in ["inherit", "initial", "unset"]:
+        # For the other valid CSS color attribute values, we should pass them through
+        return color
 
-    return table_font_color_light
+    # Normalize the color to a hexadecimal value
+    color_normalized = _html_color(colors=[color])
+
+    # Determine the ideal font color given the different background colors
+    ideal_font_color = _ideal_fgnd_color(
+        bgnd_color=color_normalized[0],
+        light=table_font_color,
+        dark=table_font_color_light,
+    )
+
+    return ideal_font_color
 
 
 def css_add(value: str | int, amount: int):

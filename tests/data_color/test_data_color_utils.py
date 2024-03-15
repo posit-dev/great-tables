@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import pytest
 from great_tables._data_color.base import (
     _ideal_fgnd_color,
     _get_wcag_contrast_ratio,
@@ -318,10 +319,10 @@ def test_color_name_to_hex():
 
     # Test case 6: Colors with invalid names
     colors = ["#FF0000", "green", "invalid"]
-    try:
+    with pytest.raises(ValueError) as e:
         _color_name_to_hex(colors)
-    except ValueError as e:
-        assert str(e) == "Invalid color name provided (invalid)."
+
+    assert "Invalid color name provided (invalid)" in e.value.args[0]
 
 
 def test_is_short_hex_valid_short_hex():
