@@ -15,7 +15,7 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
-from ._tbl_data import PlExpr, SelectExpr
+from ._tbl_data import PlExpr, SelectExpr, is_na
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
 from ._locations import resolve_rows_i, resolve_cols_c
@@ -3784,7 +3784,9 @@ def fmt_nanoplot(
         options_plots: Dict[str, Any] = options_plots,
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # We have to pass in a dataframe to this function. Everything action that
+        # requires a dataframe import should go through _tbl_data.
+        if is_na(pd.DataFrame(), x):
             return x
 
         # Generate data vals from the input `x` value
