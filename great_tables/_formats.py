@@ -3776,8 +3776,6 @@ def fmt_nanoplot(
         missing_vals: MissingVals = missing_vals,
         reference_line: Optional[Union[str, int, float]] = reference_line,
         reference_area: Optional[List[Any]] = reference_area,
-        expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_x,
-        expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_y,
         all_single_y_vals: Optional[
             Union[List[Union[int, float]], List[int], List[float]]
         ] = all_single_y_vals,
