@@ -9,11 +9,11 @@ jupyter: python3
 
 The recent `v0.4.0` release of **Great Tables** contains nanoplots as a major new feature. So, in this post I'll concentrate on showing you all the things you can do with nanoplots. While the emphasis here will be on the aforementioned nanoplots feature, the last two releases (`v0.3.1` and `v0.4.0`) overall gave us a nice collection of improvements which includes:
 
-- the `fmt_nanoplot()` method for adding nanoplots to your table
+- the [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) method for adding nanoplots to your table
 - improved HTML table representations in different code environments
 - integration of Polars selectors in the `columns=` arg of all formatting (`fmt_*()`) methods
-- the `save()` method for saving a **GT** table as an image file
-- rendering a **GT** table as an HTML string though `as_raw_html()`
+- the [`save()`](`great_tables.GT.save`) method for saving a **GT** table as an image file
+- rendering a **GT** table as an HTML string though [`as_raw_html()`](`great_tables.GT.as_raw_html`)
 
 Now let's dive into the wonderful world of nanoplots!
 
@@ -21,7 +21,7 @@ Now let's dive into the wonderful world of nanoplots!
 
 Nanoplots are small yet information-laden plots that fit nicely into table cells. They are interactive, allowing for more information to be shown on hovering (or through touch when that interaction is available). Nanoplots try to show individual data points with reasonably good visibility (space is limited, this is going in a table after all!) and the plot representations change depending on the data fed into them.
 
-We can generate nanoplots via the `fmt_nanoplot()` method. Let's make two nanoplots of the two different available plot types: `"line"` and `"bar"`:
+We can generate nanoplots via the [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) method. Let's make two nanoplots of the two different available plot types: `"line"` and `"bar"`:
 
 ```{python}
 from great_tables import GT
@@ -78,7 +78,7 @@ random_numbers_df = pl.DataFrame(
 
 Having a reference line and/or area can be nice in different situations. We make it easy by allowing literal values or keywords (these are: `"mean"`, `"median"`, `"min"`, `"max"`, `"q1"`, `"q3"`, `"first"`, or `"last"`).
 
-We can also have single-value bar plots and line plots. These will run in the horizontal direction and such plots are meant for easy value comparisons (which works great in tables). To make this work, give `fmt_nanoplot()` a column of numeric values. The following example shows how `fmt_nanoplot()` can be used to create single-value bar and line plots.
+We can also have single-value bar plots and line plots. These will run in the horizontal direction and such plots are meant for easy value comparisons (which works great in tables). To make this work, give [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) a column of numeric values. The following example shows how [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) can be used to create single-value bar and line plots.
 
 ```{python}
 single_vals_df = pl.DataFrame(
