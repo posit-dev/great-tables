@@ -3703,12 +3703,11 @@ def fmt_nanoplot(
     if plot_type in ["line", "bar"] and scalar_vals:
 
         # Check each cell in the column and get each of them that contains a scalar value
-        all_single_y_vals = []
-
-        single_y_vals = data_tbl[columns].apply(
-            lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+        all_single_y_vals = list(
+            data_tbl[columns].apply(
+                lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+            )
         )
-        all_single_y_vals.extend(single_y_vals)
 
         autoscale = False
 
@@ -3776,9 +3775,7 @@ def fmt_nanoplot(
         missing_vals: MissingVals = missing_vals,
         reference_line: Optional[Union[str, int, float]] = reference_line,
         reference_area: Optional[List[Any]] = reference_area,
-        all_single_y_vals: Optional[
-            Union[List[Union[int, float]], List[int], List[float]]
-        ] = all_single_y_vals,
+        all_single_y_vals: Optional[List[Union[int, float]]] = all_single_y_vals,
         options_plots: Dict[str, Any] = options_plots,
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
