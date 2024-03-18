@@ -104,17 +104,27 @@ from great_tables import nanoplot_options
 (
     GT(random_numbers_df)
     .fmt_nanoplot(
-        columns="numbers",
+        columns="lines",
         options=nanoplot_options(
             data_point_radius=8,
             data_point_stroke_color="black",
-            data_point_stroke_width=2,
+            data_point_stroke_width=3,
             data_point_fill_color="white",
             data_line_type="straight",
-            data_line_stroke_color="brown",
-            data_line_stroke_width=2,
-            data_area_fill_color="orange",
-            vertical_guide_stroke_color="green",
+            data_line_stroke_color="green",
+            data_line_stroke_width=5,
+            data_area_fill_color="green",
+            show_data_area=False,
+        ),
+    )
+    .fmt_nanoplot(
+        columns="bars",
+        plot_type="bar",
+        options=nanoplot_options(
+            data_bar_stroke_color="brown",
+            data_bar_fill_color="yellow",
+            data_bar_negative_stroke_color="black",
+            data_bar_negative_fill_color="blue",
         ),
     )
 )
