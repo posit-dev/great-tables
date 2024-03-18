@@ -560,6 +560,10 @@ def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[s
     return font_stack
 
 
+# This could probably be removed and nanoplot_options made into a dataclass
+# the built-in dataclass decorator doesn't do any validation / coercion, but
+# we could do that in the a __post_init__ hook. (I would switch it over to a
+# dataclass and then pair on a post_init hook).
 # Check that certain values are either a list or a single value
 def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any):
 
