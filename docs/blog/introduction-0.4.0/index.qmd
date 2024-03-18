@@ -76,6 +76,8 @@ random_numbers_df = pl.DataFrame(
 )
 ```
 
+Having a reference line and/or area can be nice in different situations. We make it easy by allowing literal values or keywords (these are: `"mean"`, `"median"`, `"min"`, `"max"`, `"q1"`, `"q3"`, `"first"`, or `"last"`).
+
 We can also have single-value bar plots and line plots. These will run in the horizontal direction and such plots are meant for easy value comparisons (which works great in tables). To make this work, give `fmt_nanoplot()` a column of numeric values. The following example shows how `fmt_nanoplot()` can be used to create single-value bar and line plots.
 
 ```{python}
@@ -86,6 +88,7 @@ single_vals_df = pl.DataFrame(
         "lines": [12.44, 6.34, 5.2, -8.2, 9.23]
     }
 )
+
 (
     GT(single_vals_df, rowname_col="i")
     .fmt_nanoplot(columns="bars", plot_type="bar")
@@ -93,9 +96,32 @@ single_vals_df = pl.DataFrame(
 )
 ```
 
+We provide a lot of options for customizing your nanoplots. With the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function, it's possible to change the look and feel for a set of nanoplots. The `options=` argument of [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) is where you need to invoke that helper function. Some possibilities for customization include determining which nanoplot elements are present, changing the sizes and colors of different elements, and a whole lot more! Here's an example where a line-based nanoplot retains all of its elements, but the appearance is quite different.
 
-There's a lot more to nanoplots than these examples can show. For much more information on this, check out the [*Get Started* guide on nanoplots](https://posit-dev.github.io/great-tables/get-started/nanoplots.html).
+```{python}
+from great_tables import nanoplot_options
+
+(
+    GT(random_numbers_df)
+    .fmt_nanoplot(
+        columns="numbers",
+        options=nanoplot_options(
+            data_point_radius=8,
+            data_point_stroke_color="black",
+            data_point_stroke_width=2,
+            data_point_fill_color="white",
+            data_line_type="straight",
+            data_line_stroke_color="brown",
+            data_line_stroke_width=2,
+            data_area_fill_color="orange",
+            vertical_guide_stroke_color="green",
+        ),
+    )
+)
+```
+
+We want you to have a lot of creative control for how these tiny plots are displayed. So, when you need it, [`nanoplot_options()`](`great_tables.nanoplot_options`) is there for you!
 
 ### Wrapping up
 
-We're always excited to offer new and exciting features that make summary tables fun and useful. The new nanoplots functionality is something we will continue to iterate on since there is definitely room for plotting innovation in tables for display. Please let us know through [GitHub Issues](https://github.com/posit-dev/great-tables/issues) whether you ran into problems with this (or any other) feature, or, if you have suggestions for improvement!
+We're always excited to offer new and exciting features that make summary tables fun and useful. The new nanoplots functionality is something we will continue to iterate on since there is definitely room for plotting innovation in tables for display. And there's a lot more to nanoplots than these examples can show. For much more information on this, check out the [*Get Started* guide on nanoplots](https://posit-dev.github.io/great-tables/get-started/nanoplots.html). Please let us know through [GitHub Issues](https://github.com/posit-dev/great-tables/issues) whether you ran into problems with this (or any other) feature, or, if you have suggestions for improvement!
