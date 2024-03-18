@@ -1,42 +1,100 @@
 ---
-title: "Great Tables `v0.3.1` and `v0.4.0`: Nanoplots and More"
+title: "Great Tables `v0.4.0`: Nanoplots and More"
 html-table-processing: none
 author: Rich Iannone
-date: 2024-03-18
+date: 2024-03-19
 freeze: true
 jupyter: python3
 ---
 
-The recent `v0.3.1` and `v0.4.0` releases of **Great Tables** contain a lot of useful new features! We want to highlight just five of the more notable features within this post:
+The recent `v0.4.0` release of **Great Tables** contains nanoplots as a major new feature. So, in this post I'll concentrate on showing you all the things you can do with nanoplots. While the emphasis here will be on the aforementioned nanoplots feature, the last two releases (`v0.3.1` and `v0.4.0`) overall gave us a nice collection of improvements which includes:
 
-1. nanoplots via `fmt_nanoplot()`
-2. improved HTML table representations in different code environments
-3. integration of Polars selectors in the `columns=` arg of all formatting (`fmt_*()`) methods
-4. the `save()` method for saving a **GT** table as an image file
-5. rendering a **GT** table as an HTML string though `as_raw_html()`
+- the `fmt_nanoplot()` method for adding nanoplots to your table
+- improved HTML table representations in different code environments
+- integration of Polars selectors in the `columns=` arg of all formatting (`fmt_*()`) methods
+- the `save()` method for saving a **GT** table as an image file
+- rendering a **GT** table as an HTML string though `as_raw_html()`
 
-This is all really exciting stuff so let's review each of these features in some detail!
+Now let's dive into the wonderful world of nanoplots!
 
 ### Nanoplots, small interactive plots in your table
 
+Nanoplots are small yet information-laden plots that fit nicely into table cells. They are interactive, allowing for more information to be shown on hovering (or through touch when that interaction is available). Nanoplots try to show individual data points with reasonably good visibility (space is limited, this is going in a table after all!) and the plot representations change depending on the data fed into them.
 
+We can generate nanoplots via the `fmt_nanoplot()` method. Let's make two nanoplots of the two different available plot types: `"line"` and `"bar"`:
 
-### Better HTML table representations, especially in VScode
+```{python}
+from great_tables import GT
+import polars as pl
 
+random_numbers_df = pl.DataFrame(
+    {
+        "i": range(1, 5),
+        "lines": [
+            "20 23 6 7 37 23 21 4 7 16",
+            "2.3 6.8 9.2 2.42 3.5 12.1 5.3 3.6 7.2 3.74",
+            "-12 -5 6 3.7 0 8 -7.4",
+            "2 0 15 7 8 10 1 24 17 13 6",
+        ],
+    }
+).with_columns(bars=pl.col("lines"))
 
+(
+    GT(random_numbers_df, rowname_col="i")
+    .fmt_nanoplot(columns="lines", plot_type="line")
+    .fmt_nanoplot(columns="bars", plot_type="bar")
+)
+```
 
-### Column selection in `fmt_*()` methods via Polars selectors
+As can be seen, the method accepts bundles of values per cell that are formatted as strings (with spaces between each of the values). You can also use list columns as acceptable input. Here is an example of that, and we'll also add in reference lines and reference areas (using the `reference_line=` and `reference_area=` arguments):
 
+```{python}
+random_numbers_df = pl.DataFrame(
+    {
+        "i": range(1, 5),
+        "lines": [
+            { "val": [20.0, 23.0, 6.0, 7.0, 37.0, 23.0, 21.0, 4.0, 7.0, 16.0] },
+            { "val": [2.3, 6.8, 9.2, 2.42, 3.5, 12.1, 5.3, 3.6, 7.2, 3.74] },
+            { "val": [-12.0, -5.0, 6.0, 3.7, 0.0, 8.0, -7.4] },
+            { "val": [2.0, 0.0, 15.0, 7.0, 8.0, 10.0, 1.0, 24.0, 17.0, 13.0, 6.0] },
+        ],
+    }
+).with_columns(bars=pl.col("lines"))
 
+(
+    GT(random_numbers_df, rowname_col="i")
+    .fmt_nanoplot(
+        columns="lines",
+        reference_line="mean",
+        reference_area=["min", "q1"]
+    )
+    .fmt_nanoplot(
+        columns="bars",
+        plot_type="bar",
+        reference_line="max",
+        reference_area=["max", "median"])
+)
+```
 
-### Using `.save()` to get an image of a table
+We can also have single-value bar plots and line plots. These will run in the horizontal direction and such plots are meant for easy value comparisons (which works great in tables). To make this work, give `fmt_nanoplot()` a column of numeric values. The following example shows how `fmt_nanoplot()` can be used to create single-value bar and line plots.
 
+    ```{python}
+    single_vals_df = pl.DataFrame(
+        {
+            "i": range(1, 6),
+            "bars": [4.1, 1.3, -5.3, 0, 8.2],
+            "lines": [12.44, 6.34, 5.2, -8.2, 9.23]
+        }
+    )
+    (
+        GT(single_vals_df, rowname_col="i")
+        .fmt_nanoplot(columns="bars", plot_type="bar")
+        .fmt_nanoplot(columns="lines", plot_type="line")
+    )
+    ```
 
-
-### Obtaining the raw HTML output of a table (`as_raw_html()`)
-
-
+There's a lot more to nanoplots than these examples can show. For much more information on this, check out the [*Get Started* guide on nanoplots](https://posit-dev.github.io/great-tables/get-started/nanoplots.html).
 
 ### Wrapping up
 
-These releases are quite exciting to us and we're so happy these features are available for everyone to use.
+We're always excited to offer new and exciting features that make summary tables fun and useful. The new nanoplots functionality is something we will continue to iterate on since there is definitely room for plotting innovation in tables for display. Please let us know through [GitHub Issues](https://github.com/posit-dev/great-tables/issues) whether you ran into problems with this (or any other) feature, or, if you have suggestions for improvement!
