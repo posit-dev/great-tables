@@ -1,6 +1,8 @@
 import numpy as np
 from great_tables._utils_nanoplots import _normalize_vals, _normalize_to_dict
 
+# TODO: need tests of all utils_nanoplot functions
+
 
 def test_normalize_vals():
     # Test case 1: Normalization with no missing values

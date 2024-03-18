@@ -3703,6 +3703,7 @@ def fmt_nanoplot(
     if plot_type in ["line", "bar"] and scalar_vals:
 
         # Check each cell in the column and get each of them that contains a scalar value
+        # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
         all_single_y_vals = list(
             data_tbl[columns].apply(
                 lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
@@ -3726,20 +3727,20 @@ def fmt_nanoplot(
 
         from great_tables._utils_nanoplots import _flatten_list
 
-        all_y_vals_raw = []
-
-        col_i_y_vals_raw = data_tbl[columns].apply(
-            lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+        # TODO: if a column of delimiter separated strings is passed. E.g. "1 2 3 4". Does this mean
+        # that autoscale does not work? In this case, is col_i_y_vals_raw a string that gets processed?
+        # downstream?
+        all_y_vals_raw = list(
+            data_tbl[columns].apply(
+                lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+            )
         )
-
-        all_y_vals_raw.extend(col_i_y_vals_raw)
 
         all_y_vals = []
 
-        for i in range(len(all_y_vals_raw)):
-
-            data_vals_i = all_y_vals_raw[i]
-
+        for i, data_vals_i in enumerate(all_y_vals_raw):
+            # TODO: this dictionary handling seems redundant with _generate_data_vals dict handling?
+            # Can this if-clause be removed?
             if isinstance(data_vals_i, dict):
 
                 if len(data_vals_i) == 1:
@@ -3787,6 +3788,7 @@ def fmt_nanoplot(
         # Generate data vals from the input `x` value
         x = _generate_data_vals(data_vals=x)
 
+        # TODO: where are tuples coming from? Need example / tests that induce tuples
         # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
         if isinstance(x, tuple):
 
@@ -3857,7 +3859,9 @@ def fmt_nanoplot(
     return fmt(self, fns=fmt_nanoplot_fn, columns=columns, rows=rows)
 
 
-def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float], List[float]]]:
+def _generate_data_vals(
+    data_vals: Any, is_x_axis=False
+) -> Union[List[float], Tuple[List[float], List[float]]]:
     """
     Generate a list of data values from the input data.
 
@@ -3874,6 +3878,8 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
 
         # If the list contains string values, determine whether they are date values
         if all(isinstance(val, str) for val in data_vals):
+            if not is_x_axis:
+                raise ValueError("Only the x-axis of a nanoplot allows strings.")
             if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals[0]):
                 data_vals = [_iso_to_date(val) for val in data_vals]
 
@@ -3885,7 +3891,7 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
         # Check that the values within the list are numeric; missing values are allowed
         for val in data_vals:
             if val is not None and not isinstance(val, (int, float)):
-                raise ValueError("The input data values must be numeric.")
+                raise ValueError(f"The input data values must be numeric.\n\nValue received: {val}")
 
         return data_vals
 
@@ -3897,7 +3903,7 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
         # If the cell value is a string, assume it is a value stream and convert to a list
 
         # Detect whether there are time values or numeric values in the string
-        if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals):
+        if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals) and is_x_axis:
             data_vals = _process_time_stream(data_vals)
         else:
             data_vals = _process_number_stream(data_vals)
@@ -3927,7 +3933,7 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
                 y_vals: Any = data_vals["y"]
 
                 # The data values can be anything, so recursively call this function to process them
-                x_vals = _generate_data_vals(data_vals=x_vals)
+                x_vals = _generate_data_vals(data_vals=x_vals, is_x_axis=True)
                 y_vals = _generate_data_vals(data_vals=y_vals)
 
                 # Ensure that the lengths of the x and y values are the same

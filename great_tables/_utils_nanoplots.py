@@ -436,6 +436,9 @@ def _normalize_vals(
     return x
 
 
+# TODO: example nanoplot showing when jitter vals might be applied
+# Looks like it's on the x-axis:
+# GT(pd.DataFrame({'x': [{"x": [1, 1, 1], "y": [2, 3, 4]}]})).fmt_nanoplot("x")
 def _jitter_vals(x: List[Union[int, float]], amount: float) -> List[Union[int, float]]:
     """
     Jitter a list of numeric values by a small amount.
