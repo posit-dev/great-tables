@@ -7,7 +7,34 @@ freeze: true
 jupyter: python3
 ---
 
-The recent `v0.4.0` release of **Great Tables** contains nanoplots as a major new feature. So, in this post I'll concentrate on showing you all the things you can do with nanoplots. While the emphasis here will be on the aforementioned nanoplots feature, the last two releases (`v0.3.1` and `v0.4.0`) overall gave us a nice collection of improvements which includes:
+The recent `v0.4.0` release of **Great Tables** contains nanoplots as a major new feature. So, in this post I'll concentrate on showing you all the things you can do with nanoplots. What are nanoplots? Well, with nanoplots you can do this:
+
+```{python}
+from great_tables import GT, md
+from great_tables.data import illness
+import polars as pl
+
+illness_mini = (
+    pl.from_pandas(illness)
+    .head(10)
+    .select(
+        "test", values=pl.concat_str(pl.exclude("test", "units"), separator=" ", ignore_nulls=True)
+    )
+    .slice(1, 9)
+)
+
+(
+    GT(illness_mini, rowname_col="test")
+    .fmt_nanoplot(columns="values")
+    .tab_header(md("Partial summary of daily tests<br>performed on YF patient"))
+    .tab_stubhead(label=md("**Test**"))
+    .cols_label(values=md("*Progression*"))
+    .cols_align(align="center", columns="values")
+    .tab_source_note(source_note="Measurements from Day 3 through to Day 8.")
+)
+```
+
+While the emphasis here will be on the aforementioned nanoplots feature, the last two releases (`v0.3.1` and `v0.4.0`) overall gave us a nice collection of improvements which includes:
 
 - the [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) method for adding nanoplots to your table
 - improved HTML table representations in different code environments
@@ -24,9 +51,6 @@ Nanoplots are small yet information-laden plots that fit nicely into table cells
 We can generate nanoplots via the [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) method. Let's make two nanoplots of the two different available plot types: `"line"` and `"bar"`:
 
 ```{python}
-from great_tables import GT
-import polars as pl
-
 random_numbers_df = pl.DataFrame(
     {
         "i": range(1, 5),
