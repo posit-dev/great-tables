@@ -10,6 +10,9 @@ jupyter: python3
 The recent `v0.4.0` release of **Great Tables** contains nanoplots as a major new feature. So, in this post I'll concentrate on showing you all the things you can do with nanoplots. What are nanoplots? Well, with nanoplots you can do this:
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the code"
+
 from great_tables import GT, md
 from great_tables.data import illness
 import polars as pl
