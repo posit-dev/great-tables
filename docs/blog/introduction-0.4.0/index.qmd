@@ -46,21 +46,13 @@ random_numbers_df = pl.DataFrame(
 )
 ```
 
-As can be seen, the method accepts bundles of values per cell that are formatted as strings (with spaces between each of the values). You can also use list columns as acceptable input. Here is an example of that, and we'll also add in reference lines and reference areas (using the `reference_line=` and `reference_area=` arguments):
+As can be seen, the method accepts bundles of values per cell that are formatted as strings (with spaces between each of the values). You can also use [Polars list columns](https://docs.pola.rs/user-guide/expressions/lists/) as acceptable input.
+
+### Adding reference lines and highlighted areas
+
+It's possible to add in a reference line and a reference area to individual plots. These may be useful to highlight a particular statistic (e.g., median or minimum value) or a bounded region of interest (e.g., the area between the first and third quartiles). Here is an example of how to use these options via the `reference_line=` and `reference_area=` arguments:
 
 ```{python}
-random_numbers_df = pl.DataFrame(
-    {
-        "i": range(1, 5),
-        "lines": [
-            { "val": [20.0, 23.0, 6.0, 7.0, 37.0, 23.0, 21.0, 4.0, 7.0, 16.0] },
-            { "val": [2.3, 6.8, 9.2, 2.42, 3.5, 12.1, 5.3, 3.6, 7.2, 3.74] },
-            { "val": [-12.0, -5.0, 6.0, 3.7, 0.0, 8.0, -7.4] },
-            { "val": [2.0, 0.0, 15.0, 7.0, 8.0, 10.0, 1.0, 24.0, 17.0, 13.0, 6.0] },
-        ],
-    }
-).with_columns(bars=pl.col("lines"))
-
 (
     GT(random_numbers_df, rowname_col="i")
     .fmt_nanoplot(
@@ -76,7 +68,9 @@ random_numbers_df = pl.DataFrame(
 )
 ```
 
-Having a reference line and/or area can be valuable in different situations. We make it easy by allowing literal values or keywords (these are: `"mean"`, `"median"`, `"min"`, `"max"`, `"q1"`, `"q3"`, `"first"`, or `"last"`).
+Having a reference line and/or area can be valuable in different situations. We make it easy by allowing you to mix-and-match numeric values and a set of keywords (these are: `"mean"`, `"median"`, `"min"`, `"max"`, `"q1"`, `"q3"`, `"first"`, or `"last"`).
+
+### Simple bars
 
 We can also have single-value bar plots and line plots. These will run in the horizontal direction and such plots are meant for easy value comparisons (which works great in tables). To make this work, give [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) a column of numeric values. The following example shows how [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) can be used to create single-value bar and line plots.
 
@@ -95,6 +89,10 @@ single_vals_df = pl.DataFrame(
     .fmt_nanoplot(columns="lines", plot_type="line")
 )
 ```
+
+Notice that there is some light interactivity available here as well! When hovering over a plotted bar or line the data value will appear.
+
+### Customizing with `nanoplot_options()`
 
 We provide a lot of options for customizing your nanoplots. With the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function, it's possible to change the look and feel for a set of nanoplots. The `options=` argument of [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) is where you'd need to invoke that helper function. Some possibilities for customization include determining which nanoplot elements are present, changing the sizes and colors of different elements, and a whole lot more! Here's an example where both line- and bar-based nanoplots retain their basic compositional elements, but their appearance is quite different.
 
