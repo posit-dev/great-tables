@@ -41,6 +41,7 @@ website:
           contents:
             - get-started/column-selection.qmd
             - get-started/row-selection.qmd
+            - get-started/nanoplots.qmd
 
 format:
   html:
@@ -109,6 +110,7 @@ quartodoc:
         - GT.fmt_datetime
         - GT.fmt_markdown
         - GT.fmt_image
+        - GT.fmt_nanoplot
         - GT.fmt
         - GT.data_color
     - title: Modifying columns
@@ -150,6 +152,7 @@ quartodoc:
         - html
         - from_column
         - system_fonts
+        - nanoplot_options
     - title: Table options
       desc: >
         With the `opt_*()` functions, we have an easy way to set commonly-used table options without

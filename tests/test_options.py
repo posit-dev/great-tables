@@ -30,8 +30,9 @@ css_length_val_large = "100px"
 css_length_val_margin = "10px"
 css_length_val_small = "5px"
 css_font_size_val = "12px"
+css_font_color_val = "#000000"
+css_font_color_val_light = "#FFFFFF"
 css_color_val = "red"
-css_color_val_light = "lightred"
 css_style_val = "solid"
 css_font_family_list = ["Arial", "Helvetica", "sans-serif"]
 css_font_weight_val = "bold"
@@ -62,13 +63,13 @@ def gt_tbl():
             table_layout="auto",
             table_margin_left=css_length_val_margin,
             table_margin_right=css_length_val_margin,
-            table_background_color=css_color_val,
+            table_background_color="red",
             table_font_names=css_font_family_list,
             table_font_size=css_font_size_val,
             table_font_weight=css_font_weight_val,
             table_font_style=css_font_weight_val,
-            table_font_color=css_color_val,
-            table_font_color_light=css_color_val_light,
+            table_font_color=css_font_color_val,
+            table_font_color_light=css_font_color_val_light,
             table_border_top_style=css_style_val,
             table_border_top_width=css_length_val_small,
             table_border_top_color=css_color_val,
@@ -191,8 +192,8 @@ def test_options_all_available(gt_tbl: GT):
     assert gt_tbl._options.table_font_size.value == css_font_size_val
     assert gt_tbl._options.table_font_weight.value == css_font_weight_val
     assert gt_tbl._options.table_font_style.value == css_font_weight_val
-    assert gt_tbl._options.table_font_color.value == css_color_val
-    assert gt_tbl._options.table_font_color_light.value == css_color_val_light
+    assert gt_tbl._options.table_font_color.value == css_font_color_val
+    assert gt_tbl._options.table_font_color_light.value == css_font_color_val_light
     assert gt_tbl._options.table_border_top_style.value == css_style_val
     assert gt_tbl._options.table_border_top_width.value == css_length_val_small
     assert gt_tbl._options.table_border_top_color.value == css_color_val

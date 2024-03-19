@@ -16,6 +16,10 @@
     border-style: none;
   }
   
+  tr {
+    background-color: transparent;
+  }
+  
   #abc p {
     margin: 0;
     padding: 0;
@@ -27,7 +31,7 @@
     line-height: normal;
     margin-left: 10px;
     margin-right: 10px;
-    color: lightred;
+    color: #000000;
     font-size: 12px;
     font-weight: bold;
     font-style: bold;
@@ -53,7 +57,7 @@
   }
   
   #abc .gt_title {
-    color: lightred;
+    color: #000000;
     font-size: 12px;
     font-weight: bold;
     padding-top: 5px;
@@ -65,7 +69,7 @@
   }
   
   #abc .gt_subtitle {
-    color: lightred;
+    color: #000000;
     font-size: 12px;
     font-weight: bold;
     padding-top: 4px;
@@ -110,7 +114,7 @@
   }
   
   #abc .gt_col_heading {
-    color: lightred;
+    color: #000000;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -130,7 +134,7 @@
   }
   
   #abc .gt_column_spanner_outer {
-    color: lightred;
+    color: #000000;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -170,7 +174,7 @@
     padding-bottom: 5px;
     padding-left: 5px;
     padding-right: 5px;
-    color: lightred;
+    color: #000000;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -193,7 +197,7 @@
   
   #abc .gt_empty_group_heading {
     padding: 0.5px;
-    color: lightred;
+    color: #000000;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -234,7 +238,7 @@
   }
   
   #abc .gt_stub {
-    color: lightred;
+    color: #000000;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -247,7 +251,7 @@
   }
   
   #abc .gt_stub_row_group {
-    color: lightred;
+    color: #000000;
     background-color: red;
     font-size: 12px;
     font-weight: bold;
@@ -278,7 +282,7 @@
   }
   
   #abc .gt_sourcenotes {
-    color: lightred;
+    color: #000000;
     background-color: red;
     border-bottom-style: solid;
     border-bottom-width: 5px;
@@ -297,6 +301,7 @@
     padding-bottom: 5px;
     padding-left: 5px;
     padding-right: 5px;
+    text-align: left;
   }
   
   #abc .gt_left {
@@ -356,6 +361,10 @@
   td,
   th {
     border-style: none;
+  }
+  
+  tr {
+    background-color: transparent;
   }
   
   #abc p {
@@ -639,6 +648,7 @@
     padding-bottom: 4px;
     padding-left: 5px;
     padding-right: 5px;
+    text-align: left;
   }
   
   #abc .gt_left {

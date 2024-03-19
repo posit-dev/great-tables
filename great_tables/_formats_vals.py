@@ -472,7 +472,7 @@ def val_fmt_percent(
 
 def val_fmt_currency(
     x: Union[Any, List[Any]],
-    currency: Optional[int] = None,
+    currency: Optional[str] = None,
     use_subunits: bool = True,
     decimals: Optional[int] = None,
     drop_trailing_dec_mark: bool = True,

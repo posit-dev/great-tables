@@ -1,4 +1,4 @@
-from typing import Union, List, Literal
+from typing import Union, List, Dict, Literal, Any, Optional, Callable
 import random
 from typing_extensions import TypeAlias
 from ._text import Text
@@ -558,3 +558,279 @@ def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[s
         )
 
     return font_stack
+
+
+# Check that certain values are either a list or a single value
+def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any):
+
+    if nano_opt is None:
+        return None
+
+    if not isinstance(nano_opt, (option_type, list)):
+        raise ValueError(f"Nanoplot option must be a {option_type} or a list of {option_type}s")
+
+    # If it is a list, check that the values are integers
+    if isinstance(nano_opt, list):
+        if not all(isinstance(x, int) for x in nano_opt):
+            raise ValueError(f"Nanoplot option must be a list of {option_type}s")
+
+    # If it is a single value, convert it to a list
+    if not isinstance(nano_opt, list):
+        nano_opt = [nano_opt]
+
+    return nano_opt
+
+
+def nanoplot_options(
+    data_point_radius: Optional[Union[int, List[int]]] = None,
+    data_point_stroke_color: Optional[Union[str, List[str]]] = None,
+    data_point_stroke_width: Optional[Union[int, List[int]]] = None,
+    data_point_fill_color: Optional[Union[str, List[str]]] = None,
+    data_line_type: Optional[str] = None,
+    data_line_stroke_color: Optional[str] = None,
+    data_line_stroke_width: Optional[int] = None,
+    data_area_fill_color: Optional[str] = None,
+    data_bar_stroke_color: Optional[Union[str, List[str]]] = None,
+    data_bar_stroke_width: Optional[Union[int, List[int]]] = None,
+    data_bar_fill_color: Optional[Union[str, List[str]]] = None,
+    data_bar_negative_stroke_color: Optional[str] = None,
+    data_bar_negative_stroke_width: Optional[int] = None,
+    data_bar_negative_fill_color: Optional[str] = None,
+    reference_line_color: Optional[str] = None,
+    reference_area_fill_color: Optional[str] = None,
+    vertical_guide_stroke_color: Optional[str] = None,
+    vertical_guide_stroke_width: Optional[int] = None,
+    show_data_points: Optional[bool] = None,
+    show_data_line: Optional[bool] = None,
+    show_data_area: Optional[bool] = None,
+    show_reference_line: Optional[bool] = None,
+    show_reference_area: Optional[bool] = None,
+    show_vertical_guides: Optional[bool] = None,
+    show_y_axis_guide: Optional[bool] = None,
+    interactive_data_values: Optional[bool] = None,
+    y_val_fmt_fn: Optional[Callable[..., str]] = None,
+    y_axis_fmt_fn: Optional[Callable[..., str]] = None,
+    y_ref_line_fmt_fn: Optional[Callable[..., str]] = None,
+    currency: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Helper for setting the options for a nanoplot.
+
+    When using `cols_nanoplot()`, the defaults for the generated nanoplots can be modified with
+    `nanoplot_options()` within the `options=` argument.
+
+    Parameters
+    ----------
+
+    data_point_radius
+        The `data_point_radius=` option lets you set the radius for each of the data points. By
+        default this is set to `10`. Individual radius values can be set by using a list of numeric
+        values; however, the list provided must match the number of data points.
+    data_point_stroke_color
+        The default stroke color of the data points is `"#FFFFFF"` (`"white"`). This works well when
+        there is a visible data line combined with data points with a darker fill color. The stroke
+        color can be modified with `data_point_stroke_color=` for all data points by supplying a
+        single color value. With a list of colors, each data point's stroke color can be changed
+        (ensure that the list length matches the number of data points).
+    data_point_stroke_width
+        The width of the outside stroke for the data points can be modified with the
+        `data_point_stroke_width=` option. By default, a value of `4` (as in '4px') is used.
+    data_point_fill_color
+        By default, all data points have a fill color of `"#FF0000"` (`"red"`). This can be changed
+        for all data points by providing a different color to `data_point_fill_color=`. And, a list
+        of different colors can be supplied so long as the length is equal to the number of data
+        points; the fill color values will be applied in order of left to right.
+    data_line_type
+        This can accept either `"curved"` or `"straight"`. Curved lines are recommended when the
+        nanoplot has less than 30 points and data points are evenly spaced. In most other cases,
+        straight lines might present better.
+    data_line_stroke_color
+        The color of the data line can be modified from its default `"#4682B4"` (`"steelblue"`)
+        color by supplying a color to the `data_line_stroke_color=` option.
+    data_line_stroke_width
+        The width of the connecting data line can be modified with `data_line_stroke_width=`. By
+        default, a value of `4` (as in '4px') is used.
+    data_area_fill_color
+        The fill color for the area that bounds the data points in line plot. The default is
+        `"#FF0000"` (`"red"`) but can be changed by providing a color value to
+        `data_area_fill_color=`.
+    data_bar_stroke_color
+        The color of the stroke used for the data bars can be modified from its default `"#3290CC"`
+        color by supplying a color to `data_bar_stroke_color=`.
+    data_bar_stroke_width
+        The width of the stroke used for the data bars can be modified with the
+        `data_bar_stroke_width=` option. By default, a value of `4` (as in '4px') is used.
+    data_bar_fill_color
+        By default, all data bars have a fill color of `"#3FB5FF"`. This can be changed for all data
+        bars by providing a different color to `data_bar_fill_color=`. And, a list of different
+        colors can be supplied so long as the length is equal to the number of data bars; the fill
+        color values will be applied in order of left to right.
+    data_bar_negative_stroke_color
+        The color of the stroke used for the data bars that have negative values. The default color
+        is `"#CC3243"` but this can be changed by supplying a color value to the
+        `data_bar_negative_stroke_color=` option.
+    data_bar_negative_stroke_width
+        The width of the stroke used for negative value data bars. This has the same default as
+        `data_bar_stroke_width=` with a value of `4` (as in '4px'). This can be changed by giving a
+        numeric value to the `data_bar_negative_stroke_width=` option.
+    data_bar_negative_fill_color
+        By default, all negative data bars have a fill color of `"#D75A68"`. This can however be
+        changed by providing a color value to `data_bar_negative_fill_color=`.
+    reference_line_color
+        The reference line will have a color of `"#75A8B0"` if it is set to appear. This color can
+        be changed by providing a single color value to `reference_line_color=`.
+    reference_area_fill_color
+        If a reference area has been defined and is visible it has by default a fill color of
+        `"#A6E6F2"`. This can be modified by declaring a color value in the
+        `reference_area_fill_color=` option.
+    vertical_guide_stroke_color
+        Vertical guides appear when hovering in the vicinity of data points. Their default color is
+        `"#911EB4"` (a strong magenta color) and a fill opacity value of `0.4` is automatically
+        applied to this. However, the base color can be changed with the
+        `vertical_guide_stroke_color=` option.
+    vertical_guide_stroke_width
+        The vertical guide's stroke width, by default, is relatively large at `12` (this is '12px').
+        This is modifiable by setting a different value with `vertical_guide_stroke_width=`.
+    show_data_points
+        By default, all data points in a nanoplot are shown but this layer can be hidden by setting
+        `show_data_points=` to `False`.
+    show_data_line
+        The data line connects data points together and it is shown by default. This data line layer
+        can be hidden by setting `show_data_line=` to `False`.
+    show_data_area
+        The data area layer is adjacent to the data points and the data line. It is shown by default
+        but can be hidden with `show_data_area=False`.
+    show_reference_line
+        The layer with a horizontal reference line appears underneath that of the data points and
+        the data line. Like vertical guides, hovering over a reference will show its value. The
+        reference line (if available) is shown by default but can be hidden by setting
+        `show_reference_line=` to `False`.
+    show_reference_area
+        The reference area appears at the very bottom of the layer stack, if it is available (i.e.,
+        defined in `cols_nanoplot()`). It will be shown in the default case but can be hidden by
+        using `show_reference_area=False`.
+    show_vertical_guides
+        Vertical guides appear when hovering over data points. This hidden layer is active by
+        default but can be deactivated by using `show_vertical_guides=False`.
+    show_y_axis_guide
+        The *y*-axis guide will appear when hovering over the far left side of a nanoplot. This
+        hidden layer is active by default but can be deactivated by using `show_y_axis_guide=False`.
+    interactive_data_values
+        By default, numeric data values will be shown only when the user interacts with certain
+        regions of a nanoplot. This is because the values may be numerous (i.e., clutter the display
+        when all are visible) and it can be argued that the values themselves are secondary to the
+        presentation. However, for some types of plots (like horizontal bar plots), a persistent
+        display of values alongside the plot marks may be desirable. By setting
+        `interactive_data_values=False` we can opt for always displaying the data values alongside
+        the plot components.
+    y_val_fmt_fn
+        If providing a function to `y_val_fmt_fn=`, customized formatting of the *y* values
+        associated with the data points/bars is possible.
+    y_axis_fmt_fn
+        A function supplied to `y_axis_fmt_fn=` will result in customized formatting of the *y*-axis
+        label values.
+    y_ref_line_fmt_fn
+        Providing a function for `y_ref_line_fmt_fn=` yields customized formatting of the reference
+        line (if present).
+    currency
+        If the values are to be displayed as currency values, supply either: (1) a 3-letter currency
+        code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency), or (2) a common
+        currency name (e.g., `"dollar"`, `"pound"`, `"yen"`, etc.).
+    """
+
+    data_point_radius = _normalize_listable_nanoplot_options(
+        nano_opt=data_point_radius, option_type=int
+    )
+    data_point_stroke_color = _normalize_listable_nanoplot_options(
+        nano_opt=data_point_stroke_color, option_type=str
+    )
+    data_point_stroke_width = _normalize_listable_nanoplot_options(
+        nano_opt=data_point_stroke_width, option_type=int
+    )
+    data_point_fill_color = _normalize_listable_nanoplot_options(
+        nano_opt=data_point_fill_color, option_type=str
+    )
+    data_bar_stroke_color = _normalize_listable_nanoplot_options(
+        nano_opt=data_bar_stroke_color, option_type=str
+    )
+    data_bar_stroke_width = _normalize_listable_nanoplot_options(
+        nano_opt=data_bar_stroke_width, option_type=int
+    )
+    data_bar_fill_color = _normalize_listable_nanoplot_options(
+        nano_opt=data_bar_fill_color, option_type=str
+    )
+
+    data_point_radius = data_point_radius or 10
+    data_point_stroke_color = data_point_stroke_color or "#FFFFFF"
+    data_point_stroke_width = data_point_stroke_width or 4
+    data_point_fill_color = data_point_fill_color or "#FF0000"
+
+    data_line_type = data_line_type or "curved"
+    data_line_stroke_color = data_line_stroke_color or "#4682B4"
+    data_line_stroke_width = data_line_stroke_width or 8
+
+    data_area_fill_color = data_area_fill_color or "#FF0000"
+
+    data_bar_stroke_color = data_bar_stroke_color or "#3290CC"
+    data_bar_stroke_width = data_bar_stroke_width or 4
+    data_bar_fill_color = data_bar_fill_color or "#3FB5FF"
+
+    data_bar_negative_stroke_color = data_bar_negative_stroke_color or "#CC3243"
+    data_bar_negative_stroke_width = data_bar_negative_stroke_width or 4
+    data_bar_negative_fill_color = data_bar_negative_fill_color or "#D75A68"
+
+    reference_line_color = reference_line_color or "#75A8B0"
+    reference_area_fill_color = reference_area_fill_color or "#A6E6F2"
+
+    vertical_guide_stroke_color = vertical_guide_stroke_color or "#911EB4"
+    vertical_guide_stroke_width = vertical_guide_stroke_width or 12
+
+    show_data_points = True if show_data_points is None else show_data_points
+    show_data_line = True if show_data_line is None else show_data_line
+    show_data_area = True if show_data_area is None else show_data_area
+    show_reference_line = True if show_reference_line is None else show_reference_line
+    show_reference_area = True if show_reference_area is None else show_reference_area
+    show_vertical_guides = True if show_vertical_guides is None else show_vertical_guides
+    show_y_axis_guide = True if show_y_axis_guide is None else show_y_axis_guide
+
+    interactive_data_values = interactive_data_values or True
+
+    # y_val_fmt_fn, y_axis_fmt_fn, and y_ref_line_fmt_fn
+    # are not assigned to a default value
+
+    # currency is also not assigned a default value.
+
+    nanoplot_options_dict = {
+        "data_point_radius": data_point_radius,
+        "data_point_stroke_color": data_point_stroke_color,
+        "data_point_stroke_width": data_point_stroke_width,
+        "data_point_fill_color": data_point_fill_color,
+        "data_line_type": data_line_type,
+        "data_line_stroke_color": data_line_stroke_color,
+        "data_line_stroke_width": data_line_stroke_width,
+        "data_area_fill_color": data_area_fill_color,
+        "data_bar_stroke_color": data_bar_stroke_color,
+        "data_bar_stroke_width": data_bar_stroke_width,
+        "data_bar_fill_color": data_bar_fill_color,
+        "data_bar_negative_stroke_color": data_bar_negative_stroke_color,
+        "data_bar_negative_stroke_width": data_bar_negative_stroke_width,
+        "data_bar_negative_fill_color": data_bar_negative_fill_color,
+        "reference_line_color": reference_line_color,
+        "reference_area_fill_color": reference_area_fill_color,
+        "vertical_guide_stroke_color": vertical_guide_stroke_color,
+        "vertical_guide_stroke_width": vertical_guide_stroke_width,
+        "show_data_points": show_data_points,
+        "show_data_line": show_data_line,
+        "show_data_area": show_data_area,
+        "show_reference_line": show_reference_line,
+        "show_reference_area": show_reference_area,
+        "show_vertical_guides": show_vertical_guides,
+        "show_y_axis_guide": show_y_axis_guide,
+        "interactive_data_values": interactive_data_values,
+        "y_val_fmt_fn": y_val_fmt_fn,
+        "y_axis_fmt_fn": y_axis_fmt_fn,
+        "y_ref_line_fmt_fn": y_ref_line_fmt_fn,
+        "currency": currency,
+    }
+
+    return nanoplot_options_dict

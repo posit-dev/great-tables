@@ -1,3 +1,0 @@
----
-title: "Case Study: gtcars"
----
