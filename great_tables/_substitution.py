@@ -120,10 +120,14 @@ def sub_zero(
         [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) functions to style the text
         as Markdown or to retain HTML elements in the text.
 
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Examples
     --------
-
     Let's generate a simple table that contains an assortment of values that could potentially
     undergo some substitution via the `sub_zero()` method (i.e., there are two `0` values). The
     ordering of the [`fmt_scientific()`](`great_tables.GT.fmt_scientific`) and `sub_zero()` calls
