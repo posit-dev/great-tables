@@ -22,9 +22,8 @@ Now let's address each of the two rules, starting with the first that involves c
 
 ```{python}
 # | echo: false
-
 import polars as pl
-import great_tables as GT
+from great_tables import GT
 
 simple_table = pl.DataFrame(
     {
