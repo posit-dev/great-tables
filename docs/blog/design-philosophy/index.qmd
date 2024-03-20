@@ -23,7 +23,7 @@ Now let's address each of the two rules, starting with the first that involves c
 ```{python}
 # | echo: false
 import polars as pl
-from great_tables import GT
+from great_tables import GT, md
 
 simple_table = pl.DataFrame(
     {
@@ -52,6 +52,9 @@ simple_table = pl.DataFrame(
 GT(simple_table)
 ```
 
+Each row in the table corresponds to a single person. Starting from the left we see people's names and so we can surmise that these are records that pertain to individuals. Each column provides some attribute of the person, which includes the full name, address details, date of birth, and some physical characteristics. For the columns in this table we don't have to infer what type of data is contained in each from the data itself, a row at the top is dedicated for labeling the contents within the columns.
+
+We'll go into much more detail later about how to best arrange information and how to adorn the table more structural elements. For now, let's go back in time to learn how tables evolved.
 
 ### The early history of tables
 
@@ -65,4 +68,42 @@ When I think of examples of modern tables, I tend to not go very far back in tim
 
 
 
-###
+```{python}
+# | echo: false
+
+simple_table = pl.DataFrame(
+    {
+        "Name": [
+            "Dustin B. Roach",
+            "Iwona Adamczyk",
+            "Geneviève Massé",
+            "João Souza Lima",
+            "Maddison McCabe",
+        ],
+        "Address": [
+            "1183 Columbia Road",
+            "ul. Zabłudowska 133",
+            "1415 rue Principale",
+            "Rua Cosmorama, 538",
+            "149 Raymond Street",
+        ],
+        "City": ["Holly Oak, DE", "Warszawa", "Amos, QC", "São Paulo-SP", "Strathern"],
+        "Postcode": ["19809", "04-788", "J9T 1E4", "04648-080", "Invercargill 9812"],
+        "DOB": ["1970-09-16", "1976-01-03", "1967-12-08", "2001-04-21", "1982-03-05"],
+        "Height": ["5' 9\"", "5' 5\"", "5' 3\"", "6' 2\"", "5' 8\""],
+        "Weight": [202.5, 123.7, 136.3, 231.0, 146.1],
+    }
+)
+
+(
+    GT(simple_table, rowname_col="Name")
+    .tab_spanner(label="Location", columns=["Address", "City", "Postcode"])
+    .tab_spanner(label="Personal Characteristics", columns=["DOB", "Height", "Weight"])
+    .tab_options(table_font_size="12px")
+    .tab_header(
+        title="Names, Addresses, and Characteristics of Remote Correspondents",
+    )
+    .tab_source_note(source_note=md("*Data last updated*: December 18, 2022."))
+    .opt_align_table_header(align="left")
+)
+```
