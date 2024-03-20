@@ -1,0 +1,69 @@
+---
+title: "The Underlying Design Philosophy in Great Tables"
+html-table-processing: none
+author: Rich Iannone
+date: 2024-03-25
+freeze: true
+jupyter: python3
+---
+
+What is **Great Tables** trying to do? What is it trying to be? Why care about *great*-looking tables at all? What makes for a *good* table? These are all valid questions, of course, and through the course of this article I'll try to address all of these and more of the tangential diversions that will inevitably arise. For myself, at least, I found it hard to articulate the qualities of tabular presentation. Even the simplest of tables is somewhat hard to describe without some effort and often, when doing so, much reexplanation was required to get those half-formed ideas across. I'll try for better here and start from the beginning.
+
+### What is a table, really?
+
+Tables are surpisingly hard to define! I think it's that we take them for granted and we don't often question those tables that are presented to us in terms of their fundamental characteristics. Still, it is useful to understand what makes a table a table. I believe it can be boiled down to two basic rules:
+
+- data is placed in a grid comprising columns and rows
+- the data is primarily in the form of text, and the text can include both numbers and words
+
+This set of requirements seems like the bare minimum for a table to be construed as a table. If we have one without the other, then what results is something probably not recognizable as a table. I know that we often see and use horizontal and/or vertical grid lines within tables, but, those act more as visual reinforcements that outline the columns and rows. So, they're not strictly required for a table to be one. And if this reasoning holds it is thus the arrangement of the data values that matters most here (and not the presence of lines, which serves to visualize the underlying grid).
+
+Now let's address each of the two rules, starting with the first that involves columns and rows. What goes in each? The most effective tables will have separate entries or records arranged as the horizontal rows; and the characteristics or attribute values run down columns. The intersecting piece of text (sometimes called a cell, but not always) is a data attribute tied to a specific record or entry. This is intuitive because we're used to seeing tables (they've been around for thousands of years!) but we don't often rigorously think about how this all works. Let's look at an example of a simple table to tie the theory to practice.
+
+```{python}
+# | echo: false
+
+import polars as pl
+import great_tables as GT
+
+simple_table = pl.DataFrame(
+    {
+        "Name": [
+            "Dustin B. Roach",
+            "Iwona Adamczyk",
+            "Geneviève Massé",
+            "João Souza Lima",
+            "Maddison McCabe",
+        ],
+        "Address": [
+            "1183 Columbia Road",
+            "ul. Zabłudowska 133",
+            "1415 rue Principale",
+            "Rua Cosmorama, 538",
+            "149 Raymond Street",
+        ],
+        "City": ["Holly Oak, DE", "Warszawa", "Amos, QC", "São Paulo-SP", "Strathern"],
+        "Postcode": ["19809", "04-788", "J9T 1E4", "04648-080", "Invercargill 9812"],
+        "DOB": ["1970-09-16", "1976-01-03", "1967-12-08", "2001-04-21", "1982-03-05"],
+        "Height": ["5' 9\"", "5' 5\"", "5' 3\"", "6' 2\"", "5' 8\""],
+        "Weight": [202.5, 123.7, 136.3, 231.0, 146.1],
+    }
+)
+
+GT(simple_table)
+```
+
+
+### The early history of tables
+
+Another aspect of tables that surprises is just how long they've been around. The earliest examples go very far back in human history.
+
+### Modern tables
+
+When I think of examples of modern tables, I tend to not go very far back in time. Certainly, you'll find many published tables in journal articles for several centuries but my practical limit is around the middle of the 20th century.
+
+### Approach to tables taken by **Great Tables**
+
+
+
+###
