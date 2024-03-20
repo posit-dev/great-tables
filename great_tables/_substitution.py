@@ -53,8 +53,8 @@ def sub_missing(
         considered for this substitution. Alternatively, we can supply a list of row indices.
     missing_text
         The text to be used in place of missing values in the rendered table. We can optionally use
-        the `md()` and `html()` helper functions to style the text as Markdown or to retain HTML
-        elements in the text.
+        the [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helper functions to style
+        the text as Markdown or to retain HTML elements in the text.
 
     Returns
     -------
@@ -78,16 +78,15 @@ def sub_missing(
     (
         GT(exibble_mini)
         .sub_missing(
-            columns = ["num", "char"],
-            missing_text = "missing"
+            columns=["num", "char"],
+            missing_text="missing"
         )
         .sub_missing(
-            columns = cs.contains(("date", "time")) | cs.by_name("currency"),
-            missing_text = "nothing"
+            columns=cs.contains(("date", "time")) | cs.by_name("currency"),
+            missing_text="nothing"
         )
     )
     ```
-
     """
 
     subber = SubMissing(self._tbl_data, missing_text)
@@ -100,6 +99,52 @@ def sub_zero(
     rows: Union[int, List[int], None] = None,
     zero_text: str = "nil",
 ) -> GTSelf:
+    """
+    Substitute zero values in the table body.
+
+    Wherever there is numerical data that are zero in value, replacement text may be better for
+    explanatory purposes. The `sub_zero()` function allows for this replacement through its
+    `zero_text=` argument.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should be scanned for
+        zeros. The default is all rows, resulting in all rows in all targeted columns being
+        considered for this substitution. Alternatively, we can supply a list of row indices.
+    zero_text
+        The text to be used in place of zero values in the rendered table. We can optionally use the
+        [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) functions to style the text
+        as Markdown or to retain HTML elements in the text.
+
+
+    Examples
+    --------
+
+    Let's generate a simple table that contains an assortment of values that could potentially
+    undergo some substitution via the `sub_zero()` method (i.e., there are two `0` values). The
+    ordering of the [`fmt_scientific()`](`great_tables.GT.fmt_scientific`) and `sub_zero()` calls
+    in the example below doesn't affect the final result since any `sub_*()` method won't interfere
+    with the formatting of the table.
+
+    ```{python}
+    from great_tables import GT
+    import polars as pl
+
+    single_vals_df = pl.DataFrame(
+        {
+            "i": range(1, 8),
+            "numbers": [2.75, 0, -3.2, 8, 1e-10, 0, 2.6e9]
+        }
+    )
+
+    GT(single_vals_df).fmt_scientific(columns="numbers").sub_zero()
+    ```
+    """
+
     subber = SubZero(zero_text)
     return fmt(self, fns=subber.to_html, columns=columns, rows=rows, is_substitution=True)
 
