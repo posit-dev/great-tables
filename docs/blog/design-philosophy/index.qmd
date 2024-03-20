@@ -58,7 +58,28 @@ We'll go into much more detail later about how to best arrange information and h
 
 ### The early history of tables
 
-Another aspect of tables that surprises is just how long they've been around. The earliest examples go very far back in human history.
+Another aspect of tables that surprises is just how long they've been around. The earliest examples go very far back in human history. I did mention the word *grid* a few times and there is much evidence for grids predating tables. So really, the history of graphical representation and of data analysis begins with the grid. Could we break down the idea of a grid? Sure, it's a metric by which we establish distance and direction of any position relative to a reference point, line, or plane. Common examples include geographic mapping with latitiude and longitude measures, and, the regular arrangement of city blocks through the arrangement of east-west and north-south streets.
+
+Twenty-five thousand year old representations of the grid are found on the walls of the Lascaux and Niaux caves in France[^1]. In the second century BCE, the highly regarded Greek astronomer Hipparchus used latitude and longitude to locate celestial and terrestrial positions[^2]. At around AD 150, Ptolmey published *Geographia*, which contains 25 geographical maps accompanied by methodologies for their construction using grids[^3]. The Romans employed a grid system called centuration, which can be described as land measurement (using surveyors' instruments) to realize the formation of square grids using roads, canals, or agricultural plots[^4].
+
+When grids are made, you generate containers; these are locations that may hold some sort of information. When agriculture because more widespread (ca. 10,000 years ago), there was the need to document and manage economic transactions to do with to farming, livestock, and the division of labor. In the fourth millennium BCE, Mesopotamian cities that traded with geographically distant kingdoms certainly needed to keep such records. We have evidence for these accounting practices by way of clay tablets recovered from the ancient Sumerian city of Uruk. Here is drawing of one of the recovered tablets, which contains an accounting of deliveries of barley and malt from two individuals for the production of beer.
+
+![](./uruk_iii_tablet.png)
+
+The inscribed grid in the ca. 3200-3000 BCE tablet creates boxes and each one of them represented an accounting unit. Inside each box was an ideogram (a symbol that represented a word or idea) and a numerical value representing a quantity. Now here is where it gets super interesting: each row corresponds to an individual, two columns contain entries for malt and barley; subtotals are given in the third column; and the left-most box displays the grand total. This has all the elements of a summary table! In addition, no formal language was used to explain the relationships within the tablet/table. Instead, the grid structure itself provided all that. As a bonus, the table has a footer as the bottom row contains the name of the official in charge.
+
+Zooming ahead about a thousand years and you start to see more systematically structured tables. Here's a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BCE).
+
+![](./nippur_cuneiform_tablet.png)
+
+You can see right away that there is a more regular grid and, if you probe deeper, there are more similarities than differerences with the tables of today. This contains sources of revenue and monthly disbursements for nearly 50 temple personnel. It can be difficult to see this you can take it under good authority[^5] that there are the following features:
+
+- column headings (month names) and row titles (names/professions of individuals).
+- cells with no information (look at the blank or smooth cells along rows)
+- numerical values in the cells
+- subtotals for each individual are every six months
+- grand totals adjacent to row labels
+- annotations with explanatory notes under those columns containing totals
 
 ### Modern tables
 
@@ -107,3 +128,15 @@ simple_table = pl.DataFrame(
     .opt_align_table_header(align="left")
 )
 ```
+
+
+
+[^1]: Taylor, B. (2021). Lunar timekeeping in Upper Paleolithic Cave Art. *PRAEHISTORIA New Series*, *3*(13), 215–232.
+
+[^2]: Duke, D. W. (2002). Hipparchus' Coordinate System. *Archive for History of Exact Sciences*, *56*(5), 427-433.
+
+[^3]: <https://en.wikipedia.org/wiki/Geography_(Ptolemy)>
+
+[^4]: Palet, J. M. and Orengo, H. A., The Roman Centuriated Landscape: Conception, Genesis, and Development as Inferred from the Ager Tarraconensis Case. *American Journal of Archaeology*, *115*(3), 383-402.
+
+[^5]: Robson, E., "Tables and tabular formatting in Sumer, Babylonia, and Assyria, 2500-50 BCE" in M. Campbell-Kelly, M. Croarken, R.G. Flood, and E. Robson (eds.), *The History of Mathematical Tables from Sumer to Spreadsheets*. Oxford: Oxford University Press, 2003, 18–47.
