@@ -104,6 +104,8 @@ Aside from similarities in naming conventions, we wanted to be different and rea
 That very first table we showed here was to teach you what a table is (as if you don't know!) but I suppose it could also serve as an example of a very simple table, a starting point if you will. Let's take that and use the **Great Tables** API to make that table really shine. We'll add table components with the `tab_*()` methods, format some data with the `fmt_*()` methods, and customize the look of the table with some `opt_*()` methods. Here goes:
 
 ```{python}
+from great_tables import GT, md, system_fonts
+
 (
     GT(simple_table, rowname_col="Name")
     .tab_spanner(label="Location", columns=["Address", "City", "Postcode"])
