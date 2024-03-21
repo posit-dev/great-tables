@@ -125,7 +125,7 @@ from great_tables import GT, md, system_fonts
 )
 ```
 
-You're always to use a little or a lot of the API methods to iteratively modify the table to your liking. For our part, we'll endeavor to keep the semantics consistent and the API easy to understand and to use. And across the API surfaces of table structuring, cell formatting, styling, and output there's a lot of room for growth, so, we'll keep plugging away at all that work too. We measure success by the quality of the tables the package is able to produce. We're excited about where things are going with this and we always appreciate community feedback. If ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV) and drop us a line!
+You're always free to use as little or as much of the available API methods to iteratively modify the table to your liking. For our part, we'll endeavor to keep the semantics consistent and the API easy to understand and to use. And across the API surfaces of table structuring, cell formatting, styling, and output there's a lot of room for growth, so, we'll keep plugging away at all that work too. We measure success by the quality of the tables the package is able to produce. We're excited about where things are going with this and we always appreciate community feedback. If ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV) and drop us a line!
 
 [^1]: Taylor, B. (2021). Lunar timekeeping in Upper Paleolithic Cave Art. *PRAEHISTORIA New Series*, *3*(13), 215–232.
 
