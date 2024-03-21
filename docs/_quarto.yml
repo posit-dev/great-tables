@@ -109,6 +109,7 @@ quartodoc:
         - GT.fmt_time
         - GT.fmt_datetime
         - GT.fmt_markdown
+        - GT.fmt_units
         - GT.fmt_image
         - GT.fmt_nanoplot
         - GT.fmt
