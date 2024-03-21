@@ -1,5 +1,8 @@
 import pandas as pd
-from typing import Dict, Tuple
+from typing import TYPE_CHECKING, Dict, Tuple
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 class Cell:

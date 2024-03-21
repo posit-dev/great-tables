@@ -15,7 +15,15 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
-from ._tbl_data import PlExpr, SelectExpr
+from ._tbl_data import (
+    PlExpr,
+    SelectExpr,
+    PlDataFrame,
+    PdDataFrame,
+    DataFrameLike,
+    PdSeries,
+    PlSeries,
+)
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
 from ._locations import resolve_rows_i, resolve_cols_c
@@ -2514,6 +2522,10 @@ def _listify(
         return default()
     elif not isinstance(x, list):
         return [x]
+    elif isinstance(x, PdSeries):
+        return x.tolist()
+    elif isinstance(x, PlSeries):
+        return x.to_list()
     else:
         return cast(Any, x)
 
@@ -2573,15 +2585,27 @@ def _replace_minus(string: str, minus_mark: str) -> str:
     return _str_replace(string, "-", minus_mark)
 
 
-def _filter_pd_df_to_row(
-    pd_df: pd.DataFrame, column: str, filter_expr: str
-) -> pd.DataFrame:
-    filtered_pd_df = pd_df[pd_df[column] == filter_expr]
-    if len(filtered_pd_df) != 1:
+def _filter_df_to_row(
+    df: DataFrameLike, column: str, filter_expr: str
+) -> DataFrameLike:
+    if isinstance(df, PdDataFrame):
+        filtered_df = df[df[column] == filter_expr]
+    elif isinstance(df, PlDataFrame):
+        import polars as pl
+
+        filtered_df = df.filter(pl.col(column) == filter_expr)
+    if len(filtered_df) != 1:
         raise Exception(
             "Internal Error, the filtered table doesn't result in a table of exactly one row."
         )
-    return filtered_pd_df
+    return filtered_df
+
+
+def _val_from_row_df(df: DataFrameLike, column: str) -> str:
+    if isinstance(df, PdDataFrame):
+        return df.iloc[0][column]
+    elif isinstance(df, PlDataFrame):
+        return df[column].item()
 
 
 def _get_locale_sep_mark(
@@ -2596,7 +2620,7 @@ def _get_locale_sep_mark(
         return default
 
     # Get the correct `group` value from the locales lookup table
-    pd_df_row = _filter_pd_df_to_row(
+    df_row = _filter_df_to_row(
         pd_df=_get_locales_data(), column="locale", filter_expr=locale
     )
 
@@ -2604,7 +2628,7 @@ def _get_locale_sep_mark(
     # the column named 'group'; this could potentially be of any type but we expect
     # it to be a string (and we'll check for that here)
     sep_mark: Any
-    sep_mark = pd_df_row.iloc[0]["group"]
+    sep_mark = _val_from_row_df(df_row, "group")
     if not isinstance(sep_mark, str):
         raise TypeError(f"Variable type mismatch. Expected str, got {type(sep_mark)}.")
 
@@ -2621,15 +2645,15 @@ def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
         return default
 
     # Get the correct `decimal` value row from the locales lookup table
-    pd_df_row = _filter_pd_df_to_row(
-        pd_df=_get_locales_data(), column="locale", filter_expr=locale
+    df_row = _filter_df_to_row(
+        df=_get_locales_data(), column="locale", filter_expr=locale
     )
 
     # Obtain a single cell value from the single row in `pd_df_row` that is below
     # the column named 'decimal'; this could potentially be of any type but we expect
     # it to be a string (and we'll check for that here)
     dec_mark: Any
-    dec_mark = pd_df_row.iloc[0]["decimal"]
+    dec_mark = _val_from_row_df(df_row, "decimal")
     if not isinstance(dec_mark, str):
         raise TypeError(f"Variable type mismatch. Expected str, got {type(dec_mark)}.")
 
@@ -2646,7 +2670,7 @@ def _get_locales_list() -> List[str]:
 
     # Get the 'locales' dataset and obtain from that a list of locales
     locales = _get_locales_data()
-    locale_list = locales["locale"].tolist()
+    locale_list = _listify(locales["locale"])
 
     # Ensure that `locale_list` is of the type 'str'
     locale_list: Any
@@ -2670,7 +2694,7 @@ def _get_default_locales_list() -> List[str]:
 
     # Get the 'default locales' dataset and obtain from that a list of default locales
     default_locales = _get_default_locales_data()
-    default_locale_list = default_locales["default_locale"].tolist()
+    default_locale_list = _listify(default_locales["default_locale"])
 
     # Ensure that `default_locale_list` is of the type 'str'
     default_locale_list: Any
@@ -2794,7 +2818,7 @@ def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
         return "USD"
 
     # Get the correct 'locale' value row from the `__x_locales` lookup table
-    pd_df_row = _filter_pd_df_to_row(
+    pd_df_row = _filter_df_to_row(
         pd_df=_get_locales_data(), column="locale", filter_expr=locale
     )
 
@@ -2831,7 +2855,7 @@ def _get_currency_str(currency: str) -> str:
     """
 
     # Get the correct 'curr_code' value row from the `__x_currencies` lookup table
-    pd_df_row = _filter_pd_df_to_row(
+    pd_df_row = _filter_df_to_row(
         pd_df=_get_currencies_data(), column="curr_code", filter_expr=currency
     )
 
@@ -2866,7 +2890,7 @@ def _validate_currency(currency: str) -> None:
     currencies = _get_currencies_data()
 
     # Get the `curr_code` column from currencies DataFrame as a list
-    curr_code_list: List[str] = currencies["curr_code"].tolist()
+    curr_code_list: List[str] = _listify(currencies["curr_code"])
 
     # Stop if the `currency` provided isn't a valid one
     if currency not in curr_code_list:
@@ -2927,13 +2951,13 @@ def _get_currency_exponent(currency: str) -> int:
     currencies = _get_currencies_data()
 
     # get the curr_code column from currencies df as a list
-    curr_code_list: List[str] = currencies["curr_code"].tolist()
+    curr_code_list: List[str] = _listify(currencies["curr_code"])
 
     if currency in curr_code_list:
-        exponent = currencies[currencies["curr_code"] == currency].iloc[0]["exponent"]
+        exponent_row = _filter_df_to_row(currencies, "curr_code", currency)
 
         # Cast exponent variable as an integer value (it is a str currently)
-        exponent = int(exponent)
+        exponent = int(_val_from_row_df(exponent_row, "exponent"))
 
         # Ensure that `exponent` is of the type 'int'
         exponent: Any

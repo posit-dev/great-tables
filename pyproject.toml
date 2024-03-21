@@ -41,7 +41,6 @@ dependencies = [
     "importlib-metadata",
     "typing_extensions>=3.10.0.0",
     "packaging>=20.9",
-    "pandas>=1.4.2",
     "numpy>=1.22.4",
     "Babel>=2.13.1",
     "mizani>=0.9.3",

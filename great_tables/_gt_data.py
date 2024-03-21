@@ -66,7 +66,10 @@ class GTData:
         data = validate_frame(data)
         stub = Stub(data, rowname_col=rowname_col, groupname_col=groupname_col)
         boxhead = Boxhead(
-            data, auto_align=auto_align, rowname_col=rowname_col, groupname_col=groupname_col
+            data,
+            auto_align=auto_align,
+            rowname_col=rowname_col,
+            groupname_col=groupname_col,
         )
 
         row_groups = stub._to_row_groups()
@@ -132,8 +135,10 @@ class _Sequence(Sequence[T]):
 # Body ----
 __Body = None
 
-from typing import Union, List, Any
-import pandas as pd
+from typing import TYPE_CHECKING, Union, List, Any
+
+if TYPE_CHECKING:
+    import pandas as pd
 from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell
 
 
@@ -148,7 +153,9 @@ class Body:
     def __init__(self, body: Union[pd.DataFrame, TblData]):
         self.body = body
 
-    def render_formats(self, data_tbl: TblData, formats: List[FormatInfo], context: Any):
+    def render_formats(
+        self, data_tbl: TblData, formats: List[FormatInfo], context: Any
+    ):
         for fmt in formats:
             eval_func = getattr(fmt.func, context, fmt.func.default)
             if eval_func is None:
@@ -174,7 +181,7 @@ __Boxhead = None
 
 from typing import Optional, List
 from enum import Enum, auto
-import pandas as pd
+
 
 from ._tbl_data import TblData, get_column_names
 
@@ -218,7 +225,9 @@ class ColInfo:
 
     @property
     def is_stub(self) -> bool:
-        return self.type == ColInfoTypeEnum.stub or self.type == ColInfoTypeEnum.row_group
+        return (
+            self.type == ColInfoTypeEnum.stub or self.type == ColInfoTypeEnum.row_group
+        )
 
     @property
     def defaulted_align(self) -> str:
@@ -291,7 +300,8 @@ class Boxhead(_Sequence[ColInfo]):
             raise ValueError("Number of data columns must match length of Boxhead")
 
         if any(
-            col_info.var != col_name for col_info, col_name in zip(self._d, get_column_names(data))
+            col_info.var != col_name
+            for col_info, col_name in zip(self._d, get_column_names(data))
         ):
             raise ValueError("Column names must match between data and Boxhead")
 
@@ -427,7 +437,9 @@ class Boxhead(_Sequence[ColInfo]):
 
     def _get_default_alignments(self) -> List[str]:
         # Extract alignment strings to only include 'default'-type columns
-        alignments = [str(x.column_align) for x in self._d if x.type == ColInfoTypeEnum.default]
+        alignments = [
+            str(x.column_align) for x in self._d if x.type == ColInfoTypeEnum.default
+        ]
         return alignments
 
     # Get the alignment for a specific var value
@@ -543,7 +555,9 @@ class Stub(_Sequence[RowInfo]):
 
     def _to_row_groups(self) -> RowGroups:
         # get unique group_ids, using dict as an ordered set
-        group_ids = list({row.group_id: True for row in self if row.group_id is not None})
+        group_ids = list(
+            {row.group_id: True for row in self if row.group_id is not None}
+        )
 
         return group_ids
 
@@ -559,7 +573,9 @@ class Stub(_Sequence[RowInfo]):
         return stub_components
 
     # Determine whether the table should have row group labels set within a column in the stub
-    def _stub_group_names_has_column(self, row_groups: RowGroups, options: Options) -> bool:
+    def _stub_group_names_has_column(
+        self, row_groups: RowGroups, options: Options
+    ) -> bool:
         # If there aren't any row groups then the result is always False
         if len(row_groups) < 1:
             return False
@@ -643,7 +659,9 @@ class MISSING_GROUP:
 class GroupRows(_Sequence[GroupRowInfo]):
     _d: list[GroupRowInfo]
 
-    def __init__(self, data: list[GroupRowInfo] | DataFrameLike, group_key: Optional[str] = None):
+    def __init__(
+        self, data: list[GroupRowInfo] | DataFrameLike, group_key: Optional[str] = None
+    ):
         if isinstance(data, list):
             self._d = data
 
@@ -688,7 +706,6 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
 # Spanners ----
 __Spanners = None
-import pandas as pd
 
 
 @dataclass(frozen=True)
@@ -725,7 +742,9 @@ class Spanners(_Sequence[SpannerInfo]):
                 f" Received {len(levels)}, but have {len(self)} spanners."
             )
 
-        new_spans = [replace(span, spanner_level=lvl) for span, lvl in zip(self, levels)]
+        new_spans = [
+            replace(span, spanner_level=lvl) for span, lvl in zip(self, levels)
+        ]
         return self.__class__(new_spans)
 
     def next_level(self, column_names: list[str]) -> int:
@@ -940,7 +959,9 @@ class Options:
     table_margin_right: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
     table_background_color: OptionsInfo = OptionsInfo(True, "table", "value", "#FFFFFF")
     # table_additional_css: OptionsInfo = OptionsInfo(False, "table", "values", None)
-    table_font_names: OptionsInfo = OptionsInfo(False, "table", "values", default_fonts_list)
+    table_font_names: OptionsInfo = OptionsInfo(
+        False, "table", "values", default_fonts_list
+    )
     table_font_size: OptionsInfo = OptionsInfo(True, "table", "px", "16px")
     table_font_weight: OptionsInfo = OptionsInfo(True, "table", "value", "normal")
     table_font_style: OptionsInfo = OptionsInfo(True, "table", "value", "normal")
@@ -952,95 +973,191 @@ class Options:
     table_border_top_color: OptionsInfo = OptionsInfo(True, "table", "value", "#A8A8A8")
     table_border_right_style: OptionsInfo = OptionsInfo(True, "table", "value", "none")
     table_border_right_width: OptionsInfo = OptionsInfo(True, "table", "px", "2px")
-    table_border_right_color: OptionsInfo = OptionsInfo(True, "table", "value", "#D3D3D3")
-    table_border_bottom_include: OptionsInfo = OptionsInfo(False, "table", "boolean", True)
-    table_border_bottom_style: OptionsInfo = OptionsInfo(True, "table", "value", "solid")
+    table_border_right_color: OptionsInfo = OptionsInfo(
+        True, "table", "value", "#D3D3D3"
+    )
+    table_border_bottom_include: OptionsInfo = OptionsInfo(
+        False, "table", "boolean", True
+    )
+    table_border_bottom_style: OptionsInfo = OptionsInfo(
+        True, "table", "value", "solid"
+    )
     table_border_bottom_width: OptionsInfo = OptionsInfo(True, "table", "px", "2px")
-    table_border_bottom_color: OptionsInfo = OptionsInfo(True, "table", "value", "#A8A8A8")
+    table_border_bottom_color: OptionsInfo = OptionsInfo(
+        True, "table", "value", "#A8A8A8"
+    )
     table_border_left_style: OptionsInfo = OptionsInfo(True, "table", "value", "none")
     table_border_left_width: OptionsInfo = OptionsInfo(True, "table", "px", "2px")
-    table_border_left_color: OptionsInfo = OptionsInfo(True, "table", "value", "#D3D3D3")
+    table_border_left_color: OptionsInfo = OptionsInfo(
+        True, "table", "value", "#D3D3D3"
+    )
     heading_background_color: OptionsInfo = OptionsInfo(True, "heading", "value", None)
     heading_align: OptionsInfo = OptionsInfo(True, "heading", "value", "center")
     heading_title_font_size: OptionsInfo = OptionsInfo(True, "heading", "px", "125%")
-    heading_title_font_weight: OptionsInfo = OptionsInfo(True, "heading", "value", "initial")
+    heading_title_font_weight: OptionsInfo = OptionsInfo(
+        True, "heading", "value", "initial"
+    )
     heading_subtitle_font_size: OptionsInfo = OptionsInfo(True, "heading", "px", "85%")
-    heading_subtitle_font_weight: OptionsInfo = OptionsInfo(True, "heading", "value", "initial")
+    heading_subtitle_font_weight: OptionsInfo = OptionsInfo(
+        True, "heading", "value", "initial"
+    )
     heading_padding: OptionsInfo = OptionsInfo(True, "heading", "px", "4px")
     heading_padding_horizontal: OptionsInfo = OptionsInfo(True, "heading", "px", "5px")
-    heading_border_bottom_style: OptionsInfo = OptionsInfo(True, "heading", "value", "solid")
+    heading_border_bottom_style: OptionsInfo = OptionsInfo(
+        True, "heading", "value", "solid"
+    )
     heading_border_bottom_width: OptionsInfo = OptionsInfo(True, "heading", "px", "2px")
-    heading_border_bottom_color: OptionsInfo = OptionsInfo(True, "heading", "value", "#D3D3D3")
+    heading_border_bottom_color: OptionsInfo = OptionsInfo(
+        True, "heading", "value", "#D3D3D3"
+    )
     heading_border_lr_style: OptionsInfo = OptionsInfo(True, "heading", "value", "none")
     heading_border_lr_width: OptionsInfo = OptionsInfo(True, "heading", "px", "1px")
-    heading_border_lr_color: OptionsInfo = OptionsInfo(True, "heading", "value", "#D3D3D3")
-    column_labels_background_color: OptionsInfo = OptionsInfo(True, "column_labels", "value", None)
-    column_labels_font_size: OptionsInfo = OptionsInfo(True, "column_labels", "px", "100%")
-    column_labels_font_weight: OptionsInfo = OptionsInfo(True, "column_labels", "value", "normal")
+    heading_border_lr_color: OptionsInfo = OptionsInfo(
+        True, "heading", "value", "#D3D3D3"
+    )
+    column_labels_background_color: OptionsInfo = OptionsInfo(
+        True, "column_labels", "value", None
+    )
+    column_labels_font_size: OptionsInfo = OptionsInfo(
+        True, "column_labels", "px", "100%"
+    )
+    column_labels_font_weight: OptionsInfo = OptionsInfo(
+        True, "column_labels", "value", "normal"
+    )
     column_labels_text_transform: OptionsInfo = OptionsInfo(
         True, "column_labels", "value", "inherit"
     )
     column_labels_padding: OptionsInfo = OptionsInfo(True, "column_labels", "px", "5px")
-    column_labels_padding_horizontal: OptionsInfo = OptionsInfo(True, "column_labels", "px", "5px")
-    column_labels_vlines_style: OptionsInfo = OptionsInfo(True, "table_body", "value", "none")
-    column_labels_vlines_width: OptionsInfo = OptionsInfo(True, "table_body", "px", "1px")
-    column_labels_vlines_color: OptionsInfo = OptionsInfo(True, "table_body", "value", "#D3D3D3")
+    column_labels_padding_horizontal: OptionsInfo = OptionsInfo(
+        True, "column_labels", "px", "5px"
+    )
+    column_labels_vlines_style: OptionsInfo = OptionsInfo(
+        True, "table_body", "value", "none"
+    )
+    column_labels_vlines_width: OptionsInfo = OptionsInfo(
+        True, "table_body", "px", "1px"
+    )
+    column_labels_vlines_color: OptionsInfo = OptionsInfo(
+        True, "table_body", "value", "#D3D3D3"
+    )
     column_labels_border_top_style: OptionsInfo = OptionsInfo(
         True, "column_labels", "value", "solid"
     )
-    column_labels_border_top_width: OptionsInfo = OptionsInfo(True, "column_labels", "px", "2px")
+    column_labels_border_top_width: OptionsInfo = OptionsInfo(
+        True, "column_labels", "px", "2px"
+    )
     column_labels_border_top_color: OptionsInfo = OptionsInfo(
         True, "column_labels", "value", "#D3D3D3"
     )
     column_labels_border_bottom_style: OptionsInfo = OptionsInfo(
         True, "column_labels", "value", "solid"
     )
-    column_labels_border_bottom_width: OptionsInfo = OptionsInfo(True, "column_labels", "px", "2px")
+    column_labels_border_bottom_width: OptionsInfo = OptionsInfo(
+        True, "column_labels", "px", "2px"
+    )
     column_labels_border_bottom_color: OptionsInfo = OptionsInfo(
         True, "column_labels", "value", "#D3D3D3"
     )
-    column_labels_border_lr_style: OptionsInfo = OptionsInfo(True, "column_labels", "value", "none")
-    column_labels_border_lr_width: OptionsInfo = OptionsInfo(True, "column_labels", "px", "1px")
+    column_labels_border_lr_style: OptionsInfo = OptionsInfo(
+        True, "column_labels", "value", "none"
+    )
+    column_labels_border_lr_width: OptionsInfo = OptionsInfo(
+        True, "column_labels", "px", "1px"
+    )
     column_labels_border_lr_color: OptionsInfo = OptionsInfo(
         True, "column_labels", "value", "#D3D3D3"
     )
-    column_labels_hidden: OptionsInfo = OptionsInfo(False, "column_labels", "boolean", False)
-    row_group_background_color: OptionsInfo = OptionsInfo(True, "row_group", "value", None)
+    column_labels_hidden: OptionsInfo = OptionsInfo(
+        False, "column_labels", "boolean", False
+    )
+    row_group_background_color: OptionsInfo = OptionsInfo(
+        True, "row_group", "value", None
+    )
     row_group_font_size: OptionsInfo = OptionsInfo(True, "row_group", "px", "100%")
-    row_group_font_weight: OptionsInfo = OptionsInfo(True, "row_group", "value", "initial")
-    row_group_text_transform: OptionsInfo = OptionsInfo(True, "row_group", "value", "inherit")
+    row_group_font_weight: OptionsInfo = OptionsInfo(
+        True, "row_group", "value", "initial"
+    )
+    row_group_text_transform: OptionsInfo = OptionsInfo(
+        True, "row_group", "value", "inherit"
+    )
     row_group_padding: OptionsInfo = OptionsInfo(True, "row_group", "px", "8px")
-    row_group_padding_horizontal: OptionsInfo = OptionsInfo(True, "row_group", "px", "5px")
-    row_group_border_top_style: OptionsInfo = OptionsInfo(True, "row_group", "value", "solid")
-    row_group_border_top_width: OptionsInfo = OptionsInfo(True, "row_group", "px", "2px")
-    row_group_border_top_color: OptionsInfo = OptionsInfo(True, "row_group", "value", "#D3D3D3")
-    row_group_border_right_style: OptionsInfo = OptionsInfo(True, "row_group", "value", "none")
-    row_group_border_right_width: OptionsInfo = OptionsInfo(True, "row_group", "px", "1px")
-    row_group_border_right_color: OptionsInfo = OptionsInfo(True, "row_group", "value", "#D3D3D3")
-    row_group_border_bottom_style: OptionsInfo = OptionsInfo(True, "row_group", "value", "solid")
-    row_group_border_bottom_width: OptionsInfo = OptionsInfo(True, "row_group", "px", "2px")
-    row_group_border_bottom_color: OptionsInfo = OptionsInfo(True, "row_group", "value", "#D3D3D3")
-    row_group_border_left_style: OptionsInfo = OptionsInfo(True, "row_group", "value", "none")
-    row_group_border_left_width: OptionsInfo = OptionsInfo(True, "row_group", "px", "1px")
-    row_group_border_left_color: OptionsInfo = OptionsInfo(True, "row_group", "value", "#D3D3D3")
+    row_group_padding_horizontal: OptionsInfo = OptionsInfo(
+        True, "row_group", "px", "5px"
+    )
+    row_group_border_top_style: OptionsInfo = OptionsInfo(
+        True, "row_group", "value", "solid"
+    )
+    row_group_border_top_width: OptionsInfo = OptionsInfo(
+        True, "row_group", "px", "2px"
+    )
+    row_group_border_top_color: OptionsInfo = OptionsInfo(
+        True, "row_group", "value", "#D3D3D3"
+    )
+    row_group_border_right_style: OptionsInfo = OptionsInfo(
+        True, "row_group", "value", "none"
+    )
+    row_group_border_right_width: OptionsInfo = OptionsInfo(
+        True, "row_group", "px", "1px"
+    )
+    row_group_border_right_color: OptionsInfo = OptionsInfo(
+        True, "row_group", "value", "#D3D3D3"
+    )
+    row_group_border_bottom_style: OptionsInfo = OptionsInfo(
+        True, "row_group", "value", "solid"
+    )
+    row_group_border_bottom_width: OptionsInfo = OptionsInfo(
+        True, "row_group", "px", "2px"
+    )
+    row_group_border_bottom_color: OptionsInfo = OptionsInfo(
+        True, "row_group", "value", "#D3D3D3"
+    )
+    row_group_border_left_style: OptionsInfo = OptionsInfo(
+        True, "row_group", "value", "none"
+    )
+    row_group_border_left_width: OptionsInfo = OptionsInfo(
+        True, "row_group", "px", "1px"
+    )
+    row_group_border_left_color: OptionsInfo = OptionsInfo(
+        True, "row_group", "value", "#D3D3D3"
+    )
     # row_group_default_label: OptionsInfo = OptionsInfo(False, "row_group", "value", None)
     row_group_as_column: OptionsInfo = OptionsInfo(False, "row_group", "boolean", False)
-    table_body_hlines_style: OptionsInfo = OptionsInfo(True, "table_body", "value", "solid")
+    table_body_hlines_style: OptionsInfo = OptionsInfo(
+        True, "table_body", "value", "solid"
+    )
     table_body_hlines_width: OptionsInfo = OptionsInfo(True, "table_body", "px", "1px")
-    table_body_hlines_color: OptionsInfo = OptionsInfo(True, "table_body", "value", "#D3D3D3")
-    table_body_vlines_style: OptionsInfo = OptionsInfo(True, "table_body", "value", "none")
+    table_body_hlines_color: OptionsInfo = OptionsInfo(
+        True, "table_body", "value", "#D3D3D3"
+    )
+    table_body_vlines_style: OptionsInfo = OptionsInfo(
+        True, "table_body", "value", "none"
+    )
     table_body_vlines_width: OptionsInfo = OptionsInfo(True, "table_body", "px", "1px")
-    table_body_vlines_color: OptionsInfo = OptionsInfo(True, "table_body", "value", "#D3D3D3")
-    table_body_border_top_style: OptionsInfo = OptionsInfo(True, "table_body", "value", "solid")
-    table_body_border_top_width: OptionsInfo = OptionsInfo(True, "table_body", "px", "2px")
-    table_body_border_top_color: OptionsInfo = OptionsInfo(True, "table_body", "value", "#D3D3D3")
-    table_body_border_bottom_style: OptionsInfo = OptionsInfo(True, "table_body", "value", "solid")
-    table_body_border_bottom_width: OptionsInfo = OptionsInfo(True, "table_body", "px", "2px")
+    table_body_vlines_color: OptionsInfo = OptionsInfo(
+        True, "table_body", "value", "#D3D3D3"
+    )
+    table_body_border_top_style: OptionsInfo = OptionsInfo(
+        True, "table_body", "value", "solid"
+    )
+    table_body_border_top_width: OptionsInfo = OptionsInfo(
+        True, "table_body", "px", "2px"
+    )
+    table_body_border_top_color: OptionsInfo = OptionsInfo(
+        True, "table_body", "value", "#D3D3D3"
+    )
+    table_body_border_bottom_style: OptionsInfo = OptionsInfo(
+        True, "table_body", "value", "solid"
+    )
+    table_body_border_bottom_width: OptionsInfo = OptionsInfo(
+        True, "table_body", "px", "2px"
+    )
     table_body_border_bottom_color: OptionsInfo = OptionsInfo(
         True, "table_body", "value", "#D3D3D3"
     )
     data_row_padding: OptionsInfo = OptionsInfo(True, "data_row", "px", "8px")
-    data_row_padding_horizontal: OptionsInfo = OptionsInfo(True, "data_row", "px", "5px")
+    data_row_padding_horizontal: OptionsInfo = OptionsInfo(
+        True, "data_row", "px", "5px"
+    )
     stub_background_color: OptionsInfo = OptionsInfo(True, "stub", "value", None)
     stub_font_size: OptionsInfo = OptionsInfo(True, "stub", "px", "100%")
     stub_font_weight: OptionsInfo = OptionsInfo(True, "stub", "value", "initial")
@@ -1048,13 +1165,23 @@ class Options:
     stub_border_style: OptionsInfo = OptionsInfo(True, "stub", "value", "solid")
     stub_border_width: OptionsInfo = OptionsInfo(True, "stub", "px", "2px")
     stub_border_color: OptionsInfo = OptionsInfo(True, "stub", "value", "#D3D3D3")
-    stub_row_group_background_color: OptionsInfo = OptionsInfo(True, "stub", "value", None)
+    stub_row_group_background_color: OptionsInfo = OptionsInfo(
+        True, "stub", "value", None
+    )
     stub_row_group_font_size: OptionsInfo = OptionsInfo(True, "stub", "px", "100%")
-    stub_row_group_font_weight: OptionsInfo = OptionsInfo(True, "stub", "value", "initial")
-    stub_row_group_text_transform: OptionsInfo = OptionsInfo(True, "stub", "value", "inherit")
-    stub_row_group_border_style: OptionsInfo = OptionsInfo(True, "stub", "value", "solid")
+    stub_row_group_font_weight: OptionsInfo = OptionsInfo(
+        True, "stub", "value", "initial"
+    )
+    stub_row_group_text_transform: OptionsInfo = OptionsInfo(
+        True, "stub", "value", "inherit"
+    )
+    stub_row_group_border_style: OptionsInfo = OptionsInfo(
+        True, "stub", "value", "solid"
+    )
     stub_row_group_border_width: OptionsInfo = OptionsInfo(True, "stub", "px", "2px")
-    stub_row_group_border_color: OptionsInfo = OptionsInfo(True, "stub", "value", "#D3D3D3")
+    stub_row_group_border_color: OptionsInfo = OptionsInfo(
+        True, "stub", "value", "#D3D3D3"
+    )
     # summary_row_padding: OptionsInfo = OptionsInfo(True, "summary_row", "px", "8px")
     # summary_row_padding_horizontal: OptionsInfo = OptionsInfo(True, "summary_row", "px", "5px")
     # summary_row_background_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", None)
@@ -1096,22 +1223,34 @@ class Options:
     # footnotes_multiline: OptionsInfo = OptionsInfo(False, "footnotes", "boolean", True)
     # footnotes_sep: OptionsInfo = OptionsInfo(False, "footnotes", "value", " ")
     source_notes_padding: OptionsInfo = OptionsInfo(True, "source_notes", "px", "4px")
-    source_notes_padding_horizontal: OptionsInfo = OptionsInfo(True, "source_notes", "px", "5px")
-    source_notes_background_color: OptionsInfo = OptionsInfo(True, "source_notes", "value", None)
+    source_notes_padding_horizontal: OptionsInfo = OptionsInfo(
+        True, "source_notes", "px", "5px"
+    )
+    source_notes_background_color: OptionsInfo = OptionsInfo(
+        True, "source_notes", "value", None
+    )
     source_notes_font_size: OptionsInfo = OptionsInfo(True, "source_notes", "px", "90%")
     source_notes_border_bottom_style: OptionsInfo = OptionsInfo(
         True, "source_notes", "value", "none"
     )
-    source_notes_border_bottom_width: OptionsInfo = OptionsInfo(True, "source_notes", "px", "2px")
+    source_notes_border_bottom_width: OptionsInfo = OptionsInfo(
+        True, "source_notes", "px", "2px"
+    )
     source_notes_border_bottom_color: OptionsInfo = OptionsInfo(
         True, "source_notes", "value", "#D3D3D3"
     )
-    source_notes_border_lr_style: OptionsInfo = OptionsInfo(True, "source_notes", "value", "none")
-    source_notes_border_lr_width: OptionsInfo = OptionsInfo(True, "source_notes", "px", "2px")
+    source_notes_border_lr_style: OptionsInfo = OptionsInfo(
+        True, "source_notes", "value", "none"
+    )
+    source_notes_border_lr_width: OptionsInfo = OptionsInfo(
+        True, "source_notes", "px", "2px"
+    )
     source_notes_border_lr_color: OptionsInfo = OptionsInfo(
         True, "source_notes", "value", "#D3D3D3"
     )
-    source_notes_multiline: OptionsInfo = OptionsInfo(False, "source_notes", "boolean", True)
+    source_notes_multiline: OptionsInfo = OptionsInfo(
+        False, "source_notes", "boolean", True
+    )
     source_notes_sep: OptionsInfo = OptionsInfo(False, "source_notes", "value", " ")
     # row_striping_background_color: OptionsInfo = OptionsInfo(
     #     True, "row", "value", "rgba(128,128,128,0.05)"
@@ -1122,8 +1261,12 @@ class Options:
     container_height: OptionsInfo = OptionsInfo(False, "container", "px", "auto")
     container_padding_x: OptionsInfo = OptionsInfo(False, "container", "px", "0px")
     container_padding_y: OptionsInfo = OptionsInfo(False, "container", "px", "10px")
-    container_overflow_x: OptionsInfo = OptionsInfo(False, "container", "overflow", "auto")
-    container_overflow_y: OptionsInfo = OptionsInfo(False, "container", "overflow", "auto")
+    container_overflow_x: OptionsInfo = OptionsInfo(
+        False, "container", "overflow", "auto"
+    )
+    container_overflow_y: OptionsInfo = OptionsInfo(
+        False, "container", "overflow", "auto"
+    )
     # page_orientation: OptionsInfo = OptionsInfo(False, "page", "value", "portrait")
     # page_numbering: OptionsInfo = OptionsInfo(False, "page", "boolean", False)
     # page_header_use_tbl_headings: OptionsInfo = OptionsInfo(False, "page", "boolean", False)
@@ -1136,7 +1279,9 @@ class Options:
     # page_margin_bottom: OptionsInfo = OptionsInfo(False, "page", "value", "1.0in")
     # page_header_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
     # page_footer_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
-    quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
+    quarto_disable_processing: OptionsInfo = OptionsInfo(
+        False, "quarto", "logical", False
+    )
     quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
 
     def _get_all_options_keys(self) -> List[Union[str, None]]:

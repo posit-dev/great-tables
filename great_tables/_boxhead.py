@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import pandas as pd
+
 from typing import TYPE_CHECKING, Optional, Any
 from typing_extensions import Self
 
@@ -8,6 +8,7 @@ from ._utils import _assert_list_is_subset
 
 if TYPE_CHECKING:
     from ._types import GTSelf
+    import pandas as pd
 
 
 def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
@@ -105,7 +106,9 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
     return self._replace(_boxhead=boxhead)
 
 
-def cols_align(self: GTSelf, align: str = "left", columns: Optional[str] = None) -> GTSelf:
+def cols_align(
+    self: GTSelf, align: str = "left", columns: Optional[str] = None
+) -> GTSelf:
     """
     Set the alignment of one or more columns.
 
@@ -165,7 +168,9 @@ def cols_align(self: GTSelf, align: str = "left", columns: Optional[str] = None)
         columns = column_names
 
     # Set the alignment for each column
-    return self._replace(_boxhead=self._boxhead._set_column_aligns(columns, align=align))
+    return self._replace(
+        _boxhead=self._boxhead._set_column_aligns(columns, align=align)
+    )
 
 
 def _print_boxhead(self: GTSelf) -> pd.DataFrame:
