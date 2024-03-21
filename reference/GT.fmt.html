@@ -152,7 +152,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 <section id="great_tables.GT.fmt" class="level1">
 <h1>GT.fmt</h1>
-<p><code>GT.fmt(self, fns, columns=None, rows=None)</code></p>
+<p><code>GT.fmt(self, fns, columns=None, rows=None, is_substitution=False)</code></p>
 <p>Set a column format with a formatter function.</p>
 <p>The <code>fmt()</code> method provides a way to execute custom formatting functionality with raw data values in a way that can consider all output contexts.</p>
 <p>Along with the <code>columns</code> and <code>rows</code> arguments that provide some precision in targeting data cells, the <code>fns</code> argument allows you to define one or more functions for manipulating the raw data.</p>
@@ -160,9 +160,9 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 2%">
+<col style="width: 5%">
 <col style="width: 32%">
-<col style="width: 60%">
+<col style="width: 59%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -191,6 +191,12 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <td><code>Union</code>[<code>int</code>, <code>List</code>[<code>int</code>], None]</td>
 <td>In conjunction with <code>columns=</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
 <td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>is_substitution</code></td>
+<td></td>
+<td>Whether the formatter is a substitution. Substitutions are run last, after other formatters.</td>
+<td><code>False</code></td>
 </tr>
 </tbody>
 </table>
