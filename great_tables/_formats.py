@@ -21,8 +21,7 @@ from ._locale import _get_locales_data, _get_default_locales_data, _get_currenci
 from ._locations import resolve_rows_i, resolve_cols_c
 from ._text import _md_html
 from ._utils import _str_detect, _str_replace
-from ._utils_nanoplots import _generate_nanoplot
-import pandas as pd
+from ._utils_nanoplots import _generate_nanoplot, _val_is_missing
 import math
 from datetime import datetime, date, time
 from babel.dates import format_date, format_time, format_datetime
@@ -31,6 +30,7 @@ from pathlib import Path
 
 if TYPE_CHECKING:
     from ._types import GTSelf
+    import pandas as pd
 
 T = TypeVar("T")
 DateStyle: TypeAlias = Literal[
@@ -449,7 +449,7 @@ def fmt_integer(
         scale_by: float = scale_by,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if _val_is_missing(x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -664,8 +664,8 @@ def fmt_scientific(
         force_sign_m: bool = force_sign_m,
         force_sign_n: bool = force_sign_n,
     ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # If the `x` value is nan, then return the same value
+        if _val_is_missing(x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -907,8 +907,8 @@ def fmt_percent(
         placement: str = placement,
         incl_space: bool = incl_space,
     ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # If the `x` value is a nan, then return the same value
+        if _val_is_missing(x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -933,7 +933,9 @@ def fmt_percent(
         # Create a percent pattern for affixing the percent sign
         space_character = " " if incl_space else ""
         percent_pattern = (
-            f"{{x}}{space_character}%" if placement == "right" else f"%{space_character}{{x}}"
+            f"{{x}}{space_character}%"
+            if placement == "right"
+            else f"%{space_character}{{x}}"
         )
 
         if is_negative and placement == "left":
@@ -1143,8 +1145,8 @@ def fmt_currency(
         placement: str = placement,
         incl_space: bool = incl_space,
     ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # If the `x` value is nan, then return the same value
+        if _val_is_missing(x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -1273,8 +1275,8 @@ def fmt_roman(
         x: float,
         case: str = case,
     ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # If the `x` value is nan, then return the same value
+        if _val_is_missing(x):
             return x
 
         # Get the absolute value of `x` so that negative values are handled
@@ -1483,8 +1485,8 @@ def fmt_bytes(
         force_sign: bool = force_sign,
         incl_space: bool = incl_space,
     ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # If the `x` value is nan, then return the same value
+        if _val_is_missing(x):
             return x
 
         # Truncate all byte values by casting to an integer; this is done because bytes
@@ -1664,10 +1666,12 @@ def fmt_date(
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_date_fn(
-        x: Any, date_format_str: str = date_format_str, locale: Union[str, None] = locale
+        x: Any,
+        date_format_str: str = date_format_str,
+        locale: Union[str, None] = locale,
     ) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # If the `x` value is nan, then return the same value
+        if _val_is_missing(x):
             return x
 
         # If `x` is a string, we assume it is an ISO date string and convert it to a date object
@@ -1800,10 +1804,12 @@ def fmt_time(
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_time_fn(
-        x: Any, time_format_str: str = time_format_str, locale: Union[str, None] = locale
+        x: Any,
+        time_format_str: str = time_format_str,
+        locale: Union[str, None] = locale,
     ) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # If the `x` value is nan, then return the same value
+        if _val_is_missing(x):
             return x
 
         # If `x` is a string, assume it is an ISO time string and convert it to a time object
@@ -1965,8 +1971,8 @@ def fmt_datetime(
         sep: str = sep,
         locale: Union[str, None] = locale,
     ) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # If the `x` value is nan, then return the same value
+        if _val_is_missing(x):
             return x
 
         # From the date and time format strings, create a datetime format string
@@ -2090,8 +2096,8 @@ def fmt_markdown(
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_markdown_fn(x: Any) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # If the `x` value is nan, then return the same value
+        if _val_is_missing(x):
             return x
 
         x_str: str = str(x)
@@ -2195,7 +2201,9 @@ def _value_to_scientific_notation(
     return result
 
 
-def _value_to_engineering_notation(value: Union[int, float], n_sigfig: int, exp_style: str) -> str:
+def _value_to_engineering_notation(
+    value: Union[int, float], n_sigfig: int, exp_style: str
+) -> str:
     """
     Engineering notation.
 
@@ -2389,7 +2397,9 @@ def _expand_exponential_to_full_string(str_number: str) -> str:
     return formatted_number
 
 
-def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, int, bool]:
+def _get_number_profile(
+    value: Union[int, float], n_sigfig: int
+) -> tuple[str, int, bool]:
     """
     Get key components of a number for decimal number formatting.
 
@@ -2418,7 +2428,9 @@ def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, i
     return sig_digits, int(-power), is_negative
 
 
-def _get_sci_parts(value: Union[int, float], n_sigfig: int) -> tuple[bool, str, int, int]:
+def _get_sci_parts(
+    value: Union[int, float], n_sigfig: int
+) -> tuple[bool, str, int, int]:
     """
     Returns the properties for constructing a number in scientific notation.
     """
@@ -2523,7 +2535,7 @@ def _has_sci_order_zero(value: Union[int, float]) -> bool:
 
 
 def _context_exp_marks() -> List[str]:
-    return [" \u00D7 10<sup style='font-size: 65%;'>", "</sup>"]
+    return [" \u00d7 10<sup style='font-size: 65%;'>", "</sup>"]
 
 
 def _context_exp_str(exp_style: str) -> str:
@@ -2561,7 +2573,9 @@ def _replace_minus(string: str, minus_mark: str) -> str:
     return _str_replace(string, "-", minus_mark)
 
 
-def _filter_pd_df_to_row(pd_df: pd.DataFrame, column: str, filter_expr: str) -> pd.DataFrame:
+def _filter_pd_df_to_row(
+    pd_df: pd.DataFrame, column: str, filter_expr: str
+) -> pd.DataFrame:
     filtered_pd_df = pd_df[pd_df[column] == filter_expr]
     if len(filtered_pd_df) != 1:
         raise Exception(
@@ -2570,7 +2584,9 @@ def _filter_pd_df_to_row(pd_df: pd.DataFrame, column: str, filter_expr: str) -> 
     return filtered_pd_df
 
 
-def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] = None) -> str:
+def _get_locale_sep_mark(
+    default: str, use_seps: bool, locale: Union[str, None] = None
+) -> str:
     # If `use_seps` is False, then force `sep_mark` to be an empty string
     if not use_seps:
         return ""
@@ -2580,7 +2596,9 @@ def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] 
         return default
 
     # Get the correct `group` value from the locales lookup table
-    pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
+    pd_df_row = _filter_pd_df_to_row(
+        pd_df=_get_locales_data(), column="locale", filter_expr=locale
+    )
 
     # Obtain a single cell value from the single row in `pd_df_row` that is below
     # the column named 'group'; this could potentially be of any type but we expect
@@ -2603,7 +2621,9 @@ def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
         return default
 
     # Get the correct `decimal` value row from the locales lookup table
-    pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
+    pd_df_row = _filter_pd_df_to_row(
+        pd_df=_get_locales_data(), column="locale", filter_expr=locale
+    )
 
     # Obtain a single cell value from the single row in `pd_df_row` that is below
     # the column named 'decimal'; this could potentially be of any type but we expect
@@ -2631,7 +2651,9 @@ def _get_locales_list() -> List[str]:
     # Ensure that `locale_list` is of the type 'str'
     locale_list: Any
     if not isinstance(locale_list[0], str):
-        raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
+        raise TypeError(
+            "Variable type mismatch. Expected str, got something entirely different."
+        )
     return locale_list
 
 
@@ -2653,7 +2675,9 @@ def _get_default_locales_list() -> List[str]:
     # Ensure that `default_locale_list` is of the type 'str'
     default_locale_list: Any
     if not isinstance(default_locale_list[0], str):
-        raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
+        raise TypeError(
+            "Variable type mismatch. Expected str, got something entirely different."
+        )
 
     return default_locale_list
 
@@ -2681,8 +2705,13 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
     supplied_locale = _str_replace(locale, "_", "-")
 
     # Stop if the `locale` provided isn't a valid one
-    if supplied_locale not in locales_list and supplied_locale not in default_locales_list:
-        raise ValueError("The supplied `locale` is not available in the list of supported locales.")
+    if (
+        supplied_locale not in locales_list
+        and supplied_locale not in default_locales_list
+    ):
+        raise ValueError(
+            "The supplied `locale` is not available in the list of supported locales."
+        )
 
     return
 
@@ -2765,7 +2794,9 @@ def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
         return "USD"
 
     # Get the correct 'locale' value row from the `__x_locales` lookup table
-    pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
+    pd_df_row = _filter_pd_df_to_row(
+        pd_df=_get_locales_data(), column="locale", filter_expr=locale
+    )
 
     # Extract the 'currency_code' cell value from this 1-row DataFrame
     currency_code = pd_df_row.iloc[0]["currency_code"]
@@ -2773,7 +2804,9 @@ def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
     # Ensure that `currency_code` is of the type 'str'
     currency_code: Any
     if not isinstance(currency_code, str):
-        raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
+        raise TypeError(
+            "Variable type mismatch. Expected str, got something entirely different."
+        )
 
     # If the field isn't populated, we'll obtain an empty string; in such a case we fall
     # back to using the 'USD' currency code
@@ -2808,7 +2841,9 @@ def _get_currency_str(currency: str) -> str:
     # Ensure that `currency_str` is of the type 'str'
     currency_str: Any
     if not isinstance(currency_str, str):
-        raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
+        raise TypeError(
+            "Variable type mismatch. Expected str, got something entirely different."
+        )
 
     return currency_str
 
@@ -2842,7 +2877,9 @@ def _validate_currency(currency: str) -> None:
     return
 
 
-def _get_currency_decimals(currency: str, decimals: Optional[int], use_subunits: bool) -> int:
+def _get_currency_decimals(
+    currency: str, decimals: Optional[int], use_subunits: bool
+) -> int:
     """
     Returns the number of decimal places to use for a given currency.
 
@@ -2933,7 +2970,9 @@ def _validate_n_sigfig(n_sigfig: int) -> None:
         raise TypeError("Any input for `n_sigfig` must be an integer.")
     # The value of `n_sigfig` must be greater than or equal to 1
     if n_sigfig < 1:
-        raise ValueError("The value for `n_sigfig` must be greater than or equal to `1`.")
+        raise ValueError(
+            "The value for `n_sigfig` must be greater than or equal to `1`."
+        )
 
     return
 
@@ -3012,7 +3051,9 @@ def _validate_case(case: str) -> None:
         ValueError: If the case argument is not 'upper' or 'lower'.
     """
     if case not in ["upper", "lower"]:
-        raise ValueError(f"The `case` argument must be either 'upper' or 'lower' (not '{case}').")
+        raise ValueError(
+            f"The `case` argument must be either 'upper' or 'lower' (not '{case}')."
+        )
 
     return
 
@@ -3115,7 +3156,9 @@ def _validate_date_style(date_style: str) -> None:
         None
     """
     if date_style not in _get_date_formats_dict():
-        raise ValueError(f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}")
+        raise ValueError(
+            f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}"
+        )
 
     return
 
@@ -3134,7 +3177,9 @@ def _validate_time_style(time_style: str) -> None:
         None
     """
     if time_style not in _get_time_formats_dict():
-        raise ValueError(f"time_style must be one of: {', '.join(_get_time_formats_dict().keys())}")
+        raise ValueError(
+            f"time_style must be one of: {', '.join(_get_time_formats_dict().keys())}"
+        )
 
     return
 
@@ -3258,7 +3303,9 @@ def _validate_date_obj(x: Any) -> None:
         None
     """
     if not isinstance(x, date):
-        raise ValueError(f"Invalid date object: '{x}'. The object must be a date object.")
+        raise ValueError(
+            f"Invalid date object: '{x}'. The object must be a date object."
+        )
 
     return
 
@@ -3277,7 +3324,9 @@ def _validate_time_obj(x: Any) -> None:
         None
     """
     if not isinstance(x, time):
-        raise ValueError(f"Invalid time object: '{x}'. The object must be a time object.")
+        raise ValueError(
+            f"Invalid time object: '{x}'. The object must be a time object."
+        )
 
     return
 
@@ -3296,7 +3345,9 @@ def _validate_datetime_obj(x: Any) -> None:
         None
     """
     if not isinstance(x, datetime):
-        raise ValueError(f"Invalid datetime object: '{x}'. The object must be a datetime object.")
+        raise ValueError(
+            f"Invalid datetime object: '{x}'. The object must be a datetime object."
+        )
 
     return
 
@@ -3439,14 +3490,18 @@ class FmtImage:
         # TODO: note that only height can be numeric in the R program. Is this on purpose?
         # In any event, raising explicitly for numeric width below.
         if isinstance(self.width, (int, float)):
-            raise NotImplementedError("The width argument must be specified as a string.")
+            raise NotImplementedError(
+                "The width argument must be specified as a string."
+            )
 
         full_files = self._apply_pattern(self.file_pattern, files)
 
         out: list[str] = []
         for file in full_files:
             # Case 1: from url
-            if self.path and (self.path.startswith("http://") or self.path.startswith("https://")):
+            if self.path and (
+                self.path.startswith("http://") or self.path.startswith("https://")
+            ):
                 norm_path = re.sub(r"/\s+$", self.path)
                 uri = f"{norm_path}/{file}"
 
@@ -3498,7 +3553,9 @@ class FmtImage:
         return f"image/{suffix}"
 
     @staticmethod
-    def _build_img_tag(uri: str, height: str | None = None, width: str | None = None) -> str:
+    def _build_img_tag(
+        uri: str, height: str | None = None, width: str | None = None
+    ) -> str:
         style_string = "".join(
             [
                 f"height: {height};" if height is not None else "",
@@ -3701,12 +3758,11 @@ def fmt_nanoplot(
     # If a bar plot is requested and the data consists of single y values, then we need to
     # obtain a list of all single y values in the targeted column (from `columns`)
     if plot_type in ["line", "bar"] and scalar_vals:
-
         # Check each cell in the column and get each of them that contains a scalar value
         all_single_y_vals = []
 
         single_y_vals = data_tbl[columns].apply(
-            lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+            lambda x: x if _val_is_missing(x) else x[1] if isinstance(x, tuple) else x
         )
         all_single_y_vals.extend(single_y_vals)
 
@@ -3724,13 +3780,12 @@ def fmt_nanoplot(
 
     # For autoscale, we need to get the minimum and maximum from all values for the y-axis
     if autoscale:
-
         from great_tables._utils_nanoplots import _flatten_list
 
         all_y_vals_raw = []
 
         col_i_y_vals_raw = data_tbl[columns].apply(
-            lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+            lambda x: x if _val_is_missing(x) else x[1] if isinstance(x, tuple) else x
         )
 
         all_y_vals_raw.extend(col_i_y_vals_raw)
@@ -3738,11 +3793,9 @@ def fmt_nanoplot(
         all_y_vals = []
 
         for i in range(len(all_y_vals_raw)):
-
             data_vals_i = all_y_vals_raw[i]
 
             if isinstance(data_vals_i, dict):
-
                 if len(data_vals_i) == 1:
                     # If there is only one key in the dictionary, then we can assume that the
                     # dictionary deals with y-values only
@@ -3757,7 +3810,6 @@ def fmt_nanoplot(
 
             # If not a list, then convert to a list
             if not isinstance(data_vals_i, list):
-
                 data_vals_i = [data_vals_i]
 
             all_y_vals.extend(data_vals_i)
@@ -3776,15 +3828,19 @@ def fmt_nanoplot(
         missing_vals: MissingVals = missing_vals,
         reference_line: Optional[Union[str, int, float]] = reference_line,
         reference_area: Optional[List[Any]] = reference_area,
-        expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_x,
-        expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_y,
+        expand_x: Optional[
+            Union[List[Union[int, float]], List[int], List[float]]
+        ] = expand_x,
+        expand_y: Optional[
+            Union[List[Union[int, float]], List[int], List[float]]
+        ] = expand_y,
         all_single_y_vals: Optional[
             Union[List[Union[int, float]], List[int], List[float]]
         ] = all_single_y_vals,
         options_plots: Dict[str, Any] = options_plots,
     ) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # If the `x` value is nan, then return the same value
+        if _val_is_missing(x):
             return x
 
         # Generate data vals from the input `x` value
@@ -3792,7 +3848,6 @@ def fmt_nanoplot(
 
         # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
         if isinstance(x, tuple):
-
             y_vals = x[1]
             x_vals = x[0]
 
@@ -3806,7 +3861,9 @@ def fmt_nanoplot(
 
             # Ensure that the lengths of the x and y values are the same
             if len(x_vals) != len(y_vals):
-                raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
+                raise ValueError(
+                    "The lengths of the 'x' and 'y' values must be the same."
+                )
 
         else:
             y_vals = x
@@ -3837,8 +3894,12 @@ def fmt_nanoplot(
             data_bar_stroke_color=options_plots["data_bar_stroke_color"],
             data_bar_stroke_width=options_plots["data_bar_stroke_width"],
             data_bar_fill_color=options_plots["data_bar_fill_color"],
-            data_bar_negative_stroke_color=options_plots["data_bar_negative_stroke_color"],
-            data_bar_negative_stroke_width=options_plots["data_bar_negative_stroke_width"],
+            data_bar_negative_stroke_color=options_plots[
+                "data_bar_negative_stroke_color"
+            ],
+            data_bar_negative_stroke_width=options_plots[
+                "data_bar_negative_stroke_width"
+            ],
             data_bar_negative_fill_color=options_plots["data_bar_negative_fill_color"],
             reference_line_color=options_plots["reference_line_color"],
             reference_area_fill_color=options_plots["reference_area_fill_color"],
@@ -3860,7 +3921,9 @@ def fmt_nanoplot(
     return fmt(self, fns=fmt_nanoplot_fn, columns=columns, rows=rows)
 
 
-def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float], List[float]]]:
+def _generate_data_vals(
+    data_vals: Any,
+) -> Union[List[float], Tuple[List[float], List[float]]]:
     """
     Generate a list of data values from the input data.
 
@@ -3874,7 +3937,6 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
     import re
 
     if isinstance(data_vals, list):
-
         # If the list contains string values, determine whether they are date values
         if all(isinstance(val, str) for val in data_vals):
             if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals[0]):
@@ -3896,7 +3958,6 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
         return data_vals
 
     elif isinstance(data_vals, str):
-
         # If the cell value is a string, assume it is a value stream and convert to a list
 
         # Detect whether there are time values or numeric values in the string
@@ -3906,7 +3967,6 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
             data_vals = _process_number_stream(data_vals)
 
     elif isinstance(data_vals, dict):
-
         # If the cell value is a dictionary, assume it contains data values
         # This is possibly for x and for y
 
@@ -3915,17 +3975,14 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
 
         # If the dictionary contains only one key, then assume that the values are for y
         if num_keys == 1:
-
             data_vals = list(data_vals.values())[0]
 
             # The data values can be anything, so recursively call this function to process them
             data_vals = _generate_data_vals(data_vals=data_vals)
 
         if num_keys >= 2:
-
             # For two or more keys, we need to see if the 'x' and 'y' keys are present
             if "x" in data_vals and "y" in data_vals:
-
                 x_vals: Any = data_vals["x"]
                 y_vals: Any = data_vals["y"]
 
@@ -3935,7 +3992,9 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
 
                 # Ensure that the lengths of the x and y values are the same
                 if len(x_vals) != len(y_vals):
-                    raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
+                    raise ValueError(
+                        "The lengths of the 'x' and 'y' values must be the same."
+                    )
 
                 return x_vals, y_vals
 

@@ -1,7 +1,9 @@
 from typing import Optional, List, Union, Any, Dict, Callable
-import pandas as pd
+from datetime import datetime, timezone
+
 import numpy as np
 from great_tables._utils import _match_arg
+import sys
 
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
 
@@ -34,7 +36,7 @@ def _val_is_missing(x: Any) -> bool:
     """
     Determine whether a scalar value is missing (i.e., None or NaN).
     """
-    return pd.isna(x)
+    return x is None or np.isnan(x)
 
 
 # This determines whether an entire list of values are integer-like; this skips
@@ -49,7 +51,9 @@ def _is_integerlike(val_list: List[Any]) -> bool:
     if len(val_list) == 0:
         return False
 
-    return all((isinstance(val, (int, np.integer)) or _val_is_missing(val)) for val in val_list)
+    return all(
+        (isinstance(val, (int, np.integer)) or _val_is_missing(val)) for val in val_list
+    )
 
 
 def _any_na_in_list(x: List[Any]) -> bool:
@@ -80,7 +84,9 @@ def _remove_na_from_list(x: List[Union[int, float]]) -> List[Union[int, float]]:
     return [val for val in x if not _val_is_missing(val)]
 
 
-def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) -> List[Any]:
+def _normalize_option_list(
+    option_list: Union[Any, List[Any]], num_y_vals: int
+) -> List[Any]:
     """
     Normalize an option list to have the same length as the number of `y` values.
     """
@@ -98,6 +104,52 @@ def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) 
     return option_list
 
 
+def _str_to_timestamp(in_str: Union[List[str], str]) -> Union[List[datetime], datetime]:
+    """
+    Convert a list or single string to a list or single datetime. Checks
+    sys.modules to see if either pandas or polars is already imported. If
+    they are then use their utility otherwise fall back to base datetime.
+    """
+    if "polars" in sys.modules.keys():
+        import polars as pl
+
+        if isinstance(in_str, list):
+            return (
+                pl.Series(None, in_str)
+                .str.to_datetime(time_zone="UTC")
+                .dt.timestamp("ms")
+                / 1000
+            ).to_list()
+        elif isinstance(in_str, str):
+            return (
+                pl.Series(None, [in_str])
+                .str.to_datetime(time_zone="UTC")
+                .dt.timestamp("ms")
+                / 1000
+            ).item()
+    elif "pandas" in sys.modules.keys():
+        import pandas as pd
+
+        if isinstance(in_str, list):
+            return (
+                pd.Series(pd.to_datetime(in_str, utc=True))
+                .apply(lambda x: x.timestamp())
+                .tolist()
+            )
+        elif isinstance(in_str, str):
+            return pd.to_datetime(in_str, utc=True).timestamp()
+    else:
+        if isinstance(in_str, list):
+            return [
+                datetime.fromisoformat(x).replace(tzinfo=timezone.utc).timestamp()
+                for x in in_str
+            ]
+        elif isinstance(in_str, str):
+            return (
+                datetime.fromisoformat(in_str).replace(tzinfo=timezone.utc).timestamp()
+            )
+
+
 def _format_number_compactly(
     val: Union[int, float],
     currency: Optional[str] = None,
@@ -111,12 +163,13 @@ def _format_number_compactly(
     from great_tables.vals import fmt_currency, fmt_scientific, fmt_integer, fmt_number
 
     if fn is not None and isinstance(fn, Callable):
-
         res = fn(val)
 
         # Check whether the result is a single string value; if not, raise an error
         if not isinstance(res, str):
-            raise ValueError("The result of the formatting function must be a single string value.")
+            raise ValueError(
+                "The result of the formatting function must be a single string value."
+            )
 
         return res
 
@@ -127,7 +180,6 @@ def _format_number_compactly(
         return "0"
 
     if abs(val) < 0.01:
-
         use_subunits = True
         decimals = None
 
@@ -135,7 +187,6 @@ def _format_number_compactly(
         compact = False
 
     elif abs(val) < 1:
-
         use_subunits = True
         decimals = None
 
@@ -143,7 +194,6 @@ def _format_number_compactly(
         compact = False
 
     elif abs(val) < 100:
-
         use_subunits = True
         decimals = None
 
@@ -151,7 +201,6 @@ def _format_number_compactly(
         compact = False
 
     elif abs(val) < 1000:
-
         use_subunits = True
         decimals = None
 
@@ -159,7 +208,6 @@ def _format_number_compactly(
         compact = False
 
     elif abs(val) < 10000:
-
         use_subunits = False
         decimals = 2
 
@@ -167,7 +215,6 @@ def _format_number_compactly(
         compact = True
 
     elif abs(val) < 100000:
-
         use_subunits = False
         decimals = 1
 
@@ -175,7 +222,6 @@ def _format_number_compactly(
         compact = True
 
     elif abs(val) < 1000000:
-
         use_subunits = False
         decimals = 0
 
@@ -183,7 +229,6 @@ def _format_number_compactly(
         compact = True
 
     elif abs(val) < 1e15:
-
         use_subunits = False
         decimals = 1
 
@@ -191,7 +236,6 @@ def _format_number_compactly(
         compact = True
 
     else:
-
         use_subunits = False
         decimals = None
         n_sigfig = 2
@@ -200,9 +244,7 @@ def _format_number_compactly(
     # Format value accordingly
 
     if currency is not None:
-
         if abs(val) >= 1e15:
-
             val_formatted = fmt_currency(
                 1e15,
                 currency=currency,
@@ -214,7 +256,6 @@ def _format_number_compactly(
             val_formatted = f">{val_formatted}"
 
         else:
-
             val_formatted = fmt_currency(
                 val,
                 currency=currency,
@@ -224,9 +265,7 @@ def _format_number_compactly(
             )
 
     else:
-
         if abs(val) < 0.01 or abs(val) >= 1e15:
-
             val_formatted = fmt_scientific(
                 val,
                 exp_style="E",
@@ -235,13 +274,10 @@ def _format_number_compactly(
             )
 
         else:
-
             if as_integer and val > -100 and val < 100:
-
                 val_formatted = fmt_integer(val)
 
             else:
-
                 val_formatted = fmt_number(
                     val,
                     n_sigfig=n_sigfig,
@@ -330,7 +366,9 @@ def _gt_q3(x: List[Union[int, float]]) -> float:
     return _gt_quantile(x, 0.75)
 
 
-def _flatten_list(x: List[Any]) -> Union[List[float], List[int], List[Union[int, float]]]:
+def _flatten_list(
+    x: List[Any],
+) -> Union[List[float], List[int], List[Union[int, float]]]:
     """
     Flatten a list of values.
     """
@@ -339,7 +377,7 @@ def _flatten_list(x: List[Any]) -> Union[List[float], List[int], List[Union[int,
 
     # Iterate through the outer list
     for element in x:
-        if type(element) is list:
+        if isinstance(element, list):
             # If the element is of type list, iterate through the sublist
             for item in element:
                 flat_list.append(item)
@@ -417,15 +455,15 @@ def _generate_ref_line_from_keyword(
 
 
 def _normalize_vals(
-    x: Union[List[Union[int, float]], List[int], List[float]]
+    x: Union[List[Union[int, float]], List[int], List[float]],
 ) -> List[Union[int, float]]:
     """
     Normalize a list of numeric values to be between 0 and 1. Account for missing values.
     """
 
-    x_missing = [i for i, val in enumerate(x) if pd.isna(val)]
-    mean_x = np.mean([val for val in x if not pd.isna(val)])
-    x = [mean_x if pd.isna(val) else val for val in x]
+    x_missing = [i for i, val in enumerate(x) if val is None or np.isnan(val)]
+    mean_x = np.mean([val for val in x if val is not None and not np.isnan(val)])
+    x = [mean_x if val is not None and not np.isnan(val) else val for val in x]
     x = np.array(x)
     min_attr = np.min(x, axis=0)
     max_attr = np.max(x, axis=0)
@@ -444,7 +482,9 @@ def _jitter_vals(x: List[Union[int, float]], amount: float) -> List[Union[int, f
     return [val + np.random.uniform(-amount, amount) for val in x]
 
 
-def _normalize_to_dict(**kwargs: List[Union[int, float]]) -> Dict[str, List[Union[int, float]]]:
+def _normalize_to_dict(
+    **kwargs: List[Union[int, float]],
+) -> Dict[str, List[Union[int, float]]]:
     """
     Normalize a collection of numeric values to be between 0 and 1. Account for missing values.
     This only accepts values (scalar or list) associated with keyword arguments. A dictionary
@@ -521,15 +561,29 @@ def _construct_nanoplot_svg(
     """
 
     # For the optional strings, transform None to an empty string
-    ref_area_tags = "" if ref_area_tags is None or show_ref_area is False else ref_area_tags
-    area_path_tags = "" if area_path_tags is None or show_data_area is False else area_path_tags
-    data_path_tags = "" if data_path_tags is None or show_data_line is False else data_path_tags
+    ref_area_tags = (
+        "" if ref_area_tags is None or show_ref_area is False else ref_area_tags
+    )
+    area_path_tags = (
+        "" if area_path_tags is None or show_data_area is False else area_path_tags
+    )
+    data_path_tags = (
+        "" if data_path_tags is None or show_data_line is False else data_path_tags
+    )
     zero_line_tags = "" if zero_line_tags is None else zero_line_tags
     bar_tags = "" if bar_tags is None else bar_tags
-    ref_line_tags = "" if ref_line_tags is None or show_ref_line is False else ref_line_tags
-    circle_tags = "" if circle_tags is None or show_data_points is False else circle_tags
-    g_y_axis_tags = "" if g_y_axis_tags is None or show_y_axis_guide is False else g_y_axis_tags
-    g_guide_tags = "" if g_guide_tags is None or show_vertical_guides is False else g_guide_tags
+    ref_line_tags = (
+        "" if ref_line_tags is None or show_ref_line is False else ref_line_tags
+    )
+    circle_tags = (
+        "" if circle_tags is None or show_data_points is False else circle_tags
+    )
+    g_y_axis_tags = (
+        "" if g_y_axis_tags is None or show_y_axis_guide is False else g_y_axis_tags
+    )
+    g_guide_tags = (
+        "" if g_guide_tags is None or show_vertical_guides is False else g_guide_tags
+    )
 
     return f'<div><svg role="img" viewBox="{viewbox}" style="height: {svg_height}; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;">{svg_defs}{svg_style}{ref_area_tags}{area_path_tags}{data_path_tags}{zero_line_tags}{bar_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}{g_guide_tags}</svg></div>'
 
@@ -543,7 +597,9 @@ def _generate_nanoplot(
     expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
     missing_vals: str = "marker",
     all_y_vals: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
-    all_single_y_vals: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
+    all_single_y_vals: Optional[
+        Union[List[Union[int, float]], List[int], List[float]]
+    ] = None,
     plot_type: str = "line",
     line_type: str = "curved",
     currency: Optional[str] = None,
@@ -622,7 +678,7 @@ def _generate_nanoplot(
 
     # If all `y` values are NA, return an empty string
     # TODO: Do this with the `pd_na()` function
-    if type(y_vals) is list and all(pd.isna(y_vals)):
+    if type(y_vals) is list and all(_val_is_missing(y_vals)):
         return ""
 
     # Get the number of data points for `y`
@@ -633,12 +689,11 @@ def _generate_nanoplot(
 
     # Handle case where `x_vals` exists (i.e., is not `NULL`)
     if x_vals is not None:
-
         # If the number of `x` values is zero or an empty string,
         # return an empty string
         if len(x_vals) == 0:
             return ""
-        if all(pd.isna(x_vals)):
+        if all(_val_is_missing(x_vals)):
             return ""
 
         # Get the number of data points for `x`
@@ -657,9 +712,9 @@ def _generate_nanoplot(
         # Handle missing values in `x_vals` through removal (i.e., missing
         # values in `x_vals` means removal of positional values from both
         # `x_vals` and `y_vals`)
-        if any(pd.isna(x_vals)):
+        if any(_val_is_missing(x_vals)):
             # Determine which values from `x_vals` are non-missing values
-            x_vals_non_missing = ~pd.isna(x_vals)
+            x_vals_non_missing = ~_val_is_missing(x_vals)
 
             # Retain only `x_vals_non_missing` from `x_vals` and `y_vals`
             x_vals = x_vals[x_vals_non_missing]
@@ -672,7 +727,9 @@ def _generate_nanoplot(
     # If `missing_vals` is set to 'gap' raise an error
     # TODO: Implement the 'gap' option for missing values
     if missing_vals == "gap":
-        raise NotImplementedError("The 'gap' option for missing values is not yet implemented.")
+        raise NotImplementedError(
+            "The 'gap' option for missing values is not yet implemented."
+        )
 
     # For the `missing_vals` options of 'zero' or 'remove', either replace NAs
     # with `0` or remove NAs entirely
@@ -696,7 +753,6 @@ def _generate_nanoplot(
     # If `y_vals` is a scalar value we requested a 'line' or 'bar' plot, then
     # reset several parameters
     if type(y_vals) in [int, float] and plot_type in ["line", "bar"]:
-
         single_horizontal_plot = True
         show_data_points = True
         show_data_line = True
@@ -710,7 +766,6 @@ def _generate_nanoplot(
 
     # If this is a box plot, set several parameters
     if plot_type == "boxplot":
-
         show_data_points = False
         show_data_line = False
         show_data_area = False
@@ -728,7 +783,6 @@ def _generate_nanoplot(
 
     # Handle cases where collection of `y_vals` is invariant
     if y_scale_min == y_scale_max and expand_y is None:
-
         if y_scale_min == 0:
             expand_y_dist = 5
         else:
@@ -739,13 +793,15 @@ def _generate_nanoplot(
 
     # Ensure that a reference line or reference area isn't shown if None or
     # any of its directives is missing
-    if y_ref_line is None or (y_ref_line is not None and pd.isna(y_ref_line)):
+    if y_ref_line is None or (y_ref_line is not None and _val_is_missing(y_ref_line)):
         show_ref_line = False
 
     if y_ref_area is None:
         show_ref_area = False
 
-    if y_ref_area is not None and (pd.isna(y_ref_area[0]) or pd.isna(y_ref_area[1])):
+    if y_ref_area is not None and (
+        _val_is_missing(y_ref_area[0]) or _val_is_missing(y_ref_area[1])
+    ):
         show_ref_area = False
 
     # Determine the width of the data plot area; for plots where `x_vals`
@@ -794,7 +850,6 @@ def _generate_nanoplot(
     #
 
     if show_ref_line and show_ref_area:
-
         # Case where there is both a reference line and a reference area
 
         #
@@ -806,7 +861,9 @@ def _generate_nanoplot(
             and _val_is_str(y_ref_line)
             and y_ref_line in REFERENCE_LINE_KEYWORDS
         ):
-            y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
+            y_ref_line = _generate_ref_line_from_keyword(
+                vals=y_vals, keyword=y_ref_line
+            )
 
         #
         # Resolve the reference area
@@ -868,7 +925,6 @@ def _generate_nanoplot(
         data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
 
     elif show_ref_line:
-
         # Case where there is a reference line
 
         if (
@@ -876,7 +932,9 @@ def _generate_nanoplot(
             and _val_is_str(y_ref_line)
             and y_ref_line in REFERENCE_LINE_KEYWORDS
         ):
-            y_ref_line = _generate_ref_line_from_keyword(vals=y_vals, keyword=y_ref_line)
+            y_ref_line = _generate_ref_line_from_keyword(
+                vals=y_vals, keyword=y_ref_line
+            )
 
         # Recompute the `y` scale min and max values
         args = [y_vals, y_ref_line, expand_y] + ([0] if zero_line_considered else [])
@@ -901,7 +959,6 @@ def _generate_nanoplot(
         data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
 
     elif show_ref_area:
-
         # Case where there is a reference area
 
         if y_ref_area is not None:
@@ -956,7 +1013,6 @@ def _generate_nanoplot(
         data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
 
     else:
-
         # Case where there is no reference line or reference area
 
         # Recompute the `y` scale min and max values
@@ -983,11 +1039,9 @@ def _generate_nanoplot(
     # there are no x values, generate equally-spaced x values according
     # to the number of y values
     if plot_type == "line" and x_vals is not None:
-
         if expand_x is not None and _val_is_str(expand_x):
-
             # Assume that string values are dates and convert them to timestamps
-            expand_x = pd.to_datetime(expand_x, utc=True).timestamp()
+            expand_x = _str_to_timestamp(expand_x)
 
         # Scale to proportional values
         x_proportions_list = _normalize_to_dict(vals=x_vals, expand_x=expand_x)
@@ -1016,7 +1070,9 @@ def _generate_nanoplot(
     # expanded to length `num_y_vals`
     #
 
-    data_point_radius = _normalize_option_list(option_list=data_point_radius, num_y_vals=num_y_vals)
+    data_point_radius = _normalize_option_list(
+        option_list=data_point_radius, num_y_vals=num_y_vals
+    )
     data_point_stroke_color = _normalize_option_list(
         option_list=data_point_stroke_color, num_y_vals=num_y_vals
     )
@@ -1059,18 +1115,15 @@ def _generate_nanoplot(
     #
 
     if plot_type == "line" and show_data_line and line_type == "curved":
-
         data_path_tags = []
 
         for i in range(n_segments):
-
             curve_x = data_x_points[start_data_y_points[i] : end_data_y_points[i]]
             curve_y = data_y_points[start_data_y_points[i] : end_data_y_points[i]]
 
             curved_path_string = [f"M {curve_x[0]},{curve_y[0]}"]
 
             for j in range(1, len(curve_x)):
-
                 point_b1 = f"{curve_x[j - 1] + x_d / 2},{curve_y[j - 1]}"
                 point_b2 = f"{curve_x[j] - x_d / 2},{curve_y[j]}"
                 point_i = f"{curve_x[j]},{curve_y[j]}"
@@ -1088,11 +1141,9 @@ def _generate_nanoplot(
         data_path_tags = "\n".join(data_path_tags)
 
     if plot_type == "line" and show_data_line and line_type == "straight":
-
         data_path_tags = []
 
         for i in range(n_segments):
-
             line_x = data_x_points[start_data_y_points[i] : end_data_y_points[i]]
             line_y = data_y_points[start_data_y_points[i] : end_data_y_points[i]]
 
@@ -1109,20 +1160,16 @@ def _generate_nanoplot(
     #
 
     if plot_type == "line" and show_data_points:
-
         circle_strings = []
 
         for i, _ in enumerate(data_x_points):
-
             data_point_radius_i = data_point_radius[i]
             data_point_stroke_color_i = data_point_stroke_color[i]
             data_point_stroke_width_i = data_point_stroke_width[i]
             data_point_fill_color_i = data_point_fill_color[i]
 
             if data_y_points[i] is None:
-
                 if missing_vals == "marker":
-
                     # Create a symbol that should denote that a missing value is present
                     circle_strings_i = f'<circle cx="{data_x_points[i]}" cy="{safe_y_d + (data_y_height / 2)}" r="{data_point_radius_i + (data_point_radius_i / 2)}" stroke="red" stroke-width="{data_point_stroke_width_i}" fill="white"></circle>'
 
@@ -1141,20 +1188,16 @@ def _generate_nanoplot(
     #
 
     if plot_type == "bar" and single_horizontal_plot is False:
-
         bar_strings = []
 
         for i, _ in enumerate(data_x_points):
-
             data_point_radius_i = data_point_radius[i]
             data_bar_stroke_color_i = data_bar_stroke_color[i]
             data_bar_stroke_width_i = data_bar_stroke_width[i]
             data_bar_fill_color_i = data_bar_fill_color[i]
 
             if data_y_points[i] is None:
-
                 if missing_vals == "marker":
-
                     # Create a symbol that should denote that a missing value is present
                     bar_strings_i = f'<circle cx="{data_x_points[i]}" cy="{safe_y_d + (data_y_height / 2)}" r="{data_point_radius_i + (data_point_radius_i / 2)}" stroke="red" stroke-width="{data_bar_stroke_width_i}" fill="transparent"></circle>'
 
@@ -1162,9 +1205,7 @@ def _generate_nanoplot(
                     continue
 
             else:
-
                 if y_vals[i] < 0:
-
                     y_value_i = data_y0_point
                     y_height = data_y_points[i] - data_y0_point
                     data_bar_stroke_color_i = data_bar_negative_stroke_color
@@ -1172,12 +1213,10 @@ def _generate_nanoplot(
                     data_bar_fill_color_i = data_bar_negative_fill_color
 
                 elif y_vals[i] > 0:
-
                     y_value_i = data_y_points[i]
                     y_height = data_y0_point - data_y_points[i]
 
                 elif y_vals[i] == 0:
-
                     y_value_i = data_y0_point - 1
                     y_height = 2
                     data_bar_stroke_color_i = "#808080"
@@ -1195,7 +1234,6 @@ def _generate_nanoplot(
     #
 
     if plot_type == "bar" and single_horizontal_plot:
-
         # This type of display assumes there is only a single `y` value and there
         # are possibly several such horizontal bars across different rows that
         # need to be on a common scale
@@ -1203,16 +1241,16 @@ def _generate_nanoplot(
         bar_thickness = data_point_radius[0] * 4
 
         if all(val == 0 for val in all_single_y_vals):
-
             # Handle case where all values across rows are `0`
 
             y_proportion = 0.5
             y_proportion_zero = 0.5
 
         else:
-
             # Scale to proportional values
-            y_proportions_list = _normalize_to_dict(val=y_vals, all_vals=all_single_y_vals, zero=0)
+            y_proportions_list = _normalize_to_dict(
+                val=y_vals, all_vals=all_single_y_vals, zero=0
+            )
 
             y_proportion = y_proportions_list["val"][0]
             y_proportion_zero = y_proportions_list["zero"][0]
@@ -1221,7 +1259,6 @@ def _generate_nanoplot(
         y_width = y_proportion * data_x_width
 
         if y_vals[0] < 0:
-
             data_bar_stroke_color = data_bar_negative_stroke_color
             data_bar_stroke_width = data_bar_negative_stroke_width
             data_bar_fill_color = data_bar_negative_fill_color
@@ -1230,7 +1267,6 @@ def _generate_nanoplot(
             rect_width = y0_width - y_width
 
         elif y_vals[0] > 0:
-
             data_bar_stroke_color = data_bar_stroke_color[0]
             data_bar_stroke_width = data_bar_stroke_width[0]
             data_bar_fill_color = data_bar_fill_color[0]
@@ -1239,7 +1275,6 @@ def _generate_nanoplot(
             rect_width = y_width - y0_width
 
         elif y_vals[0] == 0:
-
             data_bar_stroke_color = "#808080"
             data_bar_stroke_width = 4
             data_bar_fill_color = "#808080"
@@ -1249,28 +1284,26 @@ def _generate_nanoplot(
 
         # Format number compactly
         y_value = _format_number_compactly(
-            val=y_vals[0], currency=currency, as_integer=y_vals_integerlike, fn=y_val_fmt_fn
+            val=y_vals[0],
+            currency=currency,
+            as_integer=y_vals_integerlike,
+            fn=y_val_fmt_fn,
         )
 
         rect_strings = f'<rect x="0" y="{bottom_y / 2 - bar_thickness / 2}" width="600" height="{bar_thickness}" stroke="transparent" stroke-width="{vertical_guide_stroke_width}" fill="transparent"></rect>'
 
         if y_vals[0] > 0:
-
             text_strings = f'<text x="{y0_width + 10}" y="{safe_y_d + 10}" fill="transparent" stroke="transparent" font-size="30px">{y_value}</text>'
 
         elif y_vals[0] < 0:
-
             text_strings = f'<text x="{y0_width - 10}" y="{safe_y_d + 10}" fill="transparent" stroke="transparent" font-size="30px" text-anchor="end">{y_value}</text>'
 
         elif y_vals[0] == 0:
-
             if all(val == 0 for val in all_single_y_vals):
-
                 text_anchor = "start"
                 x_position_text = y0_width + 10
 
             elif all(val < 0 for val in all_single_y_vals):
-
                 text_anchor = "end"
                 x_position_text = y0_width - 10
 
@@ -1296,7 +1329,6 @@ def _generate_nanoplot(
 
     # TODO: Make this a line with a single point
     if plot_type == "line" and single_horizontal_plot:
-
         # This type of display assumes there is only a single `y` value and there
         # are possibly several such horizontal bars across different rows that
         # need to be on a common scale
@@ -1309,16 +1341,16 @@ def _generate_nanoplot(
         bar_thickness = data_point_radius[0] * 4
 
         if all(val == 0 for val in all_single_y_vals):
-
             # Handle case where all values across rows are `0`
 
             y_proportion = 0.5
             y_proportion_zero = 0.5
 
         else:
-
             # Scale to proportional values
-            y_proportions_list = _normalize_to_dict(val=y_vals, all_vals=all_single_y_vals, zero=0)
+            y_proportions_list = _normalize_to_dict(
+                val=y_vals, all_vals=all_single_y_vals, zero=0
+            )
 
             y_proportion = y_proportions_list["val"][0]
             y_proportion_zero = y_proportions_list["zero"][0]
@@ -1327,21 +1359,18 @@ def _generate_nanoplot(
         y_width = y_proportion * data_x_width
 
         if y_vals[0] < 0:
-
             x1_val = y_width
             x2_val = y0_width
 
             circle_x_val = x1_val
 
         elif y_vals[0] > 0:
-
             x1_val = y0_width
             x2_val = y_width
 
             circle_x_val = x2_val
 
         elif y_vals[0] == 0:
-
             x1_val = y_width
             x2_val = y0_width
 
@@ -1349,28 +1378,26 @@ def _generate_nanoplot(
 
         # Format number compactly
         y_value = _format_number_compactly(
-            val=y_vals[0], currency=currency, as_integer=y_vals_integerlike, fn=y_val_fmt_fn
+            val=y_vals[0],
+            currency=currency,
+            as_integer=y_vals_integerlike,
+            fn=y_val_fmt_fn,
         )
 
         rect_strings = f'<rect x="0" y="{bottom_y / 2 - bar_thickness / 2}" width="600" height="{bar_thickness}" stroke="transparent" stroke-width="{vertical_guide_stroke_width}" fill="transparent"></rect>'
 
         if y_vals[0] > 0:
-
             text_strings = f'<text x="{y0_width + 10}" y="{safe_y_d + 10}" fill="transparent" stroke="transparent" font-size="30px">{y_value}</text>'
 
         elif y_vals[0] < 0:
-
             text_strings = f'<text x="{y0_width - 10}" y="{safe_y_d + 10}" fill="transparent" stroke="transparent" font-size="30px" text-anchor="end">{y_value}</text>'
 
         elif y_vals[0] == 0:
-
             if all(val == 0 for val in all_single_y_vals):
-
                 text_anchor = "start"
                 x_position_text = y0_width + 10
 
             elif all(val < 0 for val in all_single_y_vals):
-
                 text_anchor = "end"
                 x_position_text = y0_width - 10
 
@@ -1404,7 +1431,6 @@ def _generate_nanoplot(
     #
 
     if plot_type == "bar" and single_horizontal_plot is False:
-
         zero_line_tags = f'<line x1="{data_x_points[0] - 27.5}" y1="{data_y0_point}" x2="{data_x_points[-1] + 27.5}" y2="{data_y0_point}" stroke="{zero_line_stroke_color}" stroke-width="{zero_line_stroke_width}"></line>'
 
     #
@@ -1412,7 +1438,6 @@ def _generate_nanoplot(
     #
 
     if show_ref_line:
-
         stroke = reference_line_color
         stroke_width = 1
         stroke_dasharray = "4 3"
@@ -1422,7 +1447,10 @@ def _generate_nanoplot(
 
         # Format value in a compact manner
         y_ref_line = _format_number_compactly(
-            val=y_ref_line, currency=currency, as_integer=y_vals_integerlike, fn=y_ref_line_fmt_fn
+            val=y_ref_line,
+            currency=currency,
+            as_integer=y_vals_integerlike,
+            fn=y_ref_line_fmt_fn,
         )
 
         ref_line_tags = f'<g class="ref-line"><rect x="{data_x_points[0] - 10}" y="{data_y_ref_line - 10}" width="{data_x_width + 20}" height="20" stroke="transparent" stroke-width="1" fill="transparent"></rect><line class="ref-line" x1="{data_x_points[0]}" y1="{data_y_ref_line}" x2="{data_x_width + safe_x_d}" y2="{data_y_ref_line}" stroke="{stroke}" stroke-width="{stroke_width}" stroke-dasharray="{stroke_dasharray}" transform="{transform}" stroke-linecap="{stroke_linecap}" vector-effect="{vector_effect}"></line><text x="{data_x_width + safe_x_d + 10}" y="{data_y_ref_line + 10}" fill="transparent" stroke="transparent" font-size="30px">{y_ref_line}</text></g>'
@@ -1432,7 +1460,6 @@ def _generate_nanoplot(
     #
 
     if show_ref_area:
-
         fill = reference_area_fill_color
 
         p_ul = f"{data_x_points[0]},{data_y_ref_area_u}"
@@ -1449,10 +1476,11 @@ def _generate_nanoplot(
     #
 
     if show_y_axis_guide:
-
         rect_tag = f'<rect x="{left_x}" y="{top_y}" width="{safe_x_d + 15}" height="{bottom_y}" stroke="transparent" stroke-width="0" fill="transparent"></rect>'
 
-        if _is_integerlike(val_list=[y_scale_max]) and _is_integerlike(val_list=[y_scale_min]):
+        if _is_integerlike(val_list=[y_scale_max]) and _is_integerlike(
+            val_list=[y_scale_min]
+        ):
             y_axis_guide_vals_integerlike = True
         else:
             y_axis_guide_vals_integerlike = False
@@ -1476,23 +1504,26 @@ def _generate_nanoplot(
 
         text_strings_max = f'<text x="{left_x}" y="{safe_y_d + data_y_height / 25}" fill="transparent" stroke="transparent" font-size="25">{y_value_max_label}</text>'
 
-        g_y_axis_tags = f'<g class="y-axis-line">{rect_tag}{text_strings_max}{text_strings_min}</g>'
+        g_y_axis_tags = (
+            f'<g class="y-axis-line">{rect_tag}{text_strings_max}{text_strings_min}</g>'
+        )
 
     #
     # Generate vertical data point guidelines
     #
 
     if show_vertical_guides:
-
         g_guide_strings = []
 
         for i, _ in enumerate(data_x_points):
-
             rect_strings_i = f'<rect x="{data_x_points[i] - 10}" y="{top_y}" width="20" height="{bottom_y}" stroke="transparent" stroke-width="{vertical_guide_stroke_width}" fill="transparent"></rect>'
 
             # Format value in a compact manner
             y_value_i = _format_number_compactly(
-                val=y_vals[i], currency=currency, as_integer=y_vals_integerlike, fn=y_val_fmt_fn
+                val=y_vals[i],
+                currency=currency,
+                as_integer=y_vals_integerlike,
+                fn=y_val_fmt_fn,
             )
 
             x_text = data_x_points[i] + 10
@@ -1502,7 +1533,9 @@ def _generate_nanoplot(
 
             text_strings_i = f'<text x="{x_text}" y="{safe_y_d + 5}" fill="transparent" stroke="transparent" font-size="30px">{y_value_i}</text>'
 
-            g_guide_strings_i = f'<g class="vert-line">{rect_strings_i}{text_strings_i}</g>'
+            g_guide_strings_i = (
+                f'<g class="vert-line">{rect_strings_i}{text_strings_i}</g>'
+            )
 
             g_guide_strings.append(g_guide_strings_i)
 
@@ -1524,18 +1557,15 @@ def _generate_nanoplot(
     )
 
     if plot_type == "line" and show_data_area:
-
         area_path_tags = []
 
         for i in range(n_segments):
-
             area_x = data_x_points[start_data_y_points[i] : end_data_y_points[i]]
             area_y = data_y_points[start_data_y_points[i] : end_data_y_points[i]]
 
             area_path_string = []
 
             for j in range(0, len(area_x)):
-
                 area_path_j = f"{area_x[j]},{area_y[j]}"
                 area_path_string.append(area_path_j)
 

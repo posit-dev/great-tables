@@ -1,9 +1,12 @@
-from typing import Optional, Union, List, Any
-import pandas as pd
+from typing import TYPE_CHECKING, Optional, Union, List, Any
 import importlib
 from types import ModuleType
 import json
 import re
+import sys
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 def _try_import(name: str, pip_install_line: Optional[str] = None) -> ModuleType:
@@ -101,11 +104,14 @@ def _object_as_dict(v: Any) -> Any:
         return v.object_as_dict()
     except Exception:
         pass
-    if type(v) == pd.DataFrame:
-        return v.to_dict()
-    if type(v) in [tuple, list]:
+    if "pandas" in sys.modules:
+        import pandas as pd
+
+        if isinstance(v, pd.DataFrame):
+            return v.to_dict()
+    if isinstance(v, tuple, list):
         return list(_object_as_dict(i) for i in v)
-    if type(v) == dict:
+    if isinstance(v, dict):
         return dict((k, _object_as_dict(val)) for (k, val) in v.items())
     if type(v) == type(_object_as_dict):  # FIXME figure out how to get "function"
         return f"<function {v.__name__}>"
