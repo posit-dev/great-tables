@@ -87,55 +87,40 @@ Later on, tables were less inscribed on clay and more on wax tablets, papyrus, p
 
 There's a prehistory to modern, computerized tables and perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype[^6] (my favorite). While constrained by the limited space available on pages, tabular design at this point had many solutions for either fitting tables onto single, variously-sized pages or distributing the table content across multiple pages. Ever heard of 'Multipage Narrow, Continuous Boxhead' tables? How about the 'Broad Table'? The 'Parallel Table'? I'm sure you've seen these types of tables but just didn't know the names.
 
-To remedy this lack of knowledge on table typologies, the United States Bureau of the Census published their *Manual of Tabular Presentation*[^7]. While intended as an operating tool (what might be called a style guide nowadays) one can plumb the considerable depths of this monograph for its excellent recommendations on tabular design. It spares no detail on how to classify the different parts of a table, it provides many examples in visual form, and it provides hundreds of recommendations on what to do (and what *not* to do) for many tabulation scenarios. We, **Great Tables**, borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section). If you're interested in really getting into the nitty gritty of tabular presentation then [get the freely-available PDF file](https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf) and prepare to be delighted. We'll end this brief section with a visual montage of snippets from the *Manual*, which is laden with good advice.
+To remedy this lack of knowledge on table typologies, the United States Bureau of the Census published their *Manual of Tabular Presentation*[^7]. While intended as an operating tool (what might be called a style guide nowadays) one can plumb the considerable depths of this monograph for its excellent recommendations on tabular design. It spares no detail on how to classify the different parts of a table, it provides many examples in visual form, and it provides hundreds of recommendations on what to do (and what *not* to do) for many tabulation scenarios. We, **Great Tables**, borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section). If you're interested in really getting into the nitty gritty of tabular presentation then [get the freely-available PDF file](https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf) and prepare to be delighted. We'll end this brief section with a visual montage of snippets from the *Census Manual*, which is laden with good advice.
 
 ![](./snippets_from_manual_tablular_presentation.png)
 
-
 ### Approach to tables taken by **Great Tables**
 
+As mentioned in the previous section, the *Census Manual* had a profound impact on the design of the **Great Tables** API. We decided to borrow some of the naming conventions for the table components since not having names for such things would have made explications in the documentation quite awkward. In the *Census Manual* spirit of making things visual, we often try to visually present how the table components fit together with a unifying graphic. Here's one example of that:
+
+![](./composition_of_a_table_in_GT.png)
+
+If you followed our advice to look at the *Census Manual* (or just glanced at our excerpts-based graphic), you might have noticed that the term 'Stub' is also in our table schematic. We thought it was too good a name to *not* borrow. You won't find too many mentions of that term elsewhere; others in the table business will use it sparingly, if at all. But that bit of terminology is perfect for the function that component has: to store information that identifies and explains the rows (as well as labels that deal with groupings of rows). The table 'Heading' is all important to us, and far too many software applications that allow for summary table creation make it difficult or impossible to include a heading.
+
+Aside from similarities in naming conventions, we wanted to be different and really focus on the art of generating summary tables. Many table APIs (built with all sorts of programming languages) almost exclusively concern themselves with the simple display of records (with pagination and other such controls to navigate and filter hundreds, thousands, maybe even more records). And that is great for situations where you want to expose a database of records for a user to explore. But we wanted to go the other way and help the user that wanted to exclusively focus on smaller data, sometimes called summarized or summary data. This is typically what you see in journal articles, in books, and in [*The Economist*](https://www.economist.com/economic-and-financial-indicators/2024/03/14/economic-data-commodities-and-markets). There's that unaddressed need to create a highly customized table-as-interesting-visualization that needed to be filled.
+
+That very first table we showed you was to teach you what a table is (as if you don't know) but I suppose it also serves as an example of a very simple table. Let's start from that and get **Great Tables** to do its thing with its friendly and straightforward API. We'll add table components with the `tab_*()` methods, format some data with the `fmt_*()` methods, and tweak the look of the table with some `opt_*()` methods. Here goes:
 
 ```{python}
-# | echo: false
-
-simple_table = pl.DataFrame(
-    {
-        "Name": [
-            "Dustin B. Roach",
-            "Iwona Adamczyk",
-            "Geneviève Massé",
-            "João Souza Lima",
-            "Maddison McCabe",
-        ],
-        "Address": [
-            "1183 Columbia Road",
-            "ul. Zabłudowska 133",
-            "1415 rue Principale",
-            "Rua Cosmorama, 538",
-            "149 Raymond Street",
-        ],
-        "City": ["Holly Oak, DE", "Warszawa", "Amos, QC", "São Paulo-SP", "Strathern"],
-        "Postcode": ["19809", "04-788", "J9T 1E4", "04648-080", "Invercargill 9812"],
-        "DOB": ["1970-09-16", "1976-01-03", "1967-12-08", "2001-04-21", "1982-03-05"],
-        "Height": ["5' 9\"", "5' 5\"", "5' 3\"", "6' 2\"", "5' 8\""],
-        "Weight": [202.5, 123.7, 136.3, 231.0, 146.1],
-    }
-)
-
 (
     GT(simple_table, rowname_col="Name")
     .tab_spanner(label="Location", columns=["Address", "City", "Postcode"])
     .tab_spanner(label="Personal Characteristics", columns=["DOB", "Height", "Weight"])
     .tab_options(table_font_size="12px")
-    .tab_header(
-        title="Names, Addresses, and Characteristics of Remote Correspondents",
-    )
+    .tab_header(title="Names, Addresses, and Characteristics of Remote Correspondents")
     .tab_source_note(source_note=md("*Data last updated*: December 18, 2022."))
+    .fmt_date(columns="DOB", date_style="m_day_year")
+    .fmt_integer(columns="Weight", pattern="{x} lbs")
+    .opt_stylize()
     .opt_align_table_header(align="left")
+    .opt_vertical_padding(scale=0.7)
+    .tab_options(table_font_names=system_fonts(name="rounded-sans"))
 )
 ```
 
-
+You're free to keep using methods to iteratively modify the table. For our part, we'll try to keep the API consistent and easy to use (but we'll provide power when you need it). Across the API surfaces of table structuring, cell formatting, styling, and output there's a lot of room for growth. We measure success by the quality of the tables the package is able to produce. We're excited about where things are going with this and we always appreciate community feedback. If ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV) and drop us a line!
 
 [^1]: Taylor, B. (2021). Lunar timekeeping in Upper Paleolithic Cave Art. *PRAEHISTORIA New Series*, *3*(13), 215–232.
 
