@@ -7,7 +7,7 @@ freeze: true
 jupyter: python3
 ---
 
-What is **Great Tables** trying to do? What is it trying to be? Why care about *great*-looking tables at all? What makes for a *good* table? These are all valid questions, of course, and through the course of this article I'll try to address all of these and more of the tangential diversions that will inevitably arise. For myself, at least, I found it hard to articulate the qualities of tabular presentation. Even the simplest of tables is somewhat hard to describe without some effort and often, when doing so, much reexplanation was required to get those half-formed ideas across. I'll try for better here and start from the beginning.
+When thinking about tables and the qualities that make tables both informative and aesthetically please, it's all to easy to lose sight of the fundamentals. We ought to understand what makes a table a table, what characteristics make tables shine, and when to choose tables over other displays of information like plots. Throughout this post I'll try to address all of this and I'll also delve into the little-discussed history of tables to see where this all came from. Once we're back to the here and now, there will be some elaboration on what **Great Tables** brings to the table. The package has a clear vision and design philosophy and I hope to articulate all of that here.
 
 ### What is a table, really?
 
@@ -62,17 +62,17 @@ Another aspect of tables that surprises is just how long they've been around. Th
 
 Twenty-five thousand year old representations of the grid are found on the walls of the Lascaux and Niaux caves in France[^1]. In the second century BCE, the highly regarded Greek astronomer Hipparchus used latitude and longitude to locate celestial and terrestrial positions[^2]. At around AD 150, Ptolmey published *Geographia*, which contains 25 geographical maps accompanied by methodologies for their construction using grids[^3]. The Romans employed a grid system called centuration, which can be described as land measurement (using surveyors' instruments) to realize the formation of square grids using roads, canals, or agricultural plots[^4].
 
-When grids are made, you generate containers; these are locations that may hold some sort of information. When agriculture because more widespread (ca. 10,000 years ago), there was the need to document and manage economic transactions to do with to farming, livestock, and the division of labor. In the fourth millennium BCE, Mesopotamian cities that traded with geographically distant kingdoms certainly needed to keep such records. We have evidence for these accounting practices by way of clay tablets recovered from the ancient Sumerian city of Uruk. Here is drawing of one of the recovered tablets, which contains an accounting of deliveries of barley and malt from two individuals for the production of beer.
+When grids are made, you invariably generate containers; these are locations that may hold some sort of information. When agriculture because more widespread (ca. 10,000 years ago), there was the need to document and manage economic transactions to do with to farming, livestock, and the division of labor. In the fourth millennium BCE, Mesopotamian cities that traded with geographically distant kingdoms certainly needed to keep such records. We have evidence for these accounting practices by way of clay tablets recovered from the ancient Sumerian city of Uruk. Here is drawing of one of the recovered tablets, which contains an accounting of deliveries of barley and malt from two individuals for the production of beer.
 
 ![](./uruk_iii_tablet.png)
 
-The inscribed grid in the ca. 3200-3000 BCE tablet creates boxes and each one of them represented an accounting unit. Inside each box was an ideogram (a symbol that represented a word or idea) and a numerical value representing a quantity. Now here is where it gets super interesting: each row corresponds to an individual, two columns contain entries for malt and barley; subtotals are given in the third column; and the left-most box displays the grand total. This has all the elements of a summary table! In addition, no formal language was used to explain the relationships within the tablet/table. Instead, the grid structure itself provided all that. As a bonus, the table has a footer as the bottom row contains the name of the official in charge.
+The inscribed grid in the ca. 3200-3000 BCE tablet creates boxes and each one of them represented an accounting unit. Inside each box was an ideogram (a symbol that represented a word or idea) and a numerical value representing a quantity. Now here is where it gets super interesting: each row corresponds to an individual, two columns contain entries for malt and barley; subtotals are given in the third column; and the left-most box displays the grand total. This has all the elements of a summary table! In addition, no formal language was used to explain the relationships within the tablet/table. Instead, the grid structure itself provided all that. As a bonus, the table has a footer as the bottom row contains the name of the official in charge. This is a visionary table we've got here.
 
 Zooming ahead about a thousand years, you start to see more systematically structured tables. Here's a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BCE).
 
 ![](./nippur_cuneiform_tablet.png)
 
-You can see right away that there is a more regular grid and, if you probe deeper, there are more similarities than differerences with the tables of today. This contains sources of revenue and monthly disbursements for nearly 50 temple personnel. It can be difficult to see this you can take it under good authority[^5] that there are the following features:
+You can see right away that there is a more regular grid and, if you probe deeper, there are more similarities than differerences with the tables of today. This contains sources of revenue and monthly disbursements for nearly 50 temple personnel. While it can be difficult to see it, you should take it on good authority[^5] that the following table elements are present:
 
 - column headings (month names) and row titles (names/professions of individuals).
 - cells with no information (look at the blank or smooth cells along rows)
@@ -81,12 +81,14 @@ You can see right away that there is a more regular grid and, if you probe deepe
 - grand totals adjacent to row labels
 - annotations with explanatory notes under those columns containing totals
 
-### Modern tables
+Later on, tables were less inscribed on clay and more on wax tablets, papyrus, paper, and eventually tables became computerized. What a trip it has been for tables!
 
-When I think of examples of modern tables, I tend to not go very far back in time. Certainly, you'll find many published tables in journal articles for several centuries but my practical limit is around the middle of the 20th century.
+### Midcentury tables
+
+There's a prehistory to modern, computerized tables and perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype[^6] (my favorite). While constrained by the limited space available on pages, tabular design at this point had many solutions for either fitting tables onto single, variously-sized pages or distributing the table content across multiple pages.
+
 
 ### Approach to tables taken by **Great Tables**
-
 
 
 ```{python}
@@ -140,3 +142,5 @@ simple_table = pl.DataFrame(
 [^4]: Palet, J. M. and Orengo, H. A., The Roman Centuriated Landscape: Conception, Genesis, and Development as Inferred from the Ager Tarraconensis Case. *American Journal of Archaeology*, *115*(3), 383-402.
 
 [^5]: Robson, E., "Tables and tabular formatting in Sumer, Babylonia, and Assyria, 2500-50 BCE" in M. Campbell-Kelly, M. Croarken, R.G. Flood, and E. Robson (eds.), *The History of Mathematical Tables from Sumer to Spreadsheets*. Oxford: Oxford University Press, 2003, 18–47.
+
+[^6]: <https://site.xavier.edu/polt/typewriters/varityper.html>
