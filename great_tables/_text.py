@@ -1,14 +1,15 @@
-from typing import Union, List
+from typing import Union, List, Literal
+from dataclasses import dataclass
 import html
 
 import commonmark
 import re
 
 
+@dataclass
 class Text:
-    def __init__(self, text: str, type: str):
-        self.text: str = text
-        self.type: str = type
+    text: str
+    type: Literal["from_markdown", "html"]
 
 
 class StringBuilder:

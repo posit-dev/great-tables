@@ -113,6 +113,8 @@ quartodoc:
         - GT.fmt_nanoplot
         - GT.fmt
         - GT.data_color
+        - GT.sub_missing
+        - GT.sub_zero
     - title: Modifying columns
       desc: >
         The `cols_*()` methods allow for modifications that act on entire columns. This includes

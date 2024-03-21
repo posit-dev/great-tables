@@ -491,9 +491,9 @@ def _(df: PlDataFrame, x: Any) -> bool:
     import polars as pl
     import numpy as np
 
-    from math import nan
+    from math import isnan, nan
 
-    return isinstance(x, (pl.Null, type(None))) or x is np.nan or x is nan
+    return isinstance(x, (pl.Null, type(None))) or (isinstance(x, float) and isnan(x))
 
 
 @singledispatch

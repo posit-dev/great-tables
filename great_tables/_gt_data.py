@@ -7,7 +7,9 @@ from typing import overload, TypeVar, Dict, Optional
 from typing_extensions import Self, TypeAlias
 from dataclasses import dataclass, field, replace
 from ._utils import _str_detect
-from ._tbl_data import create_empty_frame, to_list, validate_frame
+from ._tbl_data import create_empty_frame, to_list, validate_frame, copy_data
+
+# TODO: move this class somewhere else (even gt_data could work)
 
 from ._styles import CellStyle
 
@@ -39,6 +41,7 @@ class GTData:
     _styles: Styles
     _locale: Locale | None
     _formats: Formats
+    _substitutions: Formats
     _options: Options
     _has_built: bool = False
 
@@ -92,6 +95,7 @@ class GTData:
             _styles=[],
             _locale=Locale(locale),
             _formats=[],
+            _substitutions=[],
             _options=options,
         )
 
@@ -143,7 +147,6 @@ from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell
 # _tbl_data.py
 class Body:
     body: TblData
-    data: Any
 
     def __init__(self, body: Union[pd.DataFrame, TblData]):
         self.body = body
@@ -155,12 +158,18 @@ class Body:
                 raise Exception("Internal Error")
             for col, row in fmt.cells.resolve():
                 result = eval_func(_get_cell(data_tbl, row, col))
+                if isinstance(result, FormatterSkipElement):
+                    continue
+
                 # TODO: I think that this is very inefficient with polars, so
                 # we could either accumulate results and set them per column, or
                 # could always use a pandas DataFrame inside Body?
                 _set_cell(self.body, row, col, result)
 
         return self
+
+    def copy(self):
+        return self.__class__(copy_data(self.body))
 
     @classmethod
     def from_empty(cls, body: DataFrameLike):
@@ -842,7 +851,12 @@ from typing import Any, Callable, TypeVar, Union, List, Optional, Tuple
 
 from ._tbl_data import n_rows
 
-FormatFn = Callable[[Any], str]
+
+class FormatterSkipElement:
+    """Represent that nothing should be saved for a formatted value."""
+
+
+FormatFn = Callable[[Any], "str | FormatterSkipElement"]
 
 
 class FormatFns:
