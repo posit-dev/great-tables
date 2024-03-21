@@ -28,6 +28,7 @@ from great_tables._formats import (
     fmt_image,
     fmt_nanoplot,
 )
+from great_tables._substitution import sub_missing, sub_zero
 from great_tables._heading import tab_header
 from great_tables._helpers import random_id
 from great_tables._options import (
@@ -226,6 +227,9 @@ class GT(
     fmt_nanoplot = fmt_nanoplot
     data_color = data_color
 
+    sub_missing = sub_missing
+    sub_zero = sub_zero
+
     opt_stylize = opt_stylize
     opt_align_table_header = opt_align_table_header
     opt_all_caps = opt_all_caps
@@ -273,11 +277,12 @@ class GT(
         return rendered
 
     def _render_formats(self, context: str) -> Self:
-        rendered = copy.copy(self)
+        new_body = self._body.copy()
 
         # TODO: this body method performs a mutation. Should we make a copy of body?
-        rendered._body.render_formats(rendered._tbl_data, rendered._formats, context)
-        return rendered
+        new_body.render_formats(self._tbl_data, self._formats, context)
+        new_body.render_formats(self._tbl_data, self._substitutions, context)
+        return self._replace(_body=new_body)
 
     def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary

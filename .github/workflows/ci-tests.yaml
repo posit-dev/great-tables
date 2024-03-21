@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9, "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
       fail-fast: false
 
     steps:
@@ -31,10 +31,19 @@ jobs:
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
       - name: Install
         run: |
-          pip install '.[dev]'
+          # we are using the -e flag, so that code cov finds the source.
+          # this is not ideal, since installing an editable can technically
+          # differ from a normal install in surprising ways.
+          pip install -e '.[dev]'
       - name: pytest unit tests
         run: |
           make test
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          name: "py${{ matrix.python-version }}"
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   release-pypi:
     name: "Release to pypi"
