@@ -3782,7 +3782,7 @@ def fmt_nanoplot(
         # If the `x` value is a Pandas 'NA', then return the same value
         # We have to pass in a dataframe to this function. Everything action that
         # requires a dataframe import should go through _tbl_data.
-        if is_na(pd.DataFrame(), x):
+        if is_na(data_tbl, x):
             return x
 
         # Generate data vals from the input `x` value
