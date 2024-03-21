@@ -3,6 +3,8 @@ from __future__ import annotations
 from ._tbl_data import DataFrameLike, SelectExpr, is_na
 from ._gt_data import FormatterSkipElement, FormatInfo
 from ._formats import fmt
+from ._text import _process_text, Text
+from ._helpers import html
 
 
 from dataclasses import dataclass
@@ -31,7 +33,7 @@ def sub_missing(
     self: GTSelf,
     columns: SelectExpr = None,
     rows: Union[int, List[int], None] = None,
-    missing_text: str = "---",
+    missing_text: str | Text | None = None,
 ) -> GTSelf:
     """
     Substitute missing values in the table body.
@@ -156,15 +158,26 @@ def sub_zero(
 @dataclass
 class SubMissing:
     dispatch_frame: DataFrameLike
-    missing_text: str
+    missing_text: str | Text | None
+
+    def __post_init__(self):
+        # TODO: we should use an alternative to html(), once we support formats like latex
+        if self.missing_text is None:
+            self.missing_text = html("&mdash;")
 
     def to_html(self, x: Any) -> str | FormatterSkipElement:
-        return self.missing_text if is_na(self.dispatch_frame, x) else FormatterSkipElement()
+        if is_na(self.dispatch_frame, x):
+            return _process_text(self.missing_text)
+
+        return FormatterSkipElement()
 
 
 @dataclass
 class SubZero:
-    zero_text: str
+    zero_text: str | Text
 
     def to_html(self, x: Any) -> str | FormatterSkipElement:
-        return self.zero_text if x == 0 else FormatterSkipElement()
+        if x == 0:
+            return _process_text(self.zero_text)
+
+        return FormatterSkipElement()
