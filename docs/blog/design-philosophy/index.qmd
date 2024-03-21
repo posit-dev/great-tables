@@ -89,7 +89,7 @@ There's a prehistory to modern, computerized tables and perhaps the best period 
 
 To remedy this lack of knowledge on table typologies, the United States Bureau of the Census published their *Manual of Tabular Presentation*[^7]. While intended as an operating tool (what might be called a style guide nowadays) one can plumb the considerable depths of this monograph for its excellent recommendations on tabular design. It spares no detail on how to classify the different parts of a table, it provides many examples in visual form, and it provides hundreds of recommendations on what to do (and what *not* to do) for many tabulation scenarios. We, **Great Tables**, borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section). If you're interested in really getting into the nitty gritty of tabular presentation then [get the freely-available PDF file](https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf) and prepare to be delighted. We'll end this brief section with a visual montage of snippets from the *Manual*, which is laden with good advice.
 
-![](./snippets_from_manual_tablular_presentation.png.png)
+![](./snippets_from_manual_tablular_presentation.png)
 
 
 ### Approach to tables taken by **Great Tables**
