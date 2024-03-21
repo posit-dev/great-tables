@@ -98,6 +98,15 @@ def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) 
     return option_list
 
 
+def calc_ref_value(val_or_calc: "int | float | str", data) -> Union[int, float]:
+    if _val_is_numeric(val_or_calc):
+        return val_or_calc
+    elif _val_is_str(val_or_calc) and val_or_calc in REFERENCE_LINE_KEYWORDS:
+        return _generate_ref_line_from_keyword(vals=data, keyword=val_or_calc)
+
+    raise ValueError(f"Unsupported nanoplot area value: {val_or_calc}")
+
+
 def _format_number_compactly(
     val: Union[int, float],
     currency: Optional[str] = None,
@@ -816,24 +825,8 @@ def _generate_nanoplot(
         #
 
         if y_ref_area is not None:
-            y_ref_area_1 = y_ref_area[0]
-            y_ref_area_2 = y_ref_area[1]
-
-            if _val_is_numeric(y_ref_area_1):
-                y_ref_area_line_1 = y_ref_area_1
-
-            if _val_is_numeric(y_ref_area_2):
-                y_ref_area_line_2 = y_ref_area_2
-
-            if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_1 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_1
-                )
-
-            if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_2 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_2
-                )
+            y_ref_area_line_1 = calc_ref_value(y_ref_area[0], y_vals)
+            y_ref_area_line_2 = calc_ref_value(y_ref_area[1], y_vals)
 
             y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
             y_ref_area_l = y_ref_area_lines_sorted[0]
@@ -908,23 +901,8 @@ def _generate_nanoplot(
         # Case where there is a reference area
 
         if y_ref_area is not None:
-            y_ref_area_1 = y_ref_area[0]
-            y_ref_area_2 = y_ref_area[1]
-
-            if _val_is_numeric(y_ref_area_1):
-                y_ref_area_line_1 = y_ref_area_1
-
-            if _val_is_numeric(y_ref_area_2):
-                y_ref_area_line_2 = y_ref_area_2
-
-            if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_1 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_1
-                )
-            if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_2 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_2
-                )
+            y_ref_area_line_1 = calc_ref_value(y_ref_area[0], y_vals)
+            y_ref_area_line_2 = calc_ref_value(y_ref_area[1], y_vals)
 
             y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
             y_ref_area_l = y_ref_area_lines_sorted[0]

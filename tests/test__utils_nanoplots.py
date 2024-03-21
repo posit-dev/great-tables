@@ -1,5 +1,6 @@
+import pytest
 import numpy as np
-from great_tables._utils_nanoplots import _normalize_vals, _normalize_to_dict
+from great_tables._utils_nanoplots import _normalize_vals, _normalize_to_dict, calc_ref_value
 
 # TODO: need tests of all utils_nanoplot functions
 
@@ -57,3 +58,17 @@ def test_normalize_to_dict():
     assert res[0][0] == 0.0
     assert res[1][0] > 0.0 and res[1][0] < 1.0
     assert res[2][0] == 1.0
+
+
+@pytest.mark.parametrize(
+    "name,dst",
+    [
+        ("min", 1),
+        ("max", 4),
+        ("median", 2.5),
+        ("mean", 2.5),
+    ],
+)
+def test_calc_ref_value(name: str, dst: float):
+    res = calc_ref_value(name, [3, 1, 4, 2])
+    assert res == dst

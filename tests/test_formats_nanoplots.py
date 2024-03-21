@@ -42,3 +42,9 @@ def test_generate_data_vals_fails_nested_list(nested_el):
         _generate_data_vals([1, nested_el])
 
     assert f"Value received: {nested_el}" in exc_info.value.args[0]
+
+
+@pytest.mark.xfail
+def test_nanoplot_ref_line_area():
+    # TODO: add this test
+    assert False
