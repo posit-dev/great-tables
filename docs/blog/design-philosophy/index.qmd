@@ -54,11 +54,11 @@ GT(simple_table)
 
 Each row in the table corresponds to a single person. Starting from the left we see people's names and so we can surmise that these are records that pertain to individuals. Each column provides some attribute of the person, which includes the full name, address details, date of birth, and some physical characteristics. For the columns in this table we don't have to infer what type of data is contained in each from the data itself, a row at the top is dedicated for labeling the contents within the columns.
 
-We'll go into much more detail later about how to best arrange information and how to adorn the table more structural elements. For now, let's go back in time to learn how tables evolved.
+We'll go into much more detail later about how to best arrange information and how to adorn the table with more structural elements. For now, let's go back in time to learn how tables evolved.
 
 ### The early history of tables
 
-Another aspect of tables that surprises is just how long they've been around. The earliest examples go very far back in human history. I did mention the word *grid* a few times and there is much evidence for grids predating tables. So really, the history of graphical representation and of data analysis begins with the grid. Could we break down the idea of a grid? Sure, it's a metric by which we establish distance and direction of any position relative to a reference point, line, or plane. Common examples include geographic mapping with latitiude and longitude measures, and, the regular arrangement of city blocks through the arrangement of east-west and north-south streets.
+Another aspect of tables that has the power to surprise is just how long they've been around. The earliest known examples go very far back in human history. I did mention the word *grid* a few times and there is much evidence for grids predating tables. So really, the history of graphical representation and of data analysis begins with the grid. Could we break down the idea of a grid? Sure, it's a metric by which we establish distance and direction of any position relative to a reference point, line, or plane. Some examples include geographic mapping with latitiude and longitude measures, and, the regular arrangement of city blocks through the arrangement of east-west and north-south streets. The latter is commonly known as a square grid and this is the sense of a grid we'll use going forward.
 
 Twenty-five thousand year old representations of the grid are found on the walls of the Lascaux and Niaux caves in France[^1]. In the second century BCE, the highly regarded Greek astronomer Hipparchus used latitude and longitude to locate celestial and terrestrial positions[^2]. At around AD 150, Ptolmey published *Geographia*, which contains 25 geographical maps accompanied by methodologies for their construction using grids[^3]. The Romans employed a grid system called centuration, which can be described as land measurement (using surveyors' instruments) to realize the formation of square grids using roads, canals, or agricultural plots[^4].
 
@@ -85,7 +85,11 @@ Later on, tables were less inscribed on clay and more on wax tablets, papyrus, p
 
 ### Midcentury tables
 
-There's a prehistory to modern, computerized tables and perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype[^6] (my favorite). While constrained by the limited space available on pages, tabular design at this point had many solutions for either fitting tables onto single, variously-sized pages or distributing the table content across multiple pages.
+There's a prehistory to modern, computerized tables and perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype[^6] (my favorite). While constrained by the limited space available on pages, tabular design at this point had many solutions for either fitting tables onto single, variously-sized pages or distributing the table content across multiple pages. Ever heard of 'Multipage Narrow, Continuous Boxhead' tables? How about the 'Broad Table'? The 'Parallel Table'? I'm sure you've seen these types of tables but just didn't know the names.
+
+To remedy this lack of knowledge on table typologies, the United States Bureau of the Census published their *Manual of Tabular Presentation*[^7]. While intended as an operating tool (what might be called a style guide nowadays) one can plumb the considerable depths of this monograph for its excellent recommendations on tabular design. It spares no detail on how to classify the different parts of a table, it provides many examples in visual form, and it provides hundreds of recommendations on what to do (and what *not* to do) for many tabulation scenarios. We, **Great Tables**, borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section). If you're interested in really getting into the nitty gritty of tabular presentation then [get the freely-available PDF file](https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf) and prepare to be delighted. We'll end this brief section with a visual montage of snippets from the *Manual*, which is laden with good advice.
+
+![](./snippets_from_manual_tablular_presentation.png.png)
 
 
 ### Approach to tables taken by **Great Tables**
@@ -144,3 +148,5 @@ simple_table = pl.DataFrame(
 [^5]: Robson, E., "Tables and tabular formatting in Sumer, Babylonia, and Assyria, 2500-50 BCE" in M. Campbell-Kelly, M. Croarken, R.G. Flood, and E. Robson (eds.), *The History of Mathematical Tables from Sumer to Spreadsheets*. Oxford: Oxford University Press, 2003, 18–47.
 
 [^6]: <https://site.xavier.edu/polt/typewriters/varityper.html>
+
+[^7]: Manual of Tabular Presentation: An Outline of Theory and Practice in the Presentation of Statistical Data in Tables for Publication. United States. Bureau of the Census. U.S. Government Printing Office, 1949. Resource available at: <https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf>.
