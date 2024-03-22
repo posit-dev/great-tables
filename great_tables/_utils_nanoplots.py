@@ -898,22 +898,22 @@ def _generate_nanoplot(
 
         # Case where there is a reference area
 
-        if y_ref_area is not None:
-            y_ref_area_line_1 = calc_ref_value(y_ref_area[0], y_vals)
-            y_ref_area_line_2 = calc_ref_value(y_ref_area[1], y_vals)
+        # Note if y_ref_area were None, we would not be in this clause
+        y_ref_area_line_1 = calc_ref_value(y_ref_area[0], y_vals)
+        y_ref_area_line_2 = calc_ref_value(y_ref_area[1], y_vals)
 
-            y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
-            y_ref_area_l = y_ref_area_lines_sorted[0]
-            y_ref_area_u = y_ref_area_lines_sorted[1]
-
-        # Recompute the `y` scale min and max values
+        y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
+        y_ref_area_l = y_ref_area_lines_sorted[0]
+        y_ref_area_u = y_ref_area_lines_sorted[1]
 
         # Recompute the `y` scale min and max values
-        args = [y_vals, y_ref_area_l, y_ref_area_u, expand_y] + (
+
+        # Recompute the `y` scale min and max values
+        _all_y_data = [y_vals, y_ref_area_l, y_ref_area_u, expand_y] + (
             [0] if zero_line_considered else []
         )
-        y_scale_max = _get_extreme_value(*args, stat="max")
-        y_scale_min = _get_extreme_value(*args, stat="min")
+        y_scale_max = _get_extreme_value(*_all_y_data, stat="max")
+        y_scale_min = _get_extreme_value(*_all_y_data, stat="min")
 
         y_proportions_list = _normalize_to_dict(
             vals=y_vals,
