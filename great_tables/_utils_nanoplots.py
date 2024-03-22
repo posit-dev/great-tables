@@ -853,9 +853,6 @@ def _generate_nanoplot(
         y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
         y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
 
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
-
         # Scale reference line and reference area boundaries
         data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
         data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
@@ -887,9 +884,6 @@ def _generate_nanoplot(
 
         y_proportions = y_proportions_list["vals"]
         y_proportion_ref_line = y_proportions_list["ref_line"][0]
-
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
 
         # Scale reference line
         data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
@@ -927,9 +921,6 @@ def _generate_nanoplot(
         y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
         y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
 
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
-
         # Scale reference area boundaries
         data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
         data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
@@ -951,11 +942,9 @@ def _generate_nanoplot(
 
         y_proportions = y_proportions_list["vals"]
 
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
-
     # Calculate the `data_y0_point` value for zero-line-inclusive plots
     if zero_line_considered:
+        y_proportions_zero = y_proportions_list["zero"][0]
         data_y0_point = safe_y_d + ((1 - y_proportions_zero) * data_y_height)
 
     # If x values are present then normalize them between [0, 1]; if
