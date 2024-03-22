@@ -172,7 +172,7 @@ from great_tables import GT, md, system_fonts
 
 <p style="font-size: 12px;">A table of named individuals redone, **Great Tables** style!</p>
 
-Generally we add table components with the `tab_*()` methods, format the data with the `fmt_*()` methods, and customize the look of the table with some `opt_*()` methods (and `tab_options()`). Based on your feeling of what makes a summary table complete, you have the freedom to use as little or as much of the available API methods to iteratively modify the table to your liking. We try to keep the semantics of the API consistent and the individual method easy to understand and use.
+Generally we add table components with the `tab_*()` methods, format the data with the `fmt_*()` methods, and customize the look of the table with some `opt_*()` methods (and `tab_options()`). Based on your feeling of what makes a summary table complete and fit for publication, you have the freedom to use as little or as much of the collection of API methods to iteratively modify the table to your liking. As we continue to develop **Great Tables** we will: (1) keep the semantics of the API consistent and the individual methods easy to understand and use, and (2) add more API methods without breaking existing functionality.
 
 ### How do we choose between tables and plots?
 
