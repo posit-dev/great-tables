@@ -133,6 +133,8 @@ With **Great Tables** anyone can make wonderful-looking tables in Python. Our ph
 
 ![](./composition_of_a_table_in_GT.png)
 
+<p style="font-size: 12px;">A schematic with the complete set of table components that can be utilized in **Great Tables**.</p>
+
 If you followed our advice to look at the *Census Manual* (or just glanced at our excerpts-based graphic), you might have noticed that the term **Stub** is also in our table schematic. We thought it was too good a name to *not* borrow. You won't find too many mentions of that term elsewhere; others in the table business will use it sparingly, if at all. But that bit of terminology is perfect for the function that component has: to store information that identifies and explains the rows (as well as labels that deal with groupings of rows). The **Stub Head**, while small, is an important addendum. It functions to either label the elements in the stub (below), the elements in the column labels (across), or both. It can even not be present at all.
 
 The table **Heading** is all important to us, and far too many software applications that allow for summary table creation make it difficult or impossible to include a heading. The **Footer** is equally important but is unfortunately often neglected. It provides a place for table notes and will only be present in **Great Tables** if table notes do exist.
