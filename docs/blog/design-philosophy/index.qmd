@@ -7,11 +7,13 @@ freeze: true
 jupyter: python3
 ---
 
-When thinking about tables and the qualities that make tables both informative and aesthetically please, it's all to easy to lose sight of the fundamentals. We ought to understand what makes a table a table, what characteristics make tables shine, and when to choose tables over other displays of information like plots. Throughout this post I'll try to address all of this and I'll also delve into the little-discussed history of tables to see where this all came from. Once we're back to the here and now, there will be some elaboration on what **Great Tables** brings to the table. The package has a clear vision and design philosophy and I hope to articulate all of that here.
+We've spent a lot of time thinking about tables. While several years have been spent on the endeavor, the software we've produced is helping people make great tables. This article explores the history of data display tables, what we learned while serving the open-source data science community, and how that informs the design of **Great Tables**.
+
+What makes a great table? When thinking about tables and the qualities that make tables both informative and aesthetically pleasing, it's all to easy to lose sight of the fundamentals. We ought to first understand what makes a table a table, what characteristics make tables shine, and when to choose tables over other displays of information (like plots). Throughout this article I'll try to address all of this and I'll also delve into the little-discussed history of tables to see where this all came from. Once we're back to the here and now, there will be some elaboration on what **Great Tables** brings to the table. The package has a clear vision and design philosophy and I hope to articulate all of that here.
 
 ### What is a table, really?
 
-Tables are surpisingly hard to define! I think it's that we take them for granted and we don't often question those tables that are presented to us in terms of their fundamental characteristics. Still, it is useful to understand what makes a table a table. I believe it can be boiled down to two basic rules:
+Tables are surprisingly hard to define! I think it's that we take them for granted and we don't often question those tables that are presented to us in terms of their fundamental characteristics. Still, it is useful to understand what makes a table a table. I believe it can be boiled down to two basic rules:
 
 - data is placed in a grid comprising columns and rows
 - the data is primarily in the form of text, and the text can include both numbers and words
@@ -20,9 +22,17 @@ This set of requirements seems like the bare minimum for a table to be construed
 
 ![](./schematic_of_a_table.gif)
 
-I know that we often see and use horizontal and/or vertical grid lines within tables, but, those act more as visual reinforcements that outline the columns and rows. So, they're not strictly required for a table to be one. And if this reasoning holds it is thus the arrangement of the data values that matters most here (and not the presence of lines, which serves to visualize the underlying grid).
+<p style="font-size: 12px;">A data display table isn't just a list of information, and it's not just any organized grouping of data. A table, minimally, includes a grid of data values, with column and rows providing visual structure and context.</p>
 
-Now that we've reviewed the basic structure of the table having columns and rows, what goes in each? The most effective tables will have separate entries or records arranged as the horizontal rows; and the characteristics or attribute values should run down columns. The intersecting piece of text (sometimes called a cell, but not always) is a data attribute tied to a specific record or entry. This is intuitive because we're used to seeing tables (they've been around for thousands of years!) but we don't often rigorously think about how this all holds together. Let's look at an example of a simple table to tie theory to practice.
+I know that we often see and use horizontal and/or vertical grid lines within tables, but those act more as visual reinforcements that outline the columns and rows. So, they're not strictly required for a table to be one. And if this reasoning holds it is thus the arrangement of the data values that matters most here (and not the presence of lines, which serves to visualize the underlying grid).
+
+Now that we've reviewed the basic structure of the table having columns and rows, what goes in each? The most effective tables will have separate entries or records arranged as the horizontal rows; and the characteristics or attribute values should run down columns. The intersecting piece of text (sometimes called a cell, but not always) is a data attribute tied to a specific record or entry. This is intuitive because we're used to seeing tables (they've been around for thousands of years!) but we don't often rigorously think about how this all holds together.
+
+![](./a_simple_table.png)
+
+<p style="font-size: 12px;">A simple table has: (1) cells containing data, (2) an arrangement of columns and rows, and (3) column labels to describe the type data in each column.</p>
+
+Let's look at an example of a simple table with actual data to tie theory to practice.
 
 ```{python}
 # | echo: false
@@ -56,27 +66,33 @@ simple_table = pl.DataFrame(
 GT(simple_table)
 ```
 
+<p style="font-size: 12px;">A table of named individuals along with a select set of characteristics.</p>
+
 Each row in the table corresponds to a single person. Starting from the left we see people's names and so we can surmise that these are records that pertain to individuals. Each column provides some attribute of the person, which includes the full name, address details, date of birth, and some physical characteristics. That we start with the `Name` column here is no accident. If you were to have that column as the last column (i.e., furthest to the right), it would be slightly more confusing for the reader since the basis for the record doesn't come first in a conventional left-to-right reading. Moving on to considering the columns of this table, note that we don't have to infer what type of data is contained in each from the data itself, a row at the top is dedicated for labeling the contents within the columns.
 
 We'll go into some detail later about how **Great Tables** provides affordances for structuring information for better legibility and how the package can be used to adorn the table with other structural elements. For now, let's go (way) back in time to learn how tables evolved.
 
 ### The early history of tables
 
-Another aspect of tables that has the power to surprise is just how long they've been around. The earliest known examples go very far back in human history. I did mention the word *grid* a few times and there is much evidence for grids predating tables. So really, the history of graphical representation and of data analysis begins with the grid. Could we break down the idea of a grid? Sure, it's a metric by which we establish distance and direction of any position relative to a reference point, line, or plane. Some examples include geographic mapping with latitiude and longitude measures, and, the regular arrangement of city blocks through the arrangement of east-west and north-south streets. The latter is commonly known as a square grid and this is the sense of a grid we'll use going forward.
+Another aspect of tables that has the power to surprise is just how long they've been around. The earliest known examples go very far back in human history. I did mention the word *grid* a few times and there is much evidence for grids predating tables. So really, the history of graphical representation and of data analysis begins with the grid. Could we break down the idea of a grid? Sure, it's a metric by which we establish distance and direction of any position relative to a reference point, line, or plane. Some examples include geographic mapping with latitude and longitude measures, and the regular arrangement of city blocks through the arrangement of east-west and north-south streets. The latter is commonly known as a square grid and this is the sense of a grid we'll use going forward.
 
-Twenty-five thousand year old representations of the grid are found on the walls of the Lascaux and Niaux caves in France[^1]. In the second century BCE, the highly regarded Greek astronomer Hipparchus used latitude and longitude to locate celestial and terrestrial positions[^2]. At around AD 150, Ptolmey published *Geographia*, which contains 25 geographical maps accompanied by methodologies for their construction using grids[^3]. The Romans employed a grid system called centuration, which can be described as land measurement (using surveyors' instruments) to realize the formation of square grids using roads, canals, or agricultural plots[^4].
+Twenty-five thousand year old representations of the grid are found on the walls of the Lascaux and Niaux caves in France[^1]. In the second century BCE, the highly regarded Greek astronomer Hipparchus used latitude and longitude to locate celestial and terrestrial positions[^2]. At around AD 150, Ptolmey published *Geographia*, which contains 25 geographical maps accompanied by methodologies for their construction using grids[^3]. The Romans employed a grid system called *centuriation*, which can be described as land measurement (using surveyors' instruments) to realize the formation of square grids using roads, canals, or agricultural plots[^4].
 
-When grids are made, you invariably generate containers; these are locations that may hold some sort of information. When agriculture because more widespread (ca. 10,000 years ago), there was the need to document and manage economic transactions to do with to farming, livestock, and the division of labor. In the fourth millennium BCE, Mesopotamian cities that traded with geographically distant kingdoms certainly needed to keep such records. We have evidence for these accounting practices by way of clay tablets recovered from the ancient Sumerian city of Uruk. Here is drawing of one of the recovered tablets, which contains an accounting of deliveries of barley and malt from two individuals for the production of beer.
+When grids are made, you invariably generate containers; these are locations that may hold some sort of information. When agriculture became more widespread (ca. 10,000 years ago), there was the need to document and manage economic transactions to do with farming, livestock, and the division of labor. In the fourth millennium BCE, Mesopotamian cities that traded with geographically distant kingdoms certainly needed to keep such records. We have evidence for these accounting practices by way of clay tablets recovered from the ancient Sumerian city of Uruk. Here is a drawing of one of the recovered tablets, which contains an accounting of deliveries of barley and malt from two individuals for the production of beer[^5].
 
 ![](./uruk_iii_tablet.png)
 
+<p style="font-size: 12px;">Drawing of clay tablet from Sumerian city of Uruk, circa 3200-3000 BCE. Uruk III Tablet (MSVO 3, 51, Louvre Museum, Paris, France).</p>
+
 The inscribed grid in the ca. 3200-3000 BCE tablet creates boxes and each one of them represented an accounting unit. Inside each box was an ideogram (a symbol that represented a word or idea) and a numerical value representing a quantity. Now here is where it gets super interesting: each row corresponds to an individual, two columns contain entries for malt and barley; subtotals are given in the third column; and the left-most box displays the grand total. This has all the elements of a summary table! In addition, no formal language was used to explain the relationships within the tablet/table. Instead, the grid structure itself provided all that. As a bonus, the table has a footer as the bottom row contains the name of the official in charge. This is a visionary table we've got here.
 
-Zooming ahead about a thousand years, you start to see more systematically structured tables. Here's a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BCE).
+Zooming ahead about a thousand years, you start to see more systematically structured tables. Here's a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BCE)[^6].
 
 ![](./nippur_cuneiform_tablet.png)
 
-You can see right away that there is a more regular grid and, if you probe deeper, there are more similarities than differerences with the tables of today. This contains sources of revenue and monthly disbursements for nearly 50 temple personnel. While it can be difficult to see it, you should take it on good authority[^5] that the following table elements are present:
+<p style="font-size: 12px;">Cuneiform tablet, temple of Enlil at Nippur, (CBS 3323, University of Pennsylvania).</p>
+
+You can see right away that there is a more regular grid and, if you probe deeper, there are more similarities than differerences with the tables of today. This contains sources of revenue and monthly disbursements for nearly 50 temple personnel. While it can be difficult to see it, you should take it on good authority[^7] that the following table elements are present:
 
 - column headings (month names) and row titles (names/professions of individuals).
 - cells with no information (look at the blank or smooth cells along rows)
@@ -87,11 +103,27 @@ You can see right away that there is a more regular grid and, if you probe deepe
 
 Later on, tables were less inscribed on clay and more on wax tablets, papyrus, paper, and eventually tables became computerized. What a trip it has been for tables!
 
-### Midcentury tables
+### Midcentury modern tables
 
-There's a prehistory to modern, computerized tables and perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype[^6] (my favorite). While constrained by the limited space available on pages, tabular design at this point had many solutions for either fitting tables onto single, variously-sized pages or distributing the table content across multiple pages. Ever heard of 'Multipage Narrow, Continuous Boxhead' tables? How about the 'Broad Table'? The 'Parallel Table'? I'm sure you've seen these types of tables but just didn't know the names ascribed to them.
+There's a prehistory to modern, computerized tables and perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype[^8] (my favorite). While constrained by the limited space available on pages, tabular design at this point had many solutions for either fitting tables into single, variously-sized pages or distributing the table content across multiple pages.
 
-To remedy this lack of knowledge on table typologies, the United States Bureau of the Census published their *Manual of Tabular Presentation*[^7]. While intended as an operating tool (what might be called a style guide nowadays) one can now plumb the considerable depths of this monograph for its excellent recommendations on tabular design. It spares no detail on how to classify the different parts of a table, it provides many examples in visual form, and it provides hundreds of recommendations on what to do (and what *not* to do) for many tabulation scenarios. We, **Great Tables**, borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section). If you're interested in really getting into the nitty gritty of tabular presentation then [get the freely-available PDF file](https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf) and prepare to be delighted. We'll end this brief section with a visual montage of snippets from the *Census Manual*, which is laden with good advice.
+While there were knowledgeable practictioners who could well perform the task of typesetting tables in books, there wasn't much in the way of books about tabular presentation and all the attendant theoretical and practical approaches one might take. To remedy this (but more likely to serve as an internal tool for the organization), the United States Bureau of the Census published their *Manual of Tabular Presentation*[^9]. It is truly a remarkable work and one can readily plumb the considerable depths of this monograph for its excellent recommendations on tabular design. It spares no detail on how the department classifies the different parts of a table, describing the function of each part in rigorous detail. Moreover, it is easy to read and thankfully provides many examples in visual form. Through its many hundreds of paragraphs, the authors make strong recommendations on what to do (and what *not* to do) for many tabulation scenarios.
+
+Ever heard of the 'Multipage Narrow, Continuous Boxhead Table'? How about the 'Broad Table'? The 'Parallel Table'? I'm sure you've seen these types of tables but just didn't know the names ascribed to them. Well, those are in the work and examples of each are provided here as specimens.
+
+![](./multipage_narrow_table_from_manual.png)
+
+<p style="font-size: 12px;">The Multipage Narrow, Continuous Boxhead Table (*Census Manual*, pp. 18-19).</p>
+
+![](./broad_table_manual.png)
+
+<p style="font-size: 12px;">The Broad Table (*Census Manual*, pp. 20-21). Meant to be read with the book rotated.</p>
+
+![](./parallel_table_manual.png)
+
+<p style="font-size: 12px;">The Parallel Table (*Census Manual*, pp. 22-23). Only the first half of this figure/table is shown here.</p>
+
+We at **Great Tables** borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section). If you're interested in really getting into the nitty gritty of tabular presentation then [get the freely-available PDF file](https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf) and prepare to be delighted. We'll end this brief section with a visual montage of snippets from the *Census Manual*, which is laden with good advice.
 
 ![](./snippets_from_manual_tablular_presentation.png)
 
@@ -190,8 +222,12 @@ We're very excited about where things are going with **Great Tables** and we gen
 
 [^4]: Palet, J. M. and Orengo, H. A., The Roman Centuriated Landscape: Conception, Genesis, and Development as Inferred from the Ager Tarraconensis Case. *American Journal of Archaeology*, *115*(3), 383-402.
 
-[^5]: Robson, E., "Tables and tabular formatting in Sumer, Babylonia, and Assyria, 2500-50 BCE" in M. Campbell-Kelly, M. Croarken, R.G. Flood, and E. Robson (eds.), *The History of Mathematical Tables from Sumer to Spreadsheets*. Oxford: Oxford University Press, 2003, 18–47.
+[^5]: Marchese, F. T., Exploring the Origins of Tables for Information Visualization. *Proceedings of the 2011 15th International Conference on Information Visualisation*, 13-15 July 2011, doi:10.1109/IV.2011.36.
 
-[^6]: <https://site.xavier.edu/polt/typewriters/varityper.html>
+[^6]: M. W. Green, The construction and implementation of the cuneiform writing system, *Visible Writing*, *15*, 1981, 345-72.
 
-[^7]: Manual of Tabular Presentation: An Outline of Theory and Practice in the Presentation of Statistical Data in Tables for Publication. United States. Bureau of the Census. U.S. Government Printing Office, 1949. Resource available at: <https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf>.
+[^7]: Robson, E., "Tables and tabular formatting in Sumer, Babylonia, and Assyria, 2500-50 BCE" in M. Campbell-Kelly, M. Croarken, R.G. Flood, and E. Robson (eds.), *The History of Mathematical Tables from Sumer to Spreadsheets*. Oxford: Oxford University Press, 2003, 18–47.
+
+[^8]: <https://site.xavier.edu/polt/typewriters/varityper.html>
+
+[^9]: Manual of Tabular Presentation: An Outline of Theory and Practice in the Presentation of Statistical Data in Tables for Publication. United States. Bureau of the Census. U.S. Government Printing Office, 1949. Resource available at: <https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf>.
