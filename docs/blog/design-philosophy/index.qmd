@@ -162,6 +162,8 @@ from great_tables import GT, md, system_fonts
 )
 ```
 
+<p style="font-size: 12px;">A table of named individuals redone, **Great Tables** style!</p>
+
 Generally we add table components with the `tab_*()` methods, format the data with the `fmt_*()` methods, and customize the look of the table with some `opt_*()` methods (and `tab_options()`). Based on your feeling of what makes a summary table complete, you have the freedom to use as little or as much of the available API methods to iteratively modify the table to your liking. We try to keep the semantics of the API consistent and the individual method easy to understand and use.
 
 ### How do we choose between tables and plots?
@@ -199,6 +201,8 @@ wide_pops = (
     .tab_stubhead(label="Country")
 )
 ```
+
+<p style="font-size: 12px;">A example of a table where the use of a table is clear: getting precise values across common categories for multiple entities.</p>
 
 From this, it's fairly easy to get the individual population values of Germany and France from the year 2000. If we had to do the same task using a plot of the data, it would require reencoding the data point positions to numerical values. Owing to the text-based encoding of values in tables, we can get a level of precision that cannot be matched by plots.
 
