@@ -176,7 +176,7 @@ Generally we add table components with the `tab_*()` methods, format the data wi
 
 ### How do we choose between tables and plots?
 
-When you're deep into reporting work, there's often that decision point concerning whether the data should be presented as a plot or a table. There's a few things to consider but a key differentiator of tables is that they make it really easy to look up individual values. If you or other people intend to look up particular values, it's hard to beat a table for that. However, if the information is to be used to examine a set of quantitative values as a whole, or to discern patterns, your should instead make a plot.
+When you're deep into reporting work, there's often that decision point concerning whether the data should be presented as a plot or a table. There's a few things to consider but a key differentiator of tables is that they make it really easy to look up individual values. If you or other people intend to look up particular values, it's hard to beat a table for that. However, if the information is to be used to examine a set of quantitative values as a whole, or to discern patterns, you should instead make a plot.
 
 Tables make it easy to compare pairs of related values. Here's a table that allows for the simple comparison of the populations of countries for a given year:
 
