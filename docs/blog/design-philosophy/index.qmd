@@ -105,10 +105,11 @@ There's a prehistory to modern, computerized tables and perhaps the best period 
 
 There's no greater embodiment of that pairing of technology and design than the [*Manual of Tabular Presentation*](https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf)[^9], written and published by the United States Bureau of the Census. It is truly a remarkable work which goes into great detail on how the department imagines the ideal designs of information-rich tables. The work articulates the different parts of a table (and each part is given a descriptive name), sparing no detail when describing those different table parts in rigorous detail. Throughout its hundreds of pages, the authors make strong recommendations on what to do (and what *not* to do) for many tabulation scenarios. When poring over the tables visually depicted in the book, you can't help but see that tables can both look really good *and* contain a density of information. The promise and the result is a balance of form and function.
 
-We at **Great Tables** borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section).  We'll end this brief section with a visual montage of snippets from the *Census Manual*, which provides a glimpse of the sound advice on offer.
+We at **Great Tables** borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section). We'll end this brief section with a visual montage of snippets from the *Census Manual*, which provides a glimpse of the sound advice on offer.
 
 ![](./snippets_from_manual_tablular_presentation.png)
 
+<p style="font-size: 12px;">Little nuggets of wisdom from the *Census Manual*. This may very well be the ultimate book on tabular design.</p>
 ### The late history of tables
 
 With computing technologies becoming more accessible by the 1970s and 1980s, people were able to generate tables in both electronic and print form. The democratization of computational tables arguably began with VisiCalc in 1979, a massive success that initiated the computing category of spreadsheeting software.
