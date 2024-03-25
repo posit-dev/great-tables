@@ -679,6 +679,8 @@ def _generate_nanoplot(
 
         # If `x` values are present, we cannot use a curved line so
         # we'll force the use of the 'straight' line type
+        # TODO: if someone specifies the options curved, and we can't do it
+        # then we should raise an error.
         line_type = "straight"
 
     # If `missing_vals` is set to 'gap' raise an error
@@ -767,6 +769,7 @@ def _generate_nanoplot(
     # number of data points)
     if x_vals is not None or single_horizontal_plot or plot_type == "boxplot":
         data_x_width = 600
+        # TODO: what should x_d be in this case?
     else:
         # Obtain a sensible, fixed interval between data points in px
         if num_y_vals <= 20:
