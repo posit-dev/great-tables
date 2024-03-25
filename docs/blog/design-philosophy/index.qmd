@@ -18,13 +18,7 @@ Tables are surprisingly hard to define! I think it's that we take them for grant
 - data is placed in a grid comprising columns and rows
 - the data is primarily in the form of text, and the text can include both numbers and words
 
-This set of requirements seems like the bare minimum for a table to be construed as a table. If we have one without the other, then what results is something probably not recognizable as a table. Here's a mini movie that demonstrates the same set of information before and after its incorporation into a table structure.
-
-I know that we often see and use horizontal and/or vertical grid lines within tables, but those act more as visual reinforcements that outline the columns and rows. So, they're not strictly required for a table to be one. And if this reasoning holds it is thus the arrangement of the data values that matters most here (and not the presence of lines, which serves to visualize the underlying grid).
-
-![](./a_simple_table.png)
-
-<p style="font-size: 12px;">A simple table has: (1) cells containing data, (2) an arrangement of columns and rows, and (3) column labels to describe the type data in each column.</p>
+This set of requirements seems like the bare minimum for a table to be construed as a table. If we have one without the other, then what results is something probably not recognizable as a table.
 
 Let's look at an example of a simple table with actual data to tie theory to practice.
 
@@ -64,7 +58,13 @@ GT(simple_table)
 
 Each row in the table corresponds to a single person. Starting from the left we see people's names and so we can surmise that these are records that pertain to individuals. Each column provides some attribute of the person, which includes the full name, address details, date of birth, and some physical characteristics. That we start with the `Name` column here is no accident. If you were to have that column as the last column (i.e., furthest to the right), it would be slightly more confusing for the reader since the basis for the record doesn't come first in a conventional left-to-right reading. Moving on to considering the columns of this table, note that we don't have to infer what type of data is contained in each from the data itself, a row at the top is dedicated for labeling the contents within the columns.
 
-We'll go into some detail later about how **Great Tables** provides affordances for structuring information for better legibility and how the package can be used to adorn the table with other structural elements. For now, let's go (way) back in time to learn how tables evolved.
+I know that we often see and use horizontal and/or vertical grid lines within tables, but those act more as visual reinforcements that outline the columns and rows. So, they're not strictly required for a table to be one. And if this reasoning holds it is thus the arrangement of the data values that matters most here (and not the presence of lines, which serves to visualize the underlying grid).
+
+We'll go into some detail later about how **Great Tables** provides affordances for structuring information for better legibility and how the package can be used to adorn the table with other structural elements. For now, our conception of a table can be summarized in this schematic.
+
+![](./a_simple_table.png)
+
+<p style="font-size: 12px;">A simple table has: (1) cells containing data, (2) an arrangement of columns and rows, and (3) column labels to describe the type data in each column.</p>
 
 ### The early history of tables
 
