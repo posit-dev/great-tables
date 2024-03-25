@@ -68,7 +68,9 @@ We'll go into some detail later about how **Great Tables** provides affordances 
 
 ### The early history of tables
 
-Another aspect of tables that has the power to surprise is just how long they've been around. The earliest known examples go very far back in human history. I did mention the word *grid* a few times and there is much evidence for grids predating tables. So really, the history of graphical representation and of data analysis begins with the grid. Could we break down the idea of a grid? Sure, it's a metric by which we establish distance and direction of any position relative to a reference point, line, or plane. Some examples include geographic mapping with latitude and longitude measures, and the regular arrangement of city blocks through the arrangement of east-west and north-south streets. The latter is commonly known as a square grid and this is the sense of a grid we'll use going forward.
+Another aspect of tables that has the power to surprise is just how long they've been around. Why explore the history of tables? Well, it's both interesting and informative to see how ideas for information design merge with the available technology for the display of information. The evolution of tabular design and the ways tables were recorded informs what we see today as tables.
+
+The earliest known examples go very far back in human history. I did mention the word *grid* a few times and there is much evidence for grids predating tables. So really, the history of graphical representation and of data analysis begins with the grid. Could we break down the idea of a grid? Sure, it's a metric by which we establish distance and direction of any position relative to a reference point, line, or plane. Some examples include geographic mapping with latitude and longitude measures, and the regular arrangement of city blocks through the arrangement of east-west and north-south streets. The latter is commonly known as a square grid and this is the sense of a grid we'll use going forward.
 
 Twenty-five thousand year old representations of the grid are found on the walls of the Lascaux and Niaux caves in France[^1]. In the second century BCE, the highly regarded Greek astronomer Hipparchus used latitude and longitude to locate celestial and terrestrial positions[^2]. At around AD 150, Ptolmey published *Geographia*, which contains 25 geographical maps accompanied by methodologies for their construction using grids[^3]. The Romans employed a grid system called *centuriation*, which can be described as land measurement (using surveyors' instruments) to realize the formation of square grids using roads, canals, or agricultural plots[^4].
 
@@ -95,7 +97,7 @@ You can see right away that there is a more regular grid and, if you probe deepe
 - grand totals adjacent to row labels
 - annotations with explanatory notes under those columns containing totals
 
-Later on, tables were less inscribed on clay and more on wax tablets, papyrus, paper, and eventually tables became computerized. What a trip it has been for tables!
+Later on, tables were less inscribed on clay and more on wax tablets, papyrus, and paper. The media have changed, writing technologies have changed, and the design and presentation of tables also went through changes.
 
 ### Midcentury modern tables
 
