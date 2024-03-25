@@ -20,13 +20,7 @@ Tables are surprisingly hard to define! I think it's that we take them for grant
 
 This set of requirements seems like the bare minimum for a table to be construed as a table. If we have one without the other, then what results is something probably not recognizable as a table. Here's a mini movie that demonstrates the same set of information before and after its incorporation into a table structure.
 
-![](./schematic_of_a_table.gif)
-
-<p style="font-size: 12px;">A data display table isn't just a list of information, and it's not just any organized grouping of data. A table, minimally, includes a grid of data values, with column and rows providing visual structure and context.</p>
-
 I know that we often see and use horizontal and/or vertical grid lines within tables, but those act more as visual reinforcements that outline the columns and rows. So, they're not strictly required for a table to be one. And if this reasoning holds it is thus the arrangement of the data values that matters most here (and not the presence of lines, which serves to visualize the underlying grid).
-
-Now that we've reviewed the basic structure of the table having columns and rows, what goes in each? The most effective tables will have separate entries or records arranged as the horizontal rows; and the characteristics or attribute values should run down columns. The intersecting piece of text (sometimes called a cell, but not always) is a data attribute tied to a specific record or entry. This is intuitive because we're used to seeing tables (they've been around for thousands of years!) but we don't often rigorously think about how this all holds together.
 
 ![](./a_simple_table.png)
 
