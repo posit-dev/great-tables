@@ -1,5 +1,5 @@
 ---
-title: "The Underlying Design Philosophy in Great Tables"
+title: "The Design Philosophy of Great Tables and What We're Really Trying to Solve"
 html-table-processing: none
 author: Rich Iannone
 date: 2024-03-25
@@ -7,9 +7,9 @@ freeze: true
 jupyter: python3
 ---
 
-We've spent a lot of time thinking about tables. While several years have been spent on the endeavor, the software we've produced is helping people make great tables. This article explores the history of data display tables, what we learned while serving the open-source data science community, and how that informs the design of **Great Tables**.
+We've spent a lot of time thinking about tables. Tables---like plots---are crucial as a last step toward presenting information. There is surprising sophistication and nuance in designing effective tables. Over the past 5,000 years, they've evolved from simple grids to highly structured displays of data. Although we postulate that the mid-1900s served as a high point, the popularization and wider accessibility of computing seemingly brought us back to the simple, ancient times.
 
-What makes a great table? When thinking about tables and the qualities that make tables both informative and aesthetically pleasing, it's all to easy to lose sight of the fundamentals. We ought to first understand what makes a table a table, what characteristics make tables shine, and when to choose tables over other displays of information (like plots). Throughout this article I'll try to address all of this and I'll also delve into the little-discussed history of tables to see where this all came from. Once we're back to the here and now, there will be some elaboration on what **Great Tables** brings to the table. The package has a clear vision and design philosophy and I hope to articulate all of that here.
+Okay, it's not all *that bad* but the workers of data and creators of tables are today confronted with a dilemma: copy your data into a tool like Excel to format the data and otherwise make presentable by hand, or, display a sad grid of a table. This article explores the qualities and characteristics of a table (especially what makes them shine), the history of tables as a display of data, and how we might begin to solve the **great table dilemma** with **Great Tables**.
 
 ### What is a table, really?
 
@@ -108,6 +108,10 @@ There's no greater embodiment of that pairing of technology and design than the 
 We at **Great Tables** borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section).  We'll end this brief section with a visual montage of snippets from the *Census Manual*, which provides a glimpse of the sound advice on offer.
 
 ![](./snippets_from_manual_tablular_presentation.png)
+
+### The late history of tables
+
+With computing technologies becoming more accessible by the 1970s and 1980s, people were able to generate tables in both electronic and print form. The democratization of computational tables arguably began with VisiCalc in 1979, a massive success that initiated the computing category of spreadsheeting software.
 
 ### Approach to tables taken by **Great Tables**
 
