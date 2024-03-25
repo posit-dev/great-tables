@@ -99,25 +99,11 @@ Later on, tables were less inscribed on clay and more on wax tablets, papyrus, p
 
 ### Midcentury modern tables
 
-There's a prehistory to modern, computerized tables and perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype[^8] (my favorite). While constrained by the limited space available on pages, tabular design at this point had many solutions for either fitting tables into single, variously-sized pages or distributing the table content across multiple pages.
+There's a prehistory to modern, computerized tables and perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype[^8] (my favorite). The technologies were sufficiently advanced as to allow the precise typesetting of table elements. While of course constrained by the limited space available on pages, tabular design at this point had many workable solutions for fitting tables into single pages or dispersing the tabular content across multiple pages. The combination of advanced printing technology with advanced knowledge of tabular design resulted in *beautiful tables*.
 
-Another reason this was a great period for tables is the publication of the *Manual of Tabular Presentation*[^9] by the United States Bureau of the Census. It is truly a remarkable work, which spares no detail on how the department classifies the different parts of a table, describing the function of each part in rigorous detail. Moreover, it is easy to read, thanks to its many visual examples. Throughout its hundreds of pages, the authors make strong recommendations on what to do (and what *not* to do) for many tabulation scenarios.
+There's no greater embodiment of that pairing of technology and design than the [*Manual of Tabular Presentation*](https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf)[^9], written and published by the United States Bureau of the Census. It is truly a remarkable work which goes into great detail on how the department imagines the ideal designs of information-rich tables. The work articulates the different parts of a table (and each part is given a descriptive name), sparing no detail when describing those different table parts in rigorous detail. Throughout its hundreds of pages, the authors make strong recommendations on what to do (and what *not* to do) for many tabulation scenarios. When poring over the tables visually depicted in the book, you can't help but see that tables can both look really good *and* contain a density of information. The promise and the result is a balance of form and function.
 
-Ever heard of the 'Multipage Narrow, Continuous Boxhead Table'? How about the 'Broad Table'? The 'Parallel Table'? I'm sure you've seen these types of tables but just didn't know the names ascribed to them. Well, those are in the work and examples of each are provided here as specimens.
-
-![](./multipage_narrow_table_from_manual.png)
-
-<p style="font-size: 12px;">The Multipage Narrow, Continuous Boxhead Table (*Census Manual*, pp. 18-19).</p>
-
-![](./broad_table_manual.png)
-
-<p style="font-size: 12px;">The Broad Table (*Census Manual*, pp. 20-21). Meant to be read with the book rotated.</p>
-
-![](./parallel_table_manual.png)
-
-<p style="font-size: 12px;">The Parallel Table (*Census Manual*, pp. 22-23). Only the first half of this figure/table is shown here.</p>
-
-We at **Great Tables** borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section). If you're interested in really getting into the nitty gritty of tabular presentation then [get the freely-available PDF file](https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf) and prepare to be delighted. We'll end this brief section with a visual montage of snippets from the *Census Manual*, which is laden with good advice.
+We at **Great Tables** borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section).  We'll end this brief section with a visual montage of snippets from the *Census Manual*, which provides a glimpse of the sound advice on offer.
 
 ![](./snippets_from_manual_tablular_presentation.png)
 
