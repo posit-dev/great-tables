@@ -110,9 +110,22 @@ We at **Great Tables** borrow liberally from this work because many of its tabul
 ![](./snippets_from_manual_tablular_presentation.png)
 
 <p style="font-size: 12px;">Little nuggets of wisdom from the *Census Manual*. This may very well be the ultimate book on tabular design.</p>
+
 ### The late history of tables
 
-With computing technologies becoming more accessible by the 1970s and 1980s, people were able to generate tables in both electronic and print form. The democratization of computational tables arguably began with VisiCalc in 1979, a massive success that initiated the computing category of spreadsheeting software.
+With computing technologies becoming more accessible by the 1970s and 1980s, people were able to generate tables in both electronic and print form. The democratization of computational tables arguably began with VisiCalc in 1979, a massive success that initiated the computing category of spreadsheeting software. There's an undeniable advantage to having data analyzed and transformed in computing environments, but, this comes at a cost. Like, do these tables look any good? (They do not.)
+
+![](./visicalc.png)
+
+<p style="font-size: 12px;">This is a table in VisiCalc (earliest example of a table in a spreadsheet application). It's pretty crude compared to the tables in print but the advantage here is that you can calculate values quickly.</p>
+
+Over time, and this only took 10-15 years, tables-within-spreadsheets got a little easier on the eyes. By the early 1990s, Excel could paint borders on your tables, better typographical support was available, and the formatting of values was fully-featured (though, [wonky](https://www.cnet.com/tech/computing/prevent-excel-from-reformatting-two-numbers-to-a-date-and-month/)). Great! Problem solved, right? Not really. While Excel tables from the last three decades looked much better than 1980s-spreadsheet-borne tables, they could never hold a candle to the what was shown in the *Census Manual* (no matter how much of an Excel expert you became). Further to this, data analysis started to became a thing accomplished outside of Excel. Think Python and Jupyter notebooks. We now have a bag of problematic scenarios:
+
+- you can use Python (or some other language) to analyze data and generate some tables that won't look too good
+- you can do everything in Excel and make semi-good tables (but you don't get to use the power of Py)
+- you can use Python for data analysis/summarization and bring it over to Excel for the table finishing move
+
+All of these are suboptimal solutions. We propose that it is far better to do everything in Python: the data ingestion, the data analysis, and the data visualization. The visualization step is what's done for plots and other types of graphics composed from data, it shouldn't be any different when it comes to generating summary tables.
 
 ### Approach to tables taken by **Great Tables**
 
