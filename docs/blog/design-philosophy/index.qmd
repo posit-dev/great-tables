@@ -11,6 +11,10 @@ We've spent a lot of time thinking about tables. Tables---like plots---are cruci
 
 Okay, it's not all *that bad* but the workers of data are today confronted with a dilemma: copy your data into a tool like Excel for making the table, or, display an unpolished table. Through exploring the qualities that make tables shine, the backstory of tables as a display of data, and the issues faced today, it's clear how we can solve the **great table dilemma** with **Great Tables**.
 
+![](./computer_tables.png)
+
+<p style="font-size: 12px;">Tables made with computers (left to right): (1) a DataFrame printed at the console, (2) an Excel table, and (3) a **Great Tables** table.</p>
+
 ### What is a table, really?
 
 Before getting to what makes tables shine we have to define what a table is. This is surprisingly hard! But I believe it can be boiled down to two basic rules:
