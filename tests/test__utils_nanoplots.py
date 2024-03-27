@@ -4,12 +4,19 @@ from great_tables._utils_nanoplots import (
     _val_is_numeric,
     _val_is_str,
     _is_integerlike,
+    _normalize_option_list,
     _normalize_vals,
     _normalize_to_dict,
     calc_ref_value,
     _format_number_compactly,
+    _gt_mean,
+    _gt_min,
+    _gt_max,
+    _gt_median,
+    _gt_first,
+    _gt_last,
 )
-from typing import Union
+from typing import List, Union
 
 # TODO: need tests of all utils_nanoplot functions
 
@@ -90,33 +97,68 @@ def test_is_integerlike():
     assert not _is_integerlike([])
 
 
-def test_normalize_vals():
-    # Test case 1: Normalization with no missing values
-    x = [1, 2, 3, 4, 5]
-    expected_output = [0.0, 0.25, 0.5, 0.75, 1.0]
-    assert _normalize_vals(x) == expected_output
+# TODO: add tests for _any_na_in_list()
 
-    # Test case 2: Normalization with missing values
-    x = [1, np.nan, 3, 4, np.nan]
-    expected_output = [0.0, np.nan, 0.6666666666666666, 1.0, np.nan]
-    assert _normalize_vals(x) == expected_output
+# TODO: add tests for _check_any_na_in_list()
 
-    # Test case 3: Normalization with all missing values
-    x = [np.nan, np.nan, np.nan]
-    expected_output = [np.nan, np.nan, np.nan]
-    assert _normalize_vals(x) == expected_output
+# TODO: add tests for _remove_na_from_list()
 
-    # Test case 4: Normalization with negative values
-    x = [-5, -3, -1, 0, 2, 4]
-    expected_output = [
-        0.0,
-        0.2222222222222222,
-        0.4444444444444444,
-        0.5555555555555556,
-        0.7777777777777778,
-        1.0,
-    ]
-    assert _normalize_vals(x) == expected_output
+
+# def test_normalize_option_list():
+#     # Test case 1: Normalization with no missing values
+#     x = [1, 2, 3, 4, 5]
+#     expected_output = [0.0, 0.25, 0.5, 0.75, 1.0]
+#     assert _normalize_option_list(x) == expected_output
+#
+#     # Test case 2: Normalization with missing values
+#     x = [1, np.nan, 3, 4, np.nan]
+#     expected_output = [0.0, np.nan, 0.6666666666666666, 1.0, np.nan]
+#     assert _normalize_option_list(x) == expected_output
+#
+#     # Test case 3: Normalization with all missing values
+#     x = [np.nan, np.nan, np.nan]
+#     expected_output = [np.nan, np.nan, np.nan]
+#     assert _normalize_option_list(x) == expected_output
+#
+#     # Test case 4: Normalization with negative values
+#     x = [-5, -3, -1, 0, 2, 4]
+#     expected_output = [
+#         0.0,
+#         0.2222222222222222,
+#         0.4444444444444444,
+#         0.5555555555555556,
+#         0.7777777777777778,
+#         1.0,
+#     ]
+#     assert _normalize_option_list(x) == expected_output
+
+
+@pytest.mark.parametrize(
+    "vals,dst",
+    [
+        ([1, 2, 3, 4], [0.0, 0.3333333333333333, 0.6666666666666666, 1.0]),
+        ([1.2, 2.1, 3.4, 4.3], [0.0, 0.29032258064516137, 0.7096774193548389, 1.0]),
+        (
+            [-4, -4.5, -2, 0, 1, 2, 3, 4],
+            [
+                0.058823529411764705,
+                0.0,
+                0.29411764705882354,
+                0.5294117647058824,
+                0.6470588235294118,
+                0.7647058823529411,
+                0.8823529411764706,
+                1.0,
+            ],
+        ),
+        ([-5.3, -2.3, -23.2, 0], [0.771551724137931, 0.9008620689655172, 0.0, 1.0]),
+    ],
+)
+def test_normalize_vals(
+    vals: Union[List[Union[int, float]], List[int], List[float]], dst: List[Union[int, float]]
+):
+    res = _normalize_vals(vals)
+    assert res == dst
 
 
 def test_normalize_to_dict():
@@ -284,4 +326,97 @@ def test_format_number_compactly_integer(num: float, dst: str):
 )
 def test_format_number_compactly_currency(num: float, currency: Union[str, None], dst: str):
     res = _format_number_compactly(val=num, currency=currency)
+    assert res == dst
+
+
+@pytest.mark.parametrize(
+    "num,dst",
+    [
+        ([1], 1.0),
+        ([1, 1], 1.0),
+        ([1, 2, 3], 2.0),
+        ([-5, 0.1, 5], 0.033333333333333215),
+        ([2.1e15, 2342, 5.3e8], 700000176667447.4),
+    ],
+)
+def test_gt_mean(num: List[Union[int, float]], dst: float):
+    res = _gt_mean(num)
+    assert res == dst
+
+
+@pytest.mark.parametrize(
+    "num,dst",
+    [
+        ([1], 1.0),
+        ([1, 1], 1.0),
+        ([1, 2, 3], 1.0),
+        ([-5, 0.1, 5], -5.0),
+        ([2.1e15, 2342, 5.3e8], 2342),
+    ],
+)
+def test_gt_min(num: List[Union[int, float]], dst: float):
+    res = _gt_min(num)
+    assert res == dst
+
+
+@pytest.mark.parametrize(
+    "num,dst",
+    [
+        ([1], 1.0),
+        ([1, 1], 1.0),
+        ([1, 2, 3], 3.0),
+        ([-5, 0.1, 5], 5.0),
+        ([2.1e15, 2342, 5.3e8], 2100000000000000.0),
+    ],
+)
+def test_gt_max(num: List[Union[int, float]], dst: float):
+    res = _gt_max(num)
+    assert res == dst
+
+
+@pytest.mark.parametrize(
+    "num,dst",
+    [
+        ([1], 1.0),
+        ([1, 1], 1.0),
+        ([1, 2, 3], 2.0),
+        ([1, 2, 3, 4], 2.5),
+        ([-5, 0.1, 5], 0.1),
+        ([2.1e15, 2342, 5.3e8], 5.3e8),
+    ],
+)
+def test_gt_median(num: List[Union[int, float]], dst: float):
+    res = _gt_median(num)
+    assert res == dst
+
+
+@pytest.mark.parametrize(
+    "num,dst",
+    [
+        ([1], 1.0),
+        ([1, 1], 1.0),
+        ([3, 2, 1], 3.0),
+        ([1, 2, 3, 4], 1.0),
+        ([-5, 0.1, 5], -5.0),
+        ([0, 2.1e15, 2342, 5.3e8, 0, -2343], 0),
+    ],
+)
+def test_gt_first(num: List[Union[int, float]], dst: float):
+    res = _gt_first(num)
+    assert res == dst
+
+
+@pytest.mark.parametrize(
+    "num,dst",
+    [
+        ([1], 1.0),
+        ([1, 1], 1.0),
+        ([3, 2, 1], 1.0),
+        ([1, 2, 3, 4], 4.0),
+        ([-5, 0.1, 5], 5.0),
+        ([0, 2.1e15, 2342, 5.3e8, 0, -2343], -2343.0),
+    ],
+)
+def test_gt_last(num: List[Union[int, float]], dst: float):
+    res = _gt_last(num)
     assert res == dst
