@@ -36,6 +36,12 @@ def test_val_is_numeric():
     assert not _val_is_numeric(None)
 
 
+@pytest.mark.xfail
+def test_val_is_numeric_fails_list_input():
+    with pytest.raises(ValueError):
+        _val_is_numeric([1, 2, 3])
+
+
 def test_val_is_str():
     # Test case 1: String values
     assert _val_is_str("a")
@@ -54,6 +60,12 @@ def test_val_is_str():
     assert not _val_is_str(1.0e10)
     assert not _val_is_str(-1.0e10)
     assert not _val_is_str(None)
+
+
+@pytest.mark.xfail
+def test_val_is_str_fails_list_input():
+    with pytest.raises(ValueError):
+        _val_is_str(["a", "b", "c"])
 
 
 # TODO: add tests for _val_is_missing()
