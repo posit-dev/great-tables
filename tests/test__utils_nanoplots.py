@@ -75,6 +75,7 @@ def test_is_integerlike():
     assert not _is_integerlike([1.1])
     assert not _is_integerlike([1e-5])
     assert not _is_integerlike([-3, 4, 5.4])
+    assert not _is_integerlike([])
 
 
 def test_normalize_vals():
