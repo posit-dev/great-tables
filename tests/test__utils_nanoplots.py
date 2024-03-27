@@ -16,6 +16,8 @@ from great_tables._utils_nanoplots import (
     _gt_first,
     _gt_last,
     _gt_quantile,
+    _gt_q1,
+    _gt_q3,
 )
 from typing import List, Union
 
@@ -460,4 +462,44 @@ def test_gt_last(num: List[Union[int, float]], dst: float):
 )
 def test_gt_quantile(num: List[Union[int, float]], q: float, dst: float):
     res = _gt_quantile(num, q=q)
+    assert res == dst
+
+
+@pytest.mark.parametrize(
+    "num,dst",
+    [
+        ([1], 1.0),
+        ([1, 1], 1.0),
+        ([3, 2, 1], 1.0),
+        ([1, 2, 3, 4], 2.0),
+        ([1, 2, 2, 3, 4], 2.0),
+        ([1, 2, 2, 3, 3, 3, 4, 4], 2.0),
+        ([0.01, 0.5, 0.25, 1, 2, 2, 3, 3, 3, 4, 4], 0.5),
+        ([-5, 0.1, 5], -5.0),
+        ([1, 1, 1, 0.5, 1.2], 1.0),
+        ([0, 2.1e15, 2342, 5.3e8, 0, -2343], 0.0),
+    ],
+)
+def test_gt_q_1(num: List[Union[int, float]], dst: float):
+    res = _gt_q1(num)
+    assert res == dst
+
+
+@pytest.mark.parametrize(
+    "num,dst",
+    [
+        ([1], 1.0),
+        ([1, 1], 1.0),
+        ([3, 2, 1], 3.0),
+        ([1, 2, 3, 4], 4.0),
+        ([1, 2, 2, 3, 4], 3.0),
+        ([1, 2, 2, 3, 3, 3, 4, 4], 4.0),
+        ([0.01, 0.5, 0.25, 1, 2, 2, 3, 3, 3, 4, 4], 3.0),
+        ([-5, 0.1, 5], 5.0),
+        ([1, 1, 1, 0.5, 1.2], 1.0),
+        ([0, 2.1e15, 2342, 5.3e8, 0, -2343], 5.3e8),
+    ],
+)
+def test_gt_q_3(num: List[Union[int, float]], dst: float):
+    res = _gt_q3(num)
     assert res == dst
