@@ -1,6 +1,9 @@
 import pytest
 import numpy as np
 from great_tables._utils_nanoplots import (
+    _val_is_numeric,
+    _val_is_str,
+    _is_integerlike,
     _normalize_vals,
     _normalize_to_dict,
     calc_ref_value,
@@ -9,6 +12,69 @@ from great_tables._utils_nanoplots import (
 from typing import Union
 
 # TODO: need tests of all utils_nanoplot functions
+
+
+def test_val_is_numeric():
+    # Test case 1: Numeric values
+    assert _val_is_numeric(1)
+    assert _val_is_numeric(-1)
+    assert _val_is_numeric(1.0)
+    assert _val_is_numeric(-1.0)
+    assert _val_is_numeric(1.0e-10)
+    assert _val_is_numeric(-1.0e-10)
+    assert _val_is_numeric(1.0e10)
+    assert _val_is_numeric(-1.0e10)
+    assert _val_is_numeric(1.0e-10)
+    assert _val_is_numeric(-1.0e-10)
+
+    # Test case 2: Non-numeric values
+    assert not _val_is_numeric("a")
+    assert not _val_is_numeric("1")
+    assert not _val_is_numeric("1.0")
+    assert not _val_is_numeric("1.0e-10")
+    assert not _val_is_numeric("1.0e10")
+    assert not _val_is_numeric(None)
+
+
+def test_val_is_str():
+    # Test case 1: String values
+    assert _val_is_str("a")
+    assert _val_is_str("1")
+    assert _val_is_str("1.0")
+    assert _val_is_str("1.0e-10")
+    assert _val_is_str("1.0e10")
+
+    # Test case 2: Non-string values
+    assert not _val_is_str(1)
+    assert not _val_is_str(-1)
+    assert not _val_is_str(1.0)
+    assert not _val_is_str(-1.0)
+    assert not _val_is_str(1.0e-10)
+    assert not _val_is_str(-1.0e-10)
+    assert not _val_is_str(1.0e10)
+    assert not _val_is_str(-1.0e10)
+    assert not _val_is_str(None)
+
+
+# TODO: add tests for _val_is_missing()
+
+
+def test_is_integerlike():
+    # Test case 1: Integer-like values
+    assert _is_integerlike([1])
+    assert _is_integerlike([-1])
+    assert _is_integerlike([0])
+    # assert _is_integerlike([1.0, 2.0, 3.0, 6.0]) # TODO: this should pass
+    # assert _is_integerlike([-1.0]) # TODO: this should pass
+    # assert _is_integerlike([2e15]) # TODO: this should pass
+    # assert _is_integerlike([3.2343e15]) # TODO: this should pass
+    assert _is_integerlike([0, 79])
+    assert _is_integerlike([-234234, 0, 2343, 6342379])
+
+    # Test case 2: Non-integer-like values
+    assert not _is_integerlike([1.1])
+    assert not _is_integerlike([1e-5])
+    assert not _is_integerlike([-3, 4, 5.4])
 
 
 def test_normalize_vals():
