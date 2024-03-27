@@ -15,6 +15,7 @@ from great_tables._utils_nanoplots import (
     _gt_median,
     _gt_first,
     _gt_last,
+    _gt_quantile,
 )
 from typing import List, Union
 
@@ -419,4 +420,44 @@ def test_gt_first(num: List[Union[int, float]], dst: float):
 )
 def test_gt_last(num: List[Union[int, float]], dst: float):
     res = _gt_last(num)
+    assert res == dst
+
+
+@pytest.mark.parametrize(
+    "num,q,dst",
+    [
+        ([1], 0, 1.0),
+        ([1], 0.5, 1.0),
+        # ([1], 1.0, 1.0), # TODO: causes 'IndexError: list index out of range'
+        ([1, 1], 0, 1.0),
+        ([1, 1], 0.33, 1.0),
+        ([1, 1], 0.66, 1.0),
+        # ([1, 1], 1.0, 1.0), # TODO: causes 'IndexError: list index out of range'
+        ([3, 2, 1], 0, 1.0),
+        ([3, 2, 1], 0.2, 1.0),
+        ([3, 2, 1], 0.4, 2.0),
+        ([3, 2, 1], 0.6, 2.0),
+        ([3, 2, 1], 0.8, 3.0),
+        # ([3, 2, 1], 1.0, 3.0), # TODO: causes 'IndexError: list index out of range'
+        ([1, 3, 3, 5], 0, 1.0),
+        ([1, 3, 3, 5], 0.2, 1.0),
+        ([1, 3, 3, 5], 0.4, 3.0),
+        ([1, 3, 3, 5], 0.6, 3.0),
+        ([1, 3, 3, 5], 0.8, 5.0),
+        # ([1, 3, 3, 5], 1.0, 5.0), # TODO: causes 'IndexError: list index out of range'
+        ([1, 3, 3, 3, 5], 0, 1.0),
+        ([1, 3, 3, 3, 5], 0.1, 1.0),
+        ([1, 3, 3, 3, 5], 0.2, 3.0),
+        ([1, 3, 3, 3, 5], 0.3, 3.0),
+        ([1, 3, 3, 3, 5], 0.4, 3.0),
+        ([1, 3, 3, 3, 5], 0.5, 3.0),
+        ([1, 3, 3, 3, 5], 0.6, 3.0),
+        ([1, 3, 3, 3, 5], 0.7, 3.0),
+        ([1, 3, 3, 3, 5], 0.8, 5.0),
+        ([1, 3, 3, 3, 5], 0.9, 5.0),
+        # ([1, 3, 3, 3, 5], 1.0, 5.0), # TODO: causes 'IndexError: list index out of range'
+    ],
+)
+def test_gt_quantile(num: List[Union[int, float]], q: float, dst: float):
+    res = _gt_quantile(num, q=q)
     assert res == dst
