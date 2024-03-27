@@ -604,6 +604,22 @@ def _nanoplot_has_tag(nanoplot_str: str, tag: str):
     return bool(re.search(f"<{tag}.*</{tag}>", nanoplot_str))
 
 
+def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: List[tuple[str, str]]) -> bool:
+    import re
+
+    found: List[bool] = []
+
+    for i, _ in enumerate(attrs):
+        attrs_i = attrs[i]
+        attr_str = f'{attrs_i[0]}="{attrs_i[1]}"'
+
+        found_i = bool(re.search(f"<{tag}.*?{attr_str}.*?</{tag}>", nanoplot_str))
+
+        found.append(found_i)
+
+    return all(found)
+
+
 def test_nanoplot_output():
 
     vals = [-5.3, 6.3, -2.3, 0, 2.3, 6.7, 14.2, 0, 2.3, 13.3]
@@ -613,6 +629,95 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_data_lines)
     assert _nanoplot_has_tag(out_data_lines, "defs")
     assert _nanoplot_has_tag(out_data_lines, "style")
+    assert _nanoplot_has_tag(out_data_lines, "path")
+    assert _nanoplot_has_tag(out_data_lines, "circle")
+    assert _nanoplot_has_tag(out_data_lines, "rect")
+    assert _nanoplot_has_tag(out_data_lines, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_lines,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_lines,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_lines,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_lines,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_lines,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_lines,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_lines,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_lines,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
 
     out_with_num_ref_line = _generate_nanoplot(y_vals=vals, y_ref_line=0)
     assert _is_nanoplot_output(out_with_num_ref_line)
