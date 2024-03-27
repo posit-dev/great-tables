@@ -18,8 +18,11 @@ from great_tables._utils_nanoplots import (
     _gt_quantile,
     _gt_q1,
     _gt_q3,
+    _flatten_list,
+    _get_extreme_value,
+    _generate_ref_line_from_keyword,
 )
-from typing import List, Union
+from typing import List, Union, Any
 
 # TODO: need tests of all utils_nanoplot functions
 
@@ -502,4 +505,90 @@ def test_gt_q_1(num: List[Union[int, float]], dst: float):
 )
 def test_gt_q_3(num: List[Union[int, float]], dst: float):
     res = _gt_q3(num)
+    assert res == dst
+
+
+@pytest.mark.parametrize(
+    "lst,dst",
+    [
+        ([1], [1]),
+        ([1, 1.0], [1, 1.0]),
+        ([3, 2.2, 1], [3, 2.2, 1]),
+        ([3, 2.2, None, [None]], [3, 2.2, None, None]),
+        ([1, 2, 3, [22, -3.4], 4], [1, 2, 3, 22, -3.4, 4]),
+        ([1, 2.2, [9.2], 2.2, 3, 4, []], [1, 2.2, 9.2, 2.2, 3, 4]),
+        ([[], 1.2, [], [], 2.2, [9.2], 2.2, [3, 4], []], [1.2, 2.2, 9.2, 2.2, 3, 4]),
+        ([], []),
+    ],
+)
+def test_flatten_list(lst: List[Any], dst: List[Any]):
+    res = _flatten_list(lst)
+    assert res == dst
+
+
+@pytest.mark.parametrize(
+    "lst,stat,dst",
+    [
+        ([1], "min", 1),
+        ([1], "max", 1),
+        ([[1]], "min", 1),
+        ([[1]], "max", 1),
+        ([1, 5.6], "min", 1),
+        ([1, 5.6], "max", 5.6),
+        ([1, None, 5.6], "min", 1),
+        ([1, None, 5.6], "max", 5.6),
+        ([[1], [3, 2, 3], [None], None, 0.5, 9.2], "min", 0.5),
+        ([[1], [3, 2, 3], [None], None, 0.5, 9.2], "max", 9.2),
+        ([[3, 2.2, 1], [3, 2.2, 1]], "min", 1),
+        ([[3, 2.2, 1], [3, 2.2, 1]], "max", 3),
+        ([[-13.2, 2.2, None, 14.3], [None, None]], "min", -13.2),
+        ([[-13.2, 2.2, None, 14.3], [None, None]], "max", 14.3),
+    ],
+)
+def test_get_extreme_value(lst: List[Any], stat: str, dst: List[Any]):
+    res = _get_extreme_value(*lst, stat=stat)
+    assert res == dst
+
+
+# "mean", "median", "min", "max", "q1", "q3"
+
+
+@pytest.mark.parametrize(
+    "num,keyword,dst",
+    [
+        ([1], "mean", 1),
+        ([1], "median", 1),
+        ([1], "min", 1),
+        ([1], "max", 1),
+        ([1], "q1", 1),
+        ([1], "q3", 1),
+        # ([1], "first", 1), # TODO: error results due to restrictive keyword check
+        # ([1], "last", 1), # TODO: error results due to restrictive keyword check
+        ([1, 5.6], "mean", 3.3),
+        ([1, 5.6], "median", 3.3),
+        ([1, 5.6], "min", 1),
+        ([1, 5.6], "max", 5.6),
+        ([1, 5.6], "q1", 1),
+        ([1, 5.6], "q3", 5.6),
+        # ([1, 5.6], "first", 1), # TODO: error results due to restrictive keyword check
+        # ([1, 5.6], "last", 5.6), # TODO: error results due to restrictive keyword check
+        (
+            [-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2],
+            "mean",
+            3.2436363636363637,
+        ),
+        ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "median", 2.2),
+        ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "min", -13.2),
+        ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "max", 25.3),
+        ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "q1", -3.1),
+        ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "q3", 6.23),
+        # TODO: errors below due to restrictive keyword check
+        # ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "first", -13.2),
+        # ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "last", -3.2),
+    ],
+)
+def test_generate_ref_line_from_keyword(
+    num: List[Union[int, float]], keyword: str, dst: Union[int, float]
+):
+    res = _generate_ref_line_from_keyword(num, keyword=keyword)
     assert res == dst
