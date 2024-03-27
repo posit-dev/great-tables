@@ -78,17 +78,17 @@ Tables emerged from square grids. When grids are made like this, you invariably 
 
 <p style="font-size: 12px;">Reproductions of early grids found on cave walls.</p>
 
-In the second century BCE, the Greek astronomer Hipparchus used latitude and longitude to locate celestial and terrestrial positions[^2]. At around AD 150, Ptolmey published *Geographia*, which contains 25 geographical maps accompanied by methodologies for their construction using grids[^3]. The Romans employed a grid system called *centuriation*, which can be described as land measurement (using surveyors' instruments) to realize the formation of square grids using roads, canals, or agricultural plots[^4].
+In the second century BC, the Greek astronomer Hipparchus used latitude and longitude to locate celestial and terrestrial positions[^2]. At around AD 150, Ptolmey published *Geographia*, which contains 25 geographical maps accompanied by methodologies for their construction using grids[^3]. The Romans employed a grid system called *centuriation*, which can be described as land measurement (using surveyors' instruments) to realize the formation of square grids using roads, canals, or agricultural plots[^4].
 
-When agriculture became more widespread (ca. 10,000 years ago), there was the need to document and manage economic transactions to do with farming, livestock, and the division of labor. In the fourth millennium BCE, Mesopotamian cities that traded with far way kingdoms needed to keep such records. Clay tablets recovered from the ancient Sumerian city of Uruk show early yet sophisticated tables. Here is a drawing of one of the recovered tablets, which contains an accounting of deliveries of barley and malt from two individuals for the production of beer[^5].
+When agriculture became more widespread (ca. 10,000 years ago), there was the need to document and manage economic transactions to do with farming, livestock, and the division of labor. In the fourth millennium BC, Mesopotamian cities that traded with far way kingdoms needed to keep such records. Clay tablets recovered from the ancient Sumerian city of Uruk show early yet sophisticated tables. Here is a drawing of one of the recovered tablets, which contains an accounting of deliveries of barley and malt from two individuals for the production of beer[^5].
 
 ![](./uruk_tablet_with_annotations.png)
 
-<p style="font-size: 12px;">Drawing of clay tablet from Sumerian city of Uruk, circa 3200-3000 BCE. Uruk III Tablet (MSVO 3, 51, Louvre Museum, Paris, France). Annotated with the meanings of the columns, rows, and cells.</p>
+<p style="font-size: 12px;">Drawing of clay tablet from Sumerian city of Uruk, circa 3200-3000 BC. Uruk III Tablet (MSVO 3, 51, Louvre Museum, Paris, France). Annotated with the meanings of the columns, rows, and cells.</p>
 
-The inscribed grid in the ca. 3200-3000 BCE tablet creates boxes and each one of them represented an accounting unit. Inside each box was an ideogram (a symbol that represented a word or idea) and a numerical value representing a quantity. Now here is where it gets super interesting: each row corresponds to an individual, two columns contain entries for malt and barley; subtotals are given in the third column; and the left-most box displays the grand total. This has all the elements of a summary table! As a bonus, the table has a footer as the bottom row contains the name of the official in charge.
+The inscribed grid in the ca. 3200-3000 BC tablet creates boxes and each one of them represented an accounting unit. Inside each box was an ideogram (a symbol that represented a word or idea) and a numerical value representing a quantity. Now here is where it gets super interesting: each row corresponds to an individual, two columns contain entries for malt and barley; subtotals are given in the third column; and the left-most box displays the grand total. This has all the elements of a summary table! As a bonus, the table has a footer as the bottom row contains the name of the official in charge.
 
-Zooming ahead about a thousand years, you start to see more systematically structured tables. Here's a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BCE)[^6].
+Zooming ahead about a thousand years, you start to see more systematically structured tables. Here's a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BC)[^6].
 
 ![](./nippur_cuneiform_tablet.png)
 
