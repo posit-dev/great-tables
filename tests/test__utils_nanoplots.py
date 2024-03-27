@@ -21,6 +21,7 @@ from great_tables._utils_nanoplots import (
     _flatten_list,
     _get_extreme_value,
     _generate_ref_line_from_keyword,
+    _generate_nanoplot,
 )
 from typing import List, Union, Any
 
@@ -592,3 +593,90 @@ def test_generate_ref_line_from_keyword(
 ):
     res = _generate_ref_line_from_keyword(num, keyword=keyword)
     assert res == dst
+
+
+def _is_nanoplot_output(nanoplot_str: str):
+    import re
+
+    return bool(re.match("^<div><svg.*</svg></div>$", nanoplot_str))
+
+
+def test_nanoplot_output():
+
+    vals = [-5.3, 6.3, -2.3, 0, 2.3, 6.7, 14.2, 0, 2.3, 13.3]
+
+    out_data_lines = _generate_nanoplot(y_vals=vals)
+    assert _is_nanoplot_output(out_data_lines)
+
+    out_with_num_ref_line = _generate_nanoplot(y_vals=vals, y_ref_line=0)
+    assert _is_nanoplot_output(out_with_num_ref_line)
+
+    out_with_kword_ref_line = _generate_nanoplot(y_vals=vals, y_ref_line="mean")
+    assert _is_nanoplot_output(out_with_kword_ref_line)
+
+    out_with_num_ref_area = _generate_nanoplot(y_vals=vals, y_ref_area=[0.1, 5.3])
+    assert _is_nanoplot_output(out_with_num_ref_area)
+
+    out_with_kword_ref_area = _generate_nanoplot(y_vals=vals, y_ref_area=["min", "median"])
+    assert _is_nanoplot_output(out_with_kword_ref_area)
+
+    out_with_mixed_ref_area_1 = _generate_nanoplot(y_vals=vals, y_ref_area=["median", 0])
+    assert _is_nanoplot_output(out_with_mixed_ref_area_1)
+
+    out_with_mixed_ref_area_2 = _generate_nanoplot(y_vals=vals, y_ref_area=[1.2, "max"])
+    assert _is_nanoplot_output(out_with_mixed_ref_area_2)
+
+    out_with_ref_line_and_area = _generate_nanoplot(
+        y_vals=vals, y_ref_line=0, y_ref_area=[2.3, "max"]
+    )
+    assert _is_nanoplot_output(out_with_ref_line_and_area)
+
+    out_data_bars = _generate_nanoplot(y_vals=vals, plot_type="bar")
+    assert _is_nanoplot_output(out_data_bars)
+
+    out_bars_with_num_ref_line = _generate_nanoplot(y_vals=vals, y_ref_line=0, plot_type="bar")
+    assert _is_nanoplot_output(out_bars_with_num_ref_line)
+
+    out_bars_with_kword_ref_line = _generate_nanoplot(
+        y_vals=vals, y_ref_line="mean", plot_type="bar"
+    )
+    assert _is_nanoplot_output(out_bars_with_kword_ref_line)
+
+    out_bars_with_num_ref_area = _generate_nanoplot(
+        y_vals=vals, y_ref_area=[0.1, 5.3], plot_type="bar"
+    )
+    assert _is_nanoplot_output(out_bars_with_num_ref_area)
+
+    out_bars_with_kword_ref_area = _generate_nanoplot(
+        y_vals=vals, y_ref_area=["min", "median"], plot_type="bar"
+    )
+    assert _is_nanoplot_output(out_bars_with_kword_ref_area)
+
+    out_bars_with_mixed_ref_area_1 = _generate_nanoplot(
+        y_vals=vals, y_ref_area=["median", 0], plot_type="bar"
+    )
+    assert _is_nanoplot_output(out_bars_with_mixed_ref_area_1)
+
+    out_bars_with_mixed_ref_area_2 = _generate_nanoplot(
+        y_vals=vals, y_ref_area=[1.2, "max"], plot_type="bar"
+    )
+    assert _is_nanoplot_output(out_bars_with_mixed_ref_area_2)
+
+    out_bars_with_ref_line_and_area = _generate_nanoplot(
+        y_vals=vals, y_ref_line=0, y_ref_area=[2.3, "max"], plot_type="bar"
+    )
+    assert _is_nanoplot_output(out_bars_with_ref_line_and_area)
+
+    out_horizontal_line = _generate_nanoplot(y_vals=vals[0], all_single_y_vals=vals)
+    assert _is_nanoplot_output(out_horizontal_line)
+
+    out_horizontal_line_non_incl = _generate_nanoplot(y_vals=3432, all_single_y_vals=vals)
+    assert _is_nanoplot_output(out_horizontal_line_non_incl)
+
+    out_horizontal_bar = _generate_nanoplot(y_vals=vals[0], all_single_y_vals=vals, plot_type="bar")
+    assert _is_nanoplot_output(out_horizontal_bar)
+
+    out_horizontal_bar_non_incl = _generate_nanoplot(
+        y_vals=3432, all_single_y_vals=vals, plot_type="bar"
+    )
+    assert _is_nanoplot_output(out_horizontal_bar_non_incl)
