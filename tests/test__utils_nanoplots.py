@@ -625,6 +625,8 @@ def test_nanoplot_output():
     vals = [-5.3, 6.3, -2.3, 0, 2.3, 6.7, 14.2, 0, 2.3, 13.3]
     x_vals = [1.2, 3.4, 4.2, 5.0, 5.8, 6.7, 8.3, 10.2, 10.9, 12.2]
 
+    # Test case 1: Simple line-based nanoplot with no missing values and no additional options
+
     out_data_lines = _generate_nanoplot(y_vals=vals)
     assert _is_nanoplot_output(out_data_lines)
     assert _nanoplot_has_tag(out_data_lines, "defs")
@@ -719,35 +721,65 @@ def test_nanoplot_output():
         ],
     )
 
+    # Test case 2: Line-based nanoplot w/ reference line (using static numeric value)
+
     out_with_num_ref_line = _generate_nanoplot(y_vals=vals, y_ref_line=0)
     assert _is_nanoplot_output(out_with_num_ref_line)
     assert _nanoplot_has_tag(out_with_num_ref_line, "defs")
     assert _nanoplot_has_tag(out_with_num_ref_line, "style")
+
+    # Test case 3: Line-based nanoplot w/ reference line (using keyword to generate value)
 
     out_with_kword_ref_line = _generate_nanoplot(y_vals=vals, y_ref_line="mean")
     assert _is_nanoplot_output(out_with_kword_ref_line)
     assert _nanoplot_has_tag(out_with_kword_ref_line, "defs")
     assert _nanoplot_has_tag(out_with_kword_ref_line, "style")
 
+    # Test case 4: Line nanoplot w/ ref area (using numbers to define limits)
+
     out_with_num_ref_area = _generate_nanoplot(y_vals=vals, y_ref_area=[0.1, 5.3])
     assert _is_nanoplot_output(out_with_num_ref_area)
     assert _nanoplot_has_tag(out_with_num_ref_area, "defs")
     assert _nanoplot_has_tag(out_with_num_ref_area, "style")
+
+    # Test case 5: Line nanoplot w/ ref area (using numbers, descending order, to define limits)
+
+    out_with_num_ref_area_rev = _generate_nanoplot(y_vals=vals, y_ref_area=[5.3, 0.1])
+    assert _is_nanoplot_output(out_with_num_ref_area_rev)
+    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "defs")
+    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "style")
+    assert out_with_num_ref_area == out_with_num_ref_area_rev
+
+    # Test case 6: Line nanoplot w/ ref area (using two keywords to define limits)
 
     out_with_kword_ref_area = _generate_nanoplot(y_vals=vals, y_ref_area=["min", "median"])
     assert _is_nanoplot_output(out_with_kword_ref_area)
     assert _nanoplot_has_tag(out_with_kword_ref_area, "defs")
     assert _nanoplot_has_tag(out_with_kword_ref_area, "style")
 
+    # Test case 7: Line nanoplot w/ ref area (using two keywords to define limits; reversed order)
+
+    out_with_kword_ref_area_rev = _generate_nanoplot(y_vals=vals, y_ref_area=["median", "min"])
+    assert _is_nanoplot_output(out_with_kword_ref_area_rev)
+    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "defs")
+    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "style")
+    assert out_with_kword_ref_area == out_with_kword_ref_area_rev
+
+    # Test case 8: Line nanoplot w/ ref area (using keywords + literal int value to define limits)
+
     out_with_mixed_ref_area_1 = _generate_nanoplot(y_vals=vals, y_ref_area=["median", 0])
     assert _is_nanoplot_output(out_with_mixed_ref_area_1)
     assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "defs")
     assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "style")
 
+    # Test case 9: Line nanoplot w/ ref area (using keywords + literal int value to define limits)
+
     out_with_mixed_ref_area_2 = _generate_nanoplot(y_vals=vals, y_ref_area=[1.2, "max"])
     assert _is_nanoplot_output(out_with_mixed_ref_area_2)
     assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "defs")
     assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "style")
+
+    # Test case 10: Line nanoplot w/ ref area and ref line
 
     out_with_ref_line_and_area = _generate_nanoplot(
         y_vals=vals, y_ref_line=0, y_ref_area=[2.3, "max"]
@@ -756,15 +788,21 @@ def test_nanoplot_output():
     assert _nanoplot_has_tag(out_with_ref_line_and_area, "defs")
     assert _nanoplot_has_tag(out_with_ref_line_and_area, "style")
 
+    # Test case 11: Simple bar-based nanoplot
+
     out_data_bars = _generate_nanoplot(y_vals=vals, plot_type="bar")
     assert _is_nanoplot_output(out_data_bars)
     assert _nanoplot_has_tag(out_data_bars, "defs")
     assert _nanoplot_has_tag(out_data_bars, "style")
 
+    # Test case 12: Bar nanoplot with a reference line (static numeric value)
+
     out_bars_with_num_ref_line = _generate_nanoplot(y_vals=vals, y_ref_line=0, plot_type="bar")
     assert _is_nanoplot_output(out_bars_with_num_ref_line)
     assert _nanoplot_has_tag(out_bars_with_num_ref_line, "defs")
     assert _nanoplot_has_tag(out_bars_with_num_ref_line, "style")
+
+    # Test case 13: Bar nanoplot with a reference line (keyword to generate value)
 
     out_bars_with_kword_ref_line = _generate_nanoplot(
         y_vals=vals, y_ref_line="mean", plot_type="bar"
@@ -773,12 +811,16 @@ def test_nanoplot_output():
     assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "defs")
     assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "style")
 
+    # Test case 14: Bar nanoplot with a reference area (using numbers to define limits)
+
     out_bars_with_num_ref_area = _generate_nanoplot(
         y_vals=vals, y_ref_area=[0.1, 5.3], plot_type="bar"
     )
     assert _is_nanoplot_output(out_bars_with_num_ref_area)
     assert _nanoplot_has_tag(out_bars_with_num_ref_area, "defs")
     assert _nanoplot_has_tag(out_bars_with_num_ref_area, "style")
+
+    # Test case 15: Bar nanoplot with a reference area (using keywords)
 
     out_bars_with_kword_ref_area = _generate_nanoplot(
         y_vals=vals, y_ref_area=["min", "median"], plot_type="bar"
@@ -787,12 +829,16 @@ def test_nanoplot_output():
     assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "defs")
     assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "style")
 
+    # Test case 16: Bar nanoplot with a reference area (using keyword + literal int value)
+
     out_bars_with_mixed_ref_area_1 = _generate_nanoplot(
         y_vals=vals, y_ref_area=["median", 0], plot_type="bar"
     )
     assert _is_nanoplot_output(out_bars_with_mixed_ref_area_1)
     assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "defs")
     assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "style")
+
+    # Test case 17: Bar nanoplot with a reference area (using keyword + literal float value)
 
     out_bars_with_mixed_ref_area_2 = _generate_nanoplot(
         y_vals=vals, y_ref_area=[1.2, "max"], plot_type="bar"
@@ -801,6 +847,8 @@ def test_nanoplot_output():
     assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "defs")
     assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "style")
 
+    # Test case 18: Bar nanoplot with a reference line and area
+
     out_bars_with_ref_line_and_area = _generate_nanoplot(
         y_vals=vals, y_ref_line=0, y_ref_area=[2.3, "max"], plot_type="bar"
     )
@@ -808,20 +856,28 @@ def test_nanoplot_output():
     assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "defs")
     assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "style")
 
+    # Test case 19: Horizontal line-based nanoplot
+
     out_horizontal_line = _generate_nanoplot(y_vals=vals[0], all_single_y_vals=vals)
     assert _is_nanoplot_output(out_horizontal_line)
     assert _nanoplot_has_tag(out_horizontal_line, "defs")
     assert _nanoplot_has_tag(out_horizontal_line, "style")
+
+    # Test case 20: Horizontal line-based nanoplot with value not in `vals` list
 
     out_horizontal_line_non_incl = _generate_nanoplot(y_vals=3432, all_single_y_vals=vals)
     assert _is_nanoplot_output(out_horizontal_line_non_incl)
     assert _nanoplot_has_tag(out_horizontal_line_non_incl, "defs")
     assert _nanoplot_has_tag(out_horizontal_line_non_incl, "style")
 
+    # Test case 21: Horizontal bar-based nanoplot
+
     out_horizontal_bar = _generate_nanoplot(y_vals=vals[0], all_single_y_vals=vals, plot_type="bar")
     assert _is_nanoplot_output(out_horizontal_bar)
     assert _nanoplot_has_tag(out_horizontal_bar, "defs")
     assert _nanoplot_has_tag(out_horizontal_bar, "style")
+
+    # Test case 22: Horizontal bar-based nanoplot with value not in `vals` list
 
     out_horizontal_bar_non_incl = _generate_nanoplot(
         y_vals=3432, all_single_y_vals=vals, plot_type="bar"
@@ -830,10 +886,14 @@ def test_nanoplot_output():
     assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "defs")
     assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "style")
 
+    # Test case 23: Line-based nanoplot with x-values
+
     out_data_lines_x_vals = _generate_nanoplot(y_vals=vals, x_vals=x_vals)
     assert _is_nanoplot_output(out_data_lines_x_vals)
     assert _nanoplot_has_tag(out_data_lines_x_vals, "defs")
     assert _nanoplot_has_tag(out_data_lines_x_vals, "style")
+
+    # Test case 24: Line-based nanoplot with no x-values (generates an empty string)
 
     out_data_lines_x_vals_empty = _generate_nanoplot(y_vals=vals, x_vals=[])
     assert out_data_lines_x_vals_empty == ""
