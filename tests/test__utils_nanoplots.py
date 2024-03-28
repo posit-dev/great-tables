@@ -2117,6 +2117,25 @@ def test_nanoplot_output():
         ],
     )
 
+    assert _nanoplot_has_tag_attrs(
+        out_horizontal_line,
+        tag="line",
+        attrs=[
+            ("x1", "0.0"),
+            ("y1", "65.0"),
+            ("stroke", "#4682B4"),
+            ("stroke-width", "8"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_horizontal_line,
+        tag="g",
+        attrs=[
+            ("class", "horizontal-line"),
+        ],
+    )
+
     # Test case 20: Horizontal line-based nanoplot with value not in `vals` list
 
     out_horizontal_line_non_incl = _generate_nanoplot(y_vals=3432, all_single_y_vals=vals)
@@ -2189,7 +2208,12 @@ def test_nanoplot_output():
     assert out_data_lines_x_vals_empty == ""
 
 
-@pytest.mark.xfail
 def test_nanoplot_x_y_vals_diff_length():
     with pytest.raises(ValueError):
         _generate_nanoplot(y_vals=[5.3, 6.3, 7.2], x_vals=[1, 2.5])
+
+
+@pytest.mark.xfail
+def test_nanoplot_unknown_plot_type():
+    with pytest.raises(ValueError):
+        _generate_nanoplot(y_vals=[1, 2, 3], plot_type="unknown")
