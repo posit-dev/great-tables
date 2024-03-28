@@ -727,6 +727,111 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_with_num_ref_line)
     assert _nanoplot_has_tag(out_with_num_ref_line, "defs")
     assert _nanoplot_has_tag(out_with_num_ref_line, "style")
+    assert _nanoplot_has_tag(out_with_num_ref_line, "path")
+    assert _nanoplot_has_tag(out_with_num_ref_line, "circle")
+    assert _nanoplot_has_tag(out_with_num_ref_line, "rect")
+    assert _nanoplot_has_tag(out_with_num_ref_line, "text")
+    assert _nanoplot_has_tag(out_with_num_ref_line, "line")
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_line,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_line,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_line,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_line,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_line,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_line,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_line,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_line,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_line,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("x1", "50.0"),
+            ("x2", "550"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
 
     # Test case 3: Line-based nanoplot w/ reference line (using keyword to generate value)
 
@@ -734,6 +839,110 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_with_kword_ref_line)
     assert _nanoplot_has_tag(out_with_kword_ref_line, "defs")
     assert _nanoplot_has_tag(out_with_kword_ref_line, "style")
+    assert _nanoplot_has_tag(out_with_kword_ref_line, "path")
+    assert _nanoplot_has_tag(out_with_kword_ref_line, "circle")
+    assert _nanoplot_has_tag(out_with_kword_ref_line, "rect")
+    assert _nanoplot_has_tag(out_with_kword_ref_line, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_line,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_line,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_line,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_line,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_line,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_line,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_line,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_line,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_line,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("x1", "50.0"),
+            ("x2", "550"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
 
     # Test case 4: Line nanoplot w/ ref area (using numbers to define limits)
 
@@ -741,6 +950,106 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_with_num_ref_area)
     assert _nanoplot_has_tag(out_with_num_ref_area, "defs")
     assert _nanoplot_has_tag(out_with_num_ref_area, "style")
+    assert _nanoplot_has_tag(out_with_num_ref_area, "path")
+    assert _nanoplot_has_tag(out_with_num_ref_area, "circle")
+    assert _nanoplot_has_tag(out_with_num_ref_area, "rect")
+    assert _nanoplot_has_tag(out_with_num_ref_area, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_area,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_area,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_area,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_area,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_area,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_area,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_area,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_area,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_num_ref_area,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
 
     # Test case 5: Line nanoplot w/ ref area (using numbers, descending order, to define limits)
 
@@ -748,6 +1057,11 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_with_num_ref_area_rev)
     assert _nanoplot_has_tag(out_with_num_ref_area_rev, "defs")
     assert _nanoplot_has_tag(out_with_num_ref_area_rev, "style")
+    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "path")
+    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "circle")
+    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "rect")
+    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "text")
+
     assert out_with_num_ref_area == out_with_num_ref_area_rev
 
     # Test case 6: Line nanoplot w/ ref area (using two keywords to define limits)
@@ -756,6 +1070,106 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_with_kword_ref_area)
     assert _nanoplot_has_tag(out_with_kword_ref_area, "defs")
     assert _nanoplot_has_tag(out_with_kword_ref_area, "style")
+    assert _nanoplot_has_tag(out_with_kword_ref_area, "path")
+    assert _nanoplot_has_tag(out_with_kword_ref_area, "circle")
+    assert _nanoplot_has_tag(out_with_kword_ref_area, "rect")
+    assert _nanoplot_has_tag(out_with_kword_ref_area, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_area,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_area,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_area,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_area,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_area,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_area,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_area,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_area,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_kword_ref_area,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
 
     # Test case 7: Line nanoplot w/ ref area (using two keywords to define limits; reversed order)
 
@@ -763,6 +1177,11 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_with_kword_ref_area_rev)
     assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "defs")
     assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "style")
+    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "path")
+    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "circle")
+    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "rect")
+    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "text")
+
     assert out_with_kword_ref_area == out_with_kword_ref_area_rev
 
     # Test case 8: Line nanoplot w/ ref area (using keywords + literal int value to define limits)
@@ -771,6 +1190,106 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_with_mixed_ref_area_1)
     assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "defs")
     assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "style")
+    assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "path")
+    assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "circle")
+    assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "rect")
+    assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_1,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_1,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_1,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_1,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_1,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_1,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_1,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_1,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_1,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
 
     # Test case 9: Line nanoplot w/ ref area (using keywords + literal int value to define limits)
 
@@ -778,6 +1297,106 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_with_mixed_ref_area_2)
     assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "defs")
     assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "style")
+    assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "path")
+    assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "circle")
+    assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "rect")
+    assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_2,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_2,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_2,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_2,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_2,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_2,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_2,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_2,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_mixed_ref_area_2,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
 
     # Test case 10: Line nanoplot w/ ref area and ref line
 
@@ -787,6 +1406,121 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_with_ref_line_and_area)
     assert _nanoplot_has_tag(out_with_ref_line_and_area, "defs")
     assert _nanoplot_has_tag(out_with_ref_line_and_area, "style")
+    assert _nanoplot_has_tag(out_with_ref_line_and_area, "path")
+    assert _nanoplot_has_tag(out_with_ref_line_and_area, "circle")
+    assert _nanoplot_has_tag(out_with_ref_line_and_area, "rect")
+    assert _nanoplot_has_tag(out_with_ref_line_and_area, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_ref_line_and_area,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_ref_line_and_area,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_ref_line_and_area,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_ref_line_and_area,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_ref_line_and_area,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_ref_line_and_area,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_ref_line_and_area,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_ref_line_and_area,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_ref_line_and_area,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_with_ref_line_and_area,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("x1", "50.0"),
+            ("x2", "550"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
 
     # Test case 11: Simple bar-based nanoplot
 
@@ -794,6 +1528,57 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_data_bars)
     assert _nanoplot_has_tag(out_data_bars, "defs")
     assert _nanoplot_has_tag(out_data_bars, "style")
+    assert _nanoplot_has_tag(out_data_bars, "path")
+    assert _nanoplot_has_tag(out_data_bars, "rect")
+    assert _nanoplot_has_tag(out_data_bars, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_bars,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_bars,
+        tag="rect",
+        attrs=[
+            ("x", "30.0"),
+            ("width", "40"),
+            ("height", "27.179487179487168"),
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_bars,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_data_bars,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
 
     # Test case 12: Bar nanoplot with a reference line (static numeric value)
 
@@ -801,6 +1586,72 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_bars_with_num_ref_line)
     assert _nanoplot_has_tag(out_bars_with_num_ref_line, "defs")
     assert _nanoplot_has_tag(out_bars_with_num_ref_line, "style")
+    assert _nanoplot_has_tag(out_bars_with_num_ref_line, "path")
+    assert _nanoplot_has_tag(out_bars_with_num_ref_line, "rect")
+    assert _nanoplot_has_tag(out_bars_with_num_ref_line, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_num_ref_line,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_num_ref_line,
+        tag="rect",
+        attrs=[
+            ("x", "30.0"),
+            ("width", "40"),
+            ("height", "27.179487179487168"),
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_num_ref_line,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_num_ref_line,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_num_ref_line,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("x1", "50.0"),
+            ("x2", "550"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
 
     # Test case 13: Bar nanoplot with a reference line (keyword to generate value)
 
@@ -810,6 +1661,72 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_bars_with_kword_ref_line)
     assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "defs")
     assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "style")
+    assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "path")
+    assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "rect")
+    assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_kword_ref_line,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_kword_ref_line,
+        tag="rect",
+        attrs=[
+            ("x", "30.0"),
+            ("width", "40"),
+            ("height", "27.179487179487168"),
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_kword_ref_line,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_kword_ref_line,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_kword_ref_line,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("x1", "50.0"),
+            ("x2", "550"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
 
     # Test case 14: Bar nanoplot with a reference area (using numbers to define limits)
 
@@ -819,6 +1736,68 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_bars_with_num_ref_area)
     assert _nanoplot_has_tag(out_bars_with_num_ref_area, "defs")
     assert _nanoplot_has_tag(out_bars_with_num_ref_area, "style")
+    assert _nanoplot_has_tag(out_bars_with_num_ref_area, "path")
+    assert _nanoplot_has_tag(out_bars_with_num_ref_area, "rect")
+    assert _nanoplot_has_tag(out_bars_with_num_ref_area, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_num_ref_area,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_num_ref_area,
+        tag="rect",
+        attrs=[
+            ("x", "30.0"),
+            ("width", "40"),
+            ("height", "27.179487179487168"),
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_num_ref_area,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_num_ref_area,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_num_ref_area,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
 
     # Test case 15: Bar nanoplot with a reference area (using keywords)
 
@@ -828,6 +1807,68 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_bars_with_kword_ref_area)
     assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "defs")
     assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "style")
+    assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "path")
+    assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "rect")
+    assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_kword_ref_area,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_kword_ref_area,
+        tag="rect",
+        attrs=[
+            ("x", "30.0"),
+            ("width", "40"),
+            ("height", "27.179487179487168"),
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_kword_ref_area,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_kword_ref_area,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_kword_ref_area,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
 
     # Test case 16: Bar nanoplot with a reference area (using keyword + literal int value)
 
@@ -837,6 +1878,68 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_bars_with_mixed_ref_area_1)
     assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "defs")
     assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "style")
+    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "path")
+    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "rect")
+    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_mixed_ref_area_1,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_mixed_ref_area_1,
+        tag="rect",
+        attrs=[
+            ("x", "30.0"),
+            ("width", "40"),
+            ("height", "27.179487179487168"),
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_mixed_ref_area_1,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_mixed_ref_area_1,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_mixed_ref_area_1,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
 
     # Test case 17: Bar nanoplot with a reference area (using keyword + literal float value)
 
@@ -846,6 +1949,68 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_bars_with_mixed_ref_area_2)
     assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "defs")
     assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "style")
+    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "path")
+    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "rect")
+    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_mixed_ref_area_2,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_mixed_ref_area_2,
+        tag="rect",
+        attrs=[
+            ("x", "30.0"),
+            ("width", "40"),
+            ("height", "27.179487179487168"),
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_mixed_ref_area_2,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_mixed_ref_area_2,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_mixed_ref_area_2,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
 
     # Test case 18: Bar nanoplot with a reference line and area
 
@@ -855,6 +2020,83 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_bars_with_ref_line_and_area)
     assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "defs")
     assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "style")
+    assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "path")
+    assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "rect")
+    assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_ref_line_and_area,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_ref_line_and_area,
+        tag="rect",
+        attrs=[
+            ("x", "30.0"),
+            ("width", "40"),
+            ("height", "27.179487179487168"),
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_ref_line_and_area,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_ref_line_and_area,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_ref_line_and_area,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        out_bars_with_ref_line_and_area,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("x1", "50.0"),
+            ("x2", "550"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
 
     # Test case 19: Horizontal line-based nanoplot
 
@@ -862,6 +2104,18 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_horizontal_line)
     assert _nanoplot_has_tag(out_horizontal_line, "defs")
     assert _nanoplot_has_tag(out_horizontal_line, "style")
+    assert _nanoplot_has_tag(out_horizontal_line, "path")
+    assert _nanoplot_has_tag(out_horizontal_line, "rect")
+    assert _nanoplot_has_tag(out_horizontal_line, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_horizontal_line,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
 
     # Test case 20: Horizontal line-based nanoplot with value not in `vals` list
 
@@ -869,6 +2123,18 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_horizontal_line_non_incl)
     assert _nanoplot_has_tag(out_horizontal_line_non_incl, "defs")
     assert _nanoplot_has_tag(out_horizontal_line_non_incl, "style")
+    assert _nanoplot_has_tag(out_horizontal_line_non_incl, "path")
+    assert _nanoplot_has_tag(out_horizontal_line_non_incl, "rect")
+    assert _nanoplot_has_tag(out_horizontal_line_non_incl, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_horizontal_line_non_incl,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
 
     # Test case 21: Horizontal bar-based nanoplot
 
@@ -876,6 +2142,18 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_horizontal_bar)
     assert _nanoplot_has_tag(out_horizontal_bar, "defs")
     assert _nanoplot_has_tag(out_horizontal_bar, "style")
+    assert _nanoplot_has_tag(out_horizontal_bar, "path")
+    assert _nanoplot_has_tag(out_horizontal_bar, "rect")
+    assert _nanoplot_has_tag(out_horizontal_bar, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_horizontal_bar,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
 
     # Test case 22: Horizontal bar-based nanoplot with value not in `vals` list
 
@@ -885,6 +2163,18 @@ def test_nanoplot_output():
     assert _is_nanoplot_output(out_horizontal_bar_non_incl)
     assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "defs")
     assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "style")
+    assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "path")
+    assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "rect")
+    assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "text")
+
+    assert _nanoplot_has_tag_attrs(
+        out_horizontal_bar_non_incl,
+        tag="svg",
+        attrs=[
+            ("role", "img"),
+            ("viewBox", "0 0 600 130"),
+        ],
+    )
 
     # Test case 23: Line-based nanoplot with x-values
 
