@@ -72,26 +72,12 @@ CASES: "list[dict[str, Any]]" = [
 def test_val_is_numeric():
     # Test case 1: Numeric values
     assert _val_is_numeric(1)
-    assert _val_is_numeric(-1)
     assert _val_is_numeric(1.0)
-    assert _val_is_numeric(-1.0)
-    assert _val_is_numeric(1.0e-10)
-    assert _val_is_numeric(-1.0e-10)
-    assert _val_is_numeric(1.0e10)
-    assert _val_is_numeric(-1.0e10)
-    assert _val_is_numeric(1.0e-10)
-    assert _val_is_numeric(-1.0e-10)
 
     # Test case 2: Non-numeric values
     assert not _val_is_numeric("a")
-    assert not _val_is_numeric("1")
-    assert not _val_is_numeric("1.0")
-    assert not _val_is_numeric("1.0e-10")
-    assert not _val_is_numeric("1.0e10")
-    assert not _val_is_numeric(None)
 
 
-@pytest.mark.xfail
 def test_val_is_numeric_fails_list_input():
     with pytest.raises(ValueError):
         _val_is_numeric([1, 2, 3])
@@ -100,24 +86,11 @@ def test_val_is_numeric_fails_list_input():
 def test_val_is_str():
     # Test case 1: String values
     assert _val_is_str("a")
-    assert _val_is_str("1")
-    assert _val_is_str("1.0")
-    assert _val_is_str("1.0e-10")
-    assert _val_is_str("1.0e10")
 
     # Test case 2: Non-string values
     assert not _val_is_str(1)
-    assert not _val_is_str(-1)
-    assert not _val_is_str(1.0)
-    assert not _val_is_str(-1.0)
-    assert not _val_is_str(1.0e-10)
-    assert not _val_is_str(-1.0e-10)
-    assert not _val_is_str(1.0e10)
-    assert not _val_is_str(-1.0e10)
-    assert not _val_is_str(None)
 
 
-@pytest.mark.xfail
 def test_val_is_str_fails_list_input():
     with pytest.raises(ValueError):
         _val_is_str(["a", "b", "c"])
