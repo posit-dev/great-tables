@@ -98,6 +98,15 @@ def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) 
     return option_list
 
 
+def calc_ref_value(val_or_calc: "int | float | str", data) -> Union[int, float]:
+    if _val_is_numeric(val_or_calc):
+        return val_or_calc
+    elif _val_is_str(val_or_calc) and val_or_calc in REFERENCE_LINE_KEYWORDS:
+        return _generate_ref_line_from_keyword(vals=data, keyword=val_or_calc)
+
+    raise ValueError(f"Unsupported nanoplot area value: {val_or_calc}")
+
+
 def _format_number_compactly(
     val: Union[int, float],
     currency: Optional[str] = None,
@@ -436,6 +445,9 @@ def _normalize_vals(
     return x
 
 
+# TODO: example nanoplot showing when jitter vals might be applied
+# Looks like it's on the x-axis:
+# GT(pd.DataFrame({'x': [{"x": [1, 1, 1], "y": [2, 3, 4]}]})).fmt_nanoplot("x")
 def _jitter_vals(x: List[Union[int, float]], amount: float) -> List[Union[int, float]]:
     """
     Jitter a list of numeric values by a small amount.
@@ -667,6 +679,8 @@ def _generate_nanoplot(
 
         # If `x` values are present, we cannot use a curved line so
         # we'll force the use of the 'straight' line type
+        # TODO: if someone specifies the options curved, and we can't do it
+        # then we should raise an error.
         line_type = "straight"
 
     # If `missing_vals` is set to 'gap' raise an error
@@ -755,6 +769,7 @@ def _generate_nanoplot(
     # number of data points)
     if x_vals is not None or single_horizontal_plot or plot_type == "boxplot":
         data_x_width = 600
+        # TODO: what should x_d be in this case?
     else:
         # Obtain a sensible, fixed interval between data points in px
         if num_y_vals <= 20:
@@ -812,37 +827,19 @@ def _generate_nanoplot(
         # Resolve the reference area
         #
 
-        if y_ref_area is not None:
-            y_ref_area_1 = y_ref_area[0]
-            y_ref_area_2 = y_ref_area[1]
+        # Note if y_ref_area were None, we would not be in this clause
+        y_ref_area_line_1 = calc_ref_value(y_ref_area[0], y_vals)
+        y_ref_area_line_2 = calc_ref_value(y_ref_area[1], y_vals)
 
-            if _val_is_numeric(y_ref_area_1):
-                y_ref_area_line_1 = y_ref_area_1
+        y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
+        y_ref_area_l = y_ref_area_lines_sorted[0]
+        y_ref_area_u = y_ref_area_lines_sorted[1]
 
-            if _val_is_numeric(y_ref_area_2):
-                y_ref_area_line_2 = y_ref_area_2
-
-            if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_1 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_1
-                )
-
-            if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_2 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_2
-                )
-
-            y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
-            y_ref_area_l = y_ref_area_lines_sorted[0]
-            y_ref_area_u = y_ref_area_lines_sorted[1]
+        _all_y_data = [y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y]
 
         # Recompute the `y` scale min and max values
-        y_scale_max = _get_extreme_value(
-            y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="max"
-        )
-        y_scale_min = _get_extreme_value(
-            y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="min"
-        )
+        y_scale_max = _get_extreme_value(*_all_y_data, stat="max")
+        y_scale_min = _get_extreme_value(*_all_y_data, stat="min")
 
         # Scale to proportional values
         y_proportions_list = _normalize_to_dict(
@@ -858,9 +855,6 @@ def _generate_nanoplot(
         y_proportion_ref_line = y_proportions_list["ref_line"][0]
         y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
         y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
-
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
 
         # Scale reference line and reference area boundaries
         data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
@@ -894,9 +888,6 @@ def _generate_nanoplot(
         y_proportions = y_proportions_list["vals"]
         y_proportion_ref_line = y_proportions_list["ref_line"][0]
 
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
-
         # Scale reference line
         data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
 
@@ -904,37 +895,22 @@ def _generate_nanoplot(
 
         # Case where there is a reference area
 
-        if y_ref_area is not None:
-            y_ref_area_1 = y_ref_area[0]
-            y_ref_area_2 = y_ref_area[1]
+        # Note if y_ref_area were None, we would not be in this clause
+        y_ref_area_line_1 = calc_ref_value(y_ref_area[0], y_vals)
+        y_ref_area_line_2 = calc_ref_value(y_ref_area[1], y_vals)
 
-            if _val_is_numeric(y_ref_area_1):
-                y_ref_area_line_1 = y_ref_area_1
-
-            if _val_is_numeric(y_ref_area_2):
-                y_ref_area_line_2 = y_ref_area_2
-
-            if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_1 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_1
-                )
-            if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_2 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_2
-                )
-
-            y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
-            y_ref_area_l = y_ref_area_lines_sorted[0]
-            y_ref_area_u = y_ref_area_lines_sorted[1]
+        y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
+        y_ref_area_l = y_ref_area_lines_sorted[0]
+        y_ref_area_u = y_ref_area_lines_sorted[1]
 
         # Recompute the `y` scale min and max values
 
         # Recompute the `y` scale min and max values
-        args = [y_vals, y_ref_area_l, y_ref_area_u, expand_y] + (
+        _all_y_data = [y_vals, y_ref_area_l, y_ref_area_u, expand_y] + (
             [0] if zero_line_considered else []
         )
-        y_scale_max = _get_extreme_value(*args, stat="max")
-        y_scale_min = _get_extreme_value(*args, stat="min")
+        y_scale_max = _get_extreme_value(*_all_y_data, stat="max")
+        y_scale_min = _get_extreme_value(*_all_y_data, stat="min")
 
         y_proportions_list = _normalize_to_dict(
             vals=y_vals,
@@ -947,9 +923,6 @@ def _generate_nanoplot(
         y_proportions = y_proportions_list["vals"]
         y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
         y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
-
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
 
         # Scale reference area boundaries
         data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
@@ -972,11 +945,9 @@ def _generate_nanoplot(
 
         y_proportions = y_proportions_list["vals"]
 
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
-
     # Calculate the `data_y0_point` value for zero-line-inclusive plots
     if zero_line_considered:
+        y_proportions_zero = y_proportions_list["zero"][0]
         data_y0_point = safe_y_d + ((1 - y_proportions_zero) * data_y_height)
 
     # If x values are present then normalize them between [0, 1]; if

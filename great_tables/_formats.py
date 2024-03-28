@@ -15,7 +15,7 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
-from ._tbl_data import PlExpr, SelectExpr
+from ._tbl_data import PlExpr, SelectExpr, is_na
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
 from ._locations import resolve_rows_i, resolve_cols_c
@@ -3710,12 +3710,12 @@ def fmt_nanoplot(
     if plot_type in ["line", "bar"] and scalar_vals:
 
         # Check each cell in the column and get each of them that contains a scalar value
-        all_single_y_vals = []
-
-        single_y_vals = data_tbl[columns].apply(
-            lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+        # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
+        all_single_y_vals = list(
+            data_tbl[columns].apply(
+                lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+            )
         )
-        all_single_y_vals.extend(single_y_vals)
 
         autoscale = False
 
@@ -3734,20 +3734,20 @@ def fmt_nanoplot(
 
         from great_tables._utils_nanoplots import _flatten_list
 
-        all_y_vals_raw = []
-
-        col_i_y_vals_raw = data_tbl[columns].apply(
-            lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+        # TODO: if a column of delimiter separated strings is passed. E.g. "1 2 3 4". Does this mean
+        # that autoscale does not work? In this case, is col_i_y_vals_raw a string that gets processed?
+        # downstream?
+        all_y_vals_raw = list(
+            data_tbl[columns].apply(
+                lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+            )
         )
-
-        all_y_vals_raw.extend(col_i_y_vals_raw)
 
         all_y_vals = []
 
-        for i in range(len(all_y_vals_raw)):
-
-            data_vals_i = all_y_vals_raw[i]
-
+        for i, data_vals_i in enumerate(all_y_vals_raw):
+            # TODO: this dictionary handling seems redundant with _generate_data_vals dict handling?
+            # Can this if-clause be removed?
             if isinstance(data_vals_i, dict):
 
                 if len(data_vals_i) == 1:
@@ -3783,20 +3783,19 @@ def fmt_nanoplot(
         missing_vals: MissingVals = missing_vals,
         reference_line: Optional[Union[str, int, float]] = reference_line,
         reference_area: Optional[List[Any]] = reference_area,
-        expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_x,
-        expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = expand_y,
-        all_single_y_vals: Optional[
-            Union[List[Union[int, float]], List[int], List[float]]
-        ] = all_single_y_vals,
+        all_single_y_vals: Optional[List[Union[int, float]]] = all_single_y_vals,
         options_plots: Dict[str, Any] = options_plots,
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # We have to pass in a dataframe to this function. Everything action that
+        # requires a dataframe import should go through _tbl_data.
+        if is_na(data_tbl, x):
             return x
 
         # Generate data vals from the input `x` value
         x = _generate_data_vals(data_vals=x)
 
+        # TODO: where are tuples coming from? Need example / tests that induce tuples
         # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
         if isinstance(x, tuple):
 
@@ -3829,37 +3828,8 @@ def fmt_nanoplot(
             missing_vals=missing_vals,
             all_single_y_vals=all_single_y_vals,
             plot_type=plot_type,
-            line_type=options_plots["data_line_type"],
-            currency=options_plots["currency"],
-            y_val_fmt_fn=options_plots["y_val_fmt_fn"],
-            y_axis_fmt_fn=options_plots["y_axis_fmt_fn"],
-            y_ref_line_fmt_fn=options_plots["y_ref_line_fmt_fn"],
-            data_point_radius=options_plots["data_point_radius"],
-            data_point_stroke_color=options_plots["data_point_stroke_color"],
-            data_point_stroke_width=options_plots["data_point_stroke_width"],
-            data_point_fill_color=options_plots["data_point_fill_color"],
-            data_line_stroke_color=options_plots["data_line_stroke_color"],
-            data_line_stroke_width=options_plots["data_line_stroke_width"],
-            data_area_fill_color=options_plots["data_area_fill_color"],
-            data_bar_stroke_color=options_plots["data_bar_stroke_color"],
-            data_bar_stroke_width=options_plots["data_bar_stroke_width"],
-            data_bar_fill_color=options_plots["data_bar_fill_color"],
-            data_bar_negative_stroke_color=options_plots["data_bar_negative_stroke_color"],
-            data_bar_negative_stroke_width=options_plots["data_bar_negative_stroke_width"],
-            data_bar_negative_fill_color=options_plots["data_bar_negative_fill_color"],
-            reference_line_color=options_plots["reference_line_color"],
-            reference_area_fill_color=options_plots["reference_area_fill_color"],
-            vertical_guide_stroke_color=options_plots["vertical_guide_stroke_color"],
-            vertical_guide_stroke_width=options_plots["vertical_guide_stroke_width"],
-            show_data_points=options_plots["show_data_points"],
-            show_data_line=options_plots["show_data_line"],
-            show_data_area=options_plots["show_data_area"],
-            show_ref_line=options_plots["show_reference_line"],
-            show_ref_area=options_plots["show_reference_area"],
-            show_vertical_guides=options_plots["show_vertical_guides"],
-            show_y_axis_guide=options_plots["show_y_axis_guide"],
-            interactive_data_values=options_plots["interactive_data_values"],
             svg_height=plot_height,
+            **options_plots,
         )
 
         return nanoplot
@@ -3867,7 +3837,9 @@ def fmt_nanoplot(
     return fmt(self, fns=fmt_nanoplot_fn, columns=columns, rows=rows)
 
 
-def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float], List[float]]]:
+def _generate_data_vals(
+    data_vals: Any, is_x_axis=False
+) -> Union[List[float], Tuple[List[float], List[float]]]:
     """
     Generate a list of data values from the input data.
 
@@ -3884,6 +3856,8 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
 
         # If the list contains string values, determine whether they are date values
         if all(isinstance(val, str) for val in data_vals):
+            if not is_x_axis:
+                raise ValueError("Only the x-axis of a nanoplot allows strings.")
             if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals[0]):
                 data_vals = [_iso_to_date(val) for val in data_vals]
 
@@ -3895,7 +3869,7 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
         # Check that the values within the list are numeric; missing values are allowed
         for val in data_vals:
             if val is not None and not isinstance(val, (int, float)):
-                raise ValueError("The input data values must be numeric.")
+                raise ValueError(f"The input data values must be numeric.\n\nValue received: {val}")
 
         return data_vals
 
@@ -3907,7 +3881,7 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
         # If the cell value is a string, assume it is a value stream and convert to a list
 
         # Detect whether there are time values or numeric values in the string
-        if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals):
+        if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals) and is_x_axis:
             data_vals = _process_time_stream(data_vals)
         else:
             data_vals = _process_number_stream(data_vals)
@@ -3937,7 +3911,7 @@ def _generate_data_vals(data_vals: Any) -> Union[List[float], Tuple[List[float],
                 y_vals: Any = data_vals["y"]
 
                 # The data values can be anything, so recursively call this function to process them
-                x_vals = _generate_data_vals(data_vals=x_vals)
+                x_vals = _generate_data_vals(data_vals=x_vals, is_x_axis=True)
                 y_vals = _generate_data_vals(data_vals=y_vals)
 
                 # Ensure that the lengths of the x and y values are the same
