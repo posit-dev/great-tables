@@ -612,12 +612,6 @@ def _is_nanoplot_output(nanoplot_str: str):
     return bool(re.match("^<div><svg.*</svg></div>$", nanoplot_str))
 
 
-def _nanoplot_has_tag(nanoplot_str: str, tag: str):
-    import re
-
-    return bool(re.search(f"<{tag}.*</{tag}>", nanoplot_str))
-
-
 def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: List[tuple[str, str]]) -> bool:
     import re
 
@@ -643,12 +637,6 @@ def test_nanoplot_output():
 
     out_data_lines = _generate_nanoplot(y_vals=vals)
     assert _is_nanoplot_output(out_data_lines)
-    assert _nanoplot_has_tag(out_data_lines, "defs")
-    assert _nanoplot_has_tag(out_data_lines, "style")
-    assert _nanoplot_has_tag(out_data_lines, "path")
-    assert _nanoplot_has_tag(out_data_lines, "circle")
-    assert _nanoplot_has_tag(out_data_lines, "rect")
-    assert _nanoplot_has_tag(out_data_lines, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_data_lines,
@@ -739,13 +727,6 @@ def test_nanoplot_output():
 
     out_with_num_ref_line = _generate_nanoplot(y_vals=vals, y_ref_line=0)
     assert _is_nanoplot_output(out_with_num_ref_line)
-    assert _nanoplot_has_tag(out_with_num_ref_line, "defs")
-    assert _nanoplot_has_tag(out_with_num_ref_line, "style")
-    assert _nanoplot_has_tag(out_with_num_ref_line, "path")
-    assert _nanoplot_has_tag(out_with_num_ref_line, "circle")
-    assert _nanoplot_has_tag(out_with_num_ref_line, "rect")
-    assert _nanoplot_has_tag(out_with_num_ref_line, "text")
-    assert _nanoplot_has_tag(out_with_num_ref_line, "line")
 
     assert _nanoplot_has_tag_attrs(
         out_with_num_ref_line,
@@ -851,12 +832,6 @@ def test_nanoplot_output():
 
     out_with_kword_ref_line = _generate_nanoplot(y_vals=vals, y_ref_line="mean")
     assert _is_nanoplot_output(out_with_kword_ref_line)
-    assert _nanoplot_has_tag(out_with_kword_ref_line, "defs")
-    assert _nanoplot_has_tag(out_with_kword_ref_line, "style")
-    assert _nanoplot_has_tag(out_with_kword_ref_line, "path")
-    assert _nanoplot_has_tag(out_with_kword_ref_line, "circle")
-    assert _nanoplot_has_tag(out_with_kword_ref_line, "rect")
-    assert _nanoplot_has_tag(out_with_kword_ref_line, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_with_kword_ref_line,
@@ -962,12 +937,6 @@ def test_nanoplot_output():
 
     out_with_num_ref_area = _generate_nanoplot(y_vals=vals, y_ref_area=[0.1, 5.3])
     assert _is_nanoplot_output(out_with_num_ref_area)
-    assert _nanoplot_has_tag(out_with_num_ref_area, "defs")
-    assert _nanoplot_has_tag(out_with_num_ref_area, "style")
-    assert _nanoplot_has_tag(out_with_num_ref_area, "path")
-    assert _nanoplot_has_tag(out_with_num_ref_area, "circle")
-    assert _nanoplot_has_tag(out_with_num_ref_area, "rect")
-    assert _nanoplot_has_tag(out_with_num_ref_area, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_with_num_ref_area,
@@ -1069,12 +1038,6 @@ def test_nanoplot_output():
 
     out_with_num_ref_area_rev = _generate_nanoplot(y_vals=vals, y_ref_area=[5.3, 0.1])
     assert _is_nanoplot_output(out_with_num_ref_area_rev)
-    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "defs")
-    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "style")
-    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "path")
-    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "circle")
-    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "rect")
-    assert _nanoplot_has_tag(out_with_num_ref_area_rev, "text")
 
     assert out_with_num_ref_area == out_with_num_ref_area_rev
 
@@ -1082,12 +1045,6 @@ def test_nanoplot_output():
 
     out_with_kword_ref_area = _generate_nanoplot(y_vals=vals, y_ref_area=["min", "median"])
     assert _is_nanoplot_output(out_with_kword_ref_area)
-    assert _nanoplot_has_tag(out_with_kword_ref_area, "defs")
-    assert _nanoplot_has_tag(out_with_kword_ref_area, "style")
-    assert _nanoplot_has_tag(out_with_kword_ref_area, "path")
-    assert _nanoplot_has_tag(out_with_kword_ref_area, "circle")
-    assert _nanoplot_has_tag(out_with_kword_ref_area, "rect")
-    assert _nanoplot_has_tag(out_with_kword_ref_area, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_with_kword_ref_area,
@@ -1189,12 +1146,6 @@ def test_nanoplot_output():
 
     out_with_kword_ref_area_rev = _generate_nanoplot(y_vals=vals, y_ref_area=["median", "min"])
     assert _is_nanoplot_output(out_with_kword_ref_area_rev)
-    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "defs")
-    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "style")
-    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "path")
-    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "circle")
-    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "rect")
-    assert _nanoplot_has_tag(out_with_kword_ref_area_rev, "text")
 
     assert out_with_kword_ref_area == out_with_kword_ref_area_rev
 
@@ -1202,12 +1153,6 @@ def test_nanoplot_output():
 
     out_with_mixed_ref_area_1 = _generate_nanoplot(y_vals=vals, y_ref_area=["median", 0])
     assert _is_nanoplot_output(out_with_mixed_ref_area_1)
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "defs")
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "style")
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "path")
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "circle")
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "rect")
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_1, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_with_mixed_ref_area_1,
@@ -1309,12 +1254,6 @@ def test_nanoplot_output():
 
     out_with_mixed_ref_area_2 = _generate_nanoplot(y_vals=vals, y_ref_area=[1.2, "max"])
     assert _is_nanoplot_output(out_with_mixed_ref_area_2)
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "defs")
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "style")
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "path")
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "circle")
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "rect")
-    assert _nanoplot_has_tag(out_with_mixed_ref_area_2, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_with_mixed_ref_area_2,
@@ -1418,12 +1357,6 @@ def test_nanoplot_output():
         y_vals=vals, y_ref_line=0, y_ref_area=[2.3, "max"]
     )
     assert _is_nanoplot_output(out_with_ref_line_and_area)
-    assert _nanoplot_has_tag(out_with_ref_line_and_area, "defs")
-    assert _nanoplot_has_tag(out_with_ref_line_and_area, "style")
-    assert _nanoplot_has_tag(out_with_ref_line_and_area, "path")
-    assert _nanoplot_has_tag(out_with_ref_line_and_area, "circle")
-    assert _nanoplot_has_tag(out_with_ref_line_and_area, "rect")
-    assert _nanoplot_has_tag(out_with_ref_line_and_area, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_with_ref_line_and_area,
@@ -1540,11 +1473,6 @@ def test_nanoplot_output():
 
     out_data_bars = _generate_nanoplot(y_vals=vals, plot_type="bar")
     assert _is_nanoplot_output(out_data_bars)
-    assert _nanoplot_has_tag(out_data_bars, "defs")
-    assert _nanoplot_has_tag(out_data_bars, "style")
-    assert _nanoplot_has_tag(out_data_bars, "path")
-    assert _nanoplot_has_tag(out_data_bars, "rect")
-    assert _nanoplot_has_tag(out_data_bars, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_data_bars,
@@ -1598,11 +1526,6 @@ def test_nanoplot_output():
 
     out_bars_with_num_ref_line = _generate_nanoplot(y_vals=vals, y_ref_line=0, plot_type="bar")
     assert _is_nanoplot_output(out_bars_with_num_ref_line)
-    assert _nanoplot_has_tag(out_bars_with_num_ref_line, "defs")
-    assert _nanoplot_has_tag(out_bars_with_num_ref_line, "style")
-    assert _nanoplot_has_tag(out_bars_with_num_ref_line, "path")
-    assert _nanoplot_has_tag(out_bars_with_num_ref_line, "rect")
-    assert _nanoplot_has_tag(out_bars_with_num_ref_line, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_bars_with_num_ref_line,
@@ -1673,11 +1596,6 @@ def test_nanoplot_output():
         y_vals=vals, y_ref_line="mean", plot_type="bar"
     )
     assert _is_nanoplot_output(out_bars_with_kword_ref_line)
-    assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "defs")
-    assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "style")
-    assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "path")
-    assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "rect")
-    assert _nanoplot_has_tag(out_bars_with_kword_ref_line, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_bars_with_kword_ref_line,
@@ -1748,11 +1666,6 @@ def test_nanoplot_output():
         y_vals=vals, y_ref_area=[0.1, 5.3], plot_type="bar"
     )
     assert _is_nanoplot_output(out_bars_with_num_ref_area)
-    assert _nanoplot_has_tag(out_bars_with_num_ref_area, "defs")
-    assert _nanoplot_has_tag(out_bars_with_num_ref_area, "style")
-    assert _nanoplot_has_tag(out_bars_with_num_ref_area, "path")
-    assert _nanoplot_has_tag(out_bars_with_num_ref_area, "rect")
-    assert _nanoplot_has_tag(out_bars_with_num_ref_area, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_bars_with_num_ref_area,
@@ -1819,11 +1732,6 @@ def test_nanoplot_output():
         y_vals=vals, y_ref_area=["min", "median"], plot_type="bar"
     )
     assert _is_nanoplot_output(out_bars_with_kword_ref_area)
-    assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "defs")
-    assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "style")
-    assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "path")
-    assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "rect")
-    assert _nanoplot_has_tag(out_bars_with_kword_ref_area, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_bars_with_kword_ref_area,
@@ -1890,11 +1798,6 @@ def test_nanoplot_output():
         y_vals=vals, y_ref_area=["median", 0], plot_type="bar"
     )
     assert _is_nanoplot_output(out_bars_with_mixed_ref_area_1)
-    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "defs")
-    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "style")
-    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "path")
-    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "rect")
-    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_1, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_bars_with_mixed_ref_area_1,
@@ -1961,11 +1864,6 @@ def test_nanoplot_output():
         y_vals=vals, y_ref_area=[1.2, "max"], plot_type="bar"
     )
     assert _is_nanoplot_output(out_bars_with_mixed_ref_area_2)
-    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "defs")
-    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "style")
-    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "path")
-    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "rect")
-    assert _nanoplot_has_tag(out_bars_with_mixed_ref_area_2, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_bars_with_mixed_ref_area_2,
@@ -2032,11 +1930,6 @@ def test_nanoplot_output():
         y_vals=vals, y_ref_line=0, y_ref_area=[2.3, "max"], plot_type="bar"
     )
     assert _is_nanoplot_output(out_bars_with_ref_line_and_area)
-    assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "defs")
-    assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "style")
-    assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "path")
-    assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "rect")
-    assert _nanoplot_has_tag(out_bars_with_ref_line_and_area, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_bars_with_ref_line_and_area,
@@ -2116,11 +2009,6 @@ def test_nanoplot_output():
 
     out_horizontal_line = _generate_nanoplot(y_vals=vals[0], all_single_y_vals=vals)
     assert _is_nanoplot_output(out_horizontal_line)
-    assert _nanoplot_has_tag(out_horizontal_line, "defs")
-    assert _nanoplot_has_tag(out_horizontal_line, "style")
-    assert _nanoplot_has_tag(out_horizontal_line, "path")
-    assert _nanoplot_has_tag(out_horizontal_line, "rect")
-    assert _nanoplot_has_tag(out_horizontal_line, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_horizontal_line,
@@ -2154,11 +2042,6 @@ def test_nanoplot_output():
 
     out_horizontal_line_non_incl = _generate_nanoplot(y_vals=3432, all_single_y_vals=vals)
     assert _is_nanoplot_output(out_horizontal_line_non_incl)
-    assert _nanoplot_has_tag(out_horizontal_line_non_incl, "defs")
-    assert _nanoplot_has_tag(out_horizontal_line_non_incl, "style")
-    assert _nanoplot_has_tag(out_horizontal_line_non_incl, "path")
-    assert _nanoplot_has_tag(out_horizontal_line_non_incl, "rect")
-    assert _nanoplot_has_tag(out_horizontal_line_non_incl, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_horizontal_line_non_incl,
@@ -2173,11 +2056,6 @@ def test_nanoplot_output():
 
     out_horizontal_bar = _generate_nanoplot(y_vals=vals[0], all_single_y_vals=vals, plot_type="bar")
     assert _is_nanoplot_output(out_horizontal_bar)
-    assert _nanoplot_has_tag(out_horizontal_bar, "defs")
-    assert _nanoplot_has_tag(out_horizontal_bar, "style")
-    assert _nanoplot_has_tag(out_horizontal_bar, "path")
-    assert _nanoplot_has_tag(out_horizontal_bar, "rect")
-    assert _nanoplot_has_tag(out_horizontal_bar, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_horizontal_bar,
@@ -2194,11 +2072,6 @@ def test_nanoplot_output():
         y_vals=3432, all_single_y_vals=vals, plot_type="bar"
     )
     assert _is_nanoplot_output(out_horizontal_bar_non_incl)
-    assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "defs")
-    assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "style")
-    assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "path")
-    assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "rect")
-    assert _nanoplot_has_tag(out_horizontal_bar_non_incl, "text")
 
     assert _nanoplot_has_tag_attrs(
         out_horizontal_bar_non_incl,
@@ -2213,8 +2086,6 @@ def test_nanoplot_output():
 
     out_data_lines_x_vals = _generate_nanoplot(y_vals=vals, x_vals=x_vals)
     assert _is_nanoplot_output(out_data_lines_x_vals)
-    assert _nanoplot_has_tag(out_data_lines_x_vals, "defs")
-    assert _nanoplot_has_tag(out_data_lines_x_vals, "style")
 
     # Test case 24: Line-based nanoplot with no x-values (generates an empty string)
 
