@@ -27,6 +27,47 @@ from typing import List, Union, Any
 
 # TODO: need tests of all utils_nanoplot functions
 
+Y_VALS: "list[int | float]" = [-5.3, 6.3, -2.3, 0, 2.3, 6.7, 14.2, 0, 2.3, 13.3]
+X_VALS = [1.2, 3.4, 4.2, 5.0, 5.8, 6.7, 8.3, 10.2, 10.9, 12.2]
+
+# TODO:
+#   * create a function for each test case in test_nanoplot_output
+#   * if it seems helpful, you could make CASES a dictionary, so the
+#     key is an informative message
+#   * let's remove the individual "does this tag exist" checks
+#   * if necessary, include a _nanoplot_has_tag call inside_nanoplot_has_tag_attrs
+CASES: "list[dict[str, Any]]" = [
+    dict(y_vals=Y_VALS),
+    dict(y_vals=Y_VALS, y_ref_line=0),
+    dict(y_vals=Y_VALS, y_ref_line="mean"),
+    dict(y_vals=Y_VALS, y_ref_area=[0.1, 5.3]),
+    # could test that its output is equiv to above
+    dict(y_vals=Y_VALS, y_ref_area=[5.3, 0.1]),
+    dict(y_vals=Y_VALS, y_ref_area=["min", "median"]),
+    # could test that its output is equiv to above
+    dict(y_vals=Y_VALS, y_ref_area=["median", "min"]),
+    dict(y_vals=Y_VALS, y_ref_area=["median", 0]),
+    # dict(y_vals=vals, y_ref_area=[1.2, "max"]),
+    # change above to below, test equiv to earlier median one
+    dict(y_vals=Y_VALS, y_ref_area=[0, "median"]),
+    dict(y_vals=Y_VALS, y_ref_line=0, y_ref_area=[2.3, "max"]),
+    dict(y_vals=Y_VALS, plot_type="bar"),
+    dict(y_vals=Y_VALS, y_ref_line=0, plot_type="bar"),
+    dict(y_vals=Y_VALS, y_ref_line="mean", plot_type="bar"),
+    dict(y_vals=Y_VALS, y_ref_area=[0.1, 5.3], plot_type="bar"),
+    dict(y_vals=Y_VALS, y_ref_area=["min", "median"], plot_type="bar"),
+    dict(y_vals=Y_VALS, y_ref_area=["median", 0], plot_type="bar"),
+    dict(y_vals=Y_VALS, y_ref_area=[1.2, "max"], plot_type="bar"),
+    dict(y_vals=Y_VALS, y_ref_line=0, y_ref_area=[2.3, "max"], plot_type="bar"),
+    dict(y_vals=Y_VALS[0], all_single_y_vals=Y_VALS),
+    dict(y_vals=3432, all_single_y_vals=Y_VALS),
+    dict(y_vals=Y_VALS[0], all_single_y_vals=Y_VALS, plot_type="bar"),
+    # below is impossible in fmt_nanoplot, but is possible inside _generate_nanoplot
+    dict(y_vals=3432, all_single_y_vals=Y_VALS, plot_type="bar"),
+    dict(y_vals=Y_VALS, x_vals=X_VALS),
+    dict(y_vals=Y_VALS, x_vals=[]),
+]
+
 
 def test_val_is_numeric():
     # Test case 1: Numeric values
