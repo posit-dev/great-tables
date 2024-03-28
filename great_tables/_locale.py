@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import Optional
-import pandas as pd
 import pkg_resources
+from ._tbl_data import DataFrameLike
+from .data import read_csv
 
 
 class Locale:
@@ -13,8 +14,10 @@ class Locale:
         self._locale = locale
 
 
-def _get_locales_data() -> pd.DataFrame:
-    _x_locales_fname = pkg_resources.resource_filename("great_tables.data", "x_locales.csv")
+def _get_locales_data() -> DataFrameLike:
+    _x_locales_fname = pkg_resources.resource_filename(
+        "great_tables.data", "x_locales.csv"
+    )
     _x_locales_dtype = {
         "locale": "object",
         "lang_name": "object",
@@ -64,11 +67,11 @@ def _get_locales_data() -> pd.DataFrame:
         "page_jump_label_text": "object",
         "page_size_options_label_text": "object",
     }
-    __x_locales: pd.DataFrame = pd.read_csv(_x_locales_fname, dtype=_x_locales_dtype)
+    __x_locales: DataFrameLike = read_csv(_x_locales_fname, dtype=_x_locales_dtype)
     return __x_locales
 
 
-def _get_default_locales_data() -> pd.DataFrame:
+def _get_default_locales_data() -> DataFrameLike:
     _x_default_locales_fname = pkg_resources.resource_filename(
         "great_tables.data", "x_default_locales.csv"
     )
@@ -76,14 +79,16 @@ def _get_default_locales_data() -> pd.DataFrame:
         "default_locale": "object",
         "base_locale": "object",
     }
-    __x_default_locales: pd.DataFrame = pd.read_csv(
+    __x_default_locales: DataFrameLike = read_csv(
         _x_default_locales_fname, dtype=_x_default_locales_dtype
     )
     return __x_default_locales
 
 
-def _get_currencies_data() -> pd.DataFrame:
-    _x_currencies_fname = pkg_resources.resource_filename("great_tables.data", "x_currencies.csv")
+def _get_currencies_data() -> DataFrameLike:
+    _x_currencies_fname = pkg_resources.resource_filename(
+        "great_tables.data", "x_currencies.csv"
+    )
     _x_currencies_dtype = {
         "curr_code": "object",
         "curr_number": "object",
@@ -91,5 +96,7 @@ def _get_currencies_data() -> pd.DataFrame:
         "curr_name": "object",
         "symbol": "object",
     }
-    __x_currencies: pd.DataFrame = pd.read_csv(_x_currencies_fname, dtype=_x_currencies_dtype)
+    __x_currencies: DataFrameLike = read_csv(
+        _x_currencies_fname, dtype=_x_currencies_dtype
+    )
     return __x_currencies

@@ -1,5 +1,39 @@
-import pandas as pd
 import pkg_resources
+import sys
+from .._tbl_data import DataFrameLike
+
+no_polars = no_pandas = False
+
+
+# def here with pass for typing then overload it
+def read_csv(path, dtype: dict, **kwargs) -> DataFrameLike:
+    pass
+
+
+# If polars has already been imported then skip pandas
+if "polars" not in sys.modules:
+    try:
+        import pandas as pd
+
+        read_csv = pd.read_csv
+    except ModuleNotFoundError:
+        no_pandas = True
+
+if "pandas" not in sys.modules:
+    try:
+        import polars as pl
+
+        ## ignore the dtype parameter intended for pandas
+        def _read_csv(x, **kwargs):
+            return pl.read_csv(x)
+
+        read_csv = _read_csv
+    except ModuleNotFoundError:
+        no_polars = True
+
+
+if no_polars and no_pandas:
+    raise ModuleNotFoundError("No module named 'pandas' or 'polars'")
 
 DATA_MOD = "great_tables.data"
 
@@ -146,7 +180,7 @@ _illness_dtype = {
 _islands_fname = pkg_resources.resource_filename(DATA_MOD, "11-islands.csv")
 _airquality_fname = pkg_resources.resource_filename(DATA_MOD, "x-airquality.csv")
 
-countrypops: pd.DataFrame = pd.read_csv(_countrypops_fname, dtype=_countrypops_dtype)  # type: ignore
+countrypops: DataFrameLike = read_csv(_countrypops_fname, dtype=_countrypops_dtype)
 countrypops.__doc__ = """
 Yearly populations of countries from 1960 to 2022.
 
@@ -171,7 +205,7 @@ Source
 """
 
 
-sza: pd.DataFrame = pd.read_csv(_sza_fname, dtype=_sza_dtype)  # type: ignore
+sza: DataFrameLike = read_csv(_sza_fname, dtype=_sza_dtype)
 sza.__doc__ = """
 Twice hourly solar zenith angles by month & latitude.
 
@@ -208,7 +242,7 @@ Calculated Actinic Fluxes (290 - 700 nm) for Air Pollution Photochemistry Applic
 """
 
 
-gtcars: pd.DataFrame = pd.read_csv(_gtcars_fname, dtype=_gtcars_dtype)  # type: ignore
+gtcars: DataFrameLike = read_csv(_gtcars_fname, dtype=_gtcars_dtype)
 gtcars.__doc__ = """
 Deluxe automobiles from the 2014-2017 period.
 
@@ -245,7 +279,7 @@ between both types (`"am"`), or, direct drive (`"dd"`)
 """
 
 
-sp500: pd.DataFrame = pd.read_csv(_sp500_fname, dtype=_sp500_dtype)  # type: ignore
+sp500: DataFrameLike = read_csv(_sp500_fname, dtype=_sp500_dtype)
 sp500.__doc__ = """
 Daily S&P 500 Index data from 1950 to 2015.
 
@@ -265,7 +299,7 @@ price is adjusted for splits.
 """
 
 
-pizzaplace: pd.DataFrame = pd.read_csv(_pizzaplace_fname, dtype=_pizzaplace_dtype)  # type: ignore
+pizzaplace: DataFrameLike = read_csv(_pizzaplace_fname, dtype=_pizzaplace_dtype)
 pizzaplace.__doc__ = """
 A year of pizza sales from a pizza place.
 
@@ -368,7 +402,7 @@ or `"veggie"`.
 """
 
 
-exibble: pd.DataFrame = pd.read_csv(_exibble_fname, dtype=_exibble_dtype)  # type: ignore
+exibble: DataFrameLike = read_csv(_exibble_fname, dtype=_exibble_dtype)
 exibble.__doc__ = """
 A toy example table for testing with great_tables: exibble.
 
@@ -395,7 +429,7 @@ for testing tables that contain row groups.
 """
 
 
-towny: pd.DataFrame = pd.read_csv(_towny_fname, dtype=_towny_dtype)  # type: ignore
+towny: DataFrameLike = read_csv(_towny_fname, dtype=_towny_dtype)
 towny.__doc__ = """
 Populations of all municipalities in Ontario from 1996 to 2021.
 
@@ -441,7 +475,7 @@ of census years, from 1996 to 2021.
 """
 
 
-metro: pd.DataFrame = pd.read_csv(_metro_fname, dtype=_metro_dtype)  # type: ignore
+metro: DataFrameLike = read_csv(_metro_fname, dtype=_metro_dtype)
 metro.__doc__ = """
 The stations of the Paris Metro.
 
@@ -489,7 +523,7 @@ series.
 in the Metro system do not have this data, thus they show as missing values.
 """
 
-constants: pd.DataFrame = pd.read_csv(_constants_fname, dtype=_constants_dtype)  # type: ignore
+constants: DataFrameLike = read_csv(_constants_fname, dtype=_constants_dtype)
 constants.__doc__ = """
 The fundamental physical constants.
 
@@ -515,7 +549,7 @@ uncertainty value.
 """
 
 
-illness: pd.DataFrame = pd.read_csv(_illness_fname, dtype=_illness_dtype)  # type: ignore
+illness: DataFrameLike = read_csv(_illness_fname, dtype=_illness_dtype)
 illness.__doc__ = """
 Lab tests for one suffering from an illness.
 
@@ -581,8 +615,8 @@ performed that day.
 - `norm_l`, `norm_u`: Lower and upper bounds for the normal range associated with the test.
 """
 
-islands: pd.DataFrame = pd.read_csv(_islands_fname)  # type: ignore
-airquality: pd.DataFrame = pd.read_csv(_airquality_fname)  # type: ignore
+islands: DataFrameLike = read_csv(_islands_fname)
+airquality: DataFrameLike = read_csv(_airquality_fname)
 
 
 _x_locales_fname = pkg_resources.resource_filename(DATA_MOD, "x_locales.csv")
@@ -641,4 +675,4 @@ _x_locales_dtype = {
     "page_size_options_label_text": "object",
 }
 
-__x_locales: pd.DataFrame = pd.read_csv(_x_locales_fname, dtype=_x_locales_dtype)  # type: ignore
+__x_locales: DataFrameLike = read_csv(_x_locales_fname, dtype=_x_locales_dtype)

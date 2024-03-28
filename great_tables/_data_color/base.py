@@ -11,7 +11,15 @@ from great_tables._tbl_data import is_na, DataFrameLike
 from great_tables.style import fill, text
 from great_tables.loc import body
 import numpy as np
-from mizani.palettes import gradient_n_pal
+import warnings
+
+try:
+    from mizani.palettes import gradient_n_pal
+except ModuleNotFoundError as err:
+    if str(err) == "No module named 'pandas'":
+        warnings.warn("color gradients require pandas which isn't installed")
+    else:
+        raise (err)
 
 if TYPE_CHECKING:
     from great_tables._types import GTSelf
@@ -232,7 +240,9 @@ def data_color(
                 domain = _get_domain_numeric(df=data_table, vals=column_vals)
 
             # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-            scaled_vals = _rescale_numeric(df=data_table, vals=column_vals, domain=domain)
+            scaled_vals = _rescale_numeric(
+                df=data_table, vals=column_vals, domain=domain
+            )
 
         elif all(isinstance(x, str) for x in filtered_column_vals):
             # If `domain` is not provided, then infer it from the data values
@@ -274,12 +284,15 @@ def data_color(
 
             else:
                 gt_obj = gt_obj.tab_style(
-                    style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
+                    style=fill(color=color_vals[i]),
+                    locations=body(columns=col, rows=[i]),
                 )
     return gt_obj
 
 
-def _ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000000") -> str:
+def _ideal_fgnd_color(
+    bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000000"
+) -> str:
     # Remove alpha value from hexadecimal color value in `bgnd_color=`
     bgnd_color = _remove_alpha(colors=[bgnd_color])[0]
 
@@ -397,7 +410,9 @@ def _srgb(x: int) -> float:
     return x_frac
 
 
-def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) -> List[str]:
+def _html_color(
+    colors: List[str], alpha: Optional[Union[int, float]] = None
+) -> List[str]:
     """
     Normalize HTML colors.
 
@@ -414,7 +429,6 @@ def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) ->
     all_hex_colors = all(_is_hex_col(colors=colors))
 
     if not all_hex_colors:
-
         # Translate named colors to hexadecimal values
         colors = _color_name_to_hex(colors=colors)
 
@@ -504,7 +518,6 @@ def _color_name_to_hex(colors: List[str]) -> List[str]:
     hex_colors: List[str] = []
 
     for color in colors:
-
         if _is_hex_col([color])[0]:
             hex_colors.append(color)
         else:
@@ -532,7 +545,9 @@ def _is_short_hex(color: str) -> bool:
 def _is_hex_col(colors: List[str]) -> List[bool]:
     import re
 
-    return [bool(re.match(r"^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", color)) for color in colors]
+    return [
+        bool(re.match(r"^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", color)) for color in colors
+    ]
 
 
 def _is_standard_hex_col(colors: List[str]) -> List[bool]:
@@ -568,7 +583,15 @@ def _expand_short_hex(hex_color: str) -> str:
     third_char = hex_color[2]
 
     # Return the expanded 6-digit hexadecimal color value
-    expanded = "#" + first_char + first_char + second_char + second_char + third_char + third_char
+    expanded = (
+        "#"
+        + first_char
+        + first_char
+        + second_char
+        + second_char
+        + third_char
+        + third_char
+    )
     expanded = expanded.upper()
     return expanded
 
@@ -594,16 +617,23 @@ def _rescale_numeric(
         scaled_vals = [0.0 if not is_na(df, x) else x for x in vals]
     else:
         # Rescale the values in `vals` to the range [0, 1], pass through NA values
-        scaled_vals = [(x - domain_min) / domain_range if not is_na(df, x) else x for x in vals]
+        scaled_vals = [
+            (x - domain_min) / domain_range if not is_na(df, x) else x for x in vals
+        ]
 
     # Add NA values to any values in `scaled_vals` that are not in the [0, 1] range
-    scaled_vals = [x if not is_na(df, x) and (x >= 0 and x <= 1) else np.nan for x in scaled_vals]
+    scaled_vals = [
+        x if not is_na(df, x) and (x >= 0 and x <= 1) else np.nan for x in scaled_vals
+    ]
 
     return scaled_vals
 
 
 def _rescale_factor(
-    df: DataFrameLike, vals: List[Union[int, float]], domain: List[float], palette: List[str]
+    df: DataFrameLike,
+    vals: List[Union[int, float]],
+    domain: List[float],
+    palette: List[str],
 ) -> List[float]:
     """
     Rescale factor values
@@ -630,7 +660,9 @@ def _rescale_factor(
     return scaled_vals
 
 
-def _get_domain_numeric(df: DataFrameLike, vals: List[Union[int, float]]) -> List[float]:
+def _get_domain_numeric(
+    df: DataFrameLike, vals: List[Union[int, float]]
+) -> List[float]:
     """
     Get the domain of numeric values.
 

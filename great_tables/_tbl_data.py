@@ -246,7 +246,11 @@ def _(data: PlDataFrame, group_key: str) -> Dict[Any, List[int]]:
     if not meth_row_number:
         meth_row_number = data.with_row_count
 
-    groups = meth_row_number("__row_count__").group_by(group_key).agg(pl.col("__row_count__"))
+    groups = (
+        meth_row_number("__row_count__")
+        .group_by(group_key)
+        .agg(pl.col("__row_count__"))
+    )
 
     res = dict(zip(groups[group_key].to_list(), groups["__row_count__"].to_list()))
     return res
@@ -274,7 +278,9 @@ def eval_select(data: DataFrameLike, expr: SelectExpr, strict: bool = True) -> _
 
 @eval_select.register
 def _(
-    data: PdDataFrame, expr: Union[List[Union[str, int]], Callable[[str], bool]], strict=True
+    data: PdDataFrame,
+    expr: Union[List[Union[str, int]], Callable[[str], bool]],
+    strict=True,
 ) -> _NamePos:
     if isinstance(expr, (str, int)):
         expr = [expr]
@@ -291,7 +297,9 @@ def _(
 
 
 @eval_select.register
-def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) -> _NamePos:
+def _(
+    data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True
+) -> _NamePos:
     # TODO: how to annotate type of a polars selector?
     # Seems to be polars.selectors._selector_proxy_.
     from polars import Expr
@@ -314,7 +322,9 @@ def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) 
     return [(col, col_pos[col]) for col in final_columns]
 
 
-def _eval_select_from_list(columns: list[str], expr: list[str | int]) -> list[tuple[str, int]]:
+def _eval_select_from_list(
+    columns: list[str], expr: list[str | int]
+) -> list[tuple[str, int]]:
     col_pos = {k: ii for ii, k in enumerate(columns)}
 
     # TODO: should prohibit duplicate names in expr?
@@ -459,7 +469,9 @@ def _(df: PlDataFrame, expr: PlExpr) -> List[Any]:
     df_res = df.select(expr)
 
     if len(df_res.columns) > 1:
-        raise ValueError(f"Result must be a single column. Received {len(df_res.columns)} columns.")
+        raise ValueError(
+            f"Result must be a single column. Received {len(df_res.columns)} columns."
+        )
     else:
         res = df_res[df_res.columns[0]]
 
@@ -525,10 +537,14 @@ def _(df: PdDataFrame) -> PdDataFrame:
             f"Column names must be unique. Detected duplicate columns:\n\n {list(dupes)}"
         )
 
-    non_str_cols = [(ii, el) for ii, el in enumerate(df.columns) if not isinstance(el, str)]
+    non_str_cols = [
+        (ii, el) for ii, el in enumerate(df.columns) if not isinstance(el, str)
+    ]
 
     if non_str_cols:
-        _col_msg = "\n".join(f"  * Position {ii}: {col}" for ii, col in non_str_cols[:3])
+        _col_msg = "\n".join(
+            f"  * Position {ii}: {col}" for ii, col in non_str_cols[:3]
+        )
         warnings.warn(
             "pandas DataFrame contains non-string column names. Coercing to strings. "
             "Here are the first few non-string columns:\n\n"
