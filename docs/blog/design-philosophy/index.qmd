@@ -1,5 +1,5 @@
 ---
-title: "The Design Philosophy of Great Tables and What We're Really Trying to Solve"
+title: "The Design Philosophy of Great Tables"
 html-table-processing: none
 author: Rich Iannone
 date: 2024-03-25
@@ -86,7 +86,7 @@ When agriculture became more widespread (ca. 10,000 years ago), there was the ne
 
 <p style="font-size: 12px;">Drawing of clay tablet from Sumerian city of Uruk, circa 3200-3000 BC. Uruk III Tablet (MSVO 3, 51, Louvre Museum, Paris, France). Annotated with the meanings of the columns, rows, and cells.</p>
 
-Note that the recovered tablet is meant to be read from right to left. Inside each box is an ideogram (a symbol that represented a word or idea) and a numerical value representing a quantity. 
+Note that the recovered tablet is meant to be read from right to left. Inside each box is an ideogram (a symbol that represented a word or idea) and a numerical value representing a quantity.
 
 Its structure is where things get super interesting:
 
@@ -96,7 +96,7 @@ Its structure is where things get super interesting:
 
 As a bonus, the table has a footer, since the bottom row contains the name of the official in charge.
 
-Zooming ahead about a thousand years, you start to see more systematically structured tables. Here's a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BC)[^6], containing sources of revenue and monthly disbursements for 50 temple personnel. 
+Zooming ahead about a thousand years, you start to see more systematically structured tables. Here's a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BC)[^6], containing sources of revenue and monthly disbursements for 50 temple personnel.
 
 ![](./nippur_cuneiform_tablet.png)
 
