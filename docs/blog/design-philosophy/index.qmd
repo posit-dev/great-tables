@@ -86,7 +86,15 @@ When agriculture became more widespread (ca. 10,000 years ago), there was the ne
 
 <p style="font-size: 12px;">Drawing of clay tablet from Sumerian city of Uruk, circa 3200-3000 BC. Uruk III Tablet (MSVO 3, 51, Louvre Museum, Paris, France). Annotated with the meanings of the columns, rows, and cells.</p>
 
-The inscribed grid in the ca. 3200-3000 BC tablet creates boxes and each one of them represented an accounting unit. Inside each box was an ideogram (a symbol that represented a word or idea) and a numerical value representing a quantity. Now here is where it gets super interesting: each row corresponds to an individual, two columns contain entries for malt and barley; subtotals are given in the third column; and the left-most box displays the grand total. This has all the elements of a summary table! As a bonus, the table has a footer as the bottom row contains the name of the official in charge.
+Note that the recovered tablet is meant to be read from right to left. Inside each box is an ideogram (a symbol that represented a word or idea) and a numerical value representing a quantity. 
+
+Its structure is where things get super interesting:
+
+* Rows: there are roughly two rows, each corresponding to an individual.
+* Columns: the first two columns from the right contain counts of malt (rightmost column) and barley (second rightmost column).
+* Subtotals: the third column from the right sums barley and malt within each individual, and the left-most column displays the grand total.
+
+As a bonus, the table has a footer, since the bottom row contains the name of the official in charge.
 
 Zooming ahead about a thousand years, you start to see more systematically structured tables. Here's a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BC)[^6].
 
