@@ -107,15 +107,15 @@ You can see right away that there is a more regular grid and, if you probe deepe
 - column headings (month names) and row titles (names/professions of individuals).
 - cells with no information (look at the blank or smooth cells along rows)
 - numerical values in the cells
-- subtotals for each individual are every six months
-- grand totals adjacent to row labels
-- annotations with explanatory notes under those columns containing totals
+- subtotals for each individual every six months
+- grand totals
+- annotations with explanatory notes
 
 Later on, tables were less inscribed on clay and more on wax tablets, papyrus, and paper. The media have changed, writing technologies have changed, and the design and presentation of tables also went through changes.
 
 ### Midcentury modern tables
 
-There's a prehistory to modern, computerized tables and perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype[^8] (my favorite). The technologies were sufficiently advanced as to allow the precise typesetting of table elements. While of course constrained by the limited space available on pages, tabular design at this point had many workable solutions for fitting tables into single pages or dispersing the tabular content across multiple pages. The combination of advanced printing technology with advanced knowledge of tabular design resulted in *beautiful tables*.
+Perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype[^8] (my favorite). The technologies were sufficiently advanced as to allow the precise typesetting of table elements. While of course constrained by the limited space available on pages, tabular design at this point had many workable solutions for fitting tables into single pages or dispersing the tabular content across multiple pages. The combination of advanced printing technology with advanced knowledge of tabular design resulted in *beautiful tables*.
 
 There's no greater embodiment of that pairing of technology and design than the [*Manual of Tabular Presentation*](https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf)[^9], written and published by the United States Bureau of the Census. It is truly a remarkable work which goes into great detail on how the department imagines the ideal designs of information-rich tables. The work articulates the different parts of a table (and each part is given a descriptive name), sparing no detail when describing those different table parts in rigorous detail. Throughout its hundreds of pages, the authors make strong recommendations on what to do (and what *not* to do) for many tabulation scenarios. When poring over the tables visually depicted in the book, you can't help but see that tables can both look really good *and* contain a density of information. The promise and the result is a balance of form and function.
 
@@ -133,7 +133,9 @@ With computing technologies becoming more accessible by the 1970s and 1980s, peo
 
 <p style="font-size: 12px;">This is a table in VisiCalc (earliest example of a table in a spreadsheet application). It's pretty crude compared to the tables in print but the advantage here is that you can calculate values quickly.</p>
 
-Over time, and this only took 10-15 years, tables-within-spreadsheets got a little easier on the eyes. By the early 1990s, Excel could paint borders on your tables, better typographical support was available, and the formatting of values was fully-featured (though, [wonky](https://www.cnet.com/tech/computing/prevent-excel-from-reformatting-two-numbers-to-a-date-and-month/)). Great! Problem solved, right? Not really. While Excel tables from the last three decades looked much better than 1980s-spreadsheet-borne tables, they could never hold a candle to the what was shown in the *Census Manual* (no matter how much of an Excel expert you became). Further to this, data analysis started to became a thing accomplished outside of Excel. Think Python and Jupyter notebooks. We now have a bag of problematic scenarios:
+Over time, and this only took 10-15 years, tables-within-spreadsheets got a little easier on the eyes. By the early 1990s, Excel could paint borders on your tables, better typographical support was available, and the formatting of values was fully-featured (though, [wonky](https://www.cnet.com/tech/computing/prevent-excel-from-reformatting-two-numbers-to-a-date-and-month/)). Great! Problem solved, right? Not really.
+
+While Excel tables from the last three decades looked much better than 1980s-spreadsheet-borne tables, they could never hold a candle to the what was shown in the *Census Manual* (no matter how much of an Excel expert you became). Further to this, data analysis started to became a thing accomplished outside of Excel. Think Python and Jupyter notebooks. We now have a bag of problematic scenarios:
 
 - you can use Python (or some other language) to analyze data and generate some tables that won't look too good
 - you can do everything in Excel and make semi-good tables (but you don't get to use the power of Py)
@@ -143,7 +145,15 @@ All of these are suboptimal solutions. We propose that it is far better to do ev
 
 ### Approach to tables taken by **Great Tables**
 
-With **Great Tables** anyone can make wonderful-looking tables in Python. Our philosophy centers around the definition and compositional possibilities of working with a cohesive set of table components. We firmly believe that with these malleable table components and the methods offered in the package, people are able to construct a wide variety of useful tables that work across many disciplines. We provide you with the latitude to mix and match table components as needed; you can add a header and a footer for explanatory text, a stub for identification of the rows and any hierarchical arrangements therein, place spanner labels over top of the column labels, to provide some possibilities. Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:
+With **Great Tables** anyone can make wonderful-looking tables in Python. Our philosophy centers around the definition and compositional possibilities of working with a cohesive set of table components. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines. It provides you with the latitude to mix and match table components as needed.
+
+Some of the options include:
+
+* add a header and a footer for explanatory text
+* a stub for identification of the rows and any hierarchical arrangements therein
+* place spanner labels over top of the column labels
+
+Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:
 
 ![](./composition_of_a_table_in_GT.png)
 
