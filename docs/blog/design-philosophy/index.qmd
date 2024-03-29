@@ -145,13 +145,13 @@ All of these are suboptimal solutions. We propose that it is far better to do ev
 
 ### Approach to tables taken by **Great Tables**
 
-**Great Tables** restores the elegance of midcentury tables with the power of a coding interface. With **Great Tables** anyone can make wonderful-looking tables in Python. Our framework expresses a table as a combination of six independent components. With this framework, you can structure the table, format the values, and style the table. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines. It provides you with the latitude to mix and match table components as needed.
+**Great Tables** restores the elegance of midcentury tables with the power of a coding interface. With **Great Tables** anyone can make wonderful-looking tables in Python. Our framework expresses a table as a combination of six independent components. With this framework, you can structure the table, format the values, and style the table. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines.
 
-Some of the components include:
+Great Tables empowers you to style and customize your table. Use format… (include code prefix). Use style…. You can add elements like nanoplots and heatmaps. 
 
-* a header and a footer for explanatory text
-* a stub for identification of the rows and any hierarchical arrangements therein
-* spanner labels over top of the column labels
+Great Tables is flexible, providing a growing set of output formats.
+
+You build with Great Tables iteratively, starting off with your table body from code, adding styling, formatting and other components. 
 
 Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:
 
@@ -168,7 +168,7 @@ Note the following pieces:
 - **Table Body**: where the data is
 - **Table Footer**: a place for additional information pertaining to the table content
 
-Here's a table that takes advantage of the different components available in **Great Tables**.
+Here's a table that takes advantage of the different components available in **Great Tables**. It contains the names and addresses of people.
 
 ```{python}
 #| code-fold: true
@@ -198,13 +198,17 @@ from great_tables import GT, md, system_fonts
 
 <p style="font-size: 12px;">A table of named individuals redone, **Great Tables** style!</p>
 
+Notice that there is a blue row stub component that makes the row labels distinct from the rest. This is important because each person described forms a unique observation. The heading provides context on what's contained within the table. Column spanners put the columns into sensible groupings (e.g., 'Location'). The consistent use of blue lines and cell backgrounds gives the table a professional look.
+
+#### Formatting
+
 Table structuring is important, but not the only thing...
 
 The data values contained within the cells often require formatting before presentation, since the representation for computing isn't always optimal for readers of a table. To that end, we provide a large collection of formatting methods that are purpose-built for each type of formatting operation. While focused on simplicity they are also powerful, giving you the ability to customize values to your liking. We want users all over the world to be able to use **Great Tables** successfully so we built in locale-based formatting options, based on the latest guidance from the [Unicode CLDR](https://cldr.unicode.org).
 
-The majority of open-source software packages that deal with tables seem to be more focused on the display of simple yet large tables. We wanted to be different in this regard and instead focus on the task of generating summary tables. Those open-source table projects typically produce tables with pagination and other such controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations where you'd want to expose a database of records for a user to explore. But we wanted to go the other way and help the type of user that wanted to present smaller, summarized data. This is typically what you see in journal articles, in books, and in periodicals like [*The Economist*](https://www.economist.com/economic-and-financial-indicators/2024/03/14/economic-data-commodities-and-markets). We long held that there was an unaddressed need for users to create highly customized tables that could serve as interesting visualizations.
+#### 80/20 rule
 
-Now that you have some more insight about where we were coming from, let's take the table that contains the names and addresses of people and use the **Great Tables** API to make that table really shine. We're going for greater structural organization of the rows and columns to further enhance legibility. We'll add a heading so that readers generally know what's contained within the table body. Remember when we mentioned that the first column should serve to identify the rows? To make that key information more prominent, a stub column will be generated for that purpose. To put the columns into sensible groupings, we'll make use of column spanners. Finally, we'll perform some light styling to enliven the overall display.
+The majority of open-source software packages that deal with tables seem to be more focused on the display of simple yet large tables. We wanted to be different in this regard and instead focus on the task of generating summary tables. Those open-source table projects typically produce tables with pagination and other such controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations where you'd want to expose a database of records for a user to explore. But we wanted to go the other way and help the type of user that wanted to present smaller, summarized data. This is typically what you see in journal articles, in books, and in periodicals like [*The Economist*](https://www.economist.com/economic-and-financial-indicators/2024/03/14/economic-data-commodities-and-markets). We long held that there was an unaddressed need for users to create highly customized tables that could serve as interesting visualizations. We believe the area of static summary tables deserves it's own focus.
 
 Generally we add table components with the `tab_*()` methods, format the data with the `fmt_*()` methods, and customize the look of the table with some `opt_*()` methods (and `tab_options()`). Based on your feeling of what makes a summary table complete and fit for publication, you have the freedom to use as little or as much of the collection of API methods to iteratively modify the table to your liking. As we continue to develop **Great Tables** we will: (1) keep the semantics of the API consistent and the individual methods easy to understand and use, and (2) add more API methods without breaking existing functionality.
 
