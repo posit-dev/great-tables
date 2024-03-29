@@ -96,7 +96,7 @@ Its structure is where things get super interesting:
 
 As a bonus, the table has a footer, since the bottom row contains the name of the official in charge.
 
-Zooming ahead about a thousand years, you start to see more systematically structured tables. Here's a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BC)[^6].
+Zooming ahead about a thousand years, you start to see more systematically structured tables. Here's a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BC)[^6], containing sources of revenue and monthly disbursements for 50 temple personnel. 
 
 ![](./nippur_cuneiform_tablet.png)
 
