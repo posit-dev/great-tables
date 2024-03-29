@@ -189,7 +189,6 @@ from great_tables import GT, md, system_fonts
     .opt_align_table_header(align="left")
     .opt_vertical_padding(scale=0.75)
     .tab_options(
-        table_font_size="12px",
         table_font_names=system_fonts(name="rounded-sans"),
         table_font_size="14px",
     )
