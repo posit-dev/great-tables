@@ -102,7 +102,7 @@ Zooming ahead about a thousand years, you start to see more systematically struc
 
 <p style="font-size: 12px;">Cuneiform tablet, temple of Enlil at Nippur, (CBS 3323, University of Pennsylvania).</p>
 
-You can see right away that there is a more regular grid and, if you probe deeper, there are more similarities than differerences with the tables of today. This contains sources of revenue and monthly disbursements for nearly 50 temple personnel. While difficult to pick them out, the following table elements are present[^7]:
+You can see right away that there is a more regular grid and, if you probe deeper, there are more similarities than differerences with the tables of today. While difficult to pick them out, the following table elements are present[^7]:
 
 - column headings (month names) and row titles (names/professions of individuals).
 - cells with no information (look at the blank or smooth cells along rows)
