@@ -145,13 +145,13 @@ All of these are suboptimal solutions. We propose that it is far better to do ev
 
 ### Approach to tables taken by **Great Tables**
 
-With **Great Tables** anyone can make wonderful-looking tables in Python. Our philosophy centers around the definition and compositional possibilities of working with a cohesive set of table components. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines. It provides you with the latitude to mix and match table components as needed.
+**Great Tables** restores the elegance of midcentury tables with the power of a coding interface. With **Great Tables** anyone can make wonderful-looking tables in Python. Our framework expresses a table as a combination of over a dozen independent components. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines. It provides you with the latitude to mix and match table components as needed.
 
-Some of the options include:
+Some of the components include:
 
-* add a header and a footer for explanatory text
+* a header and a footer for explanatory text
 * a stub for identification of the rows and any hierarchical arrangements therein
-* place spanner labels over top of the column labels
+* spanner labels over top of the column labels
 
 Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:
 
