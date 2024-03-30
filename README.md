@@ -59,7 +59,7 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 There are ten datasets provided by **Great Tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `metro`, `constants`, and `illness`.
 
 <div align="center" style="padding-top:20px">
-<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/datasets.png" style="width:85%;">
+<img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/datasets.png" style="width:100%;">
 </div>
 
 All of this tabular data is great for experimenting with the functionality available inside **Great Tables** and we make extensive use of these datasets in our documentation.
