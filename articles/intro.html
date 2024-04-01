@@ -180,33 +180,20 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <!-- main -->
 <main class="content column-page-left" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Great Tables</h1>
-</div>
 
 
 
-<div class="quarto-title-meta column-page-left">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
+<div style="text-align: center;">
+<p><img src="../assets/GT_logo.svg" class="img-fluid" width="350"></p>
 <p><em>Absolutely Delightful Table-making in Python</em></p>
+</div>
 <p>With <strong>Great Tables</strong> anyone can make wonderful-looking tables in Python. The philosophy here is that we can construct a wide variety of useful tables by working with a cohesive set of table components. You can mix and match things like a <em>header</em> and <em>footer</em>, attach a <em>stub</em> (which contains row labels), arrange <em>spanner labels</em> over top of the <em>column labels</em>, and much more. Not only that, but you can format the cell values in a variety of awesome ways.</p>
 <div style="text-align: center;">
-<p><img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/the_components_of_a_table.svg" width="100%"></p>
+<p><img src="../assets/the_components_of_a_table.svg" class="img-fluid" style="width:100.0%"></p>
 </div>
 <p>It all begins with <strong>table data</strong> in the form of a <strong>Pandas</strong> or <strong>Polars</strong> DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a <strong>Quarto</strong> document.</p>
 <p>The <strong>Great Tables</strong> package is designed to be both straightforward yet powerful. The emphasis is on simple methods for the everyday display table needs (but power when you need it). Here is a brief example of how to use <strong>Great Tables</strong> to create a table from the included <code>sp500</code> dataset:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables <span class="im">as</span> gt</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> sp500</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the start and end dates for the data range</span></span>
@@ -218,7 +205,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a gt table based on the `sp500_mini` table data</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    gt.GT(data<span class="op">=</span>sp500_mini)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    GT(sp500_mini)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    .tab_header(title<span class="op">=</span><span class="st">"S&amp;P 500"</span>, subtitle<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>start_date<span class="sc">}</span><span class="ss"> to </span><span class="sc">{</span>end_date<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(columns<span class="op">=</span>[<span class="st">"open"</span>, <span class="st">"high"</span>, <span class="st">"low"</span>, <span class="st">"close"</span>])</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    .fmt_date(columns<span class="op">=</span><span class="st">"date"</span>, date_style<span class="op">=</span><span class="st">"wd_m_day_year"</span>)</span>
@@ -226,17 +213,14 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    .cols_hide(columns<span class="op">=</span><span class="st">"adj_close"</span>)</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div style="text-align: center;">
-<p><img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/gt_sp500_table.svg" width="100%"></p>
+<p><img src="../assets/gt_sp500_table.svg" class="img-fluid" style="width:100.0%"></p>
 </div>
 <p>There are ten datasets provided by <strong>Great Tables</strong>: <code>countrypops</code>, <code>sza</code>, <code>gtcars</code>, <code>sp500</code>, <code>pizzaplace</code>, <code>exibble</code>, <code>towny</code>, <code>metro</code>, <code>constants</code>, and <code>illness</code>.</p>
 <div style="padding-top: 20px; text-align: center;">
-<p><img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_countrypops.svg" style="width:18%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_sza.svg" style="width:18%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_gtcars.svg" style="width:18%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_sp500.svg" style="width:18%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_pizzaplace.svg" style="width:18%;"></p>
-</div>
-<div style="padding-bottom: 20px; text-align: center;">
-<p><img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_exibble.svg" style="width:18%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_towny.svg" style="width:18%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_metro.svg" style="width:18%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_constants.svg" style="width:18%;"> <img src="https://raw.githubusercontent.com/posit-dev/great_tables/main/images/dataset_illness.svg" style="width:18%;"></p>
+<p><img src="../assets/datasets.png" class="img-fluid" style="width:100.0%"></p>
 </div>
 <p>All of this tabular data is great for experimenting with the functionality available inside <strong>Great Tables</strong> and we make extensive use of these datasets in our documentation.</p>
-<p>Beyond the functions shown in the simple <code>sp500</code>-based example, there are many possible ways to create super-customized tables. Check out the <a href="https://posit-dev.github.io/great-tables/">documentation website</a> to get started via introductory articles for making <strong>Great Tables</strong>. There’s a handy <em>Function Reference</em> section that has detailed help for every method and function in the package.</p>
+<p>Beyond the methods shown in the simple <code>sp500</code>-based example, there are many possible ways to create super-customized tables. Check out the <a href="https://posit-dev.github.io/great-tables/">documentation website</a> to get started via introductory articles for making <strong>Great Tables</strong>. There’s a handy <em>Reference</em> section that has detailed help for every method and function in the package.</p>
 <div style="text-align: center;">
 <p><a href="https://posit-dev.github.io/great-tables/"><img src="https://img.shields.io/badge/Project%20Website-Documentation%20and%20Reference-blue?style=social.png" class="img-fluid"></a></p>
 </div>
