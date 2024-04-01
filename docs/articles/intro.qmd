@@ -7,7 +7,7 @@ html-table-processing: none
 
 <div style="text-align: center;">
 
-![](/images/GT_logo.svg){width=350}
+![](assets/GT_logo.svg){width=350}
 
 _Absolutely Delightful Table-making in Python_
 
@@ -17,7 +17,7 @@ With **Great Tables** anyone can make wonderful-looking tables in Python. The ph
 
 <div style="text-align: center;">
 
-![](/images/the_components_of_a_table.svg){width=100%}
+![](assets/the_components_of_a_table.svg){width=100%}
 
 </div>
 
@@ -49,7 +49,7 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 
 <div style="text-align: center;">
 
-![](/images/gt_sp500_table.svg){width=100%}
+![](assets/gt_sp500_table.svg){width=100%}
 
 </div>
 
@@ -57,7 +57,7 @@ There are ten datasets provided by **Great Tables**: `countrypops`, `sza`, `gtca
 
 <div style="padding-top: 20px; text-align: center;">
 
-![](/images/datasets.png){width=100%}
+![](assets/datasets.png){width=100%}
 
 </div>
 
