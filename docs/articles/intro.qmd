@@ -2,6 +2,7 @@
 jupyter: python3
 aliases:
   - ../index.html
+sidebar: false
 html-table-processing: none
 ---
 
