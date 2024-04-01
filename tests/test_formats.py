@@ -17,7 +17,7 @@ from great_tables._formats import (
 )
 from great_tables._locations import RowSelectExpr
 
-from typing import Any
+from typing import List, Dict, Any
 
 
 def assert_rendered_body(snapshot, gt):
@@ -1179,3 +1179,63 @@ def test_fmt_image_path():
     formatter = FmtImage(encode=False, path="/a/b")
     res = formatter.to_html("c")
     assert 'src="/a/b/c"' in res
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_nanoplot()`
+# ------------------------------------------------------------------------------
+
+
+def _all_vals_nanoplot_output(nanoplot_str: List[str]):
+    import re
+
+    return all(bool(re.match("^<div><svg.*</svg></div>$", x)) for x in nanoplot_str)
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        ({}),
+        ({"reference_line": 0}),
+        ({"reference_line": "mean"}),
+        ({"reference_area": [0.1, 5.3]}),
+        ({"reference_area": [0.1, 5.3]}),
+        ({"reference_area": [5.3, 0.1]}),
+        ({"reference_area": ["min", "median"]}),
+        ({"reference_area": ["median", "min"]}),
+        ({"reference_area": ["median", 0]}),
+        ({"reference_area": [0, "median"]}),
+        ({"reference_line": 0, "reference_area": [2.3, "max"]}),
+        ({"plot_type": "bar"}),
+        ({"plot_type": "bar", "reference_line": 0}),
+        ({"plot_type": "bar", "reference_line": "mean"}),
+        ({"plot_type": "bar", "reference_area": [0.1, 5.3]}),
+        ({"plot_type": "bar", "reference_area": [0.1, 5.3]}),
+        ({"plot_type": "bar", "reference_area": [5.3, 0.1]}),
+        ({"plot_type": "bar", "reference_area": ["min", "median"]}),
+        ({"plot_type": "bar", "reference_area": ["median", "min"]}),
+        ({"plot_type": "bar", "reference_area": ["median", 0]}),
+        ({"plot_type": "bar", "reference_area": [0, "median"]}),
+        ({"plot_type": "bar", "reference_line": 0, "reference_area": [2.3, "max"]}),
+        ({"reference_line": 0, "reference_area": [2.3, "max"], "plot_height": "3em"}),
+        (
+            {
+                "plot_type": "bar",
+                "reference_line": 0,
+                "reference_area": [2.3, "max"],
+                "plot_height": "3em",
+            }
+        ),
+    ],
+)
+def test_fmt_nanoplot_single_vals_only(params: Dict[str, Any]):
+
+    df = pl.DataFrame({"vals": [-5.3, 6.3, -2.3, 0.0, 2.3, 6.7, 14.2, 0.0, 2.3, 13.3]})
+
+    gt = GT(df).fmt_nanoplot(
+        columns="vals",
+        **params,
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")
+
+    assert _all_vals_nanoplot_output(res)
