@@ -1435,7 +1435,72 @@ def test_fmt_bytes(
 # ------------------------------------------------------------------------------
 
 
-def test_fmt_roman():
+@pytest.mark.parametrize(
+    "case,x_out",
+    [
+        (
+            "upper",
+            [
+                "MCCXXXIV",
+                "I",
+                "N",
+                "N",
+                "I",
+                "I",
+                "IV",
+                "V",
+                "VI",
+                "VII",
+                "VIII",
+                "IX",
+                "X",
+                "XV",
+                "XX",
+                "XLIX",
+                "L",
+                "XCIX",
+                "C",
+                "D",
+                "M",
+                "MD",
+                "MMC",
+                "MMMDCCC",
+                "ex terminis",
+            ],
+        ),
+        (
+            "lower",
+            [
+                "mccxxxiv",
+                "i",
+                "n",
+                "n",
+                "i",
+                "i",
+                "iv",
+                "v",
+                "vi",
+                "vii",
+                "viii",
+                "ix",
+                "x",
+                "xv",
+                "xx",
+                "xlix",
+                "l",
+                "xcix",
+                "c",
+                "d",
+                "m",
+                "md",
+                "mmc",
+                "mmmdccc",
+                "ex terminis",
+            ],
+        ),
+    ],
+)
+def test_fmt_roman(case: str, x_out: str):
     df = pd.DataFrame(
         {
             "x": [
@@ -1468,37 +1533,9 @@ def test_fmt_roman():
         }
     )
 
-    # Expect that the smaller values in `x` are formatted correctly when
-    # varying the number of fixed decimal places (`decimals`)
-    gt = GT(df).fmt_roman(columns="x")
+    gt = GT(df).fmt_roman(columns="x", case=case)
     x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == [
-        "MCCXXXIV",
-        "I",
-        "N",
-        "N",
-        "I",
-        "I",
-        "IV",
-        "V",
-        "VI",
-        "VII",
-        "VIII",
-        "IX",
-        "X",
-        "XV",
-        "XX",
-        "XLIX",
-        "L",
-        "XCIX",
-        "C",
-        "D",
-        "M",
-        "MD",
-        "MMC",
-        "MMMDCCC",
-        "ex terminis",
-    ]
+    assert x == x_out
 
 
 # ------------------------------------------------------------------------------
