@@ -6,6 +6,7 @@ from typing import (
     Callable,
     ClassVar,
     TypeVar,
+    TypedDict,
     Union,
     List,
     Tuple,
@@ -2568,14 +2569,17 @@ def _replace_minus(string: str, minus_mark: str) -> str:
     return _str_replace(string, "-", minus_mark)
 
 
+T_dict = TypeVar("T_dict", bound=TypedDict)
+
+
 # TODO: remove pandas
-def _filter_pd_df_to_row(pd_df: pd.DataFrame, column: str, filter_expr: str) -> pd.DataFrame:
-    filtered_pd_df = pd_df[pd_df[column] == filter_expr]
+def _filter_pd_df_to_row(pd_df: "list[T_dict]", column: str, filter_expr: str) -> T_dict:
+    filtered_pd_df = [entry for entry in pd_df if entry[column] == filter_expr]
     if len(filtered_pd_df) != 1:
         raise Exception(
             "Internal Error, the filtered table doesn't result in a table of exactly one row."
         )
-    return filtered_pd_df
+    return filtered_pd_df[0]
 
 
 def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] = None) -> str:
@@ -2795,9 +2799,10 @@ def _get_currency_str(currency: str) -> str:
 
     # Extract the 'symbol' cell value from this 1-row DataFrame
     # TODO: remove pandas
-    currency_str = pd_df_row.iloc[0]["symbol"]
+    currency_str = pd_df_row["symbol"]
 
     # Ensure that `currency_str` is of the type 'str'
+    # TODO: we control this data and should enforce this in our data schema
     currency_str: Any
     if not isinstance(currency_str, str):
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
@@ -2820,18 +2825,14 @@ def _validate_currency(currency: str) -> None:
     """
 
     # Get the currencies data
-    currencies = _get_currencies_data()
-
-    # Get the `curr_code` column from currencies DataFrame as a list
-    curr_code_list: List[str] = currencies["curr_code"].tolist()
+    codes = [entry["curr_code"] for entry in _get_currencies_data()]
 
     # Stop if the `currency` provided isn't a valid one
-    if currency not in curr_code_list:
+    # TODO: how do users know what currencies are supported?
+    if currency not in codes:
         raise ValueError(
-            "The supplied `currency` is not available in the list of supported currencies."
+            f"The supplied currency `{currency}` is not in the list of supported currencies."
         )
-
-    return
 
 
 def _get_currency_decimals(currency: str, decimals: Optional[int], use_subunits: bool) -> int:
