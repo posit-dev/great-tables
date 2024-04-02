@@ -2584,6 +2584,7 @@ def _filter_pd_df_to_row(pd_df: "list[T_dict]", column: str, filter_expr: str) -
 
 def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] = None) -> str:
     # If `use_seps` is False, then force `sep_mark` to be an empty string
+    # TODO: what does an empty string signify? Where is this used? Is it the right choice here?
     if not use_seps:
         return ""
 
@@ -2598,8 +2599,7 @@ def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] 
     # the column named 'group'; this could potentially be of any type but we expect
     # it to be a string (and we'll check for that here)
     sep_mark: Any
-    # TODO: remove pandas
-    sep_mark = pd_df_row.iloc[0]["group"]
+    sep_mark = pd_df_row["group"]
     if not isinstance(sep_mark, str):
         raise TypeError(f"Variable type mismatch. Expected str, got {type(sep_mark)}.")
 
@@ -2622,8 +2622,9 @@ def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
     # the column named 'decimal'; this could potentially be of any type but we expect
     # it to be a string (and we'll check for that here)
     dec_mark: Any
-    # TODO: remove pandas
-    dec_mark = pd_df_row.iloc[0]["decimal"]
+    dec_mark = pd_df_row["decimal"]
+
+    # TODO: we control this data and should enforce this in the data schema
     if not isinstance(dec_mark, str):
         raise TypeError(f"Variable type mismatch. Expected str, got {type(dec_mark)}.")
 
@@ -2639,10 +2640,12 @@ def _get_locales_list() -> List[str]:
     """
 
     # Get the 'locales' dataset and obtain from that a list of locales
+    # TODO: remove pandas
     locales = _get_locales_data()
-    locale_list = locales["locale"].tolist()
+    locale_list = [entry["locale"] for entry in locales]
 
     # Ensure that `locale_list` is of the type 'str'
+    # TODO: we control this data and should enforce this in the data schema
     locale_list: Any
     if not isinstance(locale_list[0], str):
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
@@ -2673,7 +2676,9 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
 
     # Stop if the `locale` provided isn't a valid one
     if supplied_locale not in locales_list and supplied_locale not in default_locales_list:
-        raise ValueError("The supplied `locale` is not available in the list of supported locales.")
+        raise ValueError(
+            f"The normalized locale name `{supplied_locale}` is not in the list of locales."
+        )
 
     return
 
@@ -2730,6 +2735,8 @@ def _resolve_locale(x: GTData, locale: Union[str, None] = None) -> Union[str, No
     if locale == "und":
         locale = "en"
 
+    # TODO: why do both the normalize and validate functions convert
+    # underscores to hyphens? Should we remove from validate locale?
     locale = _normalize_locale(locale=locale)
 
     _validate_locale(locale=locale)
@@ -2762,10 +2769,10 @@ def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
     pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
 
     # Extract the 'currency_code' cell value from this 1-row DataFrame
-    # TODO: remove pandas
-    currency_code = pd_df_row.iloc[0]["currency_code"]
+    currency_code = pd_df_row["currency_code"]
 
     # Ensure that `currency_code` is of the type 'str'
+    # TODO: we control this data and should enforce this in the data schema
     currency_code: Any
     if not isinstance(currency_code, str):
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")

@@ -15,6 +15,11 @@ from great_tables._formats import (
     fmt,
     FmtImage,
     _normalize_locale,
+    _get_locale_sep_mark,
+    _get_locale_dec_mark,
+    _get_locale_currency_code,
+    _get_currency_str,
+    _validate_locale,
 )
 from great_tables._locations import RowSelectExpr
 
@@ -1195,3 +1200,64 @@ def test_normalize_locale_raises():
         _normalize_locale("abcde")
 
     assert "abcde" in exc_info.value.args[0]
+
+
+def test_get_locale_sep_mark_lookup():
+    # , is the group associated with "ak" locale
+    assert _get_locale_sep_mark("zzz", use_seps=True, locale="ak") == ","
+
+
+def test_get_locale_sep_mark_default_for_none():
+    assert _get_locale_sep_mark("zzz", use_seps=True, locale=None) == "zzz"
+
+
+def test_get_locale_sep_mark_not_use_seps():
+    # for some reason, when use seps is false, an empty string is returned
+    assert _get_locale_sep_mark("zzz", use_seps=False) == ""
+
+
+def test_get_locale_sep_mark_no_match_raises():
+    with pytest.raises(Exception):
+        _get_locale_sep_mark("zzz", use_seps=True, locale="NOT_A_LOCALE")
+
+
+def test_get_local_dec_mark():
+    # france uses a , as a decimal mark (e.g. 1.000,99)
+    assert _get_locale_dec_mark("zzz", "fr") == ","
+
+
+def test_get_locale_dec_mark_default():
+    assert _get_locale_dec_mark(default="abc") == "abc"
+
+
+def test_validate_locales():
+    _validate_locale("fr")
+
+
+def test_validate_locales_raises():
+    with pytest.raises(ValueError) as exc_info:
+        _validate_locale("NOT_A_LOCALE")
+
+    assert "The normalized locale name `NOT-A-LOCALE`" in exc_info.value.args[0]
+
+
+def test_get_locale_currency_code():
+    assert _get_locale_currency_code("fr") == "EUR"
+
+
+def test_get_locale_currency_code_default():
+    assert _get_locale_currency_code() == "USD"
+
+
+def test_get_locale_currency_code_no_match_raises():
+    with pytest.raises(Exception):
+        assert _get_locale_currency_code("NOT_A_LOCALE")
+
+
+def test_get_currency_str():
+    assert _get_currency_str("AED") == "DH"
+
+
+def test_get_currency_str_no_match_raises():
+    with pytest.raises(Exception):
+        _get_currency_str("NOT_A_CURRENCY")
