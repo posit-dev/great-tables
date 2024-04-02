@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import babel
+
 from decimal import Decimal
 from typing import (
     TYPE_CHECKING,
@@ -2717,13 +2720,16 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
     if matches:
         return matches[0]
 
-    # TODO: what did it mean, that this function used to pass through
-    # unmatched supplied_locales? Seems likely that path always resulted
-    # in an error.
-    # TODO: how do users know which locale options are available?
-    raise ValueError(
-        f"Supplied locale `{supplied_locale}` does not match any known locale.",
-    )
+    try:
+        babel.Locale.parse(supplied_locale)
+    except babel.UnknownLocaleError:
+        raise ValueError(
+            f"Supplied locale `{supplied_locale}` is not a known locale. "
+            "Great Tables uses the libraries like babel for locale-based work. "
+            "See the babel.Locale class for more on locale handling."
+        )
+
+    return supplied_locale
 
 
 def _resolve_locale(x: GTData, locale: Union[str, None] = None) -> Union[str, None]:

@@ -22,6 +22,7 @@ from great_tables._formats import (
     _validate_locale,
 )
 from great_tables._locations import RowSelectExpr
+from great_tables import _locale
 
 from typing import Any
 
@@ -1200,6 +1201,14 @@ def test_normalize_locale_raises():
         _normalize_locale("abcde")
 
     assert "abcde" in exc_info.value.args[0]
+
+
+def test_normalize_locale_babel_validation():
+    defaults = _locale._get_default_locales_data()
+    default_names = [entry["default_locale"] for entry in defaults]
+
+    assert "de-CH" not in default_names
+    assert _normalize_locale("de-CH") == "de-CH"
 
 
 def test_get_locale_sep_mark_lookup():

@@ -69,7 +69,7 @@ class LocalesDict(TypedDict):
     page_size_options_label_text: object
 
 
-class DefaultLocalesDict:
+class DefaultLocalesDict(TypedDict):
     default_locale: object
     base_locale: object
 
