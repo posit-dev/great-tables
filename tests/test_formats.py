@@ -19,7 +19,7 @@ from great_tables._formats import (
 )
 from great_tables._locations import RowSelectExpr
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 
 def assert_rendered_body(snapshot, gt):
@@ -119,7 +119,7 @@ def test_format_row_selection(expr):
 
 
 @pytest.mark.parametrize(
-    "scale_values, placement, incl_space, force_sign, x_out",
+    "scale_values,placement,incl_space,force_sign,x_out",
     [
         (
             True,
@@ -295,7 +295,7 @@ def test_fmt_percent_basic_0(
 
 
 @pytest.mark.parametrize(
-    "decimals, x_out",
+    "decimals,x_out",
     [
         (0, ["1", "1", "1", "1", "1", "1", "1", "1", "1"]),
         (1, ["1.0", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2"]),
@@ -412,7 +412,7 @@ def test_fmt_number_basic_0(decimals: int, x_out: str):
 
 
 @pytest.mark.parametrize(
-    "decimals, x_out",
+    "decimals,x_out",
     [
         (0, ["0", "0", "0", "0", "0", "0", "0", "0", "0"]),
         (1, ["0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0"]),
@@ -542,7 +542,7 @@ def test_fmt_number_basic_1(decimals: int, x_out: str):
 
 
 @pytest.mark.parametrize(
-    "n_sigfig, x_out",
+    "n_sigfig,x_out",
     [
         (
             1,
@@ -756,7 +756,7 @@ def test_fmt_number_n_sigfig(n_sigfig: int, x_out: str):
 
 
 @pytest.mark.parametrize(
-    "decimals, drop_trailing_zeros, drop_trailing_dec_mark, x_out",
+    "decimals,drop_trailing_zeros,drop_trailing_dec_mark,x_out",
     [
         (0, False, False, ["1.", "2."]),
         (0, False, True, ["1", "2"]),
@@ -808,7 +808,7 @@ def test_fmt_number_drop_trailing_00(
 
 
 @pytest.mark.parametrize(
-    "n_sigfig, drop_trailing_zeros, drop_trailing_dec_mark, x_out",
+    "n_sigfig,drop_trailing_zeros,drop_trailing_dec_mark,x_out",
     [
         (1, False, False, ["1.", "2."]),
         (1, False, True, ["1", "2"]),
@@ -840,7 +840,7 @@ def test_fmt_number_drop_trailing_01(
 
 
 @pytest.mark.parametrize(
-    "n_sigfig, use_seps, sep_mark, dec_mark, x_out",
+    "n_sigfig,use_seps,sep_mark,dec_mark,x_out",
     [
         (1, True, ",", ".", ["1,000,000", "\u2212" + "5,000"]),
         (1, True, ".", ",", ["1.000.000", "\u2212" + "5.000"]),
@@ -901,7 +901,7 @@ def test_fmt_number_n_sigfig_seps(
 
 
 @pytest.mark.parametrize(
-    "force_sign, x_out",
+    "force_sign,x_out",
     [
         (
             False,
@@ -936,7 +936,7 @@ def test_fmt_number_force_sign(force_sign: bool, x_out: str):
 
 
 @pytest.mark.parametrize(
-    "pattern, x_out",
+    "pattern,x_out",
     [
         ("{x}", ["\u2212" + "234.65", "0.00", "25,342.00"]),
         ("a{x}b", ["a" + "\u2212" + "234.65b", "a0.00b", "a25,342.00b"]),
@@ -973,7 +973,7 @@ def test_fmt_number_pattern(pattern: str, x_out: str):
 
 # Test `_format_number_fixed_decimals()` util function
 @pytest.mark.parametrize(
-    "value, x_out",
+    "value,x_out",
     [
         (8234252645325, "8,234,252,645,325.00"),
         (234252645325, "234,252,645,325.00"),
@@ -1010,7 +1010,7 @@ def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
 
 
 @pytest.mark.parametrize(
-    "str_number, x_out",
+    "str_number,x_out",
     [
         ("1e-5", "0.00001"),
         ("1.5e-5", "0.000015"),
@@ -1060,6 +1060,91 @@ def test_format_number_with_sep_dec_marks():
     gt = GT(df).fmt_number(columns="x", decimals=5, sep_mark=".", dec_mark=",")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["12.345.678,12346", "1,00000", "0,00000", "\u2212" + "12.345.678,12346"]
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_currency()`
+# ------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "currency,use_subunits,decimals,drop_trailing_dec_mark,use_seps,placement,incl_space,x_out",
+    [
+        (None, True, None, True, True, "left", False, ["$1,234,567.00", "−$5,432.37"]),
+        ("USD", True, None, True, True, "left", False, ["$1,234,567.00", "−$5,432.37"]),
+        ("EUR", True, None, True, True, "left", False, ["&#8364;1,234,567.00", "−&#8364;5,432.37"]),
+        (None, False, None, True, True, "left", False, ["$1,234,567", "−$5,432"]),
+        (None, False, 4, True, True, "left", False, ["$1,234,567.0000", "−$5,432.3700"]),
+        (None, True, 4, True, True, "left", False, ["$1,234,567.0000", "−$5,432.3700"]),
+        (None, True, 0, False, True, "left", False, ["$1,234,567.", "−$5,432."]),
+        (None, True, None, True, False, "left", False, ["$1234567.00", "−$5432.37"]),
+        (None, True, None, True, True, "right", False, ["1,234,567.00$", "−5,432.37$"]),
+        (None, True, None, True, True, "right", True, ["1,234,567.00 $", "−5,432.37 $"]),
+        (None, True, None, True, True, "left", True, ["$ 1,234,567.00", "−$ 5,432.37"]),
+    ],
+)
+def test_fmt_currency(
+    currency: Optional[str],
+    use_subunits: bool,
+    decimals: Optional[int],
+    drop_trailing_dec_mark: bool,
+    use_seps: bool,
+    placement: str,
+    incl_space: bool,
+    x_out: str,
+):
+
+    df = pd.DataFrame({"x": [1234567, -5432.37]})
+
+    gt = GT(df).fmt_currency(
+        columns="x",
+        currency=currency,
+        use_subunits=use_subunits,
+        decimals=decimals,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        placement=placement,
+        incl_space=incl_space,
+    )
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "force_sign,x_out",
+    [
+        (
+            False,
+            [
+                "−$234.65",
+                "−$0.00",
+                "−$0.10",
+                "$0.00",
+                "$2,352.23",
+                "$12,354.30",
+                "$9,939,293,923.23",
+            ],
+        ),
+        (
+            True,
+            [
+                "−$234.65",
+                "−$0.00",
+                "−$0.10",
+                "$0.00",
+                "+$2,352.23",
+                "+$12,354.30",
+                "+$9,939,293,923.23",
+            ],
+        ),
+    ],
+)
+def test_fmt_currency_force_sign(force_sign: bool, x_out: str):
+    df = pd.DataFrame({"x": [-234.654, -0.000634, -0.1, 0, 2352.23, 12354.3, 9939293923.23]})
+
+    gt = GT(df).fmt_currency(columns="x", force_sign=force_sign)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
 
 
 # ------------------------------------------------------------------------------
