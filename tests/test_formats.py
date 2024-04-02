@@ -1318,7 +1318,8 @@ def test_fmt_nanoplot_single_vals_only(params: Dict[str, Any]):
     ],
 )
 def test_fmt_nanoplot_multi_y_vals(params: Dict[str, Any]):
-    df = pl.DataFrame(
+
+    df_1 = pl.DataFrame(
         {
             "vals": [
                 "30 23 6 17 37 23 21 -4 7 12",
@@ -1329,10 +1330,29 @@ def test_fmt_nanoplot_multi_y_vals(params: Dict[str, Any]):
         }
     )
 
-    gt = GT(df).fmt_nanoplot(
+    gt_1 = GT(df_1).fmt_nanoplot(
         columns="vals",
         **params,
     )
-    res = _get_column_of_values(gt, column_name="vals", context="html")
+    res_1 = _get_column_of_values(gt_1, column_name="vals", context="html")
 
-    assert _all_vals_nanoplot_output(res)
+    assert _all_vals_nanoplot_output(res_1)
+
+    df_2 = pl.DataFrame(
+        {
+            "vals": [
+                {"x": [20, 23, 6, 7, 37, 23, 21, 4, 7, 16]},
+                {"x": [2.3, 6.8, 9.2, 2.42, 3.5, 12.1, 5.3, 3.6, 7.2, 3.74]},
+                {"x": [-12.0, -5.0, 6.0, 3.0, 0.0, 8.0, -7.0]},
+                {"x": [2, 0, 15, 7, 8, 10, 1, 24, 17, 13, 6]},
+            ],
+        }
+    )
+
+    gt_2 = GT(df_2).fmt_nanoplot(
+        columns="vals",
+        **params,
+    )
+    res_2 = _get_column_of_values(gt_2, column_name="vals", context="html")
+
+    assert _all_vals_nanoplot_output(res_2)
