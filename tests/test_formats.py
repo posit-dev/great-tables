@@ -1417,6 +1417,35 @@ def test_fmt_roman():
 
 
 # ------------------------------------------------------------------------------
+# Test `fmt_markdown()`
+# ------------------------------------------------------------------------------
+
+
+def test_fmt_markdown():
+    df = pd.DataFrame(
+        {
+            "x": [
+                "**bold** and *italic*",
+                "__bold__ and _italic_",
+                "<strong>bold</strong> and <em>italic</em>",
+                "`code` and [link](www.example.com)",
+            ]
+        }
+    )
+
+    # Expect that the smaller values in `x` are formatted correctly when
+    # varying the number of fixed decimal places (`decimals`)
+    gt = GT(df).fmt_markdown(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == [
+        "<strong>bold</strong> and <em>italic</em>",
+        "<strong>bold</strong> and <em>italic</em>",
+        "<strong>bold</strong> and <em>italic</em>",
+        '<code>code</code> and <a href="www.example.com">link</a>',
+    ]
+
+
+# ------------------------------------------------------------------------------
 # Test `data_color()` and util functions
 # ------------------------------------------------------------------------------
 
