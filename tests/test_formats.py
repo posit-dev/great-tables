@@ -1259,3 +1259,80 @@ def test_fmt_nanoplot_single_vals_only(params: Dict[str, Any]):
     res = _get_column_of_values(gt, column_name="vals", context="html")
 
     assert _all_vals_nanoplot_output(res)
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        ({}),
+        ({"reference_line": 0}),
+        ({"reference_line": "mean"}),
+        ({"reference_area": [0.1, 5.3]}),
+        ({"reference_area": [0.1, 5.3]}),
+        ({"reference_area": [5.3, 0.1]}),
+        ({"reference_area": ["min", "median"]}),
+        ({"reference_area": ["median", "min"]}),
+        ({"reference_area": ["median", 0]}),
+        ({"reference_area": [0, "median"]}),
+        ({"reference_line": 0, "reference_area": [2.3, "max"]}),
+        ({"plot_type": "bar"}),
+        ({"plot_type": "bar", "reference_line": 0}),
+        ({"plot_type": "bar", "reference_line": "mean"}),
+        ({"plot_type": "bar", "reference_area": [0.1, 5.3]}),
+        ({"plot_type": "bar", "reference_area": [0.1, 5.3]}),
+        ({"plot_type": "bar", "reference_area": [5.3, 0.1]}),
+        ({"plot_type": "bar", "reference_area": ["min", "median"]}),
+        ({"plot_type": "bar", "reference_area": ["median", "min"]}),
+        ({"plot_type": "bar", "reference_area": ["median", 0]}),
+        ({"plot_type": "bar", "reference_area": [0, "median"]}),
+        ({"plot_type": "bar", "reference_line": 0, "reference_area": [2.3, "max"]}),
+        ({"expand_y": 20}),
+        ({"expand_y": [20]}),
+        ({"expand_y": [-30, 20]}),
+        ({"plot_type": "bar", "expand_y": 20}),
+        ({"plot_type": "bar", "expand_y": [20]}),
+        ({"plot_type": "bar", "expand_y": [-30, 20]}),
+        ({"autoscale": True}),
+        ({"plot_type": "bar", "autoscale": True}),
+        ({"expand_x": 20}),
+        ({"expand_x": [20]}),
+        ({"expand_x": [-30, 20]}),
+        ({"expand_x": 20, "expand_y": [-30, 20]}),
+        ({"expand_x": [20], "expand_y": 20}),
+        ({"expand_x": [-30, 20], "expand_y": [20]}),
+        (
+            {
+                "reference_line": 0,
+                "reference_area": [2.3, "max"],
+                "plot_height": "3em",
+            }
+        ),
+        (
+            {
+                "plot_type": "bar",
+                "reference_line": 0,
+                "reference_area": [2.3, "max"],
+                "plot_height": "3em",
+            }
+        ),
+    ],
+)
+def test_fmt_nanoplot_multi_y_vals(params: Dict[str, Any]):
+    df = pl.DataFrame(
+        {
+            "vals": [
+                "30 23 6 17 37 23 21 -4 7 12",
+                "2.3 6.8 9.2 2 3.5 12.2 5.3 4.6 7.7 2.74",
+                "-14.2 -5 6.2 3.7 0 8 -7.4",
+                "2,0,14,3,7,4,1.2,24,17,13,2.5,3.6,14.2,4.3,6.4,9.2",
+            ],
+        }
+    )
+
+    gt = GT(df).fmt_nanoplot(
+        columns="vals",
+        **params,
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")
+
+    assert _all_vals_nanoplot_output(res)
