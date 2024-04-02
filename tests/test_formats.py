@@ -1060,6 +1060,72 @@ def test_format_number_with_sep_dec_marks():
     assert x == ["12.345.678,12346", "1,00000", "0,00000", "\u2212" + "12.345.678,12346"]
 
 
+def test_fmt_roman():
+    df = pd.DataFrame(
+        {
+            "x": [
+                -1234,
+                -1,
+                0,
+                0.4,
+                0.8,
+                1,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                15,
+                20,
+                49,
+                50,
+                99,
+                100,
+                500,
+                1000,
+                1500,
+                2100,
+                3800,
+                4500,
+            ]
+        }
+    )
+
+    # Expect that the smaller values in `x` are formatted correctly when
+    # varying the number of fixed decimal places (`decimals`)
+    gt = GT(df).fmt_roman(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == [
+        "MCCXXXIV",
+        "I",
+        "N",
+        "N",
+        "I",
+        "I",
+        "IV",
+        "V",
+        "VI",
+        "VII",
+        "VIII",
+        "IX",
+        "X",
+        "XV",
+        "XX",
+        "XLIX",
+        "L",
+        "XCIX",
+        "C",
+        "D",
+        "M",
+        "MD",
+        "MMC",
+        "MMMDCCC",
+        "ex terminis",
+    ]
+
+
 # ------------------------------------------------------------------------------
 # Test `data_color()` and util functions
 # ------------------------------------------------------------------------------
