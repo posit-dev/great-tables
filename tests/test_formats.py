@@ -1217,7 +1217,27 @@ def _all_vals_nanoplot_output(nanoplot_str: List[str]):
         ({"plot_type": "bar", "reference_area": ["median", 0]}),
         ({"plot_type": "bar", "reference_area": [0, "median"]}),
         ({"plot_type": "bar", "reference_line": 0, "reference_area": [2.3, "max"]}),
-        ({"reference_line": 0, "reference_area": [2.3, "max"], "plot_height": "3em"}),
+        ({"expand_y": 20}),
+        ({"expand_y": [20]}),
+        ({"expand_y": [-30, 20]}),
+        ({"plot_type": "bar", "expand_y": 20}),
+        ({"plot_type": "bar", "expand_y": [20]}),
+        ({"plot_type": "bar", "expand_y": [-30, 20]}),
+        ({"autoscale": True}),
+        ({"plot_type": "bar", "autoscale": True}),
+        ({"expand_x": 20}),
+        ({"expand_x": [20]}),
+        ({"expand_x": [-30, 20]}),
+        ({"expand_x": 20, "expand_y": [-30, 20]}),
+        ({"expand_x": [20], "expand_y": 20}),
+        ({"expand_x": [-30, 20], "expand_y": [20]}),
+        (
+            {
+                "reference_line": 0,
+                "reference_area": [2.3, "max"],
+                "plot_height": "3em",
+            }
+        ),
         (
             {
                 "plot_type": "bar",
