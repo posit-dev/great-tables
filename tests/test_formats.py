@@ -1066,7 +1066,7 @@ def test_format_number_with_sep_dec_marks():
 
 
 @pytest.mark.parametrize(
-    "time_style, x_out",
+    "time_style,x_out",
     [
         (
             "iso",
@@ -1108,6 +1108,179 @@ def test_fmt_time(time_style: int, x_out: str):
     )
 
     gt = GT(df).fmt_time(columns="x", time_style=time_style)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_bytes()`
+# ------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "standard,decimals,use_seps,force_sign,incl_space,x_out",
+    [
+        (
+            "decimal",
+            1,
+            True,
+            False,
+            True,
+            [
+                "−342 B",
+                "−3 B",
+                "0 B",
+                "0 B",
+                "0 B",
+                "1 B",
+                "500 B",
+                "512 B",
+                "994 B",
+                "1 kB",
+                "1 kB",
+                "2.3 GB",
+                "845.7 TB",
+                "253.5 PB",
+                "72.5 YB",
+                "902,487.2 YB",
+            ],
+        ),
+        (
+            "binary",
+            1,
+            True,
+            False,
+            True,
+            [
+                "−342 B",
+                "−3 B",
+                "0 B",
+                "0 B",
+                "0 B",
+                "1 B",
+                "500 B",
+                "512 B",
+                "994 B",
+                "1,000 B",
+                "1 KiB",
+                "2.2 GiB",
+                "769.1 TiB",
+                "225.2 PiB",
+                "60 YiB",
+                "746,519.9 YiB",
+            ],
+        ),
+        (
+            "binary",
+            2,
+            True,
+            False,
+            True,
+            [
+                "−342 B",
+                "−3 B",
+                "0 B",
+                "0 B",
+                "0 B",
+                "1 B",
+                "500 B",
+                "512 B",
+                "994 B",
+                "1,000 B",
+                "1 KiB",
+                "2.19 GiB",
+                "769.12 TiB",
+                "225.18 PiB",
+                "59.98 YiB",
+                "746,519.93 YiB",
+            ],
+        ),
+        (
+            "binary",
+            3,
+            True,
+            False,
+            True,
+            [
+                "−342 B",
+                "−3 B",
+                "0 B",
+                "0 B",
+                "0 B",
+                "1 B",
+                "500 B",
+                "512 B",
+                "994 B",
+                "1,000 B",
+                "1 KiB",
+                "2.185 GiB",
+                "769.118 TiB",
+                "225.18 PiB",
+                "59.981 YiB",
+                "746,519.928 YiB",
+            ],
+        ),
+        (
+            "binary",
+            1,
+            False,
+            True,
+            False,
+            [
+                "−342B",
+                "−3B",
+                "0B",
+                "0B",
+                "0B",
+                "+1B",
+                "+500B",
+                "+512B",
+                "+994B",
+                "+1000B",
+                "+1KiB",
+                "+2.2GiB",
+                "+769.1TiB",
+                "+225.2PiB",
+                "+60YiB",
+                "+746519.9YiB",
+            ],
+        ),
+    ],
+)
+def test_fmt_bytes(
+    standard: str, decimals: int, use_seps: bool, force_sign: bool, incl_space: bool, x_out: str
+):
+    df = pd.DataFrame(
+        {
+            "x": [
+                -342.8,
+                -3,
+                0,
+                0.4,
+                0.9,
+                1,
+                500,
+                512,
+                994,
+                1000,
+                1024,
+                2346345274.3,
+                845653745232536,
+                253529876942760953,
+                72512895702785787335434345,
+                902487216348759693489128343269,
+            ]
+        }
+    )
+
+    gt = GT(df).fmt_bytes(
+        columns="x",
+        standard=standard,
+        decimals=decimals,
+        use_seps=use_seps,
+        force_sign=force_sign,
+        incl_space=incl_space,
+    )
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == x_out
 
