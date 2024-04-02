@@ -14,6 +14,8 @@ from great_tables._formats import (
     _expand_exponential_to_full_string,
     fmt,
     FmtImage,
+    DateStyle,
+    TimeStyle,
 )
 from great_tables._locations import RowSelectExpr
 
@@ -1092,7 +1094,7 @@ def test_format_number_with_sep_dec_marks():
         ("h_p", ["12 AM", "8 AM", "10 AM", "12 PM", "1 PM", "10 PM", "11 PM"]),
     ],
 )
-def test_fmt_time(time_style: int, x_out: str):
+def test_fmt_time(time_style: TimeStyle, x_out: str):
     df = pd.DataFrame(
         {
             "x": [
@@ -1108,6 +1110,64 @@ def test_fmt_time(time_style: int, x_out: str):
     )
 
     gt = GT(df).fmt_time(columns="x", time_style=time_style)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_datetime()`
+# ------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "date_style,time_style,sep,x_out",
+    [
+        (
+            "iso",
+            "iso",
+            " ",
+            [
+                "2023-01-05 00:00:00",
+                "2022-06-15 08:30:00",
+                "2020-11-12 10:59:59",
+                "2015-04-25 12:00:00",
+                "2016-12-04 13:23:59",
+                "2018-07-28 22:10:30",
+                "2013-05-15 23:15:00",
+            ],
+        ),
+        (
+            "wday_month_day_year",
+            "h_m_s_p",
+            " at ",
+            [
+                "Thursday, January 5, 2023 at 12:00:00 AM",
+                "Wednesday, June 15, 2022 at 8:30:00 AM",
+                "Thursday, November 12, 2020 at 10:59:59 AM",
+                "Saturday, April 25, 2015 at 12:00:00 PM",
+                "Sunday, December 4, 2016 at 1:23:59 PM",
+                "Saturday, July 28, 2018 at 10:10:30 PM",
+                "Wednesday, May 15, 2013 at 11:15:00 PM",
+            ],
+        ),
+    ],
+)
+def test_fmt_datetime(date_style: DateStyle, time_style: TimeStyle, sep: str, x_out: str):
+    df = pd.DataFrame(
+        {
+            "x": [
+                "2023-01-05 00:00:00",
+                "2022-06-15 08:30:00",
+                "2020-11-12 10:59:59",
+                "2015-04-25 12:00:00",
+                "2016-12-04 13:23:59",
+                "2018-07-28 22:10:30",
+                "2013-05-15 23:15",
+            ]
+        }
+    )
+
+    gt = GT(df).fmt_datetime(columns="x", date_style=date_style, time_style=time_style, sep=sep)
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == x_out
 
