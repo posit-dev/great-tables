@@ -14,6 +14,7 @@ from great_tables._formats import (
     _expand_exponential_to_full_string,
     fmt,
     FmtImage,
+    _normalize_locale,
 )
 from great_tables._locations import RowSelectExpr
 
@@ -1179,3 +1180,18 @@ def test_fmt_image_path():
     formatter = FmtImage(encode=False, path="/a/b")
     res = formatter.to_html("c")
     assert 'src="/a/b/c"' in res
+
+
+def test_normalize_locale():
+    assert _normalize_locale("af-ZA") == "af"
+
+
+def test_normalize_locale_noops_none():
+    assert _normalize_locale(None) is None
+
+
+def test_normalize_locale_raises():
+    with pytest.raises(ValueError) as exc_info:
+        _normalize_locale("abcde")
+
+    assert "abcde" in exc_info.value.args[0]
