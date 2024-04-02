@@ -456,7 +456,7 @@ def fmt_integer(
         scale_by: float = scale_by,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -672,7 +672,7 @@ def fmt_scientific(
         force_sign_n: bool = force_sign_n,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -915,7 +915,7 @@ def fmt_percent(
         incl_space: bool = incl_space,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -1151,7 +1151,7 @@ def fmt_currency(
         incl_space: bool = incl_space,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -1281,7 +1281,7 @@ def fmt_roman(
         case: str = case,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Get the absolute value of `x` so that negative values are handled
@@ -1491,7 +1491,7 @@ def fmt_bytes(
         incl_space: bool = incl_space,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Truncate all byte values by casting to an integer; this is done because bytes
@@ -1674,7 +1674,7 @@ def fmt_date(
         x: Any, date_format_str: str = date_format_str, locale: Union[str, None] = locale
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # If `x` is a string, we assume it is an ISO date string and convert it to a date object
@@ -1810,7 +1810,7 @@ def fmt_time(
         x: Any, time_format_str: str = time_format_str, locale: Union[str, None] = locale
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # If `x` is a string, assume it is an ISO time string and convert it to a time object
@@ -1973,7 +1973,7 @@ def fmt_datetime(
         locale: Union[str, None] = locale,
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # From the date and time format strings, create a datetime format string
@@ -2098,7 +2098,7 @@ def fmt_markdown(
     # Generate a function that will operate on single `x` values in the table body
     def fmt_markdown_fn(x: Any) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         x_str: str = str(x)
@@ -2568,6 +2568,7 @@ def _replace_minus(string: str, minus_mark: str) -> str:
     return _str_replace(string, "-", minus_mark)
 
 
+# TODO: remove pandas
 def _filter_pd_df_to_row(pd_df: pd.DataFrame, column: str, filter_expr: str) -> pd.DataFrame:
     filtered_pd_df = pd_df[pd_df[column] == filter_expr]
     if len(filtered_pd_df) != 1:
@@ -3713,7 +3714,7 @@ def fmt_nanoplot(
         # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
         all_single_y_vals = list(
             data_tbl[columns].apply(
-                lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+                lambda x: x if is_na(self._tbl_data, x) else x[1] if isinstance(x, tuple) else x
             )
         )
 
@@ -3739,7 +3740,7 @@ def fmt_nanoplot(
         # downstream?
         all_y_vals_raw = list(
             data_tbl[columns].apply(
-                lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+                lambda x: x if is_na(self._tbl_data, x) else x[1] if isinstance(x, tuple) else x
             )
         )
 
