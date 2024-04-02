@@ -1356,3 +1356,66 @@ def test_fmt_nanoplot_multi_y_vals(params: Dict[str, Any]):
     res_2 = _get_column_of_values(gt_2, column_name="vals", context="html")
 
     assert _all_vals_nanoplot_output(res_2)
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        ({}),
+        ({"reference_line": 0}),
+        ({"reference_line": "mean"}),
+        ({"reference_area": [0.1, 5.3]}),
+        ({"reference_area": [0.1, 5.3]}),
+        ({"reference_area": [5.3, 0.1]}),
+        ({"reference_area": ["min", "median"]}),
+        ({"reference_area": ["median", "min"]}),
+        ({"reference_area": ["median", 0]}),
+        ({"reference_area": [0, "median"]}),
+        ({"reference_line": 0, "reference_area": [2.3, "max"]}),
+        ({"expand_y": 20}),
+        ({"expand_y": [20]}),
+        ({"expand_y": [-30, 20]}),
+        ({"autoscale": True}),
+        ({"expand_x": 20}),
+        ({"expand_x": [20]}),
+        ({"expand_x": [-30, 20]}),
+        ({"expand_x": 20, "expand_y": [-30, 20]}),
+        ({"expand_x": [20], "expand_y": 20}),
+        ({"expand_x": [-30, 20], "expand_y": [20]}),
+        (
+            {
+                "reference_line": 0,
+                "reference_area": [2.3, "max"],
+                "plot_height": "3em",
+            }
+        ),
+    ],
+)
+def test_fmt_nanoplot_x_y_vals(params: Dict[str, Any]):
+
+    df = pl.DataFrame(
+        {
+            "vals": [
+                {
+                    "x": [6.1, 8.0, 10.1, 10.5, 11.2, 12.4, 13.1, 15.3],
+                    "y": [24.2, 28.2, 30.2, 30.5, 30.5, 33.1, 33.5, 32.7],
+                },
+                {
+                    "x": [7.1, 8.2, 10.3, 10.75, 11.25, 12.5, 13.5, 14.2],
+                    "y": [18.2, 18.1, 20.3, 20.5, 21.4, 21.9, 23.1, 23.3],
+                },
+                {
+                    "x": [6.3, 7.1, 10.3, 11.0, 12.07, 13.1, 15.12, 16.42],
+                    "y": [15.2, 17.77, 21.42, 21.63, 25.23, 26.84, 27.2, 27.44],
+                },
+            ]
+        }
+    )
+
+    gt = GT(df).fmt_nanoplot(
+        columns="vals",
+        **params,
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")
+
+    assert _all_vals_nanoplot_output(res)
