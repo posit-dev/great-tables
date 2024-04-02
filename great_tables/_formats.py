@@ -2594,6 +2594,7 @@ def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] 
     # the column named 'group'; this could potentially be of any type but we expect
     # it to be a string (and we'll check for that here)
     sep_mark: Any
+    # TODO: remove pandas
     sep_mark = pd_df_row.iloc[0]["group"]
     if not isinstance(sep_mark, str):
         raise TypeError(f"Variable type mismatch. Expected str, got {type(sep_mark)}.")
@@ -2617,6 +2618,7 @@ def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
     # the column named 'decimal'; this could potentially be of any type but we expect
     # it to be a string (and we'll check for that here)
     dec_mark: Any
+    # TODO: remove pandas
     dec_mark = pd_df_row.iloc[0]["decimal"]
     if not isinstance(dec_mark, str):
         raise TypeError(f"Variable type mismatch. Expected str, got {type(dec_mark)}.")
@@ -2643,29 +2645,6 @@ def _get_locales_list() -> List[str]:
     return locale_list
 
 
-def _get_default_locales_list() -> List[str]:
-    """
-    Returns a list of default locales.
-
-    The function retrieves the default locales data and extracts the default locale list.
-    It ensures that the list is of type 'str' and raises a TypeError if not.
-
-    Returns:
-        A list of default locales as strings.
-    """
-
-    # Get the 'default locales' dataset and obtain from that a list of default locales
-    default_locales = _get_default_locales_data()
-    default_locale_list = default_locales["default_locale"].tolist()
-
-    # Ensure that `default_locale_list` is of the type 'str'
-    default_locale_list: Any
-    if not isinstance(default_locale_list[0], str):
-        raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
-
-    return default_locale_list
-
-
 def _validate_locale(locale: Union[str, None] = None) -> None:
     """
     Validates the given locale string against a list of supported locales.
@@ -2683,7 +2662,7 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
         return
 
     locales_list = _get_locales_list()
-    default_locales_list = _get_default_locales_list()
+    default_locales_list = [entry["default_locale"] for entry in _get_default_locales_data()]
 
     # Replace any underscores with hyphens
     supplied_locale = _str_replace(locale, "_", "-")
@@ -2717,22 +2696,25 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
     supplied_locale = _str_replace(locale, "_", "-")
 
     # Resolve any default locales into their base names (e.g., 'en-US' -> 'en')
-    if supplied_locale in _get_default_locales_list():
-        default_locales = _get_default_locales_data()
-        resolved_locale = default_locales[
-            default_locales["default_locale"] == supplied_locale
-        ].iloc[0]["base_locale"]
+    # TODO: remove pandas
+    default_locales = _get_default_locales_data()
 
-        # Ensure that `resolved_locale` is of the type 'str'
-        resolved_locale: Any
-        if not isinstance(resolved_locale, str):
-            raise TypeError(
-                "Variable type mismatch. Expected str, got something entirely different."
-            )
-    else:
-        resolved_locale = supplied_locale
+    matches = [
+        entry["base_locale"]
+        for entry in default_locales
+        if entry["default_locale"] == supplied_locale
+    ]
 
-    return resolved_locale
+    if matches:
+        return matches[0]
+
+    # TODO: what did it mean, that this function used to pass through
+    # unmatched supplied_locales? Seems likely that path always resulted
+    # in an error.
+    # TODO: how do users know which locale options are available?
+    raise ValueError(
+        f"Supplied locale `{supplied_locale}` does not match any known locale.",
+    )
 
 
 def _resolve_locale(x: GTData, locale: Union[str, None] = None) -> Union[str, None]:
@@ -2776,6 +2758,7 @@ def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
     pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
 
     # Extract the 'currency_code' cell value from this 1-row DataFrame
+    # TODO: remove pandas
     currency_code = pd_df_row.iloc[0]["currency_code"]
 
     # Ensure that `currency_code` is of the type 'str'
@@ -2811,6 +2794,7 @@ def _get_currency_str(currency: str) -> str:
     )
 
     # Extract the 'symbol' cell value from this 1-row DataFrame
+    # TODO: remove pandas
     currency_str = pd_df_row.iloc[0]["symbol"]
 
     # Ensure that `currency_str` is of the type 'str'
@@ -2901,6 +2885,7 @@ def _get_currency_exponent(currency: str) -> int:
     curr_code_list: List[str] = currencies["curr_code"].tolist()
 
     if currency in curr_code_list:
+        # TODO: remove pandas
         exponent = currencies[currencies["curr_code"] == currency].iloc[0]["exponent"]
 
         # Cast exponent variable as an integer value (it is a str currently)
