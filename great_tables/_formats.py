@@ -2882,22 +2882,17 @@ def _get_currency_exponent(currency: str) -> int:
     currencies = _get_currencies_data()
 
     # get the curr_code column from currencies df as a list
-    curr_code_list: List[str] = currencies["curr_code"].tolist()
+    matches = [entry["exponent"] for entry in currencies if entry["curr_code"] == currency]
 
-    if currency in curr_code_list:
-        # TODO: remove pandas
-        exponent = currencies[currencies["curr_code"] == currency].iloc[0]["exponent"]
+    if matches:
+        exponent = matches[0]
 
-        # Cast exponent variable as an integer value (it is a str currently)
+        # TODO: why does this happen here if we control currency data?
         exponent = int(exponent)
 
-        # Ensure that `exponent` is of the type 'int'
-        exponent: Any
-        if not isinstance(exponent, int):
-            raise TypeError(
-                "Variable type mismatch. Expected int, got something entirely different."
-            )
     else:
+        # TODO: in what situation are we given a currency code with no match?
+        # why return this? E.g. what if someone mispelled a currency code?
         exponent = 2
 
     return exponent
