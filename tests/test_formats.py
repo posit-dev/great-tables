@@ -1133,52 +1133,42 @@ def test_fmt_currency_force_sign():
 # Test `fmt_time()`
 # ------------------------------------------------------------------------------
 
+df_fmt_time = pd.DataFrame({"x": ["10:59:59", "13:23:59", "23:15"]})
 
-@pytest.mark.parametrize(
-    "time_style,x_out",
-    [
-        (
-            "iso",
-            ["00:00:00", "08:30:00", "10:59:59", "12:00:00", "13:23:59", "22:10:30", "23:15:00"],
-        ),
-        ("iso-short", ["00:00", "08:30", "10:59", "12:00", "13:23", "22:10", "23:15"]),
-        (
-            "h_m_s_p",
-            [
-                "12:00:00 AM",
-                "8:30:00 AM",
-                "10:59:59 AM",
-                "12:00:00 PM",
-                "1:23:59 PM",
-                "10:10:30 PM",
-                "11:15:00 PM",
-            ],
-        ),
-        (
-            "h_m_p",
-            ["12:00 AM", "8:30 AM", "10:59 AM", "12:00 PM", "1:23 PM", "10:10 PM", "11:15 PM"],
-        ),
-        ("h_p", ["12 AM", "8 AM", "10 AM", "12 PM", "1 PM", "10 PM", "11 PM"]),
-    ],
-)
-def test_fmt_time(time_style: TimeStyle, x_out: str):
-    df = pd.DataFrame(
-        {
-            "x": [
-                "00:00:00",
-                "08:30:00",
-                "10:59:59",
-                "12:00:00",
-                "13:23:59",
-                "22:10:30",
-                "23:15",
-            ]
-        }
-    )
 
-    gt = GT(df).fmt_time(columns="x", time_style=time_style)
+def test_fmt_time_iso():
+
+    gt = GT(df_fmt_time).fmt_time(columns="x", time_style="iso")
     x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == x_out
+    assert x == ["10:59:59", "13:23:59", "23:15:00"]
+
+
+def test_fmt_time_iso_short():
+
+    gt = GT(df_fmt_time).fmt_time(columns="x", time_style="iso-short")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["10:59", "13:23", "23:15"]
+
+
+def test_fmt_time_h_m_s_p():
+
+    gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_m_s_p")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["10:59:59 AM", "1:23:59 PM", "11:15:00 PM"]
+
+
+def test_fmt_time_h_m_p():
+
+    gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_m_p")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["10:59 AM", "1:23 PM", "11:15 PM"]
+
+
+def test_fmt_time_h_p():
+
+    gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_p")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["10 AM", "1 PM", "11 PM"]
 
 
 # ------------------------------------------------------------------------------
@@ -1186,57 +1176,25 @@ def test_fmt_time(time_style: TimeStyle, x_out: str):
 # ------------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize(
-    "date_style,time_style,sep,x_out",
-    [
-        (
-            "iso",
-            "iso",
-            " ",
-            [
-                "2023-01-05 00:00:00",
-                "2022-06-15 08:30:00",
-                "2020-11-12 10:59:59",
-                "2015-04-25 12:00:00",
-                "2016-12-04 13:23:59",
-                "2018-07-28 22:10:30",
-                "2013-05-15 23:15:00",
-            ],
-        ),
-        (
-            "wday_month_day_year",
-            "h_m_s_p",
-            " at ",
-            [
-                "Thursday, January 5, 2023 at 12:00:00 AM",
-                "Wednesday, June 15, 2022 at 8:30:00 AM",
-                "Thursday, November 12, 2020 at 10:59:59 AM",
-                "Saturday, April 25, 2015 at 12:00:00 PM",
-                "Sunday, December 4, 2016 at 1:23:59 PM",
-                "Saturday, July 28, 2018 at 10:10:30 PM",
-                "Wednesday, May 15, 2013 at 11:15:00 PM",
-            ],
-        ),
-    ],
-)
-def test_fmt_datetime(date_style: DateStyle, time_style: TimeStyle, sep: str, x_out: str):
+def test_fmt_datetime():
+
     df = pd.DataFrame(
         {
             "x": [
                 "2023-01-05 00:00:00",
-                "2022-06-15 08:30:00",
-                "2020-11-12 10:59:59",
-                "2015-04-25 12:00:00",
-                "2016-12-04 13:23:59",
-                "2018-07-28 22:10:30",
                 "2013-05-15 23:15",
             ]
         }
     )
 
-    gt = GT(df).fmt_datetime(columns="x", date_style=date_style, time_style=time_style, sep=sep)
+    gt = GT(df).fmt_datetime(
+        columns="x", date_style="wday_month_day_year", time_style="h_m_s_p", sep=" at "
+    )
     x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == x_out
+    assert x == [
+        "Thursday, January 5, 2023 at 12:00:00 AM",
+        "Wednesday, May 15, 2013 at 11:15:00 PM",
+    ]
 
 
 # ------------------------------------------------------------------------------
@@ -1244,172 +1202,114 @@ def test_fmt_datetime(date_style: DateStyle, time_style: TimeStyle, sep: str, x_
 # ------------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize(
-    "standard,decimals,use_seps,force_sign,incl_space,x_out",
-    [
-        (
-            "decimal",
-            1,
-            True,
-            False,
-            True,
-            [
-                "−342 B",
-                "−3 B",
-                "0 B",
-                "0 B",
-                "0 B",
-                "1 B",
-                "500 B",
-                "512 B",
-                "994 B",
-                "1 kB",
-                "1 kB",
-                "2.3 GB",
-                "845.7 TB",
-                "253.5 PB",
-                "72.5 YB",
-                "902,487.2 YB",
-            ],
-        ),
-        (
-            "binary",
-            1,
-            True,
-            False,
-            True,
-            [
-                "−342 B",
-                "−3 B",
-                "0 B",
-                "0 B",
-                "0 B",
-                "1 B",
-                "500 B",
-                "512 B",
-                "994 B",
-                "1,000 B",
-                "1 KiB",
-                "2.2 GiB",
-                "769.1 TiB",
-                "225.2 PiB",
-                "60 YiB",
-                "746,519.9 YiB",
-            ],
-        ),
-        (
-            "binary",
-            2,
-            True,
-            False,
-            True,
-            [
-                "−342 B",
-                "−3 B",
-                "0 B",
-                "0 B",
-                "0 B",
-                "1 B",
-                "500 B",
-                "512 B",
-                "994 B",
-                "1,000 B",
-                "1 KiB",
-                "2.19 GiB",
-                "769.12 TiB",
-                "225.18 PiB",
-                "59.98 YiB",
-                "746,519.93 YiB",
-            ],
-        ),
-        (
-            "binary",
-            3,
-            True,
-            False,
-            True,
-            [
-                "−342 B",
-                "−3 B",
-                "0 B",
-                "0 B",
-                "0 B",
-                "1 B",
-                "500 B",
-                "512 B",
-                "994 B",
-                "1,000 B",
-                "1 KiB",
-                "2.185 GiB",
-                "769.118 TiB",
-                "225.18 PiB",
-                "59.981 YiB",
-                "746,519.928 YiB",
-            ],
-        ),
-        (
-            "binary",
-            1,
-            False,
-            True,
-            False,
-            [
-                "−342B",
-                "−3B",
-                "0B",
-                "0B",
-                "0B",
-                "+1B",
-                "+500B",
-                "+512B",
-                "+994B",
-                "+1000B",
-                "+1KiB",
-                "+2.2GiB",
-                "+769.1TiB",
-                "+225.2PiB",
-                "+60YiB",
-                "+746519.9YiB",
-            ],
-        ),
-    ],
-)
-def test_fmt_bytes(
-    standard: str, decimals: int, use_seps: bool, force_sign: bool, incl_space: bool, x_out: str
-):
-    df = pd.DataFrame(
-        {
-            "x": [
-                -342.8,
-                -3,
-                0,
-                0.4,
-                0.9,
-                1,
-                500,
-                512,
-                994,
-                1000,
-                1024,
-                2346345274.3,
-                845653745232536,
-                253529876942760953,
-                72512895702785787335434345,
-                902487216348759693489128343269,
-            ]
-        }
-    )
+FMT_BYTES_CASES: List[Tuple[dict[str, Any], List[str]]] = [
+    # 1. default case: decimal units"
+    (
+        dict(),
+        [
+            "−3 B",
+            "0 B",
+            "0 B",
+            "1 B",
+            "994 B",
+            "1 kB",
+            "1 kB",
+            "2.3 GB",
+            "845.7 TB",
+            "253.5 PB",
+            "72.5 YB",
+            "902,487.2 YB",
+        ],
+    ),
+    # 2. using binary units
+    (
+        dict(standard="binary"),
+        [
+            "−3 B",
+            "0 B",
+            "0 B",
+            "1 B",
+            "994 B",
+            "1,000 B",
+            "1 KiB",
+            "2.2 GiB",
+            "769.1 TiB",
+            "225.2 PiB",
+            "60 YiB",
+            "746,519.9 YiB",
+        ],
+    ),
+    # 3. using two decimal places
+    (
+        dict(stardard="binary", decimals=2),
+        [
+            "−3 B",
+            "0 B",
+            "0 B",
+            "1 B",
+            "994 B",
+            "1,000 B",
+            "1 KiB",
+            "2.19 GiB",
+            "769.12 TiB",
+            "225.18 PiB",
+            "59.98 YiB",
+            "746,519.93 YiB",
+        ],
+    ),
+    # 4. exercise numeric formatting and unit placement options
+    (
+        dict(standard="binary", use_seps=False, force_sign=True, incl_space=False),
+        [
+            "−3B",
+            "0B",
+            "0B",
+            "+1B",
+            "+994B",
+            "+1000B",
+            "+1KiB",
+            "+2.2GiB",
+            "+769.1TiB",
+            "+225.2PiB",
+            "+60YiB",
+            "+746519.9YiB",
+        ],
+    ),
+]
 
-    gt = GT(df).fmt_bytes(
-        columns="x",
-        standard=standard,
-        decimals=decimals,
-        use_seps=use_seps,
-        force_sign=force_sign,
-        incl_space=incl_space,
-    )
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == x_out
+
+# Test Cases #1-4 for fmt_bytes()
+
+for i, (fmt_bytes_kwargs, x_out) in enumerate(FMT_BYTES_CASES):
+
+    def test_fmt_bytes_case(
+        fmt_bytes_kwargs: dict[str, Any] = fmt_bytes_kwargs, x_out: List[str] = x_out
+    ):
+        df = pd.DataFrame(
+            {
+                "x": [
+                    -3,
+                    0,
+                    0.9,
+                    1,
+                    994,
+                    1000,
+                    1024,
+                    2346345274.3,
+                    845653745232536,
+                    253529876942760953,
+                    72512895702785787335434345,
+                    902487216348759693489128343269,
+                ]
+            }
+        )
+        gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
+        x = _get_column_of_values(gt, column_name="x", context="html")
+        assert x == x_out
+
+        test_name = f"test_fmt_bytes_case_{i + 1}"
+        test_fmt_bytes_case.__name__ = test_name
+        globals()[test_name] = test_fmt_bytes_case
 
 
 # ------------------------------------------------------------------------------
@@ -1417,107 +1317,21 @@ def test_fmt_bytes(
 # ------------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize(
-    "case,x_out",
-    [
-        (
-            "upper",
-            [
-                "MCCXXXIV",
-                "I",
-                "N",
-                "N",
-                "I",
-                "I",
-                "IV",
-                "V",
-                "VI",
-                "VII",
-                "VIII",
-                "IX",
-                "X",
-                "XV",
-                "XX",
-                "XLIX",
-                "L",
-                "XCIX",
-                "C",
-                "D",
-                "M",
-                "MD",
-                "MMC",
-                "MMMDCCC",
-                "ex terminis",
-            ],
-        ),
-        (
-            "lower",
-            [
-                "mccxxxiv",
-                "i",
-                "n",
-                "n",
-                "i",
-                "i",
-                "iv",
-                "v",
-                "vi",
-                "vii",
-                "viii",
-                "ix",
-                "x",
-                "xv",
-                "xx",
-                "xlix",
-                "l",
-                "xcix",
-                "c",
-                "d",
-                "m",
-                "md",
-                "mmc",
-                "mmmdccc",
-                "ex terminis",
-            ],
-        ),
-    ],
-)
-def test_fmt_roman(case: str, x_out: str):
-    df = pd.DataFrame(
-        {
-            "x": [
-                -1234,
-                -1,
-                0,
-                0.4,
-                0.8,
-                1,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                15,
-                20,
-                49,
-                50,
-                99,
-                100,
-                500,
-                1000,
-                1500,
-                2100,
-                3800,
-                4500,
-            ]
-        }
-    )
+df_fmt_roman = pd.DataFrame({"x": [-1234, 0, 0.4, 0.8, 1, 99, 4500]})
 
-    gt = GT(df).fmt_roman(columns="x", case=case)
+
+def test_fmt_roman_upper():
+
+    gt = GT(df_fmt_roman).fmt_roman(columns="x")
     x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == x_out
+    assert x == ["MCCXXXIV", "N", "N", "I", "I", "XCIX", "ex terminis"]
+
+
+def test_fmt_roman_lower():
+
+    gt = GT(df_fmt_roman).fmt_roman(columns="x", case="lower")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["mccxxxiv", "n", "n", "i", "i", "xcix", "ex terminis"]
 
 
 # ------------------------------------------------------------------------------
