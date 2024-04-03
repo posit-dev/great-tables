@@ -7,22 +7,22 @@ freeze: true
 jupyter: python3
 ---
 
-We've spent a lot of time thinking about tables. Tables---like plots---are crucial as a last step toward presenting information. There is surprising sophistication and nuance in designing effective tables. Over the past 5,000 years, they've evolved from simple grids to highly structured displays of data. Although we postulate that the mid-1900s served as a high point, the popularization and wider accessibility of computing seemingly brought us back to the simple, ancient times.
+We've spent a lot of time thinking about tables. Tables---like plots---are crucial as a last step toward presenting information. There is surprising sophistication and nuance in designing effective tables. Over the past 5,000 years, they've evolved from simple grids to highly structured displays of data. Although we argue that the mid-1900s served as a high point, the popularization and wider accessibility of computing seemingly brought us back to the simple, ancient times.
 
-Okay, it's not all *that bad* but the workers of data are today confronted with a dilemma: copy your data into a tool like Excel for making the table, or, display an unpolished table. Through exploring the qualities that make tables shine, the backstory of tables as a display of data, and the issues faced today, it's clear how we can solve the **great table dilemma** with **Great Tables**.
+Okay, it's not all *that bad* but the workers of data are today confronted with an all-too-familiar dilemma: copy your data into a tool like Excel to make the table, or, display an otherwise unpolished table. Through the exploration of the qualities that make tables shine, the backstory of tables as a display of data, and the issues faced today, it's clear how we can solve the **great table dilemma** with **Great Tables**.
 
 ![](./computer_tables.png)
 
-<p style="font-size: 12px;">Tables made with computers (left to right): (1) a DataFrame printed at the console, (2) an Excel table, and (3) a **Great Tables** table.</p>
+<p style="font-size: 12px;">Tables made with computers (left to right): (1) a DataFrame printed at the console, (2) an Excel table, and (3) a <strong>Great Tables</strong> table.</p>
 
 ### What is a table, really?
 
-Before getting to what makes tables shine we have to define what a table is. This is surprisingly hard! But I believe it can be boiled down to two basic rules:
+Before getting to what makes tables *shine* we should first define what a table is. This is surprisingly hard! But I believe it can be boiled down to two basic rules:
 
 - the data is represented as columns and rows
 - the data is primarily text
 
-Let's look at an example of a simple table with actual data to tie theory to practice.
+Let's look at an example of a simple table with actual data to tie this theory to practice.
 
 ```{python}
 # | echo: false
@@ -58,17 +58,17 @@ GT(simple_table)
 
 <p style="font-size: 12px;">A table of named individuals along with a select set of characteristics.</p>
 
-This table arranges records for personal characteristic in columns and rows. Each person has a row, and each characteristic in a column. The characteristics use different types of data, like dates, numbers, and text. This arrangement makes it easy to look up individual values or make comparisons across the different rows or columns.
+This table arranges records containing personal characteristics as columns and rows. Each person is a row, and each characteristic makes up a different column. The characteristics use different types of data, like dates, numbers, and text. This arrangement makes it easy to look up individual values or make comparisons across the different rows or columns. Note that there are horizontal lines separating the rows. This aesthetic touch, while not strictly required for a table, serves as a visual reinforcement for separating the individual rows.
 
-In the table above there are horizontal lines separating the rows. While not strictly required for a table these act as visual reinforcements that separate the individual rows.
-
-The order of the columns matters, and that we start with the `Name` column here is no accident. If you were to have that column as the last column (i.e., furthest to the right), it would be slightly more confusing for the reader since the basis for the record doesn't come first in a conventional left-to-right reading. Moving on to considering the columns of this table, note that we don't have to infer what type of data is contained in each from the data itself, a row at the top is dedicated for labeling the contents within the columns.
+The order of the columns matters, and that we start with the `Name` column here is no accident. If that column were the last (i.e., furthest to the right), it would be slightly more confusing for the reader since the basis for the record isn't immediate (reading left-to-right reading, as we do). Moving on to something more intrinsic about columns, we don't have to infer what type of data is contained within each column. A row at the top is dedicated for labeling the contents within the columns. If we didn't have column labels, we'd have to infer the meaning of the column from the data itself.
 
 We'll go into some detail later about how **Great Tables** provides affordances for structuring information for better legibility and how the package can be used to adorn the table with other structural elements. For now, our conception of a table can be summarized in this schematic.
 
 ![](./a_simple_table.png)
 
 <p style="font-size: 12px;">A simple table has: (1) cells containing data, (2) an arrangement of columns and rows, and (3) column labels to describe the type data in each column.</p>
+
+Now, let's go back: way back. In examining where tables came from, we might better understand the great story of tables.
 
 ### The early history of tables
 
@@ -127,25 +127,27 @@ We at **Great Tables** borrow liberally from this work because many of its tabul
 
 ### The late history of tables
 
-With computing technologies becoming more accessible by the 1970s and 1980s, people were able to generate tables in both electronic and print form. The democratization of computational tables arguably began with VisiCalc in 1979, a massive success that initiated the computing category of spreadsheeting software. There's an undeniable advantage to having data analyzed and transformed in computing environments, but, this comes at a cost. Like, do these tables look any good? (They do not.)
+With computing technologies becoming more accessible by the 1970s and 1980s, people were able to generate tables in both electronic and print form. The democratization of computational tables arguably began with VisiCalc in 1979, a massive success that initiated the computing category of spreadsheeting software. There's an undeniable advantage to having data analyzed and transformed in computing environments, but, this comes at a cost. This is what it looked like:
 
 ![](./visicalc.png)
 
 <p style="font-size: 12px;">This is a table in VisiCalc (earliest example of a table in a spreadsheet application). It's pretty crude compared to the tables in print but the advantage here is that you can calculate values quickly.</p>
 
-Over time, and this only took 10-15 years, tables-within-spreadsheets got a little easier on the eyes. By the early 1990s, Excel could paint borders on your tables, better typographical support was available, and the formatting of values was fully-featured (though, [wonky](https://www.cnet.com/tech/computing/prevent-excel-from-reformatting-two-numbers-to-a-date-and-month/)). Great! Problem solved, right? Not really.
+The grid cells couldn't be styled with borders for presentation purposes, the values couldn't be formatted, and the tables couldn't even be printed. I mean, [try it out](https://www.pcjs.org/software/pcx86/app/other/visicalc/1981/) and you'll see that this is quite limited in more than a few ways.
 
-While Excel tables from the last three decades looked much better than 1980s-spreadsheet-borne tables, they could never hold a candle to the what was shown in the *Census Manual* (no matter how much of an Excel expert you became). Further to this, data analysis started to became a thing accomplished outside of Excel. Think Python and Jupyter notebooks. We now have a bag of problematic scenarios:
+Over time, and this took about 10-15 years, tables-within-spreadsheets got a little easier on the eyes. By the early 1990s, Excel could paint borders on your tables, better typographical support was available, and the formatting of values was fully-featured (though, [wonky](https://www.cnet.com/tech/computing/prevent-excel-from-reformatting-two-numbers-to-a-date-and-month/)). Great! Problem solved, right? Not really.
 
-- you can use Python (or some other language) to analyze data and generate some tables that won't look too good
-- you can do everything in Excel and make semi-good tables (but you don't get to use the power of Py)
+While Excel tables from the last three decades looked much better than 1980s-spreadsheet-borne tables, they could never hold a candle to the what was shown in the *Census Manual* (no matter how much of an Excel expert you became). Further to this, data analysis started to became a thing accomplished outside of Excel. One example of that is Python and its use inside Jupyter notebooks. We now have a bag of problematic scenarios:
+
+- you can use Python (or some other language) to analyze data and generate some tables that probably won't look too good
+- you can do everything in Excel and make semi-good tables, but you don't get to use the power of Py
 - you can use Python for data analysis/summarization and bring it over to Excel for the table finishing move
 
 All of these are suboptimal solutions. We propose that it is far better to do everything in Python: the data ingestion, the data analysis, and the data visualization. The visualization step is what's done for plots and other types of graphics composed from data, it shouldn't be any different when it comes to generating summary tables.
 
 ### Approach to tables taken by **Great Tables**
 
-**Great Tables** restores the elegance of midcentury tables with the power of a coding interface. With **Great Tables** anyone can make wonderful-looking tables in Python. Our framework expresses a table as a combination of six independent components. With this framework, you can structure the table, format the values, and style the table. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines.
+**Great Tables** restores the elegance of midcentury tables with the power of a coding interface. With **Great Tables** anyone can make beautiful tables in Python. Our framework expresses a table as a combination of six independent components. With this framework, you can structure the table, format the values, and style the table. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines.
 
 You build with **Great Tables** iteratively, starting off with your table body from code, adding styling, formatting and other components. Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:
 
@@ -153,13 +155,13 @@ You build with **Great Tables** iteratively, starting off with your table body f
 
 <p style="font-size: 12px;">A schematic with the complete set of table components that can be utilized in <strong>Great Tables</strong>.</p>
 
-Note the following pieces:
+Note the following six component pieces:
 
-- **Table Header**: a place for a title and subtitle, where you can describe the table content
-- **Column Labels**: column labels define the content of each column, spanners are headings over groups of columns
+- **Table Header**: a place for a title and subtitle, where you can succinctly describe the table content
+- **Column Labels**: the column labels define the content of each column, and spanners are headings over groups of columns
 - **Stub Head**: the 'top-left' location, where a label could be used in a variety of ways
 - **Row Stub**: for row information, including row grouping labels
-- **Table Body**: where the data is
+- **Table Body**: contains cells and so it's where the data lives
 - **Table Footer**: a place for additional information pertaining to the table content
 
 Here's a table that takes advantage of the different components available in **Great Tables**. It contains the names and addresses of people.
@@ -191,19 +193,19 @@ from great_tables import GT, md, system_fonts
 
 <p style="font-size: 12px;">A table of named individuals redone, <strong>Great Tables</strong> style!</p>
 
-Notice that there is a blue row stub component that makes the row labels distinct from the rest. This is important because each person described forms a unique observation. The heading provides context on what's contained within the table. Column spanners put the columns into sensible groupings (e.g., 'Location'). The consistent use of blue lines and cell backgrounds gives the table a professional look.
+Notice that there is a blue row stub component that makes the row labels distinct from the body of the table. This is important because each person described forms a unique observation and we want to highlight the subject of each row. The heading provides context on what's contained within the table. The two column spanners arrange the columns into sensible groupings (e.g., 'Location'). The consistent use of blue lines and cell backgrounds gives the table a professional look.
 
-If you look at the code above you'll see that every method for modifying the table starts with `tab_`. These different methods are concerned with adding a table component (e.g., `tab_header()` creates a **Table Header**) and they're designed to be easy and straightforward to use.
+If you look at the table code above you'll see that every method for modifying the table starts with `tab_`. These particular methods are concerned with adding a table component (e.g., `tab_header()` creates a **Table Header**) and they're designed to be easy and straightforward to use.
 
-Table structuring is important, but not the only thing. Tables in different disciplines have certain set of display requirements specific to the values shown. Even something as simple as a number can be formatted in many different ways depending on a community's norms and expectations. This extends to a wide area considering that we also have to format dates, times, and currencies.
+Table structuring is important, but not the only thing. Tables in different disciplines have a certain set of display requirements specific for any values shown. Even something as simple as a number can be formatted in many different ways depending on a community's norms and expectations. This extends to a very wide area when we consider that dates, times, and currencies also need to be formatted.
 
 Depending on your display requirements, a raw value like 134,000 could presented as:
 
 - scientific notation (`fmt_scientific()`): 1.34 × 10<sup style='font-size: 65%;'>5</sup>
-- German locale (`fmt_number()`): 134.000,00
-- compact integer value (`fmt_integer()`): 134K
+- a number in the German locale (`fmt_number()`): 134.000,00
+- a compact integer value (`fmt_integer()`): 134K
 
-The problem grows worse when values need to be conveyed as images or plots. If you're a medical analyst, you'll need to effectively convey whether test results are getting better or worse over time. Reading test data as a sequence of numbers across cells can slow interpretation. But by using *nanoplots*, available as the `fmt_nanoplot()` formatting method, readers can spot trends right away. Here's an example that provides tests results over a series of days.
+The problem grows worse when values need to be conveyed as images or plots. If you're a medical analyst, for example, you might need to effectively convey whether test results for a patient are improving or worsening over time. Reading such data as a sequence of numbers across a row can slow interpretation. But by using *nanoplots*, available as the `fmt_nanoplot()` formatting method, readers can spot trends right away. Here's an example that provides test results over a series of days.
 
 ```{python}
 # | code-fold: true
@@ -234,17 +236,17 @@ illness_mini = (
 )
 ```
 
-Notice that if you hover over the data points, you still get values for each of the days. Nanoplots are stripped down plots that balance the quick visual interpretation of a plot against the compactness of a table. If you peeked at the code in the above table displays you might haved noticed there are methods beginning with `fmt_` (i.e., `fmt_date()`, `fmt_integer()`, `fmt_nanoplot()`). These are the formatting methods and we designed them to be easy but to also give you great power and flexibility for your formatting tasks.
+Notice that if you hover over the data points, you still get values for each of the days. We designed nanoplots to be stripped down plotting visualizations that balance the quick visual interpretation of a plot against the compactness of a table. **Great Tables** contains a lot of functionality for formatting. If you peeked at the code in the above table displays you might have noticed there are methods beginning with `fmt_` (i.e., `fmt_date()`, `fmt_integer()`, `fmt_nanoplot()`). We want to make many formatting methods to serve different users' needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.
 
 There are myriad ways that people interact with tables. **Great Tables** is focused on the display of tables for publication and presentation. If you're analyzing data in a database, you might want a simple table display that offers controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations.
 
-The publication of results is a entirely different task, and the emphasis here is on structuring, formatting, and styling. Beautiful table displays:
+The publication of results is a entirely different task, and the emphasis here is on structuring, formatting, and styling. We believe that beautiful table displays should do the following:
 
 - make information easier to digest
-- add extra context where needed
-- match the style of the organization or document
+- provide extra context wherever needed
+- adhere to the style of the document or of the organization
 
-We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in periodicals like [*The Economist*](https://www.economist.com/economic-and-financial-indicators/2024/03/14/economic-data-commodities-and-markets). We believe the area of static summary tables deserves it's own focus. Those tables look *great* and we offer various `opt_*()` methods in the **Great Tables** API so it's that much easier to provide a great display to your readers.
+We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in periodicals like [*The Economist*](https://www.economist.com/economic-and-financial-indicators/2024/03/14/economic-data-commodities-and-markets). We think the area of static summary tables deserves it's own focus. This class of tables can look *great* and we offer various `opt_*()` methods in the **Great Tables** API so it's that much easier to provide a great display to your readers.
 
 ### In conclusion
 
