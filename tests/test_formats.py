@@ -19,7 +19,7 @@ from great_tables._formats import (
 )
 from great_tables._locations import RowSelectExpr
 
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Tuple, Union
 
 
 def assert_rendered_body(snapshot, gt):
@@ -1063,51 +1063,54 @@ def test_format_number_with_sep_dec_marks():
 
 
 # ------------------------------------------------------------------------------
-# Test `fmt_currency()`
+# Tests of `fmt_currency()`
 # ------------------------------------------------------------------------------
 
+FMT_CURRENCY_CASES: List[Tuple[dict[str, Any], List[str]]] = [
+    # 1. default case"
+    (dict(), ["$1,234,567.00", "−$5,432.37"]),
+    # 2. USD currency is same as None
+    (dict(currency="USD"), ["$1,234,567.00", "−$5,432.37"]),
+    # 3. a different currency type can be provided
+    (dict(currency="EUR"), ["&#8364;1,234,567.00", "−&#8364;5,432.37"]),
+    # 4. don't use subunits (decimal part
+    (dict(use_subunits=False), ["$1,234,567", "−$5,432"]),
+    # 5. `decimals` use overrides excl. of subunits
+    (dict(use_subunits=False, decimals=4), ["$1,234,567.0000", "−$5,432.3700"]),
+    # 6. `decimals` can override default number of decimals
+    (dict(use_subunits=True, decimals=4), ["$1,234,567.0000", "−$5,432.3700"]),
+    # 7. Don't drop dec mark
+    (
+        dict(use_subunits=True, decimals=0, drop_trailing_dec_mark=False),
+        ["$1,234,567.", "−$5,432."],
+    ),
+    # 8. `use_seps=False` to exclude separators
+    (dict(use_seps=False), ["$1234567.00", "−$5432.37"]),
+    # 9. `placement="right"` to place currency symbol on right
+    (dict(placement="right"), ["1,234,567.00$", "−5,432.37$"]),
+    # 10. `placement="right"` with `incl_space=True`
+    (dict(placement="right", incl_space=True), ["1,234,567.00 $", "−5,432.37 $"]),
+    # 11. `placement="left"` with `incl_space=True`
+    (dict(placement="left", incl_space=True), ["$ 1,234,567.00", "−$ 5,432.37"]),
+]
 
-@pytest.mark.parametrize(
-    "currency,use_subunits,decimals,drop_trailing_dec_mark,use_seps,placement,incl_space,x_out",
-    [
-        (None, True, None, True, True, "left", False, ["$1,234,567.00", "−$5,432.37"]),
-        ("USD", True, None, True, True, "left", False, ["$1,234,567.00", "−$5,432.37"]),
-        ("EUR", True, None, True, True, "left", False, ["&#8364;1,234,567.00", "−&#8364;5,432.37"]),
-        (None, False, None, True, True, "left", False, ["$1,234,567", "−$5,432"]),
-        (None, False, 4, True, True, "left", False, ["$1,234,567.0000", "−$5,432.3700"]),
-        (None, True, 4, True, True, "left", False, ["$1,234,567.0000", "−$5,432.3700"]),
-        (None, True, 0, False, True, "left", False, ["$1,234,567.", "−$5,432."]),
-        (None, True, None, True, False, "left", False, ["$1234567.00", "−$5432.37"]),
-        (None, True, None, True, True, "right", False, ["1,234,567.00$", "−5,432.37$"]),
-        (None, True, None, True, True, "right", True, ["1,234,567.00 $", "−5,432.37 $"]),
-        (None, True, None, True, True, "left", True, ["$ 1,234,567.00", "−$ 5,432.37"]),
-    ],
-)
-def test_fmt_currency(
-    currency: Optional[str],
-    use_subunits: bool,
-    decimals: Optional[int],
-    drop_trailing_dec_mark: bool,
-    use_seps: bool,
-    placement: str,
-    incl_space: bool,
-    x_out: str,
-):
 
-    df = pd.DataFrame({"x": [1234567, -5432.37]})
+df_fmt_currency = pd.DataFrame({"x": [1234567, -5432.37]})
 
-    gt = GT(df).fmt_currency(
-        columns="x",
-        currency=currency,
-        use_subunits=use_subunits,
-        decimals=decimals,
-        drop_trailing_dec_mark=drop_trailing_dec_mark,
-        use_seps=use_seps,
-        placement=placement,
-        incl_space=incl_space,
-    )
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == x_out
+# Test Cases #1-11 for fmt_currency()
+
+for i, (fmt_currency_kwargs, x_out) in enumerate(FMT_CURRENCY_CASES):
+
+    def test_fmt_currency_case(
+        fmt_currency_kwargs: dict[str, Any] = fmt_currency_kwargs, x_out: List[str] = x_out
+    ):
+        gt = GT(df_fmt_currency).fmt_currency(columns="x", **fmt_currency_kwargs)
+        x = _get_column_of_values(gt, column_name="x", context="html")
+        assert x == x_out
+
+    test_name = f"test_fmt_currency_case_{i + 1}"
+    test_fmt_currency_case.__name__ = test_name
+    globals()[test_name] = test_fmt_currency_case
 
 
 @pytest.mark.parametrize(
