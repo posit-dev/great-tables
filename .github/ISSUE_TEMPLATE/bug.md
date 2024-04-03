@@ -3,7 +3,6 @@ name: Bug
 about: Something is wrong with 'great_tables'.
 title: ""
 labels: "Type: ☹︎ Bug"
-assignees: rich-iannone
 ---
 
 ## Prework

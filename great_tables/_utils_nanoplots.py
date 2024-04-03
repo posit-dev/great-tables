@@ -98,6 +98,15 @@ def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) 
     return option_list
 
 
+def calc_ref_value(val_or_calc: "int | float | str", data) -> Union[int, float]:
+    if _val_is_numeric(val_or_calc):
+        return val_or_calc
+    elif _val_is_str(val_or_calc) and val_or_calc in REFERENCE_LINE_KEYWORDS:
+        return _generate_ref_line_from_keyword(vals=data, keyword=val_or_calc)
+
+    raise ValueError(f"Unsupported nanoplot area value: {val_or_calc}")
+
+
 def _format_number_compactly(
     val: Union[int, float],
     currency: Optional[str] = None,
@@ -436,6 +445,9 @@ def _normalize_vals(
     return x
 
 
+# TODO: example nanoplot showing when jitter vals might be applied
+# Looks like it's on the x-axis:
+# GT(pd.DataFrame({'x': [{"x": [1, 1, 1], "y": [2, 3, 4]}]})).fmt_nanoplot("x")
 def _jitter_vals(x: List[Union[int, float]], amount: float) -> List[Union[int, float]]:
     """
     Jitter a list of numeric values by a small amount.
@@ -502,8 +514,8 @@ def _construct_nanoplot_svg(
     show_data_points: bool,
     show_data_line: bool,
     show_data_area: bool,
-    show_ref_line: bool,
-    show_ref_area: bool,
+    show_reference_line: bool,
+    show_reference_area: bool,
     show_vertical_guides: bool,
     show_y_axis_guide: bool,
     ref_area_tags: Optional[str] = None,
@@ -521,12 +533,12 @@ def _construct_nanoplot_svg(
     """
 
     # For the optional strings, transform None to an empty string
-    ref_area_tags = "" if ref_area_tags is None or show_ref_area is False else ref_area_tags
+    ref_area_tags = "" if ref_area_tags is None or show_reference_area is False else ref_area_tags
     area_path_tags = "" if area_path_tags is None or show_data_area is False else area_path_tags
     data_path_tags = "" if data_path_tags is None or show_data_line is False else data_path_tags
     zero_line_tags = "" if zero_line_tags is None else zero_line_tags
     bar_tags = "" if bar_tags is None else bar_tags
-    ref_line_tags = "" if ref_line_tags is None or show_ref_line is False else ref_line_tags
+    ref_line_tags = "" if ref_line_tags is None or show_reference_line is False else ref_line_tags
     circle_tags = "" if circle_tags is None or show_data_points is False else circle_tags
     g_y_axis_tags = "" if g_y_axis_tags is None or show_y_axis_guide is False else g_y_axis_tags
     g_guide_tags = "" if g_guide_tags is None or show_vertical_guides is False else g_guide_tags
@@ -545,7 +557,7 @@ def _generate_nanoplot(
     all_y_vals: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
     all_single_y_vals: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
     plot_type: str = "line",
-    line_type: str = "curved",
+    data_line_type: str = "curved",
     currency: Optional[str] = None,
     y_val_fmt_fn: Optional[Callable[..., str]] = None,
     y_axis_fmt_fn: Optional[Callable[..., str]] = None,
@@ -570,8 +582,8 @@ def _generate_nanoplot(
     show_data_points: bool = True,
     show_data_line: bool = True,
     show_data_area: bool = True,
-    show_ref_line: bool = True,
-    show_ref_area: bool = True,
+    show_reference_line: bool = True,
+    show_reference_area: bool = True,
     show_vertical_guides: bool = True,
     show_y_axis_guide: bool = True,
     interactive_data_values: bool = True,
@@ -587,7 +599,7 @@ def _generate_nanoplot(
         lst=["marker", "gap", "zero", "remove"],
     )
     _match_arg(
-        x=line_type,
+        x=data_line_type,
         lst=["curved", "straight"],
     )
 
@@ -667,7 +679,9 @@ def _generate_nanoplot(
 
         # If `x` values are present, we cannot use a curved line so
         # we'll force the use of the 'straight' line type
-        line_type = "straight"
+        # TODO: if someone specifies the options curved, and we can't do it
+        # then we should raise an error.
+        data_line_type = "straight"
 
     # If `missing_vals` is set to 'gap' raise an error
     # TODO: Implement the 'gap' option for missing values
@@ -701,8 +715,8 @@ def _generate_nanoplot(
         show_data_points = True
         show_data_line = True
         show_data_area = False
-        show_ref_line = False
-        show_ref_area = False
+        show_reference_line = False
+        show_reference_area = False
         show_vertical_guides = False
         show_y_axis_guide = False
 
@@ -714,8 +728,8 @@ def _generate_nanoplot(
         show_data_points = False
         show_data_line = False
         show_data_area = False
-        show_ref_line = False
-        show_ref_area = False
+        show_reference_line = False
+        show_reference_area = False
         show_vertical_guides = False
         show_y_axis_guide = False
 
@@ -740,13 +754,13 @@ def _generate_nanoplot(
     # Ensure that a reference line or reference area isn't shown if None or
     # any of its directives is missing
     if y_ref_line is None or (y_ref_line is not None and pd.isna(y_ref_line)):
-        show_ref_line = False
+        show_reference_line = False
 
     if y_ref_area is None:
-        show_ref_area = False
+        show_reference_area = False
 
     if y_ref_area is not None and (pd.isna(y_ref_area[0]) or pd.isna(y_ref_area[1])):
-        show_ref_area = False
+        show_reference_area = False
 
     # Determine the width of the data plot area; for plots where `x_vals`
     # are available, we'll use a fixed width of `500` (px), and for plots
@@ -755,6 +769,7 @@ def _generate_nanoplot(
     # number of data points)
     if x_vals is not None or single_horizontal_plot or plot_type == "boxplot":
         data_x_width = 600
+        # TODO: what should x_d be in this case?
     else:
         # Obtain a sensible, fixed interval between data points in px
         if num_y_vals <= 20:
@@ -793,7 +808,7 @@ def _generate_nanoplot(
     # so that there are normalized values in relation to the data points
     #
 
-    if show_ref_line and show_ref_area:
+    if show_reference_line and show_reference_area:
 
         # Case where there is both a reference line and a reference area
 
@@ -812,37 +827,19 @@ def _generate_nanoplot(
         # Resolve the reference area
         #
 
-        if y_ref_area is not None:
-            y_ref_area_1 = y_ref_area[0]
-            y_ref_area_2 = y_ref_area[1]
+        # Note if y_ref_area were None, we would not be in this clause
+        y_ref_area_line_1 = calc_ref_value(y_ref_area[0], y_vals)
+        y_ref_area_line_2 = calc_ref_value(y_ref_area[1], y_vals)
 
-            if _val_is_numeric(y_ref_area_1):
-                y_ref_area_line_1 = y_ref_area_1
+        y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
+        y_ref_area_l = y_ref_area_lines_sorted[0]
+        y_ref_area_u = y_ref_area_lines_sorted[1]
 
-            if _val_is_numeric(y_ref_area_2):
-                y_ref_area_line_2 = y_ref_area_2
-
-            if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_1 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_1
-                )
-
-            if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_2 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_2
-                )
-
-            y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
-            y_ref_area_l = y_ref_area_lines_sorted[0]
-            y_ref_area_u = y_ref_area_lines_sorted[1]
+        _all_y_data = [y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y]
 
         # Recompute the `y` scale min and max values
-        y_scale_max = _get_extreme_value(
-            y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="max"
-        )
-        y_scale_min = _get_extreme_value(
-            y_vals, y_ref_line, y_ref_area_l, y_ref_area_u, expand_y, stat="min"
-        )
+        y_scale_max = _get_extreme_value(*_all_y_data, stat="max")
+        y_scale_min = _get_extreme_value(*_all_y_data, stat="min")
 
         # Scale to proportional values
         y_proportions_list = _normalize_to_dict(
@@ -859,15 +856,12 @@ def _generate_nanoplot(
         y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
         y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
 
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
-
         # Scale reference line and reference area boundaries
         data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
         data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
         data_y_ref_area_u = safe_y_d + ((1 - y_proportions_ref_area_u) * data_y_height)
 
-    elif show_ref_line:
+    elif show_reference_line:
 
         # Case where there is a reference line
 
@@ -894,47 +888,29 @@ def _generate_nanoplot(
         y_proportions = y_proportions_list["vals"]
         y_proportion_ref_line = y_proportions_list["ref_line"][0]
 
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
-
         # Scale reference line
         data_y_ref_line = safe_y_d + ((1 - y_proportion_ref_line) * data_y_height)
 
-    elif show_ref_area:
+    elif show_reference_area:
 
         # Case where there is a reference area
 
-        if y_ref_area is not None:
-            y_ref_area_1 = y_ref_area[0]
-            y_ref_area_2 = y_ref_area[1]
+        # Note if y_ref_area were None, we would not be in this clause
+        y_ref_area_line_1 = calc_ref_value(y_ref_area[0], y_vals)
+        y_ref_area_line_2 = calc_ref_value(y_ref_area[1], y_vals)
 
-            if _val_is_numeric(y_ref_area_1):
-                y_ref_area_line_1 = y_ref_area_1
-
-            if _val_is_numeric(y_ref_area_2):
-                y_ref_area_line_2 = y_ref_area_2
-
-            if _val_is_str(y_ref_area_1) and y_ref_area_1 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_1 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_1
-                )
-            if _val_is_str(y_ref_area_2) and y_ref_area_2 in REFERENCE_LINE_KEYWORDS:
-                y_ref_area_line_2 = _generate_ref_line_from_keyword(
-                    vals=y_vals, keyword=y_ref_area_2
-                )
-
-            y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
-            y_ref_area_l = y_ref_area_lines_sorted[0]
-            y_ref_area_u = y_ref_area_lines_sorted[1]
+        y_ref_area_lines_sorted = sorted([y_ref_area_line_1, y_ref_area_line_2])
+        y_ref_area_l = y_ref_area_lines_sorted[0]
+        y_ref_area_u = y_ref_area_lines_sorted[1]
 
         # Recompute the `y` scale min and max values
 
         # Recompute the `y` scale min and max values
-        args = [y_vals, y_ref_area_l, y_ref_area_u, expand_y] + (
+        _all_y_data = [y_vals, y_ref_area_l, y_ref_area_u, expand_y] + (
             [0] if zero_line_considered else []
         )
-        y_scale_max = _get_extreme_value(*args, stat="max")
-        y_scale_min = _get_extreme_value(*args, stat="min")
+        y_scale_max = _get_extreme_value(*_all_y_data, stat="max")
+        y_scale_min = _get_extreme_value(*_all_y_data, stat="min")
 
         y_proportions_list = _normalize_to_dict(
             vals=y_vals,
@@ -947,9 +923,6 @@ def _generate_nanoplot(
         y_proportions = y_proportions_list["vals"]
         y_proportions_ref_area_l = y_proportions_list["ref_area_l"][0]
         y_proportions_ref_area_u = y_proportions_list["ref_area_u"][0]
-
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
 
         # Scale reference area boundaries
         data_y_ref_area_l = safe_y_d + ((1 - y_proportions_ref_area_l) * data_y_height)
@@ -972,11 +945,9 @@ def _generate_nanoplot(
 
         y_proportions = y_proportions_list["vals"]
 
-        if zero_line_considered:
-            y_proportions_zero = y_proportions_list["zero"][0]
-
     # Calculate the `data_y0_point` value for zero-line-inclusive plots
     if zero_line_considered:
+        y_proportions_zero = y_proportions_list["zero"][0]
         data_y0_point = safe_y_d + ((1 - y_proportions_zero) * data_y_height)
 
     # If x values are present then normalize them between [0, 1]; if
@@ -1058,7 +1029,7 @@ def _generate_nanoplot(
     # Generate a curved data line
     #
 
-    if plot_type == "line" and show_data_line and line_type == "curved":
+    if plot_type == "line" and show_data_line and data_line_type == "curved":
 
         data_path_tags = []
 
@@ -1087,7 +1058,7 @@ def _generate_nanoplot(
 
         data_path_tags = "\n".join(data_path_tags)
 
-    if plot_type == "line" and show_data_line and line_type == "straight":
+    if plot_type == "line" and show_data_line and data_line_type == "straight":
 
         data_path_tags = []
 
@@ -1411,7 +1382,7 @@ def _generate_nanoplot(
     # Generate reference line
     #
 
-    if show_ref_line:
+    if show_reference_line:
 
         stroke = reference_line_color
         stroke_width = 1
@@ -1431,7 +1402,7 @@ def _generate_nanoplot(
     # Generate reference area
     #
 
-    if show_ref_area:
+    if show_reference_area:
 
         fill = reference_area_fill_color
 
@@ -1574,8 +1545,8 @@ def _generate_nanoplot(
         show_data_points=show_data_points,
         show_data_line=show_data_line,
         show_data_area=show_data_area,
-        show_ref_line=show_ref_line,
-        show_ref_area=show_ref_area,
+        show_reference_line=show_reference_line,
+        show_reference_area=show_reference_area,
         show_vertical_guides=show_vertical_guides,
         show_y_axis_guide=show_y_axis_guide,
         ref_area_tags=ref_area_tags,
