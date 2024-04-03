@@ -1,8 +1,8 @@
 ---
 title: "The Design Philosophy of Great Tables"
 html-table-processing: none
-author: Rich Iannone
-date: 2024-03-25
+author: Rich Iannone and Michael Chow
+date: 2024-04-04
 freeze: true
 jupyter: python3
 ---
@@ -147,17 +147,11 @@ All of these are suboptimal solutions. We propose that it is far better to do ev
 
 **Great Tables** restores the elegance of midcentury tables with the power of a coding interface. With **Great Tables** anyone can make wonderful-looking tables in Python. Our framework expresses a table as a combination of six independent components. With this framework, you can structure the table, format the values, and style the table. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines.
 
-Great Tables empowers you to style and customize your table. Use format… (include code prefix). Use style…. You can add elements like nanoplots and heatmaps. 
-
-Great Tables is flexible, providing a growing set of output formats.
-
-You build with Great Tables iteratively, starting off with your table body from code, adding styling, formatting and other components. 
-
-Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:
+You build with **Great Tables** iteratively, starting off with your table body from code, adding styling, formatting and other components. Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:
 
 ![](./composition_of_a_table_in_GT.png)
 
-<p style="font-size: 12px;">A schematic with the complete set of table components that can be utilized in **Great Tables**.</p>
+<p style="font-size: 12px;">A schematic with the complete set of table components that can be utilized in <strong>Great Tables</strong>.</p>
 
 Note the following pieces:
 
@@ -195,11 +189,11 @@ from great_tables import GT, md, system_fonts
 )
 ```
 
-<p style="font-size: 12px;">A table of named individuals redone, **Great Tables** style!</p>
+<p style="font-size: 12px;">A table of named individuals redone, <strong>Great Tables</strong> style!</p>
 
 Notice that there is a blue row stub component that makes the row labels distinct from the rest. This is important because each person described forms a unique observation. The heading provides context on what's contained within the table. Column spanners put the columns into sensible groupings (e.g., 'Location'). The consistent use of blue lines and cell backgrounds gives the table a professional look.
 
-#### Formatting
+If you look at the code above you'll see that every method for modifying the table starts with `tab_`. These different methods are concerned with adding a table component (e.g., `tab_header()` creates a **Table Header**) and they're designed to be easy and straightforward to use.
 
 Table structuring is important, but not the only thing. Tables in different disciplines have certain set of display requirements specific to the values shown. Even something as simple as a number can be formatted in many different ways depending on a community's norms and expectations. This extends to a wide area considering that we also have to format dates, times, and currencies.
 
@@ -209,7 +203,7 @@ Depending on your display requirements, a raw value like 134,000 could presented
 - German locale (`fmt_number()`): 134.000,00
 - compact integer value (`fmt_integer()`): 134K
 
-The problem grows worse when values need to be conveyed as images or plots. If you're a medical analyst, you'll need to know quickly whether test results are getting better or worse over time. Reading test data as a sequence of raw numbers can be slow to interpret. But with *nanoplots* we can spot trends right away. Here's an example that provides tests results over a series of days.
+The problem grows worse when values need to be conveyed as images or plots. If you're a medical analyst, you'll need to effectively convey whether test results are getting better or worse over time. Reading test data as a sequence of numbers across cells can slow interpretation. But by using *nanoplots*, available as the `fmt_nanoplot()` formatting method, readers can spot trends right away. Here's an example that provides tests results over a series of days.
 
 ```{python}
 # | code-fold: true
@@ -240,9 +234,7 @@ illness_mini = (
 )
 ```
 
-Notice that if you hover over the data points, you still get values for each of the days. Nanoplots are stripped down plots that balance the quick visual interpretation of a plot against the compactness of a table.
-
-#### Great Tables is focused on display
+Notice that if you hover over the data points, you still get values for each of the days. Nanoplots are stripped down plots that balance the quick visual interpretation of a plot against the compactness of a table. If you peeked at the code in the above table displays you might haved noticed there are methods beginning with `fmt_` (i.e., `fmt_date()`, `fmt_integer()`, `fmt_nanoplot()`). These are the formatting methods and we designed them to be easy but to also give you great power and flexibility for your formatting tasks.
 
 There are myriad ways that people interact with tables. **Great Tables** is focused on the display of tables for publication and presentation. If you're analyzing data in a database, you might want a simple table display that offers controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations.
 
@@ -252,17 +244,15 @@ The publication of results is a entirely different task, and the emphasis here i
 - add extra context where needed
 - match the style of the organization or document
 
-We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in periodicals like [*The Economist*](https://www.economist.com/economic-and-financial-indicators/2024/03/14/economic-data-commodities-and-markets). We believe the area of static summary tables deserves it's own focus.
-
-#### How it works
-
-Generally we add table components with the `tab_*()` methods, format the data with the `fmt_*()` methods, and customize the look of the table with some `opt_*()` methods (and `tab_options()`). Based on your feeling of what makes a summary table complete and fit for publication, you have the freedom to use as little or as much of the collection of API methods to iteratively modify the table to your liking. As we continue to develop **Great Tables** we will: (1) keep the semantics of the API consistent and the individual methods easy to understand and use, and (2) add more API methods without breaking existing functionality.
+We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in periodicals like [*The Economist*](https://www.economist.com/economic-and-financial-indicators/2024/03/14/economic-data-commodities-and-markets). We believe the area of static summary tables deserves it's own focus. Those tables look *great* and we offer various `opt_*()` methods in the **Great Tables** API so it's that much easier to provide a great display to your readers.
 
 ### In conclusion
 
-This concludes our thoughts about how tables could ideally undergo table structuring, cell formatting, and styling for presentation. Tables have come a long way and we've already learned a lot from our continued research in tabular design. We hope to make the **Great Tables** package useful for your generation of summary tables. Given there's ample room for innovation in this area, we'll keep plugging away at doing that work to improve the API. We measure success by the quality of the tables the package is able to produce and we always keep that goal top of mind.
+Tables have come a long way and we've learned a lot from our continued research in tabular design. We hope to make the **Great Tables** package useful for your generation of summary tables. Given there's ample room for innovation in this area, we'll keep plugging away at doing that work to improve the API. We measure success by the quality of the tables the package is able to produce and we always keep that goal top of mind.
 
 We're very excited about where things are going with **Great Tables** and we geniunely appreciate community feedback. If ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV) and drop us a line!
+
+Many thanks to Curtis Kephart and [Anthony Baker](https://anthonywbaker.com) for providing helpful advice when writing this article.
 
 [^1]: Taylor, B. (2021). Lunar timekeeping in Upper Paleolithic Cave Art. *PRAEHISTORIA New Series*, *3*(13), 215–232.
 
