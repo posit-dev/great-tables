@@ -201,13 +201,60 @@ Notice that there is a blue row stub component that makes the row labels distinc
 
 #### Formatting
 
-Table structuring is important, but not the only thing...
+Table structuring is important, but not the only thing. Tables in different disciplines have certain set of display requirements specific to the values shown. Even something as simple as a number can be formatted in many different ways depending on a community's norms and expectations. This extends to a wide area considering that we also have to format dates, times, and currencies.
 
-The data values contained within the cells often require formatting before presentation, since the representation for computing isn't always optimal for readers of a table. To that end, we provide a large collection of formatting methods that are purpose-built for each type of formatting operation. While focused on simplicity they are also powerful, giving you the ability to customize values to your liking. We want users all over the world to be able to use **Great Tables** successfully so we built in locale-based formatting options, based on the latest guidance from the [Unicode CLDR](https://cldr.unicode.org).
+Depending on your display requirements, a raw value like 134,000 could presented as:
 
-#### 80/20 rule
+- scientific notation (`fmt_scientific()`): 1.34 × 10<sup style='font-size: 65%;'>5</sup>
+- German locale (`fmt_number()`): 134.000,00
+- compact integer value (`fmt_integer()`): 134K
 
-The majority of open-source software packages that deal with tables seem to be more focused on the display of simple yet large tables. We wanted to be different in this regard and instead focus on the task of generating summary tables. Those open-source table projects typically produce tables with pagination and other such controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations where you'd want to expose a database of records for a user to explore. But we wanted to go the other way and help the type of user that wanted to present smaller, summarized data. This is typically what you see in journal articles, in books, and in periodicals like [*The Economist*](https://www.economist.com/economic-and-financial-indicators/2024/03/14/economic-data-commodities-and-markets). We long held that there was an unaddressed need for users to create highly customized tables that could serve as interesting visualizations. We believe the area of static summary tables deserves it's own focus.
+The problem grows worse when values need to be conveyed as images or plots. If you're a medical analyst, you'll need to know quickly whether test results are getting better or worse over time. Reading test data as a sequence of raw numbers can be slow to interpret. But with *nanoplots* we can spot trends right away. Here's an example that provides tests results over a series of days.
+
+```{python}
+# | code-fold: true
+# | code-summary: "Show the code"
+
+import great_tables
+from great_tables import GT, md
+from great_tables.data import illness
+import polars as pl
+
+illness_mini = (
+    pl.from_pandas(illness)
+    .head(10)
+    .select(
+        "test", values=pl.concat_str(pl.exclude("test", "units"), separator=" ", ignore_nulls=True)
+    )
+    .slice(1, 9)
+)
+
+(
+    GT(illness_mini, rowname_col="test")
+    .fmt_nanoplot(columns="values")
+    .tab_header(md("Partial summary of daily tests<br>performed on YF patient"))
+    .tab_stubhead(label=md("**Test**"))
+    .cols_label(values=md("*Progression*"))
+    .cols_align(align="center", columns="values")
+    .tab_source_note(source_note="Measurements from Day 3 through to Day 8.")
+)
+```
+
+Notice that if you hover over the data points, you still get values for each of the days. Nanoplots are stripped down plots that balance the quick visual interpretation of a plot against the compactness of a table.
+
+#### Great Tables is focused on display
+
+There are myriad ways that people interact with tables. **Great Tables** is focused on the display of tables for publication and presentation. If you're analyzing data in a database, you might want a simple table display that offers controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations.
+
+The publication of results is a entirely different task, and the emphasis here is on structuring, formatting, and styling. Beautiful table displays:
+
+- make information easier to digest
+- add extra context where needed
+- match the style of the organization or document
+
+We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in periodicals like [*The Economist*](https://www.economist.com/economic-and-financial-indicators/2024/03/14/economic-data-commodities-and-markets). We believe the area of static summary tables deserves it's own focus.
+
+#### How it works
 
 Generally we add table components with the `tab_*()` methods, format the data with the `fmt_*()` methods, and customize the look of the table with some `opt_*()` methods (and `tab_options()`). Based on your feeling of what makes a summary table complete and fit for publication, you have the freedom to use as little or as much of the collection of API methods to iteratively modify the table to your liking. As we continue to develop **Great Tables** we will: (1) keep the semantics of the API consistent and the individual methods easy to understand and use, and (2) add more API methods without breaking existing functionality.
 
