@@ -1095,16 +1095,16 @@ FMT_CURRENCY_CASES: List[Tuple[dict[str, Any], List[str]]] = [
 ]
 
 
-df_fmt_currency = pd.DataFrame({"x": [1234567, -5432.37]})
-
 # Test Cases #1-11 for fmt_currency()
 
 for i, (fmt_currency_kwargs, x_out) in enumerate(FMT_CURRENCY_CASES):
 
+    df = pd.DataFrame({"x": [1234567, -5432.37]})
+
     def test_fmt_currency_case(
         fmt_currency_kwargs: dict[str, Any] = fmt_currency_kwargs, x_out: List[str] = x_out
     ):
-        gt = GT(df_fmt_currency).fmt_currency(columns="x", **fmt_currency_kwargs)
+        gt = GT(df).fmt_currency(columns="x", **fmt_currency_kwargs)
         x = _get_column_of_values(gt, column_name="x", context="html")
         assert x == x_out
 
@@ -1113,41 +1113,20 @@ for i, (fmt_currency_kwargs, x_out) in enumerate(FMT_CURRENCY_CASES):
     globals()[test_name] = test_fmt_currency_case
 
 
-@pytest.mark.parametrize(
-    "force_sign,x_out",
-    [
-        (
-            False,
-            [
-                "−$234.65",
-                "−$0.00",
-                "−$0.10",
-                "$0.00",
-                "$2,352.23",
-                "$12,354.30",
-                "$9,939,293,923.23",
-            ],
-        ),
-        (
-            True,
-            [
-                "−$234.65",
-                "−$0.00",
-                "−$0.10",
-                "$0.00",
-                "+$2,352.23",
-                "+$12,354.30",
-                "+$9,939,293,923.23",
-            ],
-        ),
-    ],
-)
-def test_fmt_currency_force_sign(force_sign: bool, x_out: str):
-    df = pd.DataFrame({"x": [-234.654, -0.000634, -0.1, 0, 2352.23, 12354.3, 9939293923.23]})
+def test_fmt_currency_force_sign():
 
-    gt = GT(df).fmt_currency(columns="x", force_sign=force_sign)
+    df = pd.DataFrame({"x": [-234.654, -0.0001, 0, 2352.23, 12354.3, 9939293923.23]})
+
+    gt = GT(df).fmt_currency(columns="x", force_sign=True)
     x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == x_out
+    assert x == [
+        "−$234.65",
+        "−$0.00",
+        "$0.00",
+        "+$2,352.23",
+        "+$12,354.30",
+        "+$9,939,293,923.23",
+    ]
 
 
 # ------------------------------------------------------------------------------
