@@ -76,25 +76,25 @@ import polars as pl
 import polars.selectors as cs
 
 # Get vectors of 2-letter country codes for each region of Oceania
-countries = {
+oceania = {
     "Australasia": ["AU", "NZ"],
     "Melanesia": ["NC", "PG", "SB", "VU"],
     "Micronesia": ["FM", "GU", "KI", "MH", "MP", "NR", "PW"],
     "Polynesia": ["PF", "WS", "TO", "TV"],
 }
 
-# Create a dictionary mapping region to country (e.g. AU -> Australasia)
-region_to_country = {
-    region: country for country, regions in countries.items() for region in regions
+# Create a dictionary mapping country to region (e.g. AU -> Australasia)
+country_to_region = {
+    country: region for region, countries in oceania.items() for country in countries
 }
 
 wide_pops = (
     pl.from_pandas(countrypops)
     .filter(
-        pl.col("country_code_2").is_in(list(region_to_country))
+        pl.col("country_code_2").is_in(list(country_to_region))
         & pl.col("year").is_in([2000, 2010, 2020])
     )
-    .with_columns(pl.col("country_code_2").replace(region_to_country).alias("region"))
+    .with_columns(pl.col("country_code_2").replace(country_to_region).alias("region"))
     .pivot(index=["country_name", "region"], columns="year", values="population")
     .sort("2020", descending=True)
 )
