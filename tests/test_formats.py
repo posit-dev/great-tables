@@ -1489,236 +1489,615 @@ def test_fmt_image_path():
 # ------------------------------------------------------------------------------
 
 
-def _all_vals_nanoplot_output(nanoplot_str: List[str]):
+def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: List[tuple[str, str]]) -> bool:
     import re
 
-    return all(bool(re.match("^<div><svg.*</svg></div>$", x)) for x in nanoplot_str)
+    found: List[bool] = []
+
+    for i, _ in enumerate(attrs):
+        attrs_i = attrs[i]
+        attr_str = f'{attrs_i[0]}="{attrs_i[1]}"'
+
+        found_i = bool(re.search(f"<{tag}.*?{attr_str}.*?</{tag}>", nanoplot_str))
+
+        found.append(found_i)
+
+    return all(found)
 
 
-@pytest.mark.parametrize(
-    "params",
-    [
-        ({}),
-        ({"reference_line": 0}),
-        ({"reference_line": "mean"}),
-        ({"reference_area": [0.1, 5.3]}),
-        ({"reference_area": [0.1, 5.3]}),
-        ({"reference_area": [5.3, 0.1]}),
-        ({"reference_area": ["min", "median"]}),
-        ({"reference_area": ["median", "min"]}),
-        ({"reference_area": ["median", 0]}),
-        ({"reference_area": [0, "median"]}),
-        ({"reference_line": 0, "reference_area": [2.3, "max"]}),
-        ({"plot_type": "bar"}),
-        ({"plot_type": "bar", "reference_line": 0}),
-        ({"plot_type": "bar", "reference_line": "mean"}),
-        ({"plot_type": "bar", "reference_area": [0.1, 5.3]}),
-        ({"plot_type": "bar", "reference_area": [0.1, 5.3]}),
-        ({"plot_type": "bar", "reference_area": [5.3, 0.1]}),
-        ({"plot_type": "bar", "reference_area": ["min", "median"]}),
-        ({"plot_type": "bar", "reference_area": ["median", "min"]}),
-        ({"plot_type": "bar", "reference_area": ["median", 0]}),
-        ({"plot_type": "bar", "reference_area": [0, "median"]}),
-        ({"plot_type": "bar", "reference_line": 0, "reference_area": [2.3, "max"]}),
-        ({"expand_y": 20}),
-        ({"expand_y": [20]}),
-        ({"expand_y": [-30, 20]}),
-        ({"plot_type": "bar", "expand_y": 20}),
-        ({"plot_type": "bar", "expand_y": [20]}),
-        ({"plot_type": "bar", "expand_y": [-30, 20]}),
-        ({"autoscale": True}),
-        ({"plot_type": "bar", "autoscale": True}),
-        ({"expand_x": 20}),
-        ({"expand_x": [20]}),
-        ({"expand_x": [-30, 20]}),
-        ({"expand_x": 20, "expand_y": [-30, 20]}),
-        ({"expand_x": [20], "expand_y": 20}),
-        ({"expand_x": [-30, 20], "expand_y": [20]}),
-        (
-            {
-                "reference_line": 0,
-                "reference_area": [2.3, "max"],
-                "plot_height": "3em",
-            }
-        ),
-        (
-            {
-                "plot_type": "bar",
-                "reference_line": 0,
-                "reference_area": [2.3, "max"],
-                "plot_height": "3em",
-            }
-        ),
-    ],
+df_fmt_nanoplot_single = pl.DataFrame({"vals": [-5.3, 6.3]})
+
+df_fmt_nanoplot_multi = pl.DataFrame(
+    {
+        "vals": [
+            {"x": [-12.0, -5.0, 6.0, 3.0, 0.0, 8.0, -7.0]},
+            {"x": [2, 0, 15, 7, 8, 10, 1, 24, 17, 13, 6]},
+        ],
+    }
 )
-def test_fmt_nanoplot_single_vals_only(params: Dict[str, Any]):
 
-    df = pl.DataFrame({"vals": [-5.3, 6.3, -2.3, 0.0, 2.3, 6.7, 14.2, 0.0, 2.3, 13.3]})
 
-    gt = GT(df).fmt_nanoplot(
+FMT_NANOPLOT_CASES: List[dict[str, Any]] = [
+    # 1. default case
+    dict(),
+    # 2. reference line with 0 value
+    dict(reference_line=0),
+    # 3. reference line using a string
+    dict(reference_line="mean"),
+    # 4. use of a reference area
+    dict(reference_area=[0.1, 5.3]),
+    # 5. use of a reference line and a reference area
+    dict(reference_line=0, reference_area=[2.3, "max"]),
+    # 6. expansion in the y direction using a single value
+    dict(expand_y=20),
+    # 7. expansion in the y direction using a single value (same as #6)
+    dict(expand_y=[20]),
+    # 8. expansion in the y direction using two values
+    dict(expand_y=[-30, 20]),
+    # 9. expansions in the x and y directions
+    dict(expand_x=[-30, 20], expand_y=[-30, 20]),
+]
+
+
+# Test category 1: Horizontal line-based nanoplot single values
+def test_fmt_nanoplot_single_vals_only_line():
+
+    gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
         columns="vals",
-        **params,
+        plot_type="line",
+        **FMT_NANOPLOT_CASES[0],
     )
-    res = _get_column_of_values(gt, column_name="vals", context="html")
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
 
-    assert _all_vals_nanoplot_output(res)
-
-
-@pytest.mark.parametrize(
-    "params",
-    [
-        ({}),
-        ({"reference_line": 0}),
-        ({"reference_line": "mean"}),
-        ({"reference_area": [0.1, 5.3]}),
-        ({"reference_area": [0.1, 5.3]}),
-        ({"reference_area": [5.3, 0.1]}),
-        ({"reference_area": ["min", "median"]}),
-        ({"reference_area": ["median", "min"]}),
-        ({"reference_area": ["median", 0]}),
-        ({"reference_area": [0, "median"]}),
-        ({"reference_line": 0, "reference_area": [2.3, "max"]}),
-        ({"plot_type": "bar"}),
-        ({"plot_type": "bar", "reference_line": 0}),
-        ({"plot_type": "bar", "reference_line": "mean"}),
-        ({"plot_type": "bar", "reference_area": [0.1, 5.3]}),
-        ({"plot_type": "bar", "reference_area": [0.1, 5.3]}),
-        ({"plot_type": "bar", "reference_area": [5.3, 0.1]}),
-        ({"plot_type": "bar", "reference_area": ["min", "median"]}),
-        ({"plot_type": "bar", "reference_area": ["median", "min"]}),
-        ({"plot_type": "bar", "reference_area": ["median", 0]}),
-        ({"plot_type": "bar", "reference_area": [0, "median"]}),
-        ({"plot_type": "bar", "reference_line": 0, "reference_area": [2.3, "max"]}),
-        ({"expand_y": 20}),
-        ({"expand_y": [20]}),
-        ({"expand_y": [-30, 20]}),
-        ({"plot_type": "bar", "expand_y": 20}),
-        ({"plot_type": "bar", "expand_y": [20]}),
-        ({"plot_type": "bar", "expand_y": [-30, 20]}),
-        ({"autoscale": True}),
-        ({"plot_type": "bar", "autoscale": True}),
-        ({"expand_x": 20}),
-        ({"expand_x": [20]}),
-        ({"expand_x": [-30, 20]}),
-        ({"expand_x": 20, "expand_y": [-30, 20]}),
-        ({"expand_x": [20], "expand_y": 20}),
-        ({"expand_x": [-30, 20], "expand_y": [20]}),
-        (
-            {
-                "reference_line": 0,
-                "reference_area": [2.3, "max"],
-                "plot_height": "3em",
-            }
-        ),
-        (
-            {
-                "plot_type": "bar",
-                "reference_line": 0,
-                "reference_area": [2.3, "max"],
-                "plot_height": "3em",
-            }
-        ),
-    ],
-)
-def test_fmt_nanoplot_multi_y_vals(params: Dict[str, Any]):
-
-    df_1 = pl.DataFrame(
-        {
-            "vals": [
-                "30 23 6 17 37 23 21 -4 7 12",
-                "2.3 6.8 9.2 2 3.5 12.2 5.3 4.6 7.7 2.74",
-                "-14.2 -5 6.2 3.7 0 8 -7.4",
-                "2,0,14,3,7,4,1.2,24,17,13,2.5,3.6,14.2,4.3,6.4,9.2",
-            ],
-        }
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="line",
+        attrs=[
+            ("x1", "0.0"),
+            ("y1", "65.0"),
+            ("stroke", "#4682B4"),
+            ("stroke-width", "8"),
+        ],
     )
 
-    gt_1 = GT(df_1).fmt_nanoplot(
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="g",
+        attrs=[
+            ("class", "horizontal-line"),
+        ],
+    )
+
+    # All other test cases for the horizontal line nanoplot will produce the same output
+    # as this previous one (none will error as the non-relevant options are no ops)
+    for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
+
+        gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
+            columns="vals",
+            plot_type="line",
+            **params,
+        )
+        res_other = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+        assert res == res_other
+
+
+# Test category 2: Horizontal bar-based nanoplot single values
+def test_fmt_nanoplot_single_vals_only_bar():
+
+    gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
         columns="vals",
-        **params,
+        plot_type="bar",
+        **FMT_NANOPLOT_CASES[0],
     )
-    res_1 = _get_column_of_values(gt_1, column_name="vals", context="html")
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
 
-    assert _all_vals_nanoplot_output(res_1)
-
-    df_2 = pl.DataFrame(
-        {
-            "vals": [
-                {"x": [20, 23, 6, 7, 37, 23, 21, 4, 7, 16]},
-                {"x": [2.3, 6.8, 9.2, 2.42, 3.5, 12.1, 5.3, 3.6, 7.2, 3.74]},
-                {"x": [-12.0, -5.0, 6.0, 3.0, 0.0, 8.0, -7.0]},
-                {"x": [2, 0, 15, 7, 8, 10, 1, 24, 17, 13, 6]},
-            ],
-        }
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
     )
 
-    gt_2 = GT(df_2).fmt_nanoplot(
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("stroke", "transparent"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="text",
+        attrs=[
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "30px"),
+        ],
+    )
+
+    # All other test cases for the horizontal bar nanoplot will produce the same output
+    # as this previous one (none will error as the non-relevant options are no ops)
+    for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
+
+        gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
+            columns="vals",
+            plot_type="bar",
+            **params,
+        )
+        res_other = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+        assert res == res_other
+
+
+# Test category 3: Line-based nanoplot, multiple values per row
+def test_fmt_nanoplot_multi_vals_line():
+
+    # Subcase with default options
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
-        **params,
+        plot_type="line",
+        **FMT_NANOPLOT_CASES[0],
     )
-    res_2 = _get_column_of_values(gt_2, column_name="vals", context="html")
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
 
-    assert _all_vals_nanoplot_output(res_2)
-
-
-@pytest.mark.parametrize(
-    "params",
-    [
-        ({}),
-        ({"reference_line": 0}),
-        ({"reference_line": "mean"}),
-        ({"reference_area": [0.1, 5.3]}),
-        ({"reference_area": [0.1, 5.3]}),
-        ({"reference_area": [5.3, 0.1]}),
-        ({"reference_area": ["min", "median"]}),
-        ({"reference_area": ["median", "min"]}),
-        ({"reference_area": ["median", 0]}),
-        ({"reference_area": [0, "median"]}),
-        ({"reference_line": 0, "reference_area": [2.3, "max"]}),
-        ({"expand_y": 20}),
-        ({"expand_y": [20]}),
-        ({"expand_y": [-30, 20]}),
-        ({"autoscale": True}),
-        ({"expand_x": 20}),
-        ({"expand_x": [20]}),
-        ({"expand_x": [-30, 20]}),
-        ({"expand_x": 20, "expand_y": [-30, 20]}),
-        ({"expand_x": [20], "expand_y": 20}),
-        ({"expand_x": [-30, 20], "expand_y": [20]}),
-        (
-            {
-                "reference_line": 0,
-                "reference_area": [2.3, "max"],
-                "plot_height": "3em",
-            }
-        ),
-    ],
-)
-def test_fmt_nanoplot_x_y_vals(params: Dict[str, Any]):
-
-    df = pl.DataFrame(
-        {
-            "vals": [
-                {
-                    "x": [6.1, 8.0, 10.1, 10.5, 11.2, 12.4, 13.1, 15.3],
-                    "y": [24.2, 28.2, 30.2, 30.5, 30.5, 33.1, 33.5, 32.7],
-                },
-                {
-                    "x": [7.1, 8.2, 10.3, 10.75, 11.25, 12.5, 13.5, 14.2],
-                    "y": [18.2, 18.1, 20.3, 20.5, 21.4, 21.9, 23.1, 23.3],
-                },
-                {
-                    "x": [6.3, 7.1, 10.3, 11.0, 12.07, 13.1, 15.12, 16.42],
-                    "y": [15.2, 17.77, 21.42, 21.63, 25.23, 26.84, 27.2, 27.44],
-                },
-            ]
-        }
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
     )
 
-    gt = GT(df).fmt_nanoplot(
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
+
+    # Subcase with reference line
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
-        **params,
+        plot_type="line",
+        **FMT_NANOPLOT_CASES[1],
     )
-    res = _get_column_of_values(gt, column_name="vals", context="html")
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
 
-    assert _all_vals_nanoplot_output(res)
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
+
+    # Subcase with reference line and reference area
+
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
+        columns="vals",
+        plot_type="line",
+        **FMT_NANOPLOT_CASES[4],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
+
+
+# Test category 4: Bar-based nanoplot, multiple values per row
+def test_fmt_nanoplot_multi_vals_bar():
+
+    # Subcase with default options
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
+        columns="vals",
+        plot_type="bar",
+        **FMT_NANOPLOT_CASES[0],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    # Subcase with reference line
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
+        columns="vals",
+        plot_type="bar",
+        **FMT_NANOPLOT_CASES[1],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
+
+    # Subcase with reference line and reference area
+
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
+        columns="vals",
+        plot_type="bar",
+        **FMT_NANOPLOT_CASES[4],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
