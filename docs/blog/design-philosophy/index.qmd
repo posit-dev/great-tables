@@ -240,9 +240,9 @@ illness_mini = (
 )
 ```
 
-Notice that if you hover over the data points, you still get values for each of the days. We designed nanoplots to be stripped down plotting visualizations that balance the quick visual interpretation of a plot against the compactness of a table. **Great Tables** contains a lot of functionality for formatting.
+Notice that if you hover over the data points, you still get values for each of the days. We designed nanoplots to be stripped down plotting visualizations that balance the quick visual interpretation of a plot against the compactness of a table.
 
-If you peeked at the code in the above table displays you might have noticed there are methods beginning with `fmt_` (i.e., `fmt_date()`, `fmt_integer()`, `fmt_nanoplot()`). We want to make many formatting methods available to serve different users' needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.
+**Great Tables** contains a lot of functionality for formatting. If you peeked at the code in the above table displays you might have noticed there are methods beginning with `fmt_` (i.e., `fmt_date()`, `fmt_integer()`, `fmt_nanoplot()`). We want to make many formatting methods available to serve different users' needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.
 
 #### Great Tables is focused on display
 
