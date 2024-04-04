@@ -219,7 +219,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 
 <p>We’ve spent a lot of time thinking about tables. Tables—like plots—are crucial as a last step toward presenting information. There is surprising sophistication and nuance in designing effective tables. Over the past 5,000 years, they’ve evolved from simple grids to highly structured displays of data. Although we argue that the mid-1900s served as a high point, the popularization and wider accessibility of computing seemingly brought us back to the simple, ancient times.</p>
-<p>Okay, it’s not all <em>that bad</em> but the workers of data are today confronted with an all-too-familiar dilemma: copy your data into a tool like Excel to make the table, or, display an otherwise unpolished table. Through the exploration of the qualities that make tables shine, the backstory of tables as a display of data, and the issues faced today, it’s clear how we can solve the <strong>great table dilemma</strong> with <strong>Great Tables</strong>.</p>
+<p>Okay, it’s not all <em>that bad</em> but the workers of data are today confronted with an all-too-familiar dilemma: copy your data into a tool like Excel to make the table, or, display an otherwise unpolished table. Through the exploration of the qualities that make tables shine, the backstory of tables as a display of data, and the issues faced today, it’s clear how we can solve the <strong>great table dilemma</strong> with <a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a>.</p>
 <p><img src="./computer_tables.png" class="img-fluid"></p>
 <p style="font-size: 12px;">
 Tables made with computers (left to right): (1) a DataFrame printed at the console, (2) an Excel table, and (3) a <strong>Great Tables</strong> table.
@@ -232,53 +232,53 @@ Tables made with computers (left to right): (1) a DataFrame printed at the conso
 <li>the data is primarily text</li>
 </ul>
 <p>Let’s look at an example of a simple table with actual data to tie this theory to practice.</p>
-<div id="4ea5f3d3" class="cell" data-execution_count="1">
+<div id="1ae40fd7" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="dyhlsjzori" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="szraowgius" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#dyhlsjzori table {
+#szraowgius table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#dyhlsjzori thead, tbody, tfoot, tr, td, th { border-style: none; }
+#szraowgius thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#dyhlsjzori p { margin: 0; padding: 0; }
- #dyhlsjzori .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #dyhlsjzori .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #dyhlsjzori .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #dyhlsjzori .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #dyhlsjzori .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dyhlsjzori .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dyhlsjzori .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dyhlsjzori .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #dyhlsjzori .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #dyhlsjzori .gt_column_spanner_outer:first-child { padding-left: 0; }
- #dyhlsjzori .gt_column_spanner_outer:last-child { padding-right: 0; }
- #dyhlsjzori .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #dyhlsjzori .gt_spanner_row { border-bottom-style: hidden; }
- #dyhlsjzori .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #dyhlsjzori .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #dyhlsjzori .gt_from_md> :first-child { margin-top: 0; }
- #dyhlsjzori .gt_from_md> :last-child { margin-bottom: 0; }
- #dyhlsjzori .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #dyhlsjzori .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #dyhlsjzori .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #dyhlsjzori .gt_row_group_first td { border-top-width: 2px; }
- #dyhlsjzori .gt_row_group_first th { border-top-width: 2px; }
- #dyhlsjzori .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dyhlsjzori .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dyhlsjzori .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #dyhlsjzori .gt_left { text-align: left; }
- #dyhlsjzori .gt_center { text-align: center; }
- #dyhlsjzori .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #dyhlsjzori .gt_font_normal { font-weight: normal; }
- #dyhlsjzori .gt_font_bold { font-weight: bold; }
- #dyhlsjzori .gt_font_italic { font-style: italic; }
- #dyhlsjzori .gt_super { font-size: 65%; }
- #dyhlsjzori .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #dyhlsjzori .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#szraowgius p { margin: 0; padding: 0; }
+ #szraowgius .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #szraowgius .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #szraowgius .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #szraowgius .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #szraowgius .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #szraowgius .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #szraowgius .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #szraowgius .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #szraowgius .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #szraowgius .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #szraowgius .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #szraowgius .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #szraowgius .gt_spanner_row { border-bottom-style: hidden; }
+ #szraowgius .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #szraowgius .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #szraowgius .gt_from_md> :first-child { margin-top: 0; }
+ #szraowgius .gt_from_md> :last-child { margin-bottom: 0; }
+ #szraowgius .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #szraowgius .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #szraowgius .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #szraowgius .gt_row_group_first td { border-top-width: 2px; }
+ #szraowgius .gt_row_group_first th { border-top-width: 2px; }
+ #szraowgius .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #szraowgius .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #szraowgius .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #szraowgius .gt_left { text-align: left; }
+ #szraowgius .gt_center { text-align: center; }
+ #szraowgius .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #szraowgius .gt_font_normal { font-weight: normal; }
+ #szraowgius .gt_font_bold { font-weight: bold; }
+ #szraowgius .gt_font_italic { font-style: italic; }
+ #szraowgius .gt_super { font-size: 65%; }
+ #szraowgius .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #szraowgius .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -353,7 +353,7 @@ A table of named individuals along with a select set of characteristics.
 <p>This table arranges records containing personal characteristics as columns and rows. Each person is a row, and each characteristic makes up a different column. The characteristics use different types of data, like dates, numbers, and text. This arrangement makes it easy to look up individual values or make comparisons across the different rows or columns.</p>
 <p>Note that there are horizontal lines separating the rows. This aesthetic touch, while not strictly required for a table, serves as a visual reinforcement for separating the individual rows.</p>
 <p>The order of the columns matters, and that we start with the <code>Name</code> column here is no accident. If that column were the last (i.e., furthest to the right), it would be slightly more confusing for the reader since the subject for the record isn’t immediate. In addition to order, column labels play an important role for indicating what data is in each column. They’re not always necessary but in most cases they remove the guesswork for what type of data is contained within each column.</p>
-<p>We’ll go into some detail later about how <strong>Great Tables</strong> provides affordances for structuring information for better legibility and how the package can be used to adorn the table with other structural elements. For now, our conception of a table can be summarized in this schematic.</p>
+<p>We’ll go into some detail later about how <a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> provides affordances for structuring information for better legibility and how the package can be used to adorn the table with other structural elements. For now, our conception of a table can be summarized in this schematic.</p>
 <p><img src="./a_simple_table.png" class="img-fluid"></p>
 <p style="font-size: 12px;">
 A simple table has: (1) cells containing data, (2) an arrangement of columns and rows, and (3) column labels to describe the type data in each column.
@@ -401,7 +401,7 @@ Cuneiform tablet, temple of Enlil at Nippur, (CBS 3323, University of Pennsylvan
 <h3 class="anchored" data-anchor-id="midcentury-modern-tables">Midcentury modern tables</h3>
 <p>Perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a> (my favorite). The technologies were sufficiently advanced as to allow the precise typesetting of table elements. While of course constrained by the limited space available on pages, tabular design at this point had many workable solutions for fitting tables into single pages or dispersing the tabular content across multiple pages. The combination of advanced printing technology with advanced knowledge of tabular design resulted in <em>beautiful tables</em>.</p>
 <p>There’s no greater embodiment of that pairing of technology and design than the <a href="https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf"><em>Manual of Tabular Presentation</em></a><a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>, written and published by the United States Bureau of the Census. It is truly a remarkable work which goes into great detail on how the department imagines the ideal designs of information-rich tables. The work articulates the different parts of a table (and each part is given a descriptive name), sparing no detail when describing those different table parts in rigorous detail. Throughout its hundreds of pages, the authors make strong recommendations on what to do (and what <em>not</em> to do) for many tabulation scenarios. When poring over the tables visually depicted in the book, you can’t help but see that tables can both look really good <em>and</em> contain a density of information. The promise and the result is a balance of form and function.</p>
-<p>We at <strong>Great Tables</strong> borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we’ll talk about what we took from that work in the next section). We’ll end this brief section with a visual montage of snippets from the <em>Census Manual</em>, which provides a glimpse of the sound advice on offer.</p>
+<p>We at <a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we’ll talk about what we took from that work in the next section). We’ll end this brief section with a visual montage of snippets from the <em>Census Manual</em>, which provides a glimpse of the sound advice on offer.</p>
 <p><img src="./snippets_from_manual_tablular_presentation.png" class="img-fluid"></p>
 <p style="font-size: 12px;">
 Little nuggets of wisdom from the <em>Census Manual</em>. This may very well be the ultimate book on tabular design.
@@ -426,8 +426,8 @@ This is a table in VisiCalc (earliest example of a table in a spreadsheet applic
 </section>
 <section id="approach-to-tables-taken-by-great-tables" class="level3">
 <h3 class="anchored" data-anchor-id="approach-to-tables-taken-by-great-tables">Approach to tables taken by <strong>Great Tables</strong></h3>
-<p><strong>Great Tables</strong> restores the elegance of midcentury tables with the power of a coding interface. With <strong>Great Tables</strong> anyone can make beautiful tables in Python. Our framework expresses a table as a combination of six independent components. With this framework, you can structure the table, format the values, and style the table. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines.</p>
-<p>You build with <strong>Great Tables</strong> iteratively, starting off with your table body from code, adding styling, formatting and other components.&nbsp;Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:</p>
+<p><a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> restores the elegance of midcentury tables with the power of a coding interface. With <a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> anyone can make beautiful tables in Python. Our framework expresses a table as a combination of six independent components. With this framework, you can structure the table, format the values, and style the table. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines.</p>
+<p>You build with <a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> iteratively, starting off with your table body from code, adding styling, formatting and other components.&nbsp;Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:</p>
 <p><img src="./composition_of_a_table_in_GT.png" class="img-fluid"></p>
 <p style="font-size: 12px;">
 A schematic with the complete set of table components that can be utilized in <strong>Great Tables</strong>.
@@ -441,8 +441,8 @@ A schematic with the complete set of table components that can be utilized in <s
 <li><strong>Table Body</strong>: contains cells and so it’s where the data lives</li>
 <li><strong>Table Footer</strong>: a place for additional information pertaining to the table content</li>
 </ul>
-<p>Here’s a table that takes advantage of the different components available in <strong>Great Tables</strong>. It contains the names and addresses of people.</p>
-<div id="521e609f" class="cell" data-execution_count="2">
+<p>Here’s a table that takes advantage of the different components available in <a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a>. It contains the names and addresses of people.</p>
+<div id="ac03b112" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, md, system_fonts</span>
@@ -466,51 +466,51 @@ A schematic with the complete set of table components that can be utilized in <s
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="2">
-<div id="quoieuwxuw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="kheciylykv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#quoieuwxuw table {
+#kheciylykv table {
           font-family: ui-rounded, 'Hiragino Maru Gothic ProN', Quicksand, Comfortaa, Manjari, 'Arial Rounded MT', 'Arial Rounded MT Bold', Calibri, source-sans-pro, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#quoieuwxuw thead, tbody, tfoot, tr, td, th { border-style: none; }
+#kheciylykv thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#quoieuwxuw p { margin: 0; padding: 0; }
- #quoieuwxuw .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 14px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #004D80; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #004D80; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #quoieuwxuw .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #quoieuwxuw .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #quoieuwxuw .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 2px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #quoieuwxuw .gt_heading { background-color: #FFFFFF; text-align: left; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #quoieuwxuw .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; }
- #quoieuwxuw .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #quoieuwxuw .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 3px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #quoieuwxuw .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #quoieuwxuw .gt_column_spanner_outer:first-child { padding-left: 0; }
- #quoieuwxuw .gt_column_spanner_outer:last-child { padding-right: 0; }
- #quoieuwxuw .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; vertical-align: bottom; padding-top: 3px; padding-bottom: 3px; overflow-x: hidden; display: inline-block; width: 100%; }
- #quoieuwxuw .gt_spanner_row { border-bottom-style: hidden; }
- #quoieuwxuw .gt_group_heading { padding-top: 6px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #quoieuwxuw .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; vertical-align: middle; }
- #quoieuwxuw .gt_from_md> :first-child { margin-top: 0; }
- #quoieuwxuw .gt_from_md> :last-child { margin-bottom: 0; }
- #quoieuwxuw .gt_row { padding-top: 6px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: none; border-top-width: 1px; border-top-color: #89D3FE; border-left-style: none; border-left-width: 1px; border-left-color: #89D3FE; border-right-style: none; border-right-width: 1px; border-right-color: #89D3FE; vertical-align: middle; overflow-x: hidden; }
- #quoieuwxuw .gt_stub { color: #FFFFFF; background-color: #0076BA; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #0076BA; padding-left: 5px; padding-right: 5px; }
- #quoieuwxuw .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #quoieuwxuw .gt_row_group_first td { border-top-width: 2px; }
- #quoieuwxuw .gt_row_group_first th { border-top-width: 2px; }
- #quoieuwxuw .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; }
- #quoieuwxuw .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #quoieuwxuw .gt_sourcenote { font-size: 90%; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #quoieuwxuw .gt_left { text-align: left; }
- #quoieuwxuw .gt_center { text-align: center; }
- #quoieuwxuw .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #quoieuwxuw .gt_font_normal { font-weight: normal; }
- #quoieuwxuw .gt_font_bold { font-weight: bold; }
- #quoieuwxuw .gt_font_italic { font-style: italic; }
- #quoieuwxuw .gt_super { font-size: 65%; }
- #quoieuwxuw .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #quoieuwxuw .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#kheciylykv p { margin: 0; padding: 0; }
+ #kheciylykv .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 14px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #004D80; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #004D80; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #kheciylykv .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #kheciylykv .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #kheciylykv .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 2px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #kheciylykv .gt_heading { background-color: #FFFFFF; text-align: left; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #kheciylykv .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; }
+ #kheciylykv .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #kheciylykv .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 3px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #kheciylykv .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #kheciylykv .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #kheciylykv .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #kheciylykv .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; vertical-align: bottom; padding-top: 3px; padding-bottom: 3px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #kheciylykv .gt_spanner_row { border-bottom-style: hidden; }
+ #kheciylykv .gt_group_heading { padding-top: 6px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #kheciylykv .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; vertical-align: middle; }
+ #kheciylykv .gt_from_md> :first-child { margin-top: 0; }
+ #kheciylykv .gt_from_md> :last-child { margin-bottom: 0; }
+ #kheciylykv .gt_row { padding-top: 6px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: none; border-top-width: 1px; border-top-color: #89D3FE; border-left-style: none; border-left-width: 1px; border-left-color: #89D3FE; border-right-style: none; border-right-width: 1px; border-right-color: #89D3FE; vertical-align: middle; overflow-x: hidden; }
+ #kheciylykv .gt_stub { color: #FFFFFF; background-color: #0076BA; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #0076BA; padding-left: 5px; padding-right: 5px; }
+ #kheciylykv .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #kheciylykv .gt_row_group_first td { border-top-width: 2px; }
+ #kheciylykv .gt_row_group_first th { border-top-width: 2px; }
+ #kheciylykv .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; }
+ #kheciylykv .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #kheciylykv .gt_sourcenote { font-size: 90%; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #kheciylykv .gt_left { text-align: left; }
+ #kheciylykv .gt_center { text-align: center; }
+ #kheciylykv .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #kheciylykv .gt_font_normal { font-weight: normal; }
+ #kheciylykv .gt_font_bold { font-weight: bold; }
+ #kheciylykv .gt_font_italic { font-style: italic; }
+ #kheciylykv .gt_super { font-size: 65%; }
+ #kheciylykv .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #kheciylykv .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -612,7 +612,7 @@ A table of named individuals redone, <strong>Great Tables</strong> style!
 <li>a compact integer value (<code>fmt_integer()</code>): 134K</li>
 </ul>
 <p>The problem grows worse when values need to be conveyed as images or plots. If you’re a medical analyst, for example, you might need to effectively convey whether test results for a patient are improving or worsening over time. Reading such data as a sequence of numbers across a row can slow interpretation. But by using <em>nanoplots</em>, available as the <code>fmt_nanoplot()</code> formatting method, readers can spot trends right away. Here’s an example that provides test results over a series of days.</p>
-<div id="26308ea9" class="cell" data-execution_count="3">
+<div id="00377bad" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables</span>
@@ -640,51 +640,51 @@ A table of named individuals redone, <strong>Great Tables</strong> style!
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<div id="fpynggmtvo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="gxarjpxzxd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#fpynggmtvo table {
+#gxarjpxzxd table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#fpynggmtvo thead, tbody, tfoot, tr, td, th { border-style: none; }
+#gxarjpxzxd thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#fpynggmtvo p { margin: 0; padding: 0; }
- #fpynggmtvo .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #fpynggmtvo .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #fpynggmtvo .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #fpynggmtvo .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #fpynggmtvo .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #fpynggmtvo .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #fpynggmtvo .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #fpynggmtvo .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #fpynggmtvo .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #fpynggmtvo .gt_column_spanner_outer:first-child { padding-left: 0; }
- #fpynggmtvo .gt_column_spanner_outer:last-child { padding-right: 0; }
- #fpynggmtvo .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #fpynggmtvo .gt_spanner_row { border-bottom-style: hidden; }
- #fpynggmtvo .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #fpynggmtvo .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #fpynggmtvo .gt_from_md> :first-child { margin-top: 0; }
- #fpynggmtvo .gt_from_md> :last-child { margin-bottom: 0; }
- #fpynggmtvo .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #fpynggmtvo .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #fpynggmtvo .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #fpynggmtvo .gt_row_group_first td { border-top-width: 2px; }
- #fpynggmtvo .gt_row_group_first th { border-top-width: 2px; }
- #fpynggmtvo .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #fpynggmtvo .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #fpynggmtvo .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #fpynggmtvo .gt_left { text-align: left; }
- #fpynggmtvo .gt_center { text-align: center; }
- #fpynggmtvo .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #fpynggmtvo .gt_font_normal { font-weight: normal; }
- #fpynggmtvo .gt_font_bold { font-weight: bold; }
- #fpynggmtvo .gt_font_italic { font-style: italic; }
- #fpynggmtvo .gt_super { font-size: 65%; }
- #fpynggmtvo .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #fpynggmtvo .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#gxarjpxzxd p { margin: 0; padding: 0; }
+ #gxarjpxzxd .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #gxarjpxzxd .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #gxarjpxzxd .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #gxarjpxzxd .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #gxarjpxzxd .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #gxarjpxzxd .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #gxarjpxzxd .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #gxarjpxzxd .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #gxarjpxzxd .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #gxarjpxzxd .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #gxarjpxzxd .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #gxarjpxzxd .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #gxarjpxzxd .gt_spanner_row { border-bottom-style: hidden; }
+ #gxarjpxzxd .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #gxarjpxzxd .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #gxarjpxzxd .gt_from_md> :first-child { margin-top: 0; }
+ #gxarjpxzxd .gt_from_md> :last-child { margin-bottom: 0; }
+ #gxarjpxzxd .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #gxarjpxzxd .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #gxarjpxzxd .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #gxarjpxzxd .gt_row_group_first td { border-top-width: 2px; }
+ #gxarjpxzxd .gt_row_group_first th { border-top-width: 2px; }
+ #gxarjpxzxd .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #gxarjpxzxd .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #gxarjpxzxd .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #gxarjpxzxd .gt_left { text-align: left; }
+ #gxarjpxzxd .gt_center { text-align: center; }
+ #gxarjpxzxd .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #gxarjpxzxd .gt_font_normal { font-weight: normal; }
+ #gxarjpxzxd .gt_font_bold { font-weight: bold; }
+ #gxarjpxzxd .gt_font_italic { font-style: italic; }
+ #gxarjpxzxd .gt_super { font-size: 65%; }
+ #gxarjpxzxd .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #gxarjpxzxd .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -750,24 +750,24 @@ A table of named individuals redone, <strong>Great Tables</strong> style!
 </div>
 </div>
 <p>Notice that if you hover over the data points, you still get values for each of the days. We designed nanoplots to be stripped down plotting visualizations that balance the quick visual interpretation of a plot against the compactness of a table.</p>
-<p><strong>Great Tables</strong> contains a lot of functionality for formatting. If you peeked at the code in the above table displays you might have noticed there are methods beginning with <code>fmt_</code> (i.e., <code>fmt_date()</code>, <code>fmt_integer()</code>, <code>fmt_nanoplot()</code>). We want to make many formatting methods available to serve different users’ needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.</p>
+<p><a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> contains a lot of functionality for formatting. If you peeked at the code in the above table displays you might have noticed there are methods beginning with <code>fmt_</code> (i.e., <code>fmt_date()</code>, <code>fmt_integer()</code>, <code>fmt_nanoplot()</code>). We want to make many formatting methods available to serve different users’ needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.</p>
 </section>
 <section id="great-tables-is-focused-on-display" class="level4">
 <h4 class="anchored" data-anchor-id="great-tables-is-focused-on-display">Great Tables is focused on display</h4>
-<p>There are myriad ways that people interact with tables. <strong>Great Tables</strong> is focused on the display of tables for publication and presentation. If you’re analyzing data in a database, you might want a simple table display that offers controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations.</p>
+<p>There are myriad ways that people interact with tables. <a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> is focused on the display of tables for publication and presentation. If you’re analyzing data in a database, you might want a simple table display that offers controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations.</p>
 <p>The publication of results is a entirely different task, and the emphasis here is on structuring, formatting, and styling. We believe that beautiful table displays should do the following:</p>
 <ul>
 <li>make information easier to digest</li>
 <li>provide extra context wherever needed</li>
 <li>adhere to the style of the document or of the organization</li>
 </ul>
-<p>We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in reports. We think the area of static summary tables deserves it’s own focus. This class of tables can look <em>great</em> and we offer various <code>opt_*()</code> methods in the <strong>Great Tables</strong> API so it’s that much easier to provide a great table to your readers.</p>
+<p>We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in reports. We think the area of static summary tables deserves it’s own focus. This class of tables can look <em>great</em> and we offer various <code>opt_*()</code> methods in the <a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> API so it’s that much easier to provide a great table to your readers.</p>
 </section>
 </section>
 <section id="in-conclusion" class="level3">
 <h3 class="anchored" data-anchor-id="in-conclusion">In conclusion</h3>
-<p>Tables have come a long way and we’ve learned a lot from our continued research in tabular design. We hope to make the <strong>Great Tables</strong> package useful for your generation of summary tables. Given there’s ample room for innovation in this area, we’ll keep plugging away at doing that work to improve the API. We measure success by the quality of the tables the package is able to produce and we always keep that goal top of mind.</p>
-<p>We’re very excited about where things are going with <strong>Great Tables</strong> and we geniunely appreciate community feedback. If ever you want to talk tables with us, you’re always welcome to jump into our <a href="https://discord.com/invite/Ux7nrcXHVV">Discord Server</a> and drop us a line!</p>
+<p>Tables have come a long way and we’ve learned a lot from our continued research in tabular design. We hope to make the <a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> package useful for your generation of summary tables. Given there’s ample room for innovation in this area, we’ll keep plugging away at doing that work to improve the API. We measure success by the quality of the tables the package is able to produce and we always keep that goal top of mind.</p>
+<p>We’re very excited about where things are going with <a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> and we geniunely appreciate community feedback. If ever you want to talk tables with us, you’re always welcome to jump into our <a href="https://discord.com/invite/Ux7nrcXHVV">Discord Server</a> and drop us a line!</p>
 <p>Many thanks to Curtis Kephart and <a href="https://anthonywbaker.com">Anthony Baker</a> for providing helpful advice when writing this article.</p>
 
 
