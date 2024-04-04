@@ -197,6 +197,8 @@ Notice that there is a blue row stub component that makes the row labels distinc
 
 If you look at the table code above you'll see that every method for modifying the table starts with `tab_`. These particular methods are concerned with adding a table component (e.g., `tab_header()` creates a **Table Header**) and they're designed to be easy and straightforward to use.
 
+#### Formatting
+
 Table structuring is important, but not the only thing. Tables in different disciplines have a certain set of display requirements specific for any values shown. Even something as simple as a number can be formatted in many different ways depending on a community's norms and expectations. This extends to a very wide area when we consider that dates, times, and currencies also need to be formatted.
 
 Depending on your display requirements, a raw value like 134,000 could presented as:
@@ -236,7 +238,11 @@ illness_mini = (
 )
 ```
 
-Notice that if you hover over the data points, you still get values for each of the days. We designed nanoplots to be stripped down plotting visualizations that balance the quick visual interpretation of a plot against the compactness of a table. **Great Tables** contains a lot of functionality for formatting. If you peeked at the code in the above table displays you might have noticed there are methods beginning with `fmt_` (i.e., `fmt_date()`, `fmt_integer()`, `fmt_nanoplot()`). We want to make many formatting methods to serve different users' needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.
+Notice that if you hover over the data points, you still get values for each of the days. We designed nanoplots to be stripped down plotting visualizations that balance the quick visual interpretation of a plot against the compactness of a table. **Great Tables** contains a lot of functionality for formatting.
+
+If you peeked at the code in the above table displays you might have noticed there are methods beginning with `fmt_` (i.e., `fmt_date()`, `fmt_integer()`, `fmt_nanoplot()`). We want to make many formatting methods to serve different users' needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.
+
+#### Great Tables is focused on display
 
 There are myriad ways that people interact with tables. **Great Tables** is focused on the display of tables for publication and presentation. If you're analyzing data in a database, you might want a simple table display that offers controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations.
 
@@ -246,7 +252,7 @@ The publication of results is a entirely different task, and the emphasis here i
 - provide extra context wherever needed
 - adhere to the style of the document or of the organization
 
-We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in periodicals like [*The Economist*](https://www.economist.com/economic-and-financial-indicators/2024/03/14/economic-data-commodities-and-markets). We think the area of static summary tables deserves it's own focus. This class of tables can look *great* and we offer various `opt_*()` methods in the **Great Tables** API so it's that much easier to provide a great display to your readers.
+We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in reports. We think the area of static summary tables deserves it's own focus. This class of tables can look *great* and we offer various `opt_*()` methods in the **Great Tables** API so it's that much easier to provide a great display to your readers.
 
 ### In conclusion
 
