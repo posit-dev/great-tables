@@ -28,4 +28,4 @@ jobs:
         with:
           python-version: "3.10"
       - run: |
-          python .github/scripts/no_pandas.py _tbl_data.py data/__init__.py
+          python .github/scripts/no_pandas.py great_tables _tbl_data.py data/__init__.py
