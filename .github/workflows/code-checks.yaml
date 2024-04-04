@@ -18,3 +18,14 @@ jobs:
         with:
           python-version: "3.10"
       - uses: pre-commit/action@v3.0.1
+
+  optional-deps:
+    name: "Static check optional deps"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: |
+          python .github/scripts/no_pandas.py _tbl_data.py data/__init__.py
