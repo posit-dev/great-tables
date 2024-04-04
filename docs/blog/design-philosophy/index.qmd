@@ -9,7 +9,7 @@ jupyter: python3
 
 We've spent a lot of time thinking about tables. Tables---like plots---are crucial as a last step toward presenting information. There is surprising sophistication and nuance in designing effective tables. Over the past 5,000 years, they've evolved from simple grids to highly structured displays of data. Although we argue that the mid-1900s served as a high point, the popularization and wider accessibility of computing seemingly brought us back to the simple, ancient times.
 
-Okay, it's not all *that bad* but the workers of data are today confronted with an all-too-familiar dilemma: copy your data into a tool like Excel to make the table, or, display an otherwise unpolished table. Through the exploration of the qualities that make tables shine, the backstory of tables as a display of data, and the issues faced today, it's clear how we can solve the **great table dilemma** with **Great Tables**.
+Okay, it's not all *that bad* but the workers of data are today confronted with an all-too-familiar dilemma: copy your data into a tool like Excel to make the table, or, display an otherwise unpolished table. Through the exploration of the qualities that make tables shine, the backstory of tables as a display of data, and the issues faced today, it's clear how we can solve the **great table dilemma** with [**Great Tables**][great-tables].
 
 ![](./computer_tables.png)
 
@@ -64,7 +64,7 @@ Note that there are horizontal lines separating the rows. This aesthetic touch, 
 
 The order of the columns matters, and that we start with the `Name` column here is no accident. If that column were the last (i.e., furthest to the right), it would be slightly more confusing for the reader since the subject for the record isn't immediate. In addition to order, column labels play an important role for indicating what data is in each column. They're not always necessary but in most cases they remove the guesswork for what type of data is contained within each column.
 
-We'll go into some detail later about how **Great Tables** provides affordances for structuring information for better legibility and how the package can be used to adorn the table with other structural elements. For now, our conception of a table can be summarized in this schematic.
+We'll go into some detail later about how [**Great Tables**][great-tables] provides affordances for structuring information for better legibility and how the package can be used to adorn the table with other structural elements. For now, our conception of a table can be summarized in this schematic.
 
 ![](./a_simple_table.png)
 
@@ -121,7 +121,7 @@ Perhaps the best period for tables was around the middle of the 20th century. Te
 
 There's no greater embodiment of that pairing of technology and design than the [*Manual of Tabular Presentation*](https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf)[^9], written and published by the United States Bureau of the Census. It is truly a remarkable work which goes into great detail on how the department imagines the ideal designs of information-rich tables. The work articulates the different parts of a table (and each part is given a descriptive name), sparing no detail when describing those different table parts in rigorous detail. Throughout its hundreds of pages, the authors make strong recommendations on what to do (and what *not* to do) for many tabulation scenarios. When poring over the tables visually depicted in the book, you can't help but see that tables can both look really good *and* contain a density of information. The promise and the result is a balance of form and function.
 
-We at **Great Tables** borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section). We'll end this brief section with a visual montage of snippets from the *Census Manual*, which provides a glimpse of the sound advice on offer.
+We at [**Great Tables**][great-tables] borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we'll talk about what we took from that work in the next section). We'll end this brief section with a visual montage of snippets from the *Census Manual*, which provides a glimpse of the sound advice on offer.
 
 ![](./snippets_from_manual_tablular_presentation.png)
 
@@ -149,9 +149,9 @@ All of these are suboptimal solutions. We propose that it is far better to do ev
 
 ### Approach to tables taken by **Great Tables**
 
-**Great Tables** restores the elegance of midcentury tables with the power of a coding interface. With **Great Tables** anyone can make beautiful tables in Python. Our framework expresses a table as a combination of six independent components. With this framework, you can structure the table, format the values, and style the table. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines.
+[**Great Tables**][great-tables] restores the elegance of midcentury tables with the power of a coding interface. With [**Great Tables**][great-tables] anyone can make beautiful tables in Python. Our framework expresses a table as a combination of six independent components. With this framework, you can structure the table, format the values, and style the table. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines.
 
-You build with **Great Tables** iteratively, starting off with your table body from code, adding styling, formatting and other components. Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:
+You build with [**Great Tables**][great-tables] iteratively, starting off with your table body from code, adding styling, formatting and other components. Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:
 
 ![](./composition_of_a_table_in_GT.png)
 
@@ -166,7 +166,7 @@ Note the following six component pieces:
 - **Table Body**: contains cells and so it's where the data lives
 - **Table Footer**: a place for additional information pertaining to the table content
 
-Here's a table that takes advantage of the different components available in **Great Tables**. It contains the names and addresses of people.
+Here's a table that takes advantage of the different components available in [**Great Tables**][great-tables]. It contains the names and addresses of people.
 
 ```{python}
 #| code-fold: true
@@ -242,11 +242,11 @@ illness_mini = (
 
 Notice that if you hover over the data points, you still get values for each of the days. We designed nanoplots to be stripped down plotting visualizations that balance the quick visual interpretation of a plot against the compactness of a table.
 
-**Great Tables** contains a lot of functionality for formatting. If you peeked at the code in the above table displays you might have noticed there are methods beginning with `fmt_` (i.e., `fmt_date()`, `fmt_integer()`, `fmt_nanoplot()`). We want to make many formatting methods available to serve different users' needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.
+[**Great Tables**][great-tables] contains a lot of functionality for formatting. If you peeked at the code in the above table displays you might have noticed there are methods beginning with `fmt_` (i.e., `fmt_date()`, `fmt_integer()`, `fmt_nanoplot()`). We want to make many formatting methods available to serve different users' needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.
 
 #### Great Tables is focused on display
 
-There are myriad ways that people interact with tables. **Great Tables** is focused on the display of tables for publication and presentation. If you're analyzing data in a database, you might want a simple table display that offers controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations.
+There are myriad ways that people interact with tables. [**Great Tables**][great-tables] is focused on the display of tables for publication and presentation. If you're analyzing data in a database, you might want a simple table display that offers controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations.
 
 The publication of results is a entirely different task, and the emphasis here is on structuring, formatting, and styling. We believe that beautiful table displays should do the following:
 
@@ -254,15 +254,17 @@ The publication of results is a entirely different task, and the emphasis here i
 - provide extra context wherever needed
 - adhere to the style of the document or of the organization
 
-We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in reports. We think the area of static summary tables deserves it's own focus. This class of tables can look *great* and we offer various `opt_*()` methods in the **Great Tables** API so it's that much easier to provide a great table to your readers.
+We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in reports. We think the area of static summary tables deserves it's own focus. This class of tables can look *great* and we offer various `opt_*()` methods in the [**Great Tables**][great-tables] API so it's that much easier to provide a great table to your readers.
 
 ### In conclusion
 
-Tables have come a long way and we've learned a lot from our continued research in tabular design. We hope to make the **Great Tables** package useful for your generation of summary tables. Given there's ample room for innovation in this area, we'll keep plugging away at doing that work to improve the API. We measure success by the quality of the tables the package is able to produce and we always keep that goal top of mind.
+Tables have come a long way and we've learned a lot from our continued research in tabular design. We hope to make the [**Great Tables**][great-tables] package useful for your generation of summary tables. Given there's ample room for innovation in this area, we'll keep plugging away at doing that work to improve the API. We measure success by the quality of the tables the package is able to produce and we always keep that goal top of mind.
 
-We're very excited about where things are going with **Great Tables** and we geniunely appreciate community feedback. If ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV) and drop us a line!
+We're very excited about where things are going with [**Great Tables**][great-tables] and we geniunely appreciate community feedback. If ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV) and drop us a line!
 
 Many thanks to Curtis Kephart and [Anthony Baker](https://anthonywbaker.com) for providing helpful advice when writing this article.
+
+[great-tables]: https://github.com/posit-dev/great-tables
 
 [^1]: Taylor, B. (2021). Lunar timekeeping in Upper Paleolithic Cave Art. *PRAEHISTORIA New Series*, *3*(13), 215–232.
 
