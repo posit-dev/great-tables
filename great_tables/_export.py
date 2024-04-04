@@ -1,12 +1,47 @@
 from __future__ import annotations
 from ._utils import _try_import
-from typing import Literal, TYPE_CHECKING
+from typing import Literal, List, TYPE_CHECKING
 from typing_extensions import TypeAlias
 import tempfile
 
 if TYPE_CHECKING:
     # Note that as_raw_html uses methods on the GT class, not just data
     from .gt import GT
+
+
+MAC_BROWSERS = [
+    ("chrome", "com.google.Chrome", "KSVersion"),
+    ("chromium", "org.chromium.Chromium", "CFBundleShortVersionString"),
+    ("firefox", "org.mozilla.firefox", "CFBundleShortVersionString"),
+    ("safari", "com.apple.Safari", "CFBundleShortVersionString"),
+    ("edge", "com.microsoft.edgemac", "CFBundleVersion"),
+]
+
+
+def _get_mac_browsers() -> List[str]:
+
+    import plistlib
+    import subprocess
+    import os
+
+    browsers = []
+
+    for browser, bundle_id, version_string in MAC_BROWSERS:
+        paths = subprocess.getoutput(
+            f'mdfind "kMDItemCFBundleIdentifier == {bundle_id}"'
+        ).splitlines()
+        for path in paths:
+            with open(os.path.join(path, "Contents/Info.plist"), "rb") as f:
+                plist = plistlib.load(f)
+                executable_name = plist.get("CFBundleExecutable")
+                executable = os.path.join(path, "Contents/MacOS", executable_name)
+                display_name = plist.get("CFBundleDisplayName") or plist.get(
+                    "CFBundleName", browser
+                )
+                version = plist[version_string]
+                browsers.append((browser, version, executable, display_name))
+
+    return browsers
 
 
 def as_raw_html(
@@ -158,6 +193,7 @@ def save(
 
     # If using `wd=auto` (the default) then prefer 'safari' on macOS but 'chrome' elsewhere
     if wd == "auto":
+
         if sys_platform == "darwin":
             wd = "safari"
         else:
