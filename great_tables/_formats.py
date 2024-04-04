@@ -2721,7 +2721,7 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
         return matches[0]
 
     try:
-        babel.Locale.parse(supplied_locale)
+        babel.Locale.parse(supplied_locale, sep="-")
     except babel.UnknownLocaleError:
         raise ValueError(
             f"Supplied locale `{supplied_locale}` is not a known locale. "
