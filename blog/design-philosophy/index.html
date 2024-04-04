@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.553">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Rich Iannone and Michael Chow">
+<meta name="dcterms.date" content="2024-04-04">
+
+<title>great_tables - The Design Philosophy of Great Tables</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-CN7Z82M6R7"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">great_tables</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../get-started/index.html"> 
+<span class="menu-text">Get Started</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../examples/index.html"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog/index.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/posit-dev/great-tables"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#what-is-a-table-really" id="toc-what-is-a-table-really" class="nav-link active" data-scroll-target="#what-is-a-table-really">What is a table, really?</a></li>
+  <li><a href="#the-early-history-of-tables" id="toc-the-early-history-of-tables" class="nav-link" data-scroll-target="#the-early-history-of-tables">The early history of tables</a></li>
+  <li><a href="#midcentury-modern-tables" id="toc-midcentury-modern-tables" class="nav-link" data-scroll-target="#midcentury-modern-tables">Midcentury modern tables</a></li>
+  <li><a href="#the-late-history-of-tables" id="toc-the-late-history-of-tables" class="nav-link" data-scroll-target="#the-late-history-of-tables">The late history of tables</a></li>
+  <li><a href="#approach-to-tables-taken-by-great-tables" id="toc-approach-to-tables-taken-by-great-tables" class="nav-link" data-scroll-target="#approach-to-tables-taken-by-great-tables">Approach to tables taken by <strong>Great Tables</strong></a></li>
+  <li><a href="#in-conclusion" id="toc-in-conclusion" class="nav-link" data-scroll-target="#in-conclusion">In conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">The Design Philosophy of Great Tables</h1>
+</div>
+
+
+
+<div class="quarto-title-meta column-page-left">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Rich Iannone and Michael Chow </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 4, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>We’ve spent a lot of time thinking about tables. Tables—like plots—are crucial as a last step toward presenting information. There is surprising sophistication and nuance in designing effective tables. Over the past 5,000 years, they’ve evolved from simple grids to highly structured displays of data. Although we argue that the mid-1900s served as a high point, the popularization and wider accessibility of computing seemingly brought us back to the simple, ancient times.</p>
+<p>Okay, it’s not all <em>that bad</em> but the workers of data are today confronted with an all-too-familiar dilemma: copy your data into a tool like Excel to make the table, or, display an otherwise unpolished table. Through the exploration of the qualities that make tables shine, the backstory of tables as a display of data, and the issues faced today, it’s clear how we can solve the <strong>great table dilemma</strong> with <strong>Great Tables</strong>.</p>
+<p><img src="./computer_tables.png" class="img-fluid"></p>
+<p style="font-size: 12px;">
+Tables made with computers (left to right): (1) a DataFrame printed at the console, (2) an Excel table, and (3) a <strong>Great Tables</strong> table.
+</p>
+<section id="what-is-a-table-really" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-a-table-really">What is a table, really?</h3>
+<p>Before getting to what makes tables <em>shine</em> we should first define what a table is. This is surprisingly hard! But I believe it can be boiled down to two basic rules:</p>
+<ul>
+<li>the data is represented as columns and rows</li>
+<li>the data is primarily text</li>
+</ul>
+<p>Let’s look at an example of a simple table with actual data to tie this theory to practice.</p>
+<div id="4ea5f3d3" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div id="dyhlsjzori" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#dyhlsjzori table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#dyhlsjzori thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#dyhlsjzori p { margin: 0; padding: 0; }
+ #dyhlsjzori .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #dyhlsjzori .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #dyhlsjzori .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #dyhlsjzori .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #dyhlsjzori .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #dyhlsjzori .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #dyhlsjzori .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #dyhlsjzori .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #dyhlsjzori .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #dyhlsjzori .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #dyhlsjzori .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #dyhlsjzori .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #dyhlsjzori .gt_spanner_row { border-bottom-style: hidden; }
+ #dyhlsjzori .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #dyhlsjzori .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #dyhlsjzori .gt_from_md> :first-child { margin-top: 0; }
+ #dyhlsjzori .gt_from_md> :last-child { margin-bottom: 0; }
+ #dyhlsjzori .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #dyhlsjzori .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #dyhlsjzori .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #dyhlsjzori .gt_row_group_first td { border-top-width: 2px; }
+ #dyhlsjzori .gt_row_group_first th { border-top-width: 2px; }
+ #dyhlsjzori .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #dyhlsjzori .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #dyhlsjzori .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #dyhlsjzori .gt_left { text-align: left; }
+ #dyhlsjzori .gt_center { text-align: center; }
+ #dyhlsjzori .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #dyhlsjzori .gt_font_normal { font-weight: normal; }
+ #dyhlsjzori .gt_font_bold { font-weight: bold; }
+ #dyhlsjzori .gt_font_italic { font-style: italic; }
+ #dyhlsjzori .gt_super { font-size: 65%; }
+ #dyhlsjzori .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #dyhlsjzori .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+
+<tbody><tr class="gt_col_headings">
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Name">Name</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Address">Address</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="City">City</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Postcode">Postcode</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="DOB">DOB</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Height">Height</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Weight">Weight</th>
+</tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <td class="gt_row gt_left">Dustin B. Roach</td>
+  <td class="gt_row gt_left">1183 Columbia Road</td>
+  <td class="gt_row gt_left">Holly Oak, DE</td>
+  <td class="gt_row gt_left">19809</td>
+  <td class="gt_row gt_left">1970-09-16</td>
+  <td class="gt_row gt_left">5' 9"</td>
+  <td class="gt_row gt_right">202.5</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">Iwona Adamczyk</td>
+  <td class="gt_row gt_left">ul. Zabłudowska 133</td>
+  <td class="gt_row gt_left">Warszawa</td>
+  <td class="gt_row gt_left">04-788</td>
+  <td class="gt_row gt_left">1976-01-03</td>
+  <td class="gt_row gt_left">5' 5"</td>
+  <td class="gt_row gt_right">123.7</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">Geneviève Massé</td>
+  <td class="gt_row gt_left">1415 rue Principale</td>
+  <td class="gt_row gt_left">Amos, QC</td>
+  <td class="gt_row gt_left">J9T 1E4</td>
+  <td class="gt_row gt_left">1967-12-08</td>
+  <td class="gt_row gt_left">5' 3"</td>
+  <td class="gt_row gt_right">136.3</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">João Souza Lima</td>
+  <td class="gt_row gt_left">Rua Cosmorama, 538</td>
+  <td class="gt_row gt_left">São Paulo-SP</td>
+  <td class="gt_row gt_left">04648-080</td>
+  <td class="gt_row gt_left">2001-04-21</td>
+  <td class="gt_row gt_left">6' 2"</td>
+  <td class="gt_row gt_right">231.0</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">Maddison McCabe</td>
+  <td class="gt_row gt_left">149 Raymond Street</td>
+  <td class="gt_row gt_left">Strathern</td>
+  <td class="gt_row gt_left">Invercargill 9812</td>
+  <td class="gt_row gt_left">1982-03-05</td>
+  <td class="gt_row gt_left">5' 8"</td>
+  <td class="gt_row gt_right">146.1</td>
+</tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+<p style="font-size: 12px;">
+A table of named individuals along with a select set of characteristics.
+</p>
+<p>This table arranges records containing personal characteristics as columns and rows. Each person is a row, and each characteristic makes up a different column. The characteristics use different types of data, like dates, numbers, and text. This arrangement makes it easy to look up individual values or make comparisons across the different rows or columns.</p>
+<p>Note that there are horizontal lines separating the rows. This aesthetic touch, while not strictly required for a table, serves as a visual reinforcement for separating the individual rows.</p>
+<p>The order of the columns matters, and that we start with the <code>Name</code> column here is no accident. If that column were the last (i.e., furthest to the right), it would be slightly more confusing for the reader since the subject for the record isn’t immediate. In addition to order, column labels play an important role for indicating what data is in each column. They’re not always necessary but in most cases they remove the guesswork for what type of data is contained within each column.</p>
+<p>We’ll go into some detail later about how <strong>Great Tables</strong> provides affordances for structuring information for better legibility and how the package can be used to adorn the table with other structural elements. For now, our conception of a table can be summarized in this schematic.</p>
+<p><img src="./a_simple_table.png" class="img-fluid"></p>
+<p style="font-size: 12px;">
+A simple table has: (1) cells containing data, (2) an arrangement of columns and rows, and (3) column labels to describe the type data in each column.
+</p>
+<p>Now, let’s go back: way back. In examining where tables came from, we might better understand the great story of tables.</p>
+</section>
+<section id="the-early-history-of-tables" class="level3">
+<h3 class="anchored" data-anchor-id="the-early-history-of-tables">The early history of tables</h3>
+<p>Tables emerged from square grids. When grids are made like this, you invariably generate containers that may hold some sort of information. The earliest known examples of grids go very far back in human history. Twenty-five thousand year old representations of the grid are found on the walls of the Lascaux and Niaux caves in France<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p><img src="./cave_grids.png" class="img-fluid"></p>
+<p style="font-size: 12px;">
+Reproductions of early grids found on cave walls.
+</p>
+<p>In the second century BC, the Greek astronomer Hipparchus used latitude and longitude to locate celestial and terrestrial positions<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. At around AD 150, Ptolmey published <em>Geographia</em>, which contains 25 geographical maps accompanied by methodologies for their construction using grids<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. The Romans employed a grid system called <em>centuriation</em>, which can be described as land measurement (using surveyors’ instruments) to realize the formation of square grids using roads, canals, or agricultural plots<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</p>
+<p>When agriculture became more widespread (ca. 10,000 years ago), there was the need to document and manage economic transactions to do with farming, livestock, and the division of labor. In the fourth millennium BC, Mesopotamian cities that traded with far way kingdoms needed to keep such records. Clay tablets recovered from the ancient Sumerian city of Uruk show early yet sophisticated tables. Here is a drawing of one of the recovered tablets, which contains an accounting of deliveries of barley and malt from two individuals for the production of beer<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p>
+<p><img src="./uruk_tablet_with_annotations.png" class="img-fluid"></p>
+<p style="font-size: 12px;">
+Drawing of clay tablet from Sumerian city of Uruk, circa 3200-3000 BC. Uruk III Tablet (MSVO 3, 51, Louvre Museum, Paris, France). Annotated with the meanings of the columns, rows, and cells.
+</p>
+<p>Note that the recovered tablet is meant to be read from right to left. Inside each box is an ideogram (a symbol that represented a word or idea) and a numerical value representing a quantity.</p>
+<p>Its structure is where things get super interesting:</p>
+<ul>
+<li>Rows: there are roughly two rows, each corresponding to an individual.</li>
+<li>Columns: the first two columns from the right contain counts of malt (rightmost column) and barley (second rightmost column).</li>
+<li>Subtotals: the third column from the right sums barley and malt within each individual, and the left-most column displays the grand total.</li>
+</ul>
+<p>As a bonus, the table has a footer, since the bottom row contains the name of the official in charge.</p>
+<p>Zooming ahead about a thousand years, you start to see more systematically structured tables. Here’s a photo of a cuneiform tablet that was originally from Mesopotamia (from the Temple of Enlil at Nippur, ca. 1850 BC)<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>, containing sources of revenue and monthly disbursements for 50 temple personnel.</p>
+<p><img src="./nippur_cuneiform_tablet.png" class="img-fluid"></p>
+<p style="font-size: 12px;">
+Cuneiform tablet, temple of Enlil at Nippur, (CBS 3323, University of Pennsylvania).
+</p>
+<p>You can see right away that there is a more regular grid and, if you probe deeper, there are more similarities than differerences with the tables of today. While difficult to pick them out, the following table elements are present<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>:</p>
+<ul>
+<li>column headings (month names) and row titles (names/professions of individuals).</li>
+<li>cells with no information (look at the blank or smooth cells along rows)</li>
+<li>numerical values in the cells</li>
+<li>subtotals for each individual every six months</li>
+<li>grand totals</li>
+<li>annotations with explanatory notes</li>
+</ul>
+<p>Later on, tables were less inscribed on clay and more on wax tablets, papyrus, and paper. The media have changed, writing technologies have changed, and the design and presentation of tables also went through changes.</p>
+</section>
+<section id="midcentury-modern-tables" class="level3">
+<h3 class="anchored" data-anchor-id="midcentury-modern-tables">Midcentury modern tables</h3>
+<p>Perhaps the best period for tables was around the middle of the 20th century. Technologies for table (and surrounding document) preparation included the offset printer, the typewriter, and varitype<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a> (my favorite). The technologies were sufficiently advanced as to allow the precise typesetting of table elements. While of course constrained by the limited space available on pages, tabular design at this point had many workable solutions for fitting tables into single pages or dispersing the tabular content across multiple pages. The combination of advanced printing technology with advanced knowledge of tabular design resulted in <em>beautiful tables</em>.</p>
+<p>There’s no greater embodiment of that pairing of technology and design than the <a href="https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf"><em>Manual of Tabular Presentation</em></a><a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>, written and published by the United States Bureau of the Census. It is truly a remarkable work which goes into great detail on how the department imagines the ideal designs of information-rich tables. The work articulates the different parts of a table (and each part is given a descriptive name), sparing no detail when describing those different table parts in rigorous detail. Throughout its hundreds of pages, the authors make strong recommendations on what to do (and what <em>not</em> to do) for many tabulation scenarios. When poring over the tables visually depicted in the book, you can’t help but see that tables can both look really good <em>and</em> contain a density of information. The promise and the result is a balance of form and function.</p>
+<p>We at <strong>Great Tables</strong> borrow liberally from this work because many of its tabular design principles are just as good now as they were back then (and we’ll talk about what we took from that work in the next section). We’ll end this brief section with a visual montage of snippets from the <em>Census Manual</em>, which provides a glimpse of the sound advice on offer.</p>
+<p><img src="./snippets_from_manual_tablular_presentation.png" class="img-fluid"></p>
+<p style="font-size: 12px;">
+Little nuggets of wisdom from the <em>Census Manual</em>. This may very well be the ultimate book on tabular design.
+</p>
+</section>
+<section id="the-late-history-of-tables" class="level3">
+<h3 class="anchored" data-anchor-id="the-late-history-of-tables">The late history of tables</h3>
+<p>With computing technologies becoming more accessible by the 1970s and 1980s, people were able to generate tables in both electronic and print form. The democratization of computational tables arguably began with VisiCalc in 1979, a massive success that initiated the computing category of spreadsheeting software. There’s an undeniable advantage to having data analyzed and transformed in computing environments, but, this comes at a cost. This is what it looked like:</p>
+<p><img src="./visicalc.png" class="img-fluid"></p>
+<p style="font-size: 12px;">
+This is a table in VisiCalc (earliest example of a table in a spreadsheet application). It’s pretty crude compared to the tables in print but the advantage here is that you can calculate values quickly.
+</p>
+<p>The grid cells couldn’t be styled with borders for presentation purposes, the values couldn’t be formatted, and the tables couldn’t even be printed. I mean, <a href="https://www.pcjs.org/software/pcx86/app/other/visicalc/1981/">try it out</a> and you’ll see that this is quite limited in more than a few ways.</p>
+<p>Over time, and this took about 10-15 years, tables-within-spreadsheets got a little easier on the eyes. By the early 1990s, Excel could paint borders on your tables, better typographical support was available, and the formatting of values was fully-featured (though, <a href="https://www.cnet.com/tech/computing/prevent-excel-from-reformatting-two-numbers-to-a-date-and-month/">wonky</a>). Great! Problem solved, right? Not really.</p>
+<p>While Excel tables from the last three decades looked much better than 1980s-spreadsheet-borne tables, they could never hold a candle to the what was shown in the <em>Census Manual</em> (no matter how much of an Excel expert you became). Further to this, data analysis started to became a thing accomplished outside of Excel. One example of that is Python and its use inside Jupyter notebooks. We now have a bag of problematic scenarios</p>
+<ul>
+<li>all Python: analyze data and generate tables all in Python (bad tables)</li>
+<li>all Excel: analyze data and make tables in Excel (less flexible analysis)</li>
+<li>split-brained: analyze data in Python, copy over to Excel to make tables (not reproducible)</li>
+</ul>
+<p>All of these are suboptimal solutions. We propose that it is far better to do everything in Python: the data ingestion, the data analysis, and the data visualization. The visualization step is what’s done for plots and other types of graphics composed from data, it shouldn’t be any different when it comes to generating summary tables.</p>
+</section>
+<section id="approach-to-tables-taken-by-great-tables" class="level3">
+<h3 class="anchored" data-anchor-id="approach-to-tables-taken-by-great-tables">Approach to tables taken by <strong>Great Tables</strong></h3>
+<p><strong>Great Tables</strong> restores the elegance of midcentury tables with the power of a coding interface. With <strong>Great Tables</strong> anyone can make beautiful tables in Python. Our framework expresses a table as a combination of six independent components. With this framework, you can structure the table, format the values, and style the table. We firmly believe that the methods offered in the package enable people to construct a wide variety of useful tables that work across many disciplines.</p>
+<p>You build with <strong>Great Tables</strong> iteratively, starting off with your table body from code, adding styling, formatting and other components.&nbsp;Here is a schematic that outlines our terminology and depicts how the different table components are related to each other:</p>
+<p><img src="./composition_of_a_table_in_GT.png" class="img-fluid"></p>
+<p style="font-size: 12px;">
+A schematic with the complete set of table components that can be utilized in <strong>Great Tables</strong>.
+</p>
+<p>Note the following six component pieces:</p>
+<ul>
+<li><strong>Table Header</strong>: a place for a title and subtitle, where you can succinctly describe the table content</li>
+<li><strong>Column Labels</strong>: the column labels define the content of each column, and spanners are headings over groups of columns</li>
+<li><strong>Stub Head</strong>: the ‘top-left’ location, where a label could be used in a variety of ways</li>
+<li><strong>Row Stub</strong>: for row information, including row grouping labels</li>
+<li><strong>Table Body</strong>: contains cells and so it’s where the data lives</li>
+<li><strong>Table Footer</strong>: a place for additional information pertaining to the table content</li>
+</ul>
+<p>Here’s a table that takes advantage of the different components available in <strong>Great Tables</strong>. It contains the names and addresses of people.</p>
+<div id="521e609f" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, md, system_fonts</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    GT(simple_table, rowname_col<span class="op">=</span><span class="st">"Name"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    .tab_header(title<span class="op">=</span><span class="st">"Names, Addresses, and Characteristics of Remote Correspondents"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    .tab_stubhead(label<span class="op">=</span>md(<span class="st">"*Name*"</span>))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(label<span class="op">=</span><span class="st">"Location"</span>, columns<span class="op">=</span>[<span class="st">"Address"</span>, <span class="st">"City"</span>, <span class="st">"Postcode"</span>])</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(label<span class="op">=</span><span class="st">"Personal Characteristics"</span>, columns<span class="op">=</span>[<span class="st">"DOB"</span>, <span class="st">"Height"</span>, <span class="st">"Weight"</span>])</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    .tab_source_note(source_note<span class="op">=</span>md(<span class="st">"**Data last updated**: December 18, 2022."</span>))</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    .fmt_date(columns<span class="op">=</span><span class="st">"DOB"</span>, date_style<span class="op">=</span><span class="st">"m_day_year"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    .fmt_integer(columns<span class="op">=</span><span class="st">"Weight"</span>, pattern<span class="op">=</span><span class="st">"</span><span class="sc">{x}</span><span class="st"> lbs"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    .opt_stylize()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    .opt_align_table_header(align<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    .opt_vertical_padding(scale<span class="op">=</span><span class="fl">0.75</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    .tab_options(</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        table_font_names<span class="op">=</span>system_fonts(name<span class="op">=</span><span class="st">"rounded-sans"</span>),</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        table_font_size<span class="op">=</span><span class="st">"14px"</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div id="quoieuwxuw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#quoieuwxuw table {
+          font-family: ui-rounded, 'Hiragino Maru Gothic ProN', Quicksand, Comfortaa, Manjari, 'Arial Rounded MT', 'Arial Rounded MT Bold', Calibri, source-sans-pro, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#quoieuwxuw thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#quoieuwxuw p { margin: 0; padding: 0; }
+ #quoieuwxuw .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 14px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #004D80; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #004D80; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #quoieuwxuw .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #quoieuwxuw .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #quoieuwxuw .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 2px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #quoieuwxuw .gt_heading { background-color: #FFFFFF; text-align: left; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #quoieuwxuw .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; }
+ #quoieuwxuw .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #quoieuwxuw .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 3px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #quoieuwxuw .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #quoieuwxuw .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #quoieuwxuw .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #quoieuwxuw .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; vertical-align: bottom; padding-top: 3px; padding-bottom: 3px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #quoieuwxuw .gt_spanner_row { border-bottom-style: hidden; }
+ #quoieuwxuw .gt_group_heading { padding-top: 6px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #quoieuwxuw .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; vertical-align: middle; }
+ #quoieuwxuw .gt_from_md> :first-child { margin-top: 0; }
+ #quoieuwxuw .gt_from_md> :last-child { margin-bottom: 0; }
+ #quoieuwxuw .gt_row { padding-top: 6px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: none; border-top-width: 1px; border-top-color: #89D3FE; border-left-style: none; border-left-width: 1px; border-left-color: #89D3FE; border-right-style: none; border-right-width: 1px; border-right-color: #89D3FE; vertical-align: middle; overflow-x: hidden; }
+ #quoieuwxuw .gt_stub { color: #FFFFFF; background-color: #0076BA; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #0076BA; padding-left: 5px; padding-right: 5px; }
+ #quoieuwxuw .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #quoieuwxuw .gt_row_group_first td { border-top-width: 2px; }
+ #quoieuwxuw .gt_row_group_first th { border-top-width: 2px; }
+ #quoieuwxuw .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #0076BA; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #0076BA; }
+ #quoieuwxuw .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #quoieuwxuw .gt_sourcenote { font-size: 90%; padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #quoieuwxuw .gt_left { text-align: left; }
+ #quoieuwxuw .gt_center { text-align: center; }
+ #quoieuwxuw .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #quoieuwxuw .gt_font_normal { font-weight: normal; }
+ #quoieuwxuw .gt_font_bold { font-weight: bold; }
+ #quoieuwxuw .gt_font_italic { font-style: italic; }
+ #quoieuwxuw .gt_super { font-size: 65%; }
+ #quoieuwxuw .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #quoieuwxuw .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead class="gt_header">
+  <tr>
+    <th colspan="7" class="gt_heading gt_title gt_font_normal">Names, Addresses, and Characteristics of Remote Correspondents</th>
+  </tr>
+</thead>
+<tbody><tr class="gt_col_headings gt_spanner_row">
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="<em>Name</em>"><em>Name</em></th>
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Location">
+    <span class="gt_column_spanner">Location</span>
+  </th>
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Personal Characteristics">
+    <span class="gt_column_spanner">Personal Characteristics</span>
+  </th>
+</tr>
+<tr class="gt_col_headings">
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Address">Address</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="City">City</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Postcode">Postcode</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="DOB">DOB</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Height">Height</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Weight">Weight</th>
+</tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <th class="gt_row gt_left gt_stub">Dustin B. Roach</th>
+  <td class="gt_row gt_left">1183 Columbia Road</td>
+  <td class="gt_row gt_left">Holly Oak, DE</td>
+  <td class="gt_row gt_left">19809</td>
+  <td class="gt_row gt_left">Sep 16, 1970</td>
+  <td class="gt_row gt_left">5' 9"</td>
+  <td class="gt_row gt_right">202 lbs</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">Iwona Adamczyk</th>
+  <td class="gt_row gt_left">ul. Zabłudowska 133</td>
+  <td class="gt_row gt_left">Warszawa</td>
+  <td class="gt_row gt_left">04-788</td>
+  <td class="gt_row gt_left">Jan 3, 1976</td>
+  <td class="gt_row gt_left">5' 5"</td>
+  <td class="gt_row gt_right">124 lbs</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">Geneviève Massé</th>
+  <td class="gt_row gt_left">1415 rue Principale</td>
+  <td class="gt_row gt_left">Amos, QC</td>
+  <td class="gt_row gt_left">J9T 1E4</td>
+  <td class="gt_row gt_left">Dec 8, 1967</td>
+  <td class="gt_row gt_left">5' 3"</td>
+  <td class="gt_row gt_right">136 lbs</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">João Souza Lima</th>
+  <td class="gt_row gt_left">Rua Cosmorama, 538</td>
+  <td class="gt_row gt_left">São Paulo-SP</td>
+  <td class="gt_row gt_left">04648-080</td>
+  <td class="gt_row gt_left">Apr 21, 2001</td>
+  <td class="gt_row gt_left">6' 2"</td>
+  <td class="gt_row gt_right">231 lbs</td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">Maddison McCabe</th>
+  <td class="gt_row gt_left">149 Raymond Street</td>
+  <td class="gt_row gt_left">Strathern</td>
+  <td class="gt_row gt_left">Invercargill 9812</td>
+  <td class="gt_row gt_left">Mar 5, 1982</td>
+  <td class="gt_row gt_left">5' 8"</td>
+  <td class="gt_row gt_right">146 lbs</td>
+</tr>
+</tbody>
+  <tfoot class="gt_sourcenotes">
+  
+  <tr>
+    <td class="gt_sourcenote" colspan="7"><strong>Data last updated</strong>: December 18, 2022.</td>
+  </tr>
+
+</tfoot>
+
+</table>
+
+</div>
+        
+</div>
+</div>
+<p style="font-size: 12px;">
+A table of named individuals redone, <strong>Great Tables</strong> style!
+</p>
+<p>Notice that there is a blue row stub component that makes the row labels distinct from the body of the table. This is important because each person described forms a unique observation and we want to highlight the subject of each row. The heading provides context on what’s contained within the table. The two column spanners arrange the columns into sensible groupings (e.g., ‘Location’). The consistent use of blue lines and cell backgrounds gives the table a professional look.</p>
+<p>If you look at the table code above you’ll see that every method for modifying the table starts with <code>tab_</code>. These particular methods are concerned with adding a table component (e.g., <code>tab_header()</code> creates a <strong>Table Header</strong>) and they’re designed to be easy and straightforward to use.</p>
+<section id="formatting" class="level4">
+<h4 class="anchored" data-anchor-id="formatting">Formatting</h4>
+<p>Table structuring is important, but not the only thing. Tables in different disciplines have a certain set of display requirements specific for any values shown. Even something as simple as a number can be formatted in many different ways depending on a community’s norms and expectations. This extends to a very wide area when we consider that dates, times, and currencies also need to be formatted.</p>
+<p>Depending on your display requirements, a raw value like 134,000 could presented as:</p>
+<ul>
+<li>scientific notation (<code>fmt_scientific()</code>): 1.34 × 10<sup style="font-size: 65%;">5</sup></li>
+<li>a number in the German locale (<code>fmt_number()</code>): 134.000,00</li>
+<li>a compact integer value (<code>fmt_integer()</code>): 134K</li>
+</ul>
+<p>The problem grows worse when values need to be conveyed as images or plots. If you’re a medical analyst, for example, you might need to effectively convey whether test results for a patient are improving or worsening over time. Reading such data as a sequence of numbers across a row can slow interpretation. But by using <em>nanoplots</em>, available as the <code>fmt_nanoplot()</code> formatting method, readers can spot trends right away. Here’s an example that provides test results over a series of days.</p>
+<div id="26308ea9" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, md</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> illness</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>illness_mini <span class="op">=</span> (</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    pl.from_pandas(illness)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    .head(<span class="dv">10</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    .select(</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"test"</span>, values<span class="op">=</span>pl.concat_str(pl.exclude(<span class="st">"test"</span>, <span class="st">"units"</span>), separator<span class="op">=</span><span class="st">" "</span>, ignore_nulls<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">slice</span>(<span class="dv">1</span>, <span class="dv">9</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    GT(illness_mini, rowname_col<span class="op">=</span><span class="st">"test"</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    .fmt_nanoplot(columns<span class="op">=</span><span class="st">"values"</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    .tab_header(md(<span class="st">"Partial summary of daily tests&lt;br&gt;performed on YF patient"</span>))</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    .tab_stubhead(label<span class="op">=</span>md(<span class="st">"**Test**"</span>))</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    .cols_label(values<span class="op">=</span>md(<span class="st">"*Progression*"</span>))</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    .cols_align(align<span class="op">=</span><span class="st">"center"</span>, columns<span class="op">=</span><span class="st">"values"</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    .tab_source_note(source_note<span class="op">=</span><span class="st">"Measurements from Day 3 through to Day 8."</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div id="fpynggmtvo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#fpynggmtvo table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#fpynggmtvo thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#fpynggmtvo p { margin: 0; padding: 0; }
+ #fpynggmtvo .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #fpynggmtvo .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #fpynggmtvo .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #fpynggmtvo .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #fpynggmtvo .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #fpynggmtvo .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #fpynggmtvo .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #fpynggmtvo .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #fpynggmtvo .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #fpynggmtvo .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #fpynggmtvo .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #fpynggmtvo .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #fpynggmtvo .gt_spanner_row { border-bottom-style: hidden; }
+ #fpynggmtvo .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #fpynggmtvo .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #fpynggmtvo .gt_from_md> :first-child { margin-top: 0; }
+ #fpynggmtvo .gt_from_md> :last-child { margin-bottom: 0; }
+ #fpynggmtvo .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #fpynggmtvo .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #fpynggmtvo .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #fpynggmtvo .gt_row_group_first td { border-top-width: 2px; }
+ #fpynggmtvo .gt_row_group_first th { border-top-width: 2px; }
+ #fpynggmtvo .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #fpynggmtvo .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #fpynggmtvo .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #fpynggmtvo .gt_left { text-align: left; }
+ #fpynggmtvo .gt_center { text-align: center; }
+ #fpynggmtvo .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #fpynggmtvo .gt_font_normal { font-weight: normal; }
+ #fpynggmtvo .gt_font_bold { font-weight: bold; }
+ #fpynggmtvo .gt_font_italic { font-style: italic; }
+ #fpynggmtvo .gt_super { font-size: 65%; }
+ #fpynggmtvo .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #fpynggmtvo .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead class="gt_header">
+  <tr>
+    <th colspan="2" class="gt_heading gt_title gt_font_normal">Partial summary of daily tests<br>performed on YF patient</th>
+  </tr>
+</thead>
+<tbody><tr class="gt_col_headings">
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="<strong>Test</strong>"><strong>Test</strong></th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<em>Progression</em>"><em>Progression</em></th>
+</tr>
+</tbody><tbody class="gt_table_body">
+<tr>
+  <th class="gt_row gt_left gt_stub">WBC</th>
+  <td class="gt_row gt_center"><div><svg role="img" viewbox="0 0 550 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="area_pattern" width="8" height="8" patternunits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .vert-line:hover text { stroke: white; fill: #212427; } .horizontal-line:hover text {stroke: white; fill: #212427; } .ref-line:hover rect { stroke: #FFFFFF60; } .ref-line:hover line { stroke: #FF0000; } .ref-line:hover text { stroke: white; fill: #212427; } .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,110.2018278750952 106.25,114.00990099009901 162.5,92.45620715917745 218.75,90.28560548362529 275.0,35.90632140137091 331.25,15.0 387.5,57.76466108149276 443.75,115.0 500.0,92.15156130997715 500.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path><path d="M 50.0,110.2018278750952 C 75.0,110.2018278750952 81.25,114.00990099009901 106.25,114.00990099009901 C 131.25,114.00990099009901 137.5,92.45620715917745 162.5,92.45620715917745 C 187.5,92.45620715917745 193.75,90.28560548362529 218.75,90.28560548362529 C 243.75,90.28560548362529 250.0,35.90632140137091 275.0,35.90632140137091 C 300.0,35.90632140137091 306.25,15.0 331.25,15.0 C 356.25,15.0 362.5,57.76466108149276 387.5,57.76466108149276 C 412.5,57.76466108149276 418.75,115.0 443.75,115.0 C 468.75,115.0 475.0,92.15156130997715 500.0,92.15156130997715" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="110.2018278750952" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="106.25" cy="114.00990099009901" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="162.5" cy="92.45620715917745" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="218.75" cy="90.28560548362529" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="275.0" cy="35.90632140137091" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="331.25" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="387.5" cy="57.76466108149276" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="443.75" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="500.0" cy="92.15156130997715" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">30.3</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">4.00</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">5.26</text></g><g class="vert-line"><rect x="96.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="116.25" y="20" fill="transparent" stroke="transparent" font-size="30px">4.26</text></g><g class="vert-line"><rect x="152.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="172.5" y="20" fill="transparent" stroke="transparent" font-size="30px">9.92</text></g><g class="vert-line"><rect x="208.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="228.75" y="20" fill="transparent" stroke="transparent" font-size="30px">10.5</text></g><g class="vert-line"><rect x="265.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="285.0" y="20" fill="transparent" stroke="transparent" font-size="30px">24.8</text></g><g class="vert-line"><rect x="321.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="341.25" y="20" fill="transparent" stroke="transparent" font-size="30px">30.3</text></g><g class="vert-line"><rect x="377.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="397.5" y="20" fill="transparent" stroke="transparent" font-size="30px">19.0</text></g><g class="vert-line"><rect x="433.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="453.75" y="20" fill="transparent" stroke="transparent" font-size="30px">4.00</text></g><g class="vert-line"><rect x="490.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="510.0" y="20" fill="transparent" stroke="transparent" font-size="30px">10.0</text></g></svg></div></td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">Neutrophils</th>
+  <td class="gt_row gt_center"><div><svg role="img" viewbox="0 0 550 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="area_pattern" width="8" height="8" patternunits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .vert-line:hover text { stroke: white; fill: #212427; } .horizontal-line:hover text {stroke: white; fill: #212427; } .ref-line:hover rect { stroke: #FFFFFF60; } .ref-line:hover line { stroke: #FF0000; } .ref-line:hover text { stroke: white; fill: #212427; } .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,103.59753675009932 106.25,104.19348430671434 162.5,91.47993643226063 218.75,50.59793404847041 275.0,35.22248708780295 331.25,15.0 387.5,57.034167659912605 443.75,115.0 500.0,91.16209773539929 500.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path><path d="M 50.0,103.59753675009932 C 75.0,103.59753675009932 81.25,104.19348430671434 106.25,104.19348430671434 C 131.25,104.19348430671434 137.5,91.47993643226063 162.5,91.47993643226063 C 187.5,91.47993643226063 193.75,50.59793404847041 218.75,50.59793404847041 C 243.75,50.59793404847041 250.0,35.22248708780295 275.0,35.22248708780295 C 300.0,35.22248708780295 306.25,15.0 331.25,15.0 C 356.25,15.0 362.5,57.034167659912605 387.5,57.034167659912605 C 412.5,57.034167659912605 418.75,115.0 443.75,115.0 C 468.75,115.0 475.0,91.16209773539929 500.0,91.16209773539929" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="103.59753675009932" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="106.25" cy="104.19348430671434" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="162.5" cy="91.47993643226063" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="218.75" cy="50.59793404847041" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="275.0" cy="35.22248708780295" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="331.25" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="387.5" cy="57.034167659912605" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="443.75" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="500.0" cy="91.16209773539929" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">27.2</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">2.00</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">4.87</text></g><g class="vert-line"><rect x="96.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="116.25" y="20" fill="transparent" stroke="transparent" font-size="30px">4.72</text></g><g class="vert-line"><rect x="152.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="172.5" y="20" fill="transparent" stroke="transparent" font-size="30px">7.92</text></g><g class="vert-line"><rect x="208.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="228.75" y="20" fill="transparent" stroke="transparent" font-size="30px">18.2</text></g><g class="vert-line"><rect x="265.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="285.0" y="20" fill="transparent" stroke="transparent" font-size="30px">22.1</text></g><g class="vert-line"><rect x="321.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="341.25" y="20" fill="transparent" stroke="transparent" font-size="30px">27.2</text></g><g class="vert-line"><rect x="377.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="397.5" y="20" fill="transparent" stroke="transparent" font-size="30px">16.6</text></g><g class="vert-line"><rect x="433.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="453.75" y="20" fill="transparent" stroke="transparent" font-size="30px">2.00</text></g><g class="vert-line"><rect x="490.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="510.0" y="20" fill="transparent" stroke="transparent" font-size="30px">8.00</text></g></svg></div></td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">RBC</th>
+  <td class="gt_row gt_center"><div><svg role="img" viewbox="0 0 550 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="area_pattern" width="8" height="8" patternunits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .vert-line:hover text { stroke: white; fill: #212427; } .horizontal-line:hover text {stroke: white; fill: #212427; } .ref-line:hover rect { stroke: #FFFFFF60; } .ref-line:hover line { stroke: #FF0000; } .ref-line:hover text { stroke: white; fill: #212427; } .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,22.878787878787897 106.25,15.0 162.5,68.03030303030303 218.75,49.84848484848486 275.0,71.36363636363637 331.25,115.0 387.5,95.60606060606061 443.75,75.0 500.0,29.54545454545456 500.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path><path d="M 50.0,22.878787878787897 C 75.0,22.878787878787897 81.25,15.0 106.25,15.0 C 131.25,15.0 137.5,68.03030303030303 162.5,68.03030303030303 C 187.5,68.03030303030303 193.75,49.84848484848486 218.75,49.84848484848486 C 243.75,49.84848484848486 250.0,71.36363636363637 275.0,71.36363636363637 C 300.0,71.36363636363637 306.25,115.0 331.25,115.0 C 356.25,115.0 362.5,95.60606060606061 387.5,95.60606060606061 C 412.5,95.60606060606061 418.75,75.0 443.75,75.0 C 468.75,75.0 475.0,29.54545454545456 500.0,29.54545454545456" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="22.878787878787897" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="106.25" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="162.5" cy="68.03030303030303" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="218.75" cy="49.84848484848486" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="275.0" cy="71.36363636363637" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="331.25" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="387.5" cy="95.60606060606061" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="443.75" cy="75.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="500.0" cy="29.54545454545456" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">5.98</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">2.68</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">5.72</text></g><g class="vert-line"><rect x="96.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="116.25" y="20" fill="transparent" stroke="transparent" font-size="30px">5.98</text></g><g class="vert-line"><rect x="152.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="172.5" y="20" fill="transparent" stroke="transparent" font-size="30px">4.23</text></g><g class="vert-line"><rect x="208.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="228.75" y="20" fill="transparent" stroke="transparent" font-size="30px">4.83</text></g><g class="vert-line"><rect x="265.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="285.0" y="20" fill="transparent" stroke="transparent" font-size="30px">4.12</text></g><g class="vert-line"><rect x="321.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="341.25" y="20" fill="transparent" stroke="transparent" font-size="30px">2.68</text></g><g class="vert-line"><rect x="377.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="397.5" y="20" fill="transparent" stroke="transparent" font-size="30px">3.32</text></g><g class="vert-line"><rect x="433.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="453.75" y="20" fill="transparent" stroke="transparent" font-size="30px">4.00</text></g><g class="vert-line"><rect x="490.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="510.0" y="20" fill="transparent" stroke="transparent" font-size="30px">5.50</text></g></svg></div></td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">Hb</th>
+  <td class="gt_row gt_center"><div><svg role="img" viewbox="0 0 550 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="area_pattern" width="8" height="8" patternunits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .vert-line:hover text { stroke: white; fill: #212427; } .horizontal-line:hover text {stroke: white; fill: #212427; } .ref-line:hover rect { stroke: #FFFFFF60; } .ref-line:hover line { stroke: #FF0000; } .ref-line:hover text { stroke: white; fill: #212427; } .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,23.235294117647065 106.25,44.41176470588235 162.5,55.0 218.75,67.94117647058823 275.0,115.0 331.25,100.88235294117648 387.5,91.47058823529412 443.75,62.05882352941176 500.0,15.0 500.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path><path d="M 50.0,23.235294117647065 C 75.0,23.235294117647065 81.25,44.41176470588235 106.25,44.41176470588235 C 131.25,44.41176470588235 137.5,55.0 162.5,55.0 C 187.5,55.0 193.75,67.94117647058823 218.75,67.94117647058823 C 243.75,67.94117647058823 250.0,115.0 275.0,115.0 C 300.0,115.0 306.25,100.88235294117648 331.25,100.88235294117648 C 356.25,100.88235294117648 362.5,91.47058823529412 387.5,91.47058823529412 C 412.5,91.47058823529412 418.75,62.05882352941176 443.75,62.05882352941176 C 468.75,62.05882352941176 475.0,15.0 500.0,15.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="23.235294117647065" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="106.25" cy="44.41176470588235" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="162.5" cy="55.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="218.75" cy="67.94117647058823" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="275.0" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="331.25" cy="100.88235294117648" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="387.5" cy="91.47058823529412" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="443.75" cy="62.05882352941176" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="500.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">160</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">75.0</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">153</text></g><g class="vert-line"><rect x="96.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="116.25" y="20" fill="transparent" stroke="transparent" font-size="30px">135</text></g><g class="vert-line"><rect x="152.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="172.5" y="20" fill="transparent" stroke="transparent" font-size="30px">126</text></g><g class="vert-line"><rect x="208.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="228.75" y="20" fill="transparent" stroke="transparent" font-size="30px">115</text></g><g class="vert-line"><rect x="265.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="285.0" y="20" fill="transparent" stroke="transparent" font-size="30px">75.0</text></g><g class="vert-line"><rect x="321.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="341.25" y="20" fill="transparent" stroke="transparent" font-size="30px">87.0</text></g><g class="vert-line"><rect x="377.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="397.5" y="20" fill="transparent" stroke="transparent" font-size="30px">95.0</text></g><g class="vert-line"><rect x="433.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="453.75" y="20" fill="transparent" stroke="transparent" font-size="30px">120</text></g><g class="vert-line"><rect x="490.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="510.0" y="20" fill="transparent" stroke="transparent" font-size="30px">160</text></g></svg></div></td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">PLT</th>
+  <td class="gt_row gt_center"><div><svg role="img" viewbox="0 0 550 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="area_pattern" width="8" height="8" patternunits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .vert-line:hover text { stroke: white; fill: #212427; } .horizontal-line:hover text {stroke: white; fill: #212427; } .ref-line:hover rect { stroke: #FFFFFF60; } .ref-line:hover line { stroke: #FF0000; } .ref-line:hover text { stroke: white; fill: #212427; } .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,99.9125364431487 106.25,110.26239067055393 162.5,114.34402332361516 218.75,114.78134110787173 275.0,97.32507288629738 331.25,111.13702623906705 387.5,115.0 443.75,87.8862973760933 500.0,15.0 500.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path><path d="M 50.0,99.9125364431487 C 75.0,99.9125364431487 81.25,110.26239067055393 106.25,110.26239067055393 C 131.25,110.26239067055393 137.5,114.34402332361516 162.5,114.34402332361516 C 187.5,114.34402332361516 193.75,114.78134110787173 218.75,114.78134110787173 C 243.75,114.78134110787173 250.0,97.32507288629738 275.0,97.32507288629738 C 300.0,97.32507288629738 306.25,111.13702623906705 331.25,111.13702623906705 C 356.25,111.13702623906705 362.5,115.0 387.5,115.0 C 412.5,115.0 418.75,87.8862973760933 443.75,87.8862973760933 C 468.75,87.8862973760933 475.0,15.0 500.0,15.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="99.9125364431487" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="106.25" cy="110.26239067055393" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="162.5" cy="114.34402332361516" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="218.75" cy="114.78134110787173" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="275.0" cy="97.32507288629738" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="331.25" cy="111.13702623906705" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="387.5" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="443.75" cy="87.8862973760933" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="500.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">300</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">25.6</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">67.0</text></g><g class="vert-line"><rect x="96.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="116.25" y="20" fill="transparent" stroke="transparent" font-size="30px">38.6</text></g><g class="vert-line"><rect x="152.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="172.5" y="20" fill="transparent" stroke="transparent" font-size="30px">27.4</text></g><g class="vert-line"><rect x="208.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="228.75" y="20" fill="transparent" stroke="transparent" font-size="30px">26.2</text></g><g class="vert-line"><rect x="265.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="285.0" y="20" fill="transparent" stroke="transparent" font-size="30px">74.1</text></g><g class="vert-line"><rect x="321.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="341.25" y="20" fill="transparent" stroke="transparent" font-size="30px">36.2</text></g><g class="vert-line"><rect x="377.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="397.5" y="20" fill="transparent" stroke="transparent" font-size="30px">25.6</text></g><g class="vert-line"><rect x="433.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="453.75" y="20" fill="transparent" stroke="transparent" font-size="30px">100</text></g><g class="vert-line"><rect x="490.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="510.0" y="20" fill="transparent" stroke="transparent" font-size="30px">300</text></g></svg></div></td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">ALT</th>
+  <td class="gt_row gt_center"><div><svg role="img" viewbox="0 0 550 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="area_pattern" width="8" height="8" patternunits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .vert-line:hover text { stroke: white; fill: #212427; } .horizontal-line:hover text {stroke: white; fill: #212427; } .ref-line:hover rect { stroke: #FFFFFF60; } .ref-line:hover line { stroke: #FF0000; } .ref-line:hover text { stroke: white; fill: #212427; } .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,15.0 106.25,16.582722594729457 162.5,64.96335568376736 218.75,81.83221581163261 275.0,102.41072820832684 331.25,109.8261344144706 387.5,111.07515983159209 443.75,115.0 500.0,114.68033681584282 500.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path><path d="M 50.0,15.0 C 75.0,15.0 81.25,16.582722594729457 106.25,16.582722594729457 C 131.25,16.582722594729457 137.5,64.96335568376736 162.5,64.96335568376736 C 187.5,64.96335568376736 193.75,81.83221581163261 218.75,81.83221581163261 C 243.75,81.83221581163261 250.0,102.41072820832684 275.0,102.41072820832684 C 300.0,102.41072820832684 306.25,109.8261344144706 331.25,109.8261344144706 C 356.25,109.8261344144706 362.5,111.07515983159209 387.5,111.07515983159209 C 412.5,111.07515983159209 418.75,115.0 443.75,115.0 C 468.75,115.0 475.0,114.68033681584282 500.0,114.68033681584282" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="106.25" cy="16.582722594729457" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="162.5" cy="64.96335568376736" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="218.75" cy="81.83221581163261" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="275.0" cy="102.41072820832684" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="331.25" cy="109.8261344144706" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="387.5" cy="111.07515983159209" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="443.75" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="500.0" cy="114.68033681584282" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">12.8K</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">9.00</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">12.8K</text></g><g class="vert-line"><rect x="96.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="116.25" y="20" fill="transparent" stroke="transparent" font-size="30px">12.6K</text></g><g class="vert-line"><rect x="152.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="172.5" y="20" fill="transparent" stroke="transparent" font-size="30px">6.43K</text></g><g class="vert-line"><rect x="208.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="228.75" y="20" fill="transparent" stroke="transparent" font-size="30px">4.26K</text></g><g class="vert-line"><rect x="265.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="285.0" y="20" fill="transparent" stroke="transparent" font-size="30px">1.62K</text></g><g class="vert-line"><rect x="321.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="341.25" y="20" fill="transparent" stroke="transparent" font-size="30px">673</text></g><g class="vert-line"><rect x="377.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="397.5" y="20" fill="transparent" stroke="transparent" font-size="30px">512</text></g><g class="vert-line"><rect x="433.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="453.75" y="20" fill="transparent" stroke="transparent" font-size="30px">9.00</text></g><g class="vert-line"><rect x="490.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="510.0" y="20" fill="transparent" stroke="transparent" font-size="30px">50.0</text></g></svg></div></td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">AST</th>
+  <td class="gt_row gt_center"><div><svg role="img" viewbox="0 0 550 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="area_pattern" width="8" height="8" patternunits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .vert-line:hover text { stroke: white; fill: #212427; } .horizontal-line:hover text {stroke: white; fill: #212427; } .ref-line:hover rect { stroke: #FFFFFF60; } .ref-line:hover line { stroke: #FF0000; } .ref-line:hover text { stroke: white; fill: #212427; } .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,15.0 106.25,24.739189246311874 162.5,52.798537430781586 218.75,78.32586549435685 275.0,105.81033098025955 331.25,110.22340110749461 387.5,111.75571712389568 443.75,115.0 500.0,114.89432303335165 500.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path><path d="M 50.0,15.0 C 75.0,15.0 81.25,24.739189246311874 106.25,24.739189246311874 C 131.25,24.739189246311874 137.5,52.798537430781586 162.5,52.798537430781586 C 187.5,52.798537430781586 193.75,78.32586549435685 218.75,78.32586549435685 C 243.75,78.32586549435685 250.0,105.81033098025955 275.0,105.81033098025955 C 300.0,105.81033098025955 306.25,110.22340110749461 331.25,110.22340110749461 C 356.25,110.22340110749461 362.5,111.75571712389568 387.5,111.75571712389568 C 412.5,111.75571712389568 418.75,115.0 443.75,115.0 C 468.75,115.0 475.0,114.89432303335165 500.0,114.89432303335165" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="106.25" cy="24.739189246311874" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="162.5" cy="52.798537430781586" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="218.75" cy="78.32586549435685" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="275.0" cy="105.81033098025955" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="331.25" cy="110.22340110749461" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="387.5" cy="111.75571712389568" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="443.75" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="500.0" cy="114.89432303335165" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">23.7K</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">15.0</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">23.7K</text></g><g class="vert-line"><rect x="96.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="116.25" y="20" fill="transparent" stroke="transparent" font-size="30px">21.4K</text></g><g class="vert-line"><rect x="152.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="172.5" y="20" fill="transparent" stroke="transparent" font-size="30px">14.7K</text></g><g class="vert-line"><rect x="208.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="228.75" y="20" fill="transparent" stroke="transparent" font-size="30px">8.69K</text></g><g class="vert-line"><rect x="265.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="285.0" y="20" fill="transparent" stroke="transparent" font-size="30px">2.19K</text></g><g class="vert-line"><rect x="321.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="341.25" y="20" fill="transparent" stroke="transparent" font-size="30px">1.14K</text></g><g class="vert-line"><rect x="377.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="397.5" y="20" fill="transparent" stroke="transparent" font-size="30px">782</text></g><g class="vert-line"><rect x="433.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="453.75" y="20" fill="transparent" stroke="transparent" font-size="30px">15.0</text></g><g class="vert-line"><rect x="490.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="510.0" y="20" fill="transparent" stroke="transparent" font-size="30px">40.0</text></g></svg></div></td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">TBIL</th>
+  <td class="gt_row gt_center"><div><svg role="img" viewbox="0 0 550 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="area_pattern" width="8" height="8" patternunits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .vert-line:hover text { stroke: white; fill: #212427; } .horizontal-line:hover text {stroke: white; fill: #212427; } .ref-line:hover rect { stroke: #FFFFFF60; } .ref-line:hover line { stroke: #FF0000; } .ref-line:hover text { stroke: white; fill: #212427; } .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,43.18627450980391 106.25,26.887254901960773 162.5,30.931372549019606 218.75,18.125 275.0,36.997549019607845 331.25,50.600490196078425 387.5,15.0 443.75,115.0 500.0,103.48039215686273 500.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path><path d="M 50.0,43.18627450980391 C 75.0,43.18627450980391 81.25,26.887254901960773 106.25,26.887254901960773 C 131.25,26.887254901960773 137.5,30.931372549019606 162.5,30.931372549019606 C 187.5,30.931372549019606 193.75,18.125 218.75,18.125 C 243.75,18.125 250.0,36.997549019607845 275.0,36.997549019607845 C 300.0,36.997549019607845 306.25,50.600490196078425 331.25,50.600490196078425 C 356.25,50.600490196078425 362.5,15.0 387.5,15.0 C 412.5,15.0 418.75,115.0 443.75,115.0 C 468.75,115.0 475.0,103.48039215686273 500.0,103.48039215686273" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="43.18627450980391" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="106.25" cy="26.887254901960773" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="162.5" cy="30.931372549019606" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="218.75" cy="18.125" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="275.0" cy="36.997549019607845" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="331.25" cy="50.600490196078425" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="387.5" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="443.75" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="500.0" cy="103.48039215686273" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">163</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">0</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">117</text></g><g class="vert-line"><rect x="96.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="116.25" y="20" fill="transparent" stroke="transparent" font-size="30px">144</text></g><g class="vert-line"><rect x="152.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="172.5" y="20" fill="transparent" stroke="transparent" font-size="30px">137</text></g><g class="vert-line"><rect x="208.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="228.75" y="20" fill="transparent" stroke="transparent" font-size="30px">158</text></g><g class="vert-line"><rect x="265.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="285.0" y="20" fill="transparent" stroke="transparent" font-size="30px">127</text></g><g class="vert-line"><rect x="321.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="341.25" y="20" fill="transparent" stroke="transparent" font-size="30px">105</text></g><g class="vert-line"><rect x="377.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="397.5" y="20" fill="transparent" stroke="transparent" font-size="30px">163</text></g><g class="vert-line"><rect x="433.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="453.75" y="20" fill="transparent" stroke="transparent" font-size="30px">0</text></g><g class="vert-line"><rect x="490.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="510.0" y="20" fill="transparent" stroke="transparent" font-size="30px">18.8</text></g></svg></div></td>
+</tr>
+<tr>
+  <th class="gt_row gt_left gt_stub">DBIL</th>
+  <td class="gt_row gt_center"><div><svg role="img" viewbox="0 0 550 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="area_pattern" width="8" height="8" patternunits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .vert-line:hover text { stroke: white; fill: #212427; } .horizontal-line:hover text {stroke: white; fill: #212427; } .ref-line:hover rect { stroke: #FFFFFF60; } .ref-line:hover line { stroke: #FF0000; } .ref-line:hover text { stroke: white; fill: #212427; } .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,65.38220986796387 106.25,42.31063238359973 162.5,49.25990271021543 218.75,15.0 275.0,33.137595552467005 331.25,56.90410006949271 387.5,27.23071577484365 443.75,115.0 500.0,110.27449617790133 500.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path><path d="M 50.0,65.38220986796387 C 75.0,65.38220986796387 81.25,42.31063238359973 106.25,42.31063238359973 C 131.25,42.31063238359973 137.5,49.25990271021543 162.5,49.25990271021543 C 187.5,49.25990271021543 193.75,15.0 218.75,15.0 C 243.75,15.0 250.0,33.137595552467005 275.0,33.137595552467005 C 300.0,33.137595552467005 306.25,56.90410006949271 331.25,56.90410006949271 C 356.25,56.90410006949271 362.5,27.23071577484365 387.5,27.23071577484365 C 412.5,27.23071577484365 418.75,115.0 443.75,115.0 C 468.75,115.0 475.0,110.27449617790133 500.0,110.27449617790133" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="65.38220986796387" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="106.25" cy="42.31063238359973" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="162.5" cy="49.25990271021543" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="218.75" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="275.0" cy="33.137595552467005" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="331.25" cy="56.90410006949271" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="387.5" cy="27.23071577484365" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="443.75" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="500.0" cy="110.27449617790133" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">144</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">0</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">71.4</text></g><g class="vert-line"><rect x="96.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="116.25" y="20" fill="transparent" stroke="transparent" font-size="30px">105</text></g><g class="vert-line"><rect x="152.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="172.5" y="20" fill="transparent" stroke="transparent" font-size="30px">94.6</text></g><g class="vert-line"><rect x="208.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="228.75" y="20" fill="transparent" stroke="transparent" font-size="30px">144</text></g><g class="vert-line"><rect x="265.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="285.0" y="20" fill="transparent" stroke="transparent" font-size="30px">118</text></g><g class="vert-line"><rect x="321.25" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="341.25" y="20" fill="transparent" stroke="transparent" font-size="30px">83.6</text></g><g class="vert-line"><rect x="377.5" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="397.5" y="20" fill="transparent" stroke="transparent" font-size="30px">126</text></g><g class="vert-line"><rect x="433.75" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="453.75" y="20" fill="transparent" stroke="transparent" font-size="30px">0</text></g><g class="vert-line"><rect x="490.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="510.0" y="20" fill="transparent" stroke="transparent" font-size="30px">6.80</text></g></svg></div></td>
+</tr>
+</tbody>
+  <tfoot class="gt_sourcenotes">
+  
+  <tr>
+    <td class="gt_sourcenote" colspan="2">Measurements from Day 3 through to Day 8.</td>
+  </tr>
+
+</tfoot>
+
+</table>
+
+</div>
+        
+</div>
+</div>
+<p>Notice that if you hover over the data points, you still get values for each of the days. We designed nanoplots to be stripped down plotting visualizations that balance the quick visual interpretation of a plot against the compactness of a table.</p>
+<p><strong>Great Tables</strong> contains a lot of functionality for formatting. If you peeked at the code in the above table displays you might have noticed there are methods beginning with <code>fmt_</code> (i.e., <code>fmt_date()</code>, <code>fmt_integer()</code>, <code>fmt_nanoplot()</code>). We want to make many formatting methods available to serve different users’ needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.</p>
+</section>
+<section id="great-tables-is-focused-on-display" class="level4">
+<h4 class="anchored" data-anchor-id="great-tables-is-focused-on-display">Great Tables is focused on display</h4>
+<p>There are myriad ways that people interact with tables. <strong>Great Tables</strong> is focused on the display of tables for publication and presentation. If you’re analyzing data in a database, you might want a simple table display that offers controls to navigate and filter hundreds, thousands, maybe even more records. And that is great for those situations.</p>
+<p>The publication of results is a entirely different task, and the emphasis here is on structuring, formatting, and styling. We believe that beautiful table displays should do the following:</p>
+<ul>
+<li>make information easier to digest</li>
+<li>provide extra context wherever needed</li>
+<li>adhere to the style of the document or of the organization</li>
+</ul>
+<p>We wanted to help the type of user that wanted to present data in this way. This is typically what you see in journal articles, in books, and in reports. We think the area of static summary tables deserves it’s own focus. This class of tables can look <em>great</em> and we offer various <code>opt_*()</code> methods in the <strong>Great Tables</strong> API so it’s that much easier to provide a great table to your readers.</p>
+</section>
+</section>
+<section id="in-conclusion" class="level3">
+<h3 class="anchored" data-anchor-id="in-conclusion">In conclusion</h3>
+<p>Tables have come a long way and we’ve learned a lot from our continued research in tabular design. We hope to make the <strong>Great Tables</strong> package useful for your generation of summary tables. Given there’s ample room for innovation in this area, we’ll keep plugging away at doing that work to improve the API. We measure success by the quality of the tables the package is able to produce and we always keep that goal top of mind.</p>
+<p>We’re very excited about where things are going with <strong>Great Tables</strong> and we geniunely appreciate community feedback. If ever you want to talk tables with us, you’re always welcome to jump into our <a href="https://discord.com/invite/Ux7nrcXHVV">Discord Server</a> and drop us a line!</p>
+<p>Many thanks to Curtis Kephart and <a href="https://anthonywbaker.com">Anthony Baker</a> for providing helpful advice when writing this article.</p>
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Taylor, B. (2021). Lunar timekeeping in Upper Paleolithic Cave Art. <em>PRAEHISTORIA New Series</em>, <em>3</em>(13), 215–232.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>Duke, D. W. (2002). Hipparchus’ Coordinate System. <em>Archive for History of Exact Sciences</em>, <em>56</em>(5), 427-433.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p><a href="https://en.wikipedia.org/wiki/Geography_(Ptolemy)" class="uri">https://en.wikipedia.org/wiki/Geography_(Ptolemy)</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>Palet, J. M. and Orengo, H. A., The Roman Centuriated Landscape: Conception, Genesis, and Development as Inferred from the Ager Tarraconensis Case. <em>American Journal of Archaeology</em>, <em>115</em>(3), 383-402.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>Marchese, F. T., Exploring the Origins of Tables for Information Visualization. <em>Proceedings of the 2011 15th International Conference on Information Visualisation</em>, 13-15 July 2011, doi:10.1109/IV.2011.36.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>M. W. Green, The construction and implementation of the cuneiform writing system, <em>Visible Writing</em>, <em>15</em>, 1981, 345-72.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p>Robson, E., “Tables and tabular formatting in Sumer, Babylonia, and Assyria, 2500-50 BCE” in M. Campbell-Kelly, M. Croarken, R.G. Flood, and E. Robson (eds.), <em>The History of Mathematical Tables from Sumer to Spreadsheets</em>. Oxford: Oxford University Press, 2003, 18–47.<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8"><p><a href="https://site.xavier.edu/polt/typewriters/varityper.html" class="uri">https://site.xavier.edu/polt/typewriters/varityper.html</a><a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9"><p>Manual of Tabular Presentation: An Outline of Theory and Practice in the Presentation of Statistical Data in Tables for Publication. United States. Bureau of the Census. U.S. Government Printing Office, 1949. Resource available at: <a href="https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf" class="uri">https://www2.census.gov/library/publications/1949/general/tabular-presentation.pdf</a>.<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

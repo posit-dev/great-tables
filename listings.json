@@ -2,6 +2,7 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/design-philosophy/index.html",
       "/blog/introduction-0.4.0/index.html",
       "/blog/introduction-0.3.0/index.html",
       "/blog/superbowl-squares/index.html",
