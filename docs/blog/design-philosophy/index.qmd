@@ -58,9 +58,11 @@ GT(simple_table)
 
 <p style="font-size: 12px;">A table of named individuals along with a select set of characteristics.</p>
 
-This table arranges records containing personal characteristics as columns and rows. Each person is a row, and each characteristic makes up a different column. The characteristics use different types of data, like dates, numbers, and text. This arrangement makes it easy to look up individual values or make comparisons across the different rows or columns. Note that there are horizontal lines separating the rows. This aesthetic touch, while not strictly required for a table, serves as a visual reinforcement for separating the individual rows.
+This table arranges records containing personal characteristics as columns and rows. Each person is a row, and each characteristic makes up a different column. The characteristics use different types of data, like dates, numbers, and text. This arrangement makes it easy to look up individual values or make comparisons across the different rows or columns.
 
-The order of the columns matters, and that we start with the `Name` column here is no accident. If that column were the last (i.e., furthest to the right), it would be slightly more confusing for the reader since the basis for the record isn't immediate (reading left-to-right reading, as we do). Moving on to something more intrinsic about columns, we don't have to infer what type of data is contained within each column. A row at the top is dedicated for labeling the contents within the columns. If we didn't have column labels, we'd have to infer the meaning of the column from the data itself.
+Note that there are horizontal lines separating the rows. This aesthetic touch, while not strictly required for a table, serves as a visual reinforcement for separating the individual rows.
+
+The order of the columns matters, and that we start with the `Name` column here is no accident. If that column were the last (i.e., furthest to the right), it would be slightly more confusing for the reader since the subject for the record isn't immediate. In addition to order, column labels play an important role for indicating what data is in each column. They're not always necessary but in most cases they remove the guesswork for what type of data is contained within each column.
 
 We'll go into some detail later about how **Great Tables** provides affordances for structuring information for better legibility and how the package can be used to adorn the table with other structural elements. For now, our conception of a table can be summarized in this schematic.
 
@@ -137,11 +139,11 @@ The grid cells couldn't be styled with borders for presentation purposes, the va
 
 Over time, and this took about 10-15 years, tables-within-spreadsheets got a little easier on the eyes. By the early 1990s, Excel could paint borders on your tables, better typographical support was available, and the formatting of values was fully-featured (though, [wonky](https://www.cnet.com/tech/computing/prevent-excel-from-reformatting-two-numbers-to-a-date-and-month/)). Great! Problem solved, right? Not really.
 
-While Excel tables from the last three decades looked much better than 1980s-spreadsheet-borne tables, they could never hold a candle to the what was shown in the *Census Manual* (no matter how much of an Excel expert you became). Further to this, data analysis started to became a thing accomplished outside of Excel. One example of that is Python and its use inside Jupyter notebooks. We now have a bag of problematic scenarios:
+While Excel tables from the last three decades looked much better than 1980s-spreadsheet-borne tables, they could never hold a candle to the what was shown in the *Census Manual* (no matter how much of an Excel expert you became). Further to this, data analysis started to became a thing accomplished outside of Excel. One example of that is Python and its use inside Jupyter notebooks. We now have a bag of problematic scenarios
 
-- you can use Python (or some other language) to analyze data and generate some tables that probably won't look too good
-- you can do everything in Excel and make semi-good tables, but you don't get to use the power of Py
-- you can use Python for data analysis/summarization and bring it over to Excel for the table finishing move
+- all Python: analyze data and generate tables all in Python (bad tables)
+- all Excel: analyze data and make tables in Excel (less flexible analysis)
+- split-brained: analzye data in Python, copy over to Excel to make tables (not reproducible)
 
 All of these are suboptimal solutions. We propose that it is far better to do everything in Python: the data ingestion, the data analysis, and the data visualization. The visualization step is what's done for plots and other types of graphics composed from data, it shouldn't be any different when it comes to generating summary tables.
 
