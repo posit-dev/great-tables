@@ -143,7 +143,7 @@ While Excel tables from the last three decades looked much better than 1980s-spr
 
 - all Python: analyze data and generate tables all in Python (bad tables)
 - all Excel: analyze data and make tables in Excel (less flexible analysis)
-- split-brained: analzye data in Python, copy over to Excel to make tables (not reproducible)
+- split-brained: analyze data in Python, copy over to Excel to make tables (not reproducible)
 
 All of these are suboptimal solutions. We propose that it is far better to do everything in Python: the data ingestion, the data analysis, and the data visualization. The visualization step is what's done for plots and other types of graphics composed from data, it shouldn't be any different when it comes to generating summary tables.
 
