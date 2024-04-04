@@ -21,7 +21,7 @@ def _make_one_col_table(vals: Union[Any, List[Any]]) -> GTData:
     from pandas import DataFrame
 
     # Upgrade a single value to a list
-    if type(vals) != list:
+    if not isinstance(vals, (tuple, list)):
         vals = [vals]
 
     # Convert the list to a Pandas DataFrame and then to a GTData object

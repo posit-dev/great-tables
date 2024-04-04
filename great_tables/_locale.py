@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from csv import DictReader
 from typing import Any, Optional, TypedDict, cast
-import pandas as pd
 import pkg_resources
 
 

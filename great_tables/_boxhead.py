@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pandas as pd
 from typing import TYPE_CHECKING, Optional, Any
 from typing_extensions import Self
 
