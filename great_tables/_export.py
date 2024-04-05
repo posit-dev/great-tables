@@ -148,9 +148,10 @@ def save(
     # is visible in the screenshot; this is settable via the `window_size=` argument
     options.add_argument(f"--window-size={window_size[0]},{window_size[1]}")
 
-    with tempfile.NamedTemporaryFile(suffix=".html", dir=temp_dir) as temp_file, webdriver.Chrome(
-        options=options
-    ) as chrome:
+    with (
+        tempfile.NamedTemporaryFile(suffix=".html", dir=temp_dir) as temp_file,
+        webdriver.Chrome(options=options) as chrome,
+    ):
 
         # Write the HTML content to the temp file
         with open(temp_file.name, "w") as fp:
