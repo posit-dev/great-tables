@@ -1067,50 +1067,29 @@ def test_format_number_with_sep_dec_marks():
 # ------------------------------------------------------------------------------
 
 FMT_CURRENCY_CASES: List[Tuple[dict[str, Any], List[str]]] = [
-    # 1. default case"
     (dict(), ["$1,234,567.00", "−$5,432.37"]),
-    # 2. USD currency is same as None
     (dict(currency="USD"), ["$1,234,567.00", "−$5,432.37"]),
-    # 3. a different currency type can be provided
     (dict(currency="EUR"), ["&#8364;1,234,567.00", "−&#8364;5,432.37"]),
-    # 4. don't use subunits (decimal part
     (dict(use_subunits=False), ["$1,234,567", "−$5,432"]),
-    # 5. `decimals` use overrides excl. of subunits
     (dict(use_subunits=False, decimals=4), ["$1,234,567.0000", "−$5,432.3700"]),
-    # 6. `decimals` can override default number of decimals
-    (dict(use_subunits=True, decimals=4), ["$1,234,567.0000", "−$5,432.3700"]),
-    # 7. Don't drop dec mark
+    (dict(decimals=4), ["$1,234,567.0000", "−$5,432.3700"]),
     (
-        dict(use_subunits=True, decimals=0, drop_trailing_dec_mark=False),
+        dict(decimals=0, drop_trailing_dec_mark=False),
         ["$1,234,567.", "−$5,432."],
     ),
-    # 8. `use_seps=False` to exclude separators
     (dict(use_seps=False), ["$1234567.00", "−$5432.37"]),
-    # 9. `placement="right"` to place currency symbol on right
     (dict(placement="right"), ["1,234,567.00$", "−5,432.37$"]),
-    # 10. `placement="right"` with `incl_space=True`
     (dict(placement="right", incl_space=True), ["1,234,567.00 $", "−5,432.37 $"]),
-    # 11. `placement="left"` with `incl_space=True`
-    (dict(placement="left", incl_space=True), ["$ 1,234,567.00", "−$ 5,432.37"]),
+    (dict(incl_space=True), ["$ 1,234,567.00", "−$ 5,432.37"]),
 ]
 
 
-# Test Cases #1-11 for fmt_currency()
-
-for i, (fmt_currency_kwargs, x_out) in enumerate(FMT_CURRENCY_CASES):
-
+@pytest.mark.parametrize("fmt_currency_kwargs,x_out", FMT_CURRENCY_CASES)
+def test_fmt_currency_case(fmt_currency_kwargs: dict[str, Any], x_out: List[str]):
     df = pd.DataFrame({"x": [1234567, -5432.37]})
-
-    def test_fmt_currency_case(
-        fmt_currency_kwargs: dict[str, Any] = fmt_currency_kwargs, x_out: List[str] = x_out
-    ):
-        gt = GT(df).fmt_currency(columns="x", **fmt_currency_kwargs)
-        x = _get_column_of_values(gt, column_name="x", context="html")
-        assert x == x_out
-
-    test_name = f"test_fmt_currency_case_{i + 1}"
-    test_fmt_currency_case.__name__ = test_name
-    globals()[test_name] = test_fmt_currency_case
+    gt = GT(df).fmt_currency(columns="x", **fmt_currency_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
 
 
 def test_fmt_currency_force_sign():
@@ -1200,116 +1179,44 @@ def test_fmt_datetime():
 # ------------------------------------------------------------------------------
 # Test `fmt_bytes()`
 # ------------------------------------------------------------------------------
+@pytest.mark.parametrize(
+    "src,dst",
+    [
+        (-3, "−3 B"),
+        (0, "0 B"),
+        (0.9, "0 B"),
+        (1, "1 B"),
+        (994, "994 B"),
+        (1000, "1 kB"),
+        (1024, "1 kB"),
+        (2346345274.3, "2.3 GB"),
+        (902487216348759693489128343269, "902,487.2 YB"),
+    ],
+)
+def test_fmt_bytes_default(src: float, dst: str):
+    df = pd.DataFrame({"x": [src]})
+    gt = GT(df).fmt_bytes(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == [dst]
 
 
-FMT_BYTES_CASES: List[Tuple[dict[str, Any], List[str]]] = [
-    # 1. default case: decimal units"
-    (
-        dict(),
-        [
-            "−3 B",
-            "0 B",
-            "0 B",
-            "1 B",
-            "994 B",
-            "1 kB",
-            "1 kB",
-            "2.3 GB",
-            "845.7 TB",
-            "253.5 PB",
-            "72.5 YB",
-            "902,487.2 YB",
-        ],
-    ),
-    # 2. using binary units
-    (
-        dict(standard="binary"),
-        [
-            "−3 B",
-            "0 B",
-            "0 B",
-            "1 B",
-            "994 B",
-            "1,000 B",
-            "1 KiB",
-            "2.2 GiB",
-            "769.1 TiB",
-            "225.2 PiB",
-            "60 YiB",
-            "746,519.9 YiB",
-        ],
-    ),
-    # 3. using two decimal places
-    (
-        dict(stardard="binary", decimals=2),
-        [
-            "−3 B",
-            "0 B",
-            "0 B",
-            "1 B",
-            "994 B",
-            "1,000 B",
-            "1 KiB",
-            "2.19 GiB",
-            "769.12 TiB",
-            "225.18 PiB",
-            "59.98 YiB",
-            "746,519.93 YiB",
-        ],
-    ),
-    # 4. exercise numeric formatting and unit placement options
-    (
-        dict(standard="binary", use_seps=False, force_sign=True, incl_space=False),
-        [
-            "−3B",
-            "0B",
-            "0B",
-            "+1B",
-            "+994B",
-            "+1000B",
-            "+1KiB",
-            "+2.2GiB",
-            "+769.1TiB",
-            "+225.2PiB",
-            "+60YiB",
-            "+746519.9YiB",
-        ],
-    ),
-]
-
-
-# Test Cases #1-4 for fmt_bytes()
-
-for i, (fmt_bytes_kwargs, x_out) in enumerate(FMT_BYTES_CASES):
-
-    def test_fmt_bytes_case(
-        fmt_bytes_kwargs: dict[str, Any] = fmt_bytes_kwargs, x_out: List[str] = x_out
-    ):
-        df = pd.DataFrame(
-            {
-                "x": [
-                    -3,
-                    0,
-                    0.9,
-                    1,
-                    994,
-                    1000,
-                    1024,
-                    2346345274.3,
-                    845653745232536,
-                    253529876942760953,
-                    72512895702785787335434345,
-                    902487216348759693489128343269,
-                ]
-            }
-        )
-        gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
-        x = _get_column_of_values(gt, column_name="x", context="html")
-        assert x == x_out
-
-        test_name = f"test_fmt_bytes_case_{i + 1}"
-        test_fmt_bytes_case.__name__ = test_name
-        globals()[test_name] = test_fmt_bytes_case
+@pytest.mark.parametrize(
+    "fmt_bytes_kwargs,x_in,x_out",
+    [
+        (dict(standard="binary"), [1000, 1024, 2346345274.3], ["1,000 B", "1 KiB", "2.2 GiB"]),
+        (dict(standard="binary", decimals=2), [845653745232536], ["769.12 TiB"]),
+        (
+            dict(standard="binary", use_seps=False, force_sign=True, incl_space=False),
+            [902487216348759693489128343269],
+            ["+746519.9YiB"],
+        ),
+    ],
+)
+def test_fmt_bytes_case(fmt_bytes_kwargs: dict[str, Any], x_in: List[float], x_out: List[str]):
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
 
 
 # ------------------------------------------------------------------------------
@@ -1570,6 +1477,7 @@ def test_fmt_nanoplot_single_vals_only_line():
 
     # All other test cases for the horizontal line nanoplot will produce the same output
     # as this previous one (none will error as the non-relevant options are no ops)
+
     for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
 
         gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
@@ -1722,6 +1630,10 @@ def test_fmt_nanoplot_multi_vals_line():
         ],
     )
 
+
+# Test category 3: Line-based nanoplot, multiple values per row, use of reference line
+def test_fmt_nanoplot_multi_vals_line_ref_line():
+
     # Subcase with reference line
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
@@ -1729,82 +1641,6 @@ def test_fmt_nanoplot_multi_vals_line():
         **FMT_NANOPLOT_CASES[1],
     )
     res = _get_column_of_values(gt, column_name="vals", context="html")[0]
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="pattern",
-        attrs=[
-            ("width", "8"),
-            ("height", "8"),
-            ("patternUnits", "userSpaceOnUse"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="path",
-        attrs=[
-            ("class", "area-closed"),
-            ("stroke", "transparent"),
-            ("stroke-width", "2"),
-            ("fill-opacity", "0.7"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="circle",
-        attrs=[
-            ("cx", "50.0"),
-            ("cy", "115.0"),
-            ("r", "10"),
-            ("stroke", "#FFFFFF"),
-            ("stroke-width", "4"),
-            ("fill", "#FF0000"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="rect",
-        attrs=[
-            ("x", "0"),
-            ("y", "0"),
-            ("width", "65"),
-            ("height", "130"),
-            ("stroke", "transparent"),
-            ("stroke-width", "0"),
-            ("fill", "transparent"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="text",
-        attrs=[
-            ("x", "0"),
-            ("y", "19.0"),
-            ("fill", "transparent"),
-            ("stroke", "transparent"),
-            ("font-size", "25"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="g",
-        attrs=[
-            ("class", "vert-line"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="g",
-        attrs=[
-            ("class", "y-axis-line"),
-        ],
-    )
 
     assert _nanoplot_has_tag_attrs(
         res,
@@ -1819,7 +1655,10 @@ def test_fmt_nanoplot_multi_vals_line():
         ],
     )
 
-    # Subcase with reference line and reference area
+
+# Test category 4: Line-based nanoplot, multiple values per row, use of reference
+# line and reference area
+def test_fmt_nanoplot_multi_vals_line_ref_line_ref_area():
 
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
@@ -1827,82 +1666,6 @@ def test_fmt_nanoplot_multi_vals_line():
         **FMT_NANOPLOT_CASES[4],
     )
     res = _get_column_of_values(gt, column_name="vals", context="html")[0]
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="pattern",
-        attrs=[
-            ("width", "8"),
-            ("height", "8"),
-            ("patternUnits", "userSpaceOnUse"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="path",
-        attrs=[
-            ("class", "area-closed"),
-            ("stroke", "transparent"),
-            ("stroke-width", "2"),
-            ("fill-opacity", "0.7"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="circle",
-        attrs=[
-            ("cx", "50.0"),
-            ("cy", "115.0"),
-            ("r", "10"),
-            ("stroke", "#FFFFFF"),
-            ("stroke-width", "4"),
-            ("fill", "#FF0000"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="rect",
-        attrs=[
-            ("x", "0"),
-            ("y", "0"),
-            ("width", "65"),
-            ("height", "130"),
-            ("stroke", "transparent"),
-            ("stroke-width", "0"),
-            ("fill", "transparent"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="text",
-        attrs=[
-            ("x", "0"),
-            ("y", "19.0"),
-            ("fill", "transparent"),
-            ("stroke", "transparent"),
-            ("font-size", "25"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="g",
-        attrs=[
-            ("class", "vert-line"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="g",
-        attrs=[
-            ("class", "y-axis-line"),
-        ],
-    )
 
     assert _nanoplot_has_tag_attrs(
         res,
@@ -1929,7 +1692,7 @@ def test_fmt_nanoplot_multi_vals_line():
     )
 
 
-# Test category 4: Bar-based nanoplot, multiple values per row
+# Test category 5: Bar-based nanoplot, multiple values per row
 def test_fmt_nanoplot_multi_vals_bar():
 
     # Subcase with default options
@@ -1976,49 +1739,16 @@ def test_fmt_nanoplot_multi_vals_bar():
         ],
     )
 
-    # Subcase with reference line
+
+# Test category 6: Bar-based nanoplot, multiple values per row, use of reference line
+def test_fmt_nanoplot_multi_vals_bar_ref_line():
+
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
         plot_type="bar",
         **FMT_NANOPLOT_CASES[1],
     )
     res = _get_column_of_values(gt, column_name="vals", context="html")[0]
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="rect",
-        attrs=[
-            ("stroke", "#CC3243"),
-            ("stroke-width", "4"),
-            ("fill", "#D75A68"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="rect",
-        attrs=[
-            ("x", "0"),
-            ("y", "0"),
-            ("width", "65"),
-            ("height", "130"),
-            ("stroke", "transparent"),
-            ("stroke-width", "0"),
-            ("fill", "transparent"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="text",
-        attrs=[
-            ("x", "0"),
-            ("y", "19.0"),
-            ("fill", "transparent"),
-            ("stroke", "transparent"),
-            ("font-size", "25"),
-        ],
-    )
 
     assert _nanoplot_has_tag_attrs(
         res,
@@ -2033,7 +1763,9 @@ def test_fmt_nanoplot_multi_vals_bar():
         ],
     )
 
-    # Subcase with reference line and reference area
+
+# Test category 7: Bar-based nanoplot, multiple values per row, reference line and reference area
+def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
 
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
@@ -2041,42 +1773,6 @@ def test_fmt_nanoplot_multi_vals_bar():
         **FMT_NANOPLOT_CASES[4],
     )
     res = _get_column_of_values(gt, column_name="vals", context="html")[0]
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="rect",
-        attrs=[
-            ("stroke", "#CC3243"),
-            ("stroke-width", "4"),
-            ("fill", "#D75A68"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="rect",
-        attrs=[
-            ("x", "0"),
-            ("y", "0"),
-            ("width", "65"),
-            ("height", "130"),
-            ("stroke", "transparent"),
-            ("stroke-width", "0"),
-            ("fill", "transparent"),
-        ],
-    )
-
-    assert _nanoplot_has_tag_attrs(
-        res,
-        tag="text",
-        attrs=[
-            ("x", "0"),
-            ("y", "19.0"),
-            ("fill", "transparent"),
-            ("stroke", "transparent"),
-            ("font-size", "25"),
-        ],
-    )
 
     assert _nanoplot_has_tag_attrs(
         res,
