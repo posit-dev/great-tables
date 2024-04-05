@@ -1,14 +1,16 @@
 from __future__ import annotations
 from ._gt_data import GTData
+from ._tbl_data import to_frame, SeriesLike
 from great_tables.gt import _get_column_of_values, GT
 from great_tables import GT
 from typing import List, Any, Union, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ._formats import DateStyle, TimeStyle
+    from ._tbl_data import SeriesLike
 
 
-def _make_one_col_table(vals: Union[Any, List[Any]]) -> GTData:
+def _make_one_col_table(vals: Union[Any, List[Any], SeriesLike]) -> GT:
     """
     Create a one-column table from a list of values.
 
@@ -18,19 +20,25 @@ def _make_one_col_table(vals: Union[Any, List[Any]]) -> GTData:
     Returns:
         GTData: The GTData object representing the one-column table.
     """
-    from pandas import DataFrame
 
     # Upgrade a single value to a list
-    if not isinstance(vals, (tuple, list)):
+    if not isinstance(vals, (tuple, list, SeriesLike)):
         vals = [vals]
+    elif isinstance(vals, tuple):
+        # anticipating a tuple may be too defensive
+        vals = list(vals)
+
+    # TODO: remove pandas. if vals is not a SeriesLike, then we currently
+    # convert them to a pandas Series for backwards compatibility.
+    df = to_frame(vals, name="x")
 
     # Convert the list to a Pandas DataFrame and then to a GTData object
-    gt_obj = GT(DataFrame({"x": vals}), auto_align=False)
+    gt_obj = GT(df, auto_align=False)
     return gt_obj
 
 
 def val_fmt_number(
-    x: Union[Any, List[Any]],
+    x: Union[Any, List[Any], SeriesLike],
     decimals: int = 2,
     n_sigfig: Optional[int] = None,
     drop_trailing_zeros: bool = False,
@@ -148,7 +156,7 @@ def val_fmt_number(
 
 
 def val_fmt_integer(
-    x: Union[Any, List[Any]],
+    x: Union[Any, List[Any], SeriesLike],
     use_seps: bool = True,
     scale_by: float = 1,
     compact: bool = False,
@@ -232,7 +240,7 @@ def val_fmt_integer(
 
 
 def val_fmt_scientific(
-    x: Union[Any, List[Any]],
+    x: Union[Any, List[Any], SeriesLike],
     decimals: int = 2,
     n_sigfig: Optional[int] = None,
     drop_trailing_zeros: bool = False,
@@ -354,7 +362,7 @@ def val_fmt_scientific(
 
 
 def val_fmt_percent(
-    x: Union[Any, List[Any]],
+    x: Union[Any, List[Any], SeriesLike],
     decimals: int = 2,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
@@ -471,7 +479,7 @@ def val_fmt_percent(
 
 
 def val_fmt_currency(
-    x: Union[Any, List[Any]],
+    x: Union[Any, List[Any], SeriesLike],
     currency: Optional[str] = None,
     use_subunits: bool = True,
     decimals: Optional[int] = None,
@@ -593,7 +601,7 @@ def val_fmt_currency(
 
 
 def val_fmt_roman(
-    x: Union[Any, List[Any]],
+    x: Union[Any, List[Any], SeriesLike],
     case: str = "upper",
     pattern: str = "{x}",
 ) -> List[str]:
@@ -634,7 +642,7 @@ def val_fmt_roman(
 
 
 def val_fmt_bytes(
-    x: Union[Any, List[Any]],
+    x: Union[Any, List[Any], SeriesLike],
     standard: str = "decimal",
     decimals: int = 1,
     n_sigfig: Optional[int] = None,
@@ -747,7 +755,7 @@ def val_fmt_bytes(
 
 
 def val_fmt_date(
-    x: Union[Any, List[Any]],
+    x: Union[Any, List[Any], SeriesLike],
     date_style: DateStyle = "iso",
     pattern: str = "{x}",
     locale: Union[str, None] = None,
@@ -825,7 +833,7 @@ def val_fmt_date(
 
 
 def val_fmt_time(
-    x: Union[Any, List[Any]],
+    x: Union[Any, List[Any], SeriesLike],
     time_style: TimeStyle = "iso",
     pattern: str = "{x}",
     locale: Union[str, None] = None,
@@ -891,7 +899,7 @@ def val_fmt_time(
 
 
 def val_fmt_markdown(
-    x: Union[Any, List[Any]],
+    x: Union[Any, List[Any], SeriesLike],
 ) -> List[str]:
     """
     Format Markdown text.

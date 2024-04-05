@@ -9,19 +9,28 @@ from great_tables._tbl_data import (
     _set_cell,
     get_column_names,
     DataFrameLike,
+    SeriesLike,
     reorder,
     eval_select,
     create_empty_frame,
     validate_frame,
+    to_frame,
+    to_list,
 )
 
 
 params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars")]
+params_series = [pytest.param(pd.Series, id="pandas"), pytest.param(pl.Series, id="polars")]
 
 
 @pytest.fixture(params=params_frames, scope="function")
 def df(request) -> pd.DataFrame:
     return request.param({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+
+
+@pytest.fixture(params=params_series, scope="function")
+def ser(request) -> SeriesLike:
+    return request.param([1.0, 2.0, None])
 
 
 def assert_frame_equal(src, target):
@@ -119,3 +128,14 @@ def test_validate_frame_non_str_cols_result():
         res = validate_frame(df)
 
     assert list(res.columns) == ["x", "55", "y", "99"]
+
+
+def test_to_frame(ser: SeriesLike):
+    df = to_frame(ser, name="x")
+
+    if isinstance(ser, pl.Series):
+        assert_frame_equal(df, pl.DataFrame({"x": [1.0, 2.0, None]}))
+    elif isinstance(ser, pd.Series):
+        assert_frame_equal(df, pd.DataFrame({"x": [1.0, 2.0, None]}))
+    else:
+        raise AssertionError(f"Unexpected series type: {type(ser)}")

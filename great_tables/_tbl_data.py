@@ -3,7 +3,7 @@ from __future__ import annotations
 import warnings
 
 from functools import singledispatch
-from typing import Any, Dict, List, Union, Callable, Tuple, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Union, Callable, Tuple, TYPE_CHECKING
 from typing_extensions import TypeAlias
 
 from ._databackend import AbstractBackend
@@ -545,3 +545,32 @@ def _(df: PdDataFrame) -> PdDataFrame:
 @validate_frame.register
 def _(df: PlDataFrame) -> PlDataFrame:
     return df
+
+
+# to_frame ----
+
+
+@singledispatch
+def to_frame(ser: "list[Any] | SeriesLike", name: Optional[str] = None) -> DataFrameLike:
+    # TODO: remove pandas. currently, we support converting a list to a pd.DataFrame
+    # in order to support backwards compatibility in the vals.fmt_* functions.
+
+    import pandas as pd
+
+    if not isinstance(ser, list):
+        raise NotImplementedError(f"Unsupported type: {type(ser)}")
+
+    if not name:
+        raise ValueError("name must be specified, when converting a list to a DataFrame.")
+
+    return pd.DataFrame({name: ser})
+
+
+@to_frame.register
+def _(ser: PdSeries, name: Optional[str] = None) -> PdDataFrame:
+    return ser.to_frame(name)
+
+
+@to_frame.register
+def _(ser: PlSeries, name: Optional[str] = None) -> PlDataFrame:
+    return ser.to_frame(name)
