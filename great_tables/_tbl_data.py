@@ -95,6 +95,10 @@ def _raise_not_implemented(data):
     raise NotImplementedError(f"Unsupported data type: {type(data)}")
 
 
+def _raise_pandas_required(msg):
+    raise ImportError(msg)
+
+
 # generic functions ----
 
 
@@ -555,7 +559,13 @@ def to_frame(ser: "list[Any] | SeriesLike", name: Optional[str] = None) -> DataF
     # TODO: remove pandas. currently, we support converting a list to a pd.DataFrame
     # in order to support backwards compatibility in the vals.fmt_* functions.
 
-    import pandas as pd
+    try:
+        import pandas as pd
+    except ImportError:
+        _raise_pandas_required(
+            "Passing a plain list of values currently requires the library pandas. "
+            "You can avoid this error by passing a polars Series."
+        )
 
     if not isinstance(ser, list):
         raise NotImplementedError(f"Unsupported type: {type(ser)}")
