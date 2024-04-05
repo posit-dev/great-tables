@@ -99,6 +99,13 @@ def _raise_pandas_required(msg):
     raise ImportError(msg)
 
 
+class Agnostic:
+    """This class dispatches a generic in a DataFrame agnostic way.
+
+    It is available for generics like is_na.
+    """
+
+
 # generic functions ----
 
 
@@ -490,12 +497,12 @@ def _(df: PdDataFrame, x: Any) -> bool:
     return pd.isna(x)
 
 
+@is_na.register(Agnostic)
 @is_na.register
 def _(df: PlDataFrame, x: Any) -> bool:
     import polars as pl
-    import numpy as np
 
-    from math import isnan, nan
+    from math import isnan
 
     return isinstance(x, (pl.Null, type(None))) or (isinstance(x, float) and isnan(x))
 
