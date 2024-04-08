@@ -16,10 +16,6 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-        optional-deps: ["all"]
-        include:
-          - python-version: "3.12"
-            optional-deps: "dev"
       fail-fast: false
 
     steps:
@@ -33,9 +29,7 @@ jobs:
           # we are using the -e flag, so that code cov finds the source.
           # this is not ideal, since installing an editable can technically
           # differ from a normal install in surprising ways.
-          pip install -e ".[$OPTIONAL_DEPS]"
-        env:
-          OPTIONAL_DEPS: ${{ matrix.optional-deps }}
+          pip install -e '.[all]'
       - name: pytest unit tests
         run: |
           make test
@@ -45,6 +39,21 @@ jobs:
         with:
           name: "py${{ matrix.python-version }}"
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-pandas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install -e '.[dev]'
+      - name: pytest unit tests
+        run: |
+          make test
 
   release-pypi:
     name: "Release to pypi"
