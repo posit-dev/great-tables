@@ -16,6 +16,10 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
+        optional-deps: ["all"]
+        include:
+          - python-version: "3.12"
+            optional-deps: "dev"
       fail-fast: false
 
     steps:
@@ -26,15 +30,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-      - name: Install
-        run: |
           # we are using the -e flag, so that code cov finds the source.
           # this is not ideal, since installing an editable can technically
           # differ from a normal install in surprising ways.
-          pip install -e '.[dev]'
+          pip install -e ".[$OPTIONAL_DEPS]"
+        env:
+          OPTIONAL_DEPS: ${{ matrix.optional-deps }}
       - name: pytest unit tests
         run: |
           make test
