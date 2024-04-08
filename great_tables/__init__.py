@@ -8,7 +8,6 @@ del _v
 # Main gt imports ----
 
 from .gt import GT
-from . import data
 from . import vals
 from . import loc
 from . import style
@@ -43,14 +42,4 @@ def __getattr__(k: str):
 
         return exibble
 
-    # datasets are no longer exposed in this module.
-    # this function ensures that we raise a friendly error when people try to import them.
-
-    dataset_names = [entry for entry in dir(data) if not entry.startswith("_")]
-    if k in dataset_names:
-        raise ImportError(
-            "Cannot import dataset from top-level of package. Please import from data submodule:"
-            f"\n\nfrom great_tables.data import {k}"
-        )
-    else:
-        raise AttributeError(f"cannot get attribute {k} from great_tables ({__file__})")
+    raise AttributeError(f"cannot get attribute {k} from great_tables ({__file__})")
