@@ -4,7 +4,7 @@ from csv import DictReader
 from typing import Any, Optional, TypedDict, cast
 from importlib_resources import files
 
-DATA_MOD = files("great_tables.data")
+DATA_MOD = files("great_tables") / "data"
 
 
 def read_csv(fname: str) -> list[dict[str, Any]]:
