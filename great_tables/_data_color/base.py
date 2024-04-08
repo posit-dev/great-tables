@@ -11,7 +11,6 @@ from great_tables._tbl_data import is_na, DataFrameLike
 from great_tables.style import fill, text
 from great_tables.loc import body
 import numpy as np
-from mizani.palettes import gradient_n_pal
 
 if TYPE_CHECKING:
     from great_tables._types import GTSelf
@@ -166,6 +165,13 @@ def data_color(
     )
     ```
     """
+
+    try:
+        from mizani.palettes import gradient_n_pal
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError(
+            "The `mizani` package is required to use the `data_color()` method."
+        )
 
     # If no color is provided to `na_color`, use a light gray color as a default
     if na_color is None:
