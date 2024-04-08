@@ -42,4 +42,10 @@ def __getattr__(k: str):
 
         return exibble
 
+    # allow the data submodule to be accessed directly, as if it were a top-level import
+    if k == "data":
+        import great_tables.data
+
+        return great_tables.data
+
     raise AttributeError(f"cannot get attribute {k} from great_tables ({__file__})")
