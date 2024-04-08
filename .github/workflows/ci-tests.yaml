@@ -53,7 +53,7 @@ jobs:
           pip install -e '.[dev]'
       - name: pytest unit tests
         run: |
-          make test
+          make test-no-pandas
 
   release-pypi:
     name: "Release to pypi"

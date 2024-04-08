@@ -3,6 +3,9 @@
 test:
 	pytest --cov=great_tables --cov-report=xml
 
+test-no-pandas:
+	pytest -m "no_pandas"
+
 test-update:
 	pytest --snapshot-update
 
