@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from csv import DictReader
 from typing import Any, Optional, TypedDict, cast
-import pkg_resources
+from importlib_resources import files
+
+DATA_MOD = files("great_tables.data")
 
 
 def read_csv(fname: str) -> list[dict[str, Any]]:
@@ -86,17 +88,17 @@ class CurrenciesDataDict(TypedDict):
 
 
 def _get_locales_data() -> list[LocalesDict]:
-    fname = pkg_resources.resource_filename("great_tables.data", "x_locales.csv")
+    fname = DATA_MOD / "x_locales.csv"
 
     return cast("list[LocalesDict]", read_csv(fname))
 
 
 def _get_default_locales_data() -> list[DefaultLocalesDict]:
-    fname = pkg_resources.resource_filename("great_tables.data", "x_default_locales.csv")
+    fname = DATA_MOD / "x_default_locales.csv"
     return cast("list[DefaultLocalesDict]", read_csv(fname))
 
 
 def _get_currencies_data() -> list[CurrenciesDataDict]:
-    fname = pkg_resources.resource_filename("great_tables.data", "x_currencies.csv")
+    fname = DATA_MOD / "x_currencies.csv"
 
     return cast("list[CurrenciesDataDict]", read_csv(fname))
