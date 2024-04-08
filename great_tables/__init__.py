@@ -14,7 +14,6 @@ from . import loc
 from . import style
 from ._styles import FromColumn as from_column
 from ._helpers import letters, LETTERS, px, pct, md, html, random_id, system_fonts, nanoplot_options
-from .data import exibble
 
 
 __all__ = (
@@ -37,6 +36,13 @@ __all__ = (
 
 
 def __getattr__(k: str):
+    # exibble dataset available on top-level module, but is a pandas DataFrame.
+    # Since pandas is an optional dependency, we import exibble dynamically.
+    if k == "exibble":
+        from great_tables.data import exibble
+
+        return exibble
+
     # datasets are no longer exposed in this module.
     # this function ensures that we raise a friendly error when people try to import them.
 

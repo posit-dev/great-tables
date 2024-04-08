@@ -1,5 +1,13 @@
-import pandas as pd
 import pkg_resources
+
+try:
+    import pandas as pd
+except ModuleNotFoundError:
+    raise ModuleNotFoundError(
+        "Currently, importing great_tables.data requires pandas. "
+        "This will change in the future. Most of great_tables can be used without pandas."
+    )
+
 
 DATA_MOD = "great_tables.data"
 
