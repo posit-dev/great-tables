@@ -1,9 +1,20 @@
 from typing import Optional, List, Union, Any, Dict, Callable
-import pandas as pd
 import numpy as np
+
 from great_tables._utils import _match_arg
+from great_tables._tbl_data import Agnostic, is_na
 
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
+
+
+def _is_na(x: Any) -> bool:
+    return is_na(Agnostic(), x)
+
+
+def _map_is_na(x: list[Any]) -> list[bool]:
+    # TODO: all([]) returns True. Let's double check all places
+    # in the code that call all() with this function. Do they work as intended?
+    return [is_na(Agnostic(), val) for val in x]
 
 
 def _val_is_numeric(x: Any) -> bool:
@@ -30,13 +41,6 @@ def _val_is_str(x: Any) -> bool:
     return isinstance(x, (str))
 
 
-def _val_is_missing(x: Any) -> bool:
-    """
-    Determine whether a scalar value is missing (i.e., None or NaN).
-    """
-    return pd.isna(x)
-
-
 # This determines whether an entire list of values are integer-like; this skips
 # over missing values and returns a single boolean
 def _is_integerlike(val_list: List[Any]) -> bool:
@@ -49,7 +53,7 @@ def _is_integerlike(val_list: List[Any]) -> bool:
     if len(val_list) == 0:
         return False
 
-    return all((isinstance(val, (int, np.integer)) or _val_is_missing(val)) for val in val_list)
+    return all((isinstance(val, (int, np.integer)) or _is_na(val)) for val in val_list)
 
 
 def _any_na_in_list(x: List[Any]) -> bool:
@@ -57,7 +61,7 @@ def _any_na_in_list(x: List[Any]) -> bool:
     Determine whether a list of values contains any missing values.
     """
 
-    return any(_val_is_missing(val) for val in x)
+    return any(_is_na(val) for val in x)
 
 
 def _check_any_na_in_list(x: List[Union[int, float]]) -> None:
@@ -77,7 +81,7 @@ def _remove_na_from_list(x: List[Union[int, float]]) -> List[Union[int, float]]:
     Remove missing values from a list of values.
     """
 
-    return [val for val in x if not _val_is_missing(val)]
+    return [val for val in x if not _is_na(val)]
 
 
 def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) -> List[Any]:
@@ -129,7 +133,7 @@ def _format_number_compactly(
 
         return res
 
-    if _val_is_missing(val):
+    if _is_na(val):
         return "NA"
 
     if val == 0:
@@ -403,7 +407,7 @@ def _generate_ref_line_from_keyword(
     _check_any_na_in_list(vals)
 
     # Remove missing values from the `vals` list
-    vals = [val for val in vals if not _val_is_missing(val)]
+    vals = [val for val in vals if not _is_na(val)]
 
     if keyword == "mean":
         ref_line = _gt_mean(vals)
@@ -432,9 +436,9 @@ def _normalize_vals(
     Normalize a list of numeric values to be between 0 and 1. Account for missing values.
     """
 
-    x_missing = [i for i, val in enumerate(x) if pd.isna(val)]
-    mean_x = np.mean([val for val in x if not pd.isna(val)])
-    x = [mean_x if pd.isna(val) else val for val in x]
+    x_missing = [i for i, val in enumerate(x) if _is_na(val)]
+    mean_x = np.mean([val for val in x if not _is_na(val)])
+    x = [mean_x if _is_na(val) else val for val in x]
     x = np.array(x)
     min_attr = np.min(x, axis=0)
     max_attr = np.max(x, axis=0)
@@ -550,7 +554,7 @@ def _generate_nanoplot(
     y_vals: Union[List[Union[int, float]], List[int], List[float]],
     y_ref_line: Optional[str] = None,
     y_ref_area: Optional[str] = None,
-    x_vals: Optional[str] = None,
+    x_vals: "List[Union[int, float]] | None" = None,
     expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
     expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
     missing_vals: str = "marker",
@@ -633,8 +637,8 @@ def _generate_nanoplot(
         return ""
 
     # If all `y` values are NA, return an empty string
-    # TODO: Do this with the `pd_na()` function
-    if type(y_vals) is list and all(pd.isna(y_vals)):
+    # TODO: all([]) evaluates to True. In that case does this produce the intended behavior?
+    if isinstance(y_vals, list) and all(_map_is_na(y_vals)):
         return ""
 
     # Get the number of data points for `y`
@@ -650,7 +654,7 @@ def _generate_nanoplot(
         # return an empty string
         if len(x_vals) == 0:
             return ""
-        if all(pd.isna(x_vals)):
+        if all(_map_is_na(x_vals)):
             return ""
 
         # Get the number of data points for `x`
@@ -669,13 +673,16 @@ def _generate_nanoplot(
         # Handle missing values in `x_vals` through removal (i.e., missing
         # values in `x_vals` means removal of positional values from both
         # `x_vals` and `y_vals`)
-        if any(pd.isna(x_vals)):
+        if any(_map_is_na(x_vals)):
+            # TODO: this code did not have test coverage and likely didn't
+            # work. It should work now, but we need to test it.
+
             # Determine which values from `x_vals` are non-missing values
-            x_vals_non_missing = ~pd.isna(x_vals)
+            x_vals_non_missing = [~_is_na(val) for val in x_vals]
 
             # Retain only `x_vals_non_missing` from `x_vals` and `y_vals`
-            x_vals = x_vals[x_vals_non_missing]
-            y_vals = y_vals[x_vals_non_missing]
+            x_vals = [x for x, keep in zip(x_vals, x_vals_non_missing) if keep]
+            y_vals = [y for y, keep in zip(y_vals, x_vals_non_missing) if keep]
 
         # If `x` values are present, we cannot use a curved line so
         # we'll force the use of the 'straight' line type
@@ -753,13 +760,12 @@ def _generate_nanoplot(
 
     # Ensure that a reference line or reference area isn't shown if None or
     # any of its directives is missing
-    if y_ref_line is None or (y_ref_line is not None and pd.isna(y_ref_line)):
+    if _is_na(y_ref_line):
         show_reference_line = False
 
     if y_ref_area is None:
         show_reference_area = False
-
-    if y_ref_area is not None and (pd.isna(y_ref_area[0]) or pd.isna(y_ref_area[1])):
+    elif _is_na(y_ref_area[0]) or _is_na(y_ref_area[1]):
         show_reference_area = False
 
     # Determine the width of the data plot area; for plots where `x_vals`
@@ -957,8 +963,12 @@ def _generate_nanoplot(
 
         if expand_x is not None and _val_is_str(expand_x):
 
+            # TODO: the line below lacked tests, and called non-existent methods.
+            # replace with something that doesn't use pandas and returns the correct thing.
+
             # Assume that string values are dates and convert them to timestamps
-            expand_x = pd.to_datetime(expand_x, utc=True).timestamp()
+            # expand_x = pd.to_datetime(expand_x, utc=True).timestamp()
+            raise NotImplementedError("Currently, passing expand_x as a string is unsupported.")
 
         # Scale to proportional values
         x_proportions_list = _normalize_to_dict(vals=x_vals, expand_x=expand_x)

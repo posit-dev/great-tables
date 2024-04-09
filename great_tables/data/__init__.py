@@ -1,9 +1,17 @@
-import pandas as pd
-import pkg_resources
+from importlib_resources import files
 
-DATA_MOD = "great_tables.data"
+try:
+    import pandas as pd
+except ModuleNotFoundError:
+    raise ModuleNotFoundError(
+        "Currently, importing great_tables.data requires pandas. "
+        "This will change in the future. Most of great_tables can be used without pandas."
+    )
 
-_countrypops_fname = pkg_resources.resource_filename(DATA_MOD, "01-countrypops.csv")
+
+DATA_MOD = files("great_tables.data")
+
+_countrypops_fname = DATA_MOD / "01-countrypops.csv"
 _countrypops_dtype = {
     "country_name": "object",
     "country_code_2": "object",
@@ -12,7 +20,7 @@ _countrypops_dtype = {
     "population": "Int64",
 }
 
-_sza_fname = pkg_resources.resource_filename(DATA_MOD, "02-sza.csv")
+_sza_fname = DATA_MOD / "02-sza.csv"
 _sza_dtype = {
     "latitude": "object",
     "month": "object",
@@ -20,7 +28,7 @@ _sza_dtype = {
     "sza": "float64",
 }
 
-_gtcars_fname = pkg_resources.resource_filename(DATA_MOD, "03-gtcars.csv")
+_gtcars_fname = DATA_MOD / "03-gtcars.csv"
 _gtcars_dtype = {
     "mfr": "object",
     "model": "object",
@@ -39,7 +47,7 @@ _gtcars_dtype = {
     "msrp": "float64",
 }
 
-_sp500_fname = pkg_resources.resource_filename(DATA_MOD, "04-sp500.csv")
+_sp500_fname = DATA_MOD / "04-sp500.csv"
 _sp500_dtype = {
     "date": "object",
     "open": "float64",
@@ -50,7 +58,7 @@ _sp500_dtype = {
     "adj_close": "float64",
 }
 
-_pizzaplace_fname = pkg_resources.resource_filename(DATA_MOD, "05-pizzaplace.csv")
+_pizzaplace_fname = DATA_MOD / "05-pizzaplace.csv"
 _pizzaplace_dtype = {
     "id": "object",
     "date": "object",
@@ -61,7 +69,7 @@ _pizzaplace_dtype = {
     "price": "float64",
 }
 
-_exibble_fname = pkg_resources.resource_filename(DATA_MOD, "06-exibble.csv")
+_exibble_fname = DATA_MOD / "06-exibble.csv"
 _exibble_dtype = {
     "num": "float64",
     "char": "object",
@@ -74,7 +82,7 @@ _exibble_dtype = {
     "group": "object",
 }
 
-_towny_fname = pkg_resources.resource_filename(DATA_MOD, "07-towny.csv")
+_towny_fname = DATA_MOD / "07-towny.csv"
 _towny_dtype = {
     "name": "object",
     "website": "object",
@@ -103,7 +111,7 @@ _towny_dtype = {
     "pop_change_2016_2021_pct": "float64",
 }
 
-_metro_fname = pkg_resources.resource_filename(DATA_MOD, "08-metro.csv")
+_metro_fname = DATA_MOD / "08-metro.csv"
 _metro_dtype = {
     "name": "object",
     "caption": "object",
@@ -118,7 +126,7 @@ _metro_dtype = {
     "location": "object",
 }
 
-_constants_fname = pkg_resources.resource_filename(DATA_MOD, "09-constants.csv")
+_constants_fname = DATA_MOD / "09-constants.csv"
 _constants_dtype = {
     "name": "object",
     "value": "float64",
@@ -128,7 +136,7 @@ _constants_dtype = {
     "units": "object",
 }
 
-_illness_fname = pkg_resources.resource_filename(DATA_MOD, "10-illness.csv")
+_illness_fname = DATA_MOD / "10-illness.csv"
 _illness_dtype = {
     "test": "object",
     "units": "object",
@@ -143,8 +151,8 @@ _illness_dtype = {
     "norm_u": "float64",
 }
 
-_islands_fname = pkg_resources.resource_filename(DATA_MOD, "11-islands.csv")
-_airquality_fname = pkg_resources.resource_filename(DATA_MOD, "x-airquality.csv")
+_islands_fname = DATA_MOD / "11-islands.csv"
+_airquality_fname = DATA_MOD / "x-airquality.csv"
 
 countrypops: pd.DataFrame = pd.read_csv(_countrypops_fname, dtype=_countrypops_dtype)  # type: ignore
 countrypops.__doc__ = """
@@ -585,7 +593,7 @@ islands: pd.DataFrame = pd.read_csv(_islands_fname)  # type: ignore
 airquality: pd.DataFrame = pd.read_csv(_airquality_fname)  # type: ignore
 
 
-_x_locales_fname = pkg_resources.resource_filename(DATA_MOD, "x_locales.csv")
+_x_locales_fname = DATA_MOD / "x_locales.csv"
 _x_locales_dtype = {
     "country_name": "object",
     "country_code_2": "object",

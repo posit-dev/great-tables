@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import babel
+
 from decimal import Decimal
 from typing import (
     TYPE_CHECKING,
@@ -6,6 +9,7 @@ from typing import (
     Callable,
     ClassVar,
     TypeVar,
+    TypedDict,
     Union,
     List,
     Tuple,
@@ -22,7 +26,6 @@ from ._locations import resolve_rows_i, resolve_cols_c
 from ._text import _md_html
 from ._utils import _str_detect, _str_replace
 from ._utils_nanoplots import _generate_nanoplot
-import pandas as pd
 import math
 from datetime import datetime, date, time
 from babel.dates import format_date, format_time, format_datetime
@@ -456,7 +459,7 @@ def fmt_integer(
         scale_by: float = scale_by,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -672,7 +675,7 @@ def fmt_scientific(
         force_sign_n: bool = force_sign_n,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -915,7 +918,7 @@ def fmt_percent(
         incl_space: bool = incl_space,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -1151,7 +1154,7 @@ def fmt_currency(
         incl_space: bool = incl_space,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
@@ -1281,7 +1284,7 @@ def fmt_roman(
         case: str = case,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Get the absolute value of `x` so that negative values are handled
@@ -1491,7 +1494,7 @@ def fmt_bytes(
         incl_space: bool = incl_space,
     ):
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # Truncate all byte values by casting to an integer; this is done because bytes
@@ -1674,7 +1677,7 @@ def fmt_date(
         x: Any, date_format_str: str = date_format_str, locale: Union[str, None] = locale
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # If `x` is a string, we assume it is an ISO date string and convert it to a date object
@@ -1810,7 +1813,7 @@ def fmt_time(
         x: Any, time_format_str: str = time_format_str, locale: Union[str, None] = locale
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # If `x` is a string, assume it is an ISO time string and convert it to a time object
@@ -1973,7 +1976,7 @@ def fmt_datetime(
         locale: Union[str, None] = locale,
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         # From the date and time format strings, create a datetime format string
@@ -2098,7 +2101,7 @@ def fmt_markdown(
     # Generate a function that will operate on single `x` values in the table body
     def fmt_markdown_fn(x: Any) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        if is_na(self._tbl_data, x):
             return x
 
         x_str: str = str(x)
@@ -2568,17 +2571,22 @@ def _replace_minus(string: str, minus_mark: str) -> str:
     return _str_replace(string, "-", minus_mark)
 
 
-def _filter_pd_df_to_row(pd_df: pd.DataFrame, column: str, filter_expr: str) -> pd.DataFrame:
-    filtered_pd_df = pd_df[pd_df[column] == filter_expr]
+T_dict = TypeVar("T_dict", bound=TypedDict)
+
+
+# TODO: remove pandas
+def _filter_pd_df_to_row(pd_df: "list[T_dict]", column: str, filter_expr: str) -> T_dict:
+    filtered_pd_df = [entry for entry in pd_df if entry[column] == filter_expr]
     if len(filtered_pd_df) != 1:
         raise Exception(
             "Internal Error, the filtered table doesn't result in a table of exactly one row."
         )
-    return filtered_pd_df
+    return filtered_pd_df[0]
 
 
 def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] = None) -> str:
     # If `use_seps` is False, then force `sep_mark` to be an empty string
+    # TODO: what does an empty string signify? Where is this used? Is it the right choice here?
     if not use_seps:
         return ""
 
@@ -2593,7 +2601,7 @@ def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] 
     # the column named 'group'; this could potentially be of any type but we expect
     # it to be a string (and we'll check for that here)
     sep_mark: Any
-    sep_mark = pd_df_row.iloc[0]["group"]
+    sep_mark = pd_df_row["group"]
     if not isinstance(sep_mark, str):
         raise TypeError(f"Variable type mismatch. Expected str, got {type(sep_mark)}.")
 
@@ -2616,7 +2624,9 @@ def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
     # the column named 'decimal'; this could potentially be of any type but we expect
     # it to be a string (and we'll check for that here)
     dec_mark: Any
-    dec_mark = pd_df_row.iloc[0]["decimal"]
+    dec_mark = pd_df_row["decimal"]
+
+    # TODO: we control this data and should enforce this in the data schema
     if not isinstance(dec_mark, str):
         raise TypeError(f"Variable type mismatch. Expected str, got {type(dec_mark)}.")
 
@@ -2632,37 +2642,16 @@ def _get_locales_list() -> List[str]:
     """
 
     # Get the 'locales' dataset and obtain from that a list of locales
+    # TODO: remove pandas
     locales = _get_locales_data()
-    locale_list = locales["locale"].tolist()
+    locale_list = [entry["locale"] for entry in locales]
 
     # Ensure that `locale_list` is of the type 'str'
+    # TODO: we control this data and should enforce this in the data schema
     locale_list: Any
     if not isinstance(locale_list[0], str):
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
     return locale_list
-
-
-def _get_default_locales_list() -> List[str]:
-    """
-    Returns a list of default locales.
-
-    The function retrieves the default locales data and extracts the default locale list.
-    It ensures that the list is of type 'str' and raises a TypeError if not.
-
-    Returns:
-        A list of default locales as strings.
-    """
-
-    # Get the 'default locales' dataset and obtain from that a list of default locales
-    default_locales = _get_default_locales_data()
-    default_locale_list = default_locales["default_locale"].tolist()
-
-    # Ensure that `default_locale_list` is of the type 'str'
-    default_locale_list: Any
-    if not isinstance(default_locale_list[0], str):
-        raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
-
-    return default_locale_list
 
 
 def _validate_locale(locale: Union[str, None] = None) -> None:
@@ -2682,14 +2671,16 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
         return
 
     locales_list = _get_locales_list()
-    default_locales_list = _get_default_locales_list()
+    default_locales_list = [entry["default_locale"] for entry in _get_default_locales_data()]
 
     # Replace any underscores with hyphens
     supplied_locale = _str_replace(locale, "_", "-")
 
     # Stop if the `locale` provided isn't a valid one
     if supplied_locale not in locales_list and supplied_locale not in default_locales_list:
-        raise ValueError("The supplied `locale` is not available in the list of supported locales.")
+        raise ValueError(
+            f"The normalized locale name `{supplied_locale}` is not in the list of locales."
+        )
 
     return
 
@@ -2716,22 +2707,28 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
     supplied_locale = _str_replace(locale, "_", "-")
 
     # Resolve any default locales into their base names (e.g., 'en-US' -> 'en')
-    if supplied_locale in _get_default_locales_list():
-        default_locales = _get_default_locales_data()
-        resolved_locale = default_locales[
-            default_locales["default_locale"] == supplied_locale
-        ].iloc[0]["base_locale"]
+    # TODO: remove pandas
+    default_locales = _get_default_locales_data()
 
-        # Ensure that `resolved_locale` is of the type 'str'
-        resolved_locale: Any
-        if not isinstance(resolved_locale, str):
-            raise TypeError(
-                "Variable type mismatch. Expected str, got something entirely different."
-            )
-    else:
-        resolved_locale = supplied_locale
+    matches = [
+        entry["base_locale"]
+        for entry in default_locales
+        if entry["default_locale"] == supplied_locale
+    ]
 
-    return resolved_locale
+    if matches:
+        return matches[0]
+
+    try:
+        babel.Locale.parse(supplied_locale, sep="-")
+    except babel.UnknownLocaleError:
+        raise ValueError(
+            f"Supplied locale `{supplied_locale}` is not a known locale. "
+            "Great Tables uses the libraries like babel for locale-based work. "
+            "See the babel.Locale class for more on locale handling."
+        )
+
+    return supplied_locale
 
 
 def _resolve_locale(x: GTData, locale: Union[str, None] = None) -> Union[str, None]:
@@ -2743,6 +2740,8 @@ def _resolve_locale(x: GTData, locale: Union[str, None] = None) -> Union[str, No
     if locale == "und":
         locale = "en"
 
+    # TODO: why do both the normalize and validate functions convert
+    # underscores to hyphens? Should we remove from validate locale?
     locale = _normalize_locale(locale=locale)
 
     _validate_locale(locale=locale)
@@ -2775,9 +2774,10 @@ def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
     pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
 
     # Extract the 'currency_code' cell value from this 1-row DataFrame
-    currency_code = pd_df_row.iloc[0]["currency_code"]
+    currency_code = pd_df_row["currency_code"]
 
     # Ensure that `currency_code` is of the type 'str'
+    # TODO: we control this data and should enforce this in the data schema
     currency_code: Any
     if not isinstance(currency_code, str):
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
@@ -2810,9 +2810,11 @@ def _get_currency_str(currency: str) -> str:
     )
 
     # Extract the 'symbol' cell value from this 1-row DataFrame
-    currency_str = pd_df_row.iloc[0]["symbol"]
+    # TODO: remove pandas
+    currency_str = pd_df_row["symbol"]
 
     # Ensure that `currency_str` is of the type 'str'
+    # TODO: we control this data and should enforce this in our data schema
     currency_str: Any
     if not isinstance(currency_str, str):
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
@@ -2835,18 +2837,14 @@ def _validate_currency(currency: str) -> None:
     """
 
     # Get the currencies data
-    currencies = _get_currencies_data()
-
-    # Get the `curr_code` column from currencies DataFrame as a list
-    curr_code_list: List[str] = currencies["curr_code"].tolist()
+    codes = [entry["curr_code"] for entry in _get_currencies_data()]
 
     # Stop if the `currency` provided isn't a valid one
-    if currency not in curr_code_list:
+    # TODO: how do users know what currencies are supported?
+    if currency not in codes:
         raise ValueError(
-            "The supplied `currency` is not available in the list of supported currencies."
+            f"The supplied currency `{currency}` is not in the list of supported currencies."
         )
-
-    return
 
 
 def _get_currency_decimals(currency: str, decimals: Optional[int], use_subunits: bool) -> int:
@@ -2897,21 +2895,17 @@ def _get_currency_exponent(currency: str) -> int:
     currencies = _get_currencies_data()
 
     # get the curr_code column from currencies df as a list
-    curr_code_list: List[str] = currencies["curr_code"].tolist()
+    matches = [entry["exponent"] for entry in currencies if entry["curr_code"] == currency]
 
-    if currency in curr_code_list:
-        exponent = currencies[currencies["curr_code"] == currency].iloc[0]["exponent"]
+    if matches:
+        exponent = matches[0]
 
-        # Cast exponent variable as an integer value (it is a str currently)
+        # TODO: why does this happen here if we control currency data?
         exponent = int(exponent)
 
-        # Ensure that `exponent` is of the type 'int'
-        exponent: Any
-        if not isinstance(exponent, int):
-            raise TypeError(
-                "Variable type mismatch. Expected int, got something entirely different."
-            )
     else:
+        # TODO: in what situation are we given a currency code with no match?
+        # why return this? E.g. what if someone mispelled a currency code?
         exponent = 2
 
     return exponent
@@ -3713,7 +3707,7 @@ def fmt_nanoplot(
         # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
         all_single_y_vals = list(
             data_tbl[columns].apply(
-                lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+                lambda x: x if is_na(self._tbl_data, x) else x[1] if isinstance(x, tuple) else x
             )
         )
 
@@ -3739,7 +3733,7 @@ def fmt_nanoplot(
         # downstream?
         all_y_vals_raw = list(
             data_tbl[columns].apply(
-                lambda x: x if pd.isna(x) else x[1] if isinstance(x, tuple) else x
+                lambda x: x if is_na(self._tbl_data, x) else x[1] if isinstance(x, tuple) else x
             )
         )
 

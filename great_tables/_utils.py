@@ -1,9 +1,10 @@
 from typing import Optional, Union, List, Any
-import pandas as pd
 import importlib
 from types import ModuleType
 import json
 import re
+
+from ._tbl_data import PdDataFrame
 
 
 def _try_import(name: str, pip_install_line: Optional[str] = None) -> ModuleType:
@@ -101,7 +102,7 @@ def _object_as_dict(v: Any) -> Any:
         return v.object_as_dict()
     except Exception:
         pass
-    if type(v) == pd.DataFrame:
+    if isinstance(v, PdDataFrame):
         return v.to_dict()
     if type(v) in [tuple, list]:
         return list(_object_as_dict(i) for i in v)

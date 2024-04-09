@@ -137,7 +137,6 @@ class _Sequence(Sequence[T]):
 __Body = None
 
 from typing import Union, List, Any
-import pandas as pd
 from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell
 
 
@@ -148,7 +147,7 @@ from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell
 class Body:
     body: TblData
 
-    def __init__(self, body: Union[pd.DataFrame, TblData]):
+    def __init__(self, body: TblData):
         self.body = body
 
     def render_formats(self, data_tbl: TblData, formats: List[FormatInfo], context: Any):
@@ -183,7 +182,6 @@ __Boxhead = None
 
 from typing import Optional, List
 from enum import Enum, auto
-import pandas as pd
 
 from ._tbl_data import TblData, get_column_names
 
@@ -697,7 +695,6 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
 # Spanners ----
 __Spanners = None
-import pandas as pd
 
 
 @dataclass(frozen=True)

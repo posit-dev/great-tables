@@ -41,12 +41,10 @@ dependencies = [
     "htmltools>=0.4.1",
     "importlib-metadata",
     "typing_extensions>=3.10.0.0",
-    "packaging>=20.9",
-    "pandas>=1.4.2",
     "numpy>=1.22.4",
     "Babel>=2.13.1",
-    "mizani>=0.9.3",
     "webcolors>=1.13",
+    "importlib-resources"
 ]
 requires-python = ">=3.9"
 
@@ -59,17 +57,20 @@ all = [
 extra = [
     "selenium>=4.18.1",
     "Pillow>=10.2.0",
+    "mizani>=0.9.3",
 ]
 
 dev = [
+    "black",
     "jupyter",
     "quartodoc>=0.7.1; python_version >= '3.9'",
     "griffe==0.38.1",
     "polars",
+    "pre-commit==2.15.0",
     "pyarrow",
+    "pyright>=1.1.244",
     "pytest>=3",
     "pytest-cov",
-    "siuba",
     "shiny",
     "syrupy"
 ]
@@ -97,7 +98,7 @@ max-line-length = 100
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --cov=great_tables"
+addopts = "-ra -q --cov=great_tables -m 'not no_pandas'"
 asyncio_mode = "strict"
 testpaths = [
     "tests"
@@ -105,6 +106,7 @@ testpaths = [
 
 markers = [
     "extra: marks tests that require extra dependencies to run",
+    "no_pandas: test meant to run without pandas installed",
 ]
 
 [tool.black]
