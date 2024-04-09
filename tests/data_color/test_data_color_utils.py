@@ -1,3 +1,4 @@
+import math
 import pandas as pd
 import numpy as np
 import pytest
@@ -20,6 +21,7 @@ from great_tables._data_color.base import (
     _get_domain_numeric,
     _get_domain_factor,
 )
+from great_tables._data_color.palettes import GradientPalette
 
 
 def test_ideal_fgnd_color_dark_contrast():
@@ -523,3 +525,21 @@ def test_get_domain_factor():
     vals = ["A", "B", "B", "C"]
     result = _get_domain_factor(df, vals)
     assert result == ["A", "B", "C"]
+
+
+def test_gradient_n_pal():
+    palette = GradientPalette(["red", "blue"])
+
+    res = palette([0, 0.25, 0.5, 0.75, 1])
+    assert res == ["#ff0000", "#bf0040", "#800080", "#4000bf", "#0000ff"]
+
+
+def test_gradient_n_pal_inf():
+    palette = GradientPalette(["red", "blue"])
+
+    res = palette([-math.inf, 0, math.nan, 1, math.inf])
+    assert res == [None, "#ff0000", None, "#0000ff", None]
+
+    # same but with numpy
+    res = palette([-np.inf, 0, np.nan, 1, np.inf])
+    assert res == [None, "#ff0000", None, "#0000ff", None]

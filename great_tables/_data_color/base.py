@@ -6,7 +6,10 @@ from typing import (
     Optional,
     Tuple,
 )
+from typing_extensions import TypeAlias
+
 from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX, ALL_PALETTES
+
 from great_tables._tbl_data import is_na, DataFrameLike
 from great_tables.style import fill, text
 from great_tables.loc import body
@@ -166,12 +169,8 @@ def data_color(
     ```
     """
 
-    try:
-        from mizani.palettes import gradient_n_pal
-    except ModuleNotFoundError:
-        raise ModuleNotFoundError(
-            "The `mizani` package is required to use the `data_color()` method."
-        )
+    # TODO: there is a circular import in palettes (which imports functions from this module)
+    from great_tables._data_color.palettes import GradientPalette
 
     # If no color is provided to `na_color`, use a light gray color as a default
     if na_color is None:
@@ -259,7 +258,7 @@ def data_color(
         scaled_vals = [np.nan if is_na(data_table, x) else x for x in scaled_vals]
 
         # Create a color scale function from the palette
-        color_scale_fn = gradient_n_pal(colors=palette)
+        color_scale_fn = GradientPalette(colors=palette)
 
         # Call the color scale function on the scaled values to get a list of colors
         color_vals = color_scale_fn(scaled_vals)

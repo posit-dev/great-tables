@@ -56,7 +56,6 @@ all = [
 extra = [
     "selenium>=4.18.1",
     "Pillow>=10.2.0",
-    "mizani>=0.9.3",
 ]
 
 dev = [
