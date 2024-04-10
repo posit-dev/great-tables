@@ -8,13 +8,11 @@ del _v
 # Main gt imports ----
 
 from .gt import GT
-from . import data
 from . import vals
 from . import loc
 from . import style
 from ._styles import FromColumn as from_column
 from ._helpers import letters, LETTERS, px, pct, md, html, random_id, system_fonts, nanoplot_options
-from .data import exibble
 
 
 __all__ = (
@@ -37,14 +35,17 @@ __all__ = (
 
 
 def __getattr__(k: str):
-    # datasets are no longer exposed in this module.
-    # this function ensures that we raise a friendly error when people try to import them.
+    # exibble dataset available on top-level module, but is a pandas DataFrame.
+    # Since pandas is an optional dependency, we import exibble dynamically.
+    if k == "exibble":
+        from great_tables.data import exibble
 
-    dataset_names = [entry for entry in dir(data) if not entry.startswith("_")]
-    if k in dataset_names:
-        raise ImportError(
-            "Cannot import dataset from top-level of package. Please import from data submodule:"
-            f"\n\nfrom great_tables.data import {k}"
-        )
-    else:
-        raise AttributeError(f"cannot get attribute {k} from great_tables ({__file__})")
+        return exibble
+
+    # allow the data submodule to be accessed directly, as if it were a top-level import
+    if k == "data":
+        import great_tables.data
+
+        return great_tables.data
+
+    raise AttributeError(f"cannot get attribute {k} from great_tables ({__file__})")

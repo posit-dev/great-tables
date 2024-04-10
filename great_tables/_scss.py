@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import pkg_resources
+from importlib_resources import files
 import re
 
 from dataclasses import fields
@@ -135,9 +135,7 @@ def compile_scss(
           -moz-osx-font-smoothing: grayscale;
         }}"""
 
-    gt_styles_default_file = open(
-        pkg_resources.resource_filename("great_tables", "css/gt_styles_default.scss")
-    )
+    gt_styles_default_file = open(str(files("great_tables") / "css/gt_styles_default.scss"))
 
     gt_styles_default = gt_styles_default_file.read()
 
