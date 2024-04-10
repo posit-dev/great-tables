@@ -1,3 +1,8 @@
+"""Palette classes for translating data to color values.
+
+Note that this code is largely a pure python port of the mizani gradient_n_pal code.
+"""
+
 from bisect import bisect
 from math import isnan, isinf
 from typing import TypedDict, Tuple
