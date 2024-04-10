@@ -59,11 +59,15 @@ extra = [
 ]
 
 dev = [
+    "great_tables[dev-no-pandas]",
+    "pandas"
+]
+
+dev-no-pandas = [
     "black",
     "jupyter",
     "quartodoc>=0.7.1; python_version >= '3.9'",
     "griffe==0.38.1",
-    "pandas",
     "polars",
     "pre-commit==2.15.0",
     "pyarrow",

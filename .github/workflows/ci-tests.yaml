@@ -50,7 +50,7 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: |
-          pip install -e '.[dev]'
+          pip install -e '.[dev-no-pandas]'
       - name: pytest unit tests
         run: |
           make test-no-pandas
