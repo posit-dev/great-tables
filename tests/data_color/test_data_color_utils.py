@@ -534,6 +534,16 @@ def test_gradient_n_pal():
     assert res == ["#ff0000", "#bf0040", "#800080", "#4000bf", "#0000ff"]
 
 
+@pytest.mark.parametrize(
+    "src,dst", [(0.001, "#ff0000"), (0.004, "#fe0001"), (0.999, "#0000ff"), (0.996, "#0100fe")]
+)
+def test_gradient_n_pal_rounds(src, dst):
+    palette = GradientPalette(["red", "blue"])
+
+    res = palette([src])
+    assert res == [dst]
+
+
 def test_gradient_n_pal_inf():
     palette = GradientPalette(["red", "blue"])
 
