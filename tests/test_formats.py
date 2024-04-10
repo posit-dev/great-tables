@@ -1805,6 +1805,7 @@ def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
         ],
     )
 
+
 def test_normalize_locale():
     assert _normalize_locale("af-ZA") == "af"
 
@@ -1887,4 +1888,3 @@ def test_get_currency_str():
 def test_get_currency_str_no_match_raises():
     with pytest.raises(Exception):
         _get_currency_str("NOT_A_CURRENCY")
-
