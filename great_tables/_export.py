@@ -1,47 +1,12 @@
 from __future__ import annotations
 from ._utils import _try_import
-from typing import Literal, List, TYPE_CHECKING
+from typing import Literal, TYPE_CHECKING
 from typing_extensions import TypeAlias
 import tempfile
 
 if TYPE_CHECKING:
     # Note that as_raw_html uses methods on the GT class, not just data
     from .gt import GT
-
-
-MAC_BROWSERS = [
-    ("chrome", "com.google.Chrome", "KSVersion"),
-    ("chromium", "org.chromium.Chromium", "CFBundleShortVersionString"),
-    ("firefox", "org.mozilla.firefox", "CFBundleShortVersionString"),
-    ("safari", "com.apple.Safari", "CFBundleShortVersionString"),
-    ("edge", "com.microsoft.edgemac", "CFBundleVersion"),
-]
-
-
-def _get_mac_browsers() -> List[str]:
-
-    import plistlib
-    import subprocess
-    import os
-
-    browsers = []
-
-    for browser, bundle_id, version_string in MAC_BROWSERS:
-        paths = subprocess.getoutput(
-            f'mdfind "kMDItemCFBundleIdentifier == {bundle_id}"'
-        ).splitlines()
-        for path in paths:
-            with open(os.path.join(path, "Contents/Info.plist"), "rb") as f:
-                plist = plistlib.load(f)
-                executable_name = plist.get("CFBundleExecutable")
-                executable = os.path.join(path, "Contents/MacOS", executable_name)
-                display_name = plist.get("CFBundleDisplayName") or plist.get(
-                    "CFBundleName", browser
-                )
-                version = plist[version_string]
-                browsers.append((browser, version, executable, display_name))
-
-    return browsers
 
 
 def as_raw_html(
@@ -77,7 +42,6 @@ def as_raw_html(
 
 # Create a list of all selenium webdrivers
 WebDrivers: TypeAlias = Literal[
-    "auto",
     "chrome",
     "firefox",
     "safari",
@@ -91,7 +55,7 @@ def save(
     selector: str = "table",
     scale: float = 1.0,
     expand: int = 5,
-    wd: WebDrivers = "auto",
+    wd: WebDrivers = "chrome",
     window_size: tuple[int, int] = (6000, 6000),
 ) -> None:
     """
@@ -99,9 +63,11 @@ def save(
 
     The `save()` method makes it easy to save a table object as an image file. The function produces
     a high-resolution image file or PDF of the table. The output file is create by first taking a
-    screenshot of the table using a headless Chrome browser. Then, the screenshot is then cropped to
-    only include the table element. Finally, and the resulting image is saved to the specified file
-    path in the format specified (via the file extension).
+    screenshot of the table using a headless Chrome browser (other browser options are possible if
+    Chrome isn't present). The screenshot is then cropped to only include the table element, with
+    some additional pixels added around the table (controlled by the `expand=` parameter). Finally,
+    the resulting image is saved to the specified file path in the format specified (via the file
+    extension).
 
     Parameters
     ----------
@@ -121,10 +87,11 @@ def save(
         The number of pixels to expand the screenshot by. By default, this is set to 5. This can be
         increased to capture more of the surrounding area, or decreased to capture less.
     wd
-        The webdriver to use when taking the screenshot. By default, this is set to `"auto"`, which
-        will automatically select the appropriate webdriver based on the system platform. For
-        setting manually, the other available options are `"chrome"`, `"firefox"`, `"safari"`, and
-        `"edge"`. Ensure that a recent version of the chosen browser is installed on the system.
+        The webdriver to use when taking the screenshot. By default, this is set to `"chrome"` which
+        uses Google Chrome in headless mode. If that browser isn't available on the host system,
+        there are other options available: `"firefox"` (Mozilla Firefox), `"safari"` (Apple Safari),
+        and `"edge"` (Microsoft Edge). Ensure that at least one of these browsers is installed on
+        the system and choose the appropriate option based on that.
     window_size
         The size of the window to use when taking the screenshot. This is a tuple of two integers,
         representing the width and height of the window. By default, this is set to `(6000, 6000)`,
@@ -171,7 +138,6 @@ def save(
     from selenium.webdriver.common.by import By
     from PIL import Image
     from io import BytesIO
-    import sys
 
     Image.MAX_IMAGE_PIXELS = None
 
@@ -188,42 +154,32 @@ def save(
     # Create a temp directory to store the HTML file
     temp_dir = tempfile.mkdtemp()
 
-    # Get system platform and available browsers
-    sys_platform = sys.platform
-
-    # If using `wd=auto` (the default) then prefer 'safari' on macOS but 'chrome' elsewhere
-    if wd == "auto":
-
-        if sys_platform == "darwin":
-            wd = "safari"
-        else:
-            wd = "chrome"
-
-    # Use headless mode if supported
-    # Set the window size (x by y) to a large value to ensure the entire table
-    # is visible in the screenshot; this is settable via the `window_size=` argument
+    # Set the webdriver and options based on the chosen browser (`wd=` argument)
     if wd == "chrome":
         wdriver = webdriver.Chrome
         wd_options = webdriver.ChromeOptions()
-        wd_options.add_argument(str("--headless"))
-        wd_options.add_argument(f"--window-size={window_size[0]},{window_size[1]}")
     elif wd == "safari":
         wdriver = webdriver.Safari
         wd_options = webdriver.SafariOptions()
-        wd_options.add_argument(f"--width={window_size[0]}")
-        wd_options.add_argument(f"--height={window_size[1]}")
     elif wd == "firefox":
         wdriver = webdriver.Firefox
         wd_options = webdriver.FirefoxOptions()
-        wd_options.add_argument(f"--width={window_size[0]}")
-        wd_options.add_argument(f"--height={window_size[1]}")
     elif wd == "edge":
         wdriver = webdriver.Edge
         wd_options = webdriver.EdgeOptions()
 
-    with tempfile.NamedTemporaryFile(suffix=".html", dir=temp_dir) as temp_file, wdriver(
-        options=wd_options
-    ) as headless_browser:
+    # All webdrivers except for 'Firefox' can operate in headless mode; they all accept window size
+    # options are separate width and height arguments
+    if wd != "firefox":
+        wd_options.add_argument(str("--headless"))
+
+    wd_options.add_argument(f"--width={window_size[0]}")
+    wd_options.add_argument(f"--height={window_size[1]}")
+
+    with (
+        tempfile.NamedTemporaryFile(suffix=".html", dir=temp_dir) as temp_file,
+        wdriver(options=wd_options) as headless_browser,
+    ):
 
         # Write the HTML content to the temp file
         with open(temp_file.name, "w") as fp:
