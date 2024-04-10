@@ -543,3 +543,25 @@ def test_gradient_n_pal_inf():
     # same but with numpy
     res = palette([-np.inf, 0, np.nan, 1, np.inf])
     assert res == [None, "#ff0000", None, "#0000ff", None]
+
+
+def test_gradient_n_pal_symmetric():
+    # based on mizani unit tests
+    palette = GradientPalette(["red", "blue", "red"], values=[0, 0.5, 1])
+
+    res = palette([0.2, 0.5, 0.8])
+    assert res == ["#990066", "#0000ff", "#990066"]
+
+
+def test_gradient_n_pal_out_of_bounds_raises():
+    palette = GradientPalette(["red", "blue"])
+
+    with pytest.raises(ValueError) as exc_info:
+        palette([0, 1.1])
+
+    assert "Value: 1.1" in exc_info.value.args[0]
+
+    with pytest.raises(ValueError) as exc_info:
+        palette([0, -0.1])
+
+    assert "Value: -0.1" in exc_info.value.args[0]
