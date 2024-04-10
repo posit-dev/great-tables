@@ -4,6 +4,22 @@ from great_tables import GT, md, exibble
 from great_tables._scss import compile_scss
 
 
+DEFAULT_FONTS = [
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Helvetica Neue",
+    "Fira Sans",
+    "Droid Sans",
+    "Arial",
+    "sans-serif",
+]
+
+
 def test_options_overwrite():
     df = pd.DataFrame({"x": [1, 2, 3]})
     gt = GT(df)
@@ -324,3 +340,65 @@ def test_scss_from_opt_table_outline(gt_tbl: GT, snapshot):
         assert getattr(gt_tbl_outline._options, f"table_border_{part}_color").value == "blue"
 
     assert snapshot == compile_scss(gt_tbl_outline, id="abc", compress=False)
+
+
+def test_opt_table_font_add_font():
+
+    gt_tbl = GT(exibble).opt_table_font(font="Arial", weight="bold", style="italic")
+
+    assert gt_tbl._options.table_font_names.value == ["Arial"] + DEFAULT_FONTS
+    assert gt_tbl._options.table_font_weight.value == "bold"
+    assert gt_tbl._options.table_font_style.value == "italic"
+
+
+def test_opt_table_font_replace_font():
+
+    gt_tbl = GT(exibble).opt_table_font(font="Arial", weight="bold", style="bold", add=False)
+
+    assert gt_tbl._options.table_font_names.value == ["Arial"]
+    assert gt_tbl._options.table_font_weight.value == "bold"
+    assert gt_tbl._options.table_font_style.value == "bold"
+
+
+def test_opt_table_font_use_stack():
+
+    gt_tbl = GT(exibble).opt_table_font(stack="humanist")
+
+    assert gt_tbl._options.table_font_names.value == [
+        "Seravek",
+        "Gill Sans Nova",
+        "Ubuntu",
+        "Calibri",
+        "DejaVu Sans",
+        "source-sans-pro",
+        "sans-serif",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        "Noto Color Emoji",
+    ]
+
+    # The value of `add=` should not affect the resulting font names
+    gt_tbl_2 = GT(exibble).opt_table_font(stack="humanist", add=False)
+
+    assert gt_tbl_2._options.table_font_names.value == gt_tbl._options.table_font_names.value
+
+
+def test_opt_table_font_use_stack_and_fonts():
+
+    gt_tbl = GT(exibble).opt_table_font(font="Comic Sans MS", stack="humanist")
+
+    assert gt_tbl._options.table_font_names.value == [
+        "Comic Sans MS",
+        "Seravek",
+        "Gill Sans Nova",
+        "Ubuntu",
+        "Calibri",
+        "DejaVu Sans",
+        "source-sans-pro",
+        "sans-serif",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        "Noto Color Emoji",
+    ]
