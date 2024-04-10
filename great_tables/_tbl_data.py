@@ -3,7 +3,7 @@ from __future__ import annotations
 import warnings
 
 from functools import singledispatch
-from typing import Any, Dict, List, Union, Callable, Tuple, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Union, Callable, Tuple, TYPE_CHECKING
 from typing_extensions import TypeAlias
 
 from ._databackend import AbstractBackend
@@ -93,6 +93,17 @@ else:
 
 def _raise_not_implemented(data):
     raise NotImplementedError(f"Unsupported data type: {type(data)}")
+
+
+def _raise_pandas_required(msg):
+    raise ImportError(msg)
+
+
+class Agnostic:
+    """This class dispatches a generic in a DataFrame agnostic way.
+
+    It is available for generics like is_na.
+    """
 
 
 # generic functions ----
@@ -486,12 +497,12 @@ def _(df: PdDataFrame, x: Any) -> bool:
     return pd.isna(x)
 
 
+@is_na.register(Agnostic)
 @is_na.register
 def _(df: PlDataFrame, x: Any) -> bool:
     import polars as pl
-    import numpy as np
 
-    from math import isnan, nan
+    from math import isnan
 
     return isinstance(x, (pl.Null, type(None))) or (isinstance(x, float) and isnan(x))
 
@@ -545,3 +556,38 @@ def _(df: PdDataFrame) -> PdDataFrame:
 @validate_frame.register
 def _(df: PlDataFrame) -> PlDataFrame:
     return df
+
+
+# to_frame ----
+
+
+@singledispatch
+def to_frame(ser: "list[Any] | SeriesLike", name: Optional[str] = None) -> DataFrameLike:
+    # TODO: remove pandas. currently, we support converting a list to a pd.DataFrame
+    # in order to support backwards compatibility in the vals.fmt_* functions.
+
+    try:
+        import pandas as pd
+    except ImportError:
+        _raise_pandas_required(
+            "Passing a plain list of values currently requires the library pandas. "
+            "You can avoid this error by passing a polars Series."
+        )
+
+    if not isinstance(ser, list):
+        raise NotImplementedError(f"Unsupported type: {type(ser)}")
+
+    if not name:
+        raise ValueError("name must be specified, when converting a list to a DataFrame.")
+
+    return pd.DataFrame({name: ser})
+
+
+@to_frame.register
+def _(ser: PdSeries, name: Optional[str] = None) -> PdDataFrame:
+    return ser.to_frame(name)
+
+
+@to_frame.register
+def _(ser: PlSeries, name: Optional[str] = None) -> PlDataFrame:
+    return ser.to_frame(name)
