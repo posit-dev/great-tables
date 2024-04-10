@@ -563,6 +563,31 @@ def test_gradient_n_pal_symmetric():
     assert res == ["#990066", "#0000ff", "#990066"]
 
 
+def test_gradient_n_pal_guard_raises():
+    with pytest.raises(ValueError) as exc_info:
+        GradientPalette(["red"])
+
+    assert "only 1 provided" in exc_info.value.args[0]
+
+    # values must start with 0
+    with pytest.raises(ValueError) as exc_info:
+        GradientPalette(["red", "blue"], values=[0.1, 1])
+
+    assert "start with 0" in exc_info.value.args[0]
+
+    # values must end with 1
+    with pytest.raises(ValueError) as exc_info:
+        GradientPalette(["red", "blue"], values=[0, 0.1])
+
+    assert "end with 1" in exc_info.value.args[0]
+
+    # len(color) != len(values)
+    with pytest.raises(ValueError) as exc_info:
+        GradientPalette(["red", "blue"], values=[0, 1.1, 1])
+
+    assert "Received 3 values and 2 colors" in exc_info.value.args[0]
+
+
 def test_gradient_n_pal_out_of_bounds_raises():
     palette = GradientPalette(["red", "blue"])
 

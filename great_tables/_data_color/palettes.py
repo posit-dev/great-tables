@@ -92,7 +92,7 @@ class GradientPalette:
     ):
         if len(colors) < 2:
             raise ValueError(
-                f"Palette requires at least 2 colors, but only {len(colors)} were provided."
+                f"Palette requires at least 2 colors, but only {len(colors)} provided."
             )
 
         if values is None:
@@ -103,7 +103,7 @@ class GradientPalette:
         if len(values) != len(colors):
             raise ValueError(
                 "Values and colors must be the same length. "
-                f"Receieved {len(values)} and {len(colors)}."
+                f"Received {len(values)} values and {len(colors)} colors."
             )
 
         # colors can be rgb tuples or hex strings
