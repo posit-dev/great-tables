@@ -1040,10 +1040,11 @@ def opt_table_font(
     The `opt_table_font()` method makes it possible to define fonts used for an entire table. Any
     font names supplied in `font=` will (by default, with `add=True`) be placed before the names
     present in the existing font stack (i.e., they will take precedence). You can choose to base the
-    font stack on those provided by the `system_fonts()` helper function by providing a valid
-    keyword for a themed set of fonts. Take note that you could still have entirely different fonts
-    in specific locations of the table. To make that possible you would need to use `tab_style()` in
-    conjunction with `style.text()`.
+    font stack on those provided by the [`system_fonts()`](`system_fonts.md`) helper function by
+    providing a valid keyword for a themed set of fonts. Take note that you could still have
+    entirely different fonts in specific locations of the table. To make that possible you would
+    need to use [`tab_style()`](`great_tables.GT.tab_style`) in conjunction with
+    [`style.text()`](`great_tables.style.text`).
 
     Parameters
     ----------
@@ -1074,6 +1075,57 @@ def opt_table_font(
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
+    Possibilities for the `stack` argument
+    --------------------------------------
+
+    There are several themed font stacks available via the [`system_fonts()`](`system_fonts.md`)
+    helper function. That function can be used to generate all or a segment of a list supplied to
+    the `font=` argument. However, using the `stack=` argument with one of the 15 keywords for the
+    font stacks available in [`system_fonts()`](`system_fonts.md`), we could be sure that the
+    typeface class will work across multiple computer systems. Any of the following keywords can be
+    used with `stack=`:
+
+    - `"system-ui"`
+    - `"transitional"`
+    - `"old-style"`
+    - `"humanist"`
+    - `"geometric-humanist"`
+    - `"classical-humanist"`
+    - `"neo-grotesque"`
+    - `"monospace-slab-serif"`
+    - `"monospace-code"`
+    - `"industrial"`
+    - `"rounded-sans"`
+    - `"slab-serif"`
+    - `"antique"`
+    - `"didone"`
+    - `"handwritten"`
+
+    Examples
+    --------
+    Let's use a subset of the `sp500` dataset to create a small table. With `opt_table_font()` we
+    can add some preferred font choices for modifying the text of the entire table. Here we'll use
+    the `"Superclarendon"` and `"Georgia"` fonts (the second font serves as a fallback).
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT
+    from great_tables.data import sp500
+
+    sp500_mini = pl.from_pandas(sp500).slice(0, 10).drop(["volume", "adj_close"])
+
+    (
+        GT(sp500_mini, rowname_col="date")
+        .fmt_currency(use_seps=False)
+        .opt_table_font(font=["Superclarendon", "Georgia"])
+    )
+    ```
+
+    In practice, both of these fonts are not likely to be available on all systems. The
+    `opt_table_font()` method safeguards against this by prepending the fonts in the `font=` list to
+    the existing font stack. This way, if both fonts are not available, the table will fall back to
+    using the list of default table fonts. This behavior is controlled by the `add=` argument, which
+    is `True` by default.
     """
 
     if font is None and stack is None:
