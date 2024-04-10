@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, fields, replace
 from typing import TYPE_CHECKING, ClassVar, Optional, Union, List, cast, Dict, Any
 from great_tables import _utils
+from great_tables._helpers import FontStackName
 
 
 if TYPE_CHECKING:
@@ -1022,6 +1023,121 @@ def opt_table_outline(
 
     # Set the table outline options
     res = tab_options(self=self, **params)
+
+    return res
+
+
+def opt_table_font(
+    self: GTSelf,
+    font: Union[Optional[str], Optional[List[str]]] = None,
+    stack: Optional[FontStackName] = None,
+    weight: Optional[str] = None,
+    style: Optional[str] = None,
+    add: bool = True,
+) -> GTSelf:
+    """Options to define font choices for the entire table.
+
+    The `opt_table_font()` method makes it possible to define fonts used for an entire table. Any
+    font names supplied in `font=` will (by default, with `add=True`) be placed before the names
+    present in the existing font stack (i.e., they will take precedence). You can choose to base the
+    font stack on those provided by the `system_fonts()` helper function by providing a valid
+    keyword for a themed set of fonts. Take note that you could still have entirely different fonts
+    in specific locations of the table. To make that possible you would need to use `tab_style()` in
+    conjunction with `style.text()`.
+
+    Parameters
+    ----------
+    font
+        One or more font names available on the user system. This can be a string or a list of
+        strings. The default value is `None` since you could instead opt to use `stack` to define
+        a list of fonts.
+    stack
+        A name that is representative of a font stack (obtained via internally via the
+        `system_fonts()` helper function. If provided, this new stack will replace any defined fonts
+        and any `font=` values will be prepended.
+    style
+        An option to modify the text style. Can be one of either `"normal"`, `"italic"`, or
+        `"oblique"`.
+    weight
+        Option to set the weight of the font. Can be a text-based keyword such as `"normal"`,
+        `"bold"`, `"lighter"`, `"bolder"`, or, a numeric value between `1` and `1000`. Please note
+        that typefaces have varying support for the numeric mapping of weight.
+    add
+        Should fonts be added to the beginning of any already-defined fonts for the table? By
+        default, this is `True` and is recommended since those fonts already present can serve as
+        fallbacks when everything specified in `font` is not available. If a `stack=` value is
+        provided, then `add` will automatically set to `False`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    """
+
+    if font is None and stack is None:
+        raise ValueError("Either `font=` or `stack=` must be provided.")
+
+    # Get the existing fonts for the table from the options; we may either prepend to this
+    # list or replace it entirely
+    existing_fonts = self._options.table_font_names.value
+
+    # If `existing_fonts` is not a list, throw an error
+    if not isinstance(existing_fonts, list):
+        raise ValueError("The value from `_options.table_font_names` must be a list.")
+
+    res = self
+
+    if font is not None:
+
+        # If `font` is a string, convert it to a list
+        if isinstance(font, str):
+            font = [font]
+
+    else:
+        font = []
+
+        # TODO: add the `_normalize_font_input` function
+        # font = _normalize_font_input(font_input=font)
+
+        # additional_css = [font.import_stmt, existing_additional_css]
+        # res = tab_options(res, table_additional_css=additional_css)
+
+    if stack is not None:
+
+        # Case where value is given to `stack=` and this is a keyword that returns a
+        # list of fonts (i.e., the font stack); in this case we combine with `font=` values
+        # (if provided) and we *always* replace the existing fonts (`add=` is ignored)
+        from great_tables._helpers import system_fonts
+
+        font_stack = system_fonts(name=stack)
+
+        combined_fonts = font + font_stack
+        res = tab_options(res, table_font_names=combined_fonts)
+
+    else:
+
+        # Case where only `font=` is provided and that value is a list of fonts which may be
+        # prepended to the existing fonts or replaced entirely (depending on the `add=` value)
+        if add:
+            combined_fonts = font + existing_fonts
+            res = tab_options(res, table_font_names=combined_fonts)
+
+        else:
+            res = tab_options(res, table_font_names=font)
+
+    if weight is not None:
+
+        if isinstance(weight, int) or isinstance(weight, float):
+            weight = str(weight)
+
+        res = tab_options(res, table_font_weight=weight)
+        res = tab_options(res, column_labels_font_weight=weight)
+
+    if style is not None:
+
+        res = tab_options(res, table_font_style=style)
 
     return res
 

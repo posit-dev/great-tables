@@ -40,6 +40,7 @@ from great_tables._options import (
     opt_vertical_padding,
     opt_horizontal_padding,
     opt_table_outline,
+    opt_table_font,
     opt_stylize,
 )
 from great_tables._source_notes import tab_source_note
@@ -238,6 +239,7 @@ class GT(
     opt_vertical_padding = opt_vertical_padding
     opt_horizontal_padding = opt_horizontal_padding
     opt_table_outline = opt_table_outline
+    opt_table_font = opt_table_font
 
     cols_align = cols_align
     cols_width = cols_width
