@@ -55,7 +55,7 @@ def save(
     selector: str = "table",
     scale: float = 1.0,
     expand: int = 5,
-    wd: WebDrivers = "chrome",
+    web_driver: WebDrivers = "chrome",
     window_size: tuple[int, int] = (6000, 6000),
 ) -> None:
     """
@@ -86,7 +86,7 @@ def save(
     expand
         The number of pixels to expand the screenshot by. By default, this is set to 5. This can be
         increased to capture more of the surrounding area, or decreased to capture less.
-    wd
+    web_driver
         The webdriver to use when taking the screenshot. By default, this is set to `"chrome"` which
         uses Google Chrome in headless mode. If that browser isn't available on the host system,
         there are other options available: `"firefox"` (Mozilla Firefox), `"safari"` (Apple Safari),
@@ -154,23 +154,23 @@ def save(
     # Create a temp directory to store the HTML file
     temp_dir = tempfile.mkdtemp()
 
-    # Set the webdriver and options based on the chosen browser (`wd=` argument)
-    if wd == "chrome":
+    # Set the webdriver and options based on the chosen browser (`web_driver=` argument)
+    if web_driver == "chrome":
         wdriver = webdriver.Chrome
         wd_options = webdriver.ChromeOptions()
-    elif wd == "safari":
+    elif web_driver == "safari":
         wdriver = webdriver.Safari
         wd_options = webdriver.SafariOptions()
-    elif wd == "firefox":
+    elif web_driver == "firefox":
         wdriver = webdriver.Firefox
         wd_options = webdriver.FirefoxOptions()
-    elif wd == "edge":
+    elif web_driver == "edge":
         wdriver = webdriver.Edge
         wd_options = webdriver.EdgeOptions()
 
     # All webdrivers except for 'Firefox' can operate in headless mode; they all accept window size
     # options are separate width and height arguments
-    if wd != "firefox":
+    if web_driver != "firefox":
         wd_options.add_argument(str("--headless"))
 
     wd_options.add_argument(f"--width={window_size[0]}")
