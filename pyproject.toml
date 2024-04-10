@@ -57,10 +57,14 @@ all = [
 extra = [
     "selenium>=4.18.1",
     "Pillow>=10.2.0",
-    "mizani>=0.9.3",
 ]
 
 dev = [
+    "great_tables[dev-no-pandas]",
+    "pandas"
+]
+
+dev-no-pandas = [
     "black",
     "jupyter",
     "quartodoc>=0.7.1; python_version >= '3.9'",
