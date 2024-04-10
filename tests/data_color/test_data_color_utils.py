@@ -563,6 +563,14 @@ def test_gradient_n_pal_symmetric():
     assert res == ["#990066", "#0000ff", "#990066"]
 
 
+def test_gradient_n_pal_manual_values():
+    # note that green1 is #0000ff (and green is not!)
+    palette = GradientPalette(["red", "blue", "green1"], values=[0, 0.8, 1])
+
+    res = palette([0, 0.8, 0.9, 1])
+    assert res == ["#ff0000", "#0000ff", "#008080", "#00ff00"]
+
+
 def test_gradient_n_pal_guard_raises():
     with pytest.raises(ValueError) as exc_info:
         GradientPalette(["red"])
