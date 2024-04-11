@@ -19,7 +19,7 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
-from ._tbl_data import PlExpr, SelectExpr, is_na
+from ._tbl_data import PlExpr, SelectExpr, is_na, to_list, _get_column_dtype
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
 from ._locations import resolve_rows_i, resolve_cols_c
@@ -3513,7 +3513,7 @@ class FmtImage:
 
 def fmt_nanoplot(
     self: GTSelf,
-    columns: SelectExpr = None,
+    columns: str | None = None,
     rows: Union[int, List[int], None] = None,
     plot_type: PlotType = "line",
     plot_height: str = "2em",
@@ -3687,10 +3687,19 @@ def fmt_nanoplot(
 
     from great_tables._utils import _str_detect
 
+    # guards ----
+
+    if not isinstance(columns, str):
+        raise NotImplementedError(
+            "Currently, fmt_nanoplot() only supports a single column name as a string. "
+            f"\n\nReceived: {columns}"
+        )
+
+    # main ----
     # Get the internal data table
     data_tbl = self._tbl_data
 
-    column_d_type = data_tbl[columns].dtype
+    column_d_type = _get_column_dtype(data_tbl, columns)
 
     col_class = str(column_d_type).lower()
 
@@ -3705,11 +3714,7 @@ def fmt_nanoplot(
 
         # Check each cell in the column and get each of them that contains a scalar value
         # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
-        all_single_y_vals = list(
-            data_tbl[columns].apply(
-                lambda x: x if is_na(self._tbl_data, x) else x[1] if isinstance(x, tuple) else x
-            )
-        )
+        all_single_y_vals = to_list(data_tbl[columns])
 
         autoscale = False
 
@@ -3731,11 +3736,7 @@ def fmt_nanoplot(
         # TODO: if a column of delimiter separated strings is passed. E.g. "1 2 3 4". Does this mean
         # that autoscale does not work? In this case, is col_i_y_vals_raw a string that gets processed?
         # downstream?
-        all_y_vals_raw = list(
-            data_tbl[columns].apply(
-                lambda x: x if is_na(self._tbl_data, x) else x[1] if isinstance(x, tuple) else x
-            )
-        )
+        all_y_vals_raw = to_list(data_tbl[columns])
 
         all_y_vals = []
 
