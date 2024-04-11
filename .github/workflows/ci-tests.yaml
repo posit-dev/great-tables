@@ -74,3 +74,21 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+
+  browser-save-image-test:
+    name: "Test for saving table image with browser"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: browser-actions/setup-firefox@v1
+      - run: firefox --version
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install -e '.[extra]'
+      - name: pytest unit tests
+        run: |
+          make test-no-pandas
