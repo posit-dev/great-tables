@@ -89,6 +89,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e '.[extra]'
+          pip install pandas
       - name: pytest unit tests
         run: |
           make save-browser-table
