@@ -120,8 +120,7 @@ def val_fmt_number(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -209,8 +208,7 @@ def val_fmt_integer(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -437,8 +435,7 @@ def val_fmt_percent(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     placement
         This option governs the placement of the percent sign. This can be either be `"right"` (the
         default) or `"left"`.
@@ -558,8 +555,7 @@ def val_fmt_currency(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     placement
         The placement of the currency symbol. This can be either be `"left"` (as in `"$450"`) or
         `"right"` (which yields `"450$"`).
@@ -716,8 +712,7 @@ def val_fmt_bytes(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     incl_space
         An option for whether to include a space between the value and the currency symbol. The
         default is to not introduce a space character.
