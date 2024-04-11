@@ -19,7 +19,7 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
-from ._tbl_data import PlExpr, SelectExpr, is_na, to_list
+from ._tbl_data import PlExpr, SelectExpr, is_na, to_list, _get_column_dtype
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
 from ._locations import resolve_rows_i, resolve_cols_c
@@ -3699,7 +3699,7 @@ def fmt_nanoplot(
     # Get the internal data table
     data_tbl = self._tbl_data
 
-    column_d_type = data_tbl[columns].dtype
+    column_d_type = _get_column_dtype(data_tbl, columns)
 
     col_class = str(column_d_type).lower()
 
