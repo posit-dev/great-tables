@@ -91,4 +91,10 @@ jobs:
           pip install -e '.[extra]'
       - name: pytest unit tests
         run: |
-          make test-no-pandas
+          make save-browser-table
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: browser-save-image
+          path: exibble_firefox.png
+          if-no-files-found: error
