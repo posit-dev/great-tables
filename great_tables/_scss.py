@@ -135,9 +135,7 @@ def compile_scss(
           -moz-osx-font-smoothing: grayscale;
         }}"""
 
-    gt_styles_default_file = open(str(files("great_tables") / "css/gt_styles_default.scss"))
-
-    gt_styles_default = gt_styles_default_file.read()
+    gt_styles_default = (files("great_tables") / "css/gt_styles_default.scss").read_text()
 
     if compress:
         gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, 0, re.MULTILINE)

@@ -8,7 +8,8 @@ DATA_MOD = files("great_tables") / "data"
 
 
 def read_csv(fname: str) -> list[dict[str, Any]]:
-    return list(DictReader(open(fname)))
+    with open(fname) as f:
+        return list(DictReader(f))
 
 
 class Locale:
