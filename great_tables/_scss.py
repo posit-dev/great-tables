@@ -55,8 +55,7 @@ def font_color(color: str, table_font_color: str, table_font_color_light: str) -
     # Normalize the color to a hexadecimal value
     color_normalized = _html_color(colors=[color])
     table_font_color_normalized = _html_color(colors=[table_font_color])
-    table_font_color_light_normalized = _html_color(
-        colors=[table_font_color_light])
+    table_font_color_light_normalized = _html_color(colors=[table_font_color_light])
 
     # Determine the ideal font color given the different background colors
     ideal_font_color = _ideal_fgnd_color(
