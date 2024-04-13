@@ -24,7 +24,6 @@ def test_font_color(src, dst, table_font_color, table_font_color_light):
     assert res == dst
 
 
-
 @pytest.mark.parametrize(
     "src,dst",
     [
