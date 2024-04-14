@@ -249,17 +249,20 @@ def _(data: PdDataFrame, group_key: str) -> Dict[Any, List[int]]:
 
 @group_splits.register
 def _(data: PlDataFrame, group_key: str) -> Dict[Any, List[int]]:
-    # TODO: should ensure row count name isn't already in data
     import polars as pl
 
+    _row_count_name = "__row_count__"
+    if _row_count_name in data.columns:
+        raise ValueError(f"{_row_count_name} is already in data.columns")
+
     # with_row_index supercedes with_row_count
-    meth_row_number = getattr(data, "with_row_index", None)
-    if not meth_row_number:
-        meth_row_number = data.with_row_count
+    meth_row_number = getattr(data, "with_row_index", "with_row_count")
 
-    groups = meth_row_number("__row_count__").group_by(group_key).agg(pl.col("__row_count__"))
+    groups = (
+        meth_row_number(_row_count_name).group_by(group_key).agg(pl.col(_row_count_name)).to_dict()
+    )
 
-    res = dict(zip(groups[group_key].to_list(), groups["__row_count__"].to_list()))
+    res = dict(zip(groups[group_key], groups[_row_count_name]))
     return res
 
 
@@ -295,8 +298,7 @@ def _(
     elif callable(expr):
         # TODO: currently, we call on each string, but we could be calling on
         # pd.DataFrame.columns instead (which would let us use pandas .str methods)
-        col_pos = {k: ii for ii, k in enumerate(list(data.columns))}
-        return [(col, col_pos[col]) for col in data.columns if expr(col)]
+        return [(col, i) for i, col in enumerate(data.columns) if expr(col)]
 
     raise NotImplementedError(f"Unsupported selection expr: {expr}")
 
