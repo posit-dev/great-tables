@@ -1985,10 +1985,7 @@ def fmt_datetime(
         # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
         if isinstance(x, str):
             # Stop if `x` is not a valid ISO datetime string
-            _validate_iso_datetime_str(x=x)
-
-            # Ensure that a seconds value is present in the ISO datetime string
-            x = _normalize_iso_datetime_str(x=x)
+            x = _validate_iso_datetime_str(x=x)
 
             # Convert the ISO datetime string to a datetime object
             x = _iso_to_datetime(x)
@@ -2029,39 +2026,7 @@ def _validate_iso_datetime_str(x: str) -> None:
     ValueError
         Raised if the string is not a valid ISO datetime string.
     """
-
-    import re
-
-    # Define the regex pattern for a valid ISO datetime string
-    _ISO_DATETIME_REGEX = r"^\d{4}-\d{2}-\d{2}(T| )\d{2}:\d{2}(:\d{2})?$"
-
-    # Use regex to determine if string is a valid ISO datetime string
-    if not re.match(_ISO_DATETIME_REGEX, x):
-        raise ValueError(f'"{x}" is not a valid ISO datetime string')
-
-    return
-
-
-def _normalize_iso_datetime_str(x: str) -> str:
-    """
-    Normalize an ISO datetime string.
-
-    Parameters
-    ----------
-    x
-        The string to normalize.
-
-    Returns
-    -------
-    str
-        The normalized string.
-    """
-
-    # If the string does not have a seconds value, then add one
-    if len(x) == 16:
-        x = x + ":00"
-
-    return x
+    return str(datetime.fromisoformat(x))
 
 
 def fmt_markdown(
