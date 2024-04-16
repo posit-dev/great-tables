@@ -26,7 +26,7 @@ def test_font_color(src, dst):
 @pytest.mark.parametrize(
     "src, dst",
     [
-        ("transparent", "#FFFFFF"),
+        ("transparent", "#000000"),
         ("currentColor", "currentcolor"),
         ("black", "#FFFFFF"),
     ],
