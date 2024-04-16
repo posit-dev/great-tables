@@ -40,6 +40,7 @@ FONT_COLOR_VARS = (
 
 
 def font_color(color: str, table_font_color: str, table_font_color_light: str) -> str:
+    """Return either table_font_color or table_font_color_light, whichever is higher contrast."""
 
     if color == "transparent":
         # With the `transparent` color, the font color should have the same value
