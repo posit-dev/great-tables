@@ -10,11 +10,6 @@ if TYPE_CHECKING:
 
 
 def body_reassemble(body: Body, row_groups: RowGroups, stub_df: Stub, boxhead: Boxhead) -> Body:
-    # cols = [col_info.var for col_info in boxhead]
-
-    # start_final = get_row_reorder_df(row_groups, stub_df)
-    # rows = [final for _, final in start_final]
-
-    # TODO: once body is just a DataFrame, we can call reorder directly on it
-    # return body.__class__(reorder(body.body, rows, cols))
+    # Note that this used to order the body based on groupings, but now that occurs in the
+    # renderer itself.
     return body.__class__(copy_data(body.body))
