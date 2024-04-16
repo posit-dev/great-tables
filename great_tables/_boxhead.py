@@ -90,7 +90,6 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
         return self
 
     mod_columns = list(kwargs.keys())
-    new_labels = list(kwargs.values())
 
     # Get the full list of column names for the data
     column_names = self._boxhead._get_columns()
