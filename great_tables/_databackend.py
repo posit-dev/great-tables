@@ -31,6 +31,7 @@ class AbstractBackend(metaclass=_AbstractBackendMeta):
                 continue
             else:
                 parent_candidate = _load_class(mod_name, cls_name)
-                return issubclass(subclass, parent_candidate)
+                if issubclass(subclass, parent_candidate):
+                    return True
 
         return NotImplemented
