@@ -232,5 +232,5 @@ gt_pl_air.tab_style(
 
 * API Docs:
   - [`GT.tab_style()`](/reference/GT.tab_style.qmd).
-  - [`style.*` and `loc.*` functions`](/reference/index.qmd#location-targeting-and-styling-classes).
-  - [`from_column()`](/reference/from_column.qmd)
+  - [`style.*` and `loc.*` functions](/reference/index.qmd#location-targeting-and-styling-classes).
+  - [`from_column()`](/reference/from_column.qmd).
