@@ -1,4 +1,5 @@
 from typing import Union, List, Dict, Literal, Any, Optional, Callable
+import string
 import random
 from typing_extensions import TypeAlias
 from ._text import Text
@@ -138,36 +139,7 @@ def letters() -> List[str]:
     Returns:
         List[str]: the 26 lowercase letters of the Roman alphabet
     """
-    lett = [
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-        "g",
-        "h",
-        "i",
-        "j",
-        "k",
-        "l",
-        "m",
-        "n",
-        "o",
-        "p",
-        "q",
-        "r",
-        "s",
-        "t",
-        "u",
-        "v",
-        "w",
-        "x",
-        "y",
-        "z",
-    ]
-
-    return lett
+    return list(string.ascii_lowercase)
 
 
 def LETTERS() -> List[str]:
@@ -176,36 +148,7 @@ def LETTERS() -> List[str]:
     Returns:
         List[str]: the 26 uppercase letters of the Roman alphabet
     """
-    lett = [
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "U",
-        "V",
-        "W",
-        "X",
-        "Y",
-        "Z",
-    ]
-
-    return lett
+    return list(string.ascii_uppercase)
 
 
 def system_fonts(name: FontStackName = "system-ui") -> List[str]:
