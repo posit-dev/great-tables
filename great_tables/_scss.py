@@ -101,8 +101,8 @@ def compile_scss(
     # TODO: at this stage, the params below (e.g. table_font_color) have to exist, right?
     p_font_color = partial(
         font_color,
-        table_font_color=params["table_font_color"],
-        table_font_color_light=params["table_font_color_light"],
+        dark_option=params["table_font_color"],
+        light_option=params["table_font_color_light"],
     )
 
     font_params = {f"font_color_{k}": p_font_color(scss_params[k]) for k in FONT_COLOR_VARS}
