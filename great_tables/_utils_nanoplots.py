@@ -72,8 +72,6 @@ def _check_any_na_in_list(x: List[Union[int, float]]) -> None:
     if _any_na_in_list(x):
         raise ValueError("The list of values cannot contain missing values.")
 
-    return None
-
 
 # Remove missing values from a list of values
 def _remove_na_from_list(x: List[Union[int, float]]) -> List[Union[int, float]]:
@@ -277,47 +275,43 @@ def _gt_mean(x: List[Union[int, float]]) -> float:
     Calculate the mean of a list of values.
     """
 
-    return sum(x) / len(x)
+    return np.mean(x)
 
 
 def _gt_min(x: List[Union[int, float]]) -> Union[int, float]:
     """
     Calculate the minimum value from a list of values.
     """
-    return min(x)
+    return np.min(x)
 
 
 def _gt_max(x: List[Union[int, float]]) -> Union[int, float]:
     """
     Calculate the maximum value from a list of values.
     """
-    return max(x)
+    return np.max(x)
 
 
 def _gt_median(x: List[Union[int, float]]) -> Union[int, float]:
     """
     Calculate the median of a list of values.
     """
-    x.sort()
-    n = len(x)
-    if n % 2 == 0:
-        return (x[n // 2 - 1] + x[n // 2]) / 2
-    else:
-        return x[n // 2]
+    return np.median(x)
 
 
 def _gt_first(x: List[Union[int, float]]) -> Union[int, float]:
     """
     Get the first value from a list of values.
     """
-    return x[0]
+    return next(iter(x))
 
 
 def _gt_last(x: List[Union[int, float]]) -> Union[int, float]:
     """
     Get the last value from a list of values.
     """
-    return x[-1]
+    *_, last = x
+    return last
 
 
 def _gt_quantile(x: List[Union[int, float]], q: float) -> Union[int, float]:
@@ -349,13 +343,9 @@ def _flatten_list(x: List[Any]) -> Union[List[float], List[int], List[Union[int,
     """
 
     flat_list = []
-
-    # Iterate through the outer list
     for element in x:
-        if type(element) is list:
-            # If the element is of type list, iterate through the sublist
-            for item in element:
-                flat_list.append(item)
+        if isinstance(element, list):
+            flat_list.extend(_flatten_list(element))
         else:
             flat_list.append(element)
     return flat_list
@@ -368,7 +358,6 @@ def _get_extreme_value(
     """
     Get either the maximum or minimum value from a list of numeric values.
     """
-
     # Ensure that `stat` is either 'max' or 'min'
     _match_arg(stat, lst=["max", "min"])
 
@@ -384,11 +373,7 @@ def _get_extreme_value(
     # Remove None values from the `val_list`
     val_list = [val for val in val_list if val is not None]
 
-    if stat == "max":
-        extreme_val = max(val_list)
-    else:
-        extreme_val = min(val_list)
-
+    extreme_val = getattr(np, stat)(val_list)
     return extreme_val
 
 
