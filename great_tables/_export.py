@@ -174,13 +174,13 @@ def save(
     wd_options.add_argument(f"--height={window_size[1]}")
 
     with (
-        tempfile.NamedTemporaryFile(mode="w", suffix=".html") as temp_file,
+        tempfile.TemporaryDirectory() as tmp_dir,
         wdriver(options=wd_options) as headless_browser,
     ):
 
         # Write the HTML content to the temp file
-        temp_file.write(html_content)
-        temp_file.close()
+        with open(f"{tmp_dir}/table.html", "w") as temp_file:
+            temp_file.write(html_content)
 
         # Convert the scale value to a percentage string used by the
         # Chrome browser for zooming
