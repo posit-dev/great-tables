@@ -1,5 +1,4 @@
 from __future__ import annotations
-from itertools import chain, repeat
 from typing import (
     TYPE_CHECKING,
     Union,
