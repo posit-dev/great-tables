@@ -275,43 +275,47 @@ def _gt_mean(x: List[Union[int, float]]) -> float:
     Calculate the mean of a list of values.
     """
 
-    return np.mean(x)
+    return sum(x) / len(x)
 
 
 def _gt_min(x: List[Union[int, float]]) -> Union[int, float]:
     """
     Calculate the minimum value from a list of values.
     """
-    return np.min(x)
+    return min(x)
 
 
 def _gt_max(x: List[Union[int, float]]) -> Union[int, float]:
     """
     Calculate the maximum value from a list of values.
     """
-    return np.max(x)
+    return max(x)
 
 
 def _gt_median(x: List[Union[int, float]]) -> Union[int, float]:
     """
     Calculate the median of a list of values.
     """
-    return np.median(x)
+    x.sort()
+    n = len(x)
+    if n % 2 == 0:
+        return (x[n // 2 - 1] + x[n // 2]) / 2
+    else:
+        return x[n // 2]
 
 
 def _gt_first(x: List[Union[int, float]]) -> Union[int, float]:
     """
     Get the first value from a list of values.
     """
-    return next(iter(x))
+    return x[0]
 
 
 def _gt_last(x: List[Union[int, float]]) -> Union[int, float]:
     """
     Get the last value from a list of values.
     """
-    *_, last = x
-    return last
+    return x[-1]
 
 
 def _gt_quantile(x: List[Union[int, float]], q: float) -> Union[int, float]:
@@ -358,6 +362,7 @@ def _get_extreme_value(
     """
     Get either the maximum or minimum value from a list of numeric values.
     """
+
     # Ensure that `stat` is either 'max' or 'min'
     _match_arg(stat, lst=["max", "min"])
 
@@ -373,7 +378,11 @@ def _get_extreme_value(
     # Remove None values from the `val_list`
     val_list = [val for val in val_list if val is not None]
 
-    extreme_val = getattr(np, stat)(val_list)
+    if stat == "max":
+        extreme_val = max(val_list)
+    else:
+        extreme_val = min(val_list)
+
     return extreme_val
 
 
