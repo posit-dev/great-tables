@@ -180,7 +180,7 @@ def save(
 
         # Write the HTML content to the temp file
         temp_file.write(html_content)
-        temp_file.flush()
+        temp_file.close()
 
         # Convert the scale value to a percentage string used by the
         # Chrome browser for zooming
