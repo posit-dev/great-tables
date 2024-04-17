@@ -40,6 +40,21 @@ jobs:
           name: "py${{ matrix.python-version }}"
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install -e '.[all]'
+      - name: pytest unit tests
+        run: |
+          make test
+
   test-pandas:
     runs-on: ubuntu-latest
     steps:
