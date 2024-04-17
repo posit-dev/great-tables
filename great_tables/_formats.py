@@ -1984,11 +1984,9 @@ def fmt_datetime(
 
         # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
         if isinstance(x, str):
-            # Stop if `x` is not a valid ISO datetime string
-            x = _validate_iso_datetime_str(x=x)
 
             # Convert the ISO datetime string to a datetime object
-            x = _iso_to_datetime(x)
+            x = _iso_str_to_datetime(x)
 
         else:
             # Stop if `x` is not a valid datetime object
@@ -2010,23 +2008,6 @@ def fmt_datetime(
         return x_formatted
 
     return fmt(self, fns=fmt_datetime_fn, columns=columns, rows=rows)
-
-
-def _validate_iso_datetime_str(x: str) -> None:
-    """
-    Validate an ISO datetime string.
-
-    Parameters
-    ----------
-    x
-        The string to validate.
-
-    Raises
-    ------
-    ValueError
-        Raised if the string is not a valid ISO datetime string.
-    """
-    return str(datetime.fromisoformat(x))
 
 
 def fmt_markdown(
@@ -3131,7 +3112,7 @@ def _iso_to_time(x: str) -> time:
     return datetime.strptime(x, "%H:%M:%S").time()
 
 
-def _iso_to_datetime(x: str) -> datetime:
+def _iso_str_to_datetime(x: str) -> datetime:
     """
     Converts a string in ISO format to a datetime object.
 
@@ -3141,7 +3122,7 @@ def _iso_to_datetime(x: str) -> datetime:
     Returns:
         datetime: The converted datetime object.
     """
-    return datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
+    return datetime.fromisoformat(x)
 
 
 def _validate_iso_date_str(x: str) -> None:
