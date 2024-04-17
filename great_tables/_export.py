@@ -151,9 +151,6 @@ def save(
     # Get the HTML content from the displayed output
     html_content = as_raw_html(self)
 
-    # Create a temp directory to store the HTML file
-    temp_dir = tempfile.mkdtemp()
-
     # Set the webdriver and options based on the chosen browser (`web_driver=` argument)
     if web_driver == "chrome":
         wdriver = webdriver.Chrome
@@ -177,7 +174,7 @@ def save(
     wd_options.add_argument(f"--height={window_size[1]}")
 
     with (
-        tempfile.NamedTemporaryFile(suffix=".html", dir=temp_dir) as temp_file,
+        tempfile.NamedTemporaryFile(suffix=".html") as temp_file,
         wdriver(options=wd_options) as headless_browser,
     ):
 
