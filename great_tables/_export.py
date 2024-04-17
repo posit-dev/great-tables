@@ -188,6 +188,7 @@ def save(
         zoom_level = str(scale * 100) + "%"
 
         # Get the scaling factor by multiplying `scale` by 2
+        pixel_ratio = headless_browser.execute_script("return window.devicePixelRatio")
         scaling_factor = scale * 2
 
         # Adjust the expand value by the scaling factor
