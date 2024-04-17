@@ -559,7 +559,7 @@ def _expand_short_hex(hex_color: str) -> str:
     hex_color = hex_color[1:]
 
     # Return the expanded 6-digit hexadecimal color value
-    expanded = "".join(chain("#", *zip(*repeat(hex_color, 2))))
+    expanded = "#" + "".join(x * 2 for x in hex_color)
     expanded = expanded.upper()
     return expanded
 
