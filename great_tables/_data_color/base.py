@@ -652,12 +652,10 @@ def _get_domain_factor(df: DataFrameLike, vals: List[str]) -> List[str]:
     vals = [x for x in vals if not is_na(df, x)]
 
     # Create the domain by getting the unique values in `vals` in order provided
-    unique_list: List[str] = []
     seen: List[str] = []
 
     for item in vals:
         if item not in seen:
-            unique_list.append(item)
             seen.append(item)
 
     return seen
