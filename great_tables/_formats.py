@@ -3079,19 +3079,6 @@ def _validate_time_style(time_style: str) -> None:
     return
 
 
-def _iso_to_date(x: str) -> date:
-    """
-    Converts a string in ISO format (YYYY-MM-DD) to a date object.
-
-    Args:
-        x (str): The string to be converted.
-
-    Returns:
-        date: The converted date object.
-    """
-    return datetime.strptime(x, "%Y-%m-%d").date()
-
-
 def _iso_str_to_time(x: str) -> time:
     """
     Converts a string in ISO format to a time object.
@@ -3740,7 +3727,7 @@ def _generate_data_vals(
             if not is_x_axis:
                 raise ValueError("Only the x-axis of a nanoplot allows strings.")
             if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals[0]):
-                data_vals = [_iso_to_date(val) for val in data_vals]
+                data_vals = [_iso_str_to_date(val) for val in data_vals]
 
                 # Transform the date values to numeric values
                 data_vals = [val.toordinal() for val in data_vals]
