@@ -1816,14 +1816,9 @@ def fmt_time(
 
         # If `x` is a string, assume it is an ISO time string and convert it to a time object
         if isinstance(x, str):
-            # Stop if `x` is not a valid ISO time string
-            _validate_iso_time_str(x=x)
-
-            # Ensure that a seconds value is present in the ISO time string
-            x = _normalize_iso_time_str(x=x)
 
             # Convert the ISO time string to a time object
-            x = _iso_to_time(x)
+            x = _iso_str_to_time(x)
 
         else:
             # Stop if `x` is not a valid time object
@@ -3097,7 +3092,7 @@ def _iso_to_date(x: str) -> date:
     return datetime.strptime(x, "%Y-%m-%d").date()
 
 
-def _iso_to_time(x: str) -> time:
+def _iso_str_to_time(x: str) -> time:
     """
     Converts a string in ISO format to a time object.
 
@@ -3107,7 +3102,7 @@ def _iso_to_time(x: str) -> time:
     Returns:
         time: The converted time object.
     """
-    return datetime.strptime(x, "%H:%M:%S").time()
+    return time.fromisoformat(x)
 
 
 def _iso_str_to_datetime(x: str) -> datetime:
