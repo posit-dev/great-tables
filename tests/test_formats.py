@@ -1169,6 +1169,11 @@ def test_fmt_datetime():
             "x": [
                 "2023-01-05 00:00:00",
                 "2013-05-15 23:15",
+                "2020-05-20",
+                "2020-05-20 22:30",
+                "2020-05-20T22:30",
+                "2020-05-20 22:30:05",
+                "2020-05-20T22:30:05.232",
             ]
         }
     )
@@ -1180,6 +1185,11 @@ def test_fmt_datetime():
     assert x == [
         "Thursday, January 5, 2023 at 12:00:00 AM",
         "Wednesday, May 15, 2013 at 11:15:00 PM",
+        "Wednesday, May 20, 2020 at 12:00:00 AM",
+        "Wednesday, May 20, 2020 at 10:30:00 PM",
+        "Wednesday, May 20, 2020 at 10:30:00 PM",
+        "Wednesday, May 20, 2020 at 10:30:05 PM",
+        "Wednesday, May 20, 2020 at 10:30:05 PM",
     ]
 
 
