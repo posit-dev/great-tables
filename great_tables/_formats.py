@@ -1682,11 +1682,9 @@ def fmt_date(
 
         # If `x` is a string, we assume it is an ISO date string and convert it to a date object
         if isinstance(x, str):
-            # Stop if `x` is not a valid ISO date string
-            _validate_iso_date_str(x=x)
 
             # Convert the ISO date string to a date object
-            x = _iso_to_date(x)
+            x = _iso_str_to_date(x)
 
         else:
             # Stop if `x` is not a valid date object
@@ -3125,27 +3123,17 @@ def _iso_str_to_datetime(x: str) -> datetime:
     return datetime.fromisoformat(x)
 
 
-def _validate_iso_date_str(x: str) -> None:
+def _iso_str_to_date(x: str) -> date:
     """
-    Validates if the given string is a valid ISO date string in the format 'YYYY-MM-DD'.
+    Converts a string in ISO format to a date object.
 
     Args:
-        x (str): The string to be validated.
-
-    Raises:
-        ValueError: If the string is not a valid ISO date string.
+        x (str): The string to be converted.
 
     Returns:
-        None
+        date: The converted date object.
     """
-    try:
-        datetime.strptime(x, "%Y-%m-%d")
-    except ValueError:
-        raise ValueError(
-            f"Invalid ISO date string: '{x}'. The string must be in the format 'YYYY-MM-DD'."
-        )
-
-    return
+    return datetime.fromisoformat(x).date()
 
 
 def _validate_iso_time_str(x: str) -> None:
