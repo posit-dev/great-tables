@@ -3131,49 +3131,6 @@ def _iso_str_to_date(x: str) -> date:
     return datetime.fromisoformat(x).date()
 
 
-def _validate_iso_time_str(x: str) -> None:
-    """
-    Validates if the input string `x` is a valid ISO time string.
-
-    Args:
-        x (str): The input string to be validated.
-
-    Raises:
-        ValueError: If `x` is not a valid ISO time string (HH:MM:SS or HH:MM).
-
-    Returns:
-        None
-    """
-    try:
-        datetime.strptime(x, "%H:%M:%S")
-    except ValueError:
-        try:
-            datetime.strptime(x, "%H:%M")
-        except ValueError:
-            raise ValueError(
-                f"Invalid ISO time string: '{x}'."
-                " The string must be in the format 'HH:MM:SS' or 'HH:MM'."
-            )
-
-    return
-
-
-def _normalize_iso_time_str(x: str) -> str:
-    """
-    Normalize the input ISO time string by expanding it to include the seconds component if necessary.
-
-    Args:
-        x (str): The input ISO time string.
-
-    Returns:
-        str: The normalized ISO time string.
-    """
-    if len(x) == 5:
-        x = x + ":00"
-
-    return x
-
-
 def _validate_date_obj(x: Any) -> None:
     """
     Validate if the given object is a valid date object.
