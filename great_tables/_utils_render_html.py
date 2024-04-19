@@ -5,7 +5,6 @@ from typing import List, Any, cast
 from htmltools import tags, HTML, css, TagList
 from itertools import groupby, chain
 from ._text import StringBuilder, _process_text, _process_text_id
-from .utils_render_common import get_row_reorder_df
 
 
 def create_heading_component_h(data: GTData) -> StringBuilder:
