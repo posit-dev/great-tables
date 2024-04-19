@@ -6,7 +6,6 @@ from typing import (
     Optional,
     Tuple,
 )
-from typing_extensions import TypeAlias
 
 from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX, ALL_PALETTES
 
