@@ -52,12 +52,12 @@ def _match_arg(x: str, lst: List[str]) -> str:
 
 
 def _assert_str_scalar(x: Any) -> None:
-    if type(x).__name__ != "str":
+    if not isinstance(x, str):
         raise AssertionError(f"The supplied value (`{x}`) is not a string.")
 
 
 def _assert_str_list(x: Any) -> None:
-    if type(x).__name__ != "list":
+    if not isinstance(x, list):
         raise AssertionError(f"The supplied value (`{x}`) is not a list.")
     if not all(map(lambda x: isinstance(x, str), x)):
         raise AssertionError("Not all elements of the supplied list are strings.")
