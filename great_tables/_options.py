@@ -927,7 +927,7 @@ def opt_all_caps(
     """
 
     # If providing a scalar string value, normalize it to be in a list
-    if type(locations).__name__ != "list":
+    if isinstance(locations, list):
         locations = _utils._str_scalar_to_list(cast(str, locations))
 
     # Ensure that the `locations` value is a list of strings
