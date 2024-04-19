@@ -2038,8 +2038,6 @@ def _validate_iso_datetime_str(x: str) -> None:
     if not re.match(_ISO_DATETIME_REGEX, x):
         raise ValueError(f'"{x}" is not a valid ISO datetime string')
 
-    return
-
 
 def _normalize_iso_datetime_str(x: str) -> str:
     """
@@ -2681,8 +2679,6 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
             f"The normalized locale name `{supplied_locale}` is not in the list of locales."
         )
 
-    return
-
 
 def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
     """
@@ -2935,8 +2931,6 @@ def _validate_n_sigfig(n_sigfig: int) -> None:
     if n_sigfig < 1:
         raise ValueError("The value for `n_sigfig` must be greater than or equal to `1`.")
 
-    return
-
 
 def _round_rhu(x: Union[float, int], digits: int = 0) -> float:
     """
@@ -3013,8 +3007,6 @@ def _validate_case(case: str) -> None:
     """
     if case not in ["upper", "lower"]:
         raise ValueError(f"The `case` argument must be either 'upper' or 'lower' (not '{case}').")
-
-    return
 
 
 def _get_date_formats_dict() -> Dict[str, str]:
@@ -3117,8 +3109,6 @@ def _validate_date_style(date_style: str) -> None:
     if date_style not in _get_date_formats_dict():
         raise ValueError(f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}")
 
-    return
-
 
 def _validate_time_style(time_style: str) -> None:
     """
@@ -3135,8 +3125,6 @@ def _validate_time_style(time_style: str) -> None:
     """
     if time_style not in _get_time_formats_dict():
         raise ValueError(f"time_style must be one of: {', '.join(_get_time_formats_dict().keys())}")
-
-    return
 
 
 def _iso_to_date(x: str) -> date:
@@ -3198,8 +3186,6 @@ def _validate_iso_date_str(x: str) -> None:
             f"Invalid ISO date string: '{x}'. The string must be in the format 'YYYY-MM-DD'."
         )
 
-    return
-
 
 def _validate_iso_time_str(x: str) -> None:
     """
@@ -3224,8 +3210,6 @@ def _validate_iso_time_str(x: str) -> None:
                 f"Invalid ISO time string: '{x}'."
                 " The string must be in the format 'HH:MM:SS' or 'HH:MM'."
             )
-
-    return
 
 
 def _normalize_iso_time_str(x: str) -> str:
@@ -3260,8 +3244,6 @@ def _validate_date_obj(x: Any) -> None:
     if not isinstance(x, date):
         raise ValueError(f"Invalid date object: '{x}'. The object must be a date object.")
 
-    return
-
 
 def _validate_time_obj(x: Any) -> None:
     """
@@ -3279,8 +3261,6 @@ def _validate_time_obj(x: Any) -> None:
     if not isinstance(x, time):
         raise ValueError(f"Invalid time object: '{x}'. The object must be a time object.")
 
-    return
-
 
 def _validate_datetime_obj(x: Any) -> None:
     """
@@ -3297,8 +3277,6 @@ def _validate_datetime_obj(x: Any) -> None:
     """
     if not isinstance(x, datetime):
         raise ValueError(f"Invalid datetime object: '{x}'. The object must be a datetime object.")
-
-    return
 
 
 def fmt_image(
@@ -3481,7 +3459,6 @@ class FmtImage:
         mime_type = cls._get_mime_type(filename)
 
         return f"data: {mime_type}; base64,{encoded}"
-        ...
 
     @staticmethod
     def _get_mime_type(filename: str) -> str:
