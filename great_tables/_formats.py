@@ -695,8 +695,7 @@ def fmt_scientific(
 
         sci_parts = x_sci_notn.split("E")
 
-        m_part = sci_parts[0]
-        n_part = sci_parts[1]
+        m_part, n_part = sci_parts
 
         # Remove trailing zeros and decimal marks from the `m_part`
         if drop_trailing_zeros:
@@ -3794,8 +3793,7 @@ def fmt_nanoplot(
         # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
         if isinstance(x, tuple):
 
-            y_vals = x[1]
-            x_vals = x[0]
+            x_vals, y_vals = x
 
             # Ensure that both objects are lists
             if not isinstance(x_vals, list) or not isinstance(y_vals, list):
