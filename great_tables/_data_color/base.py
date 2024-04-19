@@ -587,8 +587,7 @@ def _rescale_numeric(
     """
 
     # Get the minimum and maximum values from `domain`
-    domain_min = domain[0]
-    domain_max = domain[1]
+    domain_min, domain_max = domain
 
     # Get the range of values in `domain`
     domain_range = domain_max - domain_min
