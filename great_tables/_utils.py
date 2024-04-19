@@ -89,7 +89,7 @@ def _as_css_font_family_attr(fonts: List[str], value_only: bool = False) -> str:
 
     fonts_str = ", ".join(fonts_w_spaces)
 
-    if value_only is True:
+    if value_only:
         return fonts_str
 
     return f"font-family: {fonts_str};"

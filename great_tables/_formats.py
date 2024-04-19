@@ -2157,7 +2157,7 @@ def _value_to_decimal_notation(
         )
 
     # Drop the trailing decimal mark if it is present
-    if drop_trailing_dec_mark is True:
+    if drop_trailing_dec_mark:
         result = result.rstrip(dec_mark)
 
     # Add in a trailing decimal mark under specific circumstances
@@ -2324,7 +2324,7 @@ def _format_number_fixed_decimals(
 
     # Drop any trailing zeros if option is taken (this purposefully doesn't apply to numbers
     # formatted to a specific number of significant digits)
-    if drop_trailing_zeros is True:
+    if drop_trailing_zeros:
         result = result.rstrip("0")
 
     return result

@@ -941,7 +941,7 @@ def opt_all_caps(
     # world where options are not mutating the GT options object.
     # TODO: is there a way to set multiple options at once?
     res = self
-    if all_caps is True:
+    if all_caps:
         if "column_labels" in locations:
             res = tab_options(res, column_labels_font_size="80%")
             res = tab_options(res, column_labels_font_weight="bolder")
