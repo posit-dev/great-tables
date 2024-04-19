@@ -471,8 +471,6 @@ def create_body_component_h(data: GTData) -> str:
 
                 body_rows.append(group_row)
 
-                continue
-
         # Create a single cell and append result to `body_cells`
         for colinfo in column_vars:
             cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
