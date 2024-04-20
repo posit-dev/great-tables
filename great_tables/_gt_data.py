@@ -46,14 +46,12 @@ class GTData:
     _has_built: bool = False
 
     def _replace(self, **kwargs: Any) -> Self:
-        new_obj = copy.copy(self)
-
-        missing = {k for k in kwargs if k not in new_obj.__dict__}
+        missing = set(kwargs).difference(vars(self))
         if missing:
             raise ValueError(f"Replacements not in data: {missing}")
 
+        new_obj = copy.copy(self)
         new_obj.__dict__.update(kwargs)
-
         return new_obj
 
     @classmethod
