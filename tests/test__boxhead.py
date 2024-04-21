@@ -39,3 +39,15 @@ def test_cols_label_return_type():
 
     # Check that the return type is GT
     assert isinstance(modified_table, gt.GT)
+
+
+def test_cols_label_return_self_if_no_kwargs():
+    # Create a table with default column labels
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df)
+
+    # Call cols_label() without changes
+    unmodified_table = table.cols_label()
+
+    # Check that the return type is GT
+    assert isinstance(unmodified_table, gt.GT)

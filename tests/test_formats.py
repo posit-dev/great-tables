@@ -1183,6 +1183,25 @@ def test_fmt_datetime():
     ]
 
 
+def test_fmt_datetime_bad_date_style_raises():
+
+    df = pd.DataFrame(
+        {
+            "x": [
+                "2023-01-05 00:00:00",
+                "2013-05-15 23:15",
+            ]
+        }
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        gt = GT(df).fmt_datetime(
+            columns="x", date_style="quarter_month_day_year", time_style="h_m_s_p", sep=" at "
+        )
+
+    assert "date_style must be one of:" in exc_info.value.args[0]
+
+
 # ------------------------------------------------------------------------------
 # Test `fmt_bytes()`
 # ------------------------------------------------------------------------------
@@ -1246,6 +1265,13 @@ def test_fmt_roman_lower():
     gt = GT(df_fmt_roman).fmt_roman(columns="x", case="lower")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["mccxxxiv", "n", "n", "i", "i", "xcix", "ex terminis"]
+
+
+def test_fmt_roman_bad_case_raises():
+    with pytest.raises(ValueError) as exc_info:
+        gt = GT(df_fmt_roman).fmt_roman(columns="x", case="case")
+
+    assert "The `case` argument must be either 'upper' or 'lower'" in exc_info.value.args[0]
 
 
 # ------------------------------------------------------------------------------
