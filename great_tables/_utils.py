@@ -81,7 +81,7 @@ def _str_scalar_to_list(x: str):
 def _unique_set(x: Union[List[Any], None]) -> Union[List[Any], None]:
     if x is None:
         return None
-    return list(set(x))
+    return list({k: True for k in x})
 
 
 def _as_css_font_family_attr(fonts: List[str], value_only: bool = False) -> str:
