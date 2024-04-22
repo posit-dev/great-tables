@@ -403,23 +403,6 @@ class GT(
             """
         return finalized_table
 
-    def _finalize_html_table(
-        self, style: str, quarto_disable_processing: str, quarto_use_bootstrap: str, *args: Any
-    ) -> str:
-        from htmltools import tags
-
-        html_tbl = tags.table(
-            data_quarto_disable_processing=quarto_disable_processing,
-            data_quarto_bootstrap=quarto_use_bootstrap,
-            *args,
-            class_="gt_table",
-            style=style,
-        )
-
-        html_tbl = str(html_tbl)
-
-        return html_tbl
-
 
 # =============================================================================
 # End of GT class
