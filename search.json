@@ -298,7 +298,7 @@
     "href": "reference/GT.tab_style.html#parameters",
     "title": "GT.tab_style",
     "section": "Parameters",
-    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nstyle\nCellStyle | list[CellStyle]\nThe styles to use for the cells at the targeted locations. The style.text(), style.fill(), and style.borders() classes can be used here to more easily generate valid styles.\nrequired\n\n\nlocation\n\nThe cell or set of cells to be associated with the style. The loc.body() class can be used here to easily target body cell locations.\nrequired"
+    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nstyle\nCellStyle | list[CellStyle]\nThe styles to use for the cells at the targeted locations. The style.text(), style.fill(), and style.borders() classes can be used here to more easily generate valid styles.\nrequired\n\n\nlocations\nLoc | list[Loc]\nThe cell or set of cells to be associated with the style. The loc.body() class can be used here to easily target body cell locations.\nrequired"
   },
   {
     "objectID": "reference/GT.tab_style.html#examples",
