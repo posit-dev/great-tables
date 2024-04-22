@@ -463,7 +463,7 @@ def create_body_component_h(data: GTData) -> str:
                     "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
                 )
 
-                group_row = f"""  <tr class="{group_class}">
+                group_row = f"""<tr class="{group_class}">
     <th class="gt_group_heading" colspan="{colspan_value}">{group_label}</th>
   </tr>"""
 
@@ -500,14 +500,14 @@ def create_body_component_h(data: GTData) -> str:
                 cell_styles = ""
 
             if is_stub_cell:
-                body_cells.append(f"""    <th class="gt_row gt_left gt_stub">{cell_str}</th>""")
+                body_cells.append(f"""  <th class="gt_row gt_left gt_stub">{cell_str}</th>""")
             else:
                 body_cells.append(
-                    f"""    <td {cell_styles}class="gt_row gt_{cell_alignment}">{cell_str}</td>"""
+                    f"""  <td {cell_styles}class="gt_row gt_{cell_alignment}">{cell_str}</td>"""
                 )
 
         prev_group_label = group_label
-        body_rows.append("  <tr>\n" + "\n".join(body_cells) + "\n  </tr>")
+        body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
 
     all_body_rows = "\n".join(body_rows)
 
