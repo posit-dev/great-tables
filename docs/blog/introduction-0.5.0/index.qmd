@@ -11,7 +11,7 @@ A few months ago, we released a [blog post](./polars-styling) about how much we 
 
 We're happy to share that Great Tables v0.5.0 makes Pandas an optional dependency.
 Using Pandas DataFrames as inputs is still fully supported.
-The optional dependencies simply allow users of one DataFrame library to not have to install the others.
+The optional dependency simply allow users of one DataFrame library to not have to install the others.
 
 In this post, I'll cover three important pieces:
 
@@ -29,12 +29,12 @@ Currently, Great Tables has two "sizes" of libraries it depends on:
 * **Small**: utility libraries for things like web colors, and datetime localization.
 * **Big**: a lingering dependency on numpy in a few places (like nanoplots).
 
-For small utilities, we depend on Babel, which makes it easier to say things like, "format this number as if I'm in Germany". We also depend on webcolors, which allows us to know that "goldenrod" is the hex color "#daa520".
+For small utilities, we depend on Babel, which makes it easier to say things like, "format this number as if I'm in Germany".
 
 For big dependencies, numpy should be fairly straightforward to remove (see [this issue](https://github.com/posit-dev/great-tables/issues/296)).
-We also still really on pandas for datasets in `great_tables.data`, but will remove it soon (see [this issue](https://github.com/posit-dev/great-tables/issues/91)).
+We also still rely on pandas for datasets in `great_tables.data`, but will remove it soon (see [this issue](https://github.com/posit-dev/great-tables/issues/91)).
 
-Removing dependencies like numpy and Pandas helps people who are in restricted computing environments, want a more lightweight install, or who are stuck depending on an much earlier version of a package.
+Removing dependencies like numpy and Pandas helps people who are in restricted computing environments, want a more lightweight install, or who are stuck depending on a much earlier version of a package.
 It also helps us keep a clean separation of concerns.  Without clear boundaries, it's too tempting to reach for things like `pd.isna()` in a pinch,
 or smear library specific versions of missingness across our code (e.g. `pd.NA`, `np.nan`, `polars.NullType`).
 
@@ -112,6 +112,10 @@ class PdDataFrame(AbstractBackend):
     _backends = [("pandas", "DataFrame")]
 
 
+class PlDataFrame(AbstractBackend):
+    _backends = [("polars", "DataFrame")]
+
+
 if isinstance(df_pandas, PdDataFrame):
     print("I'm a pandas DataFrame!!!")
 ```
@@ -149,6 +153,12 @@ def get_column_names(data) -> list[str]:
 def _(data: PdDataFrame):
     return data.columns.tolist()
 
+
+# register a polars implementation on it ----
+#
+@get_column_names.register
+def _(data: PlDataFrame):
+    return data.columns
 ```
 
 Note three important pieces:
