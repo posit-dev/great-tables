@@ -19,6 +19,7 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
+from ._helpers import px
 from ._tbl_data import PlExpr, SelectExpr, is_na, to_list, _get_column_dtype
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
@@ -3410,7 +3411,7 @@ class FmtImage:
         # they could end up as bespoke types like np int64, etc..
         # We should ensure we process those before hitting FmtImage
         if isinstance(self.height, (int, float)):
-            height = f"{self.height}px"
+            height = px(self.height)
         else:
             height = self.height
 
