@@ -463,13 +463,15 @@ def create_body_component_h(data: GTData) -> str:
                     "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
                 )
 
-                body_cells.append(
-                    f"<tr class={group_class}>"
-                    f'  <th class="gt_group_heading" colspan="{colspan_value}">'
-                    + group_label
-                    + "</th></tr>"
-                )
+                group_row = f"""  <tr class="{group_class}">
+    <th class="gt_group_heading" colspan="{colspan_value}">{group_label}</th>
+  </tr>"""
 
+                prev_group_label = group_label
+
+                body_rows.append(group_row)
+
+        # Create a single cell and append result to `body_cells`
         for colinfo in column_vars:
             cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
             cell_str: str = str(cell_content)
@@ -498,18 +500,20 @@ def create_body_component_h(data: GTData) -> str:
                 cell_styles = ""
 
             if is_stub_cell:
-                body_cells.append('  <th class="gt_row gt_left gt_stub">' + cell_str + "</th>")
+                body_cells.append(f"""    <th class="gt_row gt_left gt_stub">{cell_str}</th>""")
             else:
                 body_cells.append(
-                    f'  <td {cell_styles}class="gt_row gt_{cell_alignment}">' + cell_str + "</td>"
+                    f"""    <td {cell_styles}class="gt_row gt_{cell_alignment}">{cell_str}</td>"""
                 )
 
         prev_group_label = group_label
-        body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
+        body_rows.append("  <tr>\n" + "\n".join(body_cells) + "\n  </tr>")
 
     all_body_rows = "\n".join(body_rows)
 
-    return f'<tbody class="gt_table_body">\n{all_body_rows}\n</tbody>'
+    return f"""<tbody class="gt_table_body">
+{all_body_rows}
+</tbody>"""
 
 
 def create_source_notes_component_h(data: GTData) -> str:
