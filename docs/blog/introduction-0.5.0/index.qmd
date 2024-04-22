@@ -1,5 +1,5 @@
 ---
-title: "Great Tables: Pandas now an Optional Dependency"
+title: "Great Tables is now BYODF (Bring Your Own DataFrame)"
 html-table-processing: none
 author: Michael Chow
 date: 2024-04-18
@@ -174,7 +174,7 @@ get_column_names(df_pandas)  # pandas version
 get_column_names(df_polars)  # polars version
 ```
 
-For more on the benefits of singledispatch in data tooling, see the blog post [Single Dispatch for Data Science Tools](https://mchow.com/posts/2020-02-24-single-dispatch-data-science/).
+For more on the benefits of singledispatch in data tooling, see the blog post [Single Dispatch for Data Science Tools](https://mchow.com/posts/2020-02-24-single-dispatch-data-science/). For the nitty gritty on our DataFrame processing, see the Great Tables [`_tbl_data.py` submodule](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tbl_data.py).
 
 ## See you in the Polarsverse
 
@@ -183,8 +183,8 @@ Users are able to bring their DataFrame of choice without the collective baggage
 
 For more on the special things you can do with Polars expressions, see these resources:
 
-* [Guide: selecting columns with polars expressions](/get-started/column-selection.qmd#using-polars-selectors)
 * [Guide: basic styling using Polars expressions](/get-started/basic-styling.qmd#using-polars-expressions)
 * [Post: Great Tables, the Polars DataFrame Styler of Your Dreams](/blog/polars-styling/index.qmd)
+* [The narwhals library](https://github.com/MarcoGorelli/narwhals): a neat library for running polars expressions on pandas DataFrames.
 
 Hope you make some stylish, publication ready tables!
