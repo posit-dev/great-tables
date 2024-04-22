@@ -281,7 +281,7 @@ class Boxhead(_Sequence[ColInfo]):
     def set_cols_hidden(self, colnames: list[str]):
         # TODO: validate that colname is in the boxhead
         res: list[ColInfo] = []
-        for ii, col in enumerate(self._d):
+        for col in self._d:
             if col.var in colnames:
                 new_col = replace(col, type=ColInfoTypeEnum.hidden)
                 res.append(new_col)
@@ -574,9 +574,7 @@ class Stub(_Sequence[RowInfo]):
         # Given that there are row groups, we need to look at the option `row_group_as_column` to
         # determine whether they populate a column located in the stub; if set as True then that's
         # the return value
-        row_group_as_column = options.row_group_as_column.value
-
-        row_group_as_column: Any
+        row_group_as_column: Any = options.row_group_as_column.value
         if not isinstance(row_group_as_column, bool):
             raise TypeError(
                 "Variable type mismatch. Expected bool, got something entirely different."
@@ -864,13 +862,11 @@ class FormatFns:
 
     def __init__(self, **kwargs: FormatFn):
         for format in ["html", "latex", "rtf", "default"]:
-            if kwargs.get(format):
-                setattr(self, format, kwargs[format])
+            if fmt := kwargs.get(format):
+                setattr(self, format, fmt)
 
 
 class CellSubset:
-    def __init__(self):
-        pass
 
     def resolve(self) -> List[Tuple[str, int]]:
         raise NotImplementedError("Not implemented")

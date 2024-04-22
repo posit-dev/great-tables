@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from .utils_render_common import get_row_reorder_df
-from ._tbl_data import reorder, copy_data
+from ._tbl_data import copy_data
 
 
 if TYPE_CHECKING:

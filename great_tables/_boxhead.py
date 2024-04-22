@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Any
-from typing_extensions import Self
 
 from ._utils import _assert_list_is_subset
 

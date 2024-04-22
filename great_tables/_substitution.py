@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from ._tbl_data import DataFrameLike, SelectExpr, is_na
-from ._gt_data import FormatterSkipElement, FormatInfo
+from ._gt_data import FormatterSkipElement
 from ._formats import fmt
 from ._text import _process_text, Text
 from ._helpers import html
 
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Type, Union, Literal, List
+from typing import TYPE_CHECKING, Any, Union, Literal, List
 
 if TYPE_CHECKING:
     from ._types import GTSelf

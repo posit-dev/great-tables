@@ -19,6 +19,7 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
+from ._helpers import px
 from ._tbl_data import PlExpr, SelectExpr, is_na, to_list, _get_column_dtype
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
@@ -695,8 +696,7 @@ def fmt_scientific(
 
         sci_parts = x_sci_notn.split("E")
 
-        m_part = sci_parts[0]
-        n_part = sci_parts[1]
+        m_part, n_part = sci_parts
 
         # Remove trailing zeros and decimal marks from the `m_part`
         if drop_trailing_zeros:
@@ -1682,11 +1682,9 @@ def fmt_date(
 
         # If `x` is a string, we assume it is an ISO date string and convert it to a date object
         if isinstance(x, str):
-            # Stop if `x` is not a valid ISO date string
-            _validate_iso_date_str(x=x)
 
             # Convert the ISO date string to a date object
-            x = _iso_to_date(x)
+            x = _iso_str_to_date(x)
 
         else:
             # Stop if `x` is not a valid date object
@@ -1818,14 +1816,9 @@ def fmt_time(
 
         # If `x` is a string, assume it is an ISO time string and convert it to a time object
         if isinstance(x, str):
-            # Stop if `x` is not a valid ISO time string
-            _validate_iso_time_str(x=x)
-
-            # Ensure that a seconds value is present in the ISO time string
-            x = _normalize_iso_time_str(x=x)
 
             # Convert the ISO time string to a time object
-            x = _iso_to_time(x)
+            x = _iso_str_to_time(x)
 
         else:
             # Stop if `x` is not a valid time object
@@ -1984,14 +1977,9 @@ def fmt_datetime(
 
         # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
         if isinstance(x, str):
-            # Stop if `x` is not a valid ISO datetime string
-            _validate_iso_datetime_str(x=x)
-
-            # Ensure that a seconds value is present in the ISO datetime string
-            x = _normalize_iso_datetime_str(x=x)
 
             # Convert the ISO datetime string to a datetime object
-            x = _iso_to_datetime(x)
+            x = _iso_str_to_datetime(x)
 
         else:
             # Stop if `x` is not a valid datetime object
@@ -2013,55 +2001,6 @@ def fmt_datetime(
         return x_formatted
 
     return fmt(self, fns=fmt_datetime_fn, columns=columns, rows=rows)
-
-
-def _validate_iso_datetime_str(x: str) -> None:
-    """
-    Validate an ISO datetime string.
-
-    Parameters
-    ----------
-    x
-        The string to validate.
-
-    Raises
-    ------
-    ValueError
-        Raised if the string is not a valid ISO datetime string.
-    """
-
-    import re
-
-    # Define the regex pattern for a valid ISO datetime string
-    _ISO_DATETIME_REGEX = r"^\d{4}-\d{2}-\d{2}(T| )\d{2}:\d{2}(:\d{2})?$"
-
-    # Use regex to determine if string is a valid ISO datetime string
-    if not re.match(_ISO_DATETIME_REGEX, x):
-        raise ValueError(f'"{x}" is not a valid ISO datetime string')
-
-    return
-
-
-def _normalize_iso_datetime_str(x: str) -> str:
-    """
-    Normalize an ISO datetime string.
-
-    Parameters
-    ----------
-    x
-        The string to normalize.
-
-    Returns
-    -------
-    str
-        The normalized string.
-    """
-
-    # If the string does not have a seconds value, then add one
-    if len(x) == 16:
-        x = x + ":00"
-
-    return x
 
 
 def fmt_markdown(
@@ -2160,7 +2099,7 @@ def _value_to_decimal_notation(
         )
 
     # Drop the trailing decimal mark if it is present
-    if drop_trailing_dec_mark is True:
+    if drop_trailing_dec_mark:
         result = result.rstrip(dec_mark)
 
     # Add in a trailing decimal mark under specific circumstances
@@ -2327,7 +2266,7 @@ def _format_number_fixed_decimals(
 
     # Drop any trailing zeros if option is taken (this purposefully doesn't apply to numbers
     # formatted to a specific number of significant digits)
-    if drop_trailing_zeros is True:
+    if drop_trailing_zeros:
         result = result.rstrip("0")
 
     return result
@@ -2682,8 +2621,6 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
             f"The normalized locale name `{supplied_locale}` is not in the list of locales."
         )
 
-    return
-
 
 def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
     """
@@ -2936,8 +2873,6 @@ def _validate_n_sigfig(n_sigfig: int) -> None:
     if n_sigfig < 1:
         raise ValueError("The value for `n_sigfig` must be greater than or equal to `1`.")
 
-    return
-
 
 def _round_rhu(x: Union[float, int], digits: int = 0) -> float:
     """
@@ -3014,8 +2949,6 @@ def _validate_case(case: str) -> None:
     """
     if case not in ["upper", "lower"]:
         raise ValueError(f"The `case` argument must be either 'upper' or 'lower' (not '{case}').")
-
-    return
 
 
 def _get_date_formats_dict() -> Dict[str, str]:
@@ -3118,8 +3051,6 @@ def _validate_date_style(date_style: str) -> None:
     if date_style not in _get_date_formats_dict():
         raise ValueError(f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}")
 
-    return
-
 
 def _validate_time_style(time_style: str) -> None:
     """
@@ -3137,23 +3068,8 @@ def _validate_time_style(time_style: str) -> None:
     if time_style not in _get_time_formats_dict():
         raise ValueError(f"time_style must be one of: {', '.join(_get_time_formats_dict().keys())}")
 
-    return
 
-
-def _iso_to_date(x: str) -> date:
-    """
-    Converts a string in ISO format (YYYY-MM-DD) to a date object.
-
-    Args:
-        x (str): The string to be converted.
-
-    Returns:
-        date: The converted date object.
-    """
-    return datetime.strptime(x, "%Y-%m-%d").date()
-
-
-def _iso_to_time(x: str) -> time:
+def _iso_str_to_time(x: str) -> time:
     """
     Converts a string in ISO format to a time object.
 
@@ -3163,10 +3079,10 @@ def _iso_to_time(x: str) -> time:
     Returns:
         time: The converted time object.
     """
-    return datetime.strptime(x, "%H:%M:%S").time()
+    return time.fromisoformat(x)
 
 
-def _iso_to_datetime(x: str) -> datetime:
+def _iso_str_to_datetime(x: str) -> datetime:
     """
     Converts a string in ISO format to a datetime object.
 
@@ -3176,73 +3092,20 @@ def _iso_to_datetime(x: str) -> datetime:
     Returns:
         datetime: The converted datetime object.
     """
-    return datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
+    return datetime.fromisoformat(x)
 
 
-def _validate_iso_date_str(x: str) -> None:
+def _iso_str_to_date(x: str) -> date:
     """
-    Validates if the given string is a valid ISO date string in the format 'YYYY-MM-DD'.
+    Converts a string in ISO format to a date object.
 
     Args:
-        x (str): The string to be validated.
-
-    Raises:
-        ValueError: If the string is not a valid ISO date string.
+        x (str): The string to be converted.
 
     Returns:
-        None
+        date: The converted date object.
     """
-    try:
-        datetime.strptime(x, "%Y-%m-%d")
-    except ValueError:
-        raise ValueError(
-            f"Invalid ISO date string: '{x}'. The string must be in the format 'YYYY-MM-DD'."
-        )
-
-    return
-
-
-def _validate_iso_time_str(x: str) -> None:
-    """
-    Validates if the input string `x` is a valid ISO time string.
-
-    Args:
-        x (str): The input string to be validated.
-
-    Raises:
-        ValueError: If `x` is not a valid ISO time string (HH:MM:SS or HH:MM).
-
-    Returns:
-        None
-    """
-    try:
-        datetime.strptime(x, "%H:%M:%S")
-    except ValueError:
-        try:
-            datetime.strptime(x, "%H:%M")
-        except ValueError:
-            raise ValueError(
-                f"Invalid ISO time string: '{x}'."
-                " The string must be in the format 'HH:MM:SS' or 'HH:MM'."
-            )
-
-    return
-
-
-def _normalize_iso_time_str(x: str) -> str:
-    """
-    Normalize the input ISO time string by expanding it to include the seconds component if necessary.
-
-    Args:
-        x (str): The input ISO time string.
-
-    Returns:
-        str: The normalized ISO time string.
-    """
-    if len(x) == 5:
-        x = x + ":00"
-
-    return x
+    return datetime.fromisoformat(x).date()
 
 
 def _validate_date_obj(x: Any) -> None:
@@ -3261,8 +3124,6 @@ def _validate_date_obj(x: Any) -> None:
     if not isinstance(x, date):
         raise ValueError(f"Invalid date object: '{x}'. The object must be a date object.")
 
-    return
-
 
 def _validate_time_obj(x: Any) -> None:
     """
@@ -3280,8 +3141,6 @@ def _validate_time_obj(x: Any) -> None:
     if not isinstance(x, time):
         raise ValueError(f"Invalid time object: '{x}'. The object must be a time object.")
 
-    return
-
 
 def _validate_datetime_obj(x: Any) -> None:
     """
@@ -3298,8 +3157,6 @@ def _validate_datetime_obj(x: Any) -> None:
     """
     if not isinstance(x, datetime):
         raise ValueError(f"Invalid datetime object: '{x}'. The object must be a datetime object.")
-
-    return
 
 
 def fmt_image(
@@ -3433,7 +3290,7 @@ class FmtImage:
         # they could end up as bespoke types like np int64, etc..
         # We should ensure we process those before hitting FmtImage
         if isinstance(self.height, (int, float)):
-            height = f"{self.height}px"
+            height = px(self.height)
         else:
             height = self.height
 
@@ -3482,7 +3339,6 @@ class FmtImage:
         mime_type = cls._get_mime_type(filename)
 
         return f"data: {mime_type}; base64,{encoded}"
-        ...
 
     @staticmethod
     def _get_mime_type(filename: str) -> str:
@@ -3794,8 +3650,7 @@ def fmt_nanoplot(
         # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
         if isinstance(x, tuple):
 
-            y_vals = x[1]
-            x_vals = x[0]
+            x_vals, y_vals = x
 
             # Ensure that both objects are lists
             if not isinstance(x_vals, list) or not isinstance(y_vals, list):
@@ -3854,7 +3709,7 @@ def _generate_data_vals(
             if not is_x_axis:
                 raise ValueError("Only the x-axis of a nanoplot allows strings.")
             if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals[0]):
-                data_vals = [_iso_to_date(val) for val in data_vals]
+                data_vals = [_iso_str_to_date(val) for val in data_vals]
 
                 # Transform the date values to numeric values
                 data_vals = [val.toordinal() for val in data_vals]
