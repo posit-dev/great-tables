@@ -11,7 +11,7 @@ TupleStartFinal = Tuple[int, int]
 
 def get_row_reorder_df(groups: RowGroups, stub_df: Stub) -> list[TupleStartFinal]:
     # Get the number of non-None entries in the `groupname_col`
-    n_stub_entries = sum(1 for entry in stub_df if entry.group_id is not None)
+    n_stub_entries = len([entry for entry in stub_df if entry.group_id is not None])
 
     # Raise a ValueError if there are row group entries but no RowGroups
     if n_stub_entries and not len(groups):
