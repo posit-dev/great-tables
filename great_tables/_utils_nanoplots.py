@@ -72,8 +72,6 @@ def _check_any_na_in_list(x: List[Union[int, float]]) -> None:
     if _any_na_in_list(x):
         raise ValueError("The list of values cannot contain missing values.")
 
-    return None
-
 
 # Remove missing values from a list of values
 def _remove_na_from_list(x: List[Union[int, float]]) -> List[Union[int, float]]:
@@ -349,13 +347,9 @@ def _flatten_list(x: List[Any]) -> Union[List[float], List[int], List[Union[int,
     """
 
     flat_list = []
-
-    # Iterate through the outer list
     for element in x:
-        if type(element) is list:
-            # If the element is of type list, iterate through the sublist
-            for item in element:
-                flat_list.append(item)
+        if isinstance(element, list):
+            flat_list.extend(_flatten_list(element))
         else:
             flat_list.append(element)
     return flat_list
