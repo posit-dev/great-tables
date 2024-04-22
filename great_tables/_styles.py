@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, List, Union
 from typing_extensions import Self, TypeAlias
 
 from ._tbl_data import TblData, _get_cell, PlExpr, eval_transform
-
+from ._helpers import px
 
 if TYPE_CHECKING:
     from ._locations import Loc
@@ -312,7 +312,7 @@ class CellStyleBorders(CellStyle):
 
     def _to_html_style(self) -> str:
         # If sides is an empty list, return an empty string
-        if self.sides == []:
+        if isinstance(self.sides, list) and not self.sides:
             return ""
 
         # If self.sides is a string, convert to a list
@@ -325,7 +325,7 @@ class CellStyleBorders(CellStyle):
 
         weight = self.weight
         if isinstance(weight, int):
-            weight = f"{weight}px"
+            weight = px(weight)
 
         color = self.color
         style = self.style
