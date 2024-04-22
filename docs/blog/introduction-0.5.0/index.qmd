@@ -19,6 +19,9 @@ In this post, I'll cover three important pieces:
 * The challenge of removing hard dependencies
 * How we made Pandas optional
 
+This may seem over the top for announcing that something is optional,
+but many DataFrame implementations exist in the Python world.
+Enabling folks to BYODF (Bring Your Own DataFrame) is a tricky, rewarding challenge!
 
 
 
