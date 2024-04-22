@@ -595,6 +595,11 @@ def test_gradient_n_pal_guard_raises():
 
     assert "Received 3 values and 2 colors" in exc_info.value.args[0]
 
+    with pytest.raises(NotImplementedError) as exc_info:
+        GradientPalette([(255, 0, 0), (0, 255, 0)])
+
+    assert "Currently, rgb tuples can't be passed directly." in exc_info.value.args[0]
+
 
 def test_gradient_n_pal_out_of_bounds_raises():
     palette = GradientPalette(["red", "blue"])
