@@ -8,6 +8,7 @@ from functools import partial
 from typing import Optional
 from string import Template
 
+from ._helpers import px, pct
 from ._gt_data import GTData
 from ._utils import _as_css_font_family_attr, _unique_set
 from ._data_color.base import _html_color, _ideal_fgnd_color
@@ -77,9 +78,9 @@ def css_add(value: str | int, amount: int):
     if isinstance(value, int):
         return value + amount
     elif value.endswith("px"):
-        return f"{int(value[:-2]) + amount}px"
+        return px(int(value[:-2]) + amount)
     elif value.endswith("%"):
-        return f"{int(value[:-1]) + amount}%"
+        return pct(int(value[:-1]) + amount)
     else:
         raise NotImplementedError(f"Unable to add to CSS value: {value}")
 
