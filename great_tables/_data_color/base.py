@@ -6,7 +6,6 @@ from typing import (
     Optional,
     Tuple,
 )
-from typing_extensions import TypeAlias
 
 from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX, ALL_PALETTES
 
@@ -573,8 +572,7 @@ def _rescale_numeric(
     """
 
     # Get the minimum and maximum values from `domain`
-    domain_min = domain[0]
-    domain_max = domain[1]
+    domain_min, domain_max = domain
 
     # Get the range of values in `domain`
     domain_range = domain_max - domain_min

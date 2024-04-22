@@ -171,8 +171,7 @@ def resolve_vector_l(expr: list[str], candidates: list[str], item_label: str) ->
         raise NotImplementedError("Selecting entries currently requires a list of strings.")
 
     set_expr = set(expr)
-    if set_expr - set(candidates):
-        missing = set_expr - set(candidates)
+    if missing := (set_expr - set(candidates)):
         raise ValueError(f"Cannot find these entries: {missing}")
 
     return [candidate in set_expr for candidate in candidates]

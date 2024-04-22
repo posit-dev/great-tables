@@ -36,7 +36,7 @@ def tab_style(
         The styles to use for the cells at the targeted `locations`. The `style.text()`,
         `style.fill()`, and `style.borders()` classes can be used here to more easily generate valid
         styles.
-    location
+    locations
         The cell or set of cells to be associated with the style. The `loc.body()` class can be used
         here to easily target body cell locations.
 

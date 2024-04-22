@@ -5,7 +5,7 @@ from typing import List, Any, cast
 from htmltools import tags, HTML, css, TagList
 from itertools import groupby, chain
 from ._text import StringBuilder, _process_text, _process_text_id
-from .utils_render_common import get_row_reorder_df
+from ._utils import heading_has_title, heading_has_subtitle
 
 
 def create_heading_component_h(data: GTData) -> StringBuilder:
@@ -14,8 +14,8 @@ def create_heading_component_h(data: GTData) -> StringBuilder:
     title = data._heading.title
     subtitle = data._heading.subtitle
 
-    has_title = title is not None
-    has_subtitle = subtitle is not None
+    has_title = heading_has_title(title)
+    has_subtitle = heading_has_subtitle(subtitle)
 
     # If there is no title or heading component, then return an empty string
     if not has_title and not has_subtitle:

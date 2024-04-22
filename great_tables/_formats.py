@@ -19,6 +19,7 @@ from typing import (
     Literal,
 )
 from typing_extensions import TypeAlias
+from ._helpers import px
 from ._tbl_data import PlExpr, SelectExpr, is_na, to_list, _get_column_dtype
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
@@ -695,8 +696,7 @@ def fmt_scientific(
 
         sci_parts = x_sci_notn.split("E")
 
-        m_part = sci_parts[0]
-        n_part = sci_parts[1]
+        m_part, n_part = sci_parts
 
         # Remove trailing zeros and decimal marks from the `m_part`
         if drop_trailing_zeros:
@@ -2099,7 +2099,7 @@ def _value_to_decimal_notation(
         )
 
     # Drop the trailing decimal mark if it is present
-    if drop_trailing_dec_mark is True:
+    if drop_trailing_dec_mark:
         result = result.rstrip(dec_mark)
 
     # Add in a trailing decimal mark under specific circumstances
@@ -2266,7 +2266,7 @@ def _format_number_fixed_decimals(
 
     # Drop any trailing zeros if option is taken (this purposefully doesn't apply to numbers
     # formatted to a specific number of significant digits)
-    if drop_trailing_zeros is True:
+    if drop_trailing_zeros:
         result = result.rstrip("0")
 
     return result
@@ -2621,8 +2621,6 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
             f"The normalized locale name `{supplied_locale}` is not in the list of locales."
         )
 
-    return
-
 
 def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
     """
@@ -2875,8 +2873,6 @@ def _validate_n_sigfig(n_sigfig: int) -> None:
     if n_sigfig < 1:
         raise ValueError("The value for `n_sigfig` must be greater than or equal to `1`.")
 
-    return
-
 
 def _round_rhu(x: Union[float, int], digits: int = 0) -> float:
     """
@@ -2953,8 +2949,6 @@ def _validate_case(case: str) -> None:
     """
     if case not in ["upper", "lower"]:
         raise ValueError(f"The `case` argument must be either 'upper' or 'lower' (not '{case}').")
-
-    return
 
 
 def _get_date_formats_dict() -> Dict[str, str]:
@@ -3057,8 +3051,6 @@ def _validate_date_style(date_style: str) -> None:
     if date_style not in _get_date_formats_dict():
         raise ValueError(f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}")
 
-    return
-
 
 def _validate_time_style(time_style: str) -> None:
     """
@@ -3075,8 +3067,6 @@ def _validate_time_style(time_style: str) -> None:
     """
     if time_style not in _get_time_formats_dict():
         raise ValueError(f"time_style must be one of: {', '.join(_get_time_formats_dict().keys())}")
-
-    return
 
 
 def _iso_str_to_time(x: str) -> time:
@@ -3134,8 +3124,6 @@ def _validate_date_obj(x: Any) -> None:
     if not isinstance(x, date):
         raise ValueError(f"Invalid date object: '{x}'. The object must be a date object.")
 
-    return
-
 
 def _validate_time_obj(x: Any) -> None:
     """
@@ -3153,8 +3141,6 @@ def _validate_time_obj(x: Any) -> None:
     if not isinstance(x, time):
         raise ValueError(f"Invalid time object: '{x}'. The object must be a time object.")
 
-    return
-
 
 def _validate_datetime_obj(x: Any) -> None:
     """
@@ -3171,8 +3157,6 @@ def _validate_datetime_obj(x: Any) -> None:
     """
     if not isinstance(x, datetime):
         raise ValueError(f"Invalid datetime object: '{x}'. The object must be a datetime object.")
-
-    return
 
 
 def fmt_image(
@@ -3306,7 +3290,7 @@ class FmtImage:
         # they could end up as bespoke types like np int64, etc..
         # We should ensure we process those before hitting FmtImage
         if isinstance(self.height, (int, float)):
-            height = f"{self.height}px"
+            height = px(self.height)
         else:
             height = self.height
 
@@ -3355,7 +3339,6 @@ class FmtImage:
         mime_type = cls._get_mime_type(filename)
 
         return f"data: {mime_type}; base64,{encoded}"
-        ...
 
     @staticmethod
     def _get_mime_type(filename: str) -> str:
@@ -3667,8 +3650,7 @@ def fmt_nanoplot(
         # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
         if isinstance(x, tuple):
 
-            y_vals = x[1]
-            x_vals = x[0]
+            x_vals, y_vals = x
 
             # Ensure that both objects are lists
             if not isinstance(x_vals, list) or not isinstance(y_vals, list):

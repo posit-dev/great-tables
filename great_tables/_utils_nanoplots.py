@@ -627,7 +627,7 @@ def _generate_nanoplot(
 
     # If the number of `y` values in a list is zero or if all consist of NA values,
     # return an empty string
-    if type(y_vals) is list and len(y_vals) == 0:
+    if isinstance(y_vals, list) and len(y_vals) == 0:
         return ""
 
     # If all `y` values are NA, return an empty string
@@ -703,14 +703,14 @@ def _generate_nanoplot(
             x_vals = x_vals[y_vals.index]
 
     # Get the number of data points for `y`
-    if type(y_vals) is list:
+    if isinstance(y_vals, list):
         num_y_vals = len(y_vals)
     else:
         num_y_vals = 1
 
     # If `y_vals` is a scalar value we requested a 'line' or 'bar' plot, then
     # reset several parameters
-    if type(y_vals) in [int, float] and plot_type in ["line", "bar"]:
+    if isinstance(y_vals, (int, float)) and plot_type in ["line", "bar"]:
 
         single_horizontal_plot = True
         show_data_points = True
