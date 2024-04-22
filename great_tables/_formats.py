@@ -2186,8 +2186,8 @@ def fmt_units(
         x: str,
         pattern: str = pattern,
     ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if pd.isna(x):
+        # If the `x` value is a missing value, then return the same value
+        if is_na(self._tbl_data, x):
             return x
 
         from great_tables._utils_units_notation import define_units
