@@ -404,7 +404,7 @@ class GT(
         return finalized_table
 
     def _finalize_html_table(
-        style: str, quarto_disable_processing: str, quarto_use_bootstrap: str, *args: Any
+        self, style: str, quarto_disable_processing: str, quarto_use_bootstrap: str, *args: Any
     ) -> str:
         from htmltools import tags
 
