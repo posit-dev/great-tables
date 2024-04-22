@@ -185,10 +185,7 @@ def data_color(
         # Check if the `palette` value refers to a ColorBrewer or viridis palette
         # and, if it is, then convert it to a list of hexadecimal color values; otherwise,
         # convert it to a list (this assumes that the value is a single color)
-        if palette in ALL_PALETTES:
-            palette = ALL_PALETTES[palette]
-        else:
-            palette = [palette]
+        palette = ALL_PALETTES.get(palette, [palette])
 
     # Reverse the palette if `reverse` is set to `True`
     if reverse:
@@ -198,10 +195,7 @@ def data_color(
     palette = _html_color(colors=palette, alpha=alpha)
 
     # Set a flag to indicate whether or not the domain should be calculated automatically
-    if domain is None:
-        autocalc_domain = True
-    else:
-        autocalc_domain = False
+    autocalc_domain = domain is None
 
     # Get the internal data table
     data_table = self._tbl_data
@@ -268,18 +262,18 @@ def data_color(
 
         # for every color value in color_vals, apply a fill to the corresponding cell
         # by using `tab_style()`
-        for i, _ in enumerate(color_vals):
+        for i, color_val in enumerate(color_vals):
             if autocolor_text:
-                fgnd_color = _ideal_fgnd_color(bgnd_color=color_vals[i])
+                fgnd_color = _ideal_fgnd_color(bgnd_color=color_val)
 
                 gt_obj = gt_obj.tab_style(
-                    style=[text(color=fgnd_color), fill(color=color_vals[i])],
+                    style=[text(color=fgnd_color), fill(color=color_val)],
                     locations=body(columns=col, rows=[i]),
                 )
 
             else:
                 gt_obj = gt_obj.tab_style(
-                    style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
+                    style=fill(color=color_val), locations=body(columns=col, rows=[i])
                 )
     return gt_obj
 
@@ -563,17 +557,8 @@ def _expand_short_hex(hex_color: str) -> str:
     # Get the hex color without the leading '#'
     hex_color = hex_color[1:]
 
-    # Get the first character of the hex color
-    first_char = hex_color[0]
-
-    # Get the second character of the hex color
-    second_char = hex_color[1]
-
-    # Get the third character of the hex color
-    third_char = hex_color[2]
-
     # Return the expanded 6-digit hexadecimal color value
-    expanded = "#" + first_char + first_char + second_char + second_char + third_char + third_char
+    expanded = "#" + "".join(x * 2 for x in hex_color)
     expanded = expanded.upper()
     return expanded
 
@@ -666,12 +651,10 @@ def _get_domain_factor(df: DataFrameLike, vals: List[str]) -> List[str]:
     vals = [x for x in vals if not is_na(df, x)]
 
     # Create the domain by getting the unique values in `vals` in order provided
-    unique_list: List[str] = []
     seen: List[str] = []
 
     for item in vals:
         if item not in seen:
-            unique_list.append(item)
             seen.append(item)
 
     return seen
