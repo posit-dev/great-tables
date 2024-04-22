@@ -11,13 +11,13 @@ A few months ago, we released a [blog post](./polars-styling) about how much we 
 
 We're happy to share that Great Tables v0.5.0 makes Pandas an optional dependency.
 Using Pandas DataFrames as inputs is still fully supported.
-The optional dependency simply allow users of one DataFrame library to not have to install the others.
+The optional dependency simply allows users of one DataFrame library to not have to install the other.
 
 In this post, I'll cover three important pieces:
 
 * Where we are today on dependencies
 * The challenge of removing hard dependencies
-* How we made pandas optional
+* How we made Pandas optional
 
 
 
@@ -26,13 +26,13 @@ In this post, I'll cover three important pieces:
 
 Currently, Great Tables has two "sizes" of libraries it depends on:
 
-* **Small**: utility libraries for things like web colors, and datetime localization.
+* **Small**: utility libraries for things like datetime localization.
 * **Big**: a lingering dependency on numpy in a few places (like nanoplots).
 
 For small utilities, we depend on Babel, which makes it easier to say things like, "format this number as if I'm in Germany".
 
 For big dependencies, numpy should be fairly straightforward to remove (see [this issue](https://github.com/posit-dev/great-tables/issues/296)).
-We also still rely on pandas for datasets in `great_tables.data`, but will remove it soon (see [this issue](https://github.com/posit-dev/great-tables/issues/91)).
+We also still rely on Pandas for datasets in `great_tables.data`, but we will remove it soon (see [this issue](https://github.com/posit-dev/great-tables/issues/91)).
 
 Removing dependencies like numpy and Pandas helps people who are in restricted computing environments, want a more lightweight install, or who are stuck depending on a much earlier version of a package.
 It also helps us keep a clean separation of concerns.  Without clear boundaries, it's too tempting to reach for things like `pd.isna()` in a pinch,
@@ -40,7 +40,7 @@ or smear library specific versions of missingness across our code (e.g. `pd.NA`,
 
 ## The challenge of removing hard dependencies
 
-Removing hard dependencies on DataFrame libraries is worthwhile, but requires special handling for all DataFrame specific actions. To illustrate consider the Great Tables output below, which is produced from a pandas DataFrame:
+Removing hard dependencies on DataFrame libraries is worthwhile, but requires special handling for all DataFrame specific actions. To illustrate consider the Great Tables output below, which is produced from a Pandas DataFrame:
 
 
 ```{python}
@@ -99,7 +99,7 @@ The second is **separation of concerns**, since Pandas and Polars code is mixed 
 
 We were able to make Pandas optional in a sane manner through two moves:
 
-* [databackend](https://github.com/machow/databackend): perform isinstance checks without importing anything.
+* [databackend](https://github.com/machow/databackend): perform `isinstance` checks without importing anything.
 * singledispatch: split out functions like `get_column_names()` into DataFrame specific versions.
 
 ### Inverting dependency with databackend
@@ -120,7 +120,7 @@ if isinstance(df_pandas, PdDataFrame):
     print("I'm a pandas DataFrame!!!")
 ```
 
-Note that the PdDataFrame above is able to detect a pandas DataFrame without importing pandas, by taking advantage of a bit of logic called a counterfactual:
+Note that the `PdDataFrame` above is able to detect a Pandas DataFrame without importing Pandas, by taking advantage of a bit of logic called a counterfactual:
 
 * assumption: if `df_pandas` is a Pandas DataFrame, then Pandas has been imported.
 * counterfactual: if Pandas has not been imported, then `df_pandas` is not a Pandas DataFrame.
@@ -131,7 +131,7 @@ For more on this approach, see the [databackend README](https://github.com/macho
 
 ### Separating concerns with singledispatch
 
-While databackend removes dependencies, the use of singledispatch from the built-in functools module separates out the logic for handling Polars DataFrom from the logic for Pandas DataFrames.
+While databackend removes dependencies, the use of singledispatch from the built-in `functools` module separates out the logic for handling Polars DataFrames from the logic for Pandas DataFrames.
 This makes it easier to think one DataFrame at a time, and also gets us better type hinting.
 
 Here's a basic example, showing the `get_column_names()` function re-written using singledispatch:
