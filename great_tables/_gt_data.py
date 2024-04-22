@@ -7,7 +7,9 @@ from typing import overload, TypeVar, Dict, Optional
 from typing_extensions import Self, TypeAlias
 from dataclasses import dataclass, field, replace
 from ._utils import _str_detect
-from ._tbl_data import create_empty_frame, to_list, validate_frame
+from ._tbl_data import create_empty_frame, to_list, validate_frame, copy_data
+
+# TODO: move this class somewhere else (even gt_data could work)
 
 from ._styles import CellStyle
 
@@ -39,6 +41,7 @@ class GTData:
     _styles: Styles
     _locale: Locale | None
     _formats: Formats
+    _substitutions: Formats
     _options: Options
     _has_built: bool = False
 
@@ -92,6 +95,7 @@ class GTData:
             _styles=[],
             _locale=Locale(locale),
             _formats=[],
+            _substitutions=[],
             _options=options,
         )
 
@@ -133,7 +137,6 @@ class _Sequence(Sequence[T]):
 __Body = None
 
 from typing import Union, List, Any
-import pandas as pd
 from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell
 
 
@@ -143,9 +146,8 @@ from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell
 # _tbl_data.py
 class Body:
     body: TblData
-    data: Any
 
-    def __init__(self, body: Union[pd.DataFrame, TblData]):
+    def __init__(self, body: TblData):
         self.body = body
 
     def render_formats(self, data_tbl: TblData, formats: List[FormatInfo], context: Any):
@@ -155,12 +157,18 @@ class Body:
                 raise Exception("Internal Error")
             for col, row in fmt.cells.resolve():
                 result = eval_func(_get_cell(data_tbl, row, col))
+                if isinstance(result, FormatterSkipElement):
+                    continue
+
                 # TODO: I think that this is very inefficient with polars, so
                 # we could either accumulate results and set them per column, or
                 # could always use a pandas DataFrame inside Body?
                 _set_cell(self.body, row, col, result)
 
         return self
+
+    def copy(self):
+        return self.__class__(copy_data(self.body))
 
     @classmethod
     def from_empty(cls, body: DataFrameLike):
@@ -174,7 +182,6 @@ __Boxhead = None
 
 from typing import Optional, List
 from enum import Enum, auto
-import pandas as pd
 
 from ._tbl_data import TblData, get_column_names
 
@@ -274,7 +281,7 @@ class Boxhead(_Sequence[ColInfo]):
     def set_cols_hidden(self, colnames: list[str]):
         # TODO: validate that colname is in the boxhead
         res: list[ColInfo] = []
-        for ii, col in enumerate(self._d):
+        for col in self._d:
             if col.var in colnames:
                 new_col = replace(col, type=ColInfoTypeEnum.hidden)
                 res.append(new_col)
@@ -567,9 +574,7 @@ class Stub(_Sequence[RowInfo]):
         # Given that there are row groups, we need to look at the option `row_group_as_column` to
         # determine whether they populate a column located in the stub; if set as True then that's
         # the return value
-        row_group_as_column = options.row_group_as_column.value
-
-        row_group_as_column: Any
+        row_group_as_column: Any = options.row_group_as_column.value
         if not isinstance(row_group_as_column, bool):
             raise TypeError(
                 "Variable type mismatch. Expected bool, got something entirely different."
@@ -688,7 +693,6 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
 # Spanners ----
 __Spanners = None
-import pandas as pd
 
 
 @dataclass(frozen=True)
@@ -842,7 +846,12 @@ from typing import Any, Callable, TypeVar, Union, List, Optional, Tuple
 
 from ._tbl_data import n_rows
 
-FormatFn = Callable[[Any], str]
+
+class FormatterSkipElement:
+    """Represent that nothing should be saved for a formatted value."""
+
+
+FormatFn = Callable[[Any], "str | FormatterSkipElement"]
 
 
 class FormatFns:
@@ -853,13 +862,11 @@ class FormatFns:
 
     def __init__(self, **kwargs: FormatFn):
         for format in ["html", "latex", "rtf", "default"]:
-            if kwargs.get(format):
-                setattr(self, format, kwargs[format])
+            if fmt := kwargs.get(format):
+                setattr(self, format, fmt)
 
 
 class CellSubset:
-    def __init__(self):
-        pass
 
     def resolve(self) -> List[Tuple[str, int]]:
         raise NotImplementedError("Not implemented")

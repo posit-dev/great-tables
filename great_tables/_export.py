@@ -1,8 +1,7 @@
 from __future__ import annotations
-from ._gt_data import GTData
 from ._utils import _try_import
-from typing import Optional, TYPE_CHECKING
-
+from typing import Literal, TYPE_CHECKING
+from typing_extensions import TypeAlias
 import tempfile
 
 if TYPE_CHECKING:
@@ -41,12 +40,22 @@ def as_raw_html(
     return html_table
 
 
+# Create a list of all selenium webdrivers
+WebDrivers: TypeAlias = Literal[
+    "chrome",
+    "firefox",
+    "safari",
+    "edge",
+]
+
+
 def save(
-    self: GTData,
+    self: GT,
     file: str,
     selector: str = "table",
     scale: float = 1.0,
     expand: int = 5,
+    web_driver: WebDrivers = "chrome",
     window_size: tuple[int, int] = (6000, 6000),
 ) -> None:
     """
@@ -54,9 +63,11 @@ def save(
 
     The `save()` method makes it easy to save a table object as an image file. The function produces
     a high-resolution image file or PDF of the table. The output file is create by first taking a
-    screenshot of the table using a headless Chrome browser. Then, the screenshot is then cropped to
-    only include the table element. Finally, and the resulting image is saved to the specified file
-    path in the format specified (via the file extension).
+    screenshot of the table using a headless Chrome browser (other browser options are possible if
+    Chrome isn't present). The screenshot is then cropped to only include the table element, with
+    some additional pixels added around the table (controlled by the `expand=` parameter). Finally,
+    the resulting image is saved to the specified file path in the format specified (via the file
+    extension).
 
     Parameters
     ----------
@@ -75,6 +86,12 @@ def save(
     expand
         The number of pixels to expand the screenshot by. By default, this is set to 5. This can be
         increased to capture more of the surrounding area, or decreased to capture less.
+    web_driver
+        The webdriver to use when taking the screenshot. By default, this is set to `"chrome"` which
+        uses Google Chrome in headless mode. If that browser isn't available on the host system,
+        there are other options available: `"firefox"` (Mozilla Firefox), `"safari"` (Apple Safari),
+        and `"edge"` (Microsoft Edge). Ensure that at least one of these browsers is installed on
+        the system and choose the appropriate option based on that.
     window_size
         The size of the window to use when taking the screenshot. This is a tuple of two integers,
         representing the width and height of the window. By default, this is set to `(6000, 6000)`,
@@ -121,7 +138,6 @@ def save(
     from selenium.webdriver.common.by import By
     from PIL import Image
     from io import BytesIO
-    from pathlib import Path
 
     Image.MAX_IMAGE_PIXELS = None
 
@@ -133,24 +149,37 @@ def save(
         file += ".png"
 
     # Get the HTML content from the displayed output
-    html_content = as_raw_html(self=self)
+    html_content = as_raw_html(self)
 
     # Create a temp directory to store the HTML file
     temp_dir = tempfile.mkdtemp()
 
-    # Set up the Chrome webdriver options
-    options = webdriver.ChromeOptions()
+    # Set the webdriver and options based on the chosen browser (`web_driver=` argument)
+    if web_driver == "chrome":
+        wdriver = webdriver.Chrome
+        wd_options = webdriver.ChromeOptions()
+    elif web_driver == "safari":
+        wdriver = webdriver.Safari
+        wd_options = webdriver.SafariOptions()
+    elif web_driver == "firefox":
+        wdriver = webdriver.Firefox
+        wd_options = webdriver.FirefoxOptions()
+    elif web_driver == "edge":
+        wdriver = webdriver.Edge
+        wd_options = webdriver.EdgeOptions()
 
-    # Use headless mode with an extremely large window size
-    options.add_argument("--headless")
+    # All webdrivers except for 'Firefox' can operate in headless mode; they all accept window size
+    # options are separate width and height arguments
+    if web_driver != "firefox":
+        wd_options.add_argument(str("--headless"))
 
-    # Set the window size (x by y) to a large value to ensure the entire table
-    # is visible in the screenshot; this is settable via the `window_size=` argument
-    options.add_argument(f"--window-size={window_size[0]},{window_size[1]}")
+    wd_options.add_argument(f"--width={window_size[0]}")
+    wd_options.add_argument(f"--height={window_size[1]}")
 
-    with tempfile.NamedTemporaryFile(suffix=".html", dir=temp_dir) as temp_file, webdriver.Chrome(
-        options=options
-    ) as chrome:
+    with (
+        tempfile.NamedTemporaryFile(suffix=".html", dir=temp_dir) as temp_file,
+        wdriver(options=wd_options) as headless_browser,
+    ):
 
         # Write the HTML content to the temp file
         with open(temp_file.name, "w") as fp:
@@ -166,12 +195,12 @@ def save(
         # Adjust the expand value by the scaling factor
         expansion_amount = expand * scaling_factor
 
-        # Open the HTML file in the Chrome browser
-        chrome.get("file://" + temp_file.name)
-        chrome.execute_script(f"document.body.style.zoom = '{zoom_level}'")
+        # Open the HTML file in the headless browser
+        headless_browser.get("file://" + temp_file.name)
+        headless_browser.execute_script(f"document.body.style.zoom = '{zoom_level}'")
 
         # Get only the chosen element from the page; by default, this is the table element
-        element = chrome.find_element(by=By.TAG_NAME, value=selector)
+        element = headless_browser.find_element(by=By.TAG_NAME, value=selector)
 
         # Get the location and size of the table element; this will be used
         # to crop the screenshot later
@@ -179,7 +208,7 @@ def save(
         size = element.size
 
         # Get a screenshot of the entire page as a PNG image
-        png = chrome.get_screenshot_as_png()
+        png = headless_browser.get_screenshot_as_png()
 
     # Open the screenshot as an image with the PIL library; since the screenshot will be large
     # (due to the large window size), we use the BytesIO class to handle the large image data

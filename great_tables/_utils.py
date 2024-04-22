@@ -1,9 +1,10 @@
 from typing import Optional, Union, List, Any
-import pandas as pd
 import importlib
 from types import ModuleType
 import json
 import re
+
+from ._tbl_data import PdDataFrame
 
 
 def _try_import(name: str, pip_install_line: Optional[str] = None) -> ModuleType:
@@ -51,27 +52,25 @@ def _match_arg(x: str, lst: List[str]) -> str:
 
 
 def _assert_str_scalar(x: Any) -> None:
-    if type(x).__name__ != "str":
+    if not isinstance(x, str):
         raise AssertionError(f"The supplied value (`{x}`) is not a string.")
 
 
 def _assert_str_list(x: Any) -> None:
-    if type(x).__name__ != "list":
+    if not isinstance(x, list):
         raise AssertionError(f"The supplied value (`{x}`) is not a list.")
     if not all(map(lambda x: isinstance(x, str), x)):
         raise AssertionError("Not all elements of the supplied list are strings.")
 
 
 def _assert_str_in_set(x: str, set: List[str]):
-    while x not in set:
+    if x not in set:
         raise AssertionError(f"The string `{x}` is not part of the defined `set`.")
 
 
 def _assert_list_is_subset(x: List[Any], set_list: List[Any]) -> None:
     if not set(x).issubset(set(set_list)):
         raise AssertionError("The columns provided are not present in the table.")
-
-    return
 
 
 def _str_scalar_to_list(x: str):
@@ -90,7 +89,7 @@ def _as_css_font_family_attr(fonts: List[str], value_only: bool = False) -> str:
 
     fonts_str = ", ".join(fonts_w_spaces)
 
-    if value_only is True:
+    if value_only:
         return fonts_str
 
     return f"font-family: {fonts_str};"
@@ -101,11 +100,11 @@ def _object_as_dict(v: Any) -> Any:
         return v.object_as_dict()
     except Exception:
         pass
-    if type(v) == pd.DataFrame:
+    if isinstance(v, PdDataFrame):
         return v.to_dict()
-    if type(v) in [tuple, list]:
+    if isinstance(v, (tuple, list)):
         return list(_object_as_dict(i) for i in v)
-    if type(v) == dict:
+    if isinstance(v, dict):
         return dict((k, _object_as_dict(val)) for (k, val) in v.items())
     if type(v) == type(_object_as_dict):  # FIXME figure out how to get "function"
         return f"<function {v.__name__}>"

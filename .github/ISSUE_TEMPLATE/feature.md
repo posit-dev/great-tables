@@ -3,7 +3,6 @@ name: New feature
 about: Suggest a new feature.
 title: ""
 labels: "Type: ★ Enhancement"
-assignees: rich-iannone
 ---
 
 ## Prework

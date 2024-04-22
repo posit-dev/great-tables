@@ -1,4 +1,5 @@
 from typing import Union, List, Dict, Literal, Any, Optional, Callable
+import string
 import random
 from typing_extensions import TypeAlias
 from ._text import Text
@@ -138,36 +139,7 @@ def letters() -> List[str]:
     Returns:
         List[str]: the 26 lowercase letters of the Roman alphabet
     """
-    lett = [
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-        "g",
-        "h",
-        "i",
-        "j",
-        "k",
-        "l",
-        "m",
-        "n",
-        "o",
-        "p",
-        "q",
-        "r",
-        "s",
-        "t",
-        "u",
-        "v",
-        "w",
-        "x",
-        "y",
-        "z",
-    ]
-
-    return lett
+    return list(string.ascii_lowercase)
 
 
 def LETTERS() -> List[str]:
@@ -176,36 +148,7 @@ def LETTERS() -> List[str]:
     Returns:
         List[str]: the 26 uppercase letters of the Roman alphabet
     """
-    lett = [
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "U",
-        "V",
-        "W",
-        "X",
-        "Y",
-        "Z",
-    ]
-
-    return lett
+    return list(string.ascii_uppercase)
 
 
 def system_fonts(name: FontStackName = "system-ui") -> List[str]:
@@ -560,6 +503,10 @@ def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[s
     return font_stack
 
 
+# This could probably be removed and nanoplot_options made into a dataclass
+# the built-in dataclass decorator doesn't do any validation / coercion, but
+# we could do that in the a __post_init__ hook. (I would switch it over to a
+# dataclass and then pair on a post_init hook).
 # Check that certain values are either a list or a single value
 def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any):
 

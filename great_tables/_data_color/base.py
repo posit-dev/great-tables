@@ -6,12 +6,13 @@ from typing import (
     Optional,
     Tuple,
 )
+
 from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX, ALL_PALETTES
+
 from great_tables._tbl_data import is_na, DataFrameLike
 from great_tables.style import fill, text
 from great_tables.loc import body
 import numpy as np
-from mizani.palettes import gradient_n_pal
 
 if TYPE_CHECKING:
     from great_tables._types import GTSelf
@@ -167,6 +168,9 @@ def data_color(
     ```
     """
 
+    # TODO: there is a circular import in palettes (which imports functions from this module)
+    from great_tables._data_color.palettes import GradientPalette
+
     # If no color is provided to `na_color`, use a light gray color as a default
     if na_color is None:
         na_color = "#808080"
@@ -180,10 +184,7 @@ def data_color(
         # Check if the `palette` value refers to a ColorBrewer or viridis palette
         # and, if it is, then convert it to a list of hexadecimal color values; otherwise,
         # convert it to a list (this assumes that the value is a single color)
-        if palette in ALL_PALETTES:
-            palette = ALL_PALETTES[palette]
-        else:
-            palette = [palette]
+        palette = ALL_PALETTES.get(palette, [palette])
 
     # Reverse the palette if `reverse` is set to `True`
     if reverse:
@@ -193,10 +194,7 @@ def data_color(
     palette = _html_color(colors=palette, alpha=alpha)
 
     # Set a flag to indicate whether or not the domain should be calculated automatically
-    if domain is None:
-        autocalc_domain = True
-    else:
-        autocalc_domain = False
+    autocalc_domain = domain is None
 
     # Get the internal data table
     data_table = self._tbl_data
@@ -253,7 +251,7 @@ def data_color(
         scaled_vals = [np.nan if is_na(data_table, x) else x for x in scaled_vals]
 
         # Create a color scale function from the palette
-        color_scale_fn = gradient_n_pal(colors=palette)
+        color_scale_fn = GradientPalette(colors=palette)
 
         # Call the color scale function on the scaled values to get a list of colors
         color_vals = color_scale_fn(scaled_vals)
@@ -263,18 +261,18 @@ def data_color(
 
         # for every color value in color_vals, apply a fill to the corresponding cell
         # by using `tab_style()`
-        for i, _ in enumerate(color_vals):
+        for i, color_val in enumerate(color_vals):
             if autocolor_text:
-                fgnd_color = _ideal_fgnd_color(bgnd_color=color_vals[i])
+                fgnd_color = _ideal_fgnd_color(bgnd_color=color_val)
 
                 gt_obj = gt_obj.tab_style(
-                    style=[text(color=fgnd_color), fill(color=color_vals[i])],
+                    style=[text(color=fgnd_color), fill(color=color_val)],
                     locations=body(columns=col, rows=[i]),
                 )
 
             else:
                 gt_obj = gt_obj.tab_style(
-                    style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
+                    style=fill(color=color_val), locations=body(columns=col, rows=[i])
                 )
     return gt_obj
 
@@ -414,8 +412,6 @@ def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) ->
     all_hex_colors = all(_is_hex_col(colors=colors))
 
     if not all_hex_colors:
-        # Ensure that all color names are in the set of X11/R color names or CSS color names
-        _check_named_colors(colors=colors)
 
         # Translate named colors to hexadecimal values
         colors = _color_name_to_hex(colors=colors)
@@ -502,31 +498,22 @@ def _float_to_hex(x: float) -> str:
 def _color_name_to_hex(colors: List[str]) -> List[str]:
     # If any of the colors are in the color_name_dict, then replace them with the
     # corresponding hexadecimal value
-    i = 0
-    while i < len(colors):
-        color = colors[i]
-        if color.lower() in COLOR_NAME_TO_HEX:
-            colors[i] = COLOR_NAME_TO_HEX[color.lower()]
-        i += 1
 
-    return colors
-
-
-def _check_named_colors(colors: Union[str, List[str]]) -> None:
-    # Ensure that all incoming color names are set in lowercase letters since CSS color names
-    # are often shown with uppercase letters and X11/R color names are always shown with lowercase
-    if isinstance(colors, str):
-        colors = [colors]
-
-    valid_color_names = _color_name_list()
+    hex_colors: List[str] = []
 
     for color in colors:
-        if not _is_hex_col(colors=[color]) and color not in valid_color_names:
-            raise ValueError(
-                f"Invalid color name provided ({color}). Please ensure that all color names are valid."
-            )
 
-    return
+        if _is_hex_col([color])[0]:
+            hex_colors.append(color)
+        else:
+            try:
+                hex_colors.append(COLOR_NAME_TO_HEX[color.lower()])
+            except KeyError:
+                raise ValueError(
+                    f"Invalid color name provided ({color}). Please ensure that all colors are valid CSS3 or X11 color names."
+                )
+
+    return hex_colors
 
 
 def _color_name_list() -> List[str]:
@@ -569,17 +556,8 @@ def _expand_short_hex(hex_color: str) -> str:
     # Get the hex color without the leading '#'
     hex_color = hex_color[1:]
 
-    # Get the first character of the hex color
-    first_char = hex_color[0]
-
-    # Get the second character of the hex color
-    second_char = hex_color[1]
-
-    # Get the third character of the hex color
-    third_char = hex_color[2]
-
     # Return the expanded 6-digit hexadecimal color value
-    expanded = "#" + first_char + first_char + second_char + second_char + third_char + third_char
+    expanded = "#" + "".join(x * 2 for x in hex_color)
     expanded = expanded.upper()
     return expanded
 
@@ -594,8 +572,7 @@ def _rescale_numeric(
     """
 
     # Get the minimum and maximum values from `domain`
-    domain_min = domain[0]
-    domain_max = domain[1]
+    domain_min, domain_max = domain
 
     # Get the range of values in `domain`
     domain_range = domain_max - domain_min
@@ -672,12 +649,10 @@ def _get_domain_factor(df: DataFrameLike, vals: List[str]) -> List[str]:
     vals = [x for x in vals if not is_na(df, x)]
 
     # Create the domain by getting the unique values in `vals` in order provided
-    unique_list: List[str] = []
     seen: List[str] = []
 
     for item in vals:
         if item not in seen:
-            unique_list.append(item)
             seen.append(item)
 
     return seen

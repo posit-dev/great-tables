@@ -3,8 +3,6 @@ from __future__ import annotations
 from typing import Any, List
 from typing_extensions import Self
 
-import copy
-
 from great_tables._gt_data import GTData
 
 # Main gt imports ----
@@ -29,6 +27,7 @@ from great_tables._formats import (
     fmt_units,
     fmt_nanoplot,
 )
+from great_tables._substitution import sub_missing, sub_zero
 from great_tables._heading import tab_header
 from great_tables._helpers import random_id
 from great_tables._options import (
@@ -228,6 +227,9 @@ class GT(
     fmt_nanoplot = fmt_nanoplot
     data_color = data_color
 
+    sub_missing = sub_missing
+    sub_zero = sub_zero
+
     opt_stylize = opt_stylize
     opt_align_table_header = opt_align_table_header
     opt_all_caps = opt_all_caps
@@ -275,11 +277,12 @@ class GT(
         return rendered
 
     def _render_formats(self, context: str) -> Self:
-        rendered = copy.copy(self)
+        new_body = self._body.copy()
 
         # TODO: this body method performs a mutation. Should we make a copy of body?
-        rendered._body.render_formats(rendered._tbl_data, rendered._formats, context)
-        return rendered
+        new_body.render_formats(self._tbl_data, self._formats, context)
+        new_body.render_formats(self._tbl_data, self._substitutions, context)
+        return self._replace(_body=new_body)
 
     def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary
@@ -401,23 +404,6 @@ class GT(
 </html>
             """
         return finalized_table
-
-    def _finalize_html_table(
-        style: str, quarto_disable_processing: str, quarto_use_bootstrap: str, *args: Any
-    ) -> str:
-        from htmltools import tags
-
-        html_tbl = tags.table(
-            data_quarto_disable_processing=quarto_disable_processing,
-            data_quarto_bootstrap=quarto_use_bootstrap,
-            *args,
-            class_="gt_table",
-            style=style,
-        )
-
-        html_tbl = str(html_tbl)
-
-        return html_tbl
 
 
 # =============================================================================

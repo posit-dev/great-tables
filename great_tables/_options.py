@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, ClassVar, Optional, Union, List, cast, Dict, Any
+from typing import TYPE_CHECKING, ClassVar, Optional, Set, Union, List, cast, Dict
 from great_tables import _utils
 
 
@@ -927,7 +927,7 @@ def opt_all_caps(
     """
 
     # If providing a scalar string value, normalize it to be in a list
-    if type(locations).__name__ != "list":
+    if not isinstance(locations, list):
         locations = _utils._str_scalar_to_list(cast(str, locations))
 
     # Ensure that the `locations` value is a list of strings
@@ -941,7 +941,7 @@ def opt_all_caps(
     # world where options are not mutating the GT options object.
     # TODO: is there a way to set multiple options at once?
     res = self
-    if all_caps is True:
+    if all_caps:
         if "column_labels" in locations:
             res = tab_options(res, column_labels_font_size="80%")
             res = tab_options(res, column_labels_font_weight="bolder")
@@ -1114,8 +1114,8 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
         "table_outline_color",
     }
 
-    def dict_omit_keys(dict, omit_keys) -> Dict[str, str]:
-        return {x: dict[x] for x in dict if x not in omit_keys}
+    def dict_omit_keys(dict: Dict[str, str], omit_keys: Set[str]) -> Dict[str, str]:
+        return {x: v for x, v in dict.items() if x not in omit_keys}
 
     params = dict_omit_keys(dict=params, omit_keys=omit_keys)
 
@@ -1161,11 +1161,11 @@ class StyleMapper:
         "data_vlines_color": ["table_body_vlines_color"],
     }
 
-    def map_entry(self, name: str):
+    def map_entry(self, name: str) -> Dict[str, List[str]]:
         return {k: getattr(self, name) for k in self.mappings[name]}
 
-    def map_all(self):
-        items = {}
+    def map_all(self) -> Dict[str, List[str]]:
+        items: Dict[str, List[str]] = {}
         for field in fields(self):
             items.update(self.map_entry(field.name))
         return items

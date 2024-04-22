@@ -36,7 +36,7 @@ def get_row_reorder_df(groups: RowGroups, stub_df: Stub) -> list[TupleStartFinal
     # [1, 0, 1, 0] <- wrong
 
     # the index that when used on the rows will sort them by the order in groups
-    start_pos = list(range(len(groups_pos)))
+    start_pos = range(len(groups_pos))
     sort_indx = sorted(start_pos, key=lambda ii: groups_pos[ii])
 
     # From running test_body_reassemble():

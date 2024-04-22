@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import pandas as pd
 from typing import TYPE_CHECKING, Optional, Any
-from typing_extensions import Self
 
 from ._utils import _assert_list_is_subset
 
@@ -91,7 +89,6 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
         return self
 
     mod_columns = list(kwargs.keys())
-    new_labels = list(kwargs.values())
 
     # Get the full list of column names for the data
     column_names = self._boxhead._get_columns()
@@ -166,14 +163,3 @@ def cols_align(self: GTSelf, align: str = "left", columns: Optional[str] = None)
 
     # Set the alignment for each column
     return self._replace(_boxhead=self._boxhead._set_column_aligns(columns, align=align))
-
-
-def _print_boxhead(self: GTSelf) -> pd.DataFrame:
-    boxhead_list = list(
-        zip(
-            [x.var for x in self._boxhead],
-            [x.visible for x in self._boxhead],
-            [x.column_label for x in self._boxhead],
-        )
-    )
-    return pd.DataFrame(boxhead_list, columns=["var", "visible", "column_label"])
