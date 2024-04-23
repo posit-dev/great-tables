@@ -19,8 +19,7 @@ In this post, I'll cover three important pieces:
 * The challenge of removing hard dependencies
 * How we made Pandas optional
 
-This may seem over the top for announcing that something is optional,
-but many DataFrame implementations exist in the Python world.
+This may seem over the top, but many DataFrame implementations exist in the Python world.
 Enabling folks to BYODF (Bring Your Own DataFrame) is a tricky, rewarding challenge!
 
 
@@ -70,10 +69,8 @@ In this post, we'll focus specifically on the challenge of getting column names.
 The code below shows the different methods required to get column names as a list from Pandas and Polars.
 
 ```{python}
-# get columns as a list ----
-
-df_pandas.columns.tolist()
-df_polars.columns
+df_pandas.columns.tolist()  # pandas
+df_polars.columns           # polars
 ```
 
 Notice that the two lines of code aren't too different---Pandas just requires an extra `.tolist()` piece.
@@ -94,7 +91,7 @@ def get_column_names(data) -> list[str]:
 ```
 
 The function works great, in that we can call it on either DataFrame, but it lacks two things.
-The first is **dependency inversion**, since it requires importing both pandas and polars (creating a hard dependency).
+The first is **dependency inversion**, since it requires importing both Pandas and Polars (creating a hard dependency).
 The second is **separation of concerns**, since Pandas and Polars code is mixed together. In this case adding more DataFrame implementations would create a hot stew of logic.
 
 
@@ -188,6 +185,6 @@ For more on the special things you can do with Polars expressions, see these res
 
 * [Guide: basic styling using Polars expressions](/get-started/basic-styling.qmd#using-polars-expressions)
 * [Post: Great Tables, the Polars DataFrame Styler of Your Dreams](/blog/polars-styling/index.qmd)
-* [The narwhals library](https://github.com/MarcoGorelli/narwhals): a neat library for running polars expressions on pandas DataFrames.
+* [The narwhals library](https://github.com/MarcoGorelli/narwhals): a neat library for running Polars expressions on Pandas DataFrames.
 
 Hope you make some stylish, publication ready tables!
