@@ -104,6 +104,10 @@ We were able to make Pandas optional in a sane manner through two moves:
 
 ### Inverting dependency with databackend
 
+Inverting dependency on DataFrame libraries means that we check whether something is a specific type of DataFrame, without using imports.
+This is done through the package `databackend`, which we copied into Great Tables.
+It works by creating placeholder classes, which stand in for the DataFrames they're detecting:
+
 ```{python}
 from great_tables._databackend import AbstractBackend
 
