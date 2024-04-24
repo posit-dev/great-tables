@@ -2,7 +2,7 @@
 title: "Great Tables is now BYODF (Bring Your Own DataFrame)"
 html-table-processing: none
 author: Michael Chow
-date: 2024-04-23
+date: 2024-04-24
 freeze: true
 jupyter: python3
 ---
