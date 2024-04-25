@@ -1,24 +1,34 @@
 from __future__ import annotations
-from ._gt_data import GTData
-from ._tbl_data import to_frame, SeriesLike
-from great_tables.gt import _get_column_of_values, GT
+
+from typing import TYPE_CHECKING, Any
+
 from great_tables import GT
-from typing import List, Any, Union, Optional, TYPE_CHECKING
+from great_tables.gt import GT, _get_column_of_values
+from typing_extensions import TypeAlias
+
+from ._gt_data import GTData
+from ._tbl_data import SeriesLike, to_frame
 
 if TYPE_CHECKING:
     from ._formats import DateStyle, TimeStyle
     from ._tbl_data import SeriesLike
 
 
-def _make_one_col_table(vals: Union[Any, List[Any], SeriesLike]) -> GT:
+X: TypeAlias = Any | list[Any] | SeriesLike
+
+
+def _make_one_col_table(vals: X) -> GT:
     """
     Create a one-column table from a list of values.
 
-    Args:
-        val_list (Union[Any, List[Any]]): The list of values to be converted into a table.
+    Parameters
+    ----------
+    x
+        The list of values to be converted into a table.
 
-    Returns:
-        GTData: The GTData object representing the one-column table.
+    Returns
+    -------
+        GT: The GT object representing the one-column table.
     """
 
     # Upgrade a single value to a list
@@ -38,9 +48,9 @@ def _make_one_col_table(vals: Union[Any, List[Any], SeriesLike]) -> GT:
 
 
 def val_fmt_number(
-    x: Union[Any, List[Any], SeriesLike],
+    x: X,
     decimals: int = 2,
-    n_sigfig: Optional[int] = None,
+    n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
@@ -50,8 +60,8 @@ def val_fmt_number(
     sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign: bool = False,
-    locale: Union[str, None] = None,
-) -> List[str]:
+    locale: str | None = None,
+) -> list[str]:
     """
     Format numeric values.
 
@@ -128,7 +138,7 @@ def val_fmt_number(
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of formatted values is returned.
     """
 
@@ -156,15 +166,15 @@ def val_fmt_number(
 
 
 def val_fmt_integer(
-    x: Union[Any, List[Any], SeriesLike],
+    x: X,
     use_seps: bool = True,
     scale_by: float = 1,
     compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     force_sign: bool = False,
-    locale: Union[str, None] = None,
-) -> List[str]:
+    locale: str | None = None,
+) -> list[str]:
     """
     Format values as integers.
 
@@ -217,7 +227,7 @@ def val_fmt_integer(
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of formatted values is returned.
     """
 
@@ -240,9 +250,9 @@ def val_fmt_integer(
 
 
 def val_fmt_scientific(
-    x: Union[Any, List[Any], SeriesLike],
+    x: X,
     decimals: int = 2,
-    n_sigfig: Optional[int] = None,
+    n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     scale_by: float = 1,
@@ -252,8 +262,8 @@ def val_fmt_scientific(
     dec_mark: str = ".",
     force_sign_m: bool = False,
     force_sign_n: bool = False,
-    locale: Union[str, None] = None,
-) -> List[str]:
+    locale: str | None = None,
+) -> list[str]:
     """
     Format values to scientific notation.
 
@@ -334,7 +344,7 @@ def val_fmt_scientific(
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of formatted values is returned.
     """
 
@@ -362,7 +372,7 @@ def val_fmt_scientific(
 
 
 def val_fmt_percent(
-    x: Union[Any, List[Any], SeriesLike],
+    x: X,
     decimals: int = 2,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
@@ -374,8 +384,8 @@ def val_fmt_percent(
     force_sign: bool = False,
     placement: str = "right",
     incl_space: bool = False,
-    locale: Union[str, None] = None,
-) -> List[str]:
+    locale: str | None = None,
+) -> list[str]:
     """
     Format values as a percentage.
 
@@ -451,7 +461,7 @@ def val_fmt_percent(
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of formatted values is returned.
     """
 
@@ -479,10 +489,10 @@ def val_fmt_percent(
 
 
 def val_fmt_currency(
-    x: Union[Any, List[Any], SeriesLike],
-    currency: Optional[str] = None,
+    x: X,
+    currency: str | None = None,
     use_subunits: bool = True,
-    decimals: Optional[int] = None,
+    decimals: int | None = None,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
     scale_by: float = 1,
@@ -492,8 +502,8 @@ def val_fmt_currency(
     force_sign: bool = False,
     placement: str = "left",
     incl_space: bool = False,
-    locale: Union[str, None] = None,
-) -> List[str]:
+    locale: str | None = None,
+) -> list[str]:
     """
     Format values as currencies.
 
@@ -572,7 +582,7 @@ def val_fmt_currency(
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of formatted values is returned.
     """
 
@@ -601,10 +611,10 @@ def val_fmt_currency(
 
 
 def val_fmt_roman(
-    x: Union[Any, List[Any], SeriesLike],
+    x: X,
     case: str = "upper",
     pattern: str = "{x}",
-) -> List[str]:
+) -> list[str]:
     """
     Format values as Roman numerals.
 
@@ -624,7 +634,7 @@ def val_fmt_roman(
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of formatted values is returned.
     """
 
@@ -642,10 +652,10 @@ def val_fmt_roman(
 
 
 def val_fmt_bytes(
-    x: Union[Any, List[Any], SeriesLike],
+    x: X,
     standard: str = "decimal",
     decimals: int = 1,
-    n_sigfig: Optional[int] = None,
+    n_sigfig: int | None = None,
     drop_trailing_zeros: bool = True,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
@@ -654,8 +664,8 @@ def val_fmt_bytes(
     dec_mark: str = ".",
     force_sign: bool = False,
     incl_space: bool = True,
-    locale: Union[str, None] = None,
-) -> List[str]:
+    locale: str | None = None,
+) -> list[str]:
     """
     Format values as bytes.
 
@@ -727,7 +737,7 @@ def val_fmt_bytes(
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of formatted values is returned.
     """
 
@@ -755,11 +765,11 @@ def val_fmt_bytes(
 
 
 def val_fmt_date(
-    x: Union[Any, List[Any], SeriesLike],
+    x: X,
     date_style: DateStyle = "iso",
     pattern: str = "{x}",
-    locale: Union[str, None] = None,
-) -> List[str]:
+    locale: str | None = None,
+) -> list[str]:
     """
     Format values as dates.
 
@@ -814,7 +824,7 @@ def val_fmt_date(
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of formatted values is returned.
     """
 
@@ -833,11 +843,11 @@ def val_fmt_date(
 
 
 def val_fmt_time(
-    x: Union[Any, List[Any], SeriesLike],
+    x: X,
     time_style: TimeStyle = "iso",
     pattern: str = "{x}",
-    locale: Union[str, None] = None,
-) -> List[str]:
+    locale: str | None = None,
+) -> list[str]:
     """
     Format values as times.
 
@@ -880,7 +890,7 @@ def val_fmt_time(
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of formatted values is returned.
     """
 
@@ -899,8 +909,8 @@ def val_fmt_time(
 
 
 def val_fmt_markdown(
-    x: Union[Any, List[Any], SeriesLike],
-) -> List[str]:
+    x: X,
+) -> list[str]:
     """
     Format Markdown text.
 
@@ -913,7 +923,7 @@ def val_fmt_markdown(
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of formatted values is returned.
     """
 
