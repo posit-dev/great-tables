@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from importlib_resources import files
 import re
-
 from dataclasses import fields
 from functools import partial
-from typing import Optional
 from string import Template
 
-from ._helpers import px, pct
-from ._gt_data import GTData
-from ._utils import _as_css_font_family_attr, _unique_set
+from importlib_resources import files
+
 from ._data_color.base import _html_color, _ideal_fgnd_color
+from ._gt_data import GTData
+from ._helpers import pct, px
+from ._utils import _as_css_font_family_attr, _unique_set
 
 DEFAULTS_TABLE_BACKGROUND = (
     "heading_background_color",
@@ -86,7 +85,7 @@ def css_add(value: str | int, amount: int):
 
 
 def compile_scss(
-    data: GTData, id: Optional[str], compress: bool = True, all_important: bool = False
+    data: GTData, id: str | None, compress: bool = True, all_important: bool = False
 ) -> str:
     """Return CSS for styling a table, based on options set."""
 
