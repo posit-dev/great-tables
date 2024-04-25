@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from itertools import chain, groupby
 from typing import Any, cast
 

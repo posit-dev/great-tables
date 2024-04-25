@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from ._styles import (
     CellStyleText as text,
     CellStyleFill as fill,

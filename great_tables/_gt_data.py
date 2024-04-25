@@ -4,7 +4,7 @@ import copy
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
-from typing import TypeVar, overload
+from typing import TypeVar, overload, Union
 
 from typing_extensions import Self, TypeAlias
 
@@ -762,7 +762,7 @@ class Heading:
 # Stubhead ----
 __Stubhead = None
 
-Stubhead: TypeAlias = str | None
+Stubhead: TypeAlias = Union[str, None]
 
 
 # Sourcenotes ----

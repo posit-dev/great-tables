@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import html
 import re
 from dataclasses import dataclass

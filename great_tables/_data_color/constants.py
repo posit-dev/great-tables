@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 DEFAULT_PALETTE = [
     "#000000",
     "#DF536B",
