@@ -1,8 +1,11 @@
 from __future__ import annotations
-from ._utils import _try_import
-from typing import Literal, TYPE_CHECKING
-from typing_extensions import TypeAlias
+
 import tempfile
+from typing import TYPE_CHECKING, Literal
+
+from typing_extensions import TypeAlias
+
+from ._utils import _try_import
 
 if TYPE_CHECKING:
     # Note that as_raw_html uses methods on the GT class, not just data
