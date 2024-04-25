@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-SpannerMatrix = list[dict[str, str | None]]
+SpannerMatrix = "list[dict[str, str | None]]"
 
 
 def tab_spanner(

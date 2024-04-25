@@ -1,6 +1,4 @@
 # Set version ----
-from __future__ import annotations
-
 from importlib_metadata import version as _v
 
 __version__ = _v("great_tables")

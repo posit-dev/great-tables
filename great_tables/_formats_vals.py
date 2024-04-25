@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from ._tbl_data import SeriesLike
 
 
-X: TypeAlias = Any | list[Any] | SeriesLike
+X: TypeAlias = "Any | list[Any] | SeriesLike"
 
 
 def _make_one_col_table(vals: X) -> GT:
