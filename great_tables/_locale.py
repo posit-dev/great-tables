@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from csv import DictReader
-from typing import Any, Optional, TypedDict, cast
+from typing import Any, TypedDict, cast
+
 from importlib_resources import files
 
 DATA_MOD = files("great_tables") / "data"
@@ -13,7 +14,7 @@ def read_csv(fname: str) -> list[dict[str, Any]]:
 
 
 class Locale:
-    locale: Optional[str]
+    locale: str | None
 
     def __init__(self, locale: str | None = ""):
         if locale is None or locale == "":
