@@ -2781,7 +2781,7 @@ def _get_currency_decimals(currency: str, decimals: int | None, use_subunits: bo
 
     Args:
         currency (str): The currency code.
-        decimals  int | None): The number of decimal places to use, if specified.
+        decimals (int | None): The number of decimal places to use, if specified.
         use_subunits (bool): Whether to use subunits for the currency.
 
     Returns:
