@@ -1,9 +1,9 @@
-from typing import Union, List, Literal
-from dataclasses import dataclass
 import html
+import re
+from dataclasses import dataclass
+from typing import Literal, Union
 
 import commonmark
-import re
 
 
 @dataclass
@@ -13,12 +13,12 @@ class Text:
 
 
 class StringBuilder:
-    pieces: List[Union[str, "StringBuilder"]]
+    pieces: list[Union[str, "StringBuilder"]]
 
     def __init__(self, *args: Union[str, "StringBuilder"]):
         self.pieces = list(args)
 
-    def _collect(self, lst: List[str]):
+    def _collect(self, lst: list[str]):
         for piece in self.pieces:
             if isinstance(piece, str):
                 lst.append(piece)
@@ -30,10 +30,10 @@ class StringBuilder:
         self._collect(lst)
         return "".join(lst)
 
-    def append(self, *args: str):
+    def append(self, *args: str) -> None:
         self.pieces.extend(args)
 
-    def prepend(self, *args: str):
+    def prepend(self, *args: str) -> None:
         self.pieces[0:0] = args
 
 
@@ -42,7 +42,7 @@ def _md_html(x: str) -> str:
     return re.sub(r"^<p>|</p>\n$", "", str)
 
 
-def _process_text(x: Union[Text, str, None]) -> str:
+def _process_text(x: str | Text | None) -> str:
     if x is None:
         return ""
 
@@ -63,7 +63,7 @@ def _process_text(x: Union[Text, str, None]) -> str:
     return x_out
 
 
-def _process_text_id(x: Union[Text, str, None]) -> str:
+def _process_text_id(x: str | Text | None) -> str:
     return _process_text(x)
 
 
