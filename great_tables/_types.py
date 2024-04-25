@@ -1,5 +1,4 @@
-from typing import TypeVar, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
     from ._gt_data import GTData as GTData
