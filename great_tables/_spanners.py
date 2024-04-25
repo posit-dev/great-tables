@@ -1,28 +1,27 @@
 from __future__ import annotations
 
 import itertools
+from typing import TYPE_CHECKING, Any
 
-from typing import TYPE_CHECKING, Union, List, Dict, Optional, Any
-
-from ._gt_data import Spanners, SpannerInfo
-from ._tbl_data import SelectExpr
+from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
+from ._tbl_data import SelectExpr
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
     from ._types import GTSelf
 
 
-SpannerMatrix = List[Dict[str, Union[str, None]]]
+SpannerMatrix = list[dict[str, str | None]]
 
 
 def tab_spanner(
     data: GTSelf,
     label: str,
     columns: SelectExpr = None,
-    spanners: Union[list[str], str, None] = None,
-    level: Optional[int] = None,
-    id: Optional[str] = None,
+    spanners: str | list[str] | None = None,
+    level: int | None = None,
+    id: str | None = None,
     gather: bool = True,
     replace: bool = False,
 ) -> GTSelf:
@@ -569,7 +568,7 @@ def is_equal(x: Any, y: Any) -> bool:
     return x is not None and x == y
 
 
-def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
+def cols_width(data: GTSelf, cases: dict[str, str]) -> GTSelf:
     """Set the widths of columns.
 
     Manual specifications of column widths can be performed using the `cols_width()` method. We
