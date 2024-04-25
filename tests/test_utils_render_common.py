@@ -1,6 +1,6 @@
-from great_tables._gt_data import RowGroups, Stub, RowInfo
-from great_tables.utils_render_common import get_row_reorder_df
 import pytest
+from great_tables._gt_data import RowInfo, Stub
+from great_tables.utils_render_common import get_row_reorder_df
 
 
 def test_get_row_reorder_df_simple():

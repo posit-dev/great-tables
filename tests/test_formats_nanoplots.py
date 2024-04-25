@@ -1,6 +1,6 @@
-import pytest
+from typing import Any
 
-from typing import Any, List
+import pytest
 from great_tables._formats import _generate_data_vals, _process_number_stream
 
 
@@ -61,6 +61,6 @@ def test_nanoplot_ref_line_area():
         (" +1.342e12, +2.E-2 +3,  4.55634 -5.23 ", [1.342e12, 2.0e-2, 3, 4.55634, -5.23]),
     ],
 )
-def test_process_number_stream(src: str, dst: List[float]):
+def test_process_number_stream(src: str, dst: list[float]):
     res = _process_number_stream(data_vals=src)
     assert res == dst

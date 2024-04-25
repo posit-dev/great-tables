@@ -1,8 +1,6 @@
 import pandas as pd
-import pytest
-
-from great_tables import GT, exibble, md, html, style, loc
-from great_tables._utils_render_html import create_source_notes_component_h, create_body_component_h
+from great_tables import GT, exibble, html, loc, md, style
+from great_tables._utils_render_html import create_body_component_h, create_source_notes_component_h
 
 small_exibble = exibble[["num", "char"]].head(3)
 

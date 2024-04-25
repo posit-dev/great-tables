@@ -1,9 +1,6 @@
 import pandas as pd
 import polars as pl
-
 import pytest
-
-from great_tables import GT
 from great_tables._formats_vals import _make_one_col_table
 from great_tables._tbl_data import to_list
 

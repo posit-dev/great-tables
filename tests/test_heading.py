@@ -1,5 +1,4 @@
 import pandas as pd
-
 from great_tables import GT
 
 

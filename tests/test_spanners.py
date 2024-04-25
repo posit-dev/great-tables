@@ -1,15 +1,14 @@
 import pandas as pd
 import pytest
-
+from great_tables import GT
+from great_tables._gt_data import Boxhead, ColInfo, ColInfoTypeEnum, SpannerInfo, Spanners
 from great_tables._spanners import (
-    spanners_print_matrix,
-    empty_spanner_matrix,
-    tab_spanner,
     cols_hide,
     cols_move,
+    empty_spanner_matrix,
+    spanners_print_matrix,
+    tab_spanner,
 )
-from great_tables._gt_data import Spanners, SpannerInfo, Boxhead, ColInfo, ColInfoTypeEnum
-from great_tables import GT
 
 
 @pytest.fixture

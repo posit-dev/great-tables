@@ -1,32 +1,26 @@
-from typing import Union
+import re
+from typing import Any, Union
+
 import pandas as pd
 import polars as pl
 import pytest
-import re
-
-from great_tables import GT
+from great_tables import GT, _locale
+from great_tables._data_color.base import _html_color
+from great_tables._formats import (
+    FmtImage,
+    _expand_exponential_to_full_string,
+    _format_number_fixed_decimals,
+    _get_currency_str,
+    _get_locale_currency_code,
+    _get_locale_dec_mark,
+    _get_locale_sep_mark,
+    _normalize_locale,
+    _validate_locale,
+    fmt,
+)
+from great_tables._utils_render_html import create_body_component_h
 from great_tables.data import exibble
 from great_tables.gt import _get_column_of_values
-from great_tables._data_color.base import _html_color
-from great_tables._utils_render_html import create_body_component_h
-from great_tables._formats import (
-    _format_number_fixed_decimals,
-    _expand_exponential_to_full_string,
-    fmt,
-    FmtImage,
-    DateStyle,
-    TimeStyle,
-    _normalize_locale,
-    _get_locale_sep_mark,
-    _get_locale_dec_mark,
-    _get_locale_currency_code,
-    _get_currency_str,
-    _validate_locale,
-)
-from great_tables._locations import RowSelectExpr
-from great_tables import _locale
-
-from typing import List, Dict, Any, Tuple, Union
 
 
 def assert_rendered_body(snapshot, gt):
@@ -1073,7 +1067,7 @@ def test_format_number_with_sep_dec_marks():
 # Tests of `fmt_currency()`
 # ------------------------------------------------------------------------------
 
-FMT_CURRENCY_CASES: List[Tuple[dict[str, Any], List[str]]] = [
+FMT_CURRENCY_CASES: list[tuple[dict[str, Any], list[str]]] = [
     (dict(), ["$1,234,567.00", "−$5,432.37"]),
     (dict(currency="USD"), ["$1,234,567.00", "−$5,432.37"]),
     (dict(currency="EUR"), ["&#8364;1,234,567.00", "−&#8364;5,432.37"]),
@@ -1092,7 +1086,7 @@ FMT_CURRENCY_CASES: List[Tuple[dict[str, Any], List[str]]] = [
 
 
 @pytest.mark.parametrize("fmt_currency_kwargs,x_out", FMT_CURRENCY_CASES)
-def test_fmt_currency_case(fmt_currency_kwargs: dict[str, Any], x_out: List[str]):
+def test_fmt_currency_case(fmt_currency_kwargs: dict[str, Any], x_out: list[str]):
     df = pd.DataFrame({"x": [1234567, -5432.37]})
     gt = GT(df).fmt_currency(columns="x", **fmt_currency_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -1278,7 +1272,7 @@ def test_fmt_bytes_default(src: float, dst: str):
         ),
     ],
 )
-def test_fmt_bytes_case(fmt_bytes_kwargs: dict[str, Any], x_in: List[float], x_out: List[str]):
+def test_fmt_bytes_case(fmt_bytes_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]):
     df = pd.DataFrame({"x": x_in})
     gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -1469,10 +1463,10 @@ def test_fmt_image_path():
 # ------------------------------------------------------------------------------
 
 
-def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: List[tuple[str, str]]) -> bool:
+def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: list[tuple[str, str]]) -> bool:
     import re
 
-    found: List[bool] = []
+    found: list[bool] = []
 
     for i, _ in enumerate(attrs):
         attrs_i = attrs[i]
@@ -1497,7 +1491,7 @@ df_fmt_nanoplot_multi = pl.DataFrame(
 )
 
 
-FMT_NANOPLOT_CASES: List[dict[str, Any]] = [
+FMT_NANOPLOT_CASES: list[dict[str, Any]] = [
     # 1. default case
     dict(),
     # 2. reference line with 0 value
