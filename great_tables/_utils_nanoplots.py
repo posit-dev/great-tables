@@ -1458,6 +1458,7 @@ def _generate_nanoplot(
     #
 
     if show_vertical_guides:
+        is_all_intify = len(y_vals) == _get_n_intlike(y_vals)
 
         g_guide_strings = []
 
@@ -1474,6 +1475,9 @@ def _generate_nanoplot(
 
             if y_value_i == "NA":
                 x_text = x_text + 2
+
+            if is_all_intify:
+                y_value_i = _remove_exponent(y_value_i)
 
             text_strings_i = f'<text x="{x_text}" y="{safe_y_d + 5}" fill="transparent" stroke="transparent" font-size="30px">{y_value_i}</text>'
 
@@ -1565,3 +1569,40 @@ def _generate_nanoplot(
     )
 
     return nanoplot_svg
+
+
+def _is_intlike(n: Any, scaled_by: float = 1e17) -> bool:
+    """
+    https://stackoverflow.com/a/71373152
+    """
+    import numbers
+    from decimal import Decimal
+
+    if isinstance(n, str):
+        try:
+            n = float(n.replace("−", "-"))
+        except ValueError:
+            return False
+    elif isinstance(n, Decimal):
+        n = float(n)
+    return isinstance(n, numbers.Real) and ((n * scaled_by - int(n) * scaled_by) == 0)
+
+
+def _get_n_intlike(nums: list[Any]) -> int:
+    return len([n for n in nums if _is_intlike(n)])
+
+
+def _remove_exponent(n: str | int | float) -> int:
+    """
+    https://docs.python.org/3/library/decimal.html#decimal-faq
+    """
+    from decimal import Decimal
+
+    if isinstance(n, str):
+        n = str(n).replace("−", "-")
+    d = Decimal(n)
+    if d == d.to_integral():
+        x = d.quantize(Decimal(1))
+    else:
+        x = d.normalize()
+    return int(x)
