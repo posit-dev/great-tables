@@ -1592,7 +1592,7 @@ def _get_n_intlike(nums: list[Any]) -> int:
     return len([n for n in nums if _is_intlike(n)])
 
 
-def _remove_exponent(n: str | int | float) -> int:
+def _remove_exponent(n: "str | int | float") -> int:
     """
     https://docs.python.org/3/library/decimal.html#decimal-faq
     """

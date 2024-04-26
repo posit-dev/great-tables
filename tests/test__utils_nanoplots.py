@@ -2058,5 +2058,5 @@ def test_get_n_intlike(nums: list[Any], n: int):
         ("−5.0", -5),  # not regular `-`
     ],
 )
-def test_remove_exponent(n: int | float | str, result: int):
+def test_remove_exponent(n: "int | float | str", result: int):
     assert _remove_exponent(n) == result
