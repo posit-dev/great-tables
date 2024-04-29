@@ -102,7 +102,7 @@
     "href": "reference/GT.cols_align.html#parameters",
     "title": "GT.cols_align",
     "section": "Parameters",
-    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nalign\nstr\nThe alignment to apply. Must be one of \"left\", \"center\", or \"right\".\n'left'\n\n\ncolumns\nOptional[str]\nThe columns to target. Can either be a single column name or a series of column names provided in a list. If None, the alignment is applied to all columns.\nNone"
+    "text": "Parameters\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nalign\nstr\nThe alignment to apply. Must be one of \"left\", \"center\", or \"right\".\n'left'\n\n\ncolumns\nSelectExpr\nThe columns to target. Can either be a single column name or a series of column names provided in a list. If None, the alignment is applied to all columns.\nNone"
   },
   {
     "objectID": "reference/GT.cols_align.html#returns",
