@@ -161,6 +161,14 @@ def test_cols_hide():
     new_gt = cols_hide(src_gt, columns=["a", "b"])
     assert [col.var for col in new_gt._boxhead if col.visible] == ["c"]
 
+    import polars as pl
+    import polars.selectors as cs
+
+    df = pl.DataFrame({"col1": [1, 2], "col2": [3, 4], "abc": [5, 6]})
+    src_gt = GT(df)
+    new_gt = cols_hide(src_gt, columns=cs.starts_with("col"))
+    assert [col.var for col in new_gt._boxhead if col.visible] == ["abc"]
+
 
 def test_cols_move():
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
