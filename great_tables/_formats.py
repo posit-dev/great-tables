@@ -293,7 +293,7 @@ def fmt_number(
         dec_mark: str = dec_mark,
         force_sign: bool = force_sign,
     ):
-        if x is None:
+        if is_na(self._tbl_data, x):
             return x
 
         # Scale `x` value by a defined `scale_by` value
