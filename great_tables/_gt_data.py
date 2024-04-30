@@ -4,22 +4,31 @@ import copy
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
-from typing import TypeVar, overload
+from enum import Enum, auto
+from typing import Any, Callable, TypeVar, overload
 
 from typing_extensions import Self, TypeAlias
 
 # TODO: move this class somewhere else (even gt_data could work)
 from ._styles import CellStyle
-from ._tbl_data import copy_data, create_empty_frame, to_list, validate_frame
+from ._tbl_data import (
+    DataFrameLike,
+    TblData,
+    _get_cell,
+    _set_cell,
+    copy_data,
+    create_empty_frame,
+    get_column_names,
+    n_rows,
+    to_list,
+    validate_frame,
+)
 from ._utils import _str_detect
-
 
 T = TypeVar("T")
 
 
 # GT Data ----
-from dataclasses import dataclass
-
 __GT = None
 
 
@@ -134,9 +143,6 @@ class _Sequence(Sequence[T]):
 # Body ----
 __Body = None
 
-from typing import Any
-from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell
-
 
 # TODO: it seems like this could just be a DataFrameLike object?
 # Similar to TblData now being a DataFrame, rather than its own class
@@ -177,10 +183,6 @@ class Body:
 
 # Boxhead ----
 __Boxhead = None
-
-from enum import Enum, auto
-
-from ._tbl_data import TblData, get_column_names
 
 
 class ColumnAlignment(Enum):
@@ -494,8 +496,6 @@ class Boxhead(_Sequence[ColInfo]):
 # Stub ----
 __Stub = None
 
-from ._tbl_data import TblData, n_rows
-
 
 @dataclass(frozen=True)
 class RowInfo:
@@ -773,8 +773,6 @@ SourceNotes = list[str]
 # Footnotes ----
 __Footnotes = None
 
-from enum import Enum, auto
-
 
 class FootnotePlacement(Enum):
     left = auto()
@@ -826,10 +824,6 @@ class Locale:
 
 # Formats ----
 __Formats = None
-
-from typing import Any, Callable, TypeVar
-
-from ._tbl_data import n_rows
 
 
 class FormatterSkipElement:
@@ -889,14 +883,10 @@ class FormatInfo:
 #         pass
 Formats = list
 
-# Tbl Data ----
-from ._tbl_data import TblData
-
 
 # Options ----
 __Options = None
 
-from typing import Any
 
 default_fonts_list = [
     "-apple-system",
