@@ -281,7 +281,7 @@ def fmt_number(
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_number_fn(
-        x: float,
+        x: float | None,
         decimals: int = decimals,
         n_sigfig: Optional[int] = n_sigfig,
         drop_trailing_zeros: bool = drop_trailing_zeros,
@@ -293,6 +293,9 @@ def fmt_number(
         dec_mark: str = dec_mark,
         force_sign: bool = force_sign,
     ):
+        if is_na(self._tbl_data, x):
+            return x
+
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
