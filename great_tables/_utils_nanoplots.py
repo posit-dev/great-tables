@@ -1580,6 +1580,7 @@ def _is_intlike(n: Any, scaled_by: float = 1e17) -> bool:
 
     if isinstance(n, str):
         try:
+            # Replacement of minus sign (U+2212) with hyphen (necessary in some locales)
             n = float(n.replace("−", "-"))
         except ValueError:
             return False
@@ -1599,6 +1600,7 @@ def _remove_exponent(n: "str | int | float") -> int:
     from decimal import Decimal
 
     if isinstance(n, str):
+        # Replacement of minus sign (U+2212) with hyphen (necessary in some locales)
         n = str(n).replace("−", "-")
     d = Decimal(n)
     if d == d.to_integral():
