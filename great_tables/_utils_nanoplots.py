@@ -1424,6 +1424,7 @@ def _generate_nanoplot(
     #
 
     if show_y_axis_guide:
+        is_all_intify_y_axis = len(y_vals) == _get_n_intlike(y_vals)
 
         rect_tag = f'<rect x="{left_x}" y="{top_y}" width="{safe_x_d + 15}" height="{bottom_y}" stroke="transparent" stroke-width="0" fill="transparent"></rect>'
 
@@ -1447,6 +1448,10 @@ def _generate_nanoplot(
             fn=y_axis_fmt_fn,
         )
 
+        if is_all_intify_y_axis:
+            y_value_max_label = _remove_exponent(y_value_max_label)
+            y_value_min_label = _remove_exponent(y_value_min_label)
+
         text_strings_min = f'<text x="{left_x}" y="{safe_y_d + data_y_height + safe_y_d - data_y_height / 25}" fill="transparent" stroke="transparent" font-size="25">{y_value_min_label}</text>'
 
         text_strings_max = f'<text x="{left_x}" y="{safe_y_d + data_y_height / 25}" fill="transparent" stroke="transparent" font-size="25">{y_value_max_label}</text>'
@@ -1458,6 +1463,7 @@ def _generate_nanoplot(
     #
 
     if show_vertical_guides:
+        is_all_intify_v_guides = len(y_vals) == _get_n_intlike(y_vals)
 
         g_guide_strings = []
 
@@ -1474,6 +1480,9 @@ def _generate_nanoplot(
 
             if y_value_i == "NA":
                 x_text = x_text + 2
+
+            if is_all_intify_v_guides:
+                y_value_i = _remove_exponent(y_value_i)
 
             text_strings_i = f'<text x="{x_text}" y="{safe_y_d + 5}" fill="transparent" stroke="transparent" font-size="30px">{y_value_i}</text>'
 
@@ -1565,3 +1574,42 @@ def _generate_nanoplot(
     )
 
     return nanoplot_svg
+
+
+def _is_intlike(n: Any, scaled_by: float = 1e17) -> bool:
+    """
+    https://stackoverflow.com/a/71373152
+    """
+    import numbers
+    from decimal import Decimal
+
+    if isinstance(n, str):
+        try:
+            # Replacement of minus sign (U+2212) with hyphen (necessary in some locales)
+            n = float(n.replace("−", "-"))
+        except ValueError:
+            return False
+    elif isinstance(n, Decimal):
+        n = float(n)
+    return isinstance(n, numbers.Real) and ((n * scaled_by - int(n) * scaled_by) == 0)
+
+
+def _get_n_intlike(nums: list[Any]) -> int:
+    return len([n for n in nums if _is_intlike(n)])
+
+
+def _remove_exponent(n: "str | int | float") -> int:
+    """
+    https://docs.python.org/3/library/decimal.html#decimal-faq
+    """
+    from decimal import Decimal
+
+    if isinstance(n, str):
+        # Replacement of minus sign (U+2212) with hyphen (necessary in some locales)
+        n = str(n).replace("−", "-")
+    d = Decimal(n)
+    if d == d.to_integral():
+        x = d.quantize(Decimal(1))
+    else:
+        x = d.normalize()
+    return int(x)
