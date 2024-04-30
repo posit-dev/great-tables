@@ -466,7 +466,7 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     if not len(sel_cols):
         raise Exception("No columns selected.")
-    elif not all([col in vars for col in columns]):
+    elif not all(col in vars for col in sel_cols):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
 
     # New boxhead with hidden columns

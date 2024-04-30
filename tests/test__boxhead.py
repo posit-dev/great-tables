@@ -1,5 +1,8 @@
 import great_tables as gt
 import pandas as pd
+import polars as pl
+import pytest
+from polars import selectors as cs
 
 
 def test_cols_label_relabel_columns():
@@ -51,3 +54,66 @@ def test_cols_label_return_self_if_no_kwargs():
 
     # Check that the return type is GT
     assert isinstance(unmodified_table, gt.GT)
+
+
+def test_cols_align_default():
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df)
+
+    # Make sure default align is "left"
+    aligned_table = table.cols_align()
+    all_column_align = [x.column_align for x in aligned_table._boxhead._d]
+
+    # Check that all columns align "left"
+    assert all_column_align == ["left", "left"]
+
+
+def test_cols_align():
+    df = pl.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6], "C": [7.1, 8.2, 9.3]})
+    table = gt.GT(df)
+
+    # Select columns by a list of column names
+    aligned_table = table.cols_align(align="left", columns=["A"])
+    all_column_align = [x.column_align for x in aligned_table._boxhead._d]
+
+    assert all_column_align == [
+        "left",  # manually assign
+        "right",  # `auto_align` for `int` is "right"
+        "right",  # `auto_align` for `float` is "right"
+    ]
+
+
+def test_cols_align_pl_expr():
+    df = pl.DataFrame({"col1": [1, 2], "col2": [3.3, 4.4], "c": ["x", "y"]})
+    table = gt.GT(df)
+
+    # Select columns by polars expressions
+    aligned_table = table.cols_align(align="center", columns=cs.starts_with("col"))
+    all_column_align = [x.column_align for x in aligned_table._boxhead._d]
+
+    assert all_column_align == [
+        "center",  # manually assign
+        "center",  # manually assign
+        "left",  # `auto_align` for `str` is "left"
+    ]
+
+
+def test_cols_align_raises():
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df)
+
+    # Make sure `align="align"` will raise `ValueError`
+    with pytest.raises(ValueError) as exc_info:
+        table.cols_align(align="align")
+
+    assert "Align must be one of 'left', 'center', or 'right'." in exc_info.value.args[0]
+
+
+def test_cols_align_return_type():
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df)
+
+    aligned_table = table.cols_label()
+
+    # Check that the return type is GT
+    assert isinstance(aligned_table, gt.GT)
