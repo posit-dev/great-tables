@@ -142,3 +142,7 @@ p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     padding-right: 7px;
     vertical-align: middle;
 }
+
+.shrink-example .cell-output table {
+    zoom: 60%;
+}
