@@ -25,7 +25,7 @@ from great_tables._utils_nanoplots import (
     _normalize_option_list,
     _normalize_to_dict,
     _normalize_vals,
-    _remove_exponent,  
+    _remove_exponent,
     _val_is_numeric,
     _val_is_str,
     calc_ref_value,
