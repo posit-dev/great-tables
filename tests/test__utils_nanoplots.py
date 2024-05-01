@@ -10,7 +10,7 @@ from great_tables._utils_nanoplots import (
     _generate_nanoplot,
     _generate_ref_line_from_keyword,
     _get_extreme_value,
-    _get_n_intlike,  
+    _get_n_intlike,
     _gt_first,
     _gt_last,
     _gt_max,
