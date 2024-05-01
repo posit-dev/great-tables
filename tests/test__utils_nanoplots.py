@@ -1,13 +1,16 @@
-from typing import Any, Union
-
 import numpy as np
 import pytest
+
+
+from typing import Any, Union
+from decimal import Decimal
 from great_tables._utils_nanoplots import (
     _flatten_list,
     _format_number_compactly,
     _generate_nanoplot,
     _generate_ref_line_from_keyword,
     _get_extreme_value,
+    _get_n_intlike,  
     _gt_first,
     _gt_last,
     _gt_max,
@@ -18,9 +21,11 @@ from great_tables._utils_nanoplots import (
     _gt_q3,
     _gt_quantile,
     _is_integerlike,
+    _is_intlike,
     _normalize_option_list,
     _normalize_to_dict,
     _normalize_vals,
+    _remove_exponent,  
     _val_is_numeric,
     _val_is_str,
     calc_ref_value,
@@ -2002,3 +2007,58 @@ def test_nanoplot_x_y_vals_diff_length():
 def test_nanoplot_unknown_plot_type():
     with pytest.raises(ValueError):
         _generate_nanoplot(y_vals=[1, 2, 3], plot_type="unknown")
+
+
+@pytest.mark.parametrize(
+    "n, bool_",
+    [
+        (0, True),
+        (0.0, True),
+        (1, True),
+        (1.0, True),
+        (-12, True),
+        (-12.0, True),
+        ("-12", True),
+        ("−12", True),  # not regular `-`
+        (Decimal("1"), True),
+        (Decimal("1.0"), True),
+        (2.151515, False),
+        (-12.49849, False),
+        ("-12.49849", False),
+        ("−12.49849", False),  # not regular `-`
+        (Decimal("2.151515"), False),
+        ("abc", False),
+        (["abc"], False),
+        (tuple("abc"), False),
+        (set("abc"), False),
+        (dict.fromkeys("abc", object), False),
+    ],
+)
+def test_is_intlike(n: Any, bool_: bool):
+    assert _is_intlike(n) is bool_
+
+
+@pytest.mark.parametrize(
+    "nums, n",
+    [
+        (["1.0", 2.0, 3.00, Decimal(4), "-5.0"], 5),
+        (["1.1", 2.2, 3.03, "abc", "−12.49849"], 0),  # not regular `-`
+    ],
+)
+def test_get_n_intlike(nums: list[Any], n: int):
+    assert _get_n_intlike(nums) == n
+
+
+@pytest.mark.parametrize(
+    "n, result",
+    [
+        ("1.0", 1),
+        (2.0, 2),
+        (3.00, 3),
+        (Decimal(4), 4),
+        ("-5.0", -5),
+        ("−5.0", -5),  # not regular `-`
+    ],
+)
+def test_remove_exponent(n: "int | float | str", result: int):
+    assert _remove_exponent(n) == result
