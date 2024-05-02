@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, Any, Callable, Literal, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Literal, Union
+
 from typing_extensions import Self, TypeAlias
 
-from ._tbl_data import TblData, _get_cell, PlExpr, eval_transform
 from ._helpers import px
+from ._tbl_data import PlExpr, TblData, _get_cell, eval_transform
 
 if TYPE_CHECKING:
     from ._locations import Loc
@@ -265,7 +266,7 @@ class CellStyleFill(CellStyle):
     """
 
     color: str | ColumnExpr
-    # alpha: Optional[float] = None
+    # alpha: float | None = None
 
     def _to_html_style(self) -> str:
         return f"background-color: {self.color};"
@@ -303,7 +304,7 @@ class CellStyleBorders(CellStyle):
 
     sides: (
         Literal["all", "top", "bottom", "left", "right"]
-        | List[Literal["all", "top", "bottom", "left", "right"]]
+        | list[Literal["all", "top", "bottom", "left", "right"]]
         | ColumnExpr
     ) = "all"
     color: str | ColumnExpr = "#000000"
@@ -330,7 +331,7 @@ class CellStyleBorders(CellStyle):
         color = self.color
         style = self.style
 
-        border_css_list: List[str] = []
+        border_css_list: list[str] = []
         for side in self.sides:
             if side not in ["top", "bottom", "left", "right"]:
                 raise ValueError(f"Invalid side '{side}' provided.")

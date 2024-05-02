@@ -1,21 +1,20 @@
 import pandas as pd
 import polars as pl
 import pytest
-
+from great_tables import GT
+from great_tables._gt_data import Spanners
 from great_tables._locations import (
-    LocColumnSpanners,
-    LocBody,
-    LocTitle,
     CellPos,
+    LocBody,
+    LocColumnSpanners,
+    LocTitle,
     resolve,
-    resolve_vector_i,
     resolve_cols_i,
     resolve_rows_i,
+    resolve_vector_i,
     set_style,
 )
 from great_tables._styles import CellStyleText, FromColumn
-from great_tables._gt_data import Spanners, SpannerInfo
-from great_tables import GT
 
 
 def test_resolve_vector_i():

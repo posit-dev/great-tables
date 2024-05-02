@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from ._formats_vals import (
     val_fmt_number as fmt_number,
     val_fmt_integer as fmt_integer,

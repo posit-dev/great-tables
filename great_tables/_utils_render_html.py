@@ -1,11 +1,15 @@
-from great_tables._spanners import spanners_print_matrix, seq_groups
+from __future__ import annotations
+
+from itertools import chain, groupby
+from typing import Any, cast
+
+from great_tables._spanners import seq_groups, spanners_print_matrix
+from htmltools import HTML, TagList, css, tags
+
 from ._gt_data import GTData
-from ._tbl_data import n_rows, _get_cell, cast_frame_to_string, replace_null_frame
-from typing import List, Any, cast
-from htmltools import tags, HTML, css, TagList
-from itertools import groupby, chain
+from ._tbl_data import _get_cell, cast_frame_to_string, n_rows, replace_null_frame
 from ._text import StringBuilder, _process_text, _process_text_id
-from ._utils import heading_has_title, heading_has_subtitle
+from ._utils import heading_has_subtitle, heading_has_title
 
 
 def create_heading_component_h(data: GTData) -> StringBuilder:
@@ -441,7 +445,7 @@ def create_body_component_h(data: GTData) -> str:
     if stub_var is not None:
         column_vars = [stub_var] + column_vars
 
-    body_rows: List[str] = []
+    body_rows: list[str] = []
 
     # iterate over rows (ordered by groupings)
     prev_group_label = None
@@ -449,7 +453,7 @@ def create_body_component_h(data: GTData) -> str:
     ordered_index = data._group_rows.indices_map(n_rows(data._tbl_data))
 
     for i, group_label in ordered_index:
-        body_cells: List[str] = []
+        body_cells: list[str] = []
 
         if has_stub_column and has_groups and not has_two_col_stub:
             colspan_value = data._boxhead._get_effective_number_of_columns(
@@ -538,7 +542,7 @@ def create_source_notes_component_h(data: GTData) -> str:
         # Create the source notes component as a series of `<tr><td>` (one per
         # source note) inside of a `<tfoot>`
 
-        source_notes_tr: List[str] = []
+        source_notes_tr: list[str] = []
 
         for note in source_notes:
             note_str = _process_text(note)
@@ -565,7 +569,7 @@ def create_source_notes_component_h(data: GTData) -> str:
     # Create the source notes component as a single `<tr><td>` inside
     # of a `<tfoot>`
 
-    source_note_list: List[str] = []
+    source_note_list: list[str] = []
     for note in source_notes:
         note_str = _process_text(note)
         source_note_list.append(note_str)

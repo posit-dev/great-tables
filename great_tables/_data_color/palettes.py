@@ -3,14 +3,13 @@
 Note that this code is largely a pure python port of the mizani gradient_n_pal code.
 """
 
+from __future__ import annotations
+
 from bisect import bisect
-from math import isnan, isinf
-from typing import TypedDict, Tuple
-from typing_extensions import TypeAlias
+from math import isinf, isnan
+from typing import TypedDict
 
-from .base import _html_color, _hex_to_rgb
-
-RGBColor: TypeAlias = Tuple[int, int, int]
+from .base import RGBColor, _hex_to_rgb, _html_color
 
 
 def rgb_to_hex(rgb: RGBColor) -> str:

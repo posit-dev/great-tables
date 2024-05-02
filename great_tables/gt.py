@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any
+
 from typing_extensions import Self
 
 from great_tables._gt_data import GTData
@@ -12,57 +13,56 @@ from great_tables._data_color import data_color
 from great_tables._export import as_raw_html, save
 from great_tables._formats import (
     fmt,
+    fmt_bytes,
+    fmt_currency,
+    fmt_date,
+    fmt_datetime,
+    fmt_image,
+    fmt_integer,
+    fmt_markdown,
+    fmt_nanoplot,
     fmt_number,
     fmt_percent,
-    fmt_integer,
-    fmt_scientific,
-    fmt_currency,
-    fmt_bytes,
     fmt_roman,
-    fmt_date,
+    fmt_scientific,
     fmt_time,
-    fmt_datetime,
-    fmt_markdown,
-    fmt_image,
-    fmt_nanoplot,
 )
-from great_tables._substitution import sub_missing, sub_zero
 from great_tables._heading import tab_header
 from great_tables._helpers import random_id
 from great_tables._options import (
-    tab_options,
     opt_align_table_header,
     opt_all_caps,
     opt_footnote_marks,
-    opt_row_striping,
-    opt_vertical_padding,
     opt_horizontal_padding,
-    opt_table_outline,
+    opt_row_striping,
     opt_stylize,
+    opt_table_outline,
+    opt_vertical_padding,
+    tab_options,
 )
+from great_tables._render import infer_render_env_defaults
 from great_tables._source_notes import tab_source_note
 from great_tables._spanners import (
-    tab_spanner,
-    cols_move,
-    cols_move_to_start,
-    cols_move_to_end,
     cols_hide,
+    cols_move,
+    cols_move_to_end,
+    cols_move_to_start,
     cols_width,
+    tab_spanner,
 )
 from great_tables._stub import reorder_stub_df
 from great_tables._stubhead import tab_stubhead
-from great_tables._tbl_data import n_rows, _get_cell
-from great_tables._utils_render_html import (
-    create_heading_component_h,
-    create_columns_component_h,
-    create_body_component_h,
-    create_source_notes_component_h,
-    create_footnotes_component_h,
-    _get_table_defs,
-)
+from great_tables._substitution import sub_missing, sub_zero
 from great_tables._tab_create_modify import tab_style
-from great_tables._render import infer_render_env_defaults
-
+from great_tables._tbl_data import _get_cell, n_rows
+from great_tables._utils_render_html import (
+    _get_table_defs,
+    create_body_component_h,
+    create_columns_component_h,
+    create_footnotes_component_h,
+    create_heading_component_h,
+    create_source_notes_component_h,
+)
 
 __all__ = ["GT"]
 
@@ -414,16 +414,16 @@ class GT(
 # =============================================================================
 
 
-def _get_column_labels(gt: GT, context: str) -> List[str]:
+def _get_column_labels(gt: GT, context: str) -> list[str]:
     gt_built = gt._build_data(context=context)
     column_labels = [x.column_label for x in gt_built._boxhead]
     return column_labels
 
 
-def _get_column_of_values(gt: GT, column_name: str, context: str) -> List[str]:
+def _get_column_of_values(gt: GT, column_name: str, context: str) -> list[str]:
     gt_built = gt._build_data(context=context)
     tbl_data = gt_built._body.body
-    cell_values: List[str] = []
+    cell_values: list[str] = []
 
     for i in range(n_rows(tbl_data)):
         cell_content: Any = _get_cell(tbl_data, i, column_name)

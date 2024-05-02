@@ -1,7 +1,6 @@
 import pandas as pd
 import polars as pl
-
-from great_tables._styles import FromColumn, CellStyleText
+from great_tables._styles import CellStyleText, FromColumn
 
 
 def test_from_column_replace():

@@ -1,7 +1,8 @@
-import pytest
-from great_tables import GT, md, exibble
 import time
 from pathlib import Path
+
+import pytest
+from great_tables import GT, exibble, md
 
 
 @pytest.fixture

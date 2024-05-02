@@ -2,22 +2,19 @@ import pandas as pd
 import polars as pl
 import polars.testing
 import pytest
-
 from great_tables._tbl_data import (
+    DataFrameLike,
+    SeriesLike,
     _get_cell,
     _get_column_dtype,
     _set_cell,
-    get_column_names,
-    DataFrameLike,
-    SeriesLike,
-    reorder,
-    eval_select,
     create_empty_frame,
-    validate_frame,
+    eval_select,
+    get_column_names,
+    reorder,
     to_frame,
-    to_list,
+    validate_frame,
 )
-
 
 params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars")]
 params_series = [pytest.param(pd.Series, id="pandas"), pytest.param(pl.Series, id="polars")]

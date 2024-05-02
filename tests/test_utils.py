@@ -1,16 +1,16 @@
 import pytest
 from great_tables._utils import (
-    _match_arg,
-    heading_has_title,
-    heading_has_subtitle,
-    _assert_str_scalar,
-    _assert_str_list,
-    _assert_str_in_set,
     _assert_list_is_subset,
+    _assert_str_in_set,
+    _assert_str_list,
+    _assert_str_scalar,
+    _collapse_list_elements,
+    _insert_into_list,
+    _match_arg,
     _str_scalar_to_list,
     _unique_set,
-    _insert_into_list,
-    _collapse_list_elements,
+    heading_has_subtitle,
+    heading_has_title,
 )
 
 

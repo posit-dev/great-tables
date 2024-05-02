@@ -1,7 +1,11 @@
-from typing import Union, List, Dict, Literal, Any, Optional, Callable
-import string
+from __future__ import annotations
+
 import random
+import string
+from typing import Any, Callable, Literal
+
 from typing_extensions import TypeAlias
+
 from ._text import Text
 
 
@@ -24,7 +28,7 @@ FontStackName: TypeAlias = Literal[
 ]
 
 
-def px(x: Union[int, float]) -> str:
+def px(x: int | float) -> str:
     """
     Helper for providing a CSS length value in pixels.
 
@@ -49,7 +53,7 @@ def px(x: Union[int, float]) -> str:
     return f"{x}px"
 
 
-def pct(x: Union[int, float]) -> str:
+def pct(x: int | float) -> str:
     """
     Helper for providing a CSS length value as a percentage.
 
@@ -133,25 +137,25 @@ def random_id(n: int = 10) -> str:
     return "".join(random.choices(letters(), k=n))
 
 
-def letters() -> List[str]:
+def letters() -> list[str]:
     """Lowercase letters of the Roman alphabet
 
     Returns:
-        List[str]: the 26 lowercase letters of the Roman alphabet
+        list[str]: the 26 lowercase letters of the Roman alphabet
     """
     return list(string.ascii_lowercase)
 
 
-def LETTERS() -> List[str]:
+def LETTERS() -> list[str]:
     """Uppercase letters of the Roman alphabet
 
     Returns:
-        List[str]: the 26 uppercase letters of the Roman alphabet
+        list[str]: the 26 uppercase letters of the Roman alphabet
     """
     return list(string.ascii_uppercase)
 
 
-def system_fonts(name: FontStackName = "system-ui") -> List[str]:
+def system_fonts(name: FontStackName = "system-ui") -> list[str]:
     """Get a themed font stack that works well across systems.
 
     A font stack can be obtained from `system_fonts()` using one of various keywords such as
@@ -170,7 +174,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of font names that make up the font stack.
 
     The font stacks and the individual fonts used by platform
@@ -370,7 +374,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     return _get_font_stack(name)
 
 
-def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[str]:
+def _get_font_stack(name: FontStackName = "system-ui", add_emoji: bool = True) -> list[str]:
     font_stack_names = [
         "system-ui",
         "transitional",
@@ -508,7 +512,7 @@ def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[s
 # we could do that in the a __post_init__ hook. (I would switch it over to a
 # dataclass and then pair on a post_init hook).
 # Check that certain values are either a list or a single value
-def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any):
+def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any) -> list[Any] | None:
 
     if nano_opt is None:
         return None
@@ -529,37 +533,37 @@ def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any):
 
 
 def nanoplot_options(
-    data_point_radius: Optional[Union[int, List[int]]] = None,
-    data_point_stroke_color: Optional[Union[str, List[str]]] = None,
-    data_point_stroke_width: Optional[Union[int, List[int]]] = None,
-    data_point_fill_color: Optional[Union[str, List[str]]] = None,
-    data_line_type: Optional[str] = None,
-    data_line_stroke_color: Optional[str] = None,
-    data_line_stroke_width: Optional[int] = None,
-    data_area_fill_color: Optional[str] = None,
-    data_bar_stroke_color: Optional[Union[str, List[str]]] = None,
-    data_bar_stroke_width: Optional[Union[int, List[int]]] = None,
-    data_bar_fill_color: Optional[Union[str, List[str]]] = None,
-    data_bar_negative_stroke_color: Optional[str] = None,
-    data_bar_negative_stroke_width: Optional[int] = None,
-    data_bar_negative_fill_color: Optional[str] = None,
-    reference_line_color: Optional[str] = None,
-    reference_area_fill_color: Optional[str] = None,
-    vertical_guide_stroke_color: Optional[str] = None,
-    vertical_guide_stroke_width: Optional[int] = None,
-    show_data_points: Optional[bool] = None,
-    show_data_line: Optional[bool] = None,
-    show_data_area: Optional[bool] = None,
-    show_reference_line: Optional[bool] = None,
-    show_reference_area: Optional[bool] = None,
-    show_vertical_guides: Optional[bool] = None,
-    show_y_axis_guide: Optional[bool] = None,
-    interactive_data_values: Optional[bool] = None,
-    y_val_fmt_fn: Optional[Callable[..., str]] = None,
-    y_axis_fmt_fn: Optional[Callable[..., str]] = None,
-    y_ref_line_fmt_fn: Optional[Callable[..., str]] = None,
-    currency: Optional[str] = None,
-) -> Dict[str, Any]:
+    data_point_radius: int | list[int] | None = None,
+    data_point_stroke_color: str | list[str] | None = None,
+    data_point_stroke_width: int | list[int] | None = None,
+    data_point_fill_color: str | list[str] | None = None,
+    data_line_type: str | None = None,
+    data_line_stroke_color: str | None = None,
+    data_line_stroke_width: int | None = None,
+    data_area_fill_color: str | None = None,
+    data_bar_stroke_color: str | list[str] | None = None,
+    data_bar_stroke_width: int | list[int] | None = None,
+    data_bar_fill_color: str | list[str] | None = None,
+    data_bar_negative_stroke_color: str | None = None,
+    data_bar_negative_stroke_width: int | None = None,
+    data_bar_negative_fill_color: str | None = None,
+    reference_line_color: str | None = None,
+    reference_area_fill_color: str | None = None,
+    vertical_guide_stroke_color: str | None = None,
+    vertical_guide_stroke_width: int | None = None,
+    show_data_points: bool | None = None,
+    show_data_line: bool | None = None,
+    show_data_area: bool | None = None,
+    show_reference_line: bool | None = None,
+    show_reference_area: bool | None = None,
+    show_vertical_guides: bool | None = None,
+    show_y_axis_guide: bool | None = None,
+    interactive_data_values: bool | None = None,
+    y_val_fmt_fn: Callable[..., str] | None = None,
+    y_axis_fmt_fn: Callable[..., str] | None = None,
+    y_ref_line_fmt_fn: Callable[..., str] | None = None,
+    currency: str | None = None,
+) -> dict[str, Any]:
     """
     Helper for setting the options for a nanoplot.
 

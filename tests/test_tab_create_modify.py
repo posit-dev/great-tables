@@ -1,10 +1,9 @@
-import pytest
 import pandas as pd
-
-from great_tables._tab_create_modify import tab_style
+import pytest
 from great_tables import GT
-from great_tables._styles import CellStyleFill
 from great_tables._locations import LocBody
+from great_tables._styles import CellStyleFill
+from great_tables._tab_create_modify import tab_style
 
 
 @pytest.fixture
