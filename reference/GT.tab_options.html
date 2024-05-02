@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.553">
+<meta name="generator" content="quarto-1.4.554">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -208,9 +208,9 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 7%">
-<col style="width: 22%">
-<col style="width: 67%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 76%">
 <col style="width: 2%">
 </colgroup>
 <thead>
@@ -224,697 +224,697 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <tbody>
 <tr class="odd">
 <td><code>container_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the table’s container. Can be specified as a single-length character with units of pixels or as a percentage. If provided as a scalar numeric value, it is assumed that the value is given in units of pixels.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>container_height</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The height of the table’s container.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>container_overflow_x</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>An option to enable scrolling in the horizontal direction when the table content overflows the container dimensions. Using <code>True</code> (the default) means that horizontal scrolling is enabled to view the entire table in those directions. With <code>False</code>, the table may be clipped if the table width or height exceeds the <code>container_width</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>container_overflow_y</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>An option to enable scrolling in the vertical direction when the table content overflows. Same rules apply as for <code>container_overflow_x</code>; the dependency here is that of the table height (<code>container_height</code>).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the table. Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_layout</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The value for the <code>table-layout</code> CSS style in the HTML output context. By default, this is <code>"fixed"</code> but another valid option is <code>"auto"</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_margin_left</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The size of the margins on the left of the table within the container. Can be specified as a single-length value with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels. Using <code>table_margin_left</code> will overwrite any values set by <code>table_align</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_margin_right</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The size of the margins on the right of the table within the container. Same rules apply as for <code>table_margin_left</code>. Using <code>table_margin_right</code> will overwrite any values set by <code>table_align</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_background_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The background color for the table. A color name or a hexadecimal color code should be provided.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_font_names</code></td>
-<td><code>Optional</code>[<code>Union</code>[<code>str</code>, <code>List</code>[<code>str</code>]]]</td>
+<td><code>str</code> | <code>list</code>[<code>str</code>] | None</td>
 <td>The names of the fonts used for the table. This should be provided as a list of font names. If the first font isn’t available, then the next font is tried (and so on).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_font_size</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font size for the table. Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_font_weight</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font weight of the table. Can be a text-based keyword such as <code>"normal"</code>, <code>"bold"</code>, <code>"lighter"</code>, <code>"bolder"</code>, or, a numeric value between <code>1</code> and <code>1000</code>, inclusive. Note that only variable fonts may support the numeric mapping of weight.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_font_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font style for the table. Can be one of either <code>"normal"</code>, <code>"italic"</code>, or <code>"oblique"</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_font_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The text color used throughout the table. A color name or a hexadecimal color code should be provided.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_font_color_light</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The text color used throughout the table when the background color is dark. A color name or a hexadecimal color code should be provided.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_border_top_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the table’s absolute top border. Can be one of either <code>"solid"</code>, <code>"dotted"</code>, <code>"dashed"</code>, <code>"double"</code>, <code>"groove"</code>, <code>"ridge"</code>, <code>"inset"</code>, or <code>"outset"</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_border_top_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the table’s absolute top border. Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_border_top_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the table’s absolute top border. A color name or a hexadecimal color code should be provided.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_border_bottom_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the table’s absolute bottom border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_border_bottom_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the table’s absolute bottom border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_border_bottom_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the table’s absolute bottom border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_border_left_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the table’s absolute left border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_border_left_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the table’s absolute left border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_border_left_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the table’s absolute left border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_border_right_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the table’s absolute right border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_border_right_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the table’s absolute right border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_border_right_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the table’s absolute right border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>heading_background_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The background color for the heading. A color name or a hexadecimal color code should be provided.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>heading_align</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>Controls the horizontal alignment of the heading title and subtitle. We can either use <code>"center"</code>, <code>"left"</code>, or <code>"right"</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>heading_title_font_size</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font size for the heading title element.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>heading_title_font_weight</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font weight of the heading title.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>heading_subtitle_font_size</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font size for the heading subtitle element.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>heading_subtitle_font_weight</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font weight of the heading subtitle.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>heading_padding</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The amount of vertical padding to incorporate in the <code>heading</code> (title and subtitle). Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>heading_padding_horizontal</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The amount of horizontal padding to incorporate in the <code>heading</code> (title and subtitle). Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>heading_border_bottom_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the header’s bottom border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>heading_border_bottom_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the header’s bottom border. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>heading_border_bottom_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the header’s bottom border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>heading_border_lr_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the left and right borders of the <code>heading</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>heading_border_lr_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the left and right borders of the <code>heading</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>heading_border_lr_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the left and right borders of the <code>heading</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>column_labels_background_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The background color for the column labels. A color name or a hexadecimal color code should be provided.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>column_labels_font_size</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font size to use for all column labels.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>column_labels_font_weight</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font weight of the table’s column labels.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>column_labels_text_transform</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The text transformation for the column labels. Either of the <code>"uppercase"</code>, <code>"lowercase"</code>, or <code>"capitalize"</code> keywords can be used.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>column_labels_padding</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The amount of vertical padding to incorporate in the <code>column_labels</code> (this includes the column spanners).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>column_labels_padding_horizontal</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The amount of horizontal padding to incorporate in the <code>column_labels</code> (this includes the column spanners).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>column_labels_vlines_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of all vertical lines (‘vlines’) of the <code>column_labels</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>column_labels_vlines_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of all vertical lines (‘vlines’) of the <code>column_labels</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>column_labels_vlines_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of all vertical lines (‘vlines’) of the <code>column_labels</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>column_labels_border_top_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the top border of the <code>column_labels</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>column_labels_border_top_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the top border of the <code>column_labels</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>column_labels_border_top_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the top border of the <code>column_labels</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>column_labels_border_bottom_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the bottom border of the <code>column_labels</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>column_labels_border_bottom_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the bottom border of the <code>column_labels</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>column_labels_border_bottom_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the bottom border of the <code>column_labels</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>column_labels_border_lr_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the left and right borders of the <code>column_labels</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>column_labels_border_lr_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the left and right borders of the <code>column_labels</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>column_labels_border_lr_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the left and right borders of the <code>column_labels</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>column_labels_hidden</code></td>
-<td><code>Optional</code>[<code>bool</code>]</td>
+<td><code>bool</code> | None</td>
 <td>An option to hide the column labels. If providing <code>True</code> then the entire <code>column_labels</code> location won’t be seen and the table header (if present) will collapse downward.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>row_group_background_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The background color for the row group labels. A color name or a hexadecimal color code should be provided.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>row_group_font_weight</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font weight for all row group labels present in the table.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>row_group_font_size</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font size to use for all row group labels.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>row_group_padding</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The amount of vertical padding to incorporate in the row group labels.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>row_group_border_top_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the top border of the <code>row_group</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>row_group_border_top_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the top border of the <code>row_group</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>row_group_border_top_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the top border of the <code>row_group</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>row_group_border_bottom_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the bottom border of the <code>row_group</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>row_group_border_bottom_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the bottom border of the <code>row_group</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>row_group_border_bottom_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the bottom border of the <code>row_group</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>row_group_border_left_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the left border of the <code>row_group</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>row_group_border_left_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the left border of the <code>row_group</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>row_group_border_left_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the left border of the <code>row_group</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>row_group_border_right_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the right border of the <code>row_group</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>row_group_border_right_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the right border of the <code>row_group</code> location. If the <code>width</code> of this border is</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>row_group_border_right_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the right border of the <code>row_group</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>row_group_as_column</code></td>
-<td><code>Optional</code>[<code>bool</code>]</td>
+<td><code>bool</code> | None</td>
 <td>An option to render the row group labels as a column. If <code>True</code>, then the row group labels will be rendered as a column to the left of the table body. If <code>False</code>, then the row group labels will be rendered as a separate row above the grouping of rows.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_body_hlines_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of all horizontal lines (‘hlines’) in the <code>table_body</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_body_hlines_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of all horizontal lines (‘hlines’) in the <code>table_body</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_body_hlines_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of all horizontal lines (‘hlines’) in the <code>table_body</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_body_vlines_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of all vertical lines (‘vlines’) in the <code>table_body</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_body_vlines_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of all vertical lines (‘vlines’) in the <code>table_body</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_body_vlines_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of all vertical lines (‘vlines’) in the <code>table_body</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_body_border_top_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the top border of the <code>table_body</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_body_border_top_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the top border of the <code>table_body</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_body_border_top_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the top border of the <code>table_body</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_body_border_bottom_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the bottom border of the <code>table_body</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>table_body_border_bottom_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the bottom border of the <code>table_body</code> location. If the <code>width</code> of this border</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>table_body_border_bottom_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the bottom border of the <code>table_body</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>stub_background_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The background color for the stub. A color name or a hexadecimal color code should be provided.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>stub_font_size</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font size to use for all row labels present in the table stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>stub_font_weight</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font weight for all row labels present in the table stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>stub_text_transform</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The text transformation for the row labels present in the table stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>stub_border_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the vertical border of the table stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>stub_border_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the vertical border of the table stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>stub_border_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the vertical border of the table stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>stub_row_group_font_size</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font size for the row group column in the stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>stub_row_group_font_weight</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font weight for the row group column in the stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>stub_row_group_text_transform</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The text transformation for the row group column in the stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>stub_row_group_border_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the vertical border of the row group column in the stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>stub_row_group_border_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the vertical border of the row group column in the stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>stub_row_group_border_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the vertical border of the row group column in the stub.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>data_row_padding</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The amount of vertical padding to incorporate in the body/stub rows.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>data_row_padding_horizontal</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The amount of horizontal padding to incorporate in the body/stub rows.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>source_notes_background_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The background color for the source notes. A color name or a hexadecimal color code should be provided.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>source_notes_font_size</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The font size to use for all source note text.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>source_notes_padding</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The amount of vertical padding to incorporate in the source notes.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>source_notes_padding_horizontal</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The amount of horizontal padding to incorporate in the source notes.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>source_notes_multiline</code></td>
-<td><code>Optional</code>[<code>bool</code>]</td>
+<td><code>bool</code> | None</td>
 <td>An option to either put source notes in separate lines (the default, or <code>True</code>) or render them as a continuous line of text with <code>source_notes_sep</code> providing the separator (by default <code>" "</code>) between notes.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>source_notes_sep</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The separating characters between adjacent source notes when rendered as a continuous line of text (when <code>source_notes_multiline</code> is <code>False</code>). The default value is a single space character (<code>" "</code>).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>source_notes_border_bottom_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the bottom border of the <code>source_notes</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>source_notes_border_bottom_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the bottom border of the <code>source_notes</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>source_notes_border_bottom_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the bottom border of the <code>source_notes</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>source_notes_border_lr_style</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The style of the left and right borders of the <code>source_notes</code> location.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>source_notes_border_lr_width</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The width of the left and right borders of the <code>source_notes</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td><code>source_notes_border_lr_color</code></td>
-<td><code>Optional</code>[<code>str</code>]</td>
+<td><code>str</code> | None</td>
 <td>The color of the left and right borders of the <code>source_notes</code> location.</td>
 <td><code>None</code></td>
 </tr>
@@ -941,7 +941,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="examples" class="level2">
 <h2 class="anchored" data-anchor-id="examples">Examples</h2>
 <p>Using select columns from the <code>exibble</code> dataset, let’s create a new table with a number of table components added. We can use this object going forward to demonstrate some of the features available in the <code>tab_options()</code> method.</p>
-<div id="0100e375" class="cell" data-execution_count="1">
+<div id="072b55af" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble, md</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>gt_tbl <span class="op">=</span> (</span>
@@ -961,51 +961,51 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>gt_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="qxaegxqshn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="yxdghsdfdo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#qxaegxqshn table {
+#yxdghsdfdo table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#qxaegxqshn thead, tbody, tfoot, tr, td, th { border-style: none; }
+#yxdghsdfdo thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#qxaegxqshn p { margin: 0; padding: 0; }
- #qxaegxqshn .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #qxaegxqshn .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #qxaegxqshn .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #qxaegxqshn .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #qxaegxqshn .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #qxaegxqshn .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #qxaegxqshn .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #qxaegxqshn .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #qxaegxqshn .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #qxaegxqshn .gt_column_spanner_outer:first-child { padding-left: 0; }
- #qxaegxqshn .gt_column_spanner_outer:last-child { padding-right: 0; }
- #qxaegxqshn .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #qxaegxqshn .gt_spanner_row { border-bottom-style: hidden; }
- #qxaegxqshn .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #qxaegxqshn .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #qxaegxqshn .gt_from_md> :first-child { margin-top: 0; }
- #qxaegxqshn .gt_from_md> :last-child { margin-bottom: 0; }
- #qxaegxqshn .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #qxaegxqshn .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #qxaegxqshn .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #qxaegxqshn .gt_row_group_first td { border-top-width: 2px; }
- #qxaegxqshn .gt_row_group_first th { border-top-width: 2px; }
- #qxaegxqshn .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #qxaegxqshn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #qxaegxqshn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #qxaegxqshn .gt_left { text-align: left; }
- #qxaegxqshn .gt_center { text-align: center; }
- #qxaegxqshn .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #qxaegxqshn .gt_font_normal { font-weight: normal; }
- #qxaegxqshn .gt_font_bold { font-weight: bold; }
- #qxaegxqshn .gt_font_italic { font-style: italic; }
- #qxaegxqshn .gt_super { font-size: 65%; }
- #qxaegxqshn .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #qxaegxqshn .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#yxdghsdfdo p { margin: 0; padding: 0; }
+ #yxdghsdfdo .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #yxdghsdfdo .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #yxdghsdfdo .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #yxdghsdfdo .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #yxdghsdfdo .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #yxdghsdfdo .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #yxdghsdfdo .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #yxdghsdfdo .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #yxdghsdfdo .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #yxdghsdfdo .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #yxdghsdfdo .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #yxdghsdfdo .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #yxdghsdfdo .gt_spanner_row { border-bottom-style: hidden; }
+ #yxdghsdfdo .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #yxdghsdfdo .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #yxdghsdfdo .gt_from_md> :first-child { margin-top: 0; }
+ #yxdghsdfdo .gt_from_md> :last-child { margin-bottom: 0; }
+ #yxdghsdfdo .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #yxdghsdfdo .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #yxdghsdfdo .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #yxdghsdfdo .gt_row_group_first td { border-top-width: 2px; }
+ #yxdghsdfdo .gt_row_group_first th { border-top-width: 2px; }
+ #yxdghsdfdo .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #yxdghsdfdo .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #yxdghsdfdo .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #yxdghsdfdo .gt_left { text-align: left; }
+ #yxdghsdfdo .gt_center { text-align: center; }
+ #yxdghsdfdo .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #yxdghsdfdo .gt_font_normal { font-weight: normal; }
+ #yxdghsdfdo .gt_font_bold { font-weight: bold; }
+ #yxdghsdfdo .gt_font_italic { font-style: italic; }
+ #yxdghsdfdo .gt_super { font-size: 65%; }
+ #yxdghsdfdo .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #yxdghsdfdo .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1094,54 +1094,54 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </div>
 </div>
 <p>We can modify the table width to be set as <code>"100%</code>“. In effect, this spans the table to entirely fill the content width area. This is done with the <code>table_width</code> option.</p>
-<div id="f1487bae" class="cell" data-execution_count="2">
+<div id="16ad2f87" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gt_tbl.tab_options(table_width<span class="op">=</span><span class="st">"100%"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-<div id="kzpkmehtei" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="snzxephdlm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#kzpkmehtei table {
+#snzxephdlm table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#kzpkmehtei thead, tbody, tfoot, tr, td, th { border-style: none; }
+#snzxephdlm thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#kzpkmehtei p { margin: 0; padding: 0; }
- #kzpkmehtei .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: 100%; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #kzpkmehtei .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #kzpkmehtei .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #kzpkmehtei .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #kzpkmehtei .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #kzpkmehtei .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #kzpkmehtei .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #kzpkmehtei .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #kzpkmehtei .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #kzpkmehtei .gt_column_spanner_outer:first-child { padding-left: 0; }
- #kzpkmehtei .gt_column_spanner_outer:last-child { padding-right: 0; }
- #kzpkmehtei .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #kzpkmehtei .gt_spanner_row { border-bottom-style: hidden; }
- #kzpkmehtei .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #kzpkmehtei .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #kzpkmehtei .gt_from_md> :first-child { margin-top: 0; }
- #kzpkmehtei .gt_from_md> :last-child { margin-bottom: 0; }
- #kzpkmehtei .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #kzpkmehtei .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #kzpkmehtei .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #kzpkmehtei .gt_row_group_first td { border-top-width: 2px; }
- #kzpkmehtei .gt_row_group_first th { border-top-width: 2px; }
- #kzpkmehtei .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #kzpkmehtei .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #kzpkmehtei .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #kzpkmehtei .gt_left { text-align: left; }
- #kzpkmehtei .gt_center { text-align: center; }
- #kzpkmehtei .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #kzpkmehtei .gt_font_normal { font-weight: normal; }
- #kzpkmehtei .gt_font_bold { font-weight: bold; }
- #kzpkmehtei .gt_font_italic { font-style: italic; }
- #kzpkmehtei .gt_super { font-size: 65%; }
- #kzpkmehtei .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #kzpkmehtei .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#snzxephdlm p { margin: 0; padding: 0; }
+ #snzxephdlm .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: 100%; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #snzxephdlm .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #snzxephdlm .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #snzxephdlm .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #snzxephdlm .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #snzxephdlm .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #snzxephdlm .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #snzxephdlm .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #snzxephdlm .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #snzxephdlm .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #snzxephdlm .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #snzxephdlm .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #snzxephdlm .gt_spanner_row { border-bottom-style: hidden; }
+ #snzxephdlm .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #snzxephdlm .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #snzxephdlm .gt_from_md> :first-child { margin-top: 0; }
+ #snzxephdlm .gt_from_md> :last-child { margin-bottom: 0; }
+ #snzxephdlm .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #snzxephdlm .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #snzxephdlm .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #snzxephdlm .gt_row_group_first td { border-top-width: 2px; }
+ #snzxephdlm .gt_row_group_first th { border-top-width: 2px; }
+ #snzxephdlm .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #snzxephdlm .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #snzxephdlm .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #snzxephdlm .gt_left { text-align: left; }
+ #snzxephdlm .gt_center { text-align: center; }
+ #snzxephdlm .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #snzxephdlm .gt_font_normal { font-weight: normal; }
+ #snzxephdlm .gt_font_bold { font-weight: bold; }
+ #snzxephdlm .gt_font_italic { font-style: italic; }
+ #snzxephdlm .gt_super { font-size: 65%; }
+ #snzxephdlm .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #snzxephdlm .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1230,54 +1230,54 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </div>
 </div>
 <p>With the <code>table_background_color</code> option, we can modify the table’s background color. Here, we want that to be <code>"lightcyan"</code>.</p>
-<div id="3a560338" class="cell" data-execution_count="3">
+<div id="459f6378" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gt_tbl.tab_options(table_background_color<span class="op">=</span><span class="st">"lightcyan"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<div id="khgbuqkprg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="wdyqsbnoub" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#khgbuqkprg table {
+#wdyqsbnoub table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#khgbuqkprg thead, tbody, tfoot, tr, td, th { border-style: none; }
+#wdyqsbnoub thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#khgbuqkprg p { margin: 0; padding: 0; }
- #khgbuqkprg .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: lightcyan; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #khgbuqkprg .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #khgbuqkprg .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: lightcyan; border-bottom-width: 0; }
- #khgbuqkprg .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: lightcyan; border-top-width: 0; }
- #khgbuqkprg .gt_heading { background-color: lightcyan; text-align: center; border-bottom-color: lightcyan; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #khgbuqkprg .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #khgbuqkprg .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #khgbuqkprg .gt_col_heading { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #khgbuqkprg .gt_column_spanner_outer { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #khgbuqkprg .gt_column_spanner_outer:first-child { padding-left: 0; }
- #khgbuqkprg .gt_column_spanner_outer:last-child { padding-right: 0; }
- #khgbuqkprg .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #khgbuqkprg .gt_spanner_row { border-bottom-style: hidden; }
- #khgbuqkprg .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #khgbuqkprg .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #khgbuqkprg .gt_from_md> :first-child { margin-top: 0; }
- #khgbuqkprg .gt_from_md> :last-child { margin-bottom: 0; }
- #khgbuqkprg .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #khgbuqkprg .gt_stub { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #khgbuqkprg .gt_stub_row_group { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #khgbuqkprg .gt_row_group_first td { border-top-width: 2px; }
- #khgbuqkprg .gt_row_group_first th { border-top-width: 2px; }
- #khgbuqkprg .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #khgbuqkprg .gt_sourcenotes { color: #333333; background-color: lightcyan; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #khgbuqkprg .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #khgbuqkprg .gt_left { text-align: left; }
- #khgbuqkprg .gt_center { text-align: center; }
- #khgbuqkprg .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #khgbuqkprg .gt_font_normal { font-weight: normal; }
- #khgbuqkprg .gt_font_bold { font-weight: bold; }
- #khgbuqkprg .gt_font_italic { font-style: italic; }
- #khgbuqkprg .gt_super { font-size: 65%; }
- #khgbuqkprg .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #khgbuqkprg .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#wdyqsbnoub p { margin: 0; padding: 0; }
+ #wdyqsbnoub .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: lightcyan; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #wdyqsbnoub .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #wdyqsbnoub .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: lightcyan; border-bottom-width: 0; }
+ #wdyqsbnoub .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: lightcyan; border-top-width: 0; }
+ #wdyqsbnoub .gt_heading { background-color: lightcyan; text-align: center; border-bottom-color: lightcyan; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #wdyqsbnoub .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #wdyqsbnoub .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #wdyqsbnoub .gt_col_heading { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #wdyqsbnoub .gt_column_spanner_outer { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #wdyqsbnoub .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #wdyqsbnoub .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #wdyqsbnoub .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #wdyqsbnoub .gt_spanner_row { border-bottom-style: hidden; }
+ #wdyqsbnoub .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #wdyqsbnoub .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #wdyqsbnoub .gt_from_md> :first-child { margin-top: 0; }
+ #wdyqsbnoub .gt_from_md> :last-child { margin-bottom: 0; }
+ #wdyqsbnoub .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #wdyqsbnoub .gt_stub { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #wdyqsbnoub .gt_stub_row_group { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #wdyqsbnoub .gt_row_group_first td { border-top-width: 2px; }
+ #wdyqsbnoub .gt_row_group_first th { border-top-width: 2px; }
+ #wdyqsbnoub .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #wdyqsbnoub .gt_sourcenotes { color: #333333; background-color: lightcyan; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #wdyqsbnoub .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #wdyqsbnoub .gt_left { text-align: left; }
+ #wdyqsbnoub .gt_center { text-align: center; }
+ #wdyqsbnoub .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #wdyqsbnoub .gt_font_normal { font-weight: normal; }
+ #wdyqsbnoub .gt_font_bold { font-weight: bold; }
+ #wdyqsbnoub .gt_font_italic { font-style: italic; }
+ #wdyqsbnoub .gt_super { font-size: 65%; }
+ #wdyqsbnoub .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #wdyqsbnoub .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1366,54 +1366,54 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </div>
 </div>
 <p>The data rows of a table typically take up the most physical space but we have some control over the extent of that. With the <code>data_row_padding</code> option, it’s possible to modify the top and bottom padding of data rows. We’ll do just that in the following example, reducing the padding to a value of <code>"3px"</code>.</p>
-<div id="c144acaf" class="cell" data-execution_count="4">
+<div id="5623ce17" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>gt_tbl.tab_options(data_row_padding<span class="op">=</span><span class="st">"3px"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<div id="vosaygvimu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="lnepqhhqfc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#vosaygvimu table {
+#lnepqhhqfc table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#vosaygvimu thead, tbody, tfoot, tr, td, th { border-style: none; }
+#lnepqhhqfc thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#vosaygvimu p { margin: 0; padding: 0; }
- #vosaygvimu .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #vosaygvimu .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #vosaygvimu .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #vosaygvimu .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #vosaygvimu .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #vosaygvimu .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #vosaygvimu .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #vosaygvimu .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #vosaygvimu .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #vosaygvimu .gt_column_spanner_outer:first-child { padding-left: 0; }
- #vosaygvimu .gt_column_spanner_outer:last-child { padding-right: 0; }
- #vosaygvimu .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #vosaygvimu .gt_spanner_row { border-bottom-style: hidden; }
- #vosaygvimu .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #vosaygvimu .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #vosaygvimu .gt_from_md> :first-child { margin-top: 0; }
- #vosaygvimu .gt_from_md> :last-child { margin-bottom: 0; }
- #vosaygvimu .gt_row { padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #vosaygvimu .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #vosaygvimu .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #vosaygvimu .gt_row_group_first td { border-top-width: 2px; }
- #vosaygvimu .gt_row_group_first th { border-top-width: 2px; }
- #vosaygvimu .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #vosaygvimu .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #vosaygvimu .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #vosaygvimu .gt_left { text-align: left; }
- #vosaygvimu .gt_center { text-align: center; }
- #vosaygvimu .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #vosaygvimu .gt_font_normal { font-weight: normal; }
- #vosaygvimu .gt_font_bold { font-weight: bold; }
- #vosaygvimu .gt_font_italic { font-style: italic; }
- #vosaygvimu .gt_super { font-size: 65%; }
- #vosaygvimu .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #vosaygvimu .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#lnepqhhqfc p { margin: 0; padding: 0; }
+ #lnepqhhqfc .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #lnepqhhqfc .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #lnepqhhqfc .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #lnepqhhqfc .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #lnepqhhqfc .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #lnepqhhqfc .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #lnepqhhqfc .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #lnepqhhqfc .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #lnepqhhqfc .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #lnepqhhqfc .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #lnepqhhqfc .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #lnepqhhqfc .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #lnepqhhqfc .gt_spanner_row { border-bottom-style: hidden; }
+ #lnepqhhqfc .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #lnepqhhqfc .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #lnepqhhqfc .gt_from_md> :first-child { margin-top: 0; }
+ #lnepqhhqfc .gt_from_md> :last-child { margin-bottom: 0; }
+ #lnepqhhqfc .gt_row { padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #lnepqhhqfc .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #lnepqhhqfc .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #lnepqhhqfc .gt_row_group_first td { border-top-width: 2px; }
+ #lnepqhhqfc .gt_row_group_first th { border-top-width: 2px; }
+ #lnepqhhqfc .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #lnepqhhqfc .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #lnepqhhqfc .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #lnepqhhqfc .gt_left { text-align: left; }
+ #lnepqhhqfc .gt_center { text-align: center; }
+ #lnepqhhqfc .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #lnepqhhqfc .gt_font_normal { font-weight: normal; }
+ #lnepqhhqfc .gt_font_bold { font-weight: bold; }
+ #lnepqhhqfc .gt_font_italic { font-style: italic; }
+ #lnepqhhqfc .gt_super { font-size: 65%; }
+ #lnepqhhqfc .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #lnepqhhqfc .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1502,54 +1502,54 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </div>
 </div>
 <p>The size of the title and the subtitle text in the header of the table can be altered with the <code>heading_title_font_size</code> and <code>heading_subtitle_font_size</code> options. Here, we’ll use the <code>"small"</code> and <code>"x-small"</code> keyword values.</p>
-<div id="f70b1b48" class="cell" data-execution_count="5">
+<div id="87b6e470" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gt_tbl.tab_options(heading_title_font_size<span class="op">=</span><span class="st">"small"</span>, heading_subtitle_font_size<span class="op">=</span><span class="st">"x-small"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
-<div id="erykcsxtiy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="aehmjceyod" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#erykcsxtiy table {
+#aehmjceyod table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#erykcsxtiy thead, tbody, tfoot, tr, td, th { border-style: none; }
+#aehmjceyod thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#erykcsxtiy p { margin: 0; padding: 0; }
- #erykcsxtiy .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #erykcsxtiy .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #erykcsxtiy .gt_title { color: #333333; font-size: small; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #erykcsxtiy .gt_subtitle { color: #333333; font-size: x-small; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #erykcsxtiy .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #erykcsxtiy .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #erykcsxtiy .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #erykcsxtiy .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #erykcsxtiy .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #erykcsxtiy .gt_column_spanner_outer:first-child { padding-left: 0; }
- #erykcsxtiy .gt_column_spanner_outer:last-child { padding-right: 0; }
- #erykcsxtiy .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #erykcsxtiy .gt_spanner_row { border-bottom-style: hidden; }
- #erykcsxtiy .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #erykcsxtiy .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #erykcsxtiy .gt_from_md> :first-child { margin-top: 0; }
- #erykcsxtiy .gt_from_md> :last-child { margin-bottom: 0; }
- #erykcsxtiy .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #erykcsxtiy .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #erykcsxtiy .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #erykcsxtiy .gt_row_group_first td { border-top-width: 2px; }
- #erykcsxtiy .gt_row_group_first th { border-top-width: 2px; }
- #erykcsxtiy .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #erykcsxtiy .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #erykcsxtiy .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #erykcsxtiy .gt_left { text-align: left; }
- #erykcsxtiy .gt_center { text-align: center; }
- #erykcsxtiy .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #erykcsxtiy .gt_font_normal { font-weight: normal; }
- #erykcsxtiy .gt_font_bold { font-weight: bold; }
- #erykcsxtiy .gt_font_italic { font-style: italic; }
- #erykcsxtiy .gt_super { font-size: 65%; }
- #erykcsxtiy .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #erykcsxtiy .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#aehmjceyod p { margin: 0; padding: 0; }
+ #aehmjceyod .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #aehmjceyod .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #aehmjceyod .gt_title { color: #333333; font-size: small; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #aehmjceyod .gt_subtitle { color: #333333; font-size: x-small; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #aehmjceyod .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #aehmjceyod .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #aehmjceyod .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #aehmjceyod .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #aehmjceyod .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #aehmjceyod .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #aehmjceyod .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #aehmjceyod .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #aehmjceyod .gt_spanner_row { border-bottom-style: hidden; }
+ #aehmjceyod .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #aehmjceyod .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #aehmjceyod .gt_from_md> :first-child { margin-top: 0; }
+ #aehmjceyod .gt_from_md> :last-child { margin-bottom: 0; }
+ #aehmjceyod .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #aehmjceyod .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #aehmjceyod .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #aehmjceyod .gt_row_group_first td { border-top-width: 2px; }
+ #aehmjceyod .gt_row_group_first th { border-top-width: 2px; }
+ #aehmjceyod .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #aehmjceyod .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #aehmjceyod .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #aehmjceyod .gt_left { text-align: left; }
+ #aehmjceyod .gt_center { text-align: center; }
+ #aehmjceyod .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #aehmjceyod .gt_font_normal { font-weight: normal; }
+ #aehmjceyod .gt_font_bold { font-weight: bold; }
+ #aehmjceyod .gt_font_italic { font-style: italic; }
+ #aehmjceyod .gt_super { font-size: 65%; }
+ #aehmjceyod .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #aehmjceyod .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
