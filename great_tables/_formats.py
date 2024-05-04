@@ -872,6 +872,24 @@ def fmt_percent(
     [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
     all other methods that have a `locale` argument).
 
+    Examples
+    --------
+    Let’s use the `towny` dataset as the input table. With the `fmt_percent()` method, we'll format
+    the `pop_change_2016_2021_pct` column to to display values as percentages (to two decimal
+    place).
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import towny
+
+    towny_mini = (
+        towny[["name", "pop_change_2016_2021_pct"]]
+        .head(10)
+    )
+
+    (GT(towny_mini).fmt_percent("pop_change_2016_2021_pct", decimals=2))
+    ```
+
     See Also
     --------
     The functional version of this method,
