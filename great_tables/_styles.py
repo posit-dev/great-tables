@@ -322,7 +322,12 @@ class CellStyleBorders(CellStyle):
 
         # If 'all' is provided then call the function recursively with all sides
         if "all" in self.sides:
-            return CellStyleBorders(sides=["top", "bottom", "left", "right"])._to_html_style()
+            return CellStyleBorders(
+                sides=["top", "bottom", "left", "right"],
+                color=self.color,
+                style=self.style,
+                weight=self.weight,
+            )._to_html_style()
 
         weight = self.weight
         if isinstance(weight, int):
