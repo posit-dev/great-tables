@@ -400,6 +400,7 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     ```{python}
     GT(countrypops_mini).cols_move_to_end(columns=["year", "country_name"])
+    ```
     """
 
     # If `columns` is a string, convert it to a list
