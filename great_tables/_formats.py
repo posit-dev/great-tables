@@ -2038,6 +2038,37 @@ def fmt_markdown(
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
+    Examples:
+    -------
+    Let’s first create a DataFrame containing some texts in Markdown-formatted and then introduce
+    that to [`GT()`](`great_tables.GT`). We’ll then transform the `md` column with the
+    `fmt_markdown()` method.
+
+    ```{python}
+    import pandas as pd
+    from great_tables import GT
+    from great_tables.data import towny
+
+    text_1 = \"""
+    ### This is Markdown.
+
+    Markdown’s syntax is comprised entirely of
+    punctuation characters, which punctuation
+    characters have been carefully chosen so as
+    to look like what they mean... assuming
+    you’ve ever used email.
+    \"""
+
+    text_2 = \"""
+    Info on Markdown syntax can be found
+    [here](https://daringfireball.net/projects/markdown/).
+    \"""
+
+    df = pd.DataFrame({"md": [text_1, text_2]})
+
+    (GT(df).fmt_markdown("md"))
+    ```
+
     See Also
     --------
     The functional version of this method,
