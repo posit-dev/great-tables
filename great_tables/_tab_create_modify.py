@@ -40,6 +40,12 @@ def tab_style(
         The cell or set of cells to be associated with the style. The `loc.body()` class can be used
         here to easily target body cell locations.
 
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
     Examples
     --------
     Let's use a small subset of the `exibble` dataset to demonstrate how to use `tab_style()` to
@@ -96,12 +102,6 @@ def tab_style(
         )
     )
     ```
-
-    Returns
-    -------
-    GT
-        The GT object is returned. This is the same object that the method is called on so that we
-        can facilitate method chaining.
     """
 
     if not isinstance(style, list):
