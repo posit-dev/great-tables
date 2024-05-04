@@ -96,6 +96,10 @@ def md(text: str) -> Text:
     -------
     Text
         An instance of the Text class is returned, where the text `type` is `"from_markdown"`.
+
+    Examples
+    ------
+    See [`GT.tab_header()`](`great_tables._heading.tab_header`).
     """
     return Text(text=text, type="from_markdown")
 
@@ -117,6 +121,10 @@ def html(text: str) -> Text:
     -------
     Text
         An instance of the Text class is returned, where the text `type` is `"html"`.
+
+    Examples
+    ------
+    See [`GT.tab_header()`](`great_tables._heading.tab_header`).
     """
     return Text(text=text, type="html")
 
