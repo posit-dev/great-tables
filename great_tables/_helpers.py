@@ -695,6 +695,10 @@ def nanoplot_options(
         If the values are to be displayed as currency values, supply either: (1) a 3-letter currency
         code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency), or (2) a common
         currency name (e.g., `"dollar"`, `"pound"`, `"yen"`, etc.).
+
+    Examples
+    --------
+    See [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`)
     """
 
     data_point_radius = _normalize_listable_nanoplot_options(
