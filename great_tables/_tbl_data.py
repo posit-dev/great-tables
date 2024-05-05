@@ -197,11 +197,13 @@ def _(data, row: int, column: str, value: Any) -> None:
     # if this is violated, get_loc will return a mask
     col_indx = data.columns.get_loc(column)
     data.iloc[row, col_indx] = value
+    return data
 
 
 @_set_cell.register(PlDataFrame)
 def _(data, row: int, column: str, value: Any) -> None:
     data[row, column] = value
+    return data
 
 
 # _get_column_dtype ----
@@ -297,6 +299,7 @@ def _(
     elif callable(expr):
         # TODO: currently, we call on each string, but we could be calling on
         # pd.DataFrame.columns instead (which would let us use pandas .str methods)
+
         col_pos = {k: ii for ii, k in enumerate(list(data.columns))}
         return [(col, col_pos[col]) for col in data.columns if expr(col)]
 
