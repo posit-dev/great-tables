@@ -108,8 +108,8 @@ def fmt(
     from great_tables import GT, exibble
 
     (
-        GT(exibble[["row", "group"]])
-        .fmt(lambda x: f"^{x}$")
+        GT(exibble)
+        .fmt(lambda x: f"^{x}$", columns=["row", "group"])
     )
     ```
     """
