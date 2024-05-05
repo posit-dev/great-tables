@@ -106,7 +106,7 @@ class LocBody(Loc):
 
     Examples
     ------
-    See [`GT.tab_style()`](`great_tables._tab_create_modify.tab_style`).
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
     columns: SelectExpr = None
     rows: RowSelectExpr = None

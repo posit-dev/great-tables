@@ -184,7 +184,7 @@ class CellStyleText(CellStyle):
 
     Examples
     ------
-    See [`GT.tab_style()`](`great_tables._tab_create_modify.tab_style`).
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
 
     color: str | ColumnExpr | None = None
@@ -270,7 +270,7 @@ class CellStyleFill(CellStyle):
 
     Examples
     ------
-    See [`GT.tab_style()`](`great_tables._tab_create_modify.tab_style`).
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
 
     color: str | ColumnExpr
@@ -311,7 +311,7 @@ class CellStyleBorders(CellStyle):
 
     Examples
     ------
-    See [`GT.tab_style()`](`great_tables._tab_create_modify.tab_style`).
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
 
     sides: (

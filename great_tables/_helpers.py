@@ -99,7 +99,7 @@ def md(text: str) -> Text:
 
     Examples
     ------
-    See [`GT.tab_header()`](`great_tables._heading.tab_header`).
+    See [`GT.tab_header()`](`great_tables.GT.tab_header`).
     """
     return Text(text=text, type="from_markdown")
 
@@ -124,7 +124,7 @@ def html(text: str) -> Text:
 
     Examples
     ------
-    See [`GT.tab_header()`](`great_tables._heading.tab_header`).
+    See [`GT.tab_header()`](`great_tables.GT.tab_header`).
     """
     return Text(text=text, type="html")
 
