@@ -73,11 +73,14 @@ def tab_style(
     ```
 
     Let's use `exibble` once again to create a simple, two-column output table (keeping only the
-    `num` and `currency` columns). With the `tab_style()` method (called twice), we'll add style to
+    `num` and `currency` columns). With the `tab_style()` method (called thrice), we'll add style to
     the values already formatted by `fmt_number()` and `fmt_currency()`. In the `style` argument of
-    each `tab_style()` call, we can define multiple types of styling with the `style.fill()` and
-    `style.text()` classes (enclosing these in a list). The cells to be targeted for styling require
-    the use of `loc.body()`, which is used here with different columns being targeted.
+    the first two `tab_style()` call, we can define multiple types of styling with the
+    `style.fill()` and `style.text()` classes (enclosing these in a list). The cells to be targeted
+    for styling require the use of `loc.body()`, which is used here with different columns being
+    targeted. For the final `tab_style()` call, we demonstrate the use of `style.borders()` class
+    as the `style` argument, which is employed in conjunction with `loc.body()` to locate the row to
+    be styled.
 
     ```{python}
     from great_tables import GT, style, loc, exibble
@@ -99,6 +102,10 @@ def tab_style(
                 style.text(style="italic")
             ],
             locations=loc.body(columns="currency")
+        )
+        .tab_style(
+            style=style.borders(sides=["top", "bottom"], weight='2px', color="red"),
+            locations=loc.body(rows=[4])
         )
     )
     ```
