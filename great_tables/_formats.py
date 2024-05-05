@@ -3571,6 +3571,48 @@ def fmt_nanoplot(
     )
     ```
 
+    Here's an example to adjust some of the options using
+    [`nanoplot_options()`](`great_tables.nanoplot_options`).
+
+    ```{python}
+    (
+        GT(random_numbers_df, rowname_col="i")
+        .fmt_nanoplot(
+            columns="lines",
+            reference_line="mean",
+            reference_area=["min", "q1"],
+            options=nanoplot_options(
+                data_point_radius=8,
+                data_point_stroke_color="black",
+                data_point_stroke_width=2,
+                data_point_fill_color="white",
+                data_line_type="straight",
+                data_line_stroke_color="brown",
+                data_line_stroke_width=2,
+                data_area_fill_color="orange",
+                vertical_guide_stroke_color="green",
+            ),
+        )
+        .fmt_nanoplot(
+            columns="bars",
+            plot_type="bar",
+            reference_line="max",
+            reference_area=["max", "median"],
+            options=nanoplot_options(
+                data_bar_stroke_color="gray",
+                data_bar_stroke_width=2,
+                data_bar_fill_color="orange",
+                data_bar_negative_stroke_color="blue",
+                data_bar_negative_stroke_width=1,
+                data_bar_negative_fill_color="lightblue",
+                reference_line_color="pink",
+                reference_area_fill_color="bisque",
+                vertical_guide_stroke_color="blue",
+            ),
+        )
+    )
+    ```
+
     Single-value bar plots and line plots can be made with `fmt_nanoplot()`. These run in the
     horizontal direction, which is ideal for tabular presentation. The key thing here is that
     `fmt_nanoplot()` expects a column of numeric values. These plots are meant for comparison
