@@ -98,6 +98,20 @@ def fmt(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a table. With the `fmt()` method, we'll add a prefix
+    `^` and a suffix `$` to the `row` and `group` columns.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+    (
+        GT(exibble[["row", "group"]])
+        .fmt(lambda x: f"^{x}$")
+    )
+    ```
     """
 
     # If a single function is supplied to `fns` then
