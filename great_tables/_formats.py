@@ -3575,6 +3575,8 @@ def fmt_nanoplot(
     [`nanoplot_options()`](`great_tables.nanoplot_options`).
 
     ```{python}
+    from great_tables import nanoplot_options
+
     (
         GT(random_numbers_df, rowname_col="i")
         .fmt_nanoplot(
