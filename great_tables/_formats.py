@@ -2054,7 +2054,7 @@ def fmt_markdown(
 
     Examples:
     -------
-    Let’s first create a DataFrame containing some texts in Markdown-formatted and then introduce
+    Let’s first create a DataFrame containing some text that is Markdown-formatted and then introduce
     that to [`GT()`](`great_tables.GT`). We’ll then transform the `md` column with the
     `fmt_markdown()` method.
 
