@@ -400,6 +400,7 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     ```{python}
     GT(countrypops_mini).cols_move_to_end(columns=["year", "country_name"])
+    ```
     """
 
     # If `columns` is a string, convert it to a list
@@ -444,6 +445,23 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+
+    Examples
+    --------
+    For this example, we'll use a portion of the `countrypops` dataset to create a simple table.
+    Let's hide the `year` column with the `cols_hide()` method.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import countrypops
+
+    countrypops_mini = countrypops.loc[countrypops["country_name"] == "Benin"][
+        ["country_name", "year", "population"]
+    ].tail(5)
+
+    GT(countrypops_mini).cols_hide(columns="year")
+    ```
 
     Details
     -------

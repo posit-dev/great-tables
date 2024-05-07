@@ -181,6 +181,10 @@ class CellStyleText(CellStyle):
     CellStyleText
         A CellStyleText object, which is used for a `styles` argument if specifying any cell text
         properties.
+
+    Examples
+    ------
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
 
     color: str | ColumnExpr | None = None
@@ -263,6 +267,10 @@ class CellStyleFill(CellStyle):
     CellStyleFill
         A CellStyleFill object, which is used for a `styles` argument if specifying a cell fill
         value.
+
+    Examples
+    ------
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
 
     color: str | ColumnExpr
@@ -300,6 +308,10 @@ class CellStyleBorders(CellStyle):
     -------
     CellStyleBorders
         A CellStyleBorders object, which is used for a `styles` argument if specifying cell borders.
+
+    Examples
+    ------
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
 
     sides: (

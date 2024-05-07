@@ -103,6 +103,10 @@ class LocBody(Loc):
     -------
     LocBody
         A LocBody object, which is used for a `locations` argument if specifying the table body.
+
+    Examples
+    ------
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
     columns: SelectExpr = None
     rows: RowSelectExpr = None

@@ -32,6 +32,18 @@ def as_raw_html(
     -------
     str
         An HTML fragment containing a table.
+
+    Examples:
+    ------
+    Let's use the `row` column of `exibble` dataset to create a table. With the `as_raw_html()`
+    method, we're able to output the HTML content.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+    GT(exibble[["row"]]).as_raw_html()
+    ```
+
     """
     built_table = self._build_data(context="html")
 

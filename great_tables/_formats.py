@@ -106,6 +106,20 @@ def fmt(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a table. With the `fmt()` method, we'll add a prefix
+    `^` and a suffix `$` to the `row` and `group` columns.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+    (
+        GT(exibble)
+        .fmt(lambda x: f"^{x}$", columns=["row", "group"])
+    )
+    ```
     """
 
     # If a single function is supplied to `fns` then
@@ -879,6 +893,24 @@ def fmt_percent(
     Note that a `locale` value provided here will override any global locale setting performed in
     [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
     all other methods that have a `locale` argument).
+
+    Examples
+    --------
+    Let’s use the `towny` dataset as the input table. With the `fmt_percent()` method, we'll format
+    the `pop_change_2016_2021_pct` column to to display values as percentages (to two decimal
+    places).
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import towny
+
+    towny_mini = (
+        towny[["name", "pop_change_2016_2021_pct"]]
+        .head(10)
+    )
+
+    (GT(towny_mini).fmt_percent("pop_change_2016_2021_pct", decimals=2))
+    ```
 
     See Also
     --------
@@ -2027,6 +2059,37 @@ def fmt_markdown(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples:
+    -------
+    Let’s first create a DataFrame containing some text that is Markdown-formatted and then introduce
+    that to [`GT()`](`great_tables.GT`). We’ll then transform the `md` column with the
+    `fmt_markdown()` method.
+
+    ```{python}
+    import pandas as pd
+    from great_tables import GT
+    from great_tables.data import towny
+
+    text_1 = \"""
+    ### This is Markdown.
+
+    Markdown’s syntax is comprised entirely of
+    punctuation characters, which punctuation
+    characters have been carefully chosen so as
+    to look like what they mean... assuming
+    you’ve ever used email.
+    \"""
+
+    text_2 = \"""
+    Info on Markdown syntax can be found
+    [here](https://daringfireball.net/projects/markdown/).
+    \"""
+
+    df = pd.DataFrame({"md": [text_1, text_2]})
+
+    (GT(df).fmt_markdown("md"))
+    ```
 
     See Also
     --------
@@ -3516,6 +3579,50 @@ def fmt_nanoplot(
             plot_type="bar",
             reference_line="max",
             reference_area=["max", "median"])
+    )
+    ```
+
+    Here's an example to adjust some of the options using
+    [`nanoplot_options()`](`great_tables.nanoplot_options`).
+
+    ```{python}
+    from great_tables import nanoplot_options
+
+    (
+        GT(random_numbers_df, rowname_col="i")
+        .fmt_nanoplot(
+            columns="lines",
+            reference_line="mean",
+            reference_area=["min", "q1"],
+            options=nanoplot_options(
+                data_point_radius=8,
+                data_point_stroke_color="black",
+                data_point_stroke_width=2,
+                data_point_fill_color="white",
+                data_line_type="straight",
+                data_line_stroke_color="brown",
+                data_line_stroke_width=2,
+                data_area_fill_color="orange",
+                vertical_guide_stroke_color="green",
+            ),
+        )
+        .fmt_nanoplot(
+            columns="bars",
+            plot_type="bar",
+            reference_line="max",
+            reference_area=["max", "median"],
+            options=nanoplot_options(
+                data_bar_stroke_color="gray",
+                data_bar_stroke_width=2,
+                data_bar_fill_color="orange",
+                data_bar_negative_stroke_color="blue",
+                data_bar_negative_stroke_width=1,
+                data_bar_negative_fill_color="lightblue",
+                reference_line_color="pink",
+                reference_area_fill_color="bisque",
+                vertical_guide_stroke_color="blue",
+            ),
+        )
     )
     ```
 
