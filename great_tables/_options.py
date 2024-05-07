@@ -1005,7 +1005,7 @@ def opt_table_outline(
     Examples
     --------
     Using select columns from the `exibble` dataset, let's create a table with a number of
-    components added. Following that, we'll puts an outline around the entire table using the
+    components added. Following that, we'll put an outline around the entire table using the
     `opt_table_outline()` method.
 
     ```{python}
