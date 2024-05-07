@@ -14,7 +14,15 @@ from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
 from ._helpers import px
 from ._locale import _get_currencies_data, _get_default_locales_data, _get_locales_data
 from ._locations import resolve_cols_c, resolve_rows_i
-from ._tbl_data import PlExpr, SelectExpr, _get_column_dtype, is_na, to_list
+from ._tbl_data import (
+    Agnostic,
+    DataFrameLike,
+    PlExpr,
+    SelectExpr,
+    is_na,
+    to_list,
+    _get_column_dtype,
+)
 from ._text import _md_html
 from ._utils import _str_detect, _str_replace
 from ._utils_nanoplots import _generate_nanoplot
@@ -3244,7 +3252,7 @@ def fmt_image(
     if height is None and width is None:
         height = "2em"
 
-    formatter = FmtImage(height, width, sep, str(path), file_pattern, encode)
+    formatter = FmtImage(self._tbl_data, height, width, sep, str(path), file_pattern, encode)
     return fmt(self, fns=formatter.to_html, columns=columns, rows=rows)
 
 
@@ -3253,6 +3261,7 @@ from dataclasses import dataclass
 
 @dataclass
 class FmtImage:
+    dispatch_on: DataFrameLike | Agnostic = Agnostic()
     height: str | int | None = None
     width: str | None = None
     sep: str = " "
@@ -3266,10 +3275,12 @@ class FmtImage:
         import re
         from pathlib import Path
 
-        # TODO: handle NA values
         # TODO: are we assuming val is a string? (or coercing?)
 
         # otherwise...
+
+        if is_na(self.dispatch_on, val):
+            return val
 
         if "," in val:
             files = re.split(r",\s*", val)

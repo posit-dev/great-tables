@@ -1397,6 +1397,14 @@ def test_fmt_image_single():
     assert res == dst
 
 
+def test_fmt_image_missing():
+    formatter = FmtImage()
+    assert formatter.to_html(None) is None
+
+    formatter_pd = FmtImage(pd.DataFrame())
+    assert formatter_pd.to_html(pd.NA) is pd.NA
+
+
 def test_fmt_image_multiple():
     formatter = FmtImage(sep="---", file_pattern="{}.svg", encode=False)
     res = formatter.to_html("/a,/b")
