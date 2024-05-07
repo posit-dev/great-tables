@@ -401,8 +401,29 @@ def _(df: PdDataFrame):
 @cast_frame_to_string.register
 def _(df: PlDataFrame):
     import polars as pl
+    import polars.selectors as cs
 
-    return df.cast(pl.Utf8)
+    list_cols = [
+        name for name, dtype in zip(df.columns, df.dtypes) if issubclass(dtype.base_type(), pl.List)
+    ]
+
+    return df.with_columns(
+        cs.by_name(list_cols).map_elements(lambda x: str(x.to_list())),
+        cs.all().exclude(list_cols).cast(pl.Utf8),
+    )
+
+
+# to_string ----
+
+
+@singledispatch
+def to_rendered_string(x: Any) -> str:
+    return str(x)
+
+
+@to_rendered_string.register
+def _(x: PlSeries) -> str:
+    return str(x.to_list())
 
 
 # replace_null_frame ----
@@ -440,6 +461,24 @@ def _(ser: PdSeries) -> List[Any]:
 @to_list.register
 def _(ser: PlSeries) -> List[Any]:
     return ser.to_list()
+
+
+# is_series ----
+
+
+@singledispatch
+def is_series(ser: Any) -> bool:
+    False
+
+
+@is_series.register
+def _(ser: PdSeries) -> bool:
+    return True
+
+
+@is_series.register
+def _(ser: PlSeries) -> bool:
+    return True
 
 
 # mutate ----

@@ -69,6 +69,7 @@ def _assert_str_in_set(x: str, set: List[str]):
 
 
 def _assert_list_is_subset(x: List[Any], set_list: List[Any]) -> None:
+    # TODO: add more diagnostic error
     if not set(x).issubset(set(set_list)):
         raise AssertionError("The columns provided are not present in the table.")
 
