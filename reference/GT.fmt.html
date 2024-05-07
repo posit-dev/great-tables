@@ -20,10 +20,44 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -75,6 +109,9 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -136,22 +173,34 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.GT.fmt" id="toc-great_tables.GT.fmt" class="nav-link active" data-scroll-target="#great_tables.GT.fmt">GT.fmt</a>
-  <ul class="collapse">
-  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
-  </ul></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content column-page-left" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">GT.fmt</h1>
+</div>
 
 
 
-<section id="great_tables.GT.fmt" class="level1">
-<h1>GT.fmt</h1>
+<div class="quarto-title-meta column-page-left">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
 <p><code>GT.fmt(self, fns, columns=None, rows=None, is_substitution=False)</code></p>
 <p>Set a column format with a formatter function.</p>
 <p>The <code>fmt()</code> method provides a way to execute custom formatting functionality with raw data values in a way that can consider all output contexts.</p>
@@ -217,9 +266,178 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </tr>
 </tbody>
 </table>
-
-
 </section>
+<section id="examples" class="level2">
+<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<p>Let’s use the <code>exibble</code> dataset to create a table. With the <code>fmt()</code> method, we’ll add a prefix <code>^</code> and a suffix <code>$</code> to the <code>row</code> and <code>group</code> columns.</p>
+<div id="720a4476" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    GT(exibble)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    .fmt(<span class="kw">lambda</span> x: <span class="ss">f"^</span><span class="sc">{</span>x<span class="sc">}</span><span class="ss">$"</span>, columns<span class="op">=</span>[<span class="st">"row"</span>, <span class="st">"group"</span>])</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div id="jvaxzunonq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#jvaxzunonq table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#jvaxzunonq thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#jvaxzunonq p { margin: 0; padding: 0; }
+ #jvaxzunonq .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #jvaxzunonq .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #jvaxzunonq .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #jvaxzunonq .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #jvaxzunonq .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #jvaxzunonq .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #jvaxzunonq .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #jvaxzunonq .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #jvaxzunonq .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #jvaxzunonq .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #jvaxzunonq .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #jvaxzunonq .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #jvaxzunonq .gt_spanner_row { border-bottom-style: hidden; }
+ #jvaxzunonq .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #jvaxzunonq .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #jvaxzunonq .gt_from_md> :first-child { margin-top: 0; }
+ #jvaxzunonq .gt_from_md> :last-child { margin-bottom: 0; }
+ #jvaxzunonq .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #jvaxzunonq .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #jvaxzunonq .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #jvaxzunonq .gt_row_group_first td { border-top-width: 2px; }
+ #jvaxzunonq .gt_row_group_first th { border-top-width: 2px; }
+ #jvaxzunonq .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #jvaxzunonq .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #jvaxzunonq .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #jvaxzunonq .gt_left { text-align: left; }
+ #jvaxzunonq .gt_center { text-align: center; }
+ #jvaxzunonq .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #jvaxzunonq .gt_font_normal { font-weight: normal; }
+ #jvaxzunonq .gt_font_bold { font-weight: bold; }
+ #jvaxzunonq .gt_font_italic { font-style: italic; }
+ #jvaxzunonq .gt_super { font-size: 65%; }
+ #jvaxzunonq .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #jvaxzunonq .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+
+<tbody><tr class="gt_col_headings">
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="date">date</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="time">time</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="datetime">datetime</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="row">row</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group">group</th>
+</tr>
+</tbody><tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">0.1111</td>
+    <td class="gt_row gt_left">apricot</td>
+    <td class="gt_row gt_left">one</td>
+    <td class="gt_row gt_right">2015-01-15</td>
+    <td class="gt_row gt_right">13:35</td>
+    <td class="gt_row gt_right">2018-01-01 02:22</td>
+    <td class="gt_row gt_right">49.95</td>
+    <td class="gt_row gt_left">^row_1$</td>
+    <td class="gt_row gt_left">^grp_a$</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td class="gt_row gt_left">banana</td>
+    <td class="gt_row gt_left">two</td>
+    <td class="gt_row gt_right">2015-02-15</td>
+    <td class="gt_row gt_right">14:40</td>
+    <td class="gt_row gt_right">2018-02-02 14:33</td>
+    <td class="gt_row gt_right">17.95</td>
+    <td class="gt_row gt_left">^row_2$</td>
+    <td class="gt_row gt_left">^grp_a$</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td class="gt_row gt_left">coconut</td>
+    <td class="gt_row gt_left">three</td>
+    <td class="gt_row gt_right">2015-03-15</td>
+    <td class="gt_row gt_right">15:45</td>
+    <td class="gt_row gt_right">2018-03-03 03:44</td>
+    <td class="gt_row gt_right">1.39</td>
+    <td class="gt_row gt_left">^row_3$</td>
+    <td class="gt_row gt_left">^grp_a$</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">444.4</td>
+    <td class="gt_row gt_left">durian</td>
+    <td class="gt_row gt_left">four</td>
+    <td class="gt_row gt_right">2015-04-15</td>
+    <td class="gt_row gt_right">16:50</td>
+    <td class="gt_row gt_right">2018-04-04 15:55</td>
+    <td class="gt_row gt_right">65100.0</td>
+    <td class="gt_row gt_left">^row_4$</td>
+    <td class="gt_row gt_left">^grp_a$</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">5550.0</td>
+    <td class="gt_row gt_left"><na></na></td>
+    <td class="gt_row gt_left">five</td>
+    <td class="gt_row gt_right">2015-05-15</td>
+    <td class="gt_row gt_right">17:55</td>
+    <td class="gt_row gt_right">2018-05-05 04:00</td>
+    <td class="gt_row gt_right">1325.81</td>
+    <td class="gt_row gt_left">^row_5$</td>
+    <td class="gt_row gt_left">^grp_b$</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_left">fig</td>
+    <td class="gt_row gt_left">six</td>
+    <td class="gt_row gt_right">2015-06-15</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_right">2018-06-06 16:11</td>
+    <td class="gt_row gt_right">13.255</td>
+    <td class="gt_row gt_left">^row_6$</td>
+    <td class="gt_row gt_left">^grp_b$</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">777000.0</td>
+    <td class="gt_row gt_left">grapefruit</td>
+    <td class="gt_row gt_left">seven</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_right">19:10</td>
+    <td class="gt_row gt_right">2018-07-07 05:22</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_left">^row_7$</td>
+    <td class="gt_row gt_left">^grp_b$</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">8880000.0</td>
+    <td class="gt_row gt_left">honeydew</td>
+    <td class="gt_row gt_left">eight</td>
+    <td class="gt_row gt_right">2015-08-15</td>
+    <td class="gt_row gt_right">20:20</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_right">0.44</td>
+    <td class="gt_row gt_left">^row_8$</td>
+    <td class="gt_row gt_left">^grp_b$</td>
+  </tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->

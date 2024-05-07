@@ -20,10 +20,44 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -75,6 +109,9 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -136,24 +173,36 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.GT.fmt_percent" id="toc-great_tables.GT.fmt_percent" class="nav-link active" data-scroll-target="#great_tables.GT.fmt_percent">GT.fmt_percent</a>
-  <ul class="collapse">
-  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   <li><a href="#adapting-output-to-a-specific-locale" id="toc-adapting-output-to-a-specific-locale" class="nav-link" data-scroll-target="#adapting-output-to-a-specific-locale">Adapting Output To A Specific <code>Locale</code></a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
-  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content column-page-left" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">GT.fmt_percent</h1>
+</div>
 
 
 
-<section id="great_tables.GT.fmt_percent" class="level1">
-<h1>GT.fmt_percent</h1>
+<div class="quarto-title-meta column-page-left">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
 <p><code>GT.fmt_percent(self, columns=None, rows=None, decimals=2, drop_trailing_zeros=False, drop_trailing_dec_mark=True, scale_values=True, use_seps=True, pattern='{x}', sep_mark=',', dec_mark='.', force_sign=False, placement='right', incl_space=False, locale=None)</code></p>
 <p>Format values as a percentage.</p>
 <p>With numeric values in a <strong>gt</strong> table, we can perform percentage-based formatting. It is assumed the input numeric values are proportional values and, in this case, the values will be automatically multiplied by <code>100</code> before decorating with a percent sign (the other case is accommodated though setting <code>scale_values</code> to <code>False</code>). For more control over percentage formatting, we can use the following options:</p>
@@ -292,12 +341,129 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <p>This formatting method can adapt outputs according to a provided <code>locale</code> value. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France). The use of a valid locale ID here means separator and decimal marks will be correct for the given locale. Should any values be provided in <code>sep_mark</code> or <code>dec_mark</code>, they will be overridden by the locale’s preferred values.</p>
 <p>Note that a <code>locale</code> value provided here will override any global locale setting performed in <a href="../reference/GT.html#great_tables.GT"><code>GT()</code></a>’s own <code>locale</code> argument (it is settable there as a value received by all other methods that have a <code>locale</code> argument).</p>
 </section>
+<section id="examples" class="level2">
+<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<p>Let’s use the <code>towny</code> dataset as the input table. With the <code>fmt_percent()</code> method, we’ll format the <code>pop_change_2016_2021_pct</code> column to to display values as percentages (to two decimal places).</p>
+<div id="d2472767" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> towny</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>towny_mini <span class="op">=</span> (</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    towny[[<span class="st">"name"</span>, <span class="st">"pop_change_2016_2021_pct"</span>]]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    .head(<span class="dv">10</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>(GT(towny_mini).fmt_percent(<span class="st">"pop_change_2016_2021_pct"</span>, decimals<span class="op">=</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div id="ndmssuvhkt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#ndmssuvhkt table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#ndmssuvhkt thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#ndmssuvhkt p { margin: 0; padding: 0; }
+ #ndmssuvhkt .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #ndmssuvhkt .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #ndmssuvhkt .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #ndmssuvhkt .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #ndmssuvhkt .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ndmssuvhkt .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ndmssuvhkt .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ndmssuvhkt .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #ndmssuvhkt .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #ndmssuvhkt .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #ndmssuvhkt .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #ndmssuvhkt .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #ndmssuvhkt .gt_spanner_row { border-bottom-style: hidden; }
+ #ndmssuvhkt .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #ndmssuvhkt .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #ndmssuvhkt .gt_from_md> :first-child { margin-top: 0; }
+ #ndmssuvhkt .gt_from_md> :last-child { margin-bottom: 0; }
+ #ndmssuvhkt .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #ndmssuvhkt .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #ndmssuvhkt .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #ndmssuvhkt .gt_row_group_first td { border-top-width: 2px; }
+ #ndmssuvhkt .gt_row_group_first th { border-top-width: 2px; }
+ #ndmssuvhkt .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ndmssuvhkt .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #ndmssuvhkt .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #ndmssuvhkt .gt_left { text-align: left; }
+ #ndmssuvhkt .gt_center { text-align: center; }
+ #ndmssuvhkt .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #ndmssuvhkt .gt_font_normal { font-weight: normal; }
+ #ndmssuvhkt .gt_font_bold { font-weight: bold; }
+ #ndmssuvhkt .gt_font_italic { font-style: italic; }
+ #ndmssuvhkt .gt_super { font-size: 65%; }
+ #ndmssuvhkt .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #ndmssuvhkt .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+
+<tbody><tr class="gt_col_headings">
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="name">name</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="pop_change_2016_2021_pct">pop_change_2016_2021_pct</th>
+</tr>
+</tbody><tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_left">Addington Highlands</td>
+    <td class="gt_row gt_right">9.32%</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adelaide Metcalfe</td>
+    <td class="gt_row gt_right">0.70%</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Adjala-Tosorontio</td>
+    <td class="gt_row gt_right">0.13%</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Admaston/Bromley</td>
+    <td class="gt_row gt_right">2.04%</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Ajax</td>
+    <td class="gt_row gt_right">5.84%</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Alberton</td>
+    <td class="gt_row gt_right">−1.55%</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Alfred and Plantagenet</td>
+    <td class="gt_row gt_right">2.78%</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Algonquin Highlands</td>
+    <td class="gt_row gt_right">10.08%</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Alnwick/Haldimand</td>
+    <td class="gt_row gt_right">8.79%</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">Amaranth</td>
+    <td class="gt_row gt_right">6.08%</td>
+  </tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+</section>
 <section id="see-also" class="level2">
 <h2 class="anchored" data-anchor-id="see-also">See Also</h2>
 <p>The functional version of this method, <a href="../reference/vals.fmt_percent.html#great_tables.vals.fmt_percent"><code>val_fmt_percent()</code></a>, allows you to format a single numerical value (or a list of them).</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
