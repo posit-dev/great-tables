@@ -63,6 +63,15 @@
   </tbody>
   '''
 # ---
+# name: test_render_polars_list_col
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_center">[1, 2]</td>
+    </tr>
+  </tbody>
+  '''
+# ---
 # name: test_source_notes_snap
   '''
     <tfoot class="gt_sourcenotes">

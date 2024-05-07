@@ -1,4 +1,5 @@
 import pandas as pd
+import polars as pl
 from great_tables import GT, exibble, html, loc, md, style
 from great_tables._utils_render_html import create_body_component_h, create_source_notes_component_h
 
@@ -150,3 +151,9 @@ def test_styling_data_10(snapshot):
     )
 
     assert_rendered_body(snapshot, new_gt)
+
+
+def test_render_polars_list_col(snapshot):
+    gt = GT(pl.DataFrame({"x": [[1, 2]]}))
+
+    assert_rendered_body(snapshot, gt)
