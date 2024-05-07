@@ -8,9 +8,11 @@ from great_tables._tbl_data import (
     _get_cell,
     _get_column_dtype,
     _set_cell,
+    cast_frame_to_string,
     create_empty_frame,
     eval_select,
     get_column_names,
+    is_series,
     reorder,
     to_frame,
     validate_frame,
@@ -136,3 +138,20 @@ def test_to_frame(ser: SeriesLike):
         assert_frame_equal(df, pd.DataFrame({"x": [1.0, 2.0, None]}))
     else:
         raise AssertionError(f"Unexpected series type: {type(ser)}")
+
+
+def test_is_series(ser: SeriesLike):
+    assert is_series(ser)
+
+
+def test_is_series_false():
+    assert not is_series(1)
+
+
+def test_cast_frame_to_string_polars_list_col():
+    df = pl.DataFrame({"x": [[1, 2], [3]], "y": [1, None], "z": [{"a": 1}, {"a": 2}]})
+    new_df = cast_frame_to_string(df)
+
+    assert new_df["x"].dtype.is_(pl.String)
+    assert new_df["y"].dtype.is_(pl.String)
+    assert new_df["z"].dtype.is_(pl.String)

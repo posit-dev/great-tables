@@ -1,11 +1,21 @@
 from typing import Any
 
+import polars as pl
 import pytest
 from great_tables._formats import _generate_data_vals, _process_number_stream
 
 
 @pytest.mark.parametrize(
-    "src", ["1 2 3", "1  2, 3", "a1 b2 c3", [1, 2, 3], {"x": [1, 2, 3]}, {"any_name": [1, 2, 3]}]
+    "src",
+    [
+        "1 2 3",
+        "1  2, 3",
+        "a1 b2 c3",
+        [1, 2, 3],
+        {"x": [1, 2, 3]},
+        {"any_name": [1, 2, 3]},
+        pl.Series([1, 2, 3]),
+    ],
 )
 def test_generate_data_vals(src: Any):
     assert _generate_data_vals(src) == [1, 2, 3]
