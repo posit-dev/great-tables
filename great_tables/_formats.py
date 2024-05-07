@@ -890,7 +890,7 @@ def fmt_percent(
     --------
     Let’s use the `towny` dataset as the input table. With the `fmt_percent()` method, we'll format
     the `pop_change_2016_2021_pct` column to to display values as percentages (to two decimal
-    place).
+    places).
 
     ```{python}
     from great_tables import GT
