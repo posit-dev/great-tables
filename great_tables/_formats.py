@@ -20,7 +20,15 @@ from typing import (
 )
 from typing_extensions import TypeAlias
 from ._helpers import px
-from ._tbl_data import PlExpr, SelectExpr, is_na, to_list, _get_column_dtype
+from ._tbl_data import (
+    DataFrameLike,
+    PlExpr,
+    SelectExpr,
+    is_na,
+    to_list,
+    _get_column_dtype,
+    is_series,
+)
 from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
 from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
 from ._locations import resolve_rows_i, resolve_cols_c
@@ -3254,7 +3262,7 @@ def fmt_image(
     if height is None and width is None:
         height = "2em"
 
-    formatter = FmtImage(height, width, sep, str(path), file_pattern, encode)
+    formatter = FmtImage(self._tbl_data, height, width, sep, str(path), file_pattern, encode)
     return fmt(self, fns=formatter.to_html, columns=columns, rows=rows)
 
 
@@ -3263,6 +3271,7 @@ from dataclasses import dataclass
 
 @dataclass
 class FmtImage:
+    dispatch_on: DataFrameLike
     height: str | int | None = None
     width: str | None = None
     sep: str = " "
@@ -3276,10 +3285,12 @@ class FmtImage:
         import re
         from pathlib import Path
 
-        # TODO: handle NA values
         # TODO: are we assuming val is a string? (or coercing?)
 
         # otherwise...
+
+        if is_na(self.dispatch_on, val):
+            return val
 
         if "," in val:
             files = re.split(r",\s*", val)
@@ -3701,6 +3712,9 @@ def _generate_data_vals(
     """
 
     import re
+
+    if is_series(data_vals):
+        data_vals = to_list(data_vals)
 
     if isinstance(data_vals, list):
 
