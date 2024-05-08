@@ -1874,6 +1874,12 @@ def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
     )
 
 
+def test_fmt_nanoplot_polars_listcol(snapshot):
+    gt = GT(pl.DataFrame({"x": [[1, 2], [3, 4]]})).fmt_nanoplot("x")
+
+    assert_rendered_body(snapshot, gt)
+
+
 def test_normalize_locale():
     assert _normalize_locale("af-ZA") == "af"
 

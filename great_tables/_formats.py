@@ -20,6 +20,7 @@ from ._tbl_data import (
     PlExpr,
     SelectExpr,
     is_na,
+    is_series,
     to_list,
     _get_column_dtype,
 )
@@ -3809,6 +3810,9 @@ def _generate_data_vals(
     """
 
     import re
+
+    if is_series(data_vals):
+        data_vals = to_list(data_vals)
 
     if isinstance(data_vals, list):
 
