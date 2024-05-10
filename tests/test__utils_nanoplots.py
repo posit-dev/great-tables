@@ -2052,12 +2052,13 @@ def test_get_n_intlike(nums: list[Any], n: int):
 @pytest.mark.parametrize(
     "n, result",
     [
-        ("1.0", 1),
-        (2.0, 2),
-        (3.00, 3),
-        (Decimal(4), 4),
-        ("-5.0", -5),
-        ("−5.0", -5),  # not regular `-`
+        ("1.0", "1"),
+        (2.0, "2"),
+        (3.00, "3"),
+        (Decimal(4), "4"),
+        ("-5.0", "-5"),
+        ("−5.0", "-5"),  # not regular `-`
+        ("-7.04K", "-7.04K"),  # not regular `-`
     ],
 )
 def test_remove_exponent(n: "int | float | str", result: int):

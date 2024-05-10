@@ -1596,18 +1596,28 @@ def _get_n_intlike(nums: list[Any]) -> int:
     return len([n for n in nums if _is_intlike(n)])
 
 
-def _remove_exponent(n: "str | int | float") -> int:
+def _remove_exponent(n: "str | int | float") -> str:
     """
     https://docs.python.org/3/library/decimal.html#decimal-faq
     """
-    from decimal import Decimal
+    from decimal import Decimal, InvalidOperation
 
     if isinstance(n, str):
         # Replacement of minus sign (U+2212) with hyphen (necessary in some locales)
-        n = str(n).replace("−", "-")
-    d = Decimal(n)
-    if d == d.to_integral():
-        x = d.quantize(Decimal(1))
-    else:
-        x = d.normalize()
-    return int(x)
+        n = n.replace("−", "-")
+
+    # TODO: note that in the nanoplot code, this function only runs when
+    # GT believes everything is an integer. However, _format_number_compactly
+    # may have run on each value and formatted them compactly (e.g. 7045 to "704K")
+    # The InvalidOperation catch prevents errors on compact numbers, but is a
+    # hacky patch. We need to consolidate the processing steps run for value
+    # formatting.
+    try:
+        d = Decimal(n)
+        if d == d.to_integral():
+            x = d.quantize(Decimal(1))
+        else:
+            x = d.normalize()
+        return str(int(x))
+    except InvalidOperation:
+        return str(n)
