@@ -2246,7 +2246,7 @@ def _format_number_n_sigfig(
     # Get integer and decimal parts
     # Split number at `.` and obtain the integer and decimal parts
     number_parts = formatted_value.split(".")
-    integer_part = number_parts[0]
+    integer_part = number_parts[0].lstrip("-")
     decimal_part = number_parts[1] if len(number_parts) > 1 else ""
 
     # Initialize formatted representations of integer and decimal parts
@@ -2266,6 +2266,10 @@ def _format_number_n_sigfig(
             count += 1
     else:
         formatted_integer = integer_part
+
+    # Add back the negative sign if the number is negative
+    if is_negative:
+        formatted_integer = "-" + formatted_integer
 
     # Combine the integer and decimal parts
     result = formatted_integer + formatted_decimal
