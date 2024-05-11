@@ -1003,6 +1003,7 @@ def test_fmt_number_pattern(pattern: str, x_out: str):
         (0.00023, "0.00"),
         (0.000033, "0.00"),
         (0.00000000446453, "0.00"),
+        (-5325, "-5325"),
     ],
 )
 def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
