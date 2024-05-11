@@ -9,6 +9,7 @@ from great_tables._data_color.base import _html_color
 from great_tables._formats import (
     FmtImage,
     _expand_exponential_to_full_string,
+    _format_number_n_sigfig,
     _format_number_fixed_decimals,
     _get_currency_str,
     _get_locale_currency_code,
@@ -1003,12 +1004,24 @@ def test_fmt_number_pattern(pattern: str, x_out: str):
         (0.00023, "0.00"),
         (0.000033, "0.00"),
         (0.00000000446453, "0.00"),
-        (-5325, "-5325"),
+        (-325, "-325.00"),
     ],
 )
 def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
     x = _format_number_fixed_decimals(value=value, decimals=2, sep_mark=",")
     assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "value, out",
+    [
+        (325, "325"),
+        (-325, "-325"),
+        (-1320, "-1,320"),
+    ],
+)
+def test_format_number_n_sigfig_3(value, out: str):
+    assert _format_number_n_sigfig(value, 3) == out
 
 
 @pytest.mark.parametrize(
