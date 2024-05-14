@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 import itertools
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal, Union
 
 from typing_extensions import TypeAlias
 
 # note that types like Spanners are only used in annotations for concretes of the
 # resolve generic, but we need to import at runtime, due to singledispatch looking
 # up annotations
-from ._gt_data import ColInfoTypeEnum, FootnoteInfo, FootnotePlacement, GTData, Spanners, StyleInfo
+from ._gt_data import ColInfoTypeEnum, FootnoteInfo, FootnotePlacement, GTData, Spanners, StyleInfo, LocName, LocHeaderName, LocStubheadName, LocColumnLabelsName, LocStubName, LocBodyName, LocFooterName, LocUnknownName
 from ._styles import CellStyle
 from ._tbl_data import PlDataFrame, PlExpr, eval_select, eval_transform
 
@@ -35,51 +35,84 @@ class CellPos:
     column: int
     row: int
     colname: str
+    rowname: str | None = None
 
 
 @dataclass
 class Loc:
     """A location."""
+    groups: LocName
+
+
+@dataclass
+class LocHeader(Loc):
+    """A location for targeting the table title and subtitle."""
+
+    groups: LocHeaderName = "header"
 
 
 @dataclass
 class LocTitle(Loc):
-    """A location for targeting the table title and subtitle."""
+    groups: Literal["title"] = "title"
 
-    groups: Literal["title", "subtitle"]
+
+@dataclass
+class LocSubTitle(Loc):
+    groups: Literal["subtitle"] = "subtitle"
 
 
 @dataclass
 class LocStubhead(Loc):
-    groups: Literal["stubhead"] = "stubhead"
+    """A location for targeting the table stubhead and stubhead label."""
+    groups: LocStubheadName = "stubhead"
 
 
 @dataclass
-class LocColumnSpanners(Loc):
-    """A location for column spanners."""
-
-    # TODO: these can also be tidy selectors
-    ids: list[str]
+class LocStubheadLabel(Loc):
+    groups: Literal["stubhead_label"] = "stubhead_label"
 
 
 @dataclass
 class LocColumnLabels(Loc):
-    # TODO: these can be tidyselectors
-    columns: list[str]
+    """A location for column spanners and column labels."""
+
+    groups: LocColumnLabelsName = "column_labels"
 
 
 @dataclass
-class LocRowGroups(Loc):
-    # TODO: these can be tidyselectors
-    groups: list[str]
+class LocColumnLabel(Loc):
+    groups: Literal["column_label"] = "column_label"
+    columns: SelectExpr = None
 
+
+@dataclass
+class LocSpannerLabel(Loc):
+    """A location for column spanners."""
+    groups: Literal["spanner_label"] = "spanner_label"
+    ids: SelectExpr = None
 
 @dataclass
 class LocStub(Loc):
-    # TODO: these can be tidyselectors
-    # TODO: can this take integers?
-    rows: list[str]
+    """A location for targeting the table stub, row group labels, summary labels, and body."""
 
+    groups: Literal["stub"] = "stub"
+    rows: RowSelectExpr = None
+
+@dataclass
+class LocRowGroupLabel(Loc):
+    groups: Literal["row_group_label"] = "row_group_label"
+    rows: RowSelectExpr = None
+
+
+@dataclass
+class LocRowLabel(Loc):
+    groups: Literal["row_label"] = "row_label"
+    rows: RowSelectExpr = None
+
+@dataclass
+class LocSummaryLabel(Loc):
+    groups: Literal["summary_label"] = "summary_label"
+    rows: RowSelectExpr = None
 
 @dataclass
 class LocBody(Loc):
@@ -108,6 +141,8 @@ class LocBody(Loc):
     ------
     See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
+    groups: LocBodyName = "body"
+
     columns: SelectExpr = None
     rows: RowSelectExpr = None
 
@@ -115,28 +150,14 @@ class LocBody(Loc):
 @dataclass
 class LocSummary(Loc):
     # TODO: these can be tidyselectors
-    groups: list[str]
-    columns: list[str]
-    rows: list[str]
+    groups: LocName = "summary"
+    columns: SelectExpr = None
+    rows: RowSelectExpr = None
 
 
 @dataclass
-class LocGrandSummary(Loc):
-    # TODO: these can be tidyselectors
-    columns: list[str]
-    rows: list[str]
-
-
-@dataclass
-class LocStubSummary(Loc):
-    # TODO: these can be tidyselectors
-    groups: list[str]
-    rows: list[str]
-
-
-@dataclass
-class LocStubGrandSummary(Loc):
-    rows: list[str]
+class LocFooter(Loc):
+    groups: LocFooterName = "footer"
 
 
 @dataclass
@@ -355,7 +376,7 @@ def resolve(loc: Loc, *args: Any, **kwargs: Any) -> Loc | list[CellPos]:
 
 
 @resolve.register
-def _(loc: LocColumnSpanners, spanners: Spanners) -> LocColumnSpanners:
+def _(loc: LocSpannerLabel, spanners: Spanners) -> LocSpannerLabel:
     # unique labels (with order preserved)
     spanner_ids = [span.spanner_id for span in spanners]
 
@@ -363,7 +384,21 @@ def _(loc: LocColumnSpanners, spanners: Spanners) -> LocColumnSpanners:
     resolved_spanners = [spanner_ids[idx] for idx in resolved_spanners_idx]
 
     # Create a list object
-    return LocColumnSpanners(ids=resolved_spanners)
+    return LocSpannerLabel(ids=resolved_spanners)
+
+
+@resolve.register
+def _(loc: LocColumnLabel, data: GTData) -> list[CellPos]:
+    cols = resolve_cols_i(data=data, expr=loc.columns)
+    cell_pos = [CellPos(col[1], 0, colname=col[0]) for col in cols]
+    return cell_pos
+
+
+@resolve.register
+def _(loc: LocRowLabel, data: GTData) -> list[CellPos]:
+    rows = resolve_rows_i(data=data, expr=loc.rows)
+    cell_pos = [CellPos(0, row[1], colname="", rowname=row[0]) for row in rows]
+    return cell_pos
 
 
 @resolve.register
@@ -383,6 +418,24 @@ def _(loc: LocBody, data: GTData) -> list[CellPos]:
 # Style generic ========================================================================
 
 
+# LocHeader
+# LocTitle
+# LocSubTitle
+# LocStubhead
+# LocStubheadLabel
+# LocColumnLabels
+# LocColumnLabel
+# LocSpannerLabel
+# LocStub
+# LocRowGroupLabel
+# LocRowLabel
+# LocSummaryLabel
+# LocBody
+# LocSummary
+# LocFooter
+# LocFootnotes
+# LocSourceNotes
+
 @singledispatch
 def set_style(loc: Loc, data: GTData, style: list[str]) -> GTData:
     """Set style for location."""
@@ -390,20 +443,121 @@ def set_style(loc: Loc, data: GTData, style: list[str]) -> GTData:
 
 
 @set_style.register
-def _(loc: LocTitle, data: GTData, style: list[CellStyle]) -> GTData:
+def _(loc: LocHeader, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
 
     # set ----
-    if loc.groups == "title":
-        info = StyleInfo(locname="title", locnum=1, styles=style)
+    if loc.groups == "header":
+        info = StyleInfo(locname="header", locnum=1, styles=style)
+    elif loc.groups == "title":
+        info = StyleInfo(locname="title", locnum=2, styles=style)
     elif loc.groups == "subtitle":
-        info = StyleInfo(locname="subtitle", locnum=2, styles=style)
+        info = StyleInfo(locname="subtitle", locnum=3, styles=style)
     else:
         raise ValueError(f"Unknown title group: {loc.groups}")
+    return data._replace(_styles=data._styles + [info])
 
-    return data._styles.append(info)
+
+@set_style.register
+def _(loc: LocTitle, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    return data._replace(_styles=data._styles + [StyleInfo(locname="title", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocSubTitle, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    return data._replace(_styles=data._styles + [StyleInfo(locname="subtitle", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocStubhead, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    return data._replace(_styles=data._styles + [StyleInfo(locname="stubhead", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocStubheadLabel, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    return data._replace(_styles=data._styles + [StyleInfo(locname="stubhead_label", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocColumnLabels, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    return data._replace(_styles=data._styles + [StyleInfo(locname="column_labels", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocColumnLabel, data: GTData, style: list[CellStyle]) -> GTData:
+    positions: list[CellPos] = resolve(loc, data)
+
+    # evaluate any column expressions in styles
+    styles = [entry._evaluate_expressions(data._tbl_data) for entry in style]
+
+    all_info: list[StyleInfo] = []
+    for col_pos in positions:
+        crnt_info = StyleInfo(
+            locname="column_label", locnum=2, colname=col_pos.colname, rownum=col_pos.row, styles=styles
+        )
+        all_info.append(crnt_info)
+    return data._replace(_styles=data._styles + all_info)
+
+
+@set_style.register
+def _(loc: LocSpannerLabel, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    # TODO resolve
+    return data._replace(_styles=data._styles + [StyleInfo(locname="column_labels", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    return data._replace(_styles=data._styles + [StyleInfo(locname="stub", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocRowGroupLabel, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    # TODO resolve
+    return data._replace(_styles=data._styles + [StyleInfo(locname="row_group_label", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocRowLabel, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    # TODO resolve
+    return data._replace(_styles=data._styles + [StyleInfo(locname="row_label", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocSummaryLabel, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    # TODO resolve
+    return data._replace(_styles=data._styles + [StyleInfo(locname="summary_label", locnum=1, styles=style)])
 
 
 @set_style.register
@@ -417,11 +571,45 @@ def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
     for col_pos in positions:
         row_styles = [entry._from_row(data._tbl_data, col_pos.row) for entry in style_ready]
         crnt_info = StyleInfo(
-            locname="data", locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=row_styles
+            locname="cell", locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=row_styles
         )
         all_info.append(crnt_info)
 
     return data._replace(_styles=data._styles + all_info)
+
+
+@set_style.register
+def _(loc: LocSummary, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    return data._replace(_styles=data._styles + [StyleInfo(locname="summary", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocFooter, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    return data._replace(_styles=data._styles + [StyleInfo(locname="footer", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocFootnotes, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    # TODO resolve
+    return data._replace(_styles=data._styles + [StyleInfo(locname="footnotes", locnum=1, styles=style)])
+
+
+@set_style.register
+def _(loc: LocSourceNotes, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+    # TODO resolve
+    return data._replace(_styles=data._styles + [StyleInfo(locname="source_notes", locnum=1, styles=style)])
 
 
 # Set footnote generic =================================================================
