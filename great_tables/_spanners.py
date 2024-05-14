@@ -123,7 +123,7 @@ def tab_spanner(
     ```
     """
 
-    crnt_spanner_ids = [span.spanner_id for span in data._spanners]
+    crnt_spanner_ids = set([span.spanner_id for span in data._spanners])
 
     if id is None:
         id = label
@@ -142,11 +142,15 @@ def tab_spanner(
 
     # select columns ----
 
-    if columns is None:
+    if not len(columns or []) and not len(spanners or []):
         # TODO: null_means is unimplemented
-        raise NotImplementedError("columns must be specified")
+        raise NotImplementedError("columns/spanners must be specified")
 
-    selected_column_names = resolve_cols_c(data=data, expr=columns, null_means="nothing")
+    selected_column_names = resolve_cols_c(data=data, expr=columns, null_means="nothing") or []
+
+    if len(selected_column_names) < len(columns or []):
+        first_missing = list(set(columns) - set(selected_column_names))[0]
+        raise ValueError(f"Unrecognized column: {first_missing}")
 
     # select spanner ids ----
     # TODO: this supports tidyselect
@@ -156,9 +160,6 @@ def tab_spanner(
         spanner_ids = spanners
     else:
         spanner_ids = []
-
-    if not len(selected_column_names) and not len(spanner_ids):
-        return data
 
     # get column names associated with selected spanners ----
     _vars = [span.vars for span in data._spanners if span.spanner_id in spanner_ids]
@@ -187,10 +188,9 @@ def tab_spanner(
     )
 
     spanners = data._spanners.append_entry(new_span)
-
     new_data = data._replace(_spanners=spanners)
 
-    if gather and not len(spanner_ids) and level == 0:
+    if gather and not len(spanner_ids) and level == 0 and columns:
         return cols_move(new_data, columns=column_names, after=column_names[0])
 
     return new_data
@@ -518,7 +518,6 @@ def spanners_print_matrix(
 
     non_empty_spans = [span for crnt_vars, span in zip(_vars, spanners) if len(crnt_vars)]
     new_levels = [_lvls.index(span.spanner_level) for span in non_empty_spans]
-
     crnt_spans = Spanners(non_empty_spans).relevel(new_levels)
 
     if not crnt_spans:
