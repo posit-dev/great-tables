@@ -698,7 +698,7 @@ def nanoplot_options(
 
     Examples
     --------
-    See [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`)
+    See [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`).
     """
 
     data_point_radius = _normalize_listable_nanoplot_options(
