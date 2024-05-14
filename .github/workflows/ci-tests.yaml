@@ -55,6 +55,35 @@ jobs:
         run: |
           make test-no-pandas
 
+  browser-save-image-test:
+    name: "Test for saving table image with browser"
+    runs-on: ubuntu-latest
+    steps:
+      # browsers
+      - uses: browser-actions/setup-firefox@v1
+      - run: firefox --version
+      - uses: browser-actions/setup-chrome@v1
+      - run: chrome --version
+
+      #
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install -e '.[extra]'
+          pip install pandas
+      - name: save browser tables
+        run: |
+            make save-browser-table
+      - uses: actions/upload-artifact@v4
+        with:
+          name: browser-save-image
+          path: _browser-tests.html
+          if-no-files-found: error
+
   release-pypi:
     name: "Release to pypi"
     runs-on: ubuntu-latest
