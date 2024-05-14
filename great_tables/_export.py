@@ -168,10 +168,8 @@ def save(
         wdriver = webdriver.Edge
         wd_options = webdriver.EdgeOptions()
 
-    # All webdrivers except for 'Firefox' can operate in headless mode; they all accept window size
-    # options are separate width and height arguments
-    if web_driver != "firefox":
-        wd_options.add_argument(str("--headless"))
+    # Operate all webdrivers in headless mode
+    wd_options.add_argument("--headless=new")
 
     if debug_port:
         wd_options.add_argument(f"--remote-debugging-port={debug_port}")
