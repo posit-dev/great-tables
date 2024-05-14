@@ -5,7 +5,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
-from typing import Any, Callable, Tuple, TypeVar, overload, TYPE_CHECKING
+from typing import Any, Callable, Literal, Tuple, TypeVar, Union, overload, TYPE_CHECKING
 
 from typing_extensions import Self, TypeAlias
 
@@ -847,10 +847,52 @@ class FootnotePlacement(Enum):
     right = auto()
     auto = auto()
 
+LocHeaderName = Literal[
+    "header",
+    "title",
+    "subtitle",
+]
+LocStubheadName = Literal[
+    "stubhead",
+    "stubhead_label",
+]
+LocColumnLabelsName = Literal[
+    "column_labels",
+    "spanner_label",
+    "column_label",
+]
+LocStubName = Literal[
+    "stub",
+    "row_group_label",
+    "row_label",
+    "summary_label",
+]
+LocBodyName = Literal[
+    "body",
+    "cell",
+    "summary"
+]
+LocFooterName = Literal[
+    "footer",
+    "footnotes",
+    "source_notes",
+]
+LocUnknownName = Literal[
+    "none",
+]
+LocName = Union[
+    LocHeaderName,
+    LocStubheadName,
+    LocColumnLabelsName,
+    LocStubName,
+    LocBodyName,
+    LocFooterName,
+    LocUnknownName,
+]
 
 @dataclass(frozen=True)
 class FootnoteInfo:
-    locname: str | None = None
+    locname: LocName | None = None
     grpname: str | None = None
     colname: str | None = None
     locnum: int | None = None
@@ -867,7 +909,7 @@ Footnotes: TypeAlias = list[FootnoteInfo]
 
 @dataclass(frozen=True)
 class StyleInfo:
-    locname: str
+    locname: LocName
     locnum: int
     grpname: str | None = None
     colname: str | None = None
