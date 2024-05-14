@@ -210,26 +210,45 @@ def _save_screenshot(driver: webdriver.Chrome, scale, path: str) -> None:
     # css transforms like zoom.
     #
     # This approach works on the following assumptions:
-    #   * Zoomed table width cannot always be obtained directly, but is clientWidth * scale
-    #   * Zoomed table height is accurately obtained by body scrollHeight
+    #   * Zoomed table width cannot always be obtained directly, but is its clientWidth * scale
+    #   * Zoomed table height is obtained by the height of the div wrapping it
 
     original_size = driver.get_window_size()
 
     # set table zoom ----
     driver.execute_script(
-        f"var el = document.getElementsByTagName('table')[0]; el.style.zoom = '{scale}';"
+        "var el = document.getElementsByTagName('table')[0]; "
+        f"el.style.zoom = '{scale}'; "
+        "el.parentNode.style.display='none'; "
+        "el.parentNode.style.display='';"
     )
 
-    # get table width and height ----
+    # get table width and height, resizing window as we go ----
+
+    # the window can be bigger than the table, but smaller risks pushing text
+    # onto new lines. this pads width and height for a little slack.
+    crud_factor = 100
+
+    offset_left, offset_top = driver.execute_script(
+        "var div = document.body.childNodes[0]; return [div.offsetLeft, div.offsetTop];"
+    )
     reported_width = driver.execute_script(
-        "return document.getElementsByTagName('table')[0].clientWidth"
+        "var el = document.getElementsByTagName('table')[0]; return el.clientWidth;"
     )
+    required_width = (reported_width + offset_left * 2 + crud_factor) * scale
 
-    required_width = reported_width * scale
-    required_height = driver.execute_script("return document.body.scrollHeight")
+    # set to our required_width first, in case it changes the height of the table
+    driver.set_window_size(required_width, original_size["height"])
 
-    # resize window and capture image ----
+    # height accounts for top-padding supplied by the browser (doubled to pad top and bottom)
+    div_height = driver.execute_script(
+        "var div = document.body.childNodes[0]; return div.scrollHeight;"
+    )
+    required_height = div_height + crud_factor + offset_top * 2
+
+    # final resize window and capture image ----
     driver.set_window_size(required_width, required_height)
+
     el = driver.find_element(by=By.TAG_NAME, value="body")
 
     if path.endswith(".png"):
@@ -237,6 +256,3 @@ def _save_screenshot(driver: webdriver.Chrome, scale, path: str) -> None:
     else:
         png = driver.get_screenshot_as_png()
         Image.open(fp=BytesIO(png)).save(fp=path)
-
-    # set window back to original size ----
-    driver.set_window_size(original_size["width"], original_size["height"])
