@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import tempfile
+import time
 import warnings
 
 from typing import TYPE_CHECKING, Literal
@@ -228,6 +229,10 @@ def _save_screenshot(
     # This approach works on the following assumptions:
     #   * Zoomed table width cannot always be obtained directly, but is its clientWidth * scale
     #   * Zoomed table height is obtained by the height of the div wrapping it
+    #   * A sleep may be necessary before the final screen capture
+    #
+    # I can't say for sure whether the final sleep is needed. Only that it seems like
+    # on CI with firefox sometimes the final screencapture is wider than necessary.
 
     original_size = driver.get_window_size()
 
@@ -276,6 +281,8 @@ def _save_screenshot(
         return _dump_debug_screenshot(driver, path)
 
     el = driver.find_element(by=By.TAG_NAME, value="body")
+
+    time.sleep(0.05)
 
     if path.endswith(".png"):
         el.screenshot(path)
