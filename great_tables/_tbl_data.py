@@ -319,7 +319,7 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
     # it inherits from Expr, so we can just use that in a pinch
     cls_selector = getattr(selectors, "_selector_proxy_", Expr)
 
-    if not isinstance(expr, (list, cls_selector)):
+    if not isinstance(expr, (list, cls_selector, Expr)):
         raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
     # I don't think there's a way to get the columns w/o running the selection
