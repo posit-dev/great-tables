@@ -38,6 +38,13 @@ def assert_repr_html(snapshot, gt):
     assert snapshot == body
 
 
+def strip_windows_drive(x):
+    # this is a hacky approach to ensuring fmt_image path tests succeed
+    # on our windows build. On linux root is just "/". On windows its a
+    # drive name. Assumes our windows runner uses D:\
+    return x.replace('src="D:\\', 'src="')
+
+
 def test_format_fns():
     df = pd.DataFrame({"x": [1, 2]})
     gt = GT(df)
@@ -1408,7 +1415,7 @@ def test_fmt_image_single():
     res = formatter.to_html("/a")
     dst = formatter.SPAN_TEMPLATE.format('<img src="/a.svg" style="vertical-align: middle;">')
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_missing():
@@ -1428,7 +1435,7 @@ def test_fmt_image_multiple():
         '<img src="/b.svg" style="vertical-align: middle;">'
     )
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_encode(tmpdir):
@@ -1446,7 +1453,7 @@ def test_fmt_image_encode(tmpdir):
     img_src = f"data: image/svg+xml; base64,{b64_content}"
     dst = formatter.SPAN_TEMPLATE.format(f'<img src="{img_src}" style="vertical-align: middle;">')
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_width_height_str():
@@ -1455,7 +1462,7 @@ def test_fmt_image_width_height_str():
     dst_img = '<img src="/a" style="height: 30px;width: 20px;vertical-align: middle;">'
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_height_int():
@@ -1464,7 +1471,7 @@ def test_fmt_image_height_int():
     dst_img = '<img src="/a" style="height: 30px;vertical-align: middle;">'
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_width_int():
@@ -1477,7 +1484,7 @@ def test_fmt_image_width_int():
 def test_fmt_image_path():
     formatter = FmtImage(encode=False, path="/a/b")
     res = formatter.to_html("c")
-    assert 'src="/a/b/c"' in res
+    assert 'src="/a/b/c"' in strip_windows_drive(res)
 
 
 # ------------------------------------------------------------------------------
