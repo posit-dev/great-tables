@@ -20,10 +20,9 @@ with tempfile.TemporaryDirectory() as tmp_dir:
     p_tmp_dir = Path(tmp_dir)
     for driver in drivers:
         for scale in (0.5, 1.0, 2.0, 3.25):
-            for debug in [False, True]:
-                is_debug = "debug" if debug else "cropped"
-                fname = str(p_tmp_dir / f"exibble_{driver}_{scale}_{is_debug}.png")
-                GT(exibble).save(fname, web_driver=driver, scale=scale, debug_dump=debug)
+            for debug in [None, "zoom", "final_resize"]:
+                fname = str(p_tmp_dir / f"exibble_{driver}_{scale}_{debug}.png")
+                GT(exibble).save(fname, web_driver=driver, scale=scale, _debug_dump=debug)
                 driver_results[driver].append(fname)
 
     with open(out_name, "w") as f:
