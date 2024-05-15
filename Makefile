@@ -51,3 +51,6 @@ install: dist ## install the package to the active Python's site-packages
 
 save-browser-table:
 	python .github/scripts/save_browser_table.py _browser-tests.html chrome firefox
+
+save-browser-table-ci:
+	python .github/scripts/save_browser_table.py _browser-tests.html chrome firefox edge

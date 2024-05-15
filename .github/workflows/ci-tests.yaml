@@ -79,6 +79,9 @@ jobs:
       - run: firefox --version
       - uses: browser-actions/setup-chrome@v1
       - run: chrome --version
+      - uses: browser-actions/setup-edge@v1
+      - name: Print Edge version
+        run: (Get-Item (Get-Command msedge).Source).VersionInfo.ProductVersion
 
       #
       - uses: actions/checkout@v4
@@ -92,7 +95,7 @@ jobs:
           pip install pandas
       - name: save browser tables
         run: |
-            make save-browser-table
+            make save-browser-table-ci
       - uses: actions/upload-artifact@v4
         with:
           name: browser-save-image
