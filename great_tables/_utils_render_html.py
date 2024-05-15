@@ -260,7 +260,11 @@ def create_columns_component_h(data: GTData) -> str:
                 if colspans[ii] > 0:
                     # Filter by column label / id, join with overall column labels style
                     # TODO check this filter logic
-                    styles_i = [x for x in styles_spanner_label if x.grpname == spanner_ids_level_1_index[ii]]
+                    styles_i = [
+                        x
+                        for x in styles_spanner_label
+                        if x.grpname == spanner_ids_level_1_index[ii]
+                    ]
 
                     level_1_spanners.append(
                         tags.th(
@@ -340,7 +344,9 @@ def create_columns_component_h(data: GTData) -> str:
                 if colspan > 0:
                     # Filter by column label / id, join with overall column labels style
                     # TODO check this filter logic
-                    styles_i = [x for x in styles_column_label if x.grpname in (colspan, span_label)]
+                    styles_i = [
+                        x for x in styles_column_label if x.grpname in (colspan, span_label)
+                    ]
 
                     if span_label:
                         span = tags.span(
@@ -405,7 +411,7 @@ def create_body_component_h(data: GTData) -> str:
     styles_row_group_label = [x for x in data._styles if x.locname == "row_group_label"]
     styles_row_label = [x for x in data._styles if x.locname == "row_label"]
     styles_summary_label = [x for x in data._styles if x.locname == "summary_label"]
-    stub_style = _flatten_styles(styles_stub, wrap=True)if styles_stub else ""
+    stub_style = _flatten_styles(styles_stub, wrap=True) if styles_stub else ""
 
     # Filter list of StyleInfo to only those that apply to the body
     styles_cells = [x for x in data._styles if x.locname == "cell"]
@@ -483,7 +489,9 @@ def create_body_component_h(data: GTData) -> str:
                 cell_styles = ""
 
             if is_stub_cell:
-                body_cells.append(f"""    <th {stub_style} class="gt_row gt_left gt_stub">{cell_str}</th>""")
+                body_cells.append(
+                    f"""    <th {stub_style} class="gt_row gt_left gt_stub">{cell_str}</th>"""
+                )
             else:
                 body_cells.append(
                     f"""    <td {cell_styles}class="gt_row gt_{cell_alignment}">{cell_str}</td>"""

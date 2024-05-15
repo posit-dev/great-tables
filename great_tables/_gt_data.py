@@ -847,6 +847,7 @@ class FootnotePlacement(Enum):
     right = auto()
     auto = auto()
 
+
 LocHeaderName = Literal[
     "header",
     "title",
@@ -867,19 +868,13 @@ LocStubName = Literal[
     "row_label",
     "summary_label",
 ]
-LocBodyName = Literal[
-    "body",
-    "cell",
-    "summary"
-]
+LocBodyName = Literal["body", "cell", "summary"]
 LocFooterName = Literal[
     "footer",
     "footnotes",
     "source_notes",
 ]
-LocUnknownName = Literal[
-    "none",
-]
+LocUnknownName = Literal["none",]
 LocName = Union[
     LocHeaderName,
     LocStubheadName,
@@ -889,6 +884,7 @@ LocName = Union[
     LocFooterName,
     LocUnknownName,
 ]
+
 
 @dataclass(frozen=True)
 class FootnoteInfo:
