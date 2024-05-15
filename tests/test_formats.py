@@ -4,6 +4,7 @@ from typing import Any, Union
 import pandas as pd
 import polars as pl
 import pytest
+import sys
 from great_tables import GT, _locale
 from great_tables._data_color.base import _html_color
 from great_tables._formats import (
@@ -1481,6 +1482,7 @@ def test_fmt_image_width_int():
         formatter.to_html("/a")
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="uses linux specific paths")
 def test_fmt_image_path():
     formatter = FmtImage(encode=False, path="/a/b")
     res = formatter.to_html("c")
