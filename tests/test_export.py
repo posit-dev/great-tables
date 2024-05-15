@@ -30,6 +30,7 @@ def test_html_string_generated(gt_tbl: GT, snapshot: str):
     assert snapshot == gt_tbl.as_raw_html()
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="chrome might not be installed.")
 @pytest.mark.extra
 def test_save_image_file(gt_tbl: GT):
 
