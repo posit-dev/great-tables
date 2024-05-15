@@ -2,7 +2,7 @@ import pandas as pd
 import polars as pl
 import polars.selectors as cs
 import pytest
-from great_tables import GT
+from great_tables import GT, exibble
 from great_tables._gt_data import Boxhead, ColInfo, ColInfoTypeEnum, SpannerInfo, Spanners
 from great_tables._spanners import (
     cols_hide,
@@ -142,6 +142,29 @@ def test_tab_spanners_overlap():
 
     assert len(new_gt._spanners) == 2
     assert new_gt._spanners[1] == dst_span
+
+
+def test_multiple_spanners_above_one():
+    from great_tables import GT, exibble
+
+    gt = (
+        GT(exibble, rowname_col="row", groupname_col="group")
+        .tab_spanner("A", ["num", "char", "fctr"])
+        .tab_spanner("B", ["fctr"])
+        .tab_spanner("C", ["num", "char"])
+        .tab_spanner("D", ["fctr", "date", "time"])
+        .tab_spanner("E", spanners=["B", "C"])
+    )
+
+    # Assert that the spanners have been added in the correct
+    # format and in the correct levels
+
+    assert len(gt._spanners) == 5
+    assert gt._spanners[0] == SpannerInfo("A", 0, "A", vars=['num', 'char', 'fctr'])
+    assert gt._spanners[1] == SpannerInfo("B", 1, "B", vars=['fctr'])
+    assert gt._spanners[2] == SpannerInfo("C", 1, "C", vars=['num', 'char'])
+    assert gt._spanners[3] == SpannerInfo("D", 2, "D", vars=['fctr', 'date', 'time'])
+    assert gt._spanners[4] == SpannerInfo("E", 3, "E", vars=['fctr', 'num', 'char'])
 
 
 def test_tab_spanners_with_gather():
