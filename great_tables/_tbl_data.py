@@ -412,7 +412,7 @@ def _(df: PlDataFrame):
     ]
 
     return df.with_columns(
-        cs.by_name(list_cols).map_elements(lambda x: str(x.to_list())),
+        cs.by_name(list_cols).map_elements(lambda x: str(x.to_list()), return_dtype=pl.String),
         cs.all().exclude(list_cols).cast(pl.Utf8),
     )
 
