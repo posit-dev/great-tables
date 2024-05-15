@@ -76,6 +76,7 @@ def save(
     web_driver: WebDrivers = "chrome",
     window_size: tuple[int, int] = (6000, 6000),
     debug_port: None | int = None,
+    debug_dump: bool = False,
 ) -> None:
     """
     Produce a high-resolution image file or PDF of the table.
@@ -105,6 +106,9 @@ def save(
         to capture a table, but may affect the tables appearance.
     debug_port
         Port number to use for debugging. By default no debugging port is opened.
+    debug_dump
+        Whether the saved image should be a big browser window, with key elements outlined. This is
+        helpful for debugging this function's resizing, cropping heuristics.
 
     Returns
     -------
@@ -197,7 +201,7 @@ def save(
         headless_browser.set_window_size(window_size[0], window_size[1])
         headless_browser.get("file://" + temp_file.name)
 
-        _save_screenshot(headless_browser, scale, file)
+        _save_screenshot(headless_browser, scale, file, debug=debug_dump)
 
         if debug_port:
             input(
@@ -208,7 +212,7 @@ def save(
             )
 
 
-def _save_screenshot(driver: webdriver.Chrome, scale, path: str) -> None:
+def _save_screenshot(driver: webdriver.Chrome, scale, path: str, debug: bool = False) -> None:
     from io import BytesIO
     from selenium.webdriver.common.by import By
 
@@ -229,6 +233,15 @@ def _save_screenshot(driver: webdriver.Chrome, scale, path: str) -> None:
         "el.parentNode.style.display='none'; "
         "el.parentNode.style.display='';"
     )
+
+    if debug:
+        driver.execute_script(
+            "document.body.style.border = '5px solid blue'; "
+            "document.body.childNodes[0].style.border = '5px solid orange'; "
+            "document.getElementsByTagName('table')[0].style.border = '5px solid green'; "
+        )
+        driver.save_screenshot(path)
+        return
 
     # get table width and height, resizing window as we go ----
 
