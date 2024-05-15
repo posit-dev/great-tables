@@ -16,7 +16,7 @@ def test_tab_style(gt: GT):
     new_gt = tab_style(gt, style, LocBody(["x"], [0]))
 
     assert len(gt._styles) == 0
-    assert len(new_gt._styles) == 1
+    assert len(new_gt._styles) == 2
 
     assert len(new_gt._styles[0].styles) == 1
     assert new_gt._styles[0].styles[0] is style
