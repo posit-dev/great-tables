@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import tempfile
-from typing import TYPE_CHECKING, Literal
+import warnings
 
+from typing import TYPE_CHECKING, Literal
 from typing_extensions import TypeAlias
 
 from ._utils import _try_import
@@ -177,7 +178,14 @@ def save(
         wd_options.add_argument("--headless=new")
 
     if debug_port:
-        wd_options.add_argument(f"--remote-debugging-port={debug_port}")
+        if web_driver == "chrome":
+            wd_options.add_argument(f"--remote-debugging-port={debug_port}")
+        elif web_driver == "firefox":
+            # TODO: not sure how to connect to this session on firefox?
+            wd_options.add_argument(f"--start-debugger-server {debug_port}")
+        else:
+            warnings.warn("debug_port argument only supported on chrome and firefox")
+            debug_port = None
 
     # run browser ----
     with (
@@ -231,7 +239,7 @@ def _save_screenshot(driver: webdriver.Chrome, scale, path: str) -> None:
 
     # the window can be bigger than the table, but smaller risks pushing text
     # onto new lines. this pads width and height for a little slack.
-    crud_factor = 100
+    crud_factor = 10
 
     offset_left, offset_top = driver.execute_script(
         "var div = document.body.childNodes[0]; return [div.offsetLeft, div.offsetTop];"
