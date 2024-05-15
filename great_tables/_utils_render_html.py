@@ -21,10 +21,17 @@ def _flatten_styles(styles: Styles, wrap: bool = False) -> str:
     # TODO dedupe rendered styles in sequence
 
     if wrap:
-        style_to_return = f'style="{" ".join(rendered_styles)}"' + " "
-    else:
-        style_to_return = " ".join(rendered_styles)
-    return style_to_return
+        if rendered_styles:
+            # return style html attribute
+            return f'style="{" ".join(rendered_styles)}"' + " "
+        # if no rendered styles, just return a blank
+        return ""
+    if rendered_styles:
+        # return space-separated list of rendered styles
+        return " ".join(rendered_styles)
+    # if not wrapping the styles for html element,
+    # return None so htmltools omits a style attribute
+    return None
 
 
 def create_heading_component_h(data: GTData) -> StringBuilder:
@@ -64,20 +71,20 @@ def create_heading_component_h(data: GTData) -> StringBuilder:
     if has_subtitle:
         heading = f"""
   <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal" {title_style}>{title}</th>
+    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal"{title_style}>{title}</th>
   </tr>
   <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" {subtitle_style}>{subtitle}</th>
+    <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"{subtitle_style}>{subtitle}</th>
   </tr>"""
     else:
         heading = f"""
   <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal" {title_style}>{title}</th>
+    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal"{title_style}>{title}</th>
   </tr>"""
 
     result.append(heading)
 
-    return StringBuilder(f"""<thead class="gt_header" {header_style}>""", result, "\n</thead>")
+    return StringBuilder(f"""<thead class="gt_header"{header_style}>""", result, "\n</thead>")
 
 
 def create_columns_component_h(data: GTData) -> str:
@@ -490,7 +497,7 @@ def create_body_component_h(data: GTData) -> str:
 
             if is_stub_cell:
                 body_cells.append(
-                    f"""    <th {stub_style} class="gt_row gt_left gt_stub">{cell_str}</th>"""
+                    f"""    <th {stub_style}class="gt_row gt_left gt_stub">{cell_str}</th>"""
                 )
             else:
                 body_cells.append(
