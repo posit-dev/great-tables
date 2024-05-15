@@ -130,9 +130,13 @@ def tab_spanner(
 
     if isinstance(columns, (str, int)):
         columns = [columns]
+    elif columns is None:
+        columns = []
 
     if isinstance(spanners, (str, int)):
         spanners = [spanners]
+    elif spanners is None:
+        spanners = []
 
     # validations ----
     if level is not None and level < 0:
@@ -142,15 +146,7 @@ def tab_spanner(
 
     # select columns ----
 
-    if not len(columns or []) and not len(spanners or []):
-        # TODO: null_means is unimplemented
-        raise NotImplementedError("columns/spanners must be specified")
-
     selected_column_names = resolve_cols_c(data=data, expr=columns, null_means="nothing") or []
-
-    if len(selected_column_names) < len(columns or []):
-        first_missing = list(set(columns) - set(selected_column_names))[0]
-        raise ValueError(f"Unrecognized column: {first_missing}")
 
     # select spanner ids ----
     # TODO: this supports tidyselect
@@ -160,6 +156,11 @@ def tab_spanner(
         spanner_ids = spanners
     else:
         spanner_ids = []
+
+    # Check that we've selected something explicitly
+    if not len(selected_column_names) and not len(spanner_ids):
+        # TODO: null_means is unimplemented
+        raise NotImplementedError("columns/spanners must be specified")
 
     # get column names associated with selected spanners ----
     _vars = [span.vars for span in data._spanners if span.spanner_id in spanner_ids]
@@ -190,7 +191,7 @@ def tab_spanner(
     spanners = data._spanners.append_entry(new_span)
     new_data = data._replace(_spanners=spanners)
 
-    if gather and not len(spanner_ids) and level == 0 and columns:
+    if gather and not len(spanner_ids) and level == 0 and column_names:
         return cols_move(new_data, columns=column_names, after=column_names[0])
 
     return new_data
