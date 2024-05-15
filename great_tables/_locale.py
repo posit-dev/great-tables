@@ -9,7 +9,7 @@ DATA_MOD = files("great_tables") / "data"
 
 
 def read_csv(fname: str) -> list[dict[str, Any]]:
-    with open(fname) as f:
+    with open(fname, encoding="utf8") as f:
         return list(DictReader(f))
 
 
