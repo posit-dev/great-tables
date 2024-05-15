@@ -35,6 +35,64 @@
   </tbody>
   '''
 # ---
+# name: test_multiple_spanners_pads_for_stubhead_label
+  '''
+  <tr class="gt_col_headings gt_spanner_row">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col">
+      <span>&nbsp</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup">
+      <span class="gt_column_spanner">E</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="4" scope="colgroup">
+      <span>&nbsp;</span>
+    </th>
+  </tr>
+  <tr class="gt_col_headings gt_spanner_row">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col">
+      <span>&nbsp</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup">
+      <span>&nbsp;</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup">
+      <span class="gt_column_spanner">D</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup">
+      <span>&nbsp;</span>
+    </th>
+  </tr>
+  <tr class="gt_col_headings gt_spanner_row">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col">
+      <span>&nbsp</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup">
+      <span class="gt_column_spanner">C</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col">
+      <span class="gt_column_spanner">B</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="4" scope="colgroup">
+      <span>&nbsp;</span>
+    </th>
+  </tr>
+  <tr class="gt_col_headings gt_spanner_row">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="Group">Group</th>
+    <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="A">
+      <span class="gt_column_spanner">A</span>
+    </th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" scope="col" id="date">date</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" scope="col" id="time">time</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" scope="col" id="datetime">datetime</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" scope="col" id="currency">currency</th>
+  </tr>
+  <tr class="gt_col_headings">
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th>
+  </tr>
+  '''
+# ---
 # name: test_render_groups_reordered
   '''
   <tbody class="gt_table_body">

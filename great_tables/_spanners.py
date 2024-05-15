@@ -123,16 +123,25 @@ def tab_spanner(
     ```
     """
 
-    crnt_spanner_ids = [span.spanner_id for span in data._spanners]
+    crnt_spanner_ids = set([span.spanner_id for span in data._spanners])
 
     if id is None:
-        id = label
+        # The label may contain HTML or Markdown, so we need to extract
+        # it from the Text object
+        if hasattr(label, "text"):
+            id = label.text
+        else:
+            id = label
 
     if isinstance(columns, (str, int)):
         columns = [columns]
+    elif columns is None:
+        columns = []
 
     if isinstance(spanners, (str, int)):
         spanners = [spanners]
+    elif spanners is None:
+        spanners = []
 
     # validations ----
     if level is not None and level < 0:
@@ -142,11 +151,7 @@ def tab_spanner(
 
     # select columns ----
 
-    if columns is None:
-        # TODO: null_means is unimplemented
-        raise NotImplementedError("columns must be specified")
-
-    selected_column_names = resolve_cols_c(data=data, expr=columns, null_means="nothing")
+    selected_column_names = resolve_cols_c(data=data, expr=columns, null_means="nothing") or []
 
     # select spanner ids ----
     # TODO: this supports tidyselect
@@ -157,8 +162,10 @@ def tab_spanner(
     else:
         spanner_ids = []
 
+    # Check that we've selected something explicitly
     if not len(selected_column_names) and not len(spanner_ids):
-        return data
+        # TODO: null_means is unimplemented
+        raise NotImplementedError("columns/spanners must be specified")
 
     # get column names associated with selected spanners ----
     _vars = [span.vars for span in data._spanners if span.spanner_id in spanner_ids]
@@ -187,10 +194,9 @@ def tab_spanner(
     )
 
     spanners = data._spanners.append_entry(new_span)
-
     new_data = data._replace(_spanners=spanners)
 
-    if gather and not len(spanner_ids) and level == 0:
+    if gather and not len(spanner_ids) and level == 0 and column_names:
         return cols_move(new_data, columns=column_names, after=column_names[0])
 
     return new_data
@@ -518,7 +524,6 @@ def spanners_print_matrix(
 
     non_empty_spans = [span for crnt_vars, span in zip(_vars, spanners) if len(crnt_vars)]
     new_levels = [_lvls.index(span.spanner_level) for span in non_empty_spans]
-
     crnt_spans = Spanners(non_empty_spans).relevel(new_levels)
 
     if not crnt_spans:

@@ -1,7 +1,12 @@
 import pandas as pd
 import polars as pl
 from great_tables import GT, exibble, html, loc, md, style
-from great_tables._utils_render_html import create_body_component_h, create_source_notes_component_h
+from great_tables._utils_render_html import (
+    create_body_component_h,
+    create_columns_component_h,
+    create_heading_component_h,
+    create_source_notes_component_h,
+)
 
 small_exibble = exibble[["num", "char"]].head(3)
 
@@ -11,6 +16,20 @@ def assert_rendered_source_notes(snapshot, gt):
     source_notes = create_source_notes_component_h(built)
 
     assert snapshot == source_notes
+
+
+def assert_rendered_heading(snapshot, gt):
+    built = gt._build_data("html")
+    heading = create_heading_component_h(built).make_string()
+
+    assert snapshot == heading
+
+
+def assert_rendered_columns(snapshot, gt):
+    built = gt._build_data("html")
+    columns = create_columns_component_h(built)
+
+    assert snapshot == columns
 
 
 def assert_rendered_body(snapshot, gt):
@@ -157,3 +176,18 @@ def test_render_polars_list_col(snapshot):
     gt = GT(pl.DataFrame({"x": [[1, 2]]}))
 
     assert_rendered_body(snapshot, gt)
+
+
+def test_multiple_spanners_pads_for_stubhead_label(snapshot):
+    # NOTE: see test_spanners.test_multiple_spanners_above_one
+    gt = (
+        GT(exibble, rowname_col="row", groupname_col="group")
+        .tab_spanner("A", ["num", "char", "fctr"])
+        .tab_spanner("B", ["fctr"])
+        .tab_spanner("C", ["num", "char"])
+        .tab_spanner("D", ["fctr", "date", "time"])
+        .tab_spanner("E", spanners=["B", "C"])
+        .tab_stubhead(label="Group")
+    )
+
+    assert_rendered_columns(snapshot, gt)
