@@ -187,17 +187,17 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 <section id="great_tables.GT.save" class="level1">
 <h1>GT.save</h1>
-<p><code>GT.save(self, file, selector='table', scale=1.0, expand=5, web_driver='chrome', window_size=(6000, 6000))</code></p>
-<p>Save a table as an image file or a PDF document.</p>
-<p>The <code>save()</code> method makes it easy to save a table object as an image file. The function produces a high-resolution image file or PDF of the table. The output file is create by first taking a screenshot of the table using a headless Chrome browser (other browser options are possible if Chrome isn’t present). The screenshot is then cropped to only include the table element, with some additional pixels added around the table (controlled by the <code>expand=</code> parameter). Finally, the resulting image is saved to the specified file path in the format specified (via the file extension).</p>
+<p><code>GT.save(self, file, selector='table', scale=1.0, expand=5, web_driver='chrome', window_size=(6000, 6000), debug_port=None, _debug_dump=None)</code></p>
+<p>Produce a high-resolution image file or PDF of the table.</p>
+<p>The output file is created by taking a screenshot of the table using a headless browser.</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 1%">
-<col style="width: 5%">
-<col style="width: 90%">
-<col style="width: 1%">
+<col style="width: 4%">
+<col style="width: 20%">
+<col style="width: 69%">
+<col style="width: 4%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -217,32 +217,44 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <tr class="even">
 <td><code>selector</code></td>
 <td><code>str</code></td>
-<td>The HTML element selector to use to select the table. By default, this is set to “table”, which selects the first table element in the HTML content.</td>
+<td>(NOT IMPLEMENTED) The HTML element name used to select table. Defaults to the whole table.</td>
 <td><code>'table'</code></td>
 </tr>
 <tr class="odd">
 <td><code>scale</code></td>
 <td><code>float</code></td>
-<td>The scaling factor that will be used when generating the image. By default, this is set to a value of <code>1.0</code>. Lowering this will result in a smaller image, whereas increasing it will result in a much higher-resolution image. This can be considered a quality setting, yet it also affects the file size. The default value of <code>1.0</code> is a good balance between file size and quality.</td>
+<td>The scaling factor that will be used when generating the image. Lower values decrease resolution. A scale of 2 is equivalent to doubling the width of the table in pixels. Note that higher resolution results in larger file sizes.</td>
 <td><code>1.0</code></td>
 </tr>
 <tr class="even">
 <td><code>expand</code></td>
 <td><code>int</code></td>
-<td>The number of pixels to expand the screenshot by. By default, this is set to 5. This can be increased to capture more of the surrounding area, or decreased to capture less.</td>
+<td>(NOT IMPLEMENTED) The number of pixels to expand the screenshot by. This can be increased to capture more of the surrounding area, or decreased to capture less.</td>
 <td><code>5</code></td>
 </tr>
 <tr class="odd">
 <td><code>web_driver</code></td>
 <td><code>WebDrivers</code></td>
-<td>The webdriver to use when taking the screenshot. By default, this is set to <code>"chrome"</code> which uses Google Chrome in headless mode. If that browser isn’t available on the host system, there are other options available: <code>"firefox"</code> (Mozilla Firefox), <code>"safari"</code> (Apple Safari), and <code>"edge"</code> (Microsoft Edge). Ensure that at least one of these browsers is installed on the system and choose the appropriate option based on that.</td>
+<td>The webdriver to use when taking the screenshot. By default, uses Google Chrome. Supports <code>"firefox"</code> (Mozilla Firefox), <code>"safari"</code> (Apple Safari), and <code>"edge"</code> (Microsoft Edge). Specified browser must be installed.</td>
 <td><code>'chrome'</code></td>
 </tr>
 <tr class="even">
 <td><code>window_size</code></td>
 <td><code>tuple</code>[<code>int</code>, <code>int</code>]</td>
-<td>The size of the window to use when taking the screenshot. This is a tuple of two integers, representing the width and height of the window. By default, this is set to <code>(6000, 6000)</code>, a large size that should be sufficient for most tables. If the table is larger than this (and this will be obvious once inspecting the image file) you can increase the appropriate values of the tuple. If the table is very small, then a reduction in these these values will result in a speed gain during image capture. Please note that the window size is <em>not</em> the same as the final image size. The table will be captured at the same size as it is displayed in the headless browser, and the window size is used to ensure that the entire table is visible in the screen capture before the cropping process occurs.</td>
+<td>The size of the browser window to use when laying out the table. This shouldn’t be necessary to capture a table, but may affect the tables appearance.</td>
 <td><code>(6000, 6000)</code></td>
+</tr>
+<tr class="odd">
+<td><code>debug_port</code></td>
+<td>None | <code>int</code></td>
+<td>Port number to use for debugging. By default no debugging port is opened.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td><code>_debug_dump</code></td>
+<td><code>DebugDumpOptions</code> | None</td>
+<td>Whether the saved image should be a big browser window, with key elements outlined. This is helpful for debugging this function’s resizing, cropping heuristics. This is an internal parameter and subject to change.</td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table>
