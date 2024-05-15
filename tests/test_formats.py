@@ -1451,7 +1451,7 @@ def test_fmt_image_encode(tmpdir):
     res = formatter.to_html(f"{tmpdir}/some")
 
     b64_content = b64encode(content.encode()).decode()
-    img_src = f"data: image/svg+xml; base64,{b64_content}"
+    img_src = f"data:image/svg+xml;base64,{b64_content}"
     dst = formatter.SPAN_TEMPLATE.format(f'<img src="{img_src}" style="vertical-align: middle;">')
 
     assert strip_windows_drive(res) == dst
