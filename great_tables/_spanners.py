@@ -126,7 +126,12 @@ def tab_spanner(
     crnt_spanner_ids = set([span.spanner_id for span in data._spanners])
 
     if id is None:
-        id = label
+        # The label may contain HTML or Markdown, so we need to extract
+        # it from the Text object
+        if hasattr(label, "text"):
+            id = label.text
+        else:
+            id = label
 
     if isinstance(columns, (str, int)):
         columns = [columns]
