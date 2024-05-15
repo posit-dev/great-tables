@@ -14,6 +14,9 @@ from great_tables._spanners import (
     tab_spanner,
 )
 
+PandasDataFrame = pd.DataFrame
+PolarsDataFrame = pl.DataFrame
+
 
 @pytest.fixture
 def spanners() -> Spanners:
@@ -199,73 +202,151 @@ def test_cols_width_fully_set_pct_2():
     assert gt_tbl._boxhead[2].column_width == "40%"
 
 
-@pytest.mark.parametrize("df_lib, columns", [(pd, "a"), (pl, cs.starts_with("a"))])
-def test_cols_move_single_col(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+@pytest.mark.parametrize(
+    "DF, columns",
+    [
+        (PandasDataFrame, "a"),
+        (PolarsDataFrame, cs.starts_with("a")),
+        (PolarsDataFrame, pl.col("a")),
+    ],
+)
+def test_cols_move_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move(src_gt, columns=columns, after="b")
     assert [col.var for col in new_gt._boxhead] == ["b", "a", "c", "d"]
 
 
 @pytest.mark.parametrize(
-    "df_lib, columns", [(pd, ["a", "d"]), (pl, cs.starts_with("a") | cs.ends_with("d"))]
+    "DF, columns",
+    [
+        (PandasDataFrame, ["a", "d"]),
+        (PolarsDataFrame, cs.starts_with("a") | cs.ends_with("d")),
+        (PolarsDataFrame, pl.col("a", "d")),
+    ],
 )
-def test_cols_move_multi_cols(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+def test_cols_move_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move(src_gt, columns=columns, after="b")
     assert [col.var for col in new_gt._boxhead] == ["b", "a", "d", "c"]
 
 
-@pytest.mark.parametrize("df_lib, columns", [(pd, "c"), (pl, cs.starts_with("c"))])
-def test_cols_move_to_start_single_col(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+@pytest.mark.parametrize(
+    "DF, columns",
+    [
+        (PandasDataFrame, "c"),
+        (PolarsDataFrame, cs.starts_with("c")),
+        (PolarsDataFrame, pl.col("c")),
+    ],
+)
+def test_cols_move_to_start_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_start(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead] == ["c", "a", "b", "d"]
 
 
 @pytest.mark.parametrize(
-    "df_lib, columns", [(pd, ["c", "d"]), (pl, cs.starts_with("c") | cs.ends_with("d"))]
+    "DF, columns",
+    [
+        (PandasDataFrame, ["c", "d"]),
+        (PolarsDataFrame, cs.starts_with("c") | cs.ends_with("d")),
+        (PolarsDataFrame, pl.col("c", "d")),
+    ],
 )
-def test_cols_move_to_start_multi_cols(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+def test_cols_move_to_start_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_start(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead] == ["c", "d", "a", "b"]
 
 
-@pytest.mark.parametrize("df_lib, columns", [(pd, "c"), (pl, cs.starts_with("c"))])
-def test_cols_move_to_end_single_col(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+@pytest.mark.parametrize(
+    "DF, columns",
+    [
+        (PandasDataFrame, "c"),
+        (PolarsDataFrame, cs.starts_with("c")),
+        (PolarsDataFrame, pl.col("c")),
+    ],
+)
+def test_cols_move_to_end_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_end(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead] == ["a", "b", "d", "c"]
 
 
 @pytest.mark.parametrize(
-    "df_lib, columns", [(pd, ["a", "c"]), (pl, cs.starts_with("a") | cs.ends_with("c"))]
+    "DF, columns",
+    [
+        (PandasDataFrame, ["a", "c"]),
+        (PolarsDataFrame, cs.starts_with("a") | cs.ends_with("c")),
+        (PolarsDataFrame, pl.col("a", "c")),
+    ],
 )
-def test_cols_move_to_end_multi_cols(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+def test_cols_move_to_end_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_end(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead] == ["b", "d", "a", "c"]
 
 
-@pytest.mark.parametrize("df_lib, columns", [(pd, "c"), (pl, cs.starts_with("c"))])
-def test_cols_hide_single_col(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+@pytest.mark.parametrize(
+    "DF, columns",
+    [
+        (PandasDataFrame, "c"),
+        (PolarsDataFrame, cs.starts_with("c")),
+        (PolarsDataFrame, pl.col("c")),
+    ],
+)
+def test_cols_hide_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_hide(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "d"]
 
 
 @pytest.mark.parametrize(
-    "df_lib, columns", [(pd, ["a", "d"]), (pl, cs.starts_with("a") | cs.ends_with("d"))]
+    "DF, columns",
+    [
+        (PandasDataFrame, ["a", "d"]),
+        (PolarsDataFrame, cs.starts_with("a") | cs.ends_with("d")),
+        (PolarsDataFrame, pl.col("a", "d")),
+    ],
 )
-def test_cols_hide_multi_cols(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+def test_cols_hide_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_hide(src_gt, columns=columns)
+    assert [col.var for col in new_gt._boxhead if col.visible] == ["b", "c"]
+
+
+@pytest.mark.parametrize(
+    "columns",
+    [
+        pl.col("c").add(100),
+        pl.col("c").cast(pl.Utf8).str.to_lowercase(),
+        pl.col("c").add(pl.col("d")),
+    ],
+)
+def test_weird_pl_expr_single_col(columns):
+    df = pl.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_hide(src_gt, columns=columns)
+    assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "d"]
+
+
+@pytest.mark.parametrize(
+    "columns",
+    [
+        pl.col("a", "d").add(100),
+        pl.col("a", "d").cast(pl.Utf8).str.to_lowercase(),
+        pl.col("a", "d").add(pl.col("b")),
+    ],
+)
+def test_weird_pl_expr_multi_cols(columns):
+    df = pl.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_hide(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead if col.visible] == ["b", "c"]
