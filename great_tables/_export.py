@@ -174,12 +174,14 @@ def save(
         wd_options = webdriver.EdgeOptions()
 
     # specify headless flag ----
-    # note that safari currently doesn't support headless browsing
-    if web_driver == "firefox":
+    if web_driver in {"firefox", "edge"}:
         wd_options.add_argument("--headless")
-    else:
+    elif web_driver == "chrome":
         # Operate all webdrivers in headless mode
         wd_options.add_argument("--headless=new")
+    else:
+        # note that safari currently doesn't support headless browsing
+        pass
 
     if debug_port:
         if web_driver == "chrome":
