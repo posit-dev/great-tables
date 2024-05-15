@@ -3407,7 +3407,7 @@ class FmtImage:
 
         mime_type = cls._get_mime_type(filename)
 
-        return f"data: {mime_type}; base64,{encoded}"
+        return f"data:{mime_type};base64,{encoded}"
 
     @staticmethod
     def _get_mime_type(filename: str) -> str:
