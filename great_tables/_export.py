@@ -168,12 +168,18 @@ def save(
         wdriver = webdriver.Edge
         wd_options = webdriver.EdgeOptions()
 
-    # Operate all webdrivers in headless mode
-    wd_options.add_argument("--headless=new")
+    # specify headless flag ----
+    # note that safari currently doesn't support headless browsing
+    if web_driver == "firefox":
+        wd_options.add_argument("--headless")
+    else:
+        # Operate all webdrivers in headless mode
+        wd_options.add_argument("--headless=new")
 
     if debug_port:
         wd_options.add_argument(f"--remote-debugging-port={debug_port}")
 
+    # run browser ----
     with (
         tempfile.NamedTemporaryFile(suffix=".html", dir=temp_dir) as temp_file,
         wdriver(options=wd_options) as headless_browser,
