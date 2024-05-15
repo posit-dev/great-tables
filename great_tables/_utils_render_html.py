@@ -395,21 +395,25 @@ def create_columns_component_h(data: GTData) -> str:
                     )
 
             if len(stub_layout) > 0:
-                level_i_spanners.insert(0,
-                    tags.th(tags.span(HTML("&nbsp")),
+                level_i_spanners.insert(
+                    0,
+                    tags.th(
+                        tags.span(HTML("&nbsp")),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{str(stubhead_label_alignment)}",
                         rowspan=1,
                         colspan=len(stub_layout),
                         scope="colgroup" if len(stub_layout) > 1 else "col",
-                    )
+                    ),
                 )
 
             higher_spanner_rows = TagList(
                 higher_spanner_rows,
-                TagList(tags.tr(
-                    level_i_spanners,
-                    class_="gt_col_headings gt_spanner_row",
-                )),
+                TagList(
+                    tags.tr(
+                        level_i_spanners,
+                        class_="gt_col_headings gt_spanner_row",
+                    )
+                ),
             )
 
         table_col_headings = TagList(

@@ -1,7 +1,12 @@
 import pandas as pd
 import polars as pl
 from great_tables import GT, exibble, html, loc, md, style
-from great_tables._utils_render_html import create_body_component_h, create_columns_component_h, create_heading_component_h, create_source_notes_component_h
+from great_tables._utils_render_html import (
+    create_body_component_h,
+    create_columns_component_h,
+    create_heading_component_h,
+    create_source_notes_component_h,
+)
 
 small_exibble = exibble[["num", "char"]].head(3)
 
@@ -25,6 +30,7 @@ def assert_rendered_columns(snapshot, gt):
     columns = create_columns_component_h(built)
 
     assert snapshot == columns
+
 
 def assert_rendered_body(snapshot, gt):
     built = gt._build_data("html")
