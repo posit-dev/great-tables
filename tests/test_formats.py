@@ -42,7 +42,7 @@ def strip_windows_drive(x):
     # this is a hacky approach to ensuring fmt_image path tests succeed
     # on our windows build. On linux root is just "/". On windows its a
     # drive name. Assumes our windows runner uses D:\
-    return x.replace('src="D:\\', 'src="')
+    return x.replace('src="D:\\', 'src="/')
 
 
 def test_format_fns():
