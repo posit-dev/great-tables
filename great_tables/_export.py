@@ -134,7 +134,6 @@ def save(
     """
 
     # Import the required packages
-    _try_import(name="PIL", pip_install_line="pip install pillow")
     _try_import(name="selenium", pip_install_line="pip install selenium")
 
     from selenium import webdriver
@@ -210,7 +209,6 @@ def save(
 
 
 def _save_screenshot(driver: webdriver.Chrome, scale, path: str) -> None:
-    from PIL import Image
     from io import BytesIO
     from selenium.webdriver.common.by import By
 
@@ -236,7 +234,8 @@ def _save_screenshot(driver: webdriver.Chrome, scale, path: str) -> None:
 
     # the window can be bigger than the table, but smaller risks pushing text
     # onto new lines. this pads width and height for a little slack.
-    crud_factor = 10
+    # note that this is mostly to account for body, div padding, and table borders.
+    crud_factor = 100
 
     offset_left, offset_top = driver.execute_script(
         "var div = document.body.childNodes[0]; return [div.offsetLeft, div.offsetTop];"
@@ -263,5 +262,14 @@ def _save_screenshot(driver: webdriver.Chrome, scale, path: str) -> None:
     if path.endswith(".png"):
         el.screenshot(path)
     else:
-        png = driver.get_screenshot_as_png()
-        Image.open(fp=BytesIO(png)).save(fp=path)
+        _try_import(name="PIL", pip_install_line="pip install pillow")
+
+        from PIL import Image
+
+        # convert to other formats (e.g. pdf, bmp) using PIL
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            fname = f"{tmp_dir}/image.png"
+            el.screenshot(fname)
+
+            with open(fname, "rb") as f:
+                Image.open(fp=BytesIO(f)).save(fp=path)
