@@ -2,6 +2,7 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/pycon-2024-great-tables-are-possible/index.html",
       "/blog/bring-your-own-df/index.html",
       "/blog/design-philosophy/index.html",
       "/blog/introduction-0.4.0/index.html",
