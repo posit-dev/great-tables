@@ -2,12 +2,19 @@
 title: "PyCon 2024: Making Beautiful, Publication Quality Tables is Possible in 2024"
 html-table-processing: none
 author: Michael Chow
-date: 2024-05-15
+date: 2024-05-16
 freeze: true
 ---
 
 The Great Tables crew is excited to share that we'll be presenting on tables at PyCon 2024!
 If you're around and want to meet, be sure to stop by the Posit Booth, or reach out on linkedin to [Rich](https://www.linkedin.com/in/richard-iannone-a5640017/) or [Michael](https://www.linkedin.com/in/michael-a-chow/)!
+
+The talk, Making Beautiful, Publication Quality Tables is Possible in 2024 is [10:45am Friday](https://us.pycon.org/2024/schedule/presentation/65/).
+
+In addition to the talk, there are two other events worth mentioning:
+
+* The [2024 Table Contest](https://posit.co/blog/announcing-the-2024-table-contest/)
+* Our [upcoming table workshop](https://reg.conf.posit.co/flow/posit/positconf24/publiccatalog/page/publiccatalog/session/1707334049004001S0l2) at posit::conf 2024
 
 ## What's the presentation about?
 
@@ -40,6 +47,20 @@ makes it really [easy to select rows and columns for styling](../polars-styling)
 
 
 ## What's next?
+
+### The 2024 Table Contest
+
+The world's premier display table contest---the [4th annual Table Contest](https://posit.co/blog/announcing-the-2024-table-contest/) draws competitors from near and far,
+to showcase the latest and greatest examples in table presentation.
+The contest is happening now, with **submissions due by May 31st, 2024**.
+
+For inspiration, see these resources:
+
+* [Contest announcement](https://posit.co/blog/announcing-the-2024-table-contest/)
+* [2022 winners and honorable mentions](https://posit.co/blog/winners-of-the-2022-table-contest/)
+
+
+### posit::conf() workshop
 
 We're planning a posit::conf() 2024 workshop in August, called [Making Tables with gt and Great Tables](https://reg.conf.posit.co/flow/posit/positconf24/publiccatalog/page/publiccatalog/session/1707334049004001S0l2).
 
