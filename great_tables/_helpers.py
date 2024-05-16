@@ -28,9 +28,24 @@ FontStackName: TypeAlias = Literal[
 
 
 FONT_STACKS = {
-    "system-ui": ["system-ui", "sans-serif"],
-    "transitional": ["Charter", "Bitstream Charter", "Sitka Text", "Cambria", "serif"],
-    "old-style": ["Iowan Old Style", "Palatino Linotype", "URW Palladio L", "P052", "serif"],
+    "system-ui": [
+        "system-ui",
+        "sans-serif",
+    ],
+    "transitional": [
+        "Charter",
+        "Bitstream Charter",
+        "Sitka Text",
+        "Cambria",
+        "serif",
+    ],
+    "old-style": [
+        "Iowan Old Style",
+        "Palatino Linotype",
+        "URW Palladio L",
+        "P052",
+        "serif",
+    ],
     "humanist": [
         "Seravek",
         "Gill Sans Nova",
@@ -48,7 +63,13 @@ FONT_STACKS = {
         "source-sans-pro",
         "sans-serif",
     ],
-    "classical-humanist": ["Optima", "Candara", "Noto Sans", "source-sans-pro", "sans-serif"],
+    "classical-humanist": [
+        "Optima",
+        "Candara",
+        "Noto Sans",
+        "source-sans-pro",
+        "sans-serif",
+    ],
     "neo-grotesque": [
         "Inter",
         "Roboto",
@@ -58,7 +79,11 @@ FONT_STACKS = {
         "Arial",
         "sans-serif",
     ],
-    "monospace-slab-serif": ["Nimbus Mono PS", "Courier New", "monospace"],
+    "monospace-slab-serif": [
+        "Nimbus Mono PS",
+        "Courier New",
+        "monospace",
+    ],
     "monospace-code": [
         "ui-monospace",
         "Cascadia Code",
@@ -114,7 +139,14 @@ FONT_STACKS = {
         "Sylfaen",
         "serif",
     ],
-    "handwritten": ["Segoe Print", "Bradley Hand", "Chilanka", "TSCu_Comic", "casual", "cursive"],
+    "handwritten": [
+        "Segoe Print",
+        "Bradley Hand",
+        "Chilanka",
+        "TSCu_Comic",
+        "casual",
+        "cursive",
+    ],
 }
 
 
