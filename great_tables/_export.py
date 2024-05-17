@@ -299,7 +299,7 @@ def _save_screenshot(
             el.screenshot(fname)
 
             with open(fname, "rb") as f:
-                Image.open(fp=BytesIO(f)).save(fp=path)
+                Image.open(fp=BytesIO(f.read())).save(fp=path)
 
 
 def _dump_debug_screenshot(driver, path):
