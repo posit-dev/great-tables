@@ -3677,6 +3677,9 @@ def fmt_nanoplot(
     else:
         scalar_vals = False
 
+    if _str_detect(col_class, "list") and plot_type in ["line", "bar"]:
+        raise Exception(f"Column data is a 'list', but plot type {plot_type} requires scalar data.")
+
     # If a bar plot is requested and the data consists of single y values, then we need to
     # obtain a list of all single y values in the targeted column (from `columns`)
     if plot_type in ["line", "bar"] and scalar_vals:
