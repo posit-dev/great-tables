@@ -33,18 +33,15 @@ def test_html_string_generated(gt_tbl: GT, snapshot: str):
 
 @pytest.mark.skipif(sys.platform == "win32", reason="chrome might not be installed.")
 @pytest.mark.extra
-def test_save_image_file(gt_tbl: GT):
+def test_save_image_file(gt_tbl: GT, tmp_path):
 
-    gt_tbl.save(file="test_image.png")
+    f_path = tmp_path / "test_image.png"
+    gt_tbl.save(file=str(f_path))
 
-    # Wait for the file to be created before checking; wait up to
-    # 5 seconds for the async save to complete
-    for _ in range(5):
-        if Path("test_image.png").exists():
-            break
-        else:
-            time.sleep(1)
+    time.sleep(0.1)
+    assert f_path.exists()
 
-    assert Path("test_image.png").exists()
 
-    Path("test_image.png").unlink()
+def test_save_non_png(gt_tbl: GT, tmp_path):
+    f_path = tmp_path / "test_image.pdf"
+    gt_tbl.save(file=str(f_path))
