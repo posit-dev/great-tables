@@ -324,8 +324,7 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
             else:
                 raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
-        # `cs.by_name()` will match all names by default, covering the case where
-        # `expr` is an empty list.
+        # `cs.by_name()` will cover the case where `expr` is an empty list.
         expr = cs.by_name(expr_str)
         if expr_int:
             # `cs.by_index()` will raise a `pyo3_runtime.PanicException`. Therefore, it needs to be
@@ -338,7 +337,7 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
     # it inherits from Expr, so we can just use that in a pinch
     cls_selector = getattr(cs, "_selector_proxy_", Expr)
 
-    if not isinstance(expr, (list, cls_selector)):
+    if not isinstance(expr, cls_selector):
         raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
     # I don't think there's a way to get the columns w/o running the selection
