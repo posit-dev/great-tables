@@ -1,4 +1,26 @@
-from great_tables._helpers import LETTERS, letters, pct, px, random_id
+from great_tables._helpers import LETTERS, letters, pct, px, random_id, _get_font_stack, FONT_STACKS
+import pytest
+
+
+@pytest.fixture
+def font_stack_names():
+    yield {
+        "system-ui",
+        "transitional",
+        "old-style",
+        "humanist",
+        "geometric-humanist",
+        "classical-humanist",
+        "neo-grotesque",
+        "monospace-slab-serif",
+        "monospace-code",
+        "industrial",
+        "rounded-sans",
+        "slab-serif",
+        "antique",
+        "didone",
+        "handwritten",
+    }
 
 
 def test_px():
@@ -38,3 +60,24 @@ def test_uppercases():
 
     bad_letters = "#$!^%#tables"
     assert set(bad_letters).difference(uppercases)
+
+
+def test_get_font_stack_raises():
+    name = "fake_name"
+    with pytest.raises(ValueError) as exc_info:
+        _get_font_stack(name)
+
+    assert f"Invalid font stack name: {name}" in exc_info.value.args[0]
+
+
+def test_get_font_stack_add_emoji_false(font_stack_names):
+    assert all(
+        _get_font_stack(name, add_emoji=False) == FONT_STACKS[name] for name in font_stack_names
+    )
+
+
+def test_get_font_stack_add_emoji_true(font_stack_names):
+    extended_emoji = {"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}
+    assert all(
+        extended_emoji.issubset(_get_font_stack(name, add_emoji=True)) for name in font_stack_names
+    )

@@ -68,7 +68,22 @@ def test_cols_align_default():
     assert all_column_align == ["left", "left"]
 
 
-def test_cols_align():
+def test_cols_align_columns_str():
+    df = pl.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6], "C": [7.1, 8.2, 9.3]})
+    table = gt.GT(df)
+
+    # Select columns by a list of column names
+    aligned_table = table.cols_align(align="center", columns="B")
+    all_column_align = [x.column_align for x in aligned_table._boxhead._d]
+
+    assert all_column_align == [
+        "right",  # `auto_align` for `int` is "right"
+        "center",  # manually assign
+        "right",  # `auto_align` for `float` is "right"
+    ]
+
+
+def test_cols_align_columns_list_of_str():
     df = pl.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6], "C": [7.1, 8.2, 9.3]})
     table = gt.GT(df)
 

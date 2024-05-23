@@ -198,12 +198,12 @@ gt_with_spanners = (
 
     # Table column spanners ----
     .tab_spanner(
-        label = "Time",
-        columns = time_cols
+        label="Time",
+        columns=time_cols
     )
     .tab_spanner(
-        label = "Measurement",
-        columns = cs.all().exclude(time_cols)
+        label="Measurement",
+        columns=cs.exclude(time_cols)
     )
 )
 
