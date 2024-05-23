@@ -3664,6 +3664,12 @@ def fmt_nanoplot(
             f"\n\nReceived: {columns}"
         )
 
+    if plot_type not in ["line", "bar"]:
+        raise NotImplementedError(
+            "Currently, fmt_nanoplot() only support line or bar as plot_type"
+            f"\n\n Received: {plot_type}"
+        )
+
     # main ----
     # Get the internal data table
     data_tbl = self._tbl_data
@@ -3676,9 +3682,6 @@ def fmt_nanoplot(
         scalar_vals = True
     else:
         scalar_vals = False
-
-    if _str_detect(col_class, "list") and plot_type in ["line", "bar"]:
-        raise Exception(f"Column data is a 'list', but plot type {plot_type} requires scalar data.")
 
     # If a bar plot is requested and the data consists of single y values, then we need to
     # obtain a list of all single y values in the targeted column (from `columns`)

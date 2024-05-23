@@ -1896,6 +1896,21 @@ def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
         ],
     )
 
+@pytest.mark.parametrize(
+        "plot_type",
+        [
+            ("bars"),
+            ("abc"),
+        ]
+)
+def test_fmt_nanoplot_raise_implemented_error(plot_type: str):
+    with pytest.raises(NotImplementedError) as exc_info:
+        GT(df_fmt_nanoplot_single).fmt_nanoplot(
+            columns="vals",
+            plot_type=plot_type
+        )
+        assert f"Value received: {plot_type}" in exc_info.value.args[0]
+
 
 def test_fmt_nanoplot_polars_listcol(snapshot):
     gt = GT(pl.DataFrame({"x": [[1, 2], [3, 4]]})).fmt_nanoplot("x")
