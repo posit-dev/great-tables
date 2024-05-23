@@ -307,23 +307,24 @@ def _(
 def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool = True) -> _NamePos:
     # TODO: how to annotate type of a polars selector?
     # Seems to be polars.selectors._selector_proxy_.
-    from polars import Expr
     import polars.selectors as cs
+
+    from functools import reduce
+    from operator import or_
+    from polars import Expr
 
     if isinstance(expr, (str, int)):
         expr = [expr]
 
     if isinstance(expr, list):
-        _expr = cs.by_name()  # This should cover the case where `expr` is an empty list.
-        for e in expr:
-            type_e = type(e)
-            if issubclass(type_e, str):
-                _expr = _expr | cs.by_name(e)
-            elif issubclass(type_e, int):
-                _expr = _expr | cs.by_index(e)
-            else:
-                raise TypeError(f"Unsupported selection expr type: {type(expr)}")
-        expr = _expr
+        all_selectors = [
+            cs.by_name(x) if isinstance(x, str) else cs.by_index(x) if isinstance(x, int) else x
+            for x in expr
+        ]
+
+        _validate_selector_list(all_selectors)
+
+        expr = reduce(or_, all_selectors, cs.by_name())
 
     col_pos = {k: ii for ii, k in enumerate(data.columns)}
 
@@ -337,6 +338,14 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
     # I don't think there's a way to get the columns w/o running the selection
     final_columns = cs.expand_selector(data, expr)
     return [(col, col_pos[col]) for col in final_columns]
+
+
+def _validate_selector_list(selectors: list):
+    from polars.selectors import is_selector
+
+    for ii, sel in enumerate(selectors):
+        if not is_selector(sel):
+            raise TypeError(f"Expected a list of selectors, but entry {ii} is type: {type(sel)}.")
 
 
 def _eval_select_from_list(

@@ -107,13 +107,22 @@ def test_eval_select_pandas_raises2(expr):
     assert "Unsupported selection expr: " in str(exc_info.value.args[0])
 
 
-@pytest.mark.parametrize("expr", [["col2", 1.2], 3.45, {6}, (7.8,)])
+@pytest.mark.parametrize("expr", [3.45, {6}, (7.8,)])
 def test_eval_select_polars_raises(expr):
     df = pl.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
     with pytest.raises(TypeError) as exc_info:
         eval_select(df, expr)
 
     assert "Unsupported selection expr type:" in str(exc_info.value.args[0])
+
+
+def test_eval_selector_polars_list_raises():
+    expr = ["col1", 1.2]
+    df = pl.DataFrame({"col1": [], "col2": [], "col3": []})
+    with pytest.raises(TypeError) as exc_info:
+        eval_select(df, expr)
+
+    assert "entry 1 is type: <class 'float'>" in str(exc_info.value.args[0])
 
 
 def test_create_empty_frame(df: DataFrameLike):
