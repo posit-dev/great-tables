@@ -222,7 +222,7 @@ import polars.selectors as cs
 gt_pl_air.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(
-        columns=cs.all().exclude(["Month", "Day"]),
+        columns=cs.exclude(["Month", "Day"]),
         rows=pl.col("Temp") == pl.col("Temp").max()
     )
 )
