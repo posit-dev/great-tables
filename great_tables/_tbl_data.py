@@ -308,22 +308,41 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
     # TODO: how to annotate type of a polars selector?
     # Seems to be polars.selectors._selector_proxy_.
     from polars import Expr
-    from polars import selectors
+    import polars.selectors as cs
 
     if isinstance(expr, (str, int)):
         expr = [expr]
+
+    if isinstance(expr, list):
+        expr_str, expr_int = [], []
+        for e in expr:
+            type_e = type(e)
+            if issubclass(type_e, str):
+                expr_str.append(e)
+            elif issubclass(type_e, int):
+                expr_int.append(e)
+            else:
+                raise TypeError(f"Unsupported selection expr type: {type(expr)}")
+
+        # `cs.by_name()` will match all names by default, covering the case where
+        # `expr` is an empty list.
+        expr = cs.by_name(expr_str)
+        if expr_int:
+            # `cs.by_index()` will raise a `pyo3_runtime.PanicException`. Therefore, it needs to be
+            # guarded by the `if` statement.
+            expr = expr | cs.by_index(expr_int)
 
     col_pos = {k: ii for ii, k in enumerate(data.columns)}
 
     # just in case _selector_proxy_ gets renamed or something
     # it inherits from Expr, so we can just use that in a pinch
-    cls_selector = getattr(selectors, "_selector_proxy_", Expr)
+    cls_selector = getattr(cs, "_selector_proxy_", Expr)
 
     if not isinstance(expr, (list, cls_selector)):
         raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
     # I don't think there's a way to get the columns w/o running the selection
-    final_columns = selectors.expand_selector(data, expr)
+    final_columns = cs.expand_selector(data, expr)
     return [(col, col_pos[col]) for col in final_columns]
 
 

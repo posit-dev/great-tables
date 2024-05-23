@@ -70,12 +70,51 @@ def test_reorder(df: DataFrameLike):
     assert_frame_equal(res, dst)
 
 
-@pytest.mark.parametrize(
-    "expr", [["col2", "col1"], [1, 0], ["col2", 0], pl.selectors.all().exclude("col3")]
-)
+@pytest.mark.parametrize("expr", [["col2", "col1"], [1, 0], ["col2", 0]])
 def test_eval_select_with_list(df: DataFrameLike, expr):
-    sel = eval_select(df, ["col2", "col1"])
-    assert sel == [("col2", 1), ("col1", 0)]
+    sel = eval_select(df, expr)
+    assert set(sel) == {("col2", 1), ("col1", 0)}
+
+
+@pytest.mark.parametrize(
+    "expr",
+    [
+        pl.selectors.exclude("col3"),
+        pl.selectors.starts_with("col1") | pl.selectors.starts_with("col2"),
+        pl.selectors.starts_with("col2") | pl.selectors.starts_with("col1"),
+    ],
+)
+def test_eval_select_with_list_pl_selector(expr):
+    df = pl.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+    sel = eval_select(df, expr)
+    assert set(sel) == {("col2", 1), ("col1", 0)}
+
+
+@pytest.mark.parametrize("expr", [["col2", 1.2]])
+def test_eval_select_pandas_raises1(expr):
+    df = pd.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+    with pytest.raises(TypeError) as exc_info:
+        eval_select(df, expr)
+
+    assert "Only int and str are supported." in str(exc_info.value.args[0])
+
+
+@pytest.mark.parametrize("expr", [3.45, {"col2"}, ("col2",)])
+def test_eval_select_pandas_raises2(expr):
+    df = pd.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+    with pytest.raises(NotImplementedError) as exc_info:
+        eval_select(df, expr)
+
+    assert "Unsupported selection expr: " in str(exc_info.value.args[0])
+
+
+@pytest.mark.parametrize("expr", [["col2", 1.2], 3.45, {6}, (7.8,)])
+def test_eval_select_polars_raises(expr):
+    df = pl.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+    with pytest.raises(TypeError) as exc_info:
+        eval_select(df, expr)
+
+    assert "Unsupported selection expr type:" in str(exc_info.value.args[0])
 
 
 def test_create_empty_frame(df: DataFrameLike):
