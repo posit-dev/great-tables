@@ -70,10 +70,10 @@ def test_reorder(df: DataFrameLike):
     assert_frame_equal(res, dst)
 
 
-@pytest.mark.parametrize("expr", [["col2", "col1"], [1, 0], ["col2", 0]])
+@pytest.mark.parametrize("expr", [["col2", "col1"], [1, 0], ["col2", 0], [1, "col1"]])
 def test_eval_select_with_list(df: DataFrameLike, expr):
     sel = eval_select(df, expr)
-    assert set(sel) == {("col2", 1), ("col1", 0)}
+    assert sel == [("col2", 1), ("col1", 0)]
 
 
 @pytest.mark.parametrize(
@@ -81,13 +81,12 @@ def test_eval_select_with_list(df: DataFrameLike, expr):
     [
         pl.selectors.exclude("col3"),
         pl.selectors.starts_with("col1") | pl.selectors.starts_with("col2"),
-        pl.selectors.starts_with("col2") | pl.selectors.starts_with("col1"),
     ],
 )
 def test_eval_select_with_list_pl_selector(expr):
     df = pl.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
     sel = eval_select(df, expr)
-    assert set(sel) == {("col2", 1), ("col1", 0)}
+    assert sel == [("col1", 0), ("col2", 1)]
 
 
 @pytest.mark.parametrize("expr", [["col2", 1.2]])

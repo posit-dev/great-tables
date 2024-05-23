@@ -314,22 +314,16 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
         expr = [expr]
 
     if isinstance(expr, list):
-        expr_str, expr_int = [], []
+        _expr = cs.by_name()  # This should cover the case where `expr` is an empty list.
         for e in expr:
             type_e = type(e)
             if issubclass(type_e, str):
-                expr_str.append(e)
+                _expr = _expr | cs.by_name(e)
             elif issubclass(type_e, int):
-                expr_int.append(e)
+                _expr = _expr | cs.by_index(e)
             else:
                 raise TypeError(f"Unsupported selection expr type: {type(expr)}")
-
-        # `cs.by_name()` will cover the case where `expr` is an empty list.
-        expr = cs.by_name(expr_str)
-        if expr_int:
-            # `cs.by_index()` will raise a `pyo3_runtime.PanicException`. Therefore, it needs to be
-            # guarded by the `if` statement.
-            expr = expr | cs.by_index(expr_int)
+        expr = _expr
 
     col_pos = {k: ii for ii, k in enumerate(data.columns)}
 
