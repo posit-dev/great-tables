@@ -654,7 +654,9 @@ class UnitDefinitionList:
 
 
 def _units_to_subscript(content: str) -> str:
-    return '<span style="white-space:nowrap;"><sub>' + content + "</sub></span>"
+    return (
+        '<span style="white-space:nowrap;"><sub style="line-height:0;">' + content + "</sub></span>"
+    )
 
 
 def _units_to_superscript(content: str) -> str:
