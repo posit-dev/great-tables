@@ -155,6 +155,7 @@ quartodoc:
         - html
         - from_column
         - system_fonts
+        - define_units
         - nanoplot_options
     - title: Table options
       desc: >
