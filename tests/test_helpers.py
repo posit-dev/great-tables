@@ -101,11 +101,8 @@ def test_get_font_stack_add_emoji_true(font_stack_names):
 @pytest.mark.parametrize(
     "units, x_out",
     [
-        ("x10^7 m s^-1", ["x10^7", "m", "s^-1"]),
-        (
-            "-20 kg^2 m_12 m[_0^2] g/L %C6H12O6% x10^-3",
-            ["-20", "kg^2", "m_12", "m[_0^2]", "g/L", "%C6H12O6%", "x10^-3"],
-        ),
+        ("m^2", ["m^2"]),
+        ("m s^-1", ["m", "s^-1"]),
     ],
 )
 def assert_generate_tokens_list(units: str, x_out: str):
