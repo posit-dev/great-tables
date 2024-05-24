@@ -1,15 +1,14 @@
-from great_tables import GT, style
-from great_tables.data import exibble
-from great_tables._utils_render_html import create_body_component_h
-from great_tables._gt_data import StyleInfo, CellStyle
 from typing import Type, TypeVar
 
 import numpy as np
 import pandas as pd
 import polars as pl
 import pytest
+from great_tables import GT, style
+from great_tables._gt_data import CellStyle, StyleInfo
 from great_tables._tbl_data import DataFrameLike
-
+from great_tables._utils_render_html import create_body_component_h
+from great_tables.data import exibble
 
 T_CellStyle = TypeVar("T_CellStyle", bound=CellStyle)
 

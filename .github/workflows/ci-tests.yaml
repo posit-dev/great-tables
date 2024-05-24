@@ -40,6 +40,21 @@ jobs:
           name: "py${{ matrix.python-version }}"
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install -e '.[all]'
+      - name: pytest unit tests
+        run: |
+          make test
+
   test-pandas:
     runs-on: ubuntu-latest
     steps:
@@ -54,6 +69,36 @@ jobs:
       - name: pytest unit tests
         run: |
           make test-no-pandas
+
+  browser-save-image-test:
+    name: "Test for saving table image with browser"
+    runs-on: ubuntu-latest
+    steps:
+      # browsers
+      - uses: browser-actions/setup-firefox@v1
+      - run: firefox --version
+      - uses: browser-actions/setup-chrome@v1
+      - run: chrome --version
+      - uses: browser-actions/setup-edge@v1
+
+      #
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install -e '.[extra]'
+          pip install pandas
+      - name: save browser tables
+        run: |
+            make save-browser-table-ci
+      - uses: actions/upload-artifact@v4
+        with:
+          name: browser-save-image
+          path: _browser-tests.html
+          if-no-files-found: error
 
   release-pypi:
     name: "Release to pypi"

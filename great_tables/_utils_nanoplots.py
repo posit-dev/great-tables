@@ -1,8 +1,10 @@
-from typing import Optional, List, Union, Any, Dict, Callable
-import numpy as np
+from __future__ import annotations
 
-from great_tables._utils import _match_arg
+from typing import Any, Callable
+
+import numpy as np
 from great_tables._tbl_data import Agnostic, is_na
+from great_tables._utils import _match_arg
 
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
 
@@ -43,7 +45,7 @@ def _val_is_str(x: Any) -> bool:
 
 # This determines whether an entire list of values are integer-like; this skips
 # over missing values and returns a single boolean
-def _is_integerlike(val_list: List[Any]) -> bool:
+def _is_integerlike(val_list: list[Any]) -> bool:
     """
     Determine whether an entire list of values are integer-like; this skips
     over missing values and returns a single boolean.
@@ -56,7 +58,7 @@ def _is_integerlike(val_list: List[Any]) -> bool:
     return all((isinstance(val, (int, np.integer)) or _is_na(val)) for val in val_list)
 
 
-def _any_na_in_list(x: List[Any]) -> bool:
+def _any_na_in_list(x: list[Any]) -> bool:
     """
     Determine whether a list of values contains any missing values.
     """
@@ -64,7 +66,7 @@ def _any_na_in_list(x: List[Any]) -> bool:
     return any(_is_na(val) for val in x)
 
 
-def _check_any_na_in_list(x: List[Union[int, float]]) -> None:
+def _check_any_na_in_list(x: list[int | float]) -> None:
     """
     Check whether a list of values contains any missing values; if so, raise an error.
     """
@@ -74,7 +76,7 @@ def _check_any_na_in_list(x: List[Union[int, float]]) -> None:
 
 
 # Remove missing values from a list of values
-def _remove_na_from_list(x: List[Union[int, float]]) -> List[Union[int, float]]:
+def _remove_na_from_list(x: list[int | float]) -> list[int | float]:
     """
     Remove missing values from a list of values.
     """
@@ -82,7 +84,7 @@ def _remove_na_from_list(x: List[Union[int, float]]) -> List[Union[int, float]]:
     return [val for val in x if not _is_na(val)]
 
 
-def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) -> List[Any]:
+def _normalize_option_list(option_list: Any | list[Any], num_y_vals: int) -> list[Any]:
     """
     Normalize an option list to have the same length as the number of `y` values.
     """
@@ -100,7 +102,7 @@ def _normalize_option_list(option_list: Union[Any, List[Any]], num_y_vals: int) 
     return option_list
 
 
-def calc_ref_value(val_or_calc: "int | float | str", data) -> Union[int, float]:
+def calc_ref_value(val_or_calc: "int | float | str", data) -> int | float:
     if _val_is_numeric(val_or_calc):
         return val_or_calc
     elif _val_is_str(val_or_calc) and val_or_calc in REFERENCE_LINE_KEYWORDS:
@@ -110,10 +112,10 @@ def calc_ref_value(val_or_calc: "int | float | str", data) -> Union[int, float]:
 
 
 def _format_number_compactly(
-    val: Union[int, float],
-    currency: Optional[str] = None,
+    val: int | float,
+    currency: str | None = None,
     as_integer: bool = False,
-    fn: Optional[Callable[..., str]] = None,
+    fn: Callable[..., str] | None = None,
 ) -> str:
     """
     Format a single numeric value compactly, using a currency if provided.
@@ -270,7 +272,7 @@ def _format_number_compactly(
 #
 
 
-def _gt_mean(x: List[Union[int, float]]) -> float:
+def _gt_mean(x: list[int | float]) -> float:
     """
     Calculate the mean of a list of values.
     """
@@ -278,21 +280,21 @@ def _gt_mean(x: List[Union[int, float]]) -> float:
     return sum(x) / len(x)
 
 
-def _gt_min(x: List[Union[int, float]]) -> Union[int, float]:
+def _gt_min(x: list[int | float]) -> int | float:
     """
     Calculate the minimum value from a list of values.
     """
     return min(x)
 
 
-def _gt_max(x: List[Union[int, float]]) -> Union[int, float]:
+def _gt_max(x: list[int | float]) -> int | float:
     """
     Calculate the maximum value from a list of values.
     """
     return max(x)
 
 
-def _gt_median(x: List[Union[int, float]]) -> Union[int, float]:
+def _gt_median(x: list[int | float]) -> int | float:
     """
     Calculate the median of a list of values.
     """
@@ -304,21 +306,21 @@ def _gt_median(x: List[Union[int, float]]) -> Union[int, float]:
         return x[n // 2]
 
 
-def _gt_first(x: List[Union[int, float]]) -> Union[int, float]:
+def _gt_first(x: list[int | float]) -> int | float:
     """
     Get the first value from a list of values.
     """
     return x[0]
 
 
-def _gt_last(x: List[Union[int, float]]) -> Union[int, float]:
+def _gt_last(x: list[int | float]) -> int | float:
     """
     Get the last value from a list of values.
     """
     return x[-1]
 
 
-def _gt_quantile(x: List[Union[int, float]], q: float) -> Union[int, float]:
+def _gt_quantile(x: list[int | float], q: float) -> int | float:
     """
     Calculate the quantile of a list of values.
     """
@@ -327,21 +329,21 @@ def _gt_quantile(x: List[Union[int, float]], q: float) -> Union[int, float]:
     return x[int(n * q)]
 
 
-def _gt_q1(x: List[Union[int, float]]) -> float:
+def _gt_q1(x: list[int | float]) -> float:
     """
     Calculate the first quartile of a list of values.
     """
     return _gt_quantile(x, 0.25)
 
 
-def _gt_q3(x: List[Union[int, float]]) -> float:
+def _gt_q3(x: list[int | float]) -> float:
     """
     Calculate the third quartile of a list of values.
     """
     return _gt_quantile(x, 0.75)
 
 
-def _flatten_list(x: List[Any]) -> Union[List[float], List[int], List[Union[int, float]]]:
+def _flatten_list(x: list[Any]) -> list[int] | list[float] | list[int | float]:
     """
     Flatten a list of values.
     """
@@ -356,9 +358,9 @@ def _flatten_list(x: List[Any]) -> Union[List[float], List[int], List[Union[int,
 
 
 def _get_extreme_value(
-    *args: Union[int, float],
+    *args: int | float,
     stat: str = "max",
-) -> Union[int, float]:
+) -> int | float:
     """
     Get either the maximum or minimum value from a list of numeric values.
     """
@@ -386,9 +388,7 @@ def _get_extreme_value(
     return extreme_val
 
 
-def _generate_ref_line_from_keyword(
-    vals: List[Union[int, float]], keyword: str
-) -> Union[int, float]:
+def _generate_ref_line_from_keyword(vals: list[int | float], keyword: str) -> int | float:
     """
     Generate a value for a reference line from a valid keyword.
     """
@@ -423,9 +423,7 @@ def _generate_ref_line_from_keyword(
     return ref_line
 
 
-def _normalize_vals(
-    x: Union[List[Union[int, float]], List[int], List[float]]
-) -> List[Union[int, float]]:
+def _normalize_vals(x: list[int] | list[float] | list[int | float]) -> list[int | float]:
     """
     Normalize a list of numeric values to be between 0 and 1. Account for missing values.
     """
@@ -446,7 +444,7 @@ def _normalize_vals(
 # TODO: example nanoplot showing when jitter vals might be applied
 # Looks like it's on the x-axis:
 # GT(pd.DataFrame({'x': [{"x": [1, 1, 1], "y": [2, 3, 4]}]})).fmt_nanoplot("x")
-def _jitter_vals(x: List[Union[int, float]], amount: float) -> List[Union[int, float]]:
+def _jitter_vals(x: list[int | float], amount: float) -> list[int | float]:
     """
     Jitter a list of numeric values by a small amount.
     """
@@ -454,7 +452,7 @@ def _jitter_vals(x: List[Union[int, float]], amount: float) -> List[Union[int, f
     return [val + np.random.uniform(-amount, amount) for val in x]
 
 
-def _normalize_to_dict(**kwargs: List[Union[int, float]]) -> Dict[str, List[Union[int, float]]]:
+def _normalize_to_dict(**kwargs: list[int | float]) -> dict[str, list[int | float]]:
     """
     Normalize a collection of numeric values to be between 0 and 1. Account for missing values.
     This only accepts values (scalar or list) associated with keyword arguments. A dictionary
@@ -516,15 +514,15 @@ def _construct_nanoplot_svg(
     show_reference_area: bool,
     show_vertical_guides: bool,
     show_y_axis_guide: bool,
-    ref_area_tags: Optional[str] = None,
-    area_path_tags: Optional[str] = None,
-    data_path_tags: Optional[str] = None,
-    zero_line_tags: Optional[str] = None,
-    bar_tags: Optional[str] = None,
-    ref_line_tags: Optional[str] = None,
-    circle_tags: Optional[str] = None,
-    g_y_axis_tags: Optional[str] = None,
-    g_guide_tags: Optional[str] = None,
+    ref_area_tags: str | None = None,
+    area_path_tags: str | None = None,
+    data_path_tags: str | None = None,
+    zero_line_tags: str | None = None,
+    bar_tags: str | None = None,
+    ref_line_tags: str | None = None,
+    circle_tags: str | None = None,
+    g_y_axis_tags: str | None = None,
+    g_guide_tags: str | None = None,
 ) -> str:
     """
     Construct an SVG nanoplot from a collection of SVG tags.
@@ -545,31 +543,31 @@ def _construct_nanoplot_svg(
 
 
 def _generate_nanoplot(
-    y_vals: Union[List[Union[int, float]], List[int], List[float]],
-    y_ref_line: Optional[str] = None,
-    y_ref_area: Optional[str] = None,
-    x_vals: "List[Union[int, float]] | None" = None,
-    expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
-    expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
+    y_vals: list[int] | list[float] | list[int | float],
+    y_ref_line: str | None = None,
+    y_ref_area: str | None = None,
+    x_vals: list[int | float] | None = None,
+    expand_x: list[int] | list[float] | list[int | float] | None = None,
+    expand_y: list[int] | list[float] | list[int | float] | None = None,
     missing_vals: str = "marker",
-    all_y_vals: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
-    all_single_y_vals: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
+    all_y_vals: list[int] | list[float] | list[int | float] | None = None,
+    all_single_y_vals: list[int] | list[float] | list[int | float] | None = None,
     plot_type: str = "line",
     data_line_type: str = "curved",
-    currency: Optional[str] = None,
-    y_val_fmt_fn: Optional[Callable[..., str]] = None,
-    y_axis_fmt_fn: Optional[Callable[..., str]] = None,
-    y_ref_line_fmt_fn: Optional[Callable[..., str]] = None,
-    data_point_radius: Union[int, List[int]] = 10,
-    data_point_stroke_color: Union[str, List[str]] = "#FFFFFF",
-    data_point_stroke_width: Union[int, List[int]] = 4,
-    data_point_fill_color: Union[str, List[str]] = "#FF0000",
+    currency: str | None = None,
+    y_val_fmt_fn: Callable[..., str] | None = None,
+    y_axis_fmt_fn: Callable[..., str] | None = None,
+    y_ref_line_fmt_fn: Callable[..., str] | None = None,
+    data_point_radius: int | list[int] = 10,
+    data_point_stroke_color: str | list[str] = "#FFFFFF",
+    data_point_stroke_width: int | list[int] = 4,
+    data_point_fill_color: str | list[str] = "#FF0000",
     data_line_stroke_color: str = "#4682B4",
     data_line_stroke_width: int = 8,
     data_area_fill_color: str = "#FF0000",
-    data_bar_stroke_color: Union[str, List[str]] = "#3290CC",
-    data_bar_stroke_width: Union[int, List[int]] = 4,
-    data_bar_fill_color: Union[str, List[str]] = "#3FB5FF",
+    data_bar_stroke_color: str | list[str] = "#3290CC",
+    data_bar_stroke_width: int | list[int] = 4,
+    data_bar_fill_color: str | list[str] = "#3FB5FF",
     data_bar_negative_stroke_color: str = "#CC3243",
     data_bar_negative_stroke_width: int = 4,
     data_bar_negative_fill_color: str = "#D75A68",
@@ -1424,6 +1422,7 @@ def _generate_nanoplot(
     #
 
     if show_y_axis_guide:
+        is_all_intify_y_axis = len(y_vals) == _get_n_intlike(y_vals)
 
         rect_tag = f'<rect x="{left_x}" y="{top_y}" width="{safe_x_d + 15}" height="{bottom_y}" stroke="transparent" stroke-width="0" fill="transparent"></rect>'
 
@@ -1447,6 +1446,10 @@ def _generate_nanoplot(
             fn=y_axis_fmt_fn,
         )
 
+        if is_all_intify_y_axis:
+            y_value_max_label = _remove_exponent(y_value_max_label)
+            y_value_min_label = _remove_exponent(y_value_min_label)
+
         text_strings_min = f'<text x="{left_x}" y="{safe_y_d + data_y_height + safe_y_d - data_y_height / 25}" fill="transparent" stroke="transparent" font-size="25">{y_value_min_label}</text>'
 
         text_strings_max = f'<text x="{left_x}" y="{safe_y_d + data_y_height / 25}" fill="transparent" stroke="transparent" font-size="25">{y_value_max_label}</text>'
@@ -1458,6 +1461,7 @@ def _generate_nanoplot(
     #
 
     if show_vertical_guides:
+        is_all_intify_v_guides = len(y_vals) == _get_n_intlike(y_vals)
 
         g_guide_strings = []
 
@@ -1474,6 +1478,9 @@ def _generate_nanoplot(
 
             if y_value_i == "NA":
                 x_text = x_text + 2
+
+            if is_all_intify_v_guides:
+                y_value_i = _remove_exponent(y_value_i)
 
             text_strings_i = f'<text x="{x_text}" y="{safe_y_d + 5}" fill="transparent" stroke="transparent" font-size="30px">{y_value_i}</text>'
 
@@ -1565,3 +1572,52 @@ def _generate_nanoplot(
     )
 
     return nanoplot_svg
+
+
+def _is_intlike(n: Any, scaled_by: float = 1e17) -> bool:
+    """
+    https://stackoverflow.com/a/71373152
+    """
+    import numbers
+    from decimal import Decimal
+
+    if isinstance(n, str):
+        try:
+            # Replacement of minus sign (U+2212) with hyphen (necessary in some locales)
+            n = float(n.replace("−", "-"))
+        except ValueError:
+            return False
+    elif isinstance(n, Decimal):
+        n = float(n)
+    return isinstance(n, numbers.Real) and ((n * scaled_by - int(n) * scaled_by) == 0)
+
+
+def _get_n_intlike(nums: list[Any]) -> int:
+    return len([n for n in nums if _is_intlike(n)])
+
+
+def _remove_exponent(n: "str | int | float") -> str:
+    """
+    https://docs.python.org/3/library/decimal.html#decimal-faq
+    """
+    from decimal import Decimal, InvalidOperation
+
+    if isinstance(n, str):
+        # Replacement of minus sign (U+2212) with hyphen (necessary in some locales)
+        n = n.replace("−", "-")
+
+    # TODO: note that in the nanoplot code, this function only runs when
+    # GT believes everything is an integer. However, _format_number_compactly
+    # may have run on each value and formatted them compactly (e.g. 7045 to "704K")
+    # The InvalidOperation catch prevents errors on compact numbers, but is a
+    # hacky patch. We need to consolidate the processing steps run for value
+    # formatting.
+    try:
+        d = Decimal(n)
+        if d == d.to_integral():
+            x = d.quantize(Decimal(1))
+        else:
+            x = d.normalize()
+        return str(int(x))
+    except InvalidOperation:
+        return str(n)

@@ -1,19 +1,18 @@
 from __future__ import annotations
 
 import itertools
-
 from dataclasses import dataclass
 from functools import singledispatch
-from typing import TYPE_CHECKING, Literal, List, Callable, Union
+from typing import TYPE_CHECKING, Any, Callable, Literal
+
 from typing_extensions import TypeAlias
 
 # note that types like Spanners are only used in annotations for concretes of the
 # resolve generic, but we need to import at runtime, due to singledispatch looking
 # up annotations
-from ._gt_data import GTData, FootnoteInfo, Spanners, ColInfoTypeEnum, StyleInfo, FootnotePlacement
-from ._tbl_data import eval_select, eval_transform, PlExpr, PlDataFrame
+from ._gt_data import ColInfoTypeEnum, FootnoteInfo, FootnotePlacement, GTData, Spanners, StyleInfo
 from ._styles import CellStyle
-
+from ._tbl_data import PlDataFrame, PlExpr, eval_select, eval_transform
 
 if TYPE_CHECKING:
     from ._gt_data import TblData
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
 # Misc Types ===========================================================================
 
 PlacementOptions: TypeAlias = Literal["auto", "left", "right"]
-RowSelectExpr: TypeAlias = Union[List[int], PlExpr, Callable[["TblData"], bool], None]
+RowSelectExpr: TypeAlias = 'list[int] | PlExpr | Callable[["TblData"], bool] | None'
 
 # Locations ============================================================================
 # TODO: these are called cells_* in gt. I prefixed them with Loc just to keep things
@@ -104,6 +103,10 @@ class LocBody(Loc):
     -------
     LocBody
         A LocBody object, which is used for a `locations` argument if specifying the table body.
+
+    Examples
+    ------
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
     columns: SelectExpr = None
     rows: RowSelectExpr = None
@@ -283,7 +286,7 @@ def resolve_rows_i(
     """
 
     if isinstance(expr, (str, int)):
-        expr: List["str | int"] = [expr]
+        expr: list[str | int] = [expr]
 
     if isinstance(data, GTData):
         if expr is None:
@@ -309,6 +312,7 @@ def resolve_rows_i(
             if (name in target_names or ii in target_pos)
         ]
         return selected
+
     elif isinstance(expr, PlExpr):
         # TODO: decide later on the name supplied to `name`
         # with_row_index supercedes with_row_count
@@ -319,6 +323,7 @@ def resolve_rows_i(
 
         result = meth_row_number(name="__row_number__").filter(expr)
         return [(row_names[ii], ii) for ii in result["__row_number__"]]
+
     elif callable(expr):
         res: "list[bool]" = eval_transform(data._tbl_data, expr)
         if not all(map(lambda x: isinstance(x, bool), res)):
@@ -344,7 +349,7 @@ def resolve_rows_i(
 
 
 @singledispatch
-def resolve(loc: Loc, *args, **kwargs) -> "Loc | List[CellPos]":
+def resolve(loc: Loc, *args: Any, **kwargs: Any) -> Loc | list[CellPos]:
     """Return a copy of location with lookups resolved (e.g. tidyselect on columns)."""
     raise NotImplementedError(f"Unsupported location type: {type(loc)}")
 
@@ -362,7 +367,7 @@ def _(loc: LocColumnSpanners, spanners: Spanners) -> LocColumnSpanners:
 
 
 @resolve.register
-def _(loc: LocBody, data: GTData) -> List[CellPos]:
+def _(loc: LocBody, data: GTData) -> list[CellPos]:
     cols = resolve_cols_i(data=data, expr=loc.columns)
     rows = resolve_rows_i(data=data, expr=loc.rows)
 
@@ -379,13 +384,13 @@ def _(loc: LocBody, data: GTData) -> List[CellPos]:
 
 
 @singledispatch
-def set_style(loc: Loc, data: GTData, style: List[str]) -> GTData:
+def set_style(loc: Loc, data: GTData, style: list[str]) -> GTData:
     """Set style for location."""
     raise NotImplementedError(f"Unsupported location type: {type(loc)}")
 
 
 @set_style.register
-def _(loc: LocTitle, data: GTData, style: List[CellStyle]) -> GTData:
+def _(loc: LocTitle, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
@@ -402,8 +407,8 @@ def _(loc: LocTitle, data: GTData, style: List[CellStyle]) -> GTData:
 
 
 @set_style.register
-def _(loc: LocBody, data: GTData, style: List[CellStyle]) -> GTData:
-    positions: List[CellPos] = resolve(loc, data)
+def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
+    positions: list[CellPos] = resolve(loc, data)
 
     # evaluate any column expressions in styles
     style_ready = [entry._evaluate_expressions(data._tbl_data) for entry in style]

@@ -1,32 +1,28 @@
-from typing import Union
+import re
+from typing import Any, Union
+
 import pandas as pd
 import polars as pl
 import pytest
-import re
-
-from great_tables import GT
+import sys
+from great_tables import GT, _locale
+from great_tables._data_color.base import _html_color
+from great_tables._formats import (
+    FmtImage,
+    _expand_exponential_to_full_string,
+    _format_number_n_sigfig,
+    _format_number_fixed_decimals,
+    _get_currency_str,
+    _get_locale_currency_code,
+    _get_locale_dec_mark,
+    _get_locale_sep_mark,
+    _normalize_locale,
+    _validate_locale,
+    fmt,
+)
+from great_tables._utils_render_html import create_body_component_h
 from great_tables.data import exibble
 from great_tables.gt import _get_column_of_values
-from great_tables._data_color.base import _html_color
-from great_tables._utils_render_html import create_body_component_h
-from great_tables._formats import (
-    _format_number_fixed_decimals,
-    _expand_exponential_to_full_string,
-    fmt,
-    FmtImage,
-    DateStyle,
-    TimeStyle,
-    _normalize_locale,
-    _get_locale_sep_mark,
-    _get_locale_dec_mark,
-    _get_locale_currency_code,
-    _get_currency_str,
-    _validate_locale,
-)
-from great_tables._locations import RowSelectExpr
-from great_tables import _locale
-
-from typing import List, Dict, Any, Tuple, Union
 
 
 def assert_rendered_body(snapshot, gt):
@@ -41,6 +37,13 @@ def assert_repr_html(snapshot, gt):
     body = re.sub(r"^.*?<table (.*?)</table>.*$", r"\1", body, flags=re.DOTALL)
 
     assert snapshot == body
+
+
+def strip_windows_drive(x):
+    # this is a hacky approach to ensuring fmt_image path tests succeed
+    # on our windows build. On linux root is just "/". On windows its a
+    # drive name. Assumes our windows runner uses D:\
+    return x.replace('src="D:\\', 'src="/')
 
 
 def test_format_fns():
@@ -76,7 +79,7 @@ def test_format_repr_snap(snapshot):
     assert_repr_html(snapshot, new_gt)
 
 
-@pytest.mark.parametrize("expr", [[0, -1], pl.selectors.all().exclude("y")])
+@pytest.mark.parametrize("expr", [[0, -1], pl.selectors.exclude("y")])
 def test_format_col_selection_multi(expr: Any):
     df = pd.DataFrame({"x": [1], "y": [2], "z": [3]})
 
@@ -1009,11 +1012,24 @@ def test_fmt_number_pattern(pattern: str, x_out: str):
         (0.00023, "0.00"),
         (0.000033, "0.00"),
         (0.00000000446453, "0.00"),
+        (-325, "-325.00"),
     ],
 )
 def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
     x = _format_number_fixed_decimals(value=value, decimals=2, sep_mark=",")
     assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "value, out",
+    [
+        (325, "325"),
+        (-325, "-325"),
+        (-1320, "-1,320"),
+    ],
+)
+def test_format_number_n_sigfig_3(value, out: str):
+    assert _format_number_n_sigfig(value, 3) == out
 
 
 @pytest.mark.parametrize(
@@ -1073,7 +1089,7 @@ def test_format_number_with_sep_dec_marks():
 # Tests of `fmt_currency()`
 # ------------------------------------------------------------------------------
 
-FMT_CURRENCY_CASES: List[Tuple[dict[str, Any], List[str]]] = [
+FMT_CURRENCY_CASES: list[tuple[dict[str, Any], list[str]]] = [
     (dict(), ["$1,234,567.00", "−$5,432.37"]),
     (dict(currency="USD"), ["$1,234,567.00", "−$5,432.37"]),
     (dict(currency="EUR"), ["&#8364;1,234,567.00", "−&#8364;5,432.37"]),
@@ -1092,7 +1108,7 @@ FMT_CURRENCY_CASES: List[Tuple[dict[str, Any], List[str]]] = [
 
 
 @pytest.mark.parametrize("fmt_currency_kwargs,x_out", FMT_CURRENCY_CASES)
-def test_fmt_currency_case(fmt_currency_kwargs: dict[str, Any], x_out: List[str]):
+def test_fmt_currency_case(fmt_currency_kwargs: dict[str, Any], x_out: list[str]):
     df = pd.DataFrame({"x": [1234567, -5432.37]})
     gt = GT(df).fmt_currency(columns="x", **fmt_currency_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -1278,7 +1294,7 @@ def test_fmt_bytes_default(src: float, dst: str):
         ),
     ],
 )
-def test_fmt_bytes_case(fmt_bytes_kwargs: dict[str, Any], x_in: List[float], x_out: List[str]):
+def test_fmt_bytes_case(fmt_bytes_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]):
     df = pd.DataFrame({"x": x_in})
     gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -1400,7 +1416,15 @@ def test_fmt_image_single():
     res = formatter.to_html("/a")
     dst = formatter.SPAN_TEMPLATE.format('<img src="/a.svg" style="vertical-align: middle;">')
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
+
+
+def test_fmt_image_missing():
+    formatter = FmtImage()
+    assert formatter.to_html(None) is None
+
+    formatter_pd = FmtImage(pd.DataFrame())
+    assert formatter_pd.to_html(pd.NA) is pd.NA
 
 
 def test_fmt_image_multiple():
@@ -1412,7 +1436,7 @@ def test_fmt_image_multiple():
         '<img src="/b.svg" style="vertical-align: middle;">'
     )
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_encode(tmpdir):
@@ -1427,10 +1451,10 @@ def test_fmt_image_encode(tmpdir):
     res = formatter.to_html(f"{tmpdir}/some")
 
     b64_content = b64encode(content.encode()).decode()
-    img_src = f"data: image/svg+xml; base64,{b64_content}"
+    img_src = f"data:image/svg+xml;base64,{b64_content}"
     dst = formatter.SPAN_TEMPLATE.format(f'<img src="{img_src}" style="vertical-align: middle;">')
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_width_height_str():
@@ -1439,7 +1463,7 @@ def test_fmt_image_width_height_str():
     dst_img = '<img src="/a" style="height: 30px;width: 20px;vertical-align: middle;">'
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_height_int():
@@ -1448,7 +1472,7 @@ def test_fmt_image_height_int():
     dst_img = '<img src="/a" style="height: 30px;vertical-align: middle;">'
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_width_int():
@@ -1458,10 +1482,11 @@ def test_fmt_image_width_int():
         formatter.to_html("/a")
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="uses linux specific paths")
 def test_fmt_image_path():
     formatter = FmtImage(encode=False, path="/a/b")
     res = formatter.to_html("c")
-    assert 'src="/a/b/c"' in res
+    assert 'src="/a/b/c"' in strip_windows_drive(res)
 
 
 def test_fmt_units():
@@ -1878,10 +1903,10 @@ def test_fmt_units():
 # ------------------------------------------------------------------------------
 
 
-def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: List[tuple[str, str]]) -> bool:
+def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: list[tuple[str, str]]) -> bool:
     import re
 
-    found: List[bool] = []
+    found: list[bool] = []
 
     for i, _ in enumerate(attrs):
         attrs_i = attrs[i]
@@ -1906,7 +1931,7 @@ df_fmt_nanoplot_multi = pl.DataFrame(
 )
 
 
-FMT_NANOPLOT_CASES: List[dict[str, Any]] = [
+FMT_NANOPLOT_CASES: list[dict[str, Any]] = [
     # 1. default case
     dict(),
     # 2. reference line with 0 value
@@ -2279,6 +2304,12 @@ def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
             ("fill-opacity", "0.8"),
         ],
     )
+
+
+def test_fmt_nanoplot_polars_listcol(snapshot):
+    gt = GT(pl.DataFrame({"x": [[1, 2], [3, 4]]})).fmt_nanoplot("x")
+
+    assert_rendered_body(snapshot, gt)
 
 
 def test_normalize_locale():

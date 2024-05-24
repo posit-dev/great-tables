@@ -1,12 +1,14 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Union
+
+from typing import TYPE_CHECKING
+
 from ._text import Text
 
 if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def tab_stubhead(self: GTSelf, label: Union[str, Text]) -> GTSelf:
+def tab_stubhead(self: GTSelf, label: str | Text) -> GTSelf:
     """
     Add label text to the stubhead.
 

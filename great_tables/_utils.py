@@ -1,13 +1,15 @@
-from typing import Optional, Union, List, Any
+from __future__ import annotations
+
 import importlib
-from types import ModuleType
 import json
 import re
+from types import ModuleType
+from typing import Any
 
 from ._tbl_data import PdDataFrame
 
 
-def _try_import(name: str, pip_install_line: Optional[str] = None) -> ModuleType:
+def _try_import(name: str, pip_install_line: str | None = None) -> ModuleType:
     try:
         return importlib.import_module(name)
     except ImportError:
@@ -20,15 +22,15 @@ def _try_import(name: str, pip_install_line: Optional[str] = None) -> ModuleType
             raise ImportError(f"Module {name} not found.")
 
 
-def heading_has_title(title: Optional[str]) -> bool:
+def heading_has_title(title: str | None) -> bool:
     return title is not None
 
 
-def heading_has_subtitle(subtitle: Optional[str]) -> bool:
+def heading_has_subtitle(subtitle: str | None) -> bool:
     return subtitle is not None
 
 
-def _match_arg(x: str, lst: List[str]) -> str:
+def _match_arg(x: str, lst: list[str]) -> str:
     # Ensure that `lst` has at least one element
     if len(lst) == 0:
         raise ValueError("The `lst` object must contain at least one element.")
@@ -63,28 +65,28 @@ def _assert_str_list(x: Any) -> None:
         raise AssertionError("Not all elements of the supplied list are strings.")
 
 
-def _assert_str_in_set(x: str, set: List[str]):
+def _assert_str_in_set(x: str, set: list[str]) -> None:
     if x not in set:
         raise AssertionError(f"The string `{x}` is not part of the defined `set`.")
 
 
-def _assert_list_is_subset(x: List[Any], set_list: List[Any]) -> None:
+def _assert_list_is_subset(x: list[Any], set_list: list[Any]) -> None:
     if not set(x).issubset(set(set_list)):
         raise AssertionError("The columns provided are not present in the table.")
 
 
-def _str_scalar_to_list(x: str):
+def _str_scalar_to_list(x: str) -> list[str]:
     _assert_str_scalar(x)
     return [x]
 
 
-def _unique_set(x: Union[List[Any], None]) -> Union[List[Any], None]:
+def _unique_set(x: list[Any] | None) -> list[Any] | None:
     if x is None:
         return None
     return list({k: True for k in x})
 
 
-def _as_css_font_family_attr(fonts: List[str], value_only: bool = False) -> str:
+def _as_css_font_family_attr(fonts: list[str], value_only: bool = False) -> str:
     fonts_w_spaces = list(map(lambda x: f"'{x}'" if " " in x else x, fonts))
 
     fonts_str = ", ".join(fonts_w_spaces)
@@ -123,7 +125,7 @@ def prettify_gt_object(v: Any) -> str:
     return json.dumps(_object_as_dict(v), indent=2)
 
 
-def _collapse_list_elements(lst, separator=""):
+def _collapse_list_elements(lst: list[Any], separator: str = "") -> str:
     """
     Concatenates all elements of a list into a single string, separated by a given separator.
 
@@ -137,16 +139,16 @@ def _collapse_list_elements(lst, separator=""):
     return separator.join(lst)
 
 
-def _insert_into_list(lst: List[Any], el: Any) -> List[Any]:
+def _insert_into_list(lst: list[Any], el: Any) -> list[Any]:
     """
     Inserts an element into the beginning of a list and returns the updated list.
 
     Args:
-        lst (List[Any]): The list to insert the element into.
+        lst (list[Any]): The list to insert the element into.
         el (Any): The element to insert.
 
     Returns:
-        List[Any]: The updated list with the element inserted at the beginning.
+        list[Any]: The updated list with the element inserted at the beginning.
     """
     lst.insert(0, el)
     return lst

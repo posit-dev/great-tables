@@ -1,5 +1,7 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional, Union, List
+
+from typing import TYPE_CHECKING
+
 from ._gt_data import Heading
 from ._text import Text
 
@@ -9,9 +11,9 @@ if TYPE_CHECKING:
 
 def tab_header(
     self: GTSelf,
-    title: Union[str, Text],
-    subtitle: Optional[Union[str, Text]] = None,
-    preheader: Optional[Union[str, List[str]]] = None,
+    title: str | Text,
+    subtitle: str | Text | None = None,
+    preheader: str | list[str] | None = None,
 ) -> GTSelf:
     """
     Add a table header.

@@ -1,28 +1,27 @@
 from __future__ import annotations
 
 import itertools
+from typing import TYPE_CHECKING, Any
 
-from typing import TYPE_CHECKING, Union, List, Dict, Optional, Any
-
-from ._gt_data import Spanners, SpannerInfo
-from ._tbl_data import SelectExpr
+from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
+from ._tbl_data import SelectExpr
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
     from ._types import GTSelf
 
 
-SpannerMatrix = List[Dict[str, Union[str, None]]]
+SpannerMatrix = "list[dict[str, str | None]]"
 
 
 def tab_spanner(
     data: GTSelf,
     label: str,
     columns: SelectExpr = None,
-    spanners: Union[list[str], str, None] = None,
-    level: Optional[int] = None,
-    id: Optional[str] = None,
+    spanners: str | list[str] | None = None,
+    level: int | None = None,
+    id: str | None = None,
     gather: bool = True,
     replace: bool = False,
 ) -> GTSelf:
@@ -124,16 +123,25 @@ def tab_spanner(
     ```
     """
 
-    crnt_spanner_ids = [span.spanner_id for span in data._spanners]
+    crnt_spanner_ids = set([span.spanner_id for span in data._spanners])
 
     if id is None:
-        id = label
+        # The label may contain HTML or Markdown, so we need to extract
+        # it from the Text object
+        if hasattr(label, "text"):
+            id = label.text
+        else:
+            id = label
 
     if isinstance(columns, (str, int)):
         columns = [columns]
+    elif columns is None:
+        columns = []
 
     if isinstance(spanners, (str, int)):
         spanners = [spanners]
+    elif spanners is None:
+        spanners = []
 
     # validations ----
     if level is not None and level < 0:
@@ -143,11 +151,7 @@ def tab_spanner(
 
     # select columns ----
 
-    if columns is None:
-        # TODO: null_means is unimplemented
-        raise NotImplementedError("columns must be specified")
-
-    selected_column_names = resolve_cols_c(data=data, expr=columns, null_means="nothing")
+    selected_column_names = resolve_cols_c(data=data, expr=columns, null_means="nothing") or []
 
     # select spanner ids ----
     # TODO: this supports tidyselect
@@ -158,8 +162,10 @@ def tab_spanner(
     else:
         spanner_ids = []
 
+    # Check that we've selected something explicitly
     if not len(selected_column_names) and not len(spanner_ids):
-        return data
+        # TODO: null_means is unimplemented
+        raise NotImplementedError("columns/spanners must be specified")
 
     # get column names associated with selected spanners ----
     _vars = [span.vars for span in data._spanners if span.spanner_id in spanner_ids]
@@ -188,10 +194,9 @@ def tab_spanner(
     )
 
     spanners = data._spanners.append_entry(new_span)
-
     new_data = data._replace(_spanners=spanners)
 
-    if gather and not len(spanner_ids) and level == 0:
+    if gather and not len(spanner_ids) and level == 0 and column_names:
         return cols_move(new_data, columns=column_names, after=column_names[0])
 
     return new_data
@@ -401,6 +406,7 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     ```{python}
     GT(countrypops_mini).cols_move_to_end(columns=["year", "country_name"])
+    ```
     """
 
     # If `columns` is a string, convert it to a list
@@ -446,6 +452,23 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
+
+    Examples
+    --------
+    For this example, we'll use a portion of the `countrypops` dataset to create a simple table.
+    Let's hide the `year` column with the `cols_hide()` method.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import countrypops
+
+    countrypops_mini = countrypops.loc[countrypops["country_name"] == "Benin"][
+        ["country_name", "year", "population"]
+    ].tail(5)
+
+    GT(countrypops_mini).cols_hide(columns="year")
+    ```
+
     Details
     -------
     The hiding of columns is internally a rendering directive, so, all columns that are 'hidden' are
@@ -467,7 +490,7 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     if not len(sel_cols):
         raise Exception("No columns selected.")
-    elif not all([col in vars for col in columns]):
+    elif not all(col in vars for col in sel_cols):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
 
     # New boxhead with hidden columns
@@ -501,7 +524,6 @@ def spanners_print_matrix(
 
     non_empty_spans = [span for crnt_vars, span in zip(_vars, spanners) if len(crnt_vars)]
     new_levels = [_lvls.index(span.spanner_level) for span in non_empty_spans]
-
     crnt_spans = Spanners(non_empty_spans).relevel(new_levels)
 
     if not crnt_spans:
@@ -569,7 +591,7 @@ def is_equal(x: Any, y: Any) -> bool:
     return x is not None and x == y
 
 
-def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
+def cols_width(data: GTSelf, cases: dict[str, str]) -> GTSelf:
     """Set the widths of columns.
 
     Manual specifications of column widths can be performed using the `cols_width()` method. We

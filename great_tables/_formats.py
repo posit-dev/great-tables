@@ -1,36 +1,32 @@
 from __future__ import annotations
 
-import babel
-
+import math
+from datetime import date, datetime, time
 from decimal import Decimal
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    ClassVar,
-    TypeVar,
-    TypedDict,
-    Union,
-    List,
-    Tuple,
-    cast,
-    Optional,
-    Dict,
-    Literal,
-)
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, TypedDict, TypeVar, cast
+
+import babel
+from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
+
+from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
 from ._helpers import px
-from ._tbl_data import PlExpr, SelectExpr, is_na, to_list, _get_column_dtype
-from ._gt_data import GTData, FormatFns, FormatFn, FormatInfo
-from ._locale import _get_locales_data, _get_default_locales_data, _get_currencies_data
-from ._locations import resolve_rows_i, resolve_cols_c
+from ._locale import _get_currencies_data, _get_default_locales_data, _get_locales_data
+from ._locations import resolve_cols_c, resolve_rows_i
+from ._tbl_data import (
+    Agnostic,
+    DataFrameLike,
+    PlExpr,
+    SelectExpr,
+    is_na,
+    is_series,
+    to_list,
+    _get_column_dtype,
+)
 from ._text import _md_html
 from ._utils import _str_detect, _str_replace
 from ._utils_nanoplots import _generate_nanoplot
-import math
-from datetime import datetime, date, time
-from babel.dates import format_date, format_time, format_datetime
-from pathlib import Path
 
 
 if TYPE_CHECKING:
@@ -77,10 +73,10 @@ MissingVals: TypeAlias = Literal[
 
 def fmt(
     self: GTSelf,
-    fns: Union[FormatFn, FormatFns],
+    fns: FormatFn | FormatFns,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
-    is_substitution=False,
+    rows: int | list[int] | None = None,
+    is_substitution: bool = False,
 ) -> GTSelf:
     """
     Set a column format with a formatter function.
@@ -111,6 +107,20 @@ def fmt(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a table. With the `fmt()` method, we'll add a prefix
+    `^` and a suffix `$` to the `row` and `group` columns.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+    (
+        GT(exibble)
+        .fmt(lambda x: f"^{x}$", columns=["row", "group"])
+    )
+    ```
     """
 
     # If a single function is supplied to `fns` then
@@ -134,9 +144,9 @@ def fmt(
 def fmt_number(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     decimals: int = 2,
-    n_sigfig: Optional[int] = None,
+    n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
@@ -146,7 +156,7 @@ def fmt_number(
     sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign: bool = False,
-    locale: Union[str, None] = None,
+    locale: str | None = None,
 ) -> GTSelf:
     """
     Format numeric values.
@@ -281,9 +291,9 @@ def fmt_number(
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_number_fn(
-        x: float,
+        x: float | None,
         decimals: int = decimals,
-        n_sigfig: Optional[int] = n_sigfig,
+        n_sigfig: int | None = n_sigfig,
         drop_trailing_zeros: bool = drop_trailing_zeros,
         drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
         use_seps: bool = use_seps,
@@ -293,6 +303,9 @@ def fmt_number(
         dec_mark: str = dec_mark,
         force_sign: bool = force_sign,
     ):
+        if is_na(self._tbl_data, x):
+            return x
+
         # Scale `x` value by a defined `scale_by` value
         x = x * scale_by
 
@@ -341,14 +354,14 @@ def fmt_number(
 def fmt_integer(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     use_seps: bool = True,
     scale_by: float = 1,
     compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     force_sign: bool = False,
-    locale: Union[str, None] = None,
+    locale: str | None = None,
 ) -> GTSelf:
     """
     Format values as integers.
@@ -511,9 +524,9 @@ def fmt_integer(
 def fmt_scientific(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     decimals: int = 2,
-    n_sigfig: Optional[int] = None,
+    n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     scale_by: float = 1,
@@ -523,7 +536,7 @@ def fmt_scientific(
     dec_mark: str = ".",
     force_sign_m: bool = False,
     force_sign_n: bool = False,
-    locale: Union[str, None] = None,
+    locale: str | None = None,
 ) -> GTSelf:
     """
     Format values to scientific notation.
@@ -665,7 +678,7 @@ def fmt_scientific(
     def fmt_scientific_fn(
         x: float,
         decimals: int = decimals,
-        n_sigfig: Optional[int] = n_sigfig,
+        n_sigfig: int | None = n_sigfig,
         drop_trailing_zeros: bool = drop_trailing_zeros,
         drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
         scale_by: float = scale_by,
@@ -772,7 +785,7 @@ def fmt_scientific(
 def fmt_percent(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     decimals: int = 2,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
@@ -784,7 +797,7 @@ def fmt_percent(
     force_sign: bool = False,
     placement: str = "right",
     incl_space: bool = False,
-    locale: Union[str, None] = None,
+    locale: str | None = None,
 ) -> GTSelf:
     """
     Format values as a percentage.
@@ -882,6 +895,24 @@ def fmt_percent(
     [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
     all other methods that have a `locale` argument).
 
+    Examples
+    --------
+    Let’s use the `towny` dataset as the input table. With the `fmt_percent()` method, we'll format
+    the `pop_change_2016_2021_pct` column to to display values as percentages (to two decimal
+    places).
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import towny
+
+    towny_mini = (
+        towny[["name", "pop_change_2016_2021_pct"]]
+        .head(10)
+    )
+
+    (GT(towny_mini).fmt_percent("pop_change_2016_2021_pct", decimals=2))
+    ```
+
     See Also
     --------
     The functional version of this method,
@@ -974,10 +1005,10 @@ def fmt_percent(
 def fmt_currency(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
-    currency: Optional[str] = None,
+    rows: int | list[int] | None = None,
+    currency: str | None = None,
     use_subunits: bool = True,
-    decimals: Optional[int] = None,
+    decimals: int | None = None,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
     scale_by: float = 1,
@@ -987,7 +1018,7 @@ def fmt_currency(
     force_sign: bool = False,
     placement: str = "left",
     incl_space: bool = False,
-    locale: Union[str, None] = None,
+    locale: str | None = None,
 ) -> GTSelf:
     """
     Format values as currencies.
@@ -1217,7 +1248,7 @@ def fmt_currency(
 def fmt_roman(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     case: str = "upper",
     pattern: str = "{x}",
 ) -> GTSelf:
@@ -1327,10 +1358,10 @@ def fmt_roman(
 def fmt_bytes(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     standard: str = "decimal",
     decimals: int = 1,
-    n_sigfig: Optional[int] = None,
+    n_sigfig: int | None = None,
     drop_trailing_zeros: bool = True,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
@@ -1339,7 +1370,7 @@ def fmt_bytes(
     dec_mark: str = ".",
     force_sign: bool = False,
     incl_space: bool = True,
-    locale: Union[str, None] = None,
+    locale: str | None = None,
 ) -> GTSelf:
     """
     Format values as bytes.
@@ -1482,9 +1513,9 @@ def fmt_bytes(
     def fmt_bytes_fn(
         x: float,
         base: int = base,
-        byte_units: List[str] = byte_units,
+        byte_units: list[str] = byte_units,
         decimals: int = decimals,
-        n_sigfig: Optional[int] = n_sigfig,
+        n_sigfig: int | None = n_sigfig,
         drop_trailing_zeros: bool = drop_trailing_zeros,
         drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
         use_seps: bool = use_seps,
@@ -1565,10 +1596,10 @@ def fmt_bytes(
 def fmt_date(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     date_style: DateStyle = "iso",
     pattern: str = "{x}",
-    locale: Union[str, None] = None,
+    locale: str | None = None,
 ) -> GTSelf:
     """
     Format values as dates.
@@ -1674,7 +1705,7 @@ def fmt_date(
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_date_fn(
-        x: Any, date_format_str: str = date_format_str, locale: Union[str, None] = locale
+        x: Any, date_format_str: str = date_format_str, locale: str | None = locale
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
         if is_na(self._tbl_data, x):
@@ -1711,10 +1742,10 @@ def fmt_date(
 def fmt_time(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     time_style: TimeStyle = "iso",
     pattern: str = "{x}",
-    locale: Union[str, None] = None,
+    locale: str | None = None,
 ) -> GTSelf:
     """
     Format values as times.
@@ -1808,7 +1839,7 @@ def fmt_time(
 
     # Generate a function that will operate on single `x` values in the table body
     def fmt_time_fn(
-        x: Any, time_format_str: str = time_format_str, locale: Union[str, None] = locale
+        x: Any, time_format_str: str = time_format_str, locale: str | None = locale
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
         if is_na(self._tbl_data, x):
@@ -1845,12 +1876,12 @@ def fmt_time(
 def fmt_datetime(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     date_style: DateStyle = "iso",
     time_style: TimeStyle = "iso",
     sep: str = " ",
     pattern: str = "{x}",
-    locale: Union[str, None] = None,
+    locale: str | None = None,
 ) -> GTSelf:
     """
     Format values as datetimes.
@@ -1966,7 +1997,7 @@ def fmt_datetime(
         date_format_str: str = date_format_str,
         time_format_str: str = time_format_str,
         sep: str = sep,
-        locale: Union[str, None] = locale,
+        locale: str | None = locale,
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
         if is_na(self._tbl_data, x):
@@ -2006,7 +2037,7 @@ def fmt_datetime(
 def fmt_markdown(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
 ) -> GTSelf:
     """
     Format Markdown text.
@@ -2029,6 +2060,37 @@ def fmt_markdown(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples:
+    -------
+    Let’s first create a DataFrame containing some text that is Markdown-formatted and then introduce
+    that to [`GT()`](`great_tables.GT`). We’ll then transform the `md` column with the
+    `fmt_markdown()` method.
+
+    ```{python}
+    import pandas as pd
+    from great_tables import GT
+    from great_tables.data import towny
+
+    text_1 = \"""
+    ### This is Markdown.
+
+    Markdown’s syntax is comprised entirely of
+    punctuation characters, which punctuation
+    characters have been carefully chosen so as
+    to look like what they mean... assuming
+    you’ve ever used email.
+    \"""
+
+    text_2 = \"""
+    Info on Markdown syntax can be found
+    [here](https://daringfireball.net/projects/markdown/).
+    \"""
+
+    df = pd.DataFrame({"md": [text_1, text_2]})
+
+    (GT(df).fmt_markdown("md"))
+    ```
 
     See Also
     --------
@@ -2204,9 +2266,9 @@ def fmt_units(
 
 
 def _value_to_decimal_notation(
-    value: Union[int, float],
+    value: int | float,
     decimals: int = 2,
-    n_sigfig: Optional[int] = None,
+    n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
@@ -2265,9 +2327,9 @@ def _value_to_decimal_notation(
 
 
 def _value_to_scientific_notation(
-    value: Union[int, float],
+    value: int | float,
     decimals: int = 2,
-    n_sigfig: Optional[int] = None,
+    n_sigfig: int | None = None,
     dec_mark: str = ".",
 ) -> str:
     """
@@ -2295,7 +2357,7 @@ def _value_to_scientific_notation(
     return result
 
 
-def _value_to_engineering_notation(value: Union[int, float], n_sigfig: int, exp_style: str) -> str:
+def _value_to_engineering_notation(value: int | float, n_sigfig: int, exp_style: str) -> str:
     """
     Engineering notation.
 
@@ -2319,7 +2381,7 @@ def _value_to_engineering_notation(value: Union[int, float], n_sigfig: int, exp_
 
 
 def _format_number_n_sigfig(
-    value: Union[int, float],
+    value: int | float,
     n_sigfig: int,
     use_seps: bool = True,
     sep_mark: str = ",",
@@ -2335,7 +2397,7 @@ def _format_number_n_sigfig(
     # Get integer and decimal parts
     # Split number at `.` and obtain the integer and decimal parts
     number_parts = formatted_value.split(".")
-    integer_part = number_parts[0]
+    integer_part = number_parts[0].lstrip("-")
     decimal_part = number_parts[1] if len(number_parts) > 1 else ""
 
     # Initialize formatted representations of integer and decimal parts
@@ -2356,6 +2418,10 @@ def _format_number_n_sigfig(
     else:
         formatted_integer = integer_part
 
+    # Add back the negative sign if the number is negative
+    if is_negative:
+        formatted_integer = "-" + formatted_integer
+
     # Combine the integer and decimal parts
     result = formatted_integer + formatted_decimal
 
@@ -2363,7 +2429,7 @@ def _format_number_n_sigfig(
 
 
 def _format_number_fixed_decimals(
-    value: Union[int, float],
+    value: int | float,
     decimals: int,
     drop_trailing_zeros: bool = False,
     use_seps: bool = True,
@@ -2424,9 +2490,9 @@ def _format_number_fixed_decimals(
 
 
 def _format_number_compactly(
-    value: Union[int, float],
+    value: int | float,
     decimals: int,
-    n_sigfig: Optional[int],
+    n_sigfig: int | None,
     drop_trailing_zeros: bool,
     drop_trailing_dec_mark: bool,
     use_seps: bool,
@@ -2489,7 +2555,7 @@ def _expand_exponential_to_full_string(str_number: str) -> str:
     return formatted_number
 
 
-def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, int, bool]:
+def _get_number_profile(value: int | float, n_sigfig: int) -> tuple[str, int, bool]:
     """
     Get key components of a number for decimal number formatting.
 
@@ -2518,7 +2584,7 @@ def _get_number_profile(value: Union[int, float], n_sigfig: int) -> tuple[str, i
     return sig_digits, int(-power), is_negative
 
 
-def _get_sci_parts(value: Union[int, float], n_sigfig: int) -> tuple[bool, str, int, int]:
+def _get_sci_parts(value: int | float, n_sigfig: int) -> tuple[bool, str, int, int]:
     """
     Returns the properties for constructing a number in scientific notation.
     """
@@ -2571,9 +2637,9 @@ def _insert_decimal_mark(digits: str, power: int, dec_mark: str = ".") -> str:
 
 
 def _listify(
-    x: Union[T, List[T], None],
-    default: Callable[[], List[T]],
-) -> List[T]:
+    x: T | list[T] | None,
+    default: Callable[[], list[T]],
+) -> list[T]:
     """
     Convert the input into a list.
 
@@ -2588,7 +2654,7 @@ def _listify(
     Returns
     -------
 
-    List[T]: The converted list.
+    list[T]: The converted list.
 
     Raises:
         None
@@ -2606,23 +2672,23 @@ def _listify(
         return cast(Any, x)
 
 
-def _has_negative_value(value: Union[int, float]) -> bool:
+def _has_negative_value(value: int | float) -> bool:
     return value < 0
 
 
-def _has_positive_value(value: Union[int, float]) -> bool:
+def _has_positive_value(value: int | float) -> bool:
     return value > 0
 
 
-def _has_zero_value(value: Union[int, float]) -> bool:
+def _has_zero_value(value: int | float) -> bool:
     return value == 0
 
 
-def _has_sci_order_zero(value: Union[int, float]) -> bool:
+def _has_sci_order_zero(value: int | float) -> bool:
     return (value >= 1 and value < 10) or (value <= -1 and value > -10) or value == 0
 
 
-def _context_exp_marks() -> List[str]:
+def _context_exp_marks() -> list[str]:
     return [" \u00D7 10<sup style='font-size: 65%;'>", "</sup>"]
 
 
@@ -2674,7 +2740,7 @@ def _filter_pd_df_to_row(pd_df: "list[T_dict]", column: str, filter_expr: str) -
     return filtered_pd_df[0]
 
 
-def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] = None) -> str:
+def _get_locale_sep_mark(default: str, use_seps: bool, locale: str | None = None) -> str:
     # If `use_seps` is False, then force `sep_mark` to be an empty string
     # TODO: what does an empty string signify? Where is this used? Is it the right choice here?
     if not use_seps:
@@ -2702,7 +2768,7 @@ def _get_locale_sep_mark(default: str, use_seps: bool, locale: Union[str, None] 
     return sep_mark
 
 
-def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
+def _get_locale_dec_mark(default: str, locale: str | None = None) -> str:
     # If `locale` is NULL then return the default `dec_mark`
     if locale is None:
         return default
@@ -2723,7 +2789,7 @@ def _get_locale_dec_mark(default: str, locale: Union[str, None] = None) -> str:
     return dec_mark
 
 
-def _get_locales_list() -> List[str]:
+def _get_locales_list() -> list[str]:
     """
     Returns a list of locales as strings.
 
@@ -2744,7 +2810,7 @@ def _get_locales_list() -> List[str]:
     return locale_list
 
 
-def _validate_locale(locale: Union[str, None] = None) -> None:
+def _validate_locale(locale: str | None = None) -> None:
     """
     Validates the given locale string against a list of supported locales.
 
@@ -2773,7 +2839,7 @@ def _validate_locale(locale: Union[str, None] = None) -> None:
         )
 
 
-def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
+def _normalize_locale(locale: str | None = None) -> str | None:
     """
     Normalize the given locale string by replacing any underscores with hyphens and resolving any default locales into their base names.
 
@@ -2819,7 +2885,7 @@ def _normalize_locale(locale: Union[str, None] = None) -> Union[str, None]:
     return supplied_locale
 
 
-def _resolve_locale(x: GTData, locale: Union[str, None] = None) -> Union[str, None]:
+def _resolve_locale(x: GTData, locale: str | None = None) -> str | None:
     # Get the locale from the locale value set globally; note that this may also be None
     # but a None value will eventually be resolved to the 'en' locale
     locale = x._locale._locale if locale is None else locale
@@ -2837,7 +2903,7 @@ def _resolve_locale(x: GTData, locale: Union[str, None] = None) -> Union[str, No
     return locale
 
 
-def _get_locale_currency_code(locale: Union[str, None] = None) -> str:
+def _get_locale_currency_code(locale: str | None = None) -> str:
     """
     Given a locale, returns the corresponding currency code. If no locale is provided,
     returns the currency code for the United States ('USD').
@@ -2935,7 +3001,7 @@ def _validate_currency(currency: str) -> None:
         )
 
 
-def _get_currency_decimals(currency: str, decimals: Optional[int], use_subunits: bool) -> int:
+def _get_currency_decimals(currency: str, decimals: int | None, use_subunits: bool) -> int:
     """
     Returns the number of decimal places to use for a given currency.
 
@@ -2945,7 +3011,7 @@ def _get_currency_decimals(currency: str, decimals: Optional[int], use_subunits:
 
     Args:
         currency (str): The currency code.
-        decimals (Optional[int]): The number of decimal places to use, if specified.
+        decimals (int | None): The number of decimal places to use, if specified.
         use_subunits (bool): Whether to use subunits for the currency.
 
     Returns:
@@ -3025,7 +3091,7 @@ def _validate_n_sigfig(n_sigfig: int) -> None:
         raise ValueError("The value for `n_sigfig` must be greater than or equal to `1`.")
 
 
-def _round_rhu(x: Union[float, int], digits: int = 0) -> float:
+def _round_rhu(x: int | float, digits: int = 0) -> float:
     """
     Rounds a number using the 'Round-Half-Up' (R-H-U) algorithm.
 
@@ -3102,7 +3168,7 @@ def _validate_case(case: str) -> None:
         raise ValueError(f"The `case` argument must be either 'upper' or 'lower' (not '{case}').")
 
 
-def _get_date_formats_dict() -> Dict[str, str]:
+def _get_date_formats_dict() -> dict[str, str]:
     date_formats = {
         "iso": "y-MM-dd",
         "wday_month_day_year": "EEEE, MMMM d, y",
@@ -3126,7 +3192,7 @@ def _get_date_formats_dict() -> Dict[str, str]:
     return date_formats
 
 
-def _get_time_formats_dict() -> Dict[str, str]:
+def _get_time_formats_dict() -> dict[str, str]:
     time_formats = {
         "iso": "HH:mm:ss",
         "iso-short": "HH:mm",
@@ -3313,7 +3379,7 @@ def _validate_datetime_obj(x: Any) -> None:
 def fmt_image(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     height: str | int | None = None,
     width: str | int | None = None,
     sep: str = " ",
@@ -3405,7 +3471,7 @@ def fmt_image(
     if height is None and width is None:
         height = "2em"
 
-    formatter = FmtImage(height, width, sep, str(path), file_pattern, encode)
+    formatter = FmtImage(self._tbl_data, height, width, sep, str(path), file_pattern, encode)
     return fmt(self, fns=formatter.to_html, columns=columns, rows=rows)
 
 
@@ -3414,6 +3480,7 @@ from dataclasses import dataclass
 
 @dataclass
 class FmtImage:
+    dispatch_on: DataFrameLike | Agnostic = Agnostic()
     height: str | int | None = None
     width: str | None = None
     sep: str = " "
@@ -3427,10 +3494,12 @@ class FmtImage:
         import re
         from pathlib import Path
 
-        # TODO: handle NA values
         # TODO: are we assuming val is a string? (or coercing?)
 
         # otherwise...
+
+        if is_na(self.dispatch_on, val):
+            return val
 
         if "," in val:
             files = re.split(r",\s*", val)
@@ -3489,7 +3558,7 @@ class FmtImage:
 
         mime_type = cls._get_mime_type(filename)
 
-        return f"data: {mime_type}; base64,{encoded}"
+        return f"data:{mime_type};base64,{encoded}"
 
     @staticmethod
     def _get_mime_type(filename: str) -> str:
@@ -3521,16 +3590,16 @@ class FmtImage:
 def fmt_nanoplot(
     self: GTSelf,
     columns: str | None = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     plot_type: PlotType = "line",
     plot_height: str = "2em",
     missing_vals: MissingVals = "marker",
     autoscale: bool = False,
-    reference_line: Optional[Union[str, int, float]] = None,
-    reference_area: Optional[List[Any]] = None,
-    expand_x: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
-    expand_y: Optional[Union[List[Union[int, float]], List[int], List[float]]] = None,
-    options: Optional[Dict[str, Any]] = None,
+    reference_line: str | int | float | None = None,
+    reference_area: list[Any] | None = None,
+    expand_x: list[int] | list[float] | list[int | float] | None = None,
+    expand_y: list[int] | list[float] | list[int | float] | None = None,
+    options: dict[str, Any] | None = None,
 ) -> GTSelf:
     """Format data for nanoplot visualizations.
 
@@ -3669,6 +3738,50 @@ def fmt_nanoplot(
     )
     ```
 
+    Here's an example to adjust some of the options using
+    [`nanoplot_options()`](`great_tables.nanoplot_options`).
+
+    ```{python}
+    from great_tables import nanoplot_options
+
+    (
+        GT(random_numbers_df, rowname_col="i")
+        .fmt_nanoplot(
+            columns="lines",
+            reference_line="mean",
+            reference_area=["min", "q1"],
+            options=nanoplot_options(
+                data_point_radius=8,
+                data_point_stroke_color="black",
+                data_point_stroke_width=2,
+                data_point_fill_color="white",
+                data_line_type="straight",
+                data_line_stroke_color="brown",
+                data_line_stroke_width=2,
+                data_area_fill_color="orange",
+                vertical_guide_stroke_color="green",
+            ),
+        )
+        .fmt_nanoplot(
+            columns="bars",
+            plot_type="bar",
+            reference_line="max",
+            reference_area=["max", "median"],
+            options=nanoplot_options(
+                data_bar_stroke_color="gray",
+                data_bar_stroke_width=2,
+                data_bar_fill_color="orange",
+                data_bar_negative_stroke_color="blue",
+                data_bar_negative_stroke_width=1,
+                data_bar_negative_fill_color="lightblue",
+                reference_line_color="pink",
+                reference_area_fill_color="bisque",
+                vertical_guide_stroke_color="blue",
+            ),
+        )
+    )
+    ```
+
     Single-value bar plots and line plots can be made with `fmt_nanoplot()`. These run in the
     horizontal direction, which is ideal for tabular presentation. The key thing here is that
     `fmt_nanoplot()` expects a column of numeric values. These plots are meant for comparison
@@ -3783,10 +3896,10 @@ def fmt_nanoplot(
         plot_type: PlotType = plot_type,
         plot_height: str = plot_height,
         missing_vals: MissingVals = missing_vals,
-        reference_line: Optional[Union[str, int, float]] = reference_line,
-        reference_area: Optional[List[Any]] = reference_area,
-        all_single_y_vals: Optional[List[Union[int, float]]] = all_single_y_vals,
-        options_plots: Dict[str, Any] = options_plots,
+        reference_line: str | int | float | None = reference_line,
+        reference_area: list[Any] | None = reference_area,
+        all_single_y_vals: list[int | float] | None = all_single_y_vals,
+        options_plots: dict[str, Any] = options_plots,
     ) -> str:
         # If the `x` value is a Pandas 'NA', then return the same value
         # We have to pass in a dataframe to this function. Everything action that
@@ -3839,8 +3952,8 @@ def fmt_nanoplot(
 
 
 def _generate_data_vals(
-    data_vals: Any, is_x_axis=False
-) -> Union[List[float], Tuple[List[float], List[float]]]:
+    data_vals: Any, is_x_axis: bool = False
+) -> list[float] | tuple[list[float], list[float]]:
     """
     Generate a list of data values from the input data.
 
@@ -3848,10 +3961,13 @@ def _generate_data_vals(
         data_vals (Any): The input data values.
 
     Returns:
-        List[Any]: A list of data values.
+        list[Any]: A list of data values.
     """
 
     import re
+
+    if is_series(data_vals):
+        data_vals = to_list(data_vals)
 
     if isinstance(data_vals, list):
 
@@ -3931,7 +4047,7 @@ def _generate_data_vals(
     return data_vals
 
 
-def _process_number_stream(data_vals: str) -> List[float]:
+def _process_number_stream(data_vals: str) -> list[float]:
     """
     Process a string of numeric values and convert to a list of floats.
 
@@ -3939,7 +4055,7 @@ def _process_number_stream(data_vals: str) -> List[float]:
         data_vals (str): The string of numeric values.
 
     Returns:
-        List[float]: A list of numeric values.
+        list[float]: A list of numeric values.
     """
 
     import re
@@ -3955,10 +4071,9 @@ def _process_number_stream(data_vals: str) -> List[float]:
 
 
 import re
-from typing import List
 
 
-def _process_time_stream(data_vals: str) -> List[float]:
+def _process_time_stream(data_vals: str) -> list[float]:
     """
     Process a string of time values and convert to a list of floats.
 
@@ -3966,7 +4081,7 @@ def _process_time_stream(data_vals: str) -> List[float]:
         data_vals (str): The string of time values.
 
     Returns:
-        List[float]: A list of time values.
+        list[float]: A list of time values.
     """
 
     time_stream = re.split(r"\s*[;,]\s*", data_vals)

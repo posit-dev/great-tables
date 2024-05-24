@@ -1,4 +1,16 @@
 # serializer version: 1
+# name: test_fmt_nanoplot_polars_listcol
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_center"><div><svg role="img" viewBox="0 0 200 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="area_pattern" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .vert-line:hover text { stroke: white; fill: #212427; } .horizontal-line:hover text {stroke: white; fill: #212427; } .ref-line:hover rect { stroke: #FFFFFF60; } .ref-line:hover line { stroke: #FF0000; } .ref-line:hover text { stroke: white; fill: #212427; } .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,115.0 150.0,15.0 150.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path><path d="M 50.0,115.0 C 75.0,115.0 125.0,15.0 150.0,15.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="150.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">2</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">1</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">1</text></g><g class="vert-line"><rect x="140.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="160.0" y="20" fill="transparent" stroke="transparent" font-size="30px">2</text></g></svg></div></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center"><div><svg role="img" viewBox="0 0 200 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="area_pattern" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .vert-line:hover text { stroke: white; fill: #212427; } .horizontal-line:hover text {stroke: white; fill: #212427; } .ref-line:hover rect { stroke: #FFFFFF60; } .ref-line:hover line { stroke: #FF0000; } .ref-line:hover text { stroke: white; fill: #212427; } .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,115.0 150.0,15.0 150.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path><path d="M 50.0,115.0 C 75.0,115.0 125.0,15.0 150.0,15.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="150.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">4</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">3</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">3</text></g><g class="vert-line"><rect x="140.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="160.0" y="20" fill="transparent" stroke="transparent" font-size="30px">4</text></g></svg></div></td>
+    </tr>
+  </tbody>
+  '''
+# ---
 # name: test_format_repr_snap
   '''
   class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -15,94 +27,94 @@
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group">group</th>
   </tr>
   <tbody class="gt_table_body">
-  <tr>
-    <td class="gt_row gt_right">1.11 × 10<sup style='font-size: 65%;'>−1</sup></td>
-    <td class="gt_row gt_left">apricot</td>
-    <td class="gt_row gt_left">one</td>
-    <td class="gt_row gt_right">15 January 2015</td>
-    <td class="gt_row gt_right">13:35</td>
-    <td class="gt_row gt_right">2018-01-01 02:22</td>
-    <td class="gt_row gt_right">$49.95</td>
-    <td class="gt_row gt_left">row_1</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">2.22</td>
-    <td class="gt_row gt_left">banana</td>
-    <td class="gt_row gt_left">two</td>
-    <td class="gt_row gt_right">15 February 2015</td>
-    <td class="gt_row gt_right">14:40</td>
-    <td class="gt_row gt_right">2018-02-02 14:33</td>
-    <td class="gt_row gt_right">$17.95</td>
-    <td class="gt_row gt_left">row_2</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">3.33 × 10<sup style='font-size: 65%;'>1</sup></td>
-    <td class="gt_row gt_left">coconut</td>
-    <td class="gt_row gt_left">three</td>
-    <td class="gt_row gt_right">15 March 2015</td>
-    <td class="gt_row gt_right">15:45</td>
-    <td class="gt_row gt_right">2018-03-03 03:44</td>
-    <td class="gt_row gt_right">$1.39</td>
-    <td class="gt_row gt_left">row_3</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">4.44 × 10<sup style='font-size: 65%;'>2</sup></td>
-    <td class="gt_row gt_left">durian</td>
-    <td class="gt_row gt_left">four</td>
-    <td class="gt_row gt_right">15 April 2015</td>
-    <td class="gt_row gt_right">16:50</td>
-    <td class="gt_row gt_right">2018-04-04 15:55</td>
-    <td class="gt_row gt_right">$65,100.00</td>
-    <td class="gt_row gt_left">row_4</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">5.55 × 10<sup style='font-size: 65%;'>3</sup></td>
-    <td class="gt_row gt_left"><NA></td>
-    <td class="gt_row gt_left">five</td>
-    <td class="gt_row gt_right">15 May 2015</td>
-    <td class="gt_row gt_right">17:55</td>
-    <td class="gt_row gt_right">2018-05-05 04:00</td>
-    <td class="gt_row gt_right">$1,325.81</td>
-    <td class="gt_row gt_left">row_5</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right"><NA></td>
-    <td class="gt_row gt_left">fig</td>
-    <td class="gt_row gt_left">six</td>
-    <td class="gt_row gt_right">15 June 2015</td>
-    <td class="gt_row gt_right"><NA></td>
-    <td class="gt_row gt_right">2018-06-06 16:11</td>
-    <td class="gt_row gt_right">$13.26</td>
-    <td class="gt_row gt_left">row_6</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">7.77 × 10<sup style='font-size: 65%;'>5</sup></td>
-    <td class="gt_row gt_left">grapefruit</td>
-    <td class="gt_row gt_left">seven</td>
-    <td class="gt_row gt_right"><NA></td>
-    <td class="gt_row gt_right">19:10</td>
-    <td class="gt_row gt_right">2018-07-07 05:22</td>
-    <td class="gt_row gt_right"><NA></td>
-    <td class="gt_row gt_left">row_7</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">8.88 × 10<sup style='font-size: 65%;'>6</sup></td>
-    <td class="gt_row gt_left">honeydew</td>
-    <td class="gt_row gt_left">eight</td>
-    <td class="gt_row gt_right">15 August 2015</td>
-    <td class="gt_row gt_right">20:20</td>
-    <td class="gt_row gt_right"><NA></td>
-    <td class="gt_row gt_right">$0.44</td>
-    <td class="gt_row gt_left">row_8</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
+    <tr>
+      <td class="gt_row gt_right">1.11 × 10<sup style='font-size: 65%;'>−1</sup></td>
+      <td class="gt_row gt_left">apricot</td>
+      <td class="gt_row gt_left">one</td>
+      <td class="gt_row gt_right">15 January 2015</td>
+      <td class="gt_row gt_right">13:35</td>
+      <td class="gt_row gt_right">2018-01-01 02:22</td>
+      <td class="gt_row gt_right">$49.95</td>
+      <td class="gt_row gt_left">row_1</td>
+      <td class="gt_row gt_left">grp_a</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">2.22</td>
+      <td class="gt_row gt_left">banana</td>
+      <td class="gt_row gt_left">two</td>
+      <td class="gt_row gt_right">15 February 2015</td>
+      <td class="gt_row gt_right">14:40</td>
+      <td class="gt_row gt_right">2018-02-02 14:33</td>
+      <td class="gt_row gt_right">$17.95</td>
+      <td class="gt_row gt_left">row_2</td>
+      <td class="gt_row gt_left">grp_a</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">3.33 × 10<sup style='font-size: 65%;'>1</sup></td>
+      <td class="gt_row gt_left">coconut</td>
+      <td class="gt_row gt_left">three</td>
+      <td class="gt_row gt_right">15 March 2015</td>
+      <td class="gt_row gt_right">15:45</td>
+      <td class="gt_row gt_right">2018-03-03 03:44</td>
+      <td class="gt_row gt_right">$1.39</td>
+      <td class="gt_row gt_left">row_3</td>
+      <td class="gt_row gt_left">grp_a</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">4.44 × 10<sup style='font-size: 65%;'>2</sup></td>
+      <td class="gt_row gt_left">durian</td>
+      <td class="gt_row gt_left">four</td>
+      <td class="gt_row gt_right">15 April 2015</td>
+      <td class="gt_row gt_right">16:50</td>
+      <td class="gt_row gt_right">2018-04-04 15:55</td>
+      <td class="gt_row gt_right">$65,100.00</td>
+      <td class="gt_row gt_left">row_4</td>
+      <td class="gt_row gt_left">grp_a</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">5.55 × 10<sup style='font-size: 65%;'>3</sup></td>
+      <td class="gt_row gt_left"><NA></td>
+      <td class="gt_row gt_left">five</td>
+      <td class="gt_row gt_right">15 May 2015</td>
+      <td class="gt_row gt_right">17:55</td>
+      <td class="gt_row gt_right">2018-05-05 04:00</td>
+      <td class="gt_row gt_right">$1,325.81</td>
+      <td class="gt_row gt_left">row_5</td>
+      <td class="gt_row gt_left">grp_b</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_left">fig</td>
+      <td class="gt_row gt_left">six</td>
+      <td class="gt_row gt_right">15 June 2015</td>
+      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_right">2018-06-06 16:11</td>
+      <td class="gt_row gt_right">$13.26</td>
+      <td class="gt_row gt_left">row_6</td>
+      <td class="gt_row gt_left">grp_b</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">7.77 × 10<sup style='font-size: 65%;'>5</sup></td>
+      <td class="gt_row gt_left">grapefruit</td>
+      <td class="gt_row gt_left">seven</td>
+      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_right">19:10</td>
+      <td class="gt_row gt_right">2018-07-07 05:22</td>
+      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_left">row_7</td>
+      <td class="gt_row gt_left">grp_b</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">8.88 × 10<sup style='font-size: 65%;'>6</sup></td>
+      <td class="gt_row gt_left">honeydew</td>
+      <td class="gt_row gt_left">eight</td>
+      <td class="gt_row gt_right">15 August 2015</td>
+      <td class="gt_row gt_right">20:20</td>
+      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_right">$0.44</td>
+      <td class="gt_row gt_left">row_8</td>
+      <td class="gt_row gt_left">grp_b</td>
+    </tr>
   </tbody>
   
   
@@ -112,94 +124,94 @@
 # name: test_format_snap
   '''
   <tbody class="gt_table_body">
-  <tr>
-    <td class="gt_row gt_right">1.11 × 10<sup style='font-size: 65%;'>−1</sup></td>
-    <td class="gt_row gt_left">apricot</td>
-    <td class="gt_row gt_left">one</td>
-    <td class="gt_row gt_right">15 January 2015</td>
-    <td class="gt_row gt_right">13:35</td>
-    <td class="gt_row gt_right">2018-01-01 02:22</td>
-    <td class="gt_row gt_right">$49.95</td>
-    <td class="gt_row gt_left">row_1</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">2.22</td>
-    <td class="gt_row gt_left">banana</td>
-    <td class="gt_row gt_left">two</td>
-    <td class="gt_row gt_right">15 February 2015</td>
-    <td class="gt_row gt_right">14:40</td>
-    <td class="gt_row gt_right">2018-02-02 14:33</td>
-    <td class="gt_row gt_right">$17.95</td>
-    <td class="gt_row gt_left">row_2</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">3.33 × 10<sup style='font-size: 65%;'>1</sup></td>
-    <td class="gt_row gt_left">coconut</td>
-    <td class="gt_row gt_left">three</td>
-    <td class="gt_row gt_right">15 March 2015</td>
-    <td class="gt_row gt_right">15:45</td>
-    <td class="gt_row gt_right">2018-03-03 03:44</td>
-    <td class="gt_row gt_right">$1.39</td>
-    <td class="gt_row gt_left">row_3</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">4.44 × 10<sup style='font-size: 65%;'>2</sup></td>
-    <td class="gt_row gt_left">durian</td>
-    <td class="gt_row gt_left">four</td>
-    <td class="gt_row gt_right">15 April 2015</td>
-    <td class="gt_row gt_right">16:50</td>
-    <td class="gt_row gt_right">2018-04-04 15:55</td>
-    <td class="gt_row gt_right">$65,100.00</td>
-    <td class="gt_row gt_left">row_4</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">5.55 × 10<sup style='font-size: 65%;'>3</sup></td>
-    <td class="gt_row gt_left"><NA></td>
-    <td class="gt_row gt_left">five</td>
-    <td class="gt_row gt_right">15 May 2015</td>
-    <td class="gt_row gt_right">17:55</td>
-    <td class="gt_row gt_right">2018-05-05 04:00</td>
-    <td class="gt_row gt_right">$1,325.81</td>
-    <td class="gt_row gt_left">row_5</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right"><NA></td>
-    <td class="gt_row gt_left">fig</td>
-    <td class="gt_row gt_left">six</td>
-    <td class="gt_row gt_right">15 June 2015</td>
-    <td class="gt_row gt_right"><NA></td>
-    <td class="gt_row gt_right">2018-06-06 16:11</td>
-    <td class="gt_row gt_right">$13.26</td>
-    <td class="gt_row gt_left">row_6</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">7.77 × 10<sup style='font-size: 65%;'>5</sup></td>
-    <td class="gt_row gt_left">grapefruit</td>
-    <td class="gt_row gt_left">seven</td>
-    <td class="gt_row gt_right"><NA></td>
-    <td class="gt_row gt_right">19:10</td>
-    <td class="gt_row gt_right">2018-07-07 05:22</td>
-    <td class="gt_row gt_right"><NA></td>
-    <td class="gt_row gt_left">row_7</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">8.88 × 10<sup style='font-size: 65%;'>6</sup></td>
-    <td class="gt_row gt_left">honeydew</td>
-    <td class="gt_row gt_left">eight</td>
-    <td class="gt_row gt_right">15 August 2015</td>
-    <td class="gt_row gt_right">20:20</td>
-    <td class="gt_row gt_right"><NA></td>
-    <td class="gt_row gt_right">$0.44</td>
-    <td class="gt_row gt_left">row_8</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
+    <tr>
+      <td class="gt_row gt_right">1.11 × 10<sup style='font-size: 65%;'>−1</sup></td>
+      <td class="gt_row gt_left">apricot</td>
+      <td class="gt_row gt_left">one</td>
+      <td class="gt_row gt_right">15 January 2015</td>
+      <td class="gt_row gt_right">13:35</td>
+      <td class="gt_row gt_right">2018-01-01 02:22</td>
+      <td class="gt_row gt_right">$49.95</td>
+      <td class="gt_row gt_left">row_1</td>
+      <td class="gt_row gt_left">grp_a</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">2.22</td>
+      <td class="gt_row gt_left">banana</td>
+      <td class="gt_row gt_left">two</td>
+      <td class="gt_row gt_right">15 February 2015</td>
+      <td class="gt_row gt_right">14:40</td>
+      <td class="gt_row gt_right">2018-02-02 14:33</td>
+      <td class="gt_row gt_right">$17.95</td>
+      <td class="gt_row gt_left">row_2</td>
+      <td class="gt_row gt_left">grp_a</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">3.33 × 10<sup style='font-size: 65%;'>1</sup></td>
+      <td class="gt_row gt_left">coconut</td>
+      <td class="gt_row gt_left">three</td>
+      <td class="gt_row gt_right">15 March 2015</td>
+      <td class="gt_row gt_right">15:45</td>
+      <td class="gt_row gt_right">2018-03-03 03:44</td>
+      <td class="gt_row gt_right">$1.39</td>
+      <td class="gt_row gt_left">row_3</td>
+      <td class="gt_row gt_left">grp_a</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">4.44 × 10<sup style='font-size: 65%;'>2</sup></td>
+      <td class="gt_row gt_left">durian</td>
+      <td class="gt_row gt_left">four</td>
+      <td class="gt_row gt_right">15 April 2015</td>
+      <td class="gt_row gt_right">16:50</td>
+      <td class="gt_row gt_right">2018-04-04 15:55</td>
+      <td class="gt_row gt_right">$65,100.00</td>
+      <td class="gt_row gt_left">row_4</td>
+      <td class="gt_row gt_left">grp_a</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">5.55 × 10<sup style='font-size: 65%;'>3</sup></td>
+      <td class="gt_row gt_left"><NA></td>
+      <td class="gt_row gt_left">five</td>
+      <td class="gt_row gt_right">15 May 2015</td>
+      <td class="gt_row gt_right">17:55</td>
+      <td class="gt_row gt_right">2018-05-05 04:00</td>
+      <td class="gt_row gt_right">$1,325.81</td>
+      <td class="gt_row gt_left">row_5</td>
+      <td class="gt_row gt_left">grp_b</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_left">fig</td>
+      <td class="gt_row gt_left">six</td>
+      <td class="gt_row gt_right">15 June 2015</td>
+      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_right">2018-06-06 16:11</td>
+      <td class="gt_row gt_right">$13.26</td>
+      <td class="gt_row gt_left">row_6</td>
+      <td class="gt_row gt_left">grp_b</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">7.77 × 10<sup style='font-size: 65%;'>5</sup></td>
+      <td class="gt_row gt_left">grapefruit</td>
+      <td class="gt_row gt_left">seven</td>
+      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_right">19:10</td>
+      <td class="gt_row gt_right">2018-07-07 05:22</td>
+      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_left">row_7</td>
+      <td class="gt_row gt_left">grp_b</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">8.88 × 10<sup style='font-size: 65%;'>6</sup></td>
+      <td class="gt_row gt_left">honeydew</td>
+      <td class="gt_row gt_left">eight</td>
+      <td class="gt_row gt_right">15 August 2015</td>
+      <td class="gt_row gt_right">20:20</td>
+      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_right">$0.44</td>
+      <td class="gt_row gt_left">row_8</td>
+      <td class="gt_row gt_left">grp_b</td>
+    </tr>
   </tbody>
   '''
 # ---

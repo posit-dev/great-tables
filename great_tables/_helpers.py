@@ -1,9 +1,12 @@
-from typing import Union, List, Dict, Literal, Any, Optional, Callable
-import string
-import random
-from typing_extensions import TypeAlias
-from ._text import Text
+from __future__ import annotations
 
+import random
+import string
+from typing import Any, Callable, Literal
+
+from typing_extensions import TypeAlias
+
+from ._text import Text
 
 FontStackName: TypeAlias = Literal[
     "system-ui",
@@ -24,7 +27,130 @@ FontStackName: TypeAlias = Literal[
 ]
 
 
-def px(x: Union[int, float]) -> str:
+FONT_STACKS = {
+    "system-ui": [
+        "system-ui",
+        "sans-serif",
+    ],
+    "transitional": [
+        "Charter",
+        "Bitstream Charter",
+        "Sitka Text",
+        "Cambria",
+        "serif",
+    ],
+    "old-style": [
+        "Iowan Old Style",
+        "Palatino Linotype",
+        "URW Palladio L",
+        "P052",
+        "serif",
+    ],
+    "humanist": [
+        "Seravek",
+        "Gill Sans Nova",
+        "Ubuntu",
+        "Calibri",
+        "DejaVu Sans",
+        "source-sans-pro",
+        "sans-serif",
+    ],
+    "geometric-humanist": [
+        "Avenir",
+        "Montserrat",
+        "Corbel",
+        "URW Gothic",
+        "source-sans-pro",
+        "sans-serif",
+    ],
+    "classical-humanist": [
+        "Optima",
+        "Candara",
+        "Noto Sans",
+        "source-sans-pro",
+        "sans-serif",
+    ],
+    "neo-grotesque": [
+        "Inter",
+        "Roboto",
+        "Helvetica Neue",
+        "Arial Nova",
+        "Nimbus Sans",
+        "Arial",
+        "sans-serif",
+    ],
+    "monospace-slab-serif": [
+        "Nimbus Mono PS",
+        "Courier New",
+        "monospace",
+    ],
+    "monospace-code": [
+        "ui-monospace",
+        "Cascadia Code",
+        "Source Code Pro",
+        "Menlo",
+        "Consolas",
+        "DejaVu Sans Mono",
+        "monospace",
+    ],
+    "industrial": [
+        "Bahnschrift",
+        "DIN Alternate",
+        "Franklin Gothic Medium",
+        "Nimbus Sans Narrow",
+        "sans-serif-condensed",
+        "sans-serif",
+    ],
+    "rounded-sans": [
+        "ui-rounded",
+        "Hiragino Maru Gothic ProN",
+        "Quicksand",
+        "Comfortaa",
+        "Manjari",
+        "Arial Rounded MT",
+        "Arial Rounded MT Bold",
+        "Calibri",
+        "source-sans-pro",
+        "sans-serif",
+    ],
+    "slab-serif": [
+        "Rockwell",
+        "Rockwell Nova",
+        "Roboto Slab",
+        "DejaVu Serif",
+        "Sitka Small",
+        "serif",
+    ],
+    "antique": [
+        "Superclarendon",
+        "Bookman Old Style",
+        "URW Bookman",
+        "URW Bookman L",
+        "Georgia Pro",
+        "Georgia",
+        "serif",
+    ],
+    "didone": [
+        "Didot",
+        "Bodoni MT",
+        "Noto Serif Display",
+        "URW Palladio L",
+        "P052",
+        "Sylfaen",
+        "serif",
+    ],
+    "handwritten": [
+        "Segoe Print",
+        "Bradley Hand",
+        "Chilanka",
+        "TSCu_Comic",
+        "casual",
+        "cursive",
+    ],
+}
+
+
+def px(x: int | float) -> str:
     """
     Helper for providing a CSS length value in pixels.
 
@@ -49,7 +175,7 @@ def px(x: Union[int, float]) -> str:
     return f"{x}px"
 
 
-def pct(x: Union[int, float]) -> str:
+def pct(x: int | float) -> str:
     """
     Helper for providing a CSS length value as a percentage.
 
@@ -92,6 +218,10 @@ def md(text: str) -> Text:
     -------
     Text
         An instance of the Text class is returned, where the text `type` is `"from_markdown"`.
+
+    Examples
+    ------
+    See [`GT.tab_header()`](`great_tables.GT.tab_header`).
     """
     return Text(text=text, type="from_markdown")
 
@@ -113,6 +243,10 @@ def html(text: str) -> Text:
     -------
     Text
         An instance of the Text class is returned, where the text `type` is `"html"`.
+
+    Examples
+    ------
+    See [`GT.tab_header()`](`great_tables.GT.tab_header`).
     """
     return Text(text=text, type="html")
 
@@ -133,25 +267,25 @@ def random_id(n: int = 10) -> str:
     return "".join(random.choices(letters(), k=n))
 
 
-def letters() -> List[str]:
+def letters() -> list[str]:
     """Lowercase letters of the Roman alphabet
 
     Returns:
-        List[str]: the 26 lowercase letters of the Roman alphabet
+        list[str]: the 26 lowercase letters of the Roman alphabet
     """
     return list(string.ascii_lowercase)
 
 
-def LETTERS() -> List[str]:
+def LETTERS() -> list[str]:
     """Uppercase letters of the Roman alphabet
 
     Returns:
-        List[str]: the 26 uppercase letters of the Roman alphabet
+        list[str]: the 26 uppercase letters of the Roman alphabet
     """
     return list(string.ascii_uppercase)
 
 
-def system_fonts(name: FontStackName = "system-ui") -> List[str]:
+def system_fonts(name: FontStackName = "system-ui") -> list[str]:
     """Get a themed font stack that works well across systems.
 
     A font stack can be obtained from `system_fonts()` using one of various keywords such as
@@ -170,7 +304,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of font names that make up the font stack.
 
     The font stacks and the individual fonts used by platform
@@ -370,130 +504,11 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     return _get_font_stack(name)
 
 
-def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[str]:
-    font_stack_names = [
-        "system-ui",
-        "transitional",
-        "old-style",
-        "humanist",
-        "geometric-humanist",
-        "classical-humanist",
-        "neo-grotesque",
-        "monospace-slab-serif",
-        "monospace-code",
-        "industrial",
-        "rounded-sans",
-        "slab-serif",
-        "antique",
-        "didone",
-        "handwritten",
-    ]
+def _get_font_stack(name: FontStackName = "system-ui", add_emoji: bool = True) -> list[str]:
+    font_stack = FONT_STACKS.get(name)
 
-    if name not in font_stack_names:
+    if font_stack is None:
         raise ValueError(f"Invalid font stack name: {name}")
-
-    if name == "system-ui":
-        font_stack = ["system-ui", "sans-serif"]
-    elif name == "transitional":
-        font_stack = ["Charter", "Bitstream Charter", "Sitka Text", "Cambria", "serif"]
-    elif name == "old-style":
-        font_stack = ["Iowan Old Style", "Palatino Linotype", "URW Palladio L", "P052", "serif"]
-    elif name == "humanist":
-        font_stack = [
-            "Seravek",
-            "Gill Sans Nova",
-            "Ubuntu",
-            "Calibri",
-            "DejaVu Sans",
-            "source-sans-pro",
-            "sans-serif",
-        ]
-    elif name == "geometric-humanist":
-        font_stack = [
-            "Avenir",
-            "Montserrat",
-            "Corbel",
-            "URW Gothic",
-            "source-sans-pro",
-            "sans-serif",
-        ]
-    elif name == "classical-humanist":
-        font_stack = ["Optima", "Candara", "Noto Sans", "source-sans-pro", "sans-serif"]
-    elif name == "neo-grotesque":
-        font_stack = [
-            "Inter",
-            "Roboto",
-            "Helvetica Neue",
-            "Arial Nova",
-            "Nimbus Sans",
-            "Arial",
-            "sans-serif",
-        ]
-    elif name == "monospace-slab-serif":
-        font_stack = ["Nimbus Mono PS", "Courier New", "monospace"]
-    elif name == "monospace-code":
-        font_stack = [
-            "ui-monospace",
-            "Cascadia Code",
-            "Source Code Pro",
-            "Menlo",
-            "Consolas",
-            "DejaVu Sans Mono",
-            "monospace",
-        ]
-    elif name == "industrial":
-        font_stack = [
-            "Bahnschrift",
-            "DIN Alternate",
-            "Franklin Gothic Medium",
-            "Nimbus Sans Narrow",
-            "sans-serif-condensed",
-            "sans-serif",
-        ]
-    elif name == "rounded-sans":
-        font_stack = [
-            "ui-rounded",
-            "Hiragino Maru Gothic ProN",
-            "Quicksand",
-            "Comfortaa",
-            "Manjari",
-            "Arial Rounded MT",
-            "Arial Rounded MT Bold",
-            "Calibri",
-            "source-sans-pro",
-            "sans-serif",
-        ]
-    elif name == "slab-serif":
-        font_stack = [
-            "Rockwell",
-            "Rockwell Nova",
-            "Roboto Slab",
-            "DejaVu Serif",
-            "Sitka Small",
-            "serif",
-        ]
-    elif name == "antique":
-        font_stack = [
-            "Superclarendon",
-            "Bookman Old Style",
-            "URW Bookman",
-            "URW Bookman L",
-            "Georgia Pro",
-            "Georgia",
-            "serif",
-        ]
-    elif name == "didone":
-        font_stack = [
-            "Didot",
-            "Bodoni MT",
-            "Noto Serif Display",
-            "URW Palladio L",
-            "P052",
-            "Sylfaen",
-            "serif",
-        ]
-    elif name == "handwritten":
-        font_stack = ["Segoe Print", "Bradley Hand", "Chilanka", "TSCu_Comic", "casual", "cursive"]
 
     if add_emoji:
         font_stack.extend(
@@ -508,7 +523,7 @@ def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[s
 # we could do that in the a __post_init__ hook. (I would switch it over to a
 # dataclass and then pair on a post_init hook).
 # Check that certain values are either a list or a single value
-def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any):
+def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any) -> list[Any] | None:
 
     if nano_opt is None:
         return None
@@ -529,37 +544,37 @@ def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any):
 
 
 def nanoplot_options(
-    data_point_radius: Optional[Union[int, List[int]]] = None,
-    data_point_stroke_color: Optional[Union[str, List[str]]] = None,
-    data_point_stroke_width: Optional[Union[int, List[int]]] = None,
-    data_point_fill_color: Optional[Union[str, List[str]]] = None,
-    data_line_type: Optional[str] = None,
-    data_line_stroke_color: Optional[str] = None,
-    data_line_stroke_width: Optional[int] = None,
-    data_area_fill_color: Optional[str] = None,
-    data_bar_stroke_color: Optional[Union[str, List[str]]] = None,
-    data_bar_stroke_width: Optional[Union[int, List[int]]] = None,
-    data_bar_fill_color: Optional[Union[str, List[str]]] = None,
-    data_bar_negative_stroke_color: Optional[str] = None,
-    data_bar_negative_stroke_width: Optional[int] = None,
-    data_bar_negative_fill_color: Optional[str] = None,
-    reference_line_color: Optional[str] = None,
-    reference_area_fill_color: Optional[str] = None,
-    vertical_guide_stroke_color: Optional[str] = None,
-    vertical_guide_stroke_width: Optional[int] = None,
-    show_data_points: Optional[bool] = None,
-    show_data_line: Optional[bool] = None,
-    show_data_area: Optional[bool] = None,
-    show_reference_line: Optional[bool] = None,
-    show_reference_area: Optional[bool] = None,
-    show_vertical_guides: Optional[bool] = None,
-    show_y_axis_guide: Optional[bool] = None,
-    interactive_data_values: Optional[bool] = None,
-    y_val_fmt_fn: Optional[Callable[..., str]] = None,
-    y_axis_fmt_fn: Optional[Callable[..., str]] = None,
-    y_ref_line_fmt_fn: Optional[Callable[..., str]] = None,
-    currency: Optional[str] = None,
-) -> Dict[str, Any]:
+    data_point_radius: int | list[int] | None = None,
+    data_point_stroke_color: str | list[str] | None = None,
+    data_point_stroke_width: int | list[int] | None = None,
+    data_point_fill_color: str | list[str] | None = None,
+    data_line_type: str | None = None,
+    data_line_stroke_color: str | None = None,
+    data_line_stroke_width: int | None = None,
+    data_area_fill_color: str | None = None,
+    data_bar_stroke_color: str | list[str] | None = None,
+    data_bar_stroke_width: int | list[int] | None = None,
+    data_bar_fill_color: str | list[str] | None = None,
+    data_bar_negative_stroke_color: str | None = None,
+    data_bar_negative_stroke_width: int | None = None,
+    data_bar_negative_fill_color: str | None = None,
+    reference_line_color: str | None = None,
+    reference_area_fill_color: str | None = None,
+    vertical_guide_stroke_color: str | None = None,
+    vertical_guide_stroke_width: int | None = None,
+    show_data_points: bool | None = None,
+    show_data_line: bool | None = None,
+    show_data_area: bool | None = None,
+    show_reference_line: bool | None = None,
+    show_reference_area: bool | None = None,
+    show_vertical_guides: bool | None = None,
+    show_y_axis_guide: bool | None = None,
+    interactive_data_values: bool | None = None,
+    y_val_fmt_fn: Callable[..., str] | None = None,
+    y_axis_fmt_fn: Callable[..., str] | None = None,
+    y_ref_line_fmt_fn: Callable[..., str] | None = None,
+    currency: str | None = None,
+) -> dict[str, Any]:
     """
     Helper for setting the options for a nanoplot.
 
@@ -683,6 +698,10 @@ def nanoplot_options(
         If the values are to be displayed as currency values, supply either: (1) a 3-letter currency
         code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency), or (2) a common
         currency name (e.g., `"dollar"`, `"pound"`, `"yen"`, etc.).
+
+    Examples
+    --------
+    See [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`).
     """
 
     data_point_radius = _normalize_listable_nanoplot_options(

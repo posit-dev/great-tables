@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from ._tbl_data import DataFrameLike, SelectExpr, is_na
-from ._gt_data import FormatterSkipElement
-from ._formats import fmt
-from ._text import _process_text, Text
-from ._helpers import html
-
-
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Union, Literal, List
+from typing import TYPE_CHECKING, Any, Literal
+
+from ._formats import fmt
+from ._gt_data import FormatterSkipElement
+from ._helpers import html
+from ._tbl_data import DataFrameLike, SelectExpr, is_na
+from ._text import Text, _process_text
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -32,7 +31,7 @@ def _convert_missing(context: Literal["html"], el: str):
 def sub_missing(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     missing_text: str | Text | None = None,
 ) -> GTSelf:
     """
@@ -98,7 +97,7 @@ def sub_missing(
 def sub_zero(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     zero_text: str = "nil",
 ) -> GTSelf:
     """

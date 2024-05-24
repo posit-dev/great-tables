@@ -1,11 +1,15 @@
-from great_tables._spanners import spanners_print_matrix, seq_groups
+from __future__ import annotations
+
+from itertools import chain, groupby
+from typing import Any, cast
+
+from great_tables._spanners import seq_groups, spanners_print_matrix
+from htmltools import HTML, TagList, css, tags
+
 from ._gt_data import GTData
-from ._tbl_data import n_rows, _get_cell, cast_frame_to_string, replace_null_frame
-from typing import List, Any, cast
-from htmltools import tags, HTML, css, TagList
-from itertools import groupby, chain
+from ._tbl_data import _get_cell, cast_frame_to_string, n_rows, replace_null_frame
 from ._text import StringBuilder, _process_text, _process_text_id
-from ._utils import heading_has_title, heading_has_subtitle
+from ._utils import heading_has_subtitle, heading_has_title
 
 
 def create_heading_component_h(data: GTData) -> StringBuilder:
@@ -177,10 +181,12 @@ def create_columns_component_h(data: GTData) -> str:
         )
 
         spanner_ids, spanner_col_names = spanners_print_matrix(
-            spanners=data._spanners, boxhead=boxhead, include_hidden=False, ids=True
+            spanners=data._spanners, boxhead=boxhead, include_hidden=False, ids=False
         )
 
-        level_1_index = 0
+        # Last is column labels
+        # So take second to last
+        level_1_index = -2
 
         # A list of <th> elements that will go in the first level; this
         # includes spanner labels and column labels for solo columns (don't
@@ -337,34 +343,21 @@ def create_columns_component_h(data: GTData) -> str:
             table_col_headings = tags.tr(level_1_spanners, class_="gt_col_headings gt_spanner_row")
 
     if _get_spanners_matrix_height(data=data) > 2:
-        # TODO: functions like seq_len don't exist
-        higher_spanner_rows_idx = seq_len(nrow(spanner_ids) - 2)  # noqa
-
+        # Spanners are listed top to bottom, so we need to work bottom to top
+        # We can skip the last (column labels) and second to last (first spanner)
+        higher_spanner_rows_idx = range(0, len(spanner_ids) - 2)
         higher_spanner_rows = TagList()
 
         for i in higher_spanner_rows_idx:
-            spanner_ids_row = spanner_ids[i]
             spanners_row = spanners[i]
-            # TODO: shouldn't use np here
-            spanners_vars = list(set(spanner_ids_row[~np.isnan(spanner_ids_row)].tolist()))  # noqa
+            for k, v in spanners_row.items():
+                if v is None:
+                    spanners_row[k] = ""
 
-            # Replace NA values in spanner_ids_row with an empty string
-            # TODO: shouldn't use np here
-            spanner_ids_row[np.isnan(spanner_ids_row)] = ""  # noqa
-
-            spanners_rle = [(k, len(list(g))) for k, g in groupby(list(spanner_ids_row))]
-
-            sig_cells = [1] + [
-                i + 1
-                for i, (k, _) in enumerate(spanners_rle[:-1])
-                if k is None or k != spanners_rle[i - 1][0]
-            ]
-
-            colspans = [
-                spanners_rle[j][1] if (j + 1) in sig_cells else 0
-                for j in range(len(spanner_ids_row))
-            ]
-
+            spanner_ids_index = list(spanners_row.values())
+            spanners_rle = list(seq_groups(seq=list(spanner_ids_index)))
+            group_spans = [[x[1]] + [0] * (x[1] - 1) for x in spanners_rle]
+            colspans = list(chain(*group_spans))
             level_i_spanners = []
 
             for colspan, span_label in zip(colspans, spanners_row.values()):
@@ -382,38 +375,51 @@ def create_columns_component_h(data: GTData) -> str:
                     # )
                     spanner_style = None
 
+                    if span_label:
+                        span = tags.span(
+                            HTML(_process_text(span_label)),
+                            class_="gt_column_spanner",
+                        )
+                    else:
+                        span = tags.span(HTML("&nbsp;"))
+
                     level_i_spanners.append(
                         tags.th(
-                            TagList(
-                                tags.span(HTML(span_label)),
-                                tags.span(HTML("&nbsp;"), class_="gt_column_spanner_inner"),
-                            ),
-                            class_="gt_center gt_columns_top_border gt_column_spanner_outer",
+                            span,
+                            class_="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer",
                             rowspan=1,
-                            colspan=colspans[j],
+                            colspan=colspan,
                             style=spanner_style,
-                            scope="colgroup" if colspans[j] > 1 else "col",
+                            scope="colgroup" if colspan > 1 else "col",
                         )
                     )
 
-            if len(stub_layout) > 0 and i == 1:
-                level_i_spanners = tags.th(
-                    TagList(level_i_spanners),
-                    rowspan=max(list(higher_spanner_rows_idx)),
-                    colspan=len(stub_layout),
-                    scope="colgroup" if len(stub_layout) > 1 else "col",
+            if len(stub_layout) > 0:
+                level_i_spanners.insert(
+                    0,
+                    tags.th(
+                        tags.span(HTML("&nbsp")),
+                        class_=f"gt_col_heading gt_columns_bottom_border gt_{str(stubhead_label_alignment)}",
+                        rowspan=1,
+                        colspan=len(stub_layout),
+                        scope="colgroup" if len(stub_layout) > 1 else "col",
+                    ),
                 )
 
             higher_spanner_rows = TagList(
                 higher_spanner_rows,
-                TagList(tags.tr(level_i_spanners, class_="gt_col_headings gt_spanner_row")),
+                TagList(
+                    tags.tr(
+                        level_i_spanners,
+                        class_="gt_col_headings gt_spanner_row",
+                    )
+                ),
             )
 
         table_col_headings = TagList(
             higher_spanner_rows,
             table_col_headings,
         )
-
     return str(table_col_headings)
 
 
@@ -441,7 +447,7 @@ def create_body_component_h(data: GTData) -> str:
     if stub_var is not None:
         column_vars = [stub_var] + column_vars
 
-    body_rows: List[str] = []
+    body_rows: list[str] = []
 
     # iterate over rows (ordered by groupings)
     prev_group_label = None
@@ -449,7 +455,7 @@ def create_body_component_h(data: GTData) -> str:
     ordered_index = data._group_rows.indices_map(n_rows(data._tbl_data))
 
     for i, group_label in ordered_index:
-        body_cells: List[str] = []
+        body_cells: list[str] = []
 
         if has_stub_column and has_groups and not has_two_col_stub:
             colspan_value = data._boxhead._get_effective_number_of_columns(
@@ -463,13 +469,15 @@ def create_body_component_h(data: GTData) -> str:
                     "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
                 )
 
-                body_cells.append(
-                    f"<tr class={group_class}>"
-                    f'  <th class="gt_group_heading" colspan="{colspan_value}">'
-                    + group_label
-                    + "</th></tr>"
-                )
+                group_row = f"""  <tr class="{group_class}">
+    <th class="gt_group_heading" colspan="{colspan_value}">{group_label}</th>
+  </tr>"""
 
+                prev_group_label = group_label
+
+                body_rows.append(group_row)
+
+        # Create a single cell and append result to `body_cells`
         for colinfo in column_vars:
             cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
             cell_str: str = str(cell_content)
@@ -498,18 +506,20 @@ def create_body_component_h(data: GTData) -> str:
                 cell_styles = ""
 
             if is_stub_cell:
-                body_cells.append('  <th class="gt_row gt_left gt_stub">' + cell_str + "</th>")
+                body_cells.append(f"""    <th class="gt_row gt_left gt_stub">{cell_str}</th>""")
             else:
                 body_cells.append(
-                    f'  <td {cell_styles}class="gt_row gt_{cell_alignment}">' + cell_str + "</td>"
+                    f"""    <td {cell_styles}class="gt_row gt_{cell_alignment}">{cell_str}</td>"""
                 )
 
         prev_group_label = group_label
-        body_rows.append("<tr>\n" + "\n".join(body_cells) + "\n</tr>")
+        body_rows.append("  <tr>\n" + "\n".join(body_cells) + "\n  </tr>")
 
     all_body_rows = "\n".join(body_rows)
 
-    return f'<tbody class="gt_table_body">\n{all_body_rows}\n</tbody>'
+    return f"""<tbody class="gt_table_body">
+{all_body_rows}
+</tbody>"""
 
 
 def create_source_notes_component_h(data: GTData) -> str:
@@ -534,7 +544,7 @@ def create_source_notes_component_h(data: GTData) -> str:
         # Create the source notes component as a series of `<tr><td>` (one per
         # source note) inside of a `<tfoot>`
 
-        source_notes_tr: List[str] = []
+        source_notes_tr: list[str] = []
 
         for note in source_notes:
             note_str = _process_text(note)
@@ -561,7 +571,7 @@ def create_source_notes_component_h(data: GTData) -> str:
     # Create the source notes component as a single `<tr><td>` inside
     # of a `<tfoot>`
 
-    source_note_list: List[str] = []
+    source_note_list: list[str] = []
     for note in source_notes:
         note_str = _process_text(note)
         source_note_list.append(note_str)

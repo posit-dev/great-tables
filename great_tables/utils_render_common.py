@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
+
+from typing_extensions import TypeAlias
 
 if TYPE_CHECKING:
     from ._gt_data import RowGroups, Stub
 
 
-TupleStartFinal = Tuple[int, int]
+TupleStartFinal: TypeAlias = tuple[int, int]
 
 
 def get_row_reorder_df(groups: RowGroups, stub_df: Stub) -> list[TupleStartFinal]:

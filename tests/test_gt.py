@@ -1,8 +1,7 @@
-import pytest
-
-from great_tables import GT
-from great_tables._gt_data import RowGroups
 import pandas as pd
+import pytest
+from great_tables import GT
+
 
 # Generate a gt Table object for assertion testing
 data = [{"a": 5, "b": 15}, {"a": 15, "b": 2000}]

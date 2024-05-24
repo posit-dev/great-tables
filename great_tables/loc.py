@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from ._locations import (
     LocBody as body,
     LocStub as stub,

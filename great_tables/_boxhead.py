@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING
 
+from ._locations import resolve_cols_c
 from ._utils import _assert_list_is_subset
+from ._tbl_data import SelectExpr
 
 if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
+def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
     """
     Relabel one or more columns.
 
@@ -102,7 +104,7 @@ def cols_label(self: GTSelf, **kwargs: Any) -> GTSelf:
     return self._replace(_boxhead=boxhead)
 
 
-def cols_align(self: GTSelf, align: str = "left", columns: Optional[str] = None) -> GTSelf:
+def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) -> GTSelf:
     """
     Set the alignment of one or more columns.
 
@@ -161,5 +163,7 @@ def cols_align(self: GTSelf, align: str = "left", columns: Optional[str] = None)
     elif columns is None:
         columns = column_names
 
+    sel_cols = resolve_cols_c(data=self, expr=columns)
+
     # Set the alignment for each column
-    return self._replace(_boxhead=self._boxhead._set_column_aligns(columns, align=align))
+    return self._replace(_boxhead=self._boxhead._set_column_aligns(sel_cols, align=align))

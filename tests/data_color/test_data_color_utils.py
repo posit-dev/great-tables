@@ -1,25 +1,26 @@
 import math
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 import pytest
 from great_tables._data_color.base import (
-    _ideal_fgnd_color,
+    _add_alpha,
+    _color_name_to_hex,
+    _expand_short_hex,
+    _float_to_hex,
+    _get_domain_factor,
+    _get_domain_numeric,
     _get_wcag_contrast_ratio,
     _hex_to_rgb,
-    _relative_luminance,
-    _srgb,
     _html_color,
-    _add_alpha,
-    _remove_alpha,
-    _float_to_hex,
-    _color_name_to_hex,
-    _is_short_hex,
+    _ideal_fgnd_color,
     _is_hex_col,
+    _is_short_hex,
     _is_standard_hex_col,
-    _expand_short_hex,
+    _relative_luminance,
+    _remove_alpha,
     _rescale_numeric,
-    _get_domain_numeric,
-    _get_domain_factor,
+    _srgb,
 )
 from great_tables._data_color.palettes import GradientPalette
 
