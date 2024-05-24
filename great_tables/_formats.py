@@ -2117,7 +2117,7 @@ def fmt_markdown(
 def fmt_units(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: Union[int, List[int], None] = None,
+    rows: int | list[int] | None = None,
     pattern: str = "{x}",
 ) -> GTSelf:
     """
