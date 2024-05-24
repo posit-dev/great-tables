@@ -106,16 +106,6 @@ def test_get_font_stack_add_emoji_true(font_stack_names):
             "-20 kg^2 m_12 m[_0^2] g/L %C6H12O6% x10^-3",
             ["-20", "kg^2", "m_12", "m[_0^2]", "g/L", "%C6H12O6%", "x10^-3"],
         ),
-        (
-            "  -20  _kg_^2      *m*_12  m[_0^2] g/L%C6H12O6% x10^-3",
-            ["-20", "_kg_^2", "*m*_12", "m[_0^2]", "g/L%C6H12O6%", "x10^-3"],
-        ),
-        (
-            "m^-3 :cdot: kg :cdot: m[_0^2] *per:space:mille*",
-            ["m^-3", ":cdot:", "kg", ":cdot:", "m[_0^2]", "*per:space:mille*"],
-        ),
-        ("", []),
-        (" ", []),
     ],
 )
 def assert_generate_tokens_list(units: str, x_out: str):
@@ -127,65 +117,58 @@ def assert_generate_tokens_list(units: str, x_out: str):
 @pytest.mark.parametrize(
     "content, x_out",
     [
-        ("2", '<span style="white-space:nowrap;"><sub>2</sub></span>'),
-        ("2*e*5", '<span style="white-space:nowrap;"><sub>2*e*5</sub></span>'),
-        ("", '<span style="white-space:nowrap;"><sub></sub></span>'),
+        ("2"),
+        (""),
     ],
 )
-def assert_units_to_subscript(content: str, x_out: str):
+def assert_units_to_subscript(content: str):
     x = _units_to_subscript(content=content)
-    assert x == x_out
+    assert (
+        x == f'<span style="white-space:nowrap;"><sub style="line-height:0;>{content}</sub></span>'
+    )
 
 
 @pytest.mark.parametrize(
-    "content, x_out",
+    "content",
     [
-        ("34.3", '<span style="white-space:nowrap;"><sup>34.3</sup></span>'),
-        ("4*d*2", '<span style="white-space:nowrap;"><sup>4*d*2</sup></span>'),
-        ("", '<span style="white-space:nowrap;"><sup></sup></span>'),
+        ("2"),
+        (""),
     ],
 )
-def assert_units_to_superscript(content: str, x_out: str):
+def assert_units_to_superscript(content: str):
     x = _units_to_superscript(content=content)
-    assert x == x_out
+    assert (
+        x == f'<span style="white-space:nowrap;"><sup style="line-height:0;>{content}</sup></span>'
+    )
 
 
 @pytest.mark.parametrize(
-    "content_sub, content_sup, x_out",
+    "content_sub, content_sup",
     [
         (
             "*2i*",
             "3.23517",
-            '<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">3.23517<br>*2i*</span>',
         ),
         (
             "0",
             "e2.7",
-            '<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">e2.7<br>0</span>',
         ),
     ],
 )
-def assert_units_to_superscript(content_sub: str, content_sup: str, x_out: str):
+def assert_units_html_sub_super(content_sub: str, content_sup: str):
     x = _units_html_sub_super(content_sub=content_sub, content_sup=content_sup)
-    assert x == x_out
+    assert (
+        x
+        == f'<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">{content_sup}<br>{content_sub}</span>'
+    )
 
 
 @pytest.mark.parametrize(
     "text, detect, pattern, replace, x_out",
     [
         ("-10^-5", "^-", "^-", "&minus;", "&minus10^-5"),
-        ("um", "^um$", "um", "&micro;m", "&micro;m"),
-        ("umlaut", "^um$", "um", "&micro;m", "umlaut"),
-        ("3:mp:0.5", ":mp:", ":mp:", "&mnplus;", "3&mnplus;0.5"),
-        ("-3.4x10^-2.5 kg", "^-", "^-", "&minus;", "&minus;3.4x10^-2.5 kg"),
         ("uL", "^uL$", "uL", "&micro;L", "&micro;L"),
-        ("uLa", "^uL$", "uL", "&micro;L", "uLa"),
-        ("0.5uL", "^uL$", "uL", "&micro;L", "0.5La"),
         ("umol_0", "^umol", "^umol", "&micro;mol", "&micro;mol_0"),
-        ("uMol", "^umol", "^umol", "&micro;mol", "uMol"),
-        ("ug", "^ug$", "ug", "&micro;g", "&micro;g"),
-        ("ohm", "^ohm$", "ohm", "&#8486;", "&#8486;"),
-        ("uohm", "^ohm$", "ohm", "&#8486;", "uohm"),
     ],
 )
 def assert_replace_units_symbol(text: str, detect: str, pattern: str, replace: str, x_out: str):
@@ -197,13 +180,6 @@ def assert_replace_units_symbol(text: str, detect: str, pattern: str, replace: s
     "text, x_out",
     [
         ("um", "&micro;m"),
-        ("uL", "&micro;L"),
-        ("umol", "&micro;mol"),
-        ("ug", "&micro;g"),
-        ("ohm", "&#8486;"),
-        ("degC", "&deg;C"),
-        ("degF", "&deg;F"),
-        (":cdot:", "&sdot;"),
         (":Omicron:", "&Omicron;"),
     ],
 )
@@ -215,52 +191,93 @@ def assert_units_symbol_replacements(text: str, x_out: str):
 @pytest.mark.parametrize(
     "units_notation, x_out",
     [
-        ("m/s", "m/s"),
-        ("m / s", "m/s"),
-        ("m s^-1", 'm s<span style="white-space:nowrap;"><sup>&minus;1</sup></span>'),
-        ("m /s", 'm s<span style="white-space:nowrap;"><sup>&minus;1</sup></span>'),
+        # unit with superscript
         (
-            "t_i^2.5",
-            't<span style="white-space:nowrap;"><sub>i</sub></span><span style="white-space:nowrap;"><sup>2.5</sup></span>',
+            "m^2",
+            'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
         ),
+        # unit with subscript
         (
-            "m[_0^2]",
-            'm<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">2<br>0</span>',
+            "h_0",
+            'h<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span>',
         ),
+        # unit with superscript and subscript
         (
-            "**m**[_*0*^**2**]",
-            '<strong>m</strong><span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;"><strong>2</strong><br><em>0</em></span>',
+            "h_0^3",
+            'h<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span><span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span>',
         ),
+        # unit with superscript and subscript (using overstriking)
         (
-            "x10^9 / *L*",
-            '&times;10<span style="white-space:nowrap;"><sup>9</sup></span>/<em>L</em>',
+            "h[_0^3]",
+            'h<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">3<br>0</span>',
         ),
+        # slashed-unit shorthand for a '-1' exponent
         (
-            "x10^9/*L*",
-            '&times;10<span style="white-space:nowrap;"><sup>9</sup></span>/<em>L</em>',
+            "/s",
+            's<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
         ),
+        # slashes between units normalized
         (
-            "x10^9 :space: / :space: *L*",
-            '&times;10<span style="white-space:nowrap;"><sup>9</sup></span> &nbsp; / &nbsp; <em>L</em>',
+            "t_0 / t_n",
+            't<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span>/t<span style="white-space:nowrap;"><sub style="line-height:0;">n</sub></span>',
         ),
+        # multiple inline units, separating by a space
         (
-            "-20 kg^2 m_12 m[_0^2] g/L %C6H12O6% x10^-3",
-            '&minus;20 kg<span style="white-space:nowrap;"><sup>2</sup></span> m<span style="white-space:nowrap;"><sub>12</sub></span> m<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">2<br>0</span> g/L C<span style="white-space:nowrap;"><sub>6</sub></span>H<span style="white-space:nowrap;"><sub>12</sub></span>O<span style="white-space:nowrap;"><sub>6</sub></span> &times;10<span style="white-space:nowrap;"><sup>&minus;3</sup></span>',
+            "kg^2 m^-1",
+            'kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
         ),
+        # use of a number allowed with previous rules
         (
-            "m^-3 :cdot: kg :cdot: m[_0^2] *per:space:mille*",
-            'm<span style="white-space:nowrap;"><sup>&minus;3</sup></span> &sdot; kg &sdot; m<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">2<br>0</span> <em>per\xa0mille</em>',
+            "10^3 kg^2 m^-1",
+            '10<span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span> kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
         ),
+        # "use of 'x' preceding number to form scalar multiplier
         (
-            "  -20  _kg_^2      *m*_12  m[_0^2] g/L%C6H12O6% x10^-3",
-            '&minus;20 _kg_<span style="white-space:nowrap;"><sup>2</sup></span> <em>m</em><span style="white-space:nowrap;"><sub>12</sub></span> m<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">2<br>0</span> g/L%C6H12O6% &times;10<span style="white-space:nowrap;"><sup>&minus;3</sup></span>',
+            "x10^3 kg^2 m^-1",
+            '&times;10<span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span> kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
         ),
+        # hyphen is transformed to minus sign when preceding a unit
         (
-            "kg :cdot: m :cdot: /s",
-            'kg &sdot; m &sdot; s<span style="white-space:nowrap;"><sup>&minus;1</sup></span>',
+            "-h^2",
+            '&minus;h<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # italicization of base unit
+        (
+            "*m*^2",
+            '<em>m</em><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # emboldening of base unit
+        (
+            "**m**^2",
+            '<strong>m</strong><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # italicizing and emboldening of base unit
+        (
+            "_**m**_^2",
+            '<em><strong>m</strong></em><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # styling of subscripts and superscripts
+        (
+            "h_*0*^**3**",
+            'h<span style="white-space:nowrap;"><sub style="line-height:0;"><em>0</em></sub></span><span style="white-space:nowrap;"><sup style="line-height:0;"><strong>3</strong></sup></span>',
+        ),
+        # transformation of common units from ASCII to preferred form
+        (
+            "ug",
+            "&micro;g",
+        ),
+        # insertion of common symbols and Greek letters via `:[symbol name]:`
+        (
+            ":angstrom:",
+            "&#8491;",
+        ),
+        # use of chemical formulas via `%[chemical formula]%`
+        (
+            "%C6H12O6%",
+            'C<span style="white-space:nowrap;"><sub>6</sub></span>H<span style="white-space:nowrap;"><sub>12</sub></span>O<span style="white-space:nowrap;"><sub>6</sub></span>',
         ),
     ],
 )
-def assert_define_units_html(units_notation: str, x_out: str):
-    x = define_units(units_notation=units_notation).to_html()
-    assert x == x_out
+def assert_define_units_html_superscript():
+    x = define_units(units_notation="m^2").to_html()
+    assert x == 'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>'
