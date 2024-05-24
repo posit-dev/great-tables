@@ -660,7 +660,9 @@ def _units_to_subscript(content: str) -> str:
 
 
 def _units_to_superscript(content: str) -> str:
-    return '<span style="white-space:nowrap;"><sup>' + content + "</sup></span>"
+    return (
+        '<span style="white-space:nowrap;"><sup style="line-height:0;">' + content + "</sup></span>"
+    )
 
 
 def _units_html_sub_super(content_sub: str, content_sup: str) -> str:
