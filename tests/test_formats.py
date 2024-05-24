@@ -79,7 +79,7 @@ def test_format_repr_snap(snapshot):
     assert_repr_html(snapshot, new_gt)
 
 
-@pytest.mark.parametrize("expr", [[0, -1], pl.selectors.all().exclude("y")])
+@pytest.mark.parametrize("expr", [[0, -1], pl.selectors.exclude("y")])
 def test_format_col_selection_multi(expr: Any):
     df = pd.DataFrame({"x": [1], "y": [2], "z": [3]})
 
