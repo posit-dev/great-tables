@@ -784,7 +784,9 @@ UNITS_SYMBOLS_HTML = {
 
 def define_units(units_notation: str) -> UnitDefinitionList:
     """
-    Parse a string of units notation and return a list of unit definitions.
+    With `define_units()` you can work with a specially-crafted units notation string and emit the
+    units as HTML (with the `.to_html()` method). This function is useful as a standalone utility
+    and it powers the `fmt_units()` method in **Great Tables**.
 
     Parameters
     ----------
@@ -800,9 +802,8 @@ def define_units(units_notation: str) -> UnitDefinitionList:
     -------------------------------
 
     The following table demonstrates the various ways in which units can be specified in the
-    `units_notation` string and how they are parsed by the `define_units()` function. The final step
-    for displaying the units is to convert the parsed units into HTML for display with the
-    `to_html()` method.
+    `units_notation` string and how the input is processed by the `define_units()` function. The
+    concluding step for display of the units in HTML is to use the `to_html()` method.
 
     ```{python}
     #| echo: false
@@ -860,7 +861,6 @@ def define_units(units_notation: str) -> UnitDefinitionList:
             ],
         }
     ).with_columns(output=pl.col("input"))
-
 
     (
         GT(units_tbl)
