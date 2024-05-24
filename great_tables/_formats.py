@@ -2252,7 +2252,7 @@ def fmt_units(
         if is_na(self._tbl_data, x):
             return x
 
-        from great_tables._utils_units_notation import define_units
+        from great_tables._helpers import define_units
 
         x_formatted = define_units(x).to_html()
 
