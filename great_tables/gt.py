@@ -26,6 +26,7 @@ from great_tables._formats import (
     fmt_roman,
     fmt_scientific,
     fmt_time,
+    fmt_units,
 )
 from great_tables._heading import tab_header
 from great_tables._helpers import random_id
