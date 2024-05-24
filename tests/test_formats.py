@@ -1490,51 +1490,70 @@ def test_fmt_image_path():
 
 
 def test_fmt_units():
-    from great_tables.data import illness
 
-    gt_tbl = GT(illness).fmt_units(columns="units")
-    units_vals_illness = _get_column_of_values(gt_tbl, column_name="units", context="html")
+    units_tbl = pl.DataFrame(
+        {
+            "units": [
+                # unit with superscript
+                "m^2",
+                # unit with subscript
+                "h_0",
+                # unit with superscript and subscript
+                "h_0^3",
+                # unit with superscript and subscript (using overstriking)
+                "h[_0^3]",
+                # slashed-unit shorthand for a '-1' exponent
+                "/s",
+                # slashes between units normalized
+                "t_0 / t_n",
+                # multiple inline units, separating by a space
+                "kg^2 m^-1",
+                # use of a number allowed with previous rules
+                "10^3 kg^2 m^-1",
+                # "use of 'x' preceding number to form scalar multiplier
+                "x10^3 kg^2 m^-1",
+                # hyphen is transformed to minus sign when preceding a unit
+                "-h^2",
+                # italicization of base unit
+                "*m*^2",
+                # emboldening of base unit
+                "**m**^2",
+                # italicizing and emboldening of base unit
+                "_**m**_^2",
+                # styling of subscripts and superscripts
+                "h_*0*^**3**",
+                # transformation of common units from ASCII to preferred form
+                "ug",
+                # insertion of common symbols and Greek letters via `:[symbol name]:`
+                ":angstrom:",
+                # use of chemical formulas via `%[chemical formula]%`
+                "%C6H12O6%",
+            ],
+        }
+    )
 
-    assert units_vals_illness == [
-        "copies per mL",
-        '&times;10<span style="white-space:nowrap;"><sup style="line-height:0;">9</sup></span>/L',
-        '&times;10<span style="white-space:nowrap;"><sup style="line-height:0;">9</sup></span>/L',
-        '&times;10<span style="white-space:nowrap;"><sup style="line-height:0;">12</sup></span>/L',
-        "g/L",
-        '&times;10<span style="white-space:nowrap;"><sup style="line-height:0;">9</sup></span>/L',
-        "U/L",
-        "U/L",
-        "&micro;mol/L",
-        "&micro;mol/L",
-        "mmol/L",
-        "s",
-        "s",
-        "%",
-        "mg/L",
-        "&micro;g/mL",
-        "mg/dL",
-        "U/L",
-        "<NA>",
-        "U/L",
-        "U/L",
-        "pg/mL",
-        "ng/mL",
-        "ng/mL",
-        "&micro;mol/L",
-        "mmol/L",
-        "U/L",
-        "U/L",
-        "mmol/L",
-        "mmol/L",
-        "mmol/L",
-        "mmol/L",
-        "mmol/L",
-        "mmol/L",
-        "mg/L",
-        "ng/mL",
-        "<NA>",
-        "T cells per &micro;L",
-        "T cells per &micro;L",
+    gt_tbl = GT(units_tbl).fmt_units(columns="units")
+
+    units_formatted = _get_column_of_values(gt_tbl, column_name="units", context="html")
+
+    assert units_formatted == [
+        'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        'h<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span>',
+        'h<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span><span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span>',
+        'h<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">3<br>0</span>',
+        's<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        't<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span>/t<span style="white-space:nowrap;"><sub style="line-height:0;">n</sub></span>',
+        'kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        '10<span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span> kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        '&times;10<span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span> kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        '&minus;h<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        '<em>m</em><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        '<strong>m</strong><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        '<em><strong>m</strong></em><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        'h<span style="white-space:nowrap;"><sub style="line-height:0;"><em>0</em></sub></span><span style="white-space:nowrap;"><sup style="line-height:0;"><strong>3</strong></sup></span>',
+        "&micro;g",
+        "&#8491;",
+        'C<span style="white-space:nowrap;"><sub>6</sub></span>H<span style="white-space:nowrap;"><sub>12</sub></span>O<span style="white-space:nowrap;"><sub>6</sub></span>',
     ]
 
 
