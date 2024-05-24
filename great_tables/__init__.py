@@ -12,7 +12,18 @@ from . import vals
 from . import loc
 from . import style
 from ._styles import FromColumn as from_column
-from ._helpers import letters, LETTERS, px, pct, md, html, random_id, system_fonts, nanoplot_options
+from ._helpers import (
+    letters,
+    LETTERS,
+    px,
+    pct,
+    md,
+    html,
+    random_id,
+    system_fonts,
+    define_units,
+    nanoplot_options,
+)
 
 
 __all__ = (
@@ -25,6 +36,7 @@ __all__ = (
     "md",
     "html",
     "system_fonts",
+    "define_units",
     "nanoplot_options",
     "random_id",
     "from_column",
