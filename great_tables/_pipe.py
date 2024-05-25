@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Callable, Any
 
 if TYPE_CHECKING:
@@ -94,7 +96,7 @@ def pipe(self: "GT", func: Callable[..., "GT"], *args: Any, **kwargs: Any) -> "G
     return func(self, *args, **kwargs)
 
 
-def pipes(self: "GT", *funcs: Callable["GT", "GT"]) -> "GT":
+def pipes(self: "GT", *funcs: Callable["GT", "GT"] | list[Callable["GT", "GT"]]) -> "GT":
     """
     Provide a structured way to chain functions for a GT object.
 
@@ -105,7 +107,8 @@ def pipes(self: "GT", *funcs: Callable["GT", "GT"]) -> "GT":
     Parameters
     ----------
     *funcs
-        Multiple functions, each receiving a GT object and returning a GT object.
+        Multiple functions or a list of functions, each receiving a GT object and returning a GT
+        object.
 
     Returns
     -------
@@ -173,11 +176,28 @@ def pipes(self: "GT", *funcs: Callable["GT", "GT"]) -> "GT":
             towny_mini[["name", "land_area_km2", "density_2021"]],
             rowname_col="name",
         ).pipes(
-            *[partial(tbl_style, column=column, color=color) for column, color in zip(columns, colors)]
+            *[partial(tbl_style, column=column, color=color)
+              for column, color in zip(columns, colors)]
+        )
+    )
+    ```
+
+    Alternatively, you can collect all the functions in a list like this:
+
+    ```{python}
+    (
+        GT(
+            towny_mini[["name", "land_area_km2", "density_2021"]],
+            rowname_col="name",
+        ).pipes(
+            [partial(tbl_style, column=column, color=color)
+             for column, color in zip(columns, colors)]
         )
     )
     ```
     """
+    if isinstance(funcs[0], list) and len(funcs) == 1:
+        funcs = funcs[0]
     for func in funcs:
         self = pipe(self, func)
     return self

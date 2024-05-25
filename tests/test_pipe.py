@@ -70,4 +70,8 @@ def test_pipes():
         *[partial(tbl_style, column=column, color=color) for column, color in zip(columns, colors)]
     )
 
-    assert gt1._styles == gt2._styles
+    gt3 = GT(df).pipes(
+        [partial(tbl_style, column=column, color=color) for column, color in zip(columns, colors)]
+    )
+
+    assert gt1._styles == gt2._styles == gt3._styles
