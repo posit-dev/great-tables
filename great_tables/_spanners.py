@@ -583,12 +583,11 @@ def seq_groups(seq: Iterable[str]) -> Generator[tuple[str, int], None, None]:
     iterator = iter(seq)
 
     # TODO: 0-length sequence
-    a = next(iterator, None)
-    if a is None:
-        raise StopIteration
+    a = next(iterator)  # will raise StopIteration if `seq` is empty
 
-    b = next(iterator, None)
-    if b is None:
+    try:
+        b = next(iterator)
+    except StopIteration:
         yield a, 1
         return
 
