@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import itertools
-from typing import TYPE_CHECKING, Any
-
+from typing import TYPE_CHECKING, Any, Iterable
+from collections.abc import Generator
 from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
@@ -565,26 +565,50 @@ def empty_spanner_matrix(
     return [{var: var for var in vars}], vars
 
 
-def seq_groups(seq: list[str]):
-    # TODO: 0-length sequence
-    if len(seq) == 0:
-        raise StopIteration
-    elif len(seq) == 1:
-        yield seq[0], 1
-    else:
-        crnt_ttl = 1
-        for crnt_el, next_el in zip(seq[:-1], seq[1:]):
-            if is_equal(crnt_el, next_el):
-                crnt_ttl += 1
-            else:
-                yield crnt_el, crnt_ttl
-                crnt_ttl = 1
+def pairwise(iterable: Iterable[Any]) -> Generator[tuple[Any, Any], None, None]:
+    """
+    https://docs.python.org/3/library/itertools.html#itertools.pairwise
+    pairwise('ABCDEFG') → AB BC CD DE EF FG
+    """
+    # This function can be replaced by `itertools.pairwise` if we only plan to support
+    # Python 3.10+ in the future.
+    iterator = iter(iterable)
+    a = next(iterator, None)
+    for b in iterator:
+        yield a, b
+        a = b
 
-        # final step has same elements, so we need to yield one last time
+
+def seq_groups(seq: Iterable[str]) -> Generator[tuple[str, int], None, None]:
+    iterator = iter(seq)
+
+    # TODO: 0-length sequence
+    a = next(iterator, None)
+    if a is None:
+        raise StopIteration
+
+    b = next(iterator, None)
+    if b is None:
+        yield a, 1
+        return
+
+    # We can confirm that we have two elements and both are not `None`,
+    # so we can chain them back together as the original seq.
+    seq = itertools.chain([a, b], iterator)
+
+    crnt_ttl = 1
+    for crnt_el, next_el in pairwise(seq):
         if is_equal(crnt_el, next_el):
-            yield crnt_el, crnt_ttl
+            crnt_ttl += 1
         else:
-            yield next_el, 1
+            yield crnt_el, crnt_ttl
+            crnt_ttl = 1
+
+    # final step has same elements, so we need to yield one last time
+    if is_equal(crnt_el, next_el):
+        yield crnt_el, crnt_ttl
+    else:
+        yield next_el, 1
 
 
 def is_equal(x: Any, y: Any) -> bool:

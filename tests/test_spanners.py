@@ -1,3 +1,5 @@
+from collections.abc import Generator
+
 import pandas as pd
 import polars as pl
 import polars.selectors as cs
@@ -11,8 +13,37 @@ from great_tables._spanners import (
     cols_move_to_start,
     empty_spanner_matrix,
     spanners_print_matrix,
+    seq_groups,
     tab_spanner,
 )
+
+
+@pytest.mark.parametrize(
+    "seq, grouped",
+    [
+        ("a", [("a", 1)]),
+        ("abc", [("a", 1), ("b", 1), ("c", 1)]),
+        ("aabbcc", [("a", 2), ("b", 2), ("c", 2)]),
+        ("aabbccd", [("a", 2), ("b", 2), ("c", 2), ("d", 1)]),
+        (iter("xyyzzz"), [("x", 1), ("y", 2), ("z", 3)]),
+        ((i for i in "333221"), [("3", 3), ("2", 2), ("1", 1)]),
+        (["a", "a", "b", None, "c"], [("a", 2), ("b", 1), (None, 1), ("c", 1)]),
+        (["a", "a", "b", None, None, "c"], [("a", 2), ("b", 1), (None, 1), (None, 1), ("c", 1)]),
+    ],
+)
+def test_seq_groups(seq, grouped):
+    g = seq_groups(seq)
+    assert isinstance(g, Generator)
+    assert list(g) == grouped
+
+
+def test_seq_groups_raises():
+    """
+    https://stackoverflow.com/questions/66566960/pytest-raises-does-not-catch-stopiteration-error
+    """
+    with pytest.raises(RuntimeError) as exc_info:
+        next(seq_groups([]))
+    assert "StopIteration" in str(exc_info.value)
 
 
 @pytest.fixture
