@@ -20,6 +20,8 @@ website:
     right:
       - icon: github
         href: https://github.com/posit-dev/great-tables
+      - icon: rss
+        href: blog/index.xml
   sidebar:
     - id: examples
       contents: examples-qmd/*
