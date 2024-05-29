@@ -202,6 +202,13 @@ def tab_spanner(
     return new_data
 
 
+def _validate_sel_cols(sel_cols: list[str], col_vars: list[str]) -> None:
+    if not len(sel_cols):
+        raise Exception("No columns selected.")
+    elif not all(col in col_vars for col in sel_cols):
+        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+
+
 def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
     """Move one or more columns.
 
@@ -264,7 +271,7 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
 
     sel_after = resolve_cols_c(data=data, expr=[after])
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in data._boxhead]
 
     if not len(sel_after):
         raise ValueError(f"Column {after} not found in table.")
@@ -273,13 +280,10 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
             f"Only 1 value should be supplied to `after`, recieved argument: {sel_after}"
         )
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all([col in vars for col in sel_cols]):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols if col not in sel_after]
-    other_columns = [col for col in vars if col not in moving_columns]
+    other_columns = [col for col in col_vars if col not in moving_columns]
 
     indx = other_columns.index(after)
     final_vars = [*other_columns[: indx + 1], *moving_columns, *other_columns[indx + 1 :]]
@@ -346,15 +350,12 @@ def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     sel_cols = resolve_cols_c(data=data, expr=columns)
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in data._boxhead]
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all([col in vars for col in sel_cols]):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols]
-    other_columns = [col for col in vars if col not in moving_columns]
+    other_columns = [col for col in col_vars if col not in moving_columns]
 
     final_vars = [*moving_columns, *other_columns]
 
@@ -415,15 +416,12 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     sel_cols = resolve_cols_c(data=data, expr=columns)
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in data._boxhead]
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all([col in vars for col in sel_cols]):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols]
-    other_columns = [col for col in vars if col not in moving_columns]
+    other_columns = [col for col in col_vars if col not in moving_columns]
 
     final_vars = [*other_columns, *moving_columns]
 
@@ -486,12 +484,9 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     sel_cols = resolve_cols_c(data=data, expr=columns)
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in data._boxhead]
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all(col in vars for col in sel_cols):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     # New boxhead with hidden columns
     new_boxhead = data._boxhead.set_cols_hidden(sel_cols)

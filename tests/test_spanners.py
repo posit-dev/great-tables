@@ -5,6 +5,7 @@ import pytest
 from great_tables import GT, exibble
 from great_tables._gt_data import Boxhead, ColInfo, ColInfoTypeEnum, SpannerInfo, Spanners
 from great_tables._spanners import (
+    _validate_sel_cols,
     cols_hide,
     cols_move,
     cols_move_to_end,
@@ -222,73 +223,101 @@ def test_cols_width_fully_set_pct_2():
     assert gt_tbl._boxhead[2].column_width == "40%"
 
 
-@pytest.mark.parametrize("df_lib, columns", [(pd, "a"), (pl, cs.starts_with("a"))])
-def test_cols_move_single_col(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+@pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "a"), (pl.DataFrame, cs.starts_with("a"))])
+def test_cols_move_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move(src_gt, columns=columns, after="b")
     assert [col.var for col in new_gt._boxhead] == ["b", "a", "c", "d"]
 
 
 @pytest.mark.parametrize(
-    "df_lib, columns", [(pd, ["a", "d"]), (pl, cs.starts_with("a") | cs.ends_with("d"))]
+    "DF, columns",
+    [(pd.DataFrame, ["a", "d"]), (pl.DataFrame, cs.starts_with("a") | cs.ends_with("d"))],
 )
-def test_cols_move_multi_cols(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+def test_cols_move_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move(src_gt, columns=columns, after="b")
     assert [col.var for col in new_gt._boxhead] == ["b", "a", "d", "c"]
 
 
-@pytest.mark.parametrize("df_lib, columns", [(pd, "c"), (pl, cs.starts_with("c"))])
-def test_cols_move_to_start_single_col(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+@pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "c"), (pl.DataFrame, cs.starts_with("c"))])
+def test_cols_move_to_start_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_start(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead] == ["c", "a", "b", "d"]
 
 
 @pytest.mark.parametrize(
-    "df_lib, columns", [(pd, ["c", "d"]), (pl, cs.starts_with("c") | cs.ends_with("d"))]
+    "DF, columns",
+    [(pd.DataFrame, ["c", "d"]), (pl.DataFrame, cs.starts_with("c") | cs.ends_with("d"))],
 )
-def test_cols_move_to_start_multi_cols(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+def test_cols_move_to_start_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_start(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead] == ["c", "d", "a", "b"]
 
 
-@pytest.mark.parametrize("df_lib, columns", [(pd, "c"), (pl, cs.starts_with("c"))])
-def test_cols_move_to_end_single_col(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+@pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "c"), (pl.DataFrame, cs.starts_with("c"))])
+def test_cols_move_to_end_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_end(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead] == ["a", "b", "d", "c"]
 
 
 @pytest.mark.parametrize(
-    "df_lib, columns", [(pd, ["a", "c"]), (pl, cs.starts_with("a") | cs.ends_with("c"))]
+    "DF, columns",
+    [(pd.DataFrame, ["a", "c"]), (pl.DataFrame, cs.starts_with("a") | cs.ends_with("c"))],
 )
-def test_cols_move_to_end_multi_cols(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+def test_cols_move_to_end_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_end(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead] == ["b", "d", "a", "c"]
 
 
-@pytest.mark.parametrize("df_lib, columns", [(pd, "c"), (pl, cs.starts_with("c"))])
-def test_cols_hide_single_col(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+@pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "c"), (pl.DataFrame, cs.starts_with("c"))])
+def test_cols_hide_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_hide(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "d"]
 
 
 @pytest.mark.parametrize(
-    "df_lib, columns", [(pd, ["a", "d"]), (pl, cs.starts_with("a") | cs.ends_with("d"))]
+    "DF, columns",
+    [(pd.DataFrame, ["a", "d"]), (pl.DataFrame, cs.starts_with("a") | cs.ends_with("d"))],
 )
-def test_cols_hide_multi_cols(df_lib, columns):
-    df = getattr(df_lib, "DataFrame")({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+def test_cols_hide_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_hide(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead if col.visible] == ["b", "c"]
+
+
+def test_validate_sel_cols():
+    sel_cols = ["a", "b", "c"]
+    col_vars = ["a", "b", "c", "d"]
+    _validate_sel_cols(sel_cols, col_vars)
+
+
+def test_validate_sel_cols_raises():
+    sel_cols = []
+    col_vars = ["a", "b", "c", "d"]
+    with pytest.raises(Exception) as exc_info:
+        _validate_sel_cols(sel_cols, col_vars)
+
+    assert "No columns selected." in exc_info.value.args[0]
+
+    sel_cols = ["a", "b", "c", "x"]
+    with pytest.raises(ValueError) as exc_info:
+        _validate_sel_cols(sel_cols, col_vars)
+
+    assert (
+        "All `columns` must exist and be visible in the input `data` table."
+        in exc_info.value.args[0]
+    )
