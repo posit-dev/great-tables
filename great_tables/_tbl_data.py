@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import warnings
+import re
+
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union
+from importlib_metadata import version
+from typing import TYPE_CHECKING, Any, Callable, Optional, Tuple, Union
 
 from typing_extensions import TypeAlias
 
@@ -97,6 +100,18 @@ def _raise_not_implemented(data: Any):
 
 def _raise_pandas_required(msg: Any):
     raise ImportError(msg)
+
+
+def _re_version(raw_version: str) -> Tuple[int, int, int]:
+    """Return a semver-like version string as a 3-tuple of integers.
+
+    Note two important caveats: (1) separators like dev are dropped (e.g. "3.2.1dev3" -> (3, 2, 1)),
+    and (2) it simply integer converts parts (e.g. "3.2.0001" -> (3,2,1)).
+    """
+
+    # Note two major caveats
+    regex = r"(?P<major>\d+)\.(?P<minor>\d+).(?P<patch>\d+)"
+    return tuple(map(int, re.match(regex, raw_version).groups()))
 
 
 class Agnostic:
@@ -313,38 +328,64 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
     from operator import or_
     from polars import Expr
 
-    if isinstance(expr, (str, int)):
-        expr = [expr]
-
-    if isinstance(expr, list):
-        all_selectors = [
-            cs.by_name(x) if isinstance(x, str) else cs.by_index(x) if isinstance(x, int) else x
-            for x in expr
-        ]
-
-        _validate_selector_list(all_selectors)
-
-        expr = reduce(or_, all_selectors, cs.by_name())
-
-    col_pos = {k: ii for ii, k in enumerate(data.columns)}
+    pl_version = _re_version(version("polars"))
+    expand_opts = {"strict": False} if pl_version >= (0, 20, 3) else {}
 
     # just in case _selector_proxy_ gets renamed or something
     # it inherits from Expr, so we can just use that in a pinch
     cls_selector = getattr(cs, "_selector_proxy_", Expr)
 
-    if not isinstance(expr, cls_selector):
-        raise TypeError(f"Unsupported selection expr type: {type(expr)}")
+    if isinstance(expr, (str, int)):
+        expr = [expr]
+
+    if isinstance(expr, list):
+        # convert str and int entries to selectors ----
+        all_selectors = [
+            cs.by_name(x) if isinstance(x, str) else cs.by_index(x) if isinstance(x, int) else x
+            for x in expr
+        ]
+
+        # validate all entries ----
+        _validate_selector_list(all_selectors, strict=False if expand_opts else True)
+
+        # perform selection ----
+        # use a dictionary, with values set to True, as an ordered list.
+        selection_set = {}
+
+        # this should be equivalent to reducing selectors using an "or" operator,
+        # which isn't possible when there are selectors mixed with expressions
+        # like pl.col("some_col")
+        for sel in all_selectors:
+            new_cols = cs.expand_selector(data, sel, **expand_opts)
+            for col_name in new_cols:
+                selection_set[col_name] = True
+
+        final_columns = list(selection_set)
+
+    else:
+        if not isinstance(expr, (cls_selector, Expr)):
+            raise TypeError(f"Unsupported selection expr type: {type(expr)}")
+
+        final_columns = cs.expand_selector(data, expr, **expand_opts)
+
+    col_pos = {k: ii for ii, k in enumerate(data.columns)}
 
     # I don't think there's a way to get the columns w/o running the selection
-    final_columns = cs.expand_selector(data, expr)
     return [(col, col_pos[col]) for col in final_columns]
 
 
-def _validate_selector_list(selectors: list):
+def _validate_selector_list(selectors: list, strict=True):
     from polars.selectors import is_selector
+    from polars import Expr
 
     for ii, sel in enumerate(selectors):
-        if not is_selector(sel):
+        if isinstance(sel, Expr):
+            if strict:
+                raise TypeError(
+                    f"Expected a list of selectors, but entry {ii} is a polars Expr, which is only "
+                    "supported for polars versions >= 0.20.3."
+                )
+        elif not is_selector(sel):
             raise TypeError(f"Expected a list of selectors, but entry {ii} is type: {type(sel)}.")
 
 
