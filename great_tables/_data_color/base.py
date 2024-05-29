@@ -266,25 +266,21 @@ def data_color(
         # Replace 'None' and 'np.nan' values in `color_vals` with the `na_color=` color
         color_vals = [na_color if is_na(data_table, x) else x for x in color_vals]
 
-        # For each row, we check if the row index is selected, and then apply a fill to the
-        # corresponding cell using `tab_style()`
-        n_rows = len(resolve_rows_i(self))
-        iter_color_vals = iter(color_vals)
-        for i in range(n_rows):
-            if i in row_pos:
-                color_val = next(iter_color_vals)
-                if autocolor_text:
-                    fgnd_color = _ideal_fgnd_color(bgnd_color=color_val)
+        # for every color value in color_vals, apply a fill to the corresponding cell
+        # by using `tab_style()`
+        for i, color_val in zip(row_pos, color_vals):
+            if autocolor_text:
+                fgnd_color = _ideal_fgnd_color(bgnd_color=color_val)
 
-                    gt_obj = gt_obj.tab_style(
-                        style=[text(color=fgnd_color), fill(color=color_val)],
-                        locations=body(columns=col, rows=[i]),
-                    )
+                gt_obj = gt_obj.tab_style(
+                    style=[text(color=fgnd_color), fill(color=color_val)],
+                    locations=body(columns=col, rows=[i]),
+                )
 
-                else:
-                    gt_obj = gt_obj.tab_style(
-                        style=fill(color=color_val), locations=body(columns=col, rows=[i])
-                    )
+            else:
+                gt_obj = gt_obj.tab_style(
+                    style=fill(color=color_val), locations=body(columns=col, rows=[i])
+                )
     return gt_obj
 
 
