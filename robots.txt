@@ -1,0 +1,1 @@
+Sitemap: https://posit-dev.github.io/great-tables/sitemap.xml
