@@ -283,6 +283,7 @@ def _(data: PlDataFrame, group_key: str) -> dict[Any, list[int]]:
 SelectExpr: TypeAlias = Union[
     list["str | int"],
     PlSelectExpr,
+    list[PlSelectExpr],
     str,
     int,
     Callable[[str], bool],
@@ -329,7 +330,7 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
     from polars import Expr
 
     pl_version = _re_version(version("polars"))
-    expand_opts = {"strict": False} if pl_version >= (0, 20, 3) else {}
+    expand_opts = {"strict": False} if pl_version >= (0, 20, 30) else {}
 
     # just in case _selector_proxy_ gets renamed or something
     # it inherits from Expr, so we can just use that in a pinch
@@ -383,7 +384,7 @@ def _validate_selector_list(selectors: list, strict=True):
             if strict:
                 raise TypeError(
                     f"Expected a list of selectors, but entry {ii} is a polars Expr, which is only "
-                    "supported for polars versions >= 0.20.3."
+                    "supported for polars versions >= 0.20.30."
                 )
         elif not is_selector(sel):
             raise TypeError(f"Expected a list of selectors, but entry {ii} is type: {type(sel)}.")

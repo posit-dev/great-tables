@@ -215,7 +215,7 @@ def resolve_cols_i(
         group_var = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
 
         # TODO: special handling of "stub()"
-        if isinstance(expr, list) and "stub()" in expr:
+        if isinstance(expr, list) and any(isinstance(x, str) and x == "stub()" for x in expr):
             if len(stub_var):
                 return [(stub_var[0], 1)]
 
