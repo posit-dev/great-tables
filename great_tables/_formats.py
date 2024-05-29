@@ -3664,6 +3664,12 @@ def fmt_nanoplot(
             f"\n\nReceived: {columns}"
         )
 
+    if plot_type not in ["line", "bar"]:
+        raise NotImplementedError(
+            "Currently, fmt_nanoplot() only support line or bar as plot_type"
+            f"\n\n Received: {plot_type}"
+        )
+
     # main ----
     # Get the internal data table
     data_tbl = self._tbl_data
