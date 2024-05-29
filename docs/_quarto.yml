@@ -3,6 +3,8 @@ project:
 
 website:
   title: great_tables
+  site-url: https://posit-dev.github.io/great-tables/
+  description: "Absolutely Delightful Table-making in Python"
   page-navigation: true
   google-analytics: "G-CN7Z82M6R7"
   navbar:
@@ -18,6 +20,8 @@ website:
     right:
       - icon: github
         href: https://github.com/posit-dev/great-tables
+      - icon: rss
+        href: blog/index.xml
   sidebar:
     - id: examples
       contents: examples-qmd/*
