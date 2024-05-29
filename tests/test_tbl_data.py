@@ -134,7 +134,7 @@ def test_validate_selector_list_strict_raises():
     with pytest.raises(TypeError) as exc_info:
         _validate_selector_list([pl.col("a")])
 
-    msg = "entry 0 is a polars Expr, which is only supported for polars versions >= 0.20.3."
+    msg = "entry 0 is a polars Expr, which is only supported for polars versions >= 0.20.30."
     assert msg in str(exc_info.value.args[0])
 
 
