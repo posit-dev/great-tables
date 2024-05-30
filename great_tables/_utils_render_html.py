@@ -222,7 +222,7 @@ def create_columns_component_h(data: GTData) -> str:
         # words, each missing value starts a new run of length 1
 
         spanner_ids_level_1_index = list(spanner_ids[level_1_index].values())
-        spanners_rle = list(seq_groups(seq=list(spanner_ids_level_1_index)))
+        spanners_rle = seq_groups(seq=spanner_ids_level_1_index)
 
         # `colspans` matches `spanners` in length; each element is the number of columns that the
         # <th> at that position should span; if 0, then skip the <th> at that position
@@ -354,8 +354,8 @@ def create_columns_component_h(data: GTData) -> str:
                 if v is None:
                     spanners_row[k] = ""
 
-            spanner_ids_index = list(spanners_row.values())
-            spanners_rle = list(seq_groups(seq=list(spanner_ids_index)))
+            spanner_ids_index = spanners_row.values()
+            spanners_rle = seq_groups(seq=spanner_ids_index)
             group_spans = [[x[1]] + [0] * (x[1] - 1) for x in spanners_rle]
             colspans = list(chain(*group_spans))
             level_i_spanners = []
