@@ -891,17 +891,30 @@ def define_units(units_notation: str) -> UnitDefinitionList:
         chemical_formula = False
         exponent = None
 
+        # Case: Chemical formula
+        #   * e.g. "%C6H12O6%", where the '%' characters are used to denote a chemical formula
         if re.match(r"^%.*%$", tokens_list_i) and len(tokens_list_i) > 2:
-            # Case where the unit is marked as a chemical formula
+
+            # This case:
+            #   - strips the '%' characters and and sets the `chemical_formula` attribute to `True`
 
             chemical_formula = True
 
             # Extract the formula w/o the surrounding `%` signs
             unit = re.sub(r"^%|%$", "", tokens_list_i)
 
+        # Case: Subscript and exponent present *and* overstriking is required
+        #   * the '[' and ']' characters are used to combine the subscript and exponent parts
+        #     (the text following '_' and '^', in that order) and the surrounding square
+        #     brackets indicates that overstriking is necessary
+        #   * overstriking here means that the subscript and exponent are placed on top of each
+        #     other, with left alignment
         elif re.search(r".+?\[_.+?\^.+?\]", tokens_list_i):
-            # Case where both a subscript and exponent are present and
-            # an overstrike arrangement is necessary
+
+            # This case:
+            #   - sets the `sub_super_overstrike` attribute to `True`
+            #   - extracts the unit w/o subscript from the string
+            #   - extracts the subscript and exponent text as separate variables
 
             sub_super_overstrike = True
 
@@ -919,9 +932,15 @@ def define_units(units_notation: str) -> UnitDefinitionList:
             # any `_`; this is the exponent
             exponent = re.sub(r"_.+?\^(.+?)", r"\1", sub_exponent)
 
+        # Case: Subscript and exponent present (overstriking is *not* required here)
+        #   * the combination of the subscript and exponent parts (in that order) after some
+        #     text is indicated by the '_' and '^' characters
         elif re.search(r".+?_.+?\^.+?", tokens_list_i):
-            # Case where both a subscript and exponent are present and
-            # the subscript is set before the exponent
+
+            # This case:
+            #   - sets the `sub_super_overstrike` attribute to `True`
+            #   - extracts the unit w/o subscript from the string
+            #   - extracts the subscript and exponent text from the string
 
             # Extract the unit w/o subscript from the string
             unit = re.sub(r"^(.+?)_.+?\^.+?$", r"\1", tokens_list_i)
@@ -937,22 +956,27 @@ def define_units(units_notation: str) -> UnitDefinitionList:
             # any `_`; this is the exponent
             exponent = re.sub(r"^_.+?\^(.+?)$", r"\1", sub_exponent)
 
+        # Case: Only an exponent is present
+        #   * the previous cases handled the presence of a subscript and exponent, but this case
+        #     only handles the presence of an exponent (indicated by the '^' character anywhere
+        #     in the string)
         elif re.search(r"\^", tokens_list_i):
-            # Case where only an exponent is present
 
             # Extract the unit w/o exponent from the string
             unit = re.sub(r"^(.+?)\^.+?$", r"\1", tokens_list_i)
 
-            # Obtain only the exponent/subscript portion of the string
+            # Obtain only the exponent portion of the string
             exponent = re.sub(r"^.+?\^(.+?)$", r"\1", tokens_list_i)
 
+        # Case: Only a subscript is present
+        #   * this case handles the presence of a single subscript (indicated by the '_' character
+        #     anywhere in the string)
         elif re.search(r"_", tokens_list_i):
-            # Case where only a subscript is present
 
-            # Extract the unit w/o exponent from the string
+            # Extract the unit w/o subscript from the string
             unit = re.sub(r"^(.+?)_.+?$", r"\1", tokens_list_i)
 
-            # Obtain only the exponent/subscript portion of the string
+            # Obtain only the subscript portion of the string
             unit_subscript = re.sub(r"^.+?_(.+?)$", r"\1", tokens_list_i)
         else:
             unit = tokens_list_i
