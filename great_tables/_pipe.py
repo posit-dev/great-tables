@@ -1,12 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Any
+from typing import TYPE_CHECKING, Callable
+from typing_extensions import ParamSpec
 
 if TYPE_CHECKING:
     from .gt import GT
 
 
-def pipe(self: "GT", func: Callable[..., "GT"], *args: Any, **kwargs: Any) -> "GT":
+P = ParamSpec("P")
+
+
+def pipe(self: "GT", func: Callable[P, "GT"], *args: P.args, **kwargs: P.kwargs) -> "GT":
     """
     Provide a structured way to chain a function for a GT object.
 
