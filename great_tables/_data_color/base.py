@@ -21,7 +21,7 @@ RGBColor: TypeAlias = tuple[int, int, int]
 def data_color(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: RowSelectExpr = None,
+    include_last_row: bool = True,
     palette: str | list[str] | None = None,
     domain: list[str] | list[int] | list[float] | None = None,
     na_color: str | None = None,
@@ -49,10 +49,10 @@ def data_color(
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    rows
-        In conjunction with `columns=`, we can specify which rows should be colored. By default,
-        all rows in the targeted columns will be colored. Alternatively, we can provide a list
-        of row indices.
+    include_last_row
+        Whether to include the last row for color styling. The default is set to `True`, but it
+        can be useful to set it to `False` if the last row is a summary or subtotal row of the
+        table.
     palette
         The color palette to use. This should be a list of colors (e.g., `["#FF0000", "#00FF00",
         "#0000FF"]`). A ColorBrewer palette could also be used, just supply the name (reference
@@ -213,8 +213,12 @@ def data_color(
     else:
         columns_resolved = resolve_cols_c(data=self, expr=columns)
 
-    row_res = resolve_rows_i(self, rows)
+    row_res = resolve_rows_i(self)  # get all rows
     row_pos = [name_pos[1] for name_pos in row_res]
+    if not include_last_row:
+        # Excluding the last row for now;
+        # adjustments may be needed after implementing `summary_rows()`.
+        row_pos = row_pos[:-1]
 
     gt_obj = self
 
@@ -268,7 +272,7 @@ def data_color(
 
         # for every color value in color_vals, apply a fill to the corresponding cell
         # by using `tab_style()`
-        for i, color_val in zip(row_pos, color_vals):
+        for i, color_val in enumerate(color_vals):
             if autocolor_text:
                 fgnd_color = _ideal_fgnd_color(bgnd_color=color_val)
 
