@@ -325,8 +325,6 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
     # Seems to be polars.selectors._selector_proxy_.
     import polars.selectors as cs
 
-    from functools import reduce
-    from operator import or_
     from polars import Expr
 
     pl_version = _re_version(version("polars"))
@@ -347,7 +345,7 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
         ]
 
         # validate all entries ----
-        _validate_selector_list(all_selectors, strict=False if expand_opts else True)
+        _validate_selector_list(all_selectors, **expand_opts)
 
         # perform selection ----
         # use a dictionary, with values set to True, as an ordered list.
