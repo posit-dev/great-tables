@@ -8,6 +8,7 @@ from great_tables._tbl_data import (
     _get_cell,
     _get_column_dtype,
     _set_cell,
+    _validate_selector_list,
     cast_frame_to_string,
     create_empty_frame,
     eval_select,
@@ -81,6 +82,10 @@ def test_eval_select_with_list(df: DataFrameLike, expr):
     [
         pl.selectors.exclude("col3"),
         pl.selectors.starts_with("col1") | pl.selectors.starts_with("col2"),
+        [pl.col("col1"), pl.col("col2")],
+        [pl.col("col1"), pl.selectors.by_name("col2")],
+        pl.col("col1", "col2"),
+        pl.all().exclude("col3"),
     ],
 )
 def test_eval_select_with_list_pl_selector(expr):
@@ -123,6 +128,14 @@ def test_eval_selector_polars_list_raises():
         eval_select(df, expr)
 
     assert "entry 1 is type: <class 'float'>" in str(exc_info.value.args[0])
+
+
+def test_validate_selector_list_strict_raises():
+    with pytest.raises(TypeError) as exc_info:
+        _validate_selector_list([pl.col("a")])
+
+    msg = "entry 0 is a polars Expr, which is only supported for polars versions >= 0.20.30."
+    assert msg in str(exc_info.value.args[0])
 
 
 def test_create_empty_frame(df: DataFrameLike):

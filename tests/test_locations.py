@@ -33,6 +33,11 @@ def test_resolve_cols_i_gt_data():
     assert resolve_cols_i(gt, ["x", "a"]) == [("x", 2), ("a", 0)]
 
 
+def test_resolve_cols_i_polars_in_list():
+    gt = GT(pl.DataFrame({"a": [], "b": [], "x": []}))
+    assert resolve_cols_i(gt, [pl.col("x"), "a"]) == [("x", 2), ("a", 0)]
+
+
 def test_resolve_cols_i_strings():
     df = pd.DataFrame(columns=["a", "b", "x"])
     assert resolve_cols_i(df, ["x", "a"]) == [("x", 2), ("a", 0)]
