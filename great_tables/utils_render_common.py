@@ -13,7 +13,7 @@ TupleStartFinal: TypeAlias = tuple[int, int]
 
 def get_row_reorder_df(groups: RowGroups, stub_df: Stub) -> list[TupleStartFinal]:
     # Get the number of non-None entries in the `groupname_col`
-    n_stub_entries = len([entry for entry in stub_df if entry.group_id is not None])
+    n_stub_entries = len([entry for entry in stub_df.rows if entry.group_id is not None])
 
     # Raise a ValueError if there are row group entries but no RowGroups
     if n_stub_entries and not len(groups):
@@ -22,7 +22,7 @@ def get_row_reorder_df(groups: RowGroups, stub_df: Stub) -> list[TupleStartFinal
     # If there aren't any row groups then return a list of tuples that don't lead
     # to any resorting later on (e.g., `[(0, 0), (1, 1), (2, 2) ... (n, n)]`)
     if not len(groups):
-        indices = range(len(stub_df))
+        indices = range(len(stub_df.rows))
 
         # TODO: is this used in indexing? If so, we may need to use
         # ii + 1 for the final part?
@@ -30,7 +30,9 @@ def get_row_reorder_df(groups: RowGroups, stub_df: Stub) -> list[TupleStartFinal
 
     # where in the group each element is
     # TODO: this doesn't yield consistent values
-    groups_pos = [groups.index(row.group_id) if row.group_id is not None else -1 for row in stub_df]
+    groups_pos = [
+        groups.index(row.group_id) if row.group_id is not None else -1 for row in stub_df.rows
+    ]
 
     # From running test_body_reassemble():
     # print(groups_pos)

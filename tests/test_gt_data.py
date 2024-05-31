@@ -2,22 +2,26 @@ import pandas as pd
 from great_tables._gt_data import Boxhead, ColInfo, RowInfo, Stub
 
 
-def test_stub_construct_manual():
-    stub = Stub([RowInfo(0), RowInfo(1)])
-    assert stub[0] == RowInfo(0)
-
-
 def test_stub_construct_df():
-    stub = Stub(pd.DataFrame({"x": [8, 9]}))
+    stub = Stub.from_data(pd.DataFrame({"x": [8, 9]}))
 
     assert len(stub) == 2
     assert stub[0] == RowInfo(0)
     assert stub[1] == RowInfo(1)
 
 
+def test_stub_construct_manual():
+    stub = Stub.from_data(pd.DataFrame({"x": [8, 9]}))
+
+    stub2 = Stub(stub.rows, stub.group_rows)
+    assert stub2[0] == RowInfo(0)
+
+
 def test_stub_construct_df_rowname():
     # TODO: remove groupname_col from here
-    stub = Stub(pd.DataFrame({"x": [8, 9], "y": [1, 2]}), rowname_col="x", groupname_col=None)
+    stub = Stub.from_data(
+        pd.DataFrame({"x": [8, 9], "y": [1, 2]}), rowname_col="x", groupname_col=None
+    )
 
 
 def test_boxhead_reorder():

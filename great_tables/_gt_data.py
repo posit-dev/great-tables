@@ -5,11 +5,12 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
-from typing import Any, Callable, TypeVar, overload
+from typing import Any, Callable, Tuple, TypeVar, overload
 
 from typing_extensions import Self, TypeAlias
 
 # TODO: move this class somewhere else (even gt_data could work)
+from ._options import tab_options
 from ._styles import CellStyle
 from ._tbl_data import (
     DataFrameLike,
@@ -29,7 +30,17 @@ T = TypeVar("T")
 
 
 # GT Data ----
-__GT = None
+
+
+def _prep_gt(data, rowname_col, groupname_col, auto_align) -> Tuple[Stub, Boxhead, GroupRows]:
+    stub = Stub.from_data(data, rowname_col=rowname_col, groupname_col=groupname_col)
+    boxhead = Boxhead(
+        data, auto_align=auto_align, rowname_col=rowname_col, groupname_col=groupname_col
+    )
+
+    group_rows = stub.group_rows
+
+    return stub, boxhead, group_rows
 
 
 @dataclass(frozen=True)
@@ -74,13 +85,8 @@ class GTData:
         locale: str | None = None,
     ):
         data = validate_frame(data)
-        stub = Stub(data, rowname_col=rowname_col, groupname_col=groupname_col)
-        boxhead = Boxhead(
-            data, auto_align=auto_align, rowname_col=rowname_col, groupname_col=groupname_col
-        )
-
-        row_groups = stub._to_row_groups()
-        group_rows = GroupRows(data, group_key=groupname_col).reorder(row_groups)
+        stub, boxhead, group_rows = _prep_gt(data, rowname_col, groupname_col, auto_align)
+        row_groups = stub.group_ids
 
         if id is not None:
             options = Options(table_id=OptionsInfo(True, "table", "value", id))
@@ -104,6 +110,33 @@ class GTData:
             _formats=[],
             _substitutions=[],
             _options=options,
+        )
+
+    def init(
+        self,
+        rowname_col: str | None = None,
+        groupname_col: str | None = None,
+        auto_align: bool = True,
+        id: str | None = None,
+        locale: str | None = None,
+    ):
+        stub, boxhead, group_rows = _prep_gt(self._tbl_data, rowname_col, groupname_col, auto_align)
+        row_groups = stub.group_ids
+        # set id if not None
+        # self._options
+        locale = Locale(locale) if locale is not None else self._locale
+
+        if id is not None:
+            res = tab_options(self)
+        else:
+            res = self
+
+        return res._replace(
+            _stub=stub,
+            _boxhead=boxhead,
+            _group_rows=group_rows,
+            _row_groups=row_groups,
+            _locale=locale,
         )
 
 
@@ -511,50 +544,80 @@ class RowInfo:
     # `built` = False
 
 
-class Stub(_Sequence[RowInfo]):
+class Stub:
+    """Container for row information and labels, along with grouping information.
+
+    This class handles the following:
+
+      * Creating row and grouping information from data.
+      * Determining row order for final presentation.
+
+    Note that the order of entries in .group_rows determines final rendering order.
+    When .group_rows is empty, the original data order is used.
+    """
+
+    # TODO: the rows get reordered at various points, but are never used in rendering?
+    # the html rendering uses group_rows to index into the underlying DataFrame
+
     _d: list[RowInfo]
+    rows: list[RowInfo]
+    group_rows: GroupRows
 
-    def __init__(
-        self,
-        data: TblData | list[RowInfo],
-        rowname_col: str | None = None,
-        groupname_col: str | None = None,
-    ):
-        if isinstance(data, list):
-            self._d = list(data)
+    def __init__(self, rows: list[RowInfo], group_rows: GroupRows):
+        self.rows = self._d = list(rows)
+        self.group_rows = group_rows
 
+    @classmethod
+    def from_data(cls, data, rowname_col: str | None = None, groupname_col: str | None = None):
+        # Obtain a list of row indices from the data and initialize
+        # the `_stub` from that
+        row_indices = list(range(n_rows(data)))
+
+        if groupname_col is not None:
+            group_id = to_list(data[groupname_col])
         else:
-            # Obtain a list of row indices from the data and initialize
-            # the `_stub` from that
-            row_indices = list(range(n_rows(data)))
+            group_id = [None] * n_rows(data)
 
-            if groupname_col is not None:
-                group_id = to_list(data[groupname_col])
-            else:
-                group_id = [None] * n_rows(data)
+        if rowname_col is not None:
+            row_names = to_list(data[rowname_col])
+        else:
+            row_names = [None] * n_rows(data)
 
-            if rowname_col is not None:
-                row_names = to_list(data[rowname_col])
-            else:
-                row_names = [None] * n_rows(data)
+        # Obtain the column names from the data and initialize the
+        # `_stub` from that
+        row_info = [RowInfo(*i) for i in zip(row_indices, group_id, row_names)]
 
-            # Obtain the column names from the data and initialize the
-            # `_stub` from that
-            self._d = [RowInfo(*i) for i in zip(row_indices, group_id, row_names)]
+        # create groups, and ensure they're ordered by first observed
+        group_names = list({row.group_id: True for row in row_info if row.group_id is not None})
+        group_rows = GroupRows(data, group_key=groupname_col).reorder(group_names)
 
-    def _to_row_groups(self) -> RowGroups:
-        # get unique group_ids, using dict as an ordered set
-        group_ids = list({row.group_id: True for row in self if row.group_id is not None})
+        return cls(row_info, group_rows)
 
-        return group_ids
+    @property
+    def group_ids(self) -> RowGroups:
+        return [group.group_id for group in self.group_rows]
+
+    def reorder_rows(self, indices) -> Self:
+        new_rows = [self.rows[ii] for ii in indices]
+
+        return self.__class__(new_rows, self.group_rows)
+
+    def __iter__(self):
+        return iter(self.rows)
+
+    def __len__(self):
+        return len(self.rows)
+
+    def __getitem__(self, ii: int):
+        return self.rows[ii]
 
     def _get_stub_components(self) -> list[str]:
         stub_components: list[str] = []
 
-        if any(entry.group_id is not None for entry in self):
+        if any(entry.group_id is not None for entry in self.rows):
             stub_components.append("group_id")
 
-        if any(entry.rowname is not None for entry in self):
+        if any(entry.rowname is not None for entry in self.rows):
             stub_components.append("row_id")
 
         return stub_components
@@ -651,8 +714,8 @@ class GroupRows(_Sequence[GroupRowInfo]):
             from ._tbl_data import group_splits
 
             self._d = []
-            for grp_key, ind in group_splits(data, group_key=group_key).items():
-                self._d.append(GroupRowInfo(grp_key, indices=ind))
+            for group_id, ind in group_splits(data, group_key=group_key).items():
+                self._d.append(GroupRowInfo(group_id, indices=ind))
 
     def reorder(self, group_ids: list[str | MISSING_GROUP]) -> Self:
         # TODO: validate all group_ids are in data
