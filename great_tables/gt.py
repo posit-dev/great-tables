@@ -289,11 +289,11 @@ class GT(
         # built._body = _migrate_unformatted_to_output(body)
 
         # built._perform_col_merge()
-        final_body = body_reassemble(built._body, built._row_groups, built._stub, built._boxhead)
+        final_body = body_reassemble(built._body, built._stub, built._boxhead)
 
         # Reordering of the metadata elements of the table
 
-        final_stub = reorder_stub_df(built._stub, built._row_groups)
+        final_stub = reorder_stub_df(built._stub)
         # self = self.reorder_footnotes()
         # self = self.reorder_styles()
 

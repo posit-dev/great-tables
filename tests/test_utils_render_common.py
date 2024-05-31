@@ -10,7 +10,7 @@ def test_get_row_reorder_df_simple():
         [GroupRowInfo("a", indices=[0, 2]), GroupRowInfo("b", indices=[1])],
     )
 
-    start_end = get_row_reorder_df(groups, stub)
+    start_end = get_row_reorder_df(stub, groups)
 
     assert start_end == [(0, 1), (1, 0), (2, 2)]
 
@@ -23,4 +23,4 @@ def test_get_row_reorder_df_no_groups():
     )
 
     with pytest.raises(ValueError):
-        get_row_reorder_df(groups, stub)
+        get_row_reorder_df(stub, groups)

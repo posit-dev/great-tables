@@ -35,7 +35,7 @@ def create_heading_component_h(data: GTData) -> StringBuilder:
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
     n_cols_total = data._boxhead._get_effective_number_of_columns(
-        stub=data._stub, row_groups=data._row_groups, options=data._options
+        stub=data._stub, options=data._options
     )
 
     if has_subtitle:
@@ -79,7 +79,7 @@ def create_columns_component_h(data: GTData) -> str:
     # body = data._body
 
     # Get vector representation of stub layout
-    stub_layout = data._stub._get_stub_layout(row_groups=data._row_groups, options=data._options)
+    stub_layout = data._stub._get_stub_layout(options=data._options)
 
     # Determine the finalized number of spanner rows
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
@@ -437,11 +437,11 @@ def create_body_component_h(data: GTData) -> str:
 
     stub_var = data._boxhead._get_stub_column()
 
-    stub_layout = data._stub._get_stub_layout(row_groups=data._row_groups, options=data._options)
+    stub_layout = data._stub._get_stub_layout(options=data._options)
 
     has_stub_column = "rowname" in stub_layout
     has_two_col_stub = "group_label" in stub_layout
-    has_groups = data._row_groups is not None and len(data._row_groups) > 0
+    has_groups = data._stub.group_ids is not None and len(data._stub.group_ids) > 0
 
     # If there is a stub, then prepend that to the `column_vars` list
     if stub_var is not None:
@@ -459,7 +459,7 @@ def create_body_component_h(data: GTData) -> str:
 
         if has_stub_column and has_groups and not has_two_col_stub:
             colspan_value = data._boxhead._get_effective_number_of_columns(
-                stub=data._stub, row_groups=data._row_groups, options=data._options
+                stub=data._stub, options=data._options
             )
 
             # Generate a row that contains the row group label (this spans the entire row) but
@@ -536,7 +536,7 @@ def create_source_notes_component_h(data: GTData) -> str:
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
     n_cols_total = data._boxhead._get_effective_number_of_columns(
-        stub=data._stub, row_groups=data._row_groups, options=data._options
+        stub=data._stub, options=data._options
     )
 
     # Handle the multiline source notes case (each note takes up one line)

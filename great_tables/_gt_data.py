@@ -38,9 +38,7 @@ def _prep_gt(data, rowname_col, groupname_col, auto_align) -> Tuple[Stub, Boxhea
         data, auto_align=auto_align, rowname_col=rowname_col, groupname_col=groupname_col
     )
 
-    group_rows = stub.group_rows
-
-    return stub, boxhead, group_rows
+    return stub, boxhead
 
 
 @dataclass(frozen=True)
@@ -49,7 +47,6 @@ class GTData:
     _body: Body
     _boxhead: Boxhead
     _stub: Stub
-    _row_groups: RowGroups
     _group_rows: GroupRows
     _spanners: Spanners
     _heading: Heading
@@ -85,8 +82,7 @@ class GTData:
         locale: str | None = None,
     ):
         data = validate_frame(data)
-        stub, boxhead, group_rows = _prep_gt(data, rowname_col, groupname_col, auto_align)
-        row_groups = stub.group_ids
+        stub, boxhead = _prep_gt(data, rowname_col, groupname_col, auto_align)
 
         if id is not None:
             options = Options(table_id=OptionsInfo(True, "table", "value", id))
@@ -98,8 +94,7 @@ class GTData:
             _body=Body.from_empty(data),
             _boxhead=boxhead,  # uses get_tbl_data()
             _stub=stub,  # uses get_tbl_data
-            _row_groups=row_groups,
-            _group_rows=group_rows,
+            _group_rows=stub.group_rows,
             _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=None,
@@ -494,12 +489,10 @@ class Boxhead(_Sequence[ColInfo]):
 
     # Obtain the number of visible columns in the built table; this should
     # account for the size of the stub in the final, built table
-    def _get_effective_number_of_columns(
-        self, stub: Stub, row_groups: RowGroups, options: Options
-    ) -> int:
+    def _get_effective_number_of_columns(self, stub: Stub, options: Options) -> int:
         n_data_cols = self._get_number_of_visible_data_columns()
 
-        stub_layout = stub._get_stub_layout(row_groups=row_groups, options=options)
+        stub_layout = stub._get_stub_layout(options=options)
         # Once the stub is defined in the package, we need to account
         # for the width of the stub at build time to fully obtain the number
         # of visible columns in the built table
@@ -597,6 +590,11 @@ class Stub:
     def group_ids(self) -> RowGroups:
         return [group.group_id for group in self.group_rows]
 
+    @property
+    def final_group_ids(self) -> list[str]:
+        # Note: re-ordered groups is currently unsupported, but should set this attribute.
+        return self.group_ids
+
     def reorder_rows(self, indices) -> Self:
         new_rows = [self.rows[ii] for ii in indices]
 
@@ -623,9 +621,9 @@ class Stub:
         return stub_components
 
     # Determine whether the table should have row group labels set within a column in the stub
-    def _stub_group_names_has_column(self, row_groups: RowGroups, options: Options) -> bool:
+    def _stub_group_names_has_column(self, options: Options) -> bool:
         # If there aren't any row groups then the result is always False
-        if len(row_groups) < 1:
+        if len(self.group_ids) < 1:
             return False
 
         # Given that there are row groups, we need to look at the option `row_group_as_column` to
@@ -639,12 +637,10 @@ class Stub:
 
         return row_group_as_column
 
-    def _get_stub_layout(self, row_groups: RowGroups, options: Options) -> list[str]:
+    def _get_stub_layout(self, options: Options) -> list[str]:
         # Determine which stub components are potentially present as columns
         stub_rownames_is_column = "row_id" in self._get_stub_components()
-        stub_groupnames_is_column = self._stub_group_names_has_column(
-            row_groups=row_groups, options=options
-        )
+        stub_groupnames_is_column = self._stub_group_names_has_column(options=options)
 
         # Get the potential total number of columns in the table stub
         n_stub_cols = stub_rownames_is_column + stub_groupnames_is_column

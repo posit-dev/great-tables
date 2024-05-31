@@ -14,10 +14,9 @@ def gt_tbl():
 
 
 def test_gt_replace(gt_tbl: GT):
-    row_groups = ["x"]
-    new_gt_tbl = gt_tbl._replace(_row_groups=row_groups)
+    new_gt_tbl = gt_tbl._replace(_has_built=True)
 
-    assert new_gt_tbl._row_groups is row_groups
+    assert new_gt_tbl._has_built
 
 
 def test_gt_object_prerender(gt_tbl: GT):
@@ -32,7 +31,6 @@ def test_gt_object_prerender(gt_tbl: GT):
     assert isinstance(gt_tbl._source_notes, list)
     assert isinstance(gt_tbl._footnotes, list)
     assert isinstance(gt_tbl._styles, list)
-    assert isinstance(gt_tbl._row_groups, list)
     assert type(gt_tbl._locale).__name__ == "Locale"
 
 
