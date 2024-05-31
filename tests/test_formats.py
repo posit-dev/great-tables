@@ -1534,7 +1534,7 @@ def test_fmt_image_path():
         # 10. hyphen is transformed to minus sign when preceding a unit
         (
             "-h^2",
-            '&minus;h<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+            '−h<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
         ),
         # 11. italicization of base unit
         (
@@ -1557,13 +1557,13 @@ def test_fmt_image_path():
             'h<span style="white-space:nowrap;"><sub style="line-height:0;"><em>0</em></sub></span><span style="white-space:nowrap;"><sup style="line-height:0;"><strong>3</strong></sup></span>',
         ),
         # 15. transformation of common units from ASCII to preferred form
-        ("ug", "&micro;g"),
+        ("ug", "µg"),
         # 16. insertion of common symbols and Greek letters via `:[symbol name]:`
-        (":angstrom:", "&#8491;"),
+        (":angstrom:", "Å"),
         # 17. use of chemical formulas via `%[chemical formula]%`
         (
             "%C6H12O6%",
-            'C<span style="white-space:nowrap;"><sub>6</sub></span>H<span style="white-space:nowrap;"><sub>12</sub></span>O<span style="white-space:nowrap;"><sub>6</sub></span>',
+            'C<span style="white-space:nowrap;"><sub style="line-height:0;">6</sub></span>H<span style="white-space:nowrap;"><sub style="line-height:0;">12</sub></span>O<span style="white-space:nowrap;"><sub style="line-height:0;">6</sub></span>',
         ),
     ],
 )
