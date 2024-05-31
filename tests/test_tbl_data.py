@@ -1,3 +1,4 @@
+import math
 import pandas as pd
 import polars as pl
 import polars.testing
@@ -13,6 +14,7 @@ from great_tables._tbl_data import (
     create_empty_frame,
     eval_select,
     get_column_names,
+    group_splits,
     is_series,
     reorder,
     to_frame,
@@ -128,6 +130,35 @@ def test_eval_selector_polars_list_raises():
         eval_select(df, expr)
 
     assert "entry 1 is type: <class 'float'>" in str(exc_info.value.args[0])
+
+
+@pytest.mark.parametrize("Frame", [pd.DataFrame, pl.DataFrame])
+def test_group_splits_pd(Frame):
+    df = Frame({"g": ["b", "a", "b", "c"]})
+
+    splits = group_splits(df, "g")
+    assert set(splits.keys()) == {"a", "b", "c"}
+    assert splits["b"] == [0, 2]
+    assert splits["a"] == [1]
+    assert splits["c"] == [3]
+
+
+def test_group_splits_pd_na():
+    df = pd.DataFrame({"g": ["b", "a", None]})
+
+    splits = group_splits(df, "g")
+    assert len(splits.keys()) == 3
+    nan_key = [k for k in splits if isinstance(k, float) and math.isnan(k)][0]
+
+    assert splits[nan_key] == [2]
+
+
+def test_group_splits_pl_na():
+    df = pl.DataFrame({"g": ["b", "a", None]})
+
+    splits = group_splits(df, "g")
+    assert set(splits.keys()) == {"b", "a", None}
+    assert splits[None] == [2]
 
 
 def test_validate_selector_list_strict_raises():
