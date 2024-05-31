@@ -47,7 +47,6 @@ class GTData:
     _body: Body
     _boxhead: Boxhead
     _stub: Stub
-    _group_rows: GroupRows
     _spanners: Spanners
     _heading: Heading
     _stubhead: Stubhead
@@ -94,7 +93,6 @@ class GTData:
             _body=Body.from_empty(data),
             _boxhead=boxhead,  # uses get_tbl_data()
             _stub=stub,  # uses get_tbl_data
-            _group_rows=stub.group_rows,
             _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=None,
@@ -115,8 +113,8 @@ class GTData:
         id: str | None = None,
         locale: str | None = None,
     ):
-        stub, boxhead, group_rows = _prep_gt(self._tbl_data, rowname_col, groupname_col, auto_align)
-        row_groups = stub.group_ids
+        stub, boxhead = _prep_gt(self._tbl_data, rowname_col, groupname_col, auto_align)
+
         # set id if not None
         # self._options
         locale = Locale(locale) if locale is not None else self._locale
@@ -129,8 +127,6 @@ class GTData:
         return res._replace(
             _stub=stub,
             _boxhead=boxhead,
-            _group_rows=group_rows,
-            _row_groups=row_groups,
             _locale=locale,
         )
 
@@ -599,6 +595,9 @@ class Stub:
         new_rows = [self.rows[ii] for ii in indices]
 
         return self.__class__(new_rows, self.group_rows)
+
+    def group_indices_map(self) -> list[tuple[int, str | None]]:
+        return self.group_rows.indices_map(len(self.rows))
 
     def __iter__(self):
         return iter(self.rows)

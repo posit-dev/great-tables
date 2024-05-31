@@ -452,7 +452,7 @@ def create_body_component_h(data: GTData) -> str:
     # iterate over rows (ordered by groupings)
     prev_group_label = None
 
-    ordered_index = data._group_rows.indices_map(n_rows(data._tbl_data))
+    ordered_index = data._stub.group_indices_map()
 
     for i, group_label in ordered_index:
         body_cells: list[str] = []
