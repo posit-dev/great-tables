@@ -1,3 +1,4 @@
+from collections.abc import Generator
 import pytest
 from great_tables._utils import (
     _assert_list_is_subset,
@@ -11,6 +12,7 @@ from great_tables._utils import (
     _unique_set,
     heading_has_subtitle,
     heading_has_title,
+    seq_groups,
 )
 
 
@@ -125,3 +127,37 @@ def test_collapse_list_elements():
 def test_insert_into_list():
     lst = ["b", "c"]
     assert _insert_into_list(lst, "a") == ["a", "b", "c"]
+
+
+@pytest.mark.parametrize(
+    "seq, grouped",
+    [
+        ("a", [("a", 1)]),
+        ("abc", [("a", 1), ("b", 1), ("c", 1)]),
+        ("aabbcc", [("a", 2), ("b", 2), ("c", 2)]),
+        ("aabbccd", [("a", 2), ("b", 2), ("c", 2), ("d", 1)]),
+        (("a", "b", "c"), [("a", 1), ("b", 1), ("c", 1)]),
+        (("aa", "bb", "cc"), [("aa", 1), ("bb", 1), ("cc", 1)]),
+        (iter("xyyzzz"), [("x", 1), ("y", 2), ("z", 3)]),
+        ((i for i in "333221"), [("3", 3), ("2", 2), ("1", 1)]),
+        (["a", "a", "b", None, "c"], [("a", 2), ("b", 1), (None, 1), ("c", 1)]),
+        (["a", "a", "b", None, None, "c"], [("a", 2), ("b", 1), (None, 1), (None, 1), ("c", 1)]),
+        ([None, "a", "a", "b"], [(None, 1), ("a", 2), ("b", 1)]),
+        ([None, None, "a", "a", "b"], [(None, 1), (None, 1), ("a", 2), ("b", 1)]),
+        ([None, None, None, "a", "a", "b"], [(None, 1), (None, 1), (None, 1), ("a", 2), ("b", 1)]),
+        ([None, None, None], [(None, 1), (None, 1), (None, 1)]),
+    ],
+)
+def test_seq_groups(seq, grouped):
+    g = seq_groups(seq)
+    assert isinstance(g, Generator)
+    assert list(g) == grouped
+
+
+def test_seq_groups_raises():
+    """
+    https://stackoverflow.com/questions/66566960/pytest-raises-does-not-catch-stopiteration-error
+    """
+    with pytest.raises(RuntimeError) as exc_info:
+        next(seq_groups([]))
+    assert "StopIteration" in str(exc_info.value)
