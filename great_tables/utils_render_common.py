@@ -13,7 +13,7 @@ TupleStartFinal: TypeAlias = tuple[int, int]
 
 def get_row_reorder_df(stub_df: Stub, groups: RowGroups | None = None) -> list[TupleStartFinal]:
     if groups is None:
-        groups = stub_df.final_group_ids
+        groups = stub_df.group_ids
 
     # Get the number of non-None entries in the `groupname_col`
     n_stub_entries = len([entry for entry in stub_df.rows if entry.group_id is not None])

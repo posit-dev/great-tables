@@ -24,6 +24,16 @@ def test_stub_construct_df_rowname():
     )
 
 
+def test_stub_order_groups():
+    stub = Stub.from_data(pd.DataFrame({"g": ["b", "a", "b", "c"]}), groupname_col="g")
+    assert stub.group_ids == ["b", "a", "c"]
+
+    stub2 = stub.order_groups(["c", "a", "b"])
+    assert stub2.group_ids == ["c", "a", "b"]
+
+    assert stub2.group_indices_map() == [(3, "c"), (1, "a"), (0, "b"), (2, "b")]
+
+
 def test_boxhead_reorder():
     boxh = Boxhead([ColInfo("a"), ColInfo("b"), ColInfo("c")])
     new_boxh = boxh.reorder(["b", "a", "c"])

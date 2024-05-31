@@ -586,15 +586,14 @@ class Stub:
     def group_ids(self) -> RowGroups:
         return [group.group_id for group in self.group_rows]
 
-    @property
-    def final_group_ids(self) -> list[str]:
-        # Note: re-ordered groups is currently unsupported, but should set this attribute.
-        return self.group_ids
-
     def reorder_rows(self, indices) -> Self:
         new_rows = [self.rows[ii] for ii in indices]
 
         return self.__class__(new_rows, self.group_rows)
+
+    def order_groups(self, group_order: RowGroups):
+        # TODO: validate
+        return self.__class__(self.rows, self.group_rows.reorder(group_order))
 
     def group_indices_map(self) -> list[tuple[int, str | None]]:
         return self.group_rows.indices_map(len(self.rows))

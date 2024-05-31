@@ -15,7 +15,12 @@ def reorder_stub_df(stub_df: Stub) -> Stub:
     Returns:
         Stub: The reordered stub object.
     """
-    start_final = get_row_reorder_df(stub_df)
-    stub_df = stub_df.reorder_rows([final for _, final in start_final])
+
+    # NOTE: the original R package reordered stub rows, and returned a new GT object.
+    # However, since the final order is determined by the groups, we use those to
+    # determine the final order, just before rendering
+
+    # start_final = get_row_reorder_df(stub_df)
+    # stub_df = stub_df.reorder_rows([final for _, final in start_final])
 
     return stub_df
