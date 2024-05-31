@@ -9,6 +9,8 @@ from bisect import bisect
 from math import isinf, isnan
 from typing import TypedDict
 
+from great_tables._utils import pairwise
+
 from .base import RGBColor, _hex_to_rgb, _html_color
 
 
@@ -155,11 +157,10 @@ class GradientPalette:
     def _create_coefficients(self, cutoffs: list[float], channel: list[int]) -> CoeffSequence:
         """Return coefficients for interpolating between cutoffs on a color channel."""
 
-        p_cutoffs = list(zip(cutoffs[:-1], cutoffs[1:]))
-        p_colors = list(zip(channel[:-1], channel[1:]))
-
         coeffs: list[GradientCoefficients] = []
-        for (prev_cutoff, crnt_cutoff), (prev_color, crnt_color) in zip(p_cutoffs, p_colors):
+        for (prev_cutoff, crnt_cutoff), (prev_color, crnt_color) in zip(
+            pairwise(cutoffs), pairwise(channel)
+        ):
             cutoff_diff = crnt_cutoff - prev_cutoff
             color_scalar = (crnt_color - prev_color) / cutoff_diff
 
