@@ -141,7 +141,6 @@ class _Sequence(Sequence[T]):
 
 
 # Body ----
-__Body = None
 
 
 # TODO: it seems like this could just be a DataFrameLike object?
@@ -182,7 +181,6 @@ class Body:
 
 
 # Boxhead ----
-__Boxhead = None
 
 
 class ColumnAlignment(Enum):
@@ -494,7 +492,6 @@ class Boxhead(_Sequence[ColInfo]):
 
 
 # Stub ----
-__Stub = None
 
 
 @dataclass(frozen=True)
@@ -614,12 +611,9 @@ class Stub(_Sequence[RowInfo]):
 
 
 # Row groups ----
-__RowGroups = None
-
 RowGroups: TypeAlias = list[str]
 
 # Group rows ----
-__GroupRows = None
 
 
 @dataclass(frozen=True)
@@ -689,7 +683,6 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
 
 # Spanners ----
-__Spanners = None
 
 
 @dataclass(frozen=True)
@@ -749,7 +742,6 @@ class Spanners(_Sequence[SpannerInfo]):
 
 
 # Heading ---
-__Heading = None
 
 
 @dataclass(frozen=True)
@@ -760,18 +752,13 @@ class Heading:
 
 
 # Stubhead ----
-__Stubhead = None
-
 Stubhead: TypeAlias = "str | None"
 
 
 # Sourcenotes ----
-__Sourcenotes = None
-
 SourceNotes = list[str]
 
 # Footnotes ----
-__Footnotes = None
 
 
 class FootnotePlacement(Enum):
@@ -795,7 +782,6 @@ class FootnoteInfo:
 Footnotes: TypeAlias = list[FootnoteInfo]
 
 # Styles ----
-__Styles = None
 
 
 @dataclass(frozen=True)
@@ -812,7 +798,6 @@ class StyleInfo:
 Styles: TypeAlias = list[StyleInfo]
 
 # Locale ----
-__Locale = None
 
 
 class Locale:
@@ -823,7 +808,6 @@ class Locale:
 
 
 # Formats ----
-__Formats = None
 
 
 class FormatterSkipElement:
@@ -885,8 +869,6 @@ Formats = list
 
 
 # Options ----
-__Options = None
-
 
 default_fonts_list = [
     "-apple-system",
