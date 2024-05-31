@@ -362,7 +362,7 @@
   </tbody>
   '''
 # ---
-# name: test_data_color_pd_cols_rows_snap[False]
+# name: test_data_color_pd_cols_rows_snap
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -386,43 +386,13 @@
       <td class="gt_row gt_right">55</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">15</td>
-      <td class="gt_row gt_right">265</td>
+      <td class="gt_row gt_right">200</td>
+      <td class="gt_row gt_right">200</td>
     </tr>
   </tbody>
   '''
 # ---
-# name: test_data_color_pd_cols_rows_snap[True]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_right">1</td>
-      <td class="gt_row gt_right">51</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #702a36;" class="gt_row gt_right">2</td>
-      <td class="gt_row gt_right">52</td>
-    </tr>
-    <tr>
-      <td style="color: #000000; background-color: #df536b;" class="gt_row gt_right">3</td>
-      <td class="gt_row gt_right">53</td>
-    </tr>
-    <tr>
-      <td style="color: #000000; background-color: #a0925d;" class="gt_row gt_right">4</td>
-      <td class="gt_row gt_right">54</td>
-    </tr>
-    <tr>
-      <td style="color: #000000; background-color: #61d04f;" class="gt_row gt_right">5</td>
-      <td class="gt_row gt_right">55</td>
-    </tr>
-    <tr>
-      <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">15</td>
-      <td class="gt_row gt_right">265</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_pl_cols_rows_snap[False]
+# name: test_data_color_pl_cols_rows_snap
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -446,38 +416,8 @@
       <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">55</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">15</td>
-      <td class="gt_row gt_right">265</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_pl_cols_rows_snap[True]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td class="gt_row gt_right">1</td>
-      <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_right">51</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_right">2</td>
-      <td style="color: #FFFFFF; background-color: #070303;" class="gt_row gt_right">52</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_right">3</td>
-      <td style="color: #FFFFFF; background-color: #0f0507;" class="gt_row gt_right">53</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_right">4</td>
-      <td style="color: #FFFFFF; background-color: #16080a;" class="gt_row gt_right">54</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_right">5</td>
-      <td style="color: #FFFFFF; background-color: #1d0b0e;" class="gt_row gt_right">55</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_right">15</td>
-      <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">265</td>
+      <td class="gt_row gt_right">200</td>
+      <td class="gt_row gt_right">200</td>
     </tr>
   </tbody>
   '''
