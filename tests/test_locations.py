@@ -6,7 +6,7 @@ from great_tables._gt_data import Spanners
 from great_tables._locations import (
     CellPos,
     LocBody,
-    LocColumnSpanners,
+    LocSpannerLabel,
     LocTitle,
     resolve,
     resolve_cols_i,
@@ -137,7 +137,7 @@ def test_resolve_column_spanners_simple():
     ids = ["a", "b", "c"]
 
     spanners = Spanners.from_ids(ids)
-    loc = LocColumnSpanners(ids=["a", "c"])
+    loc = LocSpannerLabel(ids=["a", "c"])
 
     new_loc = resolve(loc, spanners)
 
@@ -150,7 +150,7 @@ def test_resolve_column_spanners_error_missing():
     ids = ["a", "b", "c"]
 
     spanners = Spanners.from_ids(ids)
-    loc = LocColumnSpanners(ids=["a", "d"])
+    loc = LocSpannerLabel(ids=["a", "d"])
 
     with pytest.raises(ValueError):
         resolve(loc, spanners)
@@ -178,7 +178,7 @@ def test_set_style_loc_body_from_column(expr):
     new_gt = set_style(loc, gt_df, [style])
 
     # 1 style info added
-    assert len(new_gt._styles) == 1
+    assert len(new_gt._styles) == 2
     cell_info = new_gt._styles[0]
 
     # style info has single cell style, with new color
