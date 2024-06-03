@@ -1565,6 +1565,11 @@ def test_fmt_image_path():
             "%C6H12O6%",
             'C<span style="white-space:nowrap;"><sub style="line-height:0;">6</sub></span>H<span style="white-space:nowrap;"><sub style="line-height:0;">12</sub></span>O<span style="white-space:nowrap;"><sub style="line-height:0;">6</sub></span>',
         ),
+        # 18. Any '<' and '>' characters from input are escaped to prevent HTML rendering as tags
+        (
+            "m^2 <tag> s_0",
+            'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> &lt;tag&gt; s<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span>',
+        ),
     ],
 )
 def test_fmt_units(src: str, dst: str):

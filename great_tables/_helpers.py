@@ -643,7 +643,9 @@ class UnitDefinition:
         #     a single character (no use of `_units_symbol_replacements()` here)
         if len(units_object.unit) > 1:
             unit = _md_html(
-                _units_symbol_replacements(text=units_object.unit.replace("-", "&minus;"))
+                _escape_html_tags(
+                    _units_symbol_replacements(text=units_object.unit.replace("-", "&minus;"))
+                )
             )
 
         else:
@@ -668,7 +670,11 @@ class UnitDefinition:
         elif len(units_object.exponent) > 2:
             exponent = _units_to_superscript(
                 _md_html(
-                    _units_symbol_replacements(text=units_object.exponent.replace("-", "&minus;"))
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.exponent.replace("-", "&minus;")
+                        )
+                    )
                 )
             )
 
@@ -687,8 +693,10 @@ class UnitDefinition:
         elif len(units_object.unit_subscript) > 2:
             unit_subscript = _units_to_subscript(
                 _md_html(
-                    _units_symbol_replacements(
-                        text=units_object.unit_subscript.replace("-", "&minus;")
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.unit_subscript.replace("-", "&minus;")
+                        )
                     )
                 )
             )
@@ -714,12 +722,18 @@ class UnitDefinition:
 
             units_str += _units_html_sub_super(
                 content_sub=_md_html(
-                    _units_symbol_replacements(
-                        text=units_object.unit_subscript.replace("-", "&minus;")
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.unit_subscript.replace("-", "&minus;")
+                        )
                     )
                 ),
                 content_sup=_md_html(
-                    _units_symbol_replacements(text=units_object.exponent.replace("-", "&minus;"))
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.exponent.replace("-", "&minus;")
+                        )
+                    )
                 ),
             )
 
@@ -827,6 +841,15 @@ def _units_symbol_replacements(text: str) -> str:
     # Loop through the dictionary of units symbols and replace them with their HTML entities
     for key, value in UNITS_SYMBOLS_HTML.items():
         text = _replace_units_symbol(text, key, key, value)
+
+    return text
+
+
+def _escape_html_tags(text: str) -> str:
+
+    # Replace the '<' and '>' characters with their HTML entity equivalents
+    text = text.replace("<", "&lt;")
+    text = text.replace(">", "&gt;")
 
     return text
 
