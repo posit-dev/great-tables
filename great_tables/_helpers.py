@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 import random
 import string
 from typing import Any, Callable, Literal
@@ -10,6 +11,8 @@ from ._text import Text
 
 import re
 from dataclasses import dataclass
+
+from great_tables._text import _md_html
 
 FontStackName: TypeAlias = Literal[
     "system-ui",
@@ -628,6 +631,119 @@ class UnitDefinition:
 
         return cls(token, unit, unit_subscript, exponent, sub_super_overstrike, chemical_formula)
 
+    def to_html(self):
+        units_str = ""
+
+        units_object = self
+
+        # Perform formatting of of the unit:
+        #   * The `unit` attribute is the main part of the unit (e.g., 'm' in 'm^2')
+        #   * The `unit` component should never be `None`
+        #   * We take a simpler approach to formatting the unit when it only contains
+        #     a single character (no use of `_units_symbol_replacements()` here)
+        if len(units_object.unit) > 1:
+            unit = _md_html(
+                _units_symbol_replacements(text=units_object.unit.replace("-", "&minus;"))
+            )
+
+        else:
+            unit = _md_html(units_object.unit.replace("-", "&minus;"))
+
+        # In the special case where the unit is 'x10', we replace the 'x' with a
+        # multiplication symbol:
+        #   * This isn't done unit is a chemical formula since it's not necessary
+        #   * This is practical for having scalar multipliers mixed in with units and typically
+        #     this is raised to a power (e.g., 'x10^6') and often placed before the inline units
+        if "x10" in unit and not units_object.chemical_formula:
+            unit = unit.replace("x", "&times;")
+
+        # Perform formatting of the exponent:
+        #   * The `exponent` attribute is the exponent part of the unit (e.g., '2' in 'm^2')
+        #   * The `exponent` component can be `None` if the unit does not have an exponent
+        #   * When the `exponent` component is a string of length greater than 2, we also use
+        #     `_units_symbol_replacements()` function to format the exponent)
+        if units_object.exponent is None:
+            exponent = None
+
+        elif len(units_object.exponent) > 2:
+            exponent = _units_to_superscript(
+                _md_html(
+                    _units_symbol_replacements(text=units_object.exponent.replace("-", "&minus;"))
+                )
+            )
+
+        else:
+            exponent = _units_to_superscript(content=units_object.exponent.replace("-", "&minus;"))
+
+        # Perform formatting of the unit subscript:
+        #   * The `unit_subscript` attribute is the subscript part of the unit (e.g., '2' in
+        #     'm_2')
+        #   * The `unit_subscript` component can be `None` if the unit does not have a subscript
+        #   * When the `unit_subscript` component is a string of length greater than 2, we also
+        #     use `_units_symbol_replacements()` function to format the subscript)
+        if units_object.unit_subscript is None:
+            unit_subscript = None
+
+        elif len(units_object.unit_subscript) > 2:
+            unit_subscript = _units_to_subscript(
+                _md_html(
+                    _units_symbol_replacements(
+                        text=units_object.unit_subscript.replace("-", "&minus;")
+                    )
+                )
+            )
+
+        else:
+            unit_subscript = _units_to_subscript(
+                content=units_object.unit_subscript.replace("-", "&minus;")
+            )
+
+        units_str += unit
+
+        # In the special case where the subscript and exponents are present and overstriking
+        # is required, we use the `_units_html_sub_super()` function to format the subscript
+        # and exponent:
+        #   * The subscript and exponent are placed on top of each other, with left alignment
+        #   * This bypasses the earlier formatting of the subscript and exponent
+        #   * The result is placed to the right of the unit
+        if (
+            units_object.sub_super_overstrike
+            and units_object.unit_subscript is not None
+            and units_object.exponent is not None
+        ):
+
+            units_str += _units_html_sub_super(
+                content_sub=_md_html(
+                    _units_symbol_replacements(
+                        text=units_object.unit_subscript.replace("-", "&minus;")
+                    )
+                ),
+                content_sup=_md_html(
+                    _units_symbol_replacements(text=units_object.exponent.replace("-", "&minus;"))
+                ),
+            )
+
+        # In the special case where the unit is a chemical formula, we take the formatted unit
+        # and place all numbers (which are recognized now to be part of the chemical formula)
+        # into spans that are styled to be subscripts:
+        elif units_object.chemical_formula:
+
+            units_str = re.sub(
+                "(\\d+)",
+                '<span style="white-space:nowrap;"><sub style="line-height:0;">\\1</sub></span>',
+                units_str,
+            )
+
+        else:
+
+            if unit_subscript is not None:
+                units_str += unit_subscript
+
+            if exponent is not None:
+                units_str += exponent
+
+        return units_str
+
 
 class UnitDefinitionList:
     def __init__(self, units_list: list[UnitDefinition]):
@@ -643,143 +759,18 @@ class UnitDefinitionList:
         return self.units_list[index]
 
     def to_html(self) -> str:
-
-        from great_tables._text import _md_html
-
-        for i in range(len(self)):
-
-            units_str_i = ""
-
-            units_object_i = self[i]
-
-            # Perform formatting of of the unit:
-            #   * The `unit` attribute is the main part of the unit (e.g., 'm' in 'm^2')
-            #   * The `unit` component should never be `None`
-            #   * We take a simpler approach to formatting the unit when it only contains
-            #     a single character (no use of `_units_symbol_replacements()` here)
-            if len(units_object_i.unit) > 1:
-                unit = _md_html(
-                    _units_symbol_replacements(text=units_object_i.unit.replace("-", "&minus;"))
-                )
-
-            else:
-                unit = _md_html(units_object_i.unit.replace("-", "&minus;"))
-
-            # In the special case where the unit is 'x10', we replace the 'x' with a
-            # multiplication symbol:
-            #   * This isn't done unit is a chemical formula since it's not necessary
-            #   * This is practical for having scalar multipliers mixed in with units and typically
-            #     this is raised to a power (e.g., 'x10^6') and often placed before the inline units
-            if "x10" in unit and not units_object_i.chemical_formula:
-                unit = unit.replace("x", "&times;")
-
-            # Perform formatting of the exponent:
-            #   * The `exponent` attribute is the exponent part of the unit (e.g., '2' in 'm^2')
-            #   * The `exponent` component can be `None` if the unit does not have an exponent
-            #   * When the `exponent` component is a string of length greater than 2, we also use
-            #     `_units_symbol_replacements()` function to format the exponent)
-            if units_object_i.exponent is None:
-                exponent = None
-
-            elif len(units_object_i.exponent) > 2:
-                exponent = _units_to_superscript(
-                    _md_html(
-                        _units_symbol_replacements(
-                            text=units_object_i.exponent.replace("-", "&minus;")
-                        )
-                    )
-                )
-
-            else:
-                exponent = _units_to_superscript(
-                    content=units_object_i.exponent.replace("-", "&minus;")
-                )
-
-            # Perform formatting of the unit subscript:
-            #   * The `unit_subscript` attribute is the subscript part of the unit (e.g., '2' in
-            #     'm_2')
-            #   * The `unit_subscript` component can be `None` if the unit does not have a subscript
-            #   * When the `unit_subscript` component is a string of length greater than 2, we also
-            #     use `_units_symbol_replacements()` function to format the subscript)
-            if units_object_i.unit_subscript is None:
-                unit_subscript = None
-
-            elif len(units_object_i.unit_subscript) > 2:
-                unit_subscript = _units_to_subscript(
-                    _md_html(
-                        _units_symbol_replacements(
-                            text=units_object_i.unit_subscript.replace("-", "&minus;")
-                        )
-                    )
-                )
-
-            else:
-                unit_subscript = _units_to_subscript(
-                    content=units_object_i.unit_subscript.replace("-", "&minus;")
-                )
-
-            units_str_i += unit
-
-            # In the special case where the subscript and exponents are present and overstriking
-            # is required, we use the `_units_html_sub_super()` function to format the subscript
-            # and exponent:
-            #   * The subscript and exponent are placed on top of each other, with left alignment
-            #   * This bypasses the earlier formatting of the subscript and exponent
-            #   * The result is placed to the right of the unit
-            if (
-                units_object_i.sub_super_overstrike
-                and units_object_i.unit_subscript is not None
-                and units_object_i.exponent is not None
-            ):
-
-                units_str_i += _units_html_sub_super(
-                    content_sub=_md_html(
-                        _units_symbol_replacements(
-                            text=units_object_i.unit_subscript.replace("-", "&minus;")
-                        )
-                    ),
-                    content_sup=_md_html(
-                        _units_symbol_replacements(
-                            text=units_object_i.exponent.replace("-", "&minus;")
-                        )
-                    ),
-                )
-
-            # In the special case where the unit is a chemical formula, we take the formatted unit
-            # and place all numbers (which are recognized now to be part of the chemical formula)
-            # into spans that are styled to be subscripts:
-            elif units_object_i.chemical_formula:
-
-                units_str_i = re.sub(
-                    "(\\d+)",
-                    '<span style="white-space:nowrap;"><sub style="line-height:0;">\\1</sub></span>',
-                    units_str_i,
-                )
-
-            else:
-
-                if unit_subscript is not None:
-                    units_str_i += unit_subscript
-
-                if exponent is not None:
-                    units_str_i += exponent
-
-            self[i].built = units_str_i
+        built_units = [unit_def.to_html() for unit_def in self.units_list]
 
         units_str = ""
 
-        units_object = self.units_list
-
-        for i in range(len(units_object)):
-
-            unit_add = units_object[i].built
+        for unit_add in built_units:
 
             if re.search("\\($|\\[$", units_str) or re.search("^\\)|^\\]", unit_add):
                 spacer = ""
             else:
                 spacer = " "
 
-            if len(units_object) == 3 and units_object[1].unit == "/":
+            if len(self) == 3 and self[1].unit == "/":
                 spacer = ""
 
             units_str += f"{spacer}{unit_add}"
@@ -787,6 +778,9 @@ class UnitDefinitionList:
         units_str = re.sub("^\\s+|\\s+$", "", units_str)
 
         return units_str
+
+    def _repr_html_(self):
+        return self.to_html()
 
 
 def _units_to_subscript(content: str) -> str:
@@ -955,7 +949,7 @@ def define_units(units_notation: str) -> UnitDefinitionList:
                 "unit with subscript and superscript",
                 "unit with subscript and superscript (using overstriking)",
                 "slashed-unit shorthand for a '-1' exponent",
-                "slashes between units normalized",
+                "slashes between units have spaces removed",
                 "multiple inline units, separating by a space",
                 "use of a number allowed with previous rules",
                 "use of 'x' preceding number to form scalar multiplier",
@@ -1018,118 +1012,7 @@ def define_units(units_notation: str) -> UnitDefinitionList:
     if len(tokens_list) == 0:
         return UnitDefinitionList(units_list=[])
 
-    for i in range(len(tokens_list)):
-
-        tokens_list_i = tokens_list[i]
-
-        unit_subscript = None
-        sub_super_overstrike = False
-        chemical_formula = False
-        exponent = None
-
-        # Case: Chemical formula
-        #   * e.g. "%C6H12O6%", where the '%' characters are used to denote a chemical formula
-        if re.match(r"^%.*%$", tokens_list_i) and len(tokens_list_i) > 2:
-
-            # This case:
-            #   - strips the '%' characters and and sets the `chemical_formula` attribute to `True`
-
-            chemical_formula = True
-
-            # Extract the formula w/o the surrounding `%` signs
-            unit = re.sub(r"^%|%$", "", tokens_list_i)
-
-        # Case: Subscript and exponent present *and* overstriking is required
-        #   * the '[' and ']' characters are used to combine the subscript and exponent parts
-        #     (the text following '_' and '^', in that order) and the surrounding square
-        #     brackets indicates that overstriking is necessary
-        #   * overstriking here means that the subscript and exponent are placed on top of each
-        #     other, with left alignment
-        elif re.search(r".+?\[_.+?\^.+?\]", tokens_list_i):
-
-            # This case:
-            #   - sets the `sub_super_overstrike` attribute to `True`
-            #   - extracts the unit w/o subscript from the string
-            #   - extracts the subscript and exponent text as separate variables
-
-            sub_super_overstrike = True
-
-            # Extract the unit w/o subscript from the string
-            unit = re.sub(r"(.+?)\[_.+?\^.+?\]", r"\1", tokens_list_i)
-
-            # Obtain only the subscript/exponent of the string
-            sub_exponent = re.sub(r".+?\[(_.+?\^.+?)\]", r"\1", tokens_list_i)
-
-            # Extract the content after the underscore but terminate
-            # before any `^`; this is the subscript
-            unit_subscript = re.sub(r"^_(.+?)(\^.+?)$", r"\1", sub_exponent)
-
-            # Extract the content after the caret but terminate before
-            # any `_`; this is the exponent
-            exponent = re.sub(r"_.+?\^(.+?)", r"\1", sub_exponent)
-
-        # Case: Subscript and exponent present (overstriking is *not* required here)
-        #   * the combination of the subscript and exponent parts (in that order) after some
-        #     text is indicated by the '_' and '^' characters
-        elif re.search(r".+?_.+?\^.+?", tokens_list_i):
-
-            # This case:
-            #   - sets the `sub_super_overstrike` attribute to `True`
-            #   - extracts the unit w/o subscript from the string
-            #   - extracts the subscript and exponent text from the string
-
-            # Extract the unit w/o subscript from the string
-            unit = re.sub(r"^(.+?)_.+?\^.+?$", r"\1", tokens_list_i)
-
-            # Obtain only the subscript/exponent portion of the string
-            sub_exponent = re.sub(r".+?(_.+?\^.+?)$", r"\1", tokens_list_i)
-
-            # Extract the content after the underscore but terminate
-            # before any `^`; this is the subscript
-            unit_subscript = re.sub(r"^_(.+?)\^.+?$", r"\1", sub_exponent)
-
-            # Extract the content after the caret but terminate before
-            # any `_`; this is the exponent
-            exponent = re.sub(r"^_.+?\^(.+?)$", r"\1", sub_exponent)
-
-        # Case: Only an exponent is present
-        #   * the previous cases handled the presence of a subscript and exponent, but this case
-        #     only handles the presence of an exponent (indicated by the '^' character anywhere
-        #     in the string)
-        elif re.search(r"\^", tokens_list_i):
-
-            # Extract the unit w/o exponent from the string
-            unit = re.sub(r"^(.+?)\^.+?$", r"\1", tokens_list_i)
-
-            # Obtain only the exponent portion of the string
-            exponent = re.sub(r"^.+?\^(.+?)$", r"\1", tokens_list_i)
-
-        # Case: Only a subscript is present
-        #   * this case handles the presence of a single subscript (indicated by the '_' character
-        #     anywhere in the string)
-        elif re.search(r"_", tokens_list_i):
-
-            # Extract the unit w/o subscript from the string
-            unit = re.sub(r"^(.+?)_.+?$", r"\1", tokens_list_i)
-
-            # Obtain only the subscript portion of the string
-            unit_subscript = re.sub(r"^.+?_(.+?)$", r"\1", tokens_list_i)
-        else:
-            unit = tokens_list_i
-
-        # Create a new unit definition
-        unit_definition = UnitDefinition(
-            token=tokens_list_i,
-            unit=unit,
-            unit_subscript=unit_subscript,
-            exponent=exponent,
-            sub_super_overstrike=sub_super_overstrike,
-            chemical_formula=chemical_formula,
-        )
-
-        # Append the unit definition to the list of units
-        units_list.append(unit_definition)
-
+    units_list = [UnitDefinition.from_token(token) for token in tokens_list]
     return UnitDefinitionList(units_list=units_list)
 
 
