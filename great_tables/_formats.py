@@ -2242,6 +2242,12 @@ def fmt_units(
         .tab_options(column_labels_hidden=True)
     )
     ```
+
+    See Also
+    --------
+    The [`define_units()`](`great_tables.define_units`) function can be used as a standalone utility
+    for working with units notation. It can parses strings in *units notation* and can emit
+    formatted units with its `.to_html()` method.
     """
 
     def fmt_units_fn(
