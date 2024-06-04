@@ -26,6 +26,7 @@ from great_tables._formats import (
     fmt_roman,
     fmt_scientific,
     fmt_time,
+    fmt_units,
 )
 from great_tables._heading import tab_header
 from great_tables._helpers import random_id
@@ -222,6 +223,7 @@ class GT(
     fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
     fmt_image = fmt_image
+    fmt_units = fmt_units
     fmt_nanoplot = fmt_nanoplot
     data_color = data_color
 

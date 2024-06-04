@@ -1489,6 +1489,97 @@ def test_fmt_image_path():
     assert 'src="/a/b/c"' in strip_windows_drive(res)
 
 
+@pytest.mark.parametrize(
+    "src,dst",
+    [
+        # 1. unit with superscript
+        ("m^2", 'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>'),
+        # 2. unit with subscript
+        ("h_0", 'h<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span>'),
+        # 3. unit with superscript and subscript
+        (
+            "h_0^3",
+            'h<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span><span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span>',
+        ),
+        # 4. unit with superscript and subscript (using overstriking)
+        (
+            "h[_0^3]",
+            'h<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">3<br>0</span>',
+        ),
+        # 5. slashed-unit shorthand for a '-1' exponent
+        (
+            "/s",
+            's<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        ),
+        # 6. slashes between units normalized
+        (
+            "t_0 / t_n",
+            't<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span>/t<span style="white-space:nowrap;"><sub style="line-height:0;">n</sub></span>',
+        ),
+        # 7. multiple inline units, separating by a space
+        (
+            "kg^2 m^-1",
+            'kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        ),
+        # 8. use of a number allowed with previous rules
+        (
+            "10^3 kg^2 m^-1",
+            '10<span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span> kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        ),
+        # 9. use of 'x' preceding number to form scalar multiplier
+        (
+            "x10^3 kg^2 m^-1",
+            '&times;10<span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span> kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        ),
+        # 10. hyphen is transformed to minus sign when preceding a unit
+        (
+            "-h^2",
+            '−h<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # 11. italicization of base unit
+        (
+            "*m*^2",
+            '<em>m</em><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # 12. emboldening of base unit
+        (
+            "**m**^2",
+            '<strong>m</strong><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # 13. italicizing and emboldening of base unit
+        (
+            "_**m**_^2",
+            '<em><strong>m</strong></em><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # 14. styling of subscripts and superscripts
+        (
+            "h_*0*^**3**",
+            'h<span style="white-space:nowrap;"><sub style="line-height:0;"><em>0</em></sub></span><span style="white-space:nowrap;"><sup style="line-height:0;"><strong>3</strong></sup></span>',
+        ),
+        # 15. transformation of common units from ASCII to preferred form
+        ("ug", "µg"),
+        # 16. insertion of common symbols and Greek letters via `:[symbol name]:`
+        (":angstrom:", "Å"),
+        # 17. use of chemical formulas via `%[chemical formula]%`
+        (
+            "%C6H12O6%",
+            'C<span style="white-space:nowrap;"><sub style="line-height:0;">6</sub></span>H<span style="white-space:nowrap;"><sub style="line-height:0;">12</sub></span>O<span style="white-space:nowrap;"><sub style="line-height:0;">6</sub></span>',
+        ),
+        # 18. Any '<' and '>' characters from input are escaped to prevent HTML rendering as tags
+        (
+            "m^2 <tag> s_0",
+            'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> &lt;tag&gt; s<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span>',
+        ),
+    ],
+)
+def test_fmt_units(src: str, dst: str):
+
+    units_tbl = pl.DataFrame({"units": [src]})
+    gt_tbl = GT(units_tbl).fmt_units(columns="units")
+
+    assert dst == _get_column_of_values(gt_tbl, column_name="units", context="html")[0]
+
+
 # ------------------------------------------------------------------------------
 # Test `fmt_nanoplot()`
 # ------------------------------------------------------------------------------

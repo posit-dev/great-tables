@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 import random
 import string
 from typing import Any, Callable, Literal
@@ -7,6 +8,11 @@ from typing import Any, Callable, Literal
 from typing_extensions import TypeAlias
 
 from ._text import Text
+
+import re
+from dataclasses import dataclass
+
+from great_tables._text import _md_html
 
 FontStackName: TypeAlias = Literal[
     "system-ui",
@@ -516,6 +522,501 @@ def _get_font_stack(name: FontStackName = "system-ui", add_emoji: bool = True) -
         )
 
     return font_stack
+
+
+def _generate_tokens_list(units_notation: str) -> list[str]:
+
+    # Remove any surrounding double braces before splitting the string into a list of tokens
+    tokens_list = re.split(r"\s+", re.sub(r"^\{\{\s*|\s*\}\}$", "", units_notation))
+
+    # Remove any empty tokens (i.e., `None` or `""`)
+    tokens_list = [token for token in tokens_list if token != "" and token is not None]
+
+    # Replace any instances of `/<text>` with `<text>^-1`
+    tokens_list = [
+        re.sub(r"^/", "", x) + "^-1" if re.match(r"^/", x) and len(x) > 1 else x
+        for x in tokens_list
+    ]
+
+    return tokens_list
+
+
+@dataclass
+class UnitDefinition:
+    token: str
+    unit: str
+    unit_subscript: str | None = None
+    exponent: str | None = None
+    sub_super_overstrike: bool = False
+    chemical_formula: bool = False
+    built: str | None = None
+
+    @classmethod
+    def from_token(cls, token: str) -> UnitDefinition:
+
+        unit_subscript = None
+        sub_super_overstrike = False
+        chemical_formula = False
+        exponent = None
+
+        # Case: Chemical formula
+        #   * e.g. "%C6H12O6%", where the '%' characters are used to denote a chemical formula
+        if re.match(r"^%.*%$", token) and len(token) > 2:
+
+            chemical_formula = True
+
+            # Extract the formula w/o the surrounding `%` signs
+            unit = re.sub(r"^%|%$", "", token)
+
+        # Case: Subscript and exponent present inside square brackets, so overstriking required
+        #   * e.g., 'm_[0^3]'
+        elif re.search(r".+?\[_.+?\^.+?\]", token):
+
+            sub_super_overstrike = True
+
+            # Extract the unit w/o subscript from the string
+            unit = re.sub(r"(.+?)\[_.+?\^.+?\]", r"\1", token)
+
+            # Obtain only the subscript/exponent of the string
+            sub_exponent = re.sub(r".+?\[(_.+?\^.+?)\]", r"\1", token)
+
+            # Extract the content after the underscore
+            unit_subscript = re.sub(r"^_(.+?)(\^.+?)$", r"\1", sub_exponent)
+
+            # Extract the content after the caret
+            exponent = re.sub(r"_.+?\^(.+?)", r"\1", sub_exponent)
+
+        # Case: Subscript and exponent present (overstriking is *not* required here)
+        #   * e.g., 'm_2^3'
+        elif re.search(r".+?_.+?\^.+?", token):
+
+            # Extract the unit w/o subscript from the string
+            unit = re.sub(r"^(.+?)_.+?\^.+?$", r"\1", token)
+
+            # Obtain only the subscript/exponent portion of the string
+            sub_exponent = re.sub(r".+?(_.+?\^.+?)$", r"\1", token)
+
+            # Extract the content after the underscore
+            unit_subscript = re.sub(r"^_(.+?)\^.+?$", r"\1", sub_exponent)
+
+            # Extract the content after the caret
+            exponent = re.sub(r"^_.+?\^(.+?)$", r"\1", sub_exponent)
+
+        # Case: Only an exponent is present
+        #   * the previous cases handled the presence of a subscript and exponent, but this case
+        #     only handles the presence of an exponent (indicated by the '^' character anywhere
+        #     in the string)
+        #   * e.g., 'm^2'
+        elif re.search(r"\^", token):
+
+            # Extract the unit w/o exponent from the string
+            unit = re.sub(r"^(.+?)\^.+?$", r"\1", token)
+
+            # Obtain only the exponent portion of the string
+            exponent = re.sub(r"^.+?\^(.+?)$", r"\1", token)
+
+        # Case: Only a subscript is present
+        #   * this case handles the presence of a single subscript (indicated by the '_' character
+        #     anywhere in the string)
+        #   * e.g., 'm_2'
+        elif re.search(r"_", token):
+
+            # Extract the unit w/o subscript from the string
+            unit = re.sub(r"^(.+?)_.+?$", r"\1", token)
+
+            # Obtain only the subscript portion of the string
+            unit_subscript = re.sub(r"^.+?_(.+?)$", r"\1", token)
+        else:
+            unit = token
+
+        return cls(token, unit, unit_subscript, exponent, sub_super_overstrike, chemical_formula)
+
+    def to_html(self):
+        units_str = ""
+
+        units_object = self
+
+        # Perform formatting of of the unit:
+        #   * The `unit` attribute is the main part of the unit (e.g., 'm' in 'm^2')
+        #   * The `unit` component should never be `None`
+        #   * We take a simpler approach to formatting the unit when it only contains
+        #     a single character (no use of `_units_symbol_replacements()` here)
+        if len(units_object.unit) > 1:
+            unit = _md_html(
+                _escape_html_tags(
+                    _units_symbol_replacements(text=units_object.unit.replace("-", "&minus;"))
+                )
+            )
+
+        else:
+            unit = _md_html(units_object.unit.replace("-", "&minus;"))
+
+        # In the special case where the unit is 'x10', we replace the 'x' with a
+        # multiplication symbol:
+        #   * This isn't done unit is a chemical formula since it's not necessary
+        #   * This is practical for having scalar multipliers mixed in with units and typically
+        #     this is raised to a power (e.g., 'x10^6') and often placed before the inline units
+        if "x10" in unit and not units_object.chemical_formula:
+            unit = unit.replace("x", "&times;")
+
+        # Perform formatting of the exponent:
+        #   * The `exponent` attribute is the exponent part of the unit (e.g., '2' in 'm^2')
+        #   * The `exponent` component can be `None` if the unit does not have an exponent
+        #   * When the `exponent` component is a string of length greater than 2, we also use
+        #     `_units_symbol_replacements()` function to format the exponent)
+        if units_object.exponent is None:
+            exponent = None
+
+        elif len(units_object.exponent) > 2:
+            exponent = _units_to_superscript(
+                _md_html(
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.exponent.replace("-", "&minus;")
+                        )
+                    )
+                )
+            )
+
+        else:
+            exponent = _units_to_superscript(content=units_object.exponent.replace("-", "&minus;"))
+
+        # Perform formatting of the unit subscript:
+        #   * The `unit_subscript` attribute is the subscript part of the unit (e.g., '2' in
+        #     'm_2')
+        #   * The `unit_subscript` component can be `None` if the unit does not have a subscript
+        #   * When the `unit_subscript` component is a string of length greater than 2, we also
+        #     use `_units_symbol_replacements()` function to format the subscript)
+        if units_object.unit_subscript is None:
+            unit_subscript = None
+
+        elif len(units_object.unit_subscript) > 2:
+            unit_subscript = _units_to_subscript(
+                _md_html(
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.unit_subscript.replace("-", "&minus;")
+                        )
+                    )
+                )
+            )
+
+        else:
+            unit_subscript = _units_to_subscript(
+                content=units_object.unit_subscript.replace("-", "&minus;")
+            )
+
+        units_str += unit
+
+        # In the special case where the subscript and exponents are present and overstriking
+        # is required, we use the `_units_html_sub_super()` function to format the subscript
+        # and exponent:
+        #   * The subscript and exponent are placed on top of each other, with left alignment
+        #   * This bypasses the earlier formatting of the subscript and exponent
+        #   * The result is placed to the right of the unit
+        if (
+            units_object.sub_super_overstrike
+            and units_object.unit_subscript is not None
+            and units_object.exponent is not None
+        ):
+
+            units_str += _units_html_sub_super(
+                content_sub=_md_html(
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.unit_subscript.replace("-", "&minus;")
+                        )
+                    )
+                ),
+                content_sup=_md_html(
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.exponent.replace("-", "&minus;")
+                        )
+                    )
+                ),
+            )
+
+        # In the special case where the unit is a chemical formula, we take the formatted unit
+        # and place all numbers (which are recognized now to be part of the chemical formula)
+        # into spans that are styled to be subscripts:
+        elif units_object.chemical_formula:
+
+            units_str = re.sub(
+                "(\\d+)",
+                '<span style="white-space:nowrap;"><sub style="line-height:0;">\\1</sub></span>',
+                units_str,
+            )
+
+        else:
+
+            if unit_subscript is not None:
+                units_str += unit_subscript
+
+            if exponent is not None:
+                units_str += exponent
+
+        return units_str
+
+
+class UnitDefinitionList:
+    def __init__(self, units_list: list[UnitDefinition]):
+        self.units_list = units_list
+
+    def __repr__(self) -> str:
+        return f"UnitDefinitionList({self.__dict__})"
+
+    def __len__(self) -> int:
+        return len(self.units_list)
+
+    def __getitem__(self, index: int) -> UnitDefinition:
+        return self.units_list[index]
+
+    def to_html(self) -> str:
+        built_units = [unit_def.to_html() for unit_def in self.units_list]
+
+        units_str = ""
+
+        for unit_add in built_units:
+
+            if re.search("\\($|\\[$", units_str) or re.search("^\\)|^\\]", unit_add):
+                spacer = ""
+            else:
+                spacer = " "
+
+            if len(self) == 3 and self[1].unit == "/":
+                spacer = ""
+
+            units_str += f"{spacer}{unit_add}"
+
+        units_str = re.sub("^\\s+|\\s+$", "", units_str)
+
+        return units_str
+
+    def _repr_html_(self):
+        return self.to_html()
+
+
+def _units_to_subscript(content: str) -> str:
+    return (
+        '<span style="white-space:nowrap;"><sub style="line-height:0;">' + content + "</sub></span>"
+    )
+
+
+def _units_to_superscript(content: str) -> str:
+    return (
+        '<span style="white-space:nowrap;"><sup style="line-height:0;">' + content + "</sup></span>"
+    )
+
+
+def _units_html_sub_super(content_sub: str, content_sup: str) -> str:
+    return (
+        '<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">'
+        + content_sup
+        + "<br>"
+        + content_sub
+        + "</span>"
+    )
+
+
+def _replace_units_symbol(text: str, detect: str, pattern: str, replace: str) -> str:
+
+    if re.search(detect, text):
+        text = re.sub(pattern, replace, text)
+
+    return text
+
+
+def _units_symbol_replacements(text: str) -> str:
+
+    # Replace certain units symbols with HTML entities; these are cases where the parsed
+    # text should be at the beginning of a string (or should be the entire string)
+    text = _replace_units_symbol(text, "^-", "^-", "&minus;")
+    text = _replace_units_symbol(text, "^um$", "um", "&micro;m")
+    text = _replace_units_symbol(text, "^uL$", "uL", "&micro;L")
+    text = _replace_units_symbol(text, "^umol", "^umol", "&micro;mol")
+    text = _replace_units_symbol(text, "^ug$", "ug", "&micro;g")
+    text = _replace_units_symbol(text, "^ohm$", "ohm", "&#8486;")
+
+    # Loop through the dictionary of units symbols and replace them with their HTML entities
+    for key, value in UNITS_SYMBOLS_HTML.items():
+        text = _replace_units_symbol(text, key, key, value)
+
+    return text
+
+
+def _escape_html_tags(text: str) -> str:
+
+    # Replace the '<' and '>' characters with their HTML entity equivalents
+    text = text.replace("<", "&lt;")
+    text = text.replace(">", "&gt;")
+
+    return text
+
+
+UNITS_SYMBOLS_HTML = {
+    "degC": "&deg;C",
+    "degF": "&deg;F",
+    ":pm:": "&plusmn;",
+    ":mp:": "&mnplus;",
+    ":lt:": "&lt;",
+    ":gt:": "&gt;",
+    ":le:": "&le;",
+    ":ge:": "&ge;",
+    ":cdot:": "&sdot;",
+    ":times:": "&times;",
+    ":div:": "&divide;",
+    ":ne:": "&ne;",
+    ":prime:": "&prime;",
+    ":rightarrow:": "&rarr;",
+    ":leftarrow:": "&larr;",
+    ":micro:": "&micro;",
+    ":ohm:": "&#8486;",
+    ":angstrom:": "&#8491;",
+    ":times:": "&times;",
+    ":plusminus:": "&plusmn;",
+    ":permil:": "&permil;",
+    ":permille:": "&permil;",
+    ":degree:": "&deg;",
+    ":degrees:": "&deg;",
+    ":space:": "&nbsp;",
+    ":Alpha:": "&Alpha;",
+    ":alpha:": "&alpha;",
+    ":Beta:": "&Beta;",
+    ":beta:": "&beta;",
+    ":Gamma:": "&Gamma;",
+    ":gamma:": "&gamma;",
+    ":Delta:": "&Delta;",
+    ":delta:": "&delta;",
+    ":Epsilon:": "&Epsilon;",
+    ":epsilon:": "&epsilon;",
+    ":varepsilon:": "&varepsilon;",
+    ":Zeta:": "&Zeta;",
+    ":zeta:": "&zeta;",
+    ":Eta:": "&Eta;",
+    ":eta:": "&eta;",
+    ":Theta:": "&Theta;",
+    ":theta:": "&theta;",
+    ":vartheta:": "&vartheta;",
+    ":Iota:": "&Iota;",
+    ":iota:": "&iota;",
+    ":Kappa:": "&Kappa;",
+    ":kappa:": "&kappa;",
+    ":Lambda:": "&Lambda;",
+    ":lambda:": "&lambda;",
+    ":Mu:": "&Mu;",
+    ":mu:": "&mu;",
+    ":Nu:": "&Nu;",
+    ":nu:": "&nu;",
+    ":Xi:": "&Xi;",
+    ":xi:": "&xi;",
+    ":Omicron:": "&Omicron;",
+    ":omicron:": "&omicron;",
+    ":Pi:": "&Pi;",
+    ":pi:": "&pi;",
+    ":Rho:": "&Rho;",
+    ":rho:": "&rho;",
+    ":Sigma:": "&Sigma;",
+    ":sigma:": "&sigma;",
+    ":sigmaf:": "&sigmaf;",
+    ":varsigma:": "&varsigma;",
+    ":Tau:": "&Tau;",
+    ":tau:": "&tau;",
+    ":Upsilon:": "&Upsilon;",
+    ":upsilon:": "&upsilon;",
+    ":Phi:": "&Phi;",
+    ":phi:": "&phi;",
+    ":Chi:": "&Chi;",
+    ":chi:": "&chi;",
+    ":Psi:": "&Psi;",
+    ":psi:": "&psi;",
+    ":Omega:": "&Omega;",
+    ":omega:": "&omega;",
+}
+
+
+def define_units(units_notation: str) -> UnitDefinitionList:
+    """
+    With `define_units()` you can work with a specially-crafted units notation string and emit the
+    units as HTML (with the `.to_html()` method). This function is useful as a standalone utility
+    and it powers the `fmt_units()` method in **Great Tables**.
+
+    Parameters
+    ----------
+    units_notation : str
+        A string of units notation.
+
+    Returns
+    -------
+    UnitDefinitionList
+        A list of unit definitions.
+
+    Specification of units notation
+    -------------------------------
+
+    The following table demonstrates the various ways in which units can be specified in the
+    `units_notation` string and how the input is processed by the `define_units()` function. The
+    concluding step for display of the units in HTML is to use the `to_html()` method.
+
+    ```{python}
+    #| echo: false
+
+    from great_tables import GT, style, loc
+    import polars as pl
+
+    units_tbl = pl.DataFrame(
+        {
+            "rule": [
+                "'^' creates a superscript",
+                "'_' creates a subscript",
+                "subscripts and superscripts can be combined",
+                "use '[_subscript^superscript]' to create an overstrike",
+                "a '/' at the beginning adds the superscript '-1'",
+                "hyphen is transformed to minus sign when preceding a unit",
+                "'x' at the beginning is transformed to '×'",
+                "ASCII terms from biology/chemistry turned into terminology forms",
+                "can create italics with '*' or '_'; create bold text with '**' or '__'",
+                "special symbol set surrounded by colons",
+                "chemistry notation: '%C6H6%'",
+            ],
+            "input": [
+                "m^2",
+                "h_0",
+                "h_0^3",
+                "h[_0^3]",
+                "/s",
+                "-h^2",
+                "x10^3 kg^2 m^-1",
+                "ug",
+                "*m*^**2**",
+                ":permille:C",
+                "g/L %C6H12O6%",
+            ],
+        }
+    ).with_columns(output=pl.col("input"))
+
+    (
+        GT(units_tbl)
+        .fmt_units(columns="output")
+        .tab_style(
+            style=style.text(font="courier"),
+            locations=loc.body(columns="input")
+        )
+    )
+    ```
+    """
+
+    # Get a list of raw tokens
+    tokens_list = _generate_tokens_list(units_notation=units_notation)
+
+    # Initialize a list to store the units
+    units_list = []
+
+    if len(tokens_list) == 0:
+        return UnitDefinitionList(units_list=[])
+
+    units_list = [UnitDefinition.from_token(token) for token in tokens_list]
+    return UnitDefinitionList(units_list=units_list)
 
 
 # This could probably be removed and nanoplot_options made into a dataclass
