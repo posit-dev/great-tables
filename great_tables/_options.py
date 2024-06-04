@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, ClassVar, Optional, Union, List, cast, Dict, Any
+from typing import TYPE_CHECKING, ClassVar, cast
+
 from great_tables import _utils
 from great_tables._helpers import FontStackName
 
@@ -11,157 +13,157 @@ if TYPE_CHECKING:
 
 def tab_options(
     self: GTSelf,
-    container_width: Optional[str] = None,
-    container_height: Optional[str] = None,
-    container_overflow_x: Optional[str] = None,
-    container_overflow_y: Optional[str] = None,
-    table_width: Optional[str] = None,
-    table_layout: Optional[str] = None,
-    # table_align: Optional[str] = None,
-    table_margin_left: Optional[str] = None,
-    table_margin_right: Optional[str] = None,
-    table_background_color: Optional[str] = None,
-    # table_additional_css: Optional[str] = None,
-    table_font_names: Optional[Union[str, List[str]]] = None,
-    table_font_size: Optional[str] = None,
-    table_font_weight: Optional[str] = None,
-    table_font_style: Optional[str] = None,
-    table_font_color: Optional[str] = None,
-    table_font_color_light: Optional[str] = None,
-    table_border_top_style: Optional[str] = None,
-    table_border_top_width: Optional[str] = None,
-    table_border_top_color: Optional[str] = None,
-    table_border_bottom_style: Optional[str] = None,
-    table_border_bottom_width: Optional[str] = None,
-    table_border_bottom_color: Optional[str] = None,
-    table_border_left_style: Optional[str] = None,
-    table_border_left_width: Optional[str] = None,
-    table_border_left_color: Optional[str] = None,
-    table_border_right_style: Optional[str] = None,
-    table_border_right_width: Optional[str] = None,
-    table_border_right_color: Optional[str] = None,
-    heading_background_color: Optional[str] = None,
-    heading_align: Optional[str] = None,
-    heading_title_font_size: Optional[str] = None,
-    heading_title_font_weight: Optional[str] = None,
-    heading_subtitle_font_size: Optional[str] = None,
-    heading_subtitle_font_weight: Optional[str] = None,
-    heading_padding: Optional[str] = None,
-    heading_padding_horizontal: Optional[str] = None,
-    heading_border_bottom_style: Optional[str] = None,
-    heading_border_bottom_width: Optional[str] = None,
-    heading_border_bottom_color: Optional[str] = None,
-    heading_border_lr_style: Optional[str] = None,
-    heading_border_lr_width: Optional[str] = None,
-    heading_border_lr_color: Optional[str] = None,
-    column_labels_background_color: Optional[str] = None,
-    column_labels_font_size: Optional[str] = None,
-    column_labels_font_weight: Optional[str] = None,
-    column_labels_text_transform: Optional[str] = None,
-    column_labels_padding: Optional[str] = None,
-    column_labels_padding_horizontal: Optional[str] = None,
-    column_labels_vlines_style: Optional[str] = None,
-    column_labels_vlines_width: Optional[str] = None,
-    column_labels_vlines_color: Optional[str] = None,
-    column_labels_border_top_style: Optional[str] = None,
-    column_labels_border_top_width: Optional[str] = None,
-    column_labels_border_top_color: Optional[str] = None,
-    column_labels_border_bottom_style: Optional[str] = None,
-    column_labels_border_bottom_width: Optional[str] = None,
-    column_labels_border_bottom_color: Optional[str] = None,
-    column_labels_border_lr_style: Optional[str] = None,
-    column_labels_border_lr_width: Optional[str] = None,
-    column_labels_border_lr_color: Optional[str] = None,
-    column_labels_hidden: Optional[bool] = None,
-    row_group_background_color: Optional[str] = None,
-    row_group_font_size: Optional[str] = None,
-    row_group_font_weight: Optional[str] = None,
-    row_group_text_transform: Optional[str] = None,
-    row_group_padding: Optional[str] = None,
-    row_group_padding_horizontal: Optional[str] = None,
-    row_group_border_top_style: Optional[str] = None,
-    row_group_border_top_width: Optional[str] = None,
-    row_group_border_top_color: Optional[str] = None,
-    row_group_border_bottom_style: Optional[str] = None,
-    row_group_border_bottom_width: Optional[str] = None,
-    row_group_border_bottom_color: Optional[str] = None,
-    row_group_border_left_style: Optional[str] = None,
-    row_group_border_left_width: Optional[str] = None,
-    row_group_border_left_color: Optional[str] = None,
-    row_group_border_right_style: Optional[str] = None,
-    row_group_border_right_width: Optional[str] = None,
-    row_group_border_right_color: Optional[str] = None,
-    # row_group_default_label: Optional[str] = None,
-    row_group_as_column: Optional[bool] = None,
-    table_body_hlines_style: Optional[str] = None,
-    table_body_hlines_width: Optional[str] = None,
-    table_body_hlines_color: Optional[str] = None,
-    table_body_vlines_style: Optional[str] = None,
-    table_body_vlines_width: Optional[str] = None,
-    table_body_vlines_color: Optional[str] = None,
-    table_body_border_top_style: Optional[str] = None,
-    table_body_border_top_width: Optional[str] = None,
-    table_body_border_top_color: Optional[str] = None,
-    table_body_border_bottom_style: Optional[str] = None,
-    table_body_border_bottom_width: Optional[str] = None,
-    table_body_border_bottom_color: Optional[str] = None,
-    stub_background_color: Optional[str] = None,
-    stub_font_size: Optional[str] = None,
-    stub_font_weight: Optional[str] = None,
-    stub_text_transform: Optional[str] = None,
-    stub_border_style: Optional[str] = None,
-    stub_border_width: Optional[str] = None,
-    stub_border_color: Optional[str] = None,
-    stub_row_group_font_size: Optional[str] = None,
-    stub_row_group_font_weight: Optional[str] = None,
-    stub_row_group_text_transform: Optional[str] = None,
-    stub_row_group_border_style: Optional[str] = None,
-    stub_row_group_border_width: Optional[str] = None,
-    stub_row_group_border_color: Optional[str] = None,
-    data_row_padding: Optional[str] = None,
-    data_row_padding_horizontal: Optional[str] = None,
-    # summary_row_background_color: Optional[str] = None,
-    # summary_row_text_transform: Optional[str] = None,
-    # summary_row_padding: Optional[str] = None,
-    # summary_row_padding_horizontal: Optional[str] = None,
-    # summary_row_border_style: Optional[str] = None,
-    # summary_row_border_width: Optional[str] = None,
-    # summary_row_border_color: Optional[str] = None,
-    # grand_summary_row_background_color: Optional[str] = None,
-    # grand_summary_row_text_transform: Optional[str] = None,
-    # grand_summary_row_padding: Optional[str] = None,
-    # grand_summary_row_padding_horizontal: Optional[str] = None,
-    # grand_summary_row_border_style: Optional[str] = None,
-    # grand_summary_row_border_width: Optional[str] = None,
-    # grand_summary_row_border_color: Optional[str] = None,
-    # footnotes_background_color: Optional[str] = None,
-    # footnotes_font_size: Optional[str] = None,
-    # footnotes_padding: Optional[str] = None,
-    # footnotes_padding_horizontal: Optional[str] = None,
-    # footnotes_border_bottom_style: Optional[str] = None,
-    # footnotes_border_bottom_width: Optional[str] = None,
-    # footnotes_border_bottom_color: Optional[str] = None,
-    # footnotes_border_lr_style: Optional[str] = None,
-    # footnotes_border_lr_width: Optional[str] = None,
-    # footnotes_border_lr_color: Optional[str] = None,
-    # footnotes_marks: Optional[Union[str, List[str]]] = None,
-    # footnotes_multiline: Optional[bool] = None,
-    # footnotes_sep: Optional[str] = None,
-    source_notes_background_color: Optional[str] = None,
-    source_notes_font_size: Optional[str] = None,
-    source_notes_padding: Optional[str] = None,
-    source_notes_padding_horizontal: Optional[str] = None,
-    source_notes_border_bottom_style: Optional[str] = None,
-    source_notes_border_bottom_width: Optional[str] = None,
-    source_notes_border_bottom_color: Optional[str] = None,
-    source_notes_border_lr_style: Optional[str] = None,
-    source_notes_border_lr_width: Optional[str] = None,
-    source_notes_border_lr_color: Optional[str] = None,
-    source_notes_multiline: Optional[bool] = None,
-    source_notes_sep: Optional[str] = None,
-    # row_striping_background_color: Optional[str] = None,
-    # row_striping_include_stub: Optional[bool] = None,
-    # row_striping_include_table_body: Optional[bool] = None,
+    container_width: str | None = None,
+    container_height: str | None = None,
+    container_overflow_x: str | None = None,
+    container_overflow_y: str | None = None,
+    table_width: str | None = None,
+    table_layout: str | None = None,
+    # table_align: str | None = None,
+    table_margin_left: str | None = None,
+    table_margin_right: str | None = None,
+    table_background_color: str | None = None,
+    # table_additional_css: str | None = None,
+    table_font_names: str | list[str] | None = None,
+    table_font_size: str | None = None,
+    table_font_weight: str | None = None,
+    table_font_style: str | None = None,
+    table_font_color: str | None = None,
+    table_font_color_light: str | None = None,
+    table_border_top_style: str | None = None,
+    table_border_top_width: str | None = None,
+    table_border_top_color: str | None = None,
+    table_border_bottom_style: str | None = None,
+    table_border_bottom_width: str | None = None,
+    table_border_bottom_color: str | None = None,
+    table_border_left_style: str | None = None,
+    table_border_left_width: str | None = None,
+    table_border_left_color: str | None = None,
+    table_border_right_style: str | None = None,
+    table_border_right_width: str | None = None,
+    table_border_right_color: str | None = None,
+    heading_background_color: str | None = None,
+    heading_align: str | None = None,
+    heading_title_font_size: str | None = None,
+    heading_title_font_weight: str | None = None,
+    heading_subtitle_font_size: str | None = None,
+    heading_subtitle_font_weight: str | None = None,
+    heading_padding: str | None = None,
+    heading_padding_horizontal: str | None = None,
+    heading_border_bottom_style: str | None = None,
+    heading_border_bottom_width: str | None = None,
+    heading_border_bottom_color: str | None = None,
+    heading_border_lr_style: str | None = None,
+    heading_border_lr_width: str | None = None,
+    heading_border_lr_color: str | None = None,
+    column_labels_background_color: str | None = None,
+    column_labels_font_size: str | None = None,
+    column_labels_font_weight: str | None = None,
+    column_labels_text_transform: str | None = None,
+    column_labels_padding: str | None = None,
+    column_labels_padding_horizontal: str | None = None,
+    column_labels_vlines_style: str | None = None,
+    column_labels_vlines_width: str | None = None,
+    column_labels_vlines_color: str | None = None,
+    column_labels_border_top_style: str | None = None,
+    column_labels_border_top_width: str | None = None,
+    column_labels_border_top_color: str | None = None,
+    column_labels_border_bottom_style: str | None = None,
+    column_labels_border_bottom_width: str | None = None,
+    column_labels_border_bottom_color: str | None = None,
+    column_labels_border_lr_style: str | None = None,
+    column_labels_border_lr_width: str | None = None,
+    column_labels_border_lr_color: str | None = None,
+    column_labels_hidden: bool | None = None,
+    row_group_background_color: str | None = None,
+    row_group_font_size: str | None = None,
+    row_group_font_weight: str | None = None,
+    row_group_text_transform: str | None = None,
+    row_group_padding: str | None = None,
+    row_group_padding_horizontal: str | None = None,
+    row_group_border_top_style: str | None = None,
+    row_group_border_top_width: str | None = None,
+    row_group_border_top_color: str | None = None,
+    row_group_border_bottom_style: str | None = None,
+    row_group_border_bottom_width: str | None = None,
+    row_group_border_bottom_color: str | None = None,
+    row_group_border_left_style: str | None = None,
+    row_group_border_left_width: str | None = None,
+    row_group_border_left_color: str | None = None,
+    row_group_border_right_style: str | None = None,
+    row_group_border_right_width: str | None = None,
+    row_group_border_right_color: str | None = None,
+    # row_group_default_label: str | None = None,
+    row_group_as_column: bool | None = None,
+    table_body_hlines_style: str | None = None,
+    table_body_hlines_width: str | None = None,
+    table_body_hlines_color: str | None = None,
+    table_body_vlines_style: str | None = None,
+    table_body_vlines_width: str | None = None,
+    table_body_vlines_color: str | None = None,
+    table_body_border_top_style: str | None = None,
+    table_body_border_top_width: str | None = None,
+    table_body_border_top_color: str | None = None,
+    table_body_border_bottom_style: str | None = None,
+    table_body_border_bottom_width: str | None = None,
+    table_body_border_bottom_color: str | None = None,
+    stub_background_color: str | None = None,
+    stub_font_size: str | None = None,
+    stub_font_weight: str | None = None,
+    stub_text_transform: str | None = None,
+    stub_border_style: str | None = None,
+    stub_border_width: str | None = None,
+    stub_border_color: str | None = None,
+    stub_row_group_font_size: str | None = None,
+    stub_row_group_font_weight: str | None = None,
+    stub_row_group_text_transform: str | None = None,
+    stub_row_group_border_style: str | None = None,
+    stub_row_group_border_width: str | None = None,
+    stub_row_group_border_color: str | None = None,
+    data_row_padding: str | None = None,
+    data_row_padding_horizontal: str | None = None,
+    # summary_row_background_color: str | None = None,
+    # summary_row_text_transform: str | None = None,
+    # summary_row_padding: str | None = None,
+    # summary_row_padding_horizontal: str | None = None,
+    # summary_row_border_style: str | None = None,
+    # summary_row_border_width: str | None = None,
+    # summary_row_border_color: str | None = None,
+    # grand_summary_row_background_color: str | None = None,
+    # grand_summary_row_text_transform: str | None = None,
+    # grand_summary_row_padding: str | None = None,
+    # grand_summary_row_padding_horizontal: str | None = None,
+    # grand_summary_row_border_style: str | None = None,
+    # grand_summary_row_border_width: str | None = None,
+    # grand_summary_row_border_color: str | None = None,
+    # footnotes_background_color: str | None = None,
+    # footnotes_font_size: str | None = None,
+    # footnotes_padding: str | None = None,
+    # footnotes_padding_horizontal: str | None = None,
+    # footnotes_border_bottom_style: str | None = None,
+    # footnotes_border_bottom_width: str | None = None,
+    # footnotes_border_bottom_color: str | None = None,
+    # footnotes_border_lr_style: str | None = None,
+    # footnotes_border_lr_width: str | None = None,
+    # footnotes_border_lr_color: str | None = None,
+    # footnotes_marks: str | list[str] | None = None,
+    # footnotes_multiline: bool | None = None,
+    # footnotes_sep: str | None = None,
+    source_notes_background_color: str | None = None,
+    source_notes_font_size: str | None = None,
+    source_notes_padding: str | None = None,
+    source_notes_padding_horizontal: str | None = None,
+    source_notes_border_bottom_style: str | None = None,
+    source_notes_border_bottom_width: str | None = None,
+    source_notes_border_bottom_color: str | None = None,
+    source_notes_border_lr_style: str | None = None,
+    source_notes_border_lr_width: str | None = None,
+    source_notes_border_lr_color: str | None = None,
+    source_notes_multiline: bool | None = None,
+    source_notes_sep: str | None = None,
+    # row_striping_background_color: str | None = None,
+    # row_striping_include_stub: bool | None = None,
+    # row_striping_include_table_body: bool | None = None,
 ) -> GTSelf:
     """
     Modify the table output options.
@@ -546,7 +548,7 @@ def tab_options(
     return self._replace(_options=new_options)
 
 
-def opt_footnote_marks(self: GTSelf, marks: Union[str, List[str]] = "numbers") -> GTSelf:
+def opt_footnote_marks(self: GTSelf, marks: str | list[str] = "numbers") -> GTSelf:
     """
     Option to modify the set of footnote marks
     Alter the footnote marks for any footnotes that may be present in the table. Either a list
@@ -872,7 +874,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 def opt_all_caps(
     self: GTSelf,
     all_caps: bool = True,
-    locations: Union[str, List[str]] = ["column_labels", "stub", "row_group"],
+    locations: str | list[str] = ["column_labels", "stub", "row_group"],
 ) -> GTSelf:
     """
     Option to use all caps in select table locations.
@@ -928,7 +930,7 @@ def opt_all_caps(
     """
 
     # If providing a scalar string value, normalize it to be in a list
-    if type(locations).__name__ != "list":
+    if not isinstance(locations, list):
         locations = _utils._str_scalar_to_list(cast(str, locations))
 
     # Ensure that the `locations` value is a list of strings
@@ -942,7 +944,7 @@ def opt_all_caps(
     # world where options are not mutating the GT options object.
     # TODO: is there a way to set multiple options at once?
     res = self
-    if all_caps is True:
+    if all_caps:
         if "column_labels" in locations:
             res = tab_options(res, column_labels_font_size="80%")
             res = tab_options(res, column_labels_font_weight="bolder")
@@ -1000,6 +1002,32 @@ def opt_table_outline(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+    Using select columns from the `exibble` dataset, let's create a table with a number of
+    components added. Following that, we'll put an outline around the entire table using the
+    `opt_table_outline()` method.
+
+    ```{python}
+    from great_tables import GT, exibble, md
+
+    (
+      GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+      )
+      .tab_header(
+        title=md("Data listing from **exibble**"),
+        subtitle=md("`exibble` is a **Great Tables** dataset.")
+      )
+      .fmt_number(columns="num")
+      .fmt_currency(columns="currency")
+      .tab_source_note(source_note="This is only a subset of the dataset.")
+      .opt_table_outline()
+    )
+    ```
     """
 
     # Validate the `style` argument
@@ -1282,8 +1310,8 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
         "table_outline_color",
     }
 
-    def dict_omit_keys(dict, omit_keys) -> Dict[str, str]:
-        return {x: dict[x] for x in dict if x not in omit_keys}
+    def dict_omit_keys(dict: dict[str, str], omit_keys: set[str]) -> dict[str, str]:
+        return {x: v for x, v in dict.items() if x not in omit_keys}
 
     params = dict_omit_keys(dict=params, omit_keys=omit_keys)
 
@@ -1329,11 +1357,11 @@ class StyleMapper:
         "data_vlines_color": ["table_body_vlines_color"],
     }
 
-    def map_entry(self, name: str):
+    def map_entry(self, name: str) -> dict[str, list[str]]:
         return {k: getattr(self, name) for k in self.mappings[name]}
 
-    def map_all(self):
-        items = {}
+    def map_all(self) -> dict[str, list[str]]:
+        items: dict[str, list[str]] = {}
         for field in fields(self):
             items.update(self.map_entry(field.name))
         return items

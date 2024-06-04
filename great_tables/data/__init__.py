@@ -203,10 +203,10 @@ Details
 This is a dataset with 816 rows and 4 columns.
 
 - `latitude`: The latitude in decimal degrees for the observations.
-- `month: The measurement month. All calculations where conducted for the first day of each month.
-- `tst: The true solar time at the given `latitude` and date (first of `month`) for which the solar
+- `month`: The measurement month. All calculations where conducted for the first day of each month.
+- `tst`: The true solar time at the given `latitude` and date (first of `month`) for which the solar
 zenith angle is calculated.
-- `sza: The solar zenith angle in degrees, where `NA`s indicate that sunrise hadn't yet occurred by
+- `sza`: The solar zenith angle in degrees, where `NA`s indicate that sunrise hadn't yet occurred by
 the `tst` value.
 
 Source
@@ -234,7 +234,7 @@ Details
 -------
 This is a dataset with 47 rows and 15 columns.
 
-- `mfr`: `The name of the car manufacturer.
+- `mfr`: The name of the car manufacturer.
 - `model`: The car's model name.
 - `year`: The car's model year.
 - `trim`: A short description of the car model's trim.
@@ -265,11 +265,11 @@ Details
 -------
 This is a dataset with 16,607 rows and 7 columns.
 
-`date`: The date expressed as `Date` values.
-`open`, `high`, `low`, `close`: The day's opening, high, low, and closing prices in USD. The `close`
-price is adjusted for splits.
-`volume`: The number of trades for the given `date`.
-`adj_close`: The close price adjusted for both dividends and splits.
+- `date`: The date expressed as `Date` values.
+- `open`, `high`, `low`, `close`: The day's opening, high, low, and closing prices in USD. The
+`close` price is adjusted for splits.
+- `volume`: The number of trades for the given `date`.
+- `adj_close`: The close price adjusted for both dividends and splits.
 """
 
 
@@ -363,7 +363,7 @@ Details
 This is a dataset with 49,574 rows and 7 columns.
 
 - `id`: The ID for the order, which consists of one or more pizzas at a given `date` and `time`.
-`date`: A character representation of the `order` date, expressed in the ISO 8601 date format
+- `date`: A character representation of the `order` date, expressed in the ISO 8601 date format
 ('YYYY-MM-DD').
 - `time`: A character representation of the `order` time, expressed as a 24-hour time the ISO 8601
 extended time format ('hh:mm:ss').

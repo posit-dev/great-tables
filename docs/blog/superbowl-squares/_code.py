@@ -45,7 +45,7 @@ joint = (
     .with_columns(joint=pl.col("prop") * pl.col("prop_right"))
     .sort("final_digit", "final_digit_right")
     .pivot(values="joint", columns="final_digit_right", index="final_digit")
-    .with_columns((cs.all().exclude("final_digit") * 100).round(1))
+    .with_columns((cs.exclude("final_digit") * 100).round(1))
 )
 
 # Display -----

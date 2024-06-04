@@ -1,8 +1,18 @@
-from typing import Union, List, Dict, Literal, Any, Optional, Callable
+from __future__ import annotations
+
+
 import random
+import string
+from typing import Any, Callable, Literal
+
 from typing_extensions import TypeAlias
+
 from ._text import Text
 
+import re
+from dataclasses import dataclass
+
+from great_tables._text import _md_html
 
 FontStackName: TypeAlias = Literal[
     "system-ui",
@@ -23,7 +33,130 @@ FontStackName: TypeAlias = Literal[
 ]
 
 
-def px(x: Union[int, float]) -> str:
+FONT_STACKS = {
+    "system-ui": [
+        "system-ui",
+        "sans-serif",
+    ],
+    "transitional": [
+        "Charter",
+        "Bitstream Charter",
+        "Sitka Text",
+        "Cambria",
+        "serif",
+    ],
+    "old-style": [
+        "Iowan Old Style",
+        "Palatino Linotype",
+        "URW Palladio L",
+        "P052",
+        "serif",
+    ],
+    "humanist": [
+        "Seravek",
+        "Gill Sans Nova",
+        "Ubuntu",
+        "Calibri",
+        "DejaVu Sans",
+        "source-sans-pro",
+        "sans-serif",
+    ],
+    "geometric-humanist": [
+        "Avenir",
+        "Montserrat",
+        "Corbel",
+        "URW Gothic",
+        "source-sans-pro",
+        "sans-serif",
+    ],
+    "classical-humanist": [
+        "Optima",
+        "Candara",
+        "Noto Sans",
+        "source-sans-pro",
+        "sans-serif",
+    ],
+    "neo-grotesque": [
+        "Inter",
+        "Roboto",
+        "Helvetica Neue",
+        "Arial Nova",
+        "Nimbus Sans",
+        "Arial",
+        "sans-serif",
+    ],
+    "monospace-slab-serif": [
+        "Nimbus Mono PS",
+        "Courier New",
+        "monospace",
+    ],
+    "monospace-code": [
+        "ui-monospace",
+        "Cascadia Code",
+        "Source Code Pro",
+        "Menlo",
+        "Consolas",
+        "DejaVu Sans Mono",
+        "monospace",
+    ],
+    "industrial": [
+        "Bahnschrift",
+        "DIN Alternate",
+        "Franklin Gothic Medium",
+        "Nimbus Sans Narrow",
+        "sans-serif-condensed",
+        "sans-serif",
+    ],
+    "rounded-sans": [
+        "ui-rounded",
+        "Hiragino Maru Gothic ProN",
+        "Quicksand",
+        "Comfortaa",
+        "Manjari",
+        "Arial Rounded MT",
+        "Arial Rounded MT Bold",
+        "Calibri",
+        "source-sans-pro",
+        "sans-serif",
+    ],
+    "slab-serif": [
+        "Rockwell",
+        "Rockwell Nova",
+        "Roboto Slab",
+        "DejaVu Serif",
+        "Sitka Small",
+        "serif",
+    ],
+    "antique": [
+        "Superclarendon",
+        "Bookman Old Style",
+        "URW Bookman",
+        "URW Bookman L",
+        "Georgia Pro",
+        "Georgia",
+        "serif",
+    ],
+    "didone": [
+        "Didot",
+        "Bodoni MT",
+        "Noto Serif Display",
+        "URW Palladio L",
+        "P052",
+        "Sylfaen",
+        "serif",
+    ],
+    "handwritten": [
+        "Segoe Print",
+        "Bradley Hand",
+        "Chilanka",
+        "TSCu_Comic",
+        "casual",
+        "cursive",
+    ],
+}
+
+
+def px(x: int | float) -> str:
     """
     Helper for providing a CSS length value in pixels.
 
@@ -48,7 +181,7 @@ def px(x: Union[int, float]) -> str:
     return f"{x}px"
 
 
-def pct(x: Union[int, float]) -> str:
+def pct(x: int | float) -> str:
     """
     Helper for providing a CSS length value as a percentage.
 
@@ -91,6 +224,10 @@ def md(text: str) -> Text:
     -------
     Text
         An instance of the Text class is returned, where the text `type` is `"from_markdown"`.
+
+    Examples
+    ------
+    See [`GT.tab_header()`](`great_tables.GT.tab_header`).
     """
     return Text(text=text, type="from_markdown")
 
@@ -112,6 +249,10 @@ def html(text: str) -> Text:
     -------
     Text
         An instance of the Text class is returned, where the text `type` is `"html"`.
+
+    Examples
+    ------
+    See [`GT.tab_header()`](`great_tables.GT.tab_header`).
     """
     return Text(text=text, type="html")
 
@@ -132,83 +273,25 @@ def random_id(n: int = 10) -> str:
     return "".join(random.choices(letters(), k=n))
 
 
-def letters() -> List[str]:
+def letters() -> list[str]:
     """Lowercase letters of the Roman alphabet
 
     Returns:
-        List[str]: the 26 lowercase letters of the Roman alphabet
+        list[str]: the 26 lowercase letters of the Roman alphabet
     """
-    lett = [
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-        "g",
-        "h",
-        "i",
-        "j",
-        "k",
-        "l",
-        "m",
-        "n",
-        "o",
-        "p",
-        "q",
-        "r",
-        "s",
-        "t",
-        "u",
-        "v",
-        "w",
-        "x",
-        "y",
-        "z",
-    ]
-
-    return lett
+    return list(string.ascii_lowercase)
 
 
-def LETTERS() -> List[str]:
+def LETTERS() -> list[str]:
     """Uppercase letters of the Roman alphabet
 
     Returns:
-        List[str]: the 26 uppercase letters of the Roman alphabet
+        list[str]: the 26 uppercase letters of the Roman alphabet
     """
-    lett = [
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "U",
-        "V",
-        "W",
-        "X",
-        "Y",
-        "Z",
-    ]
-
-    return lett
+    return list(string.ascii_uppercase)
 
 
-def system_fonts(name: FontStackName = "system-ui") -> List[str]:
+def system_fonts(name: FontStackName = "system-ui") -> list[str]:
     """Get a themed font stack that works well across systems.
 
     A font stack can be obtained from `system_fonts()` using one of various keywords such as
@@ -227,7 +310,7 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of font names that make up the font stack.
 
     The font stacks and the individual fonts used by platform
@@ -427,130 +510,11 @@ def system_fonts(name: FontStackName = "system-ui") -> List[str]:
     return _get_font_stack(name)
 
 
-def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[str]:
-    font_stack_names = [
-        "system-ui",
-        "transitional",
-        "old-style",
-        "humanist",
-        "geometric-humanist",
-        "classical-humanist",
-        "neo-grotesque",
-        "monospace-slab-serif",
-        "monospace-code",
-        "industrial",
-        "rounded-sans",
-        "slab-serif",
-        "antique",
-        "didone",
-        "handwritten",
-    ]
+def _get_font_stack(name: FontStackName = "system-ui", add_emoji: bool = True) -> list[str]:
+    font_stack = FONT_STACKS.get(name)
 
-    if name not in font_stack_names:
+    if font_stack is None:
         raise ValueError(f"Invalid font stack name: {name}")
-
-    if name == "system-ui":
-        font_stack = ["system-ui", "sans-serif"]
-    elif name == "transitional":
-        font_stack = ["Charter", "Bitstream Charter", "Sitka Text", "Cambria", "serif"]
-    elif name == "old-style":
-        font_stack = ["Iowan Old Style", "Palatino Linotype", "URW Palladio L", "P052", "serif"]
-    elif name == "humanist":
-        font_stack = [
-            "Seravek",
-            "Gill Sans Nova",
-            "Ubuntu",
-            "Calibri",
-            "DejaVu Sans",
-            "source-sans-pro",
-            "sans-serif",
-        ]
-    elif name == "geometric-humanist":
-        font_stack = [
-            "Avenir",
-            "Montserrat",
-            "Corbel",
-            "URW Gothic",
-            "source-sans-pro",
-            "sans-serif",
-        ]
-    elif name == "classical-humanist":
-        font_stack = ["Optima", "Candara", "Noto Sans", "source-sans-pro", "sans-serif"]
-    elif name == "neo-grotesque":
-        font_stack = [
-            "Inter",
-            "Roboto",
-            "Helvetica Neue",
-            "Arial Nova",
-            "Nimbus Sans",
-            "Arial",
-            "sans-serif",
-        ]
-    elif name == "monospace-slab-serif":
-        font_stack = ["Nimbus Mono PS", "Courier New", "monospace"]
-    elif name == "monospace-code":
-        font_stack = [
-            "ui-monospace",
-            "Cascadia Code",
-            "Source Code Pro",
-            "Menlo",
-            "Consolas",
-            "DejaVu Sans Mono",
-            "monospace",
-        ]
-    elif name == "industrial":
-        font_stack = [
-            "Bahnschrift",
-            "DIN Alternate",
-            "Franklin Gothic Medium",
-            "Nimbus Sans Narrow",
-            "sans-serif-condensed",
-            "sans-serif",
-        ]
-    elif name == "rounded-sans":
-        font_stack = [
-            "ui-rounded",
-            "Hiragino Maru Gothic ProN",
-            "Quicksand",
-            "Comfortaa",
-            "Manjari",
-            "Arial Rounded MT",
-            "Arial Rounded MT Bold",
-            "Calibri",
-            "source-sans-pro",
-            "sans-serif",
-        ]
-    elif name == "slab-serif":
-        font_stack = [
-            "Rockwell",
-            "Rockwell Nova",
-            "Roboto Slab",
-            "DejaVu Serif",
-            "Sitka Small",
-            "serif",
-        ]
-    elif name == "antique":
-        font_stack = [
-            "Superclarendon",
-            "Bookman Old Style",
-            "URW Bookman",
-            "URW Bookman L",
-            "Georgia Pro",
-            "Georgia",
-            "serif",
-        ]
-    elif name == "didone":
-        font_stack = [
-            "Didot",
-            "Bodoni MT",
-            "Noto Serif Display",
-            "URW Palladio L",
-            "P052",
-            "Sylfaen",
-            "serif",
-        ]
-    elif name == "handwritten":
-        font_stack = ["Segoe Print", "Bradley Hand", "Chilanka", "TSCu_Comic", "casual", "cursive"]
 
     if add_emoji:
         font_stack.extend(
@@ -560,12 +524,507 @@ def _get_font_stack(name: FontStackName = "system-ui", add_emoji=True) -> List[s
     return font_stack
 
 
+def _generate_tokens_list(units_notation: str) -> list[str]:
+
+    # Remove any surrounding double braces before splitting the string into a list of tokens
+    tokens_list = re.split(r"\s+", re.sub(r"^\{\{\s*|\s*\}\}$", "", units_notation))
+
+    # Remove any empty tokens (i.e., `None` or `""`)
+    tokens_list = [token for token in tokens_list if token != "" and token is not None]
+
+    # Replace any instances of `/<text>` with `<text>^-1`
+    tokens_list = [
+        re.sub(r"^/", "", x) + "^-1" if re.match(r"^/", x) and len(x) > 1 else x
+        for x in tokens_list
+    ]
+
+    return tokens_list
+
+
+@dataclass
+class UnitDefinition:
+    token: str
+    unit: str
+    unit_subscript: str | None = None
+    exponent: str | None = None
+    sub_super_overstrike: bool = False
+    chemical_formula: bool = False
+    built: str | None = None
+
+    @classmethod
+    def from_token(cls, token: str) -> UnitDefinition:
+
+        unit_subscript = None
+        sub_super_overstrike = False
+        chemical_formula = False
+        exponent = None
+
+        # Case: Chemical formula
+        #   * e.g. "%C6H12O6%", where the '%' characters are used to denote a chemical formula
+        if re.match(r"^%.*%$", token) and len(token) > 2:
+
+            chemical_formula = True
+
+            # Extract the formula w/o the surrounding `%` signs
+            unit = re.sub(r"^%|%$", "", token)
+
+        # Case: Subscript and exponent present inside square brackets, so overstriking required
+        #   * e.g., 'm_[0^3]'
+        elif re.search(r".+?\[_.+?\^.+?\]", token):
+
+            sub_super_overstrike = True
+
+            # Extract the unit w/o subscript from the string
+            unit = re.sub(r"(.+?)\[_.+?\^.+?\]", r"\1", token)
+
+            # Obtain only the subscript/exponent of the string
+            sub_exponent = re.sub(r".+?\[(_.+?\^.+?)\]", r"\1", token)
+
+            # Extract the content after the underscore
+            unit_subscript = re.sub(r"^_(.+?)(\^.+?)$", r"\1", sub_exponent)
+
+            # Extract the content after the caret
+            exponent = re.sub(r"_.+?\^(.+?)", r"\1", sub_exponent)
+
+        # Case: Subscript and exponent present (overstriking is *not* required here)
+        #   * e.g., 'm_2^3'
+        elif re.search(r".+?_.+?\^.+?", token):
+
+            # Extract the unit w/o subscript from the string
+            unit = re.sub(r"^(.+?)_.+?\^.+?$", r"\1", token)
+
+            # Obtain only the subscript/exponent portion of the string
+            sub_exponent = re.sub(r".+?(_.+?\^.+?)$", r"\1", token)
+
+            # Extract the content after the underscore
+            unit_subscript = re.sub(r"^_(.+?)\^.+?$", r"\1", sub_exponent)
+
+            # Extract the content after the caret
+            exponent = re.sub(r"^_.+?\^(.+?)$", r"\1", sub_exponent)
+
+        # Case: Only an exponent is present
+        #   * the previous cases handled the presence of a subscript and exponent, but this case
+        #     only handles the presence of an exponent (indicated by the '^' character anywhere
+        #     in the string)
+        #   * e.g., 'm^2'
+        elif re.search(r"\^", token):
+
+            # Extract the unit w/o exponent from the string
+            unit = re.sub(r"^(.+?)\^.+?$", r"\1", token)
+
+            # Obtain only the exponent portion of the string
+            exponent = re.sub(r"^.+?\^(.+?)$", r"\1", token)
+
+        # Case: Only a subscript is present
+        #   * this case handles the presence of a single subscript (indicated by the '_' character
+        #     anywhere in the string)
+        #   * e.g., 'm_2'
+        elif re.search(r"_", token):
+
+            # Extract the unit w/o subscript from the string
+            unit = re.sub(r"^(.+?)_.+?$", r"\1", token)
+
+            # Obtain only the subscript portion of the string
+            unit_subscript = re.sub(r"^.+?_(.+?)$", r"\1", token)
+        else:
+            unit = token
+
+        return cls(token, unit, unit_subscript, exponent, sub_super_overstrike, chemical_formula)
+
+    def to_html(self):
+        units_str = ""
+
+        units_object = self
+
+        # Perform formatting of of the unit:
+        #   * The `unit` attribute is the main part of the unit (e.g., 'm' in 'm^2')
+        #   * The `unit` component should never be `None`
+        #   * We take a simpler approach to formatting the unit when it only contains
+        #     a single character (no use of `_units_symbol_replacements()` here)
+        if len(units_object.unit) > 1:
+            unit = _md_html(
+                _escape_html_tags(
+                    _units_symbol_replacements(text=units_object.unit.replace("-", "&minus;"))
+                )
+            )
+
+        else:
+            unit = _md_html(units_object.unit.replace("-", "&minus;"))
+
+        # In the special case where the unit is 'x10', we replace the 'x' with a
+        # multiplication symbol:
+        #   * This isn't done unit is a chemical formula since it's not necessary
+        #   * This is practical for having scalar multipliers mixed in with units and typically
+        #     this is raised to a power (e.g., 'x10^6') and often placed before the inline units
+        if "x10" in unit and not units_object.chemical_formula:
+            unit = unit.replace("x", "&times;")
+
+        # Perform formatting of the exponent:
+        #   * The `exponent` attribute is the exponent part of the unit (e.g., '2' in 'm^2')
+        #   * The `exponent` component can be `None` if the unit does not have an exponent
+        #   * When the `exponent` component is a string of length greater than 2, we also use
+        #     `_units_symbol_replacements()` function to format the exponent)
+        if units_object.exponent is None:
+            exponent = None
+
+        elif len(units_object.exponent) > 2:
+            exponent = _units_to_superscript(
+                _md_html(
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.exponent.replace("-", "&minus;")
+                        )
+                    )
+                )
+            )
+
+        else:
+            exponent = _units_to_superscript(content=units_object.exponent.replace("-", "&minus;"))
+
+        # Perform formatting of the unit subscript:
+        #   * The `unit_subscript` attribute is the subscript part of the unit (e.g., '2' in
+        #     'm_2')
+        #   * The `unit_subscript` component can be `None` if the unit does not have a subscript
+        #   * When the `unit_subscript` component is a string of length greater than 2, we also
+        #     use `_units_symbol_replacements()` function to format the subscript)
+        if units_object.unit_subscript is None:
+            unit_subscript = None
+
+        elif len(units_object.unit_subscript) > 2:
+            unit_subscript = _units_to_subscript(
+                _md_html(
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.unit_subscript.replace("-", "&minus;")
+                        )
+                    )
+                )
+            )
+
+        else:
+            unit_subscript = _units_to_subscript(
+                content=units_object.unit_subscript.replace("-", "&minus;")
+            )
+
+        units_str += unit
+
+        # In the special case where the subscript and exponents are present and overstriking
+        # is required, we use the `_units_html_sub_super()` function to format the subscript
+        # and exponent:
+        #   * The subscript and exponent are placed on top of each other, with left alignment
+        #   * This bypasses the earlier formatting of the subscript and exponent
+        #   * The result is placed to the right of the unit
+        if (
+            units_object.sub_super_overstrike
+            and units_object.unit_subscript is not None
+            and units_object.exponent is not None
+        ):
+
+            units_str += _units_html_sub_super(
+                content_sub=_md_html(
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.unit_subscript.replace("-", "&minus;")
+                        )
+                    )
+                ),
+                content_sup=_md_html(
+                    _escape_html_tags(
+                        _units_symbol_replacements(
+                            text=units_object.exponent.replace("-", "&minus;")
+                        )
+                    )
+                ),
+            )
+
+        # In the special case where the unit is a chemical formula, we take the formatted unit
+        # and place all numbers (which are recognized now to be part of the chemical formula)
+        # into spans that are styled to be subscripts:
+        elif units_object.chemical_formula:
+
+            units_str = re.sub(
+                "(\\d+)",
+                '<span style="white-space:nowrap;"><sub style="line-height:0;">\\1</sub></span>',
+                units_str,
+            )
+
+        else:
+
+            if unit_subscript is not None:
+                units_str += unit_subscript
+
+            if exponent is not None:
+                units_str += exponent
+
+        return units_str
+
+
+class UnitDefinitionList:
+    def __init__(self, units_list: list[UnitDefinition]):
+        self.units_list = units_list
+
+    def __repr__(self) -> str:
+        return f"UnitDefinitionList({self.__dict__})"
+
+    def __len__(self) -> int:
+        return len(self.units_list)
+
+    def __getitem__(self, index: int) -> UnitDefinition:
+        return self.units_list[index]
+
+    def to_html(self) -> str:
+        built_units = [unit_def.to_html() for unit_def in self.units_list]
+
+        units_str = ""
+
+        for unit_add in built_units:
+
+            if re.search("\\($|\\[$", units_str) or re.search("^\\)|^\\]", unit_add):
+                spacer = ""
+            else:
+                spacer = " "
+
+            if len(self) == 3 and self[1].unit == "/":
+                spacer = ""
+
+            units_str += f"{spacer}{unit_add}"
+
+        units_str = re.sub("^\\s+|\\s+$", "", units_str)
+
+        return units_str
+
+    def _repr_html_(self):
+        return self.to_html()
+
+
+def _units_to_subscript(content: str) -> str:
+    return (
+        '<span style="white-space:nowrap;"><sub style="line-height:0;">' + content + "</sub></span>"
+    )
+
+
+def _units_to_superscript(content: str) -> str:
+    return (
+        '<span style="white-space:nowrap;"><sup style="line-height:0;">' + content + "</sup></span>"
+    )
+
+
+def _units_html_sub_super(content_sub: str, content_sup: str) -> str:
+    return (
+        '<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">'
+        + content_sup
+        + "<br>"
+        + content_sub
+        + "</span>"
+    )
+
+
+def _replace_units_symbol(text: str, detect: str, pattern: str, replace: str) -> str:
+
+    if re.search(detect, text):
+        text = re.sub(pattern, replace, text)
+
+    return text
+
+
+def _units_symbol_replacements(text: str) -> str:
+
+    # Replace certain units symbols with HTML entities; these are cases where the parsed
+    # text should be at the beginning of a string (or should be the entire string)
+    text = _replace_units_symbol(text, "^-", "^-", "&minus;")
+    text = _replace_units_symbol(text, "^um$", "um", "&micro;m")
+    text = _replace_units_symbol(text, "^uL$", "uL", "&micro;L")
+    text = _replace_units_symbol(text, "^umol", "^umol", "&micro;mol")
+    text = _replace_units_symbol(text, "^ug$", "ug", "&micro;g")
+    text = _replace_units_symbol(text, "^ohm$", "ohm", "&#8486;")
+
+    # Loop through the dictionary of units symbols and replace them with their HTML entities
+    for key, value in UNITS_SYMBOLS_HTML.items():
+        text = _replace_units_symbol(text, key, key, value)
+
+    return text
+
+
+def _escape_html_tags(text: str) -> str:
+
+    # Replace the '<' and '>' characters with their HTML entity equivalents
+    text = text.replace("<", "&lt;")
+    text = text.replace(">", "&gt;")
+
+    return text
+
+
+UNITS_SYMBOLS_HTML = {
+    "degC": "&deg;C",
+    "degF": "&deg;F",
+    ":pm:": "&plusmn;",
+    ":mp:": "&mnplus;",
+    ":lt:": "&lt;",
+    ":gt:": "&gt;",
+    ":le:": "&le;",
+    ":ge:": "&ge;",
+    ":cdot:": "&sdot;",
+    ":times:": "&times;",
+    ":div:": "&divide;",
+    ":ne:": "&ne;",
+    ":prime:": "&prime;",
+    ":rightarrow:": "&rarr;",
+    ":leftarrow:": "&larr;",
+    ":micro:": "&micro;",
+    ":ohm:": "&#8486;",
+    ":angstrom:": "&#8491;",
+    ":times:": "&times;",
+    ":plusminus:": "&plusmn;",
+    ":permil:": "&permil;",
+    ":permille:": "&permil;",
+    ":degree:": "&deg;",
+    ":degrees:": "&deg;",
+    ":space:": "&nbsp;",
+    ":Alpha:": "&Alpha;",
+    ":alpha:": "&alpha;",
+    ":Beta:": "&Beta;",
+    ":beta:": "&beta;",
+    ":Gamma:": "&Gamma;",
+    ":gamma:": "&gamma;",
+    ":Delta:": "&Delta;",
+    ":delta:": "&delta;",
+    ":Epsilon:": "&Epsilon;",
+    ":epsilon:": "&epsilon;",
+    ":varepsilon:": "&varepsilon;",
+    ":Zeta:": "&Zeta;",
+    ":zeta:": "&zeta;",
+    ":Eta:": "&Eta;",
+    ":eta:": "&eta;",
+    ":Theta:": "&Theta;",
+    ":theta:": "&theta;",
+    ":vartheta:": "&vartheta;",
+    ":Iota:": "&Iota;",
+    ":iota:": "&iota;",
+    ":Kappa:": "&Kappa;",
+    ":kappa:": "&kappa;",
+    ":Lambda:": "&Lambda;",
+    ":lambda:": "&lambda;",
+    ":Mu:": "&Mu;",
+    ":mu:": "&mu;",
+    ":Nu:": "&Nu;",
+    ":nu:": "&nu;",
+    ":Xi:": "&Xi;",
+    ":xi:": "&xi;",
+    ":Omicron:": "&Omicron;",
+    ":omicron:": "&omicron;",
+    ":Pi:": "&Pi;",
+    ":pi:": "&pi;",
+    ":Rho:": "&Rho;",
+    ":rho:": "&rho;",
+    ":Sigma:": "&Sigma;",
+    ":sigma:": "&sigma;",
+    ":sigmaf:": "&sigmaf;",
+    ":varsigma:": "&varsigma;",
+    ":Tau:": "&Tau;",
+    ":tau:": "&tau;",
+    ":Upsilon:": "&Upsilon;",
+    ":upsilon:": "&upsilon;",
+    ":Phi:": "&Phi;",
+    ":phi:": "&phi;",
+    ":Chi:": "&Chi;",
+    ":chi:": "&chi;",
+    ":Psi:": "&Psi;",
+    ":psi:": "&psi;",
+    ":Omega:": "&Omega;",
+    ":omega:": "&omega;",
+}
+
+
+def define_units(units_notation: str) -> UnitDefinitionList:
+    """
+    With `define_units()` you can work with a specially-crafted units notation string and emit the
+    units as HTML (with the `.to_html()` method). This function is useful as a standalone utility
+    and it powers the `fmt_units()` method in **Great Tables**.
+
+    Parameters
+    ----------
+    units_notation : str
+        A string of units notation.
+
+    Returns
+    -------
+    UnitDefinitionList
+        A list of unit definitions.
+
+    Specification of units notation
+    -------------------------------
+
+    The following table demonstrates the various ways in which units can be specified in the
+    `units_notation` string and how the input is processed by the `define_units()` function. The
+    concluding step for display of the units in HTML is to use the `to_html()` method.
+
+    ```{python}
+    #| echo: false
+
+    from great_tables import GT, style, loc
+    import polars as pl
+
+    units_tbl = pl.DataFrame(
+        {
+            "rule": [
+                "'^' creates a superscript",
+                "'_' creates a subscript",
+                "subscripts and superscripts can be combined",
+                "use '[_subscript^superscript]' to create an overstrike",
+                "a '/' at the beginning adds the superscript '-1'",
+                "hyphen is transformed to minus sign when preceding a unit",
+                "'x' at the beginning is transformed to '×'",
+                "ASCII terms from biology/chemistry turned into terminology forms",
+                "can create italics with '*' or '_'; create bold text with '**' or '__'",
+                "special symbol set surrounded by colons",
+                "chemistry notation: '%C6H6%'",
+            ],
+            "input": [
+                "m^2",
+                "h_0",
+                "h_0^3",
+                "h[_0^3]",
+                "/s",
+                "-h^2",
+                "x10^3 kg^2 m^-1",
+                "ug",
+                "*m*^**2**",
+                ":permille:C",
+                "g/L %C6H12O6%",
+            ],
+        }
+    ).with_columns(output=pl.col("input"))
+
+    (
+        GT(units_tbl)
+        .fmt_units(columns="output")
+        .tab_style(
+            style=style.text(font="courier"),
+            locations=loc.body(columns="input")
+        )
+    )
+    ```
+    """
+
+    # Get a list of raw tokens
+    tokens_list = _generate_tokens_list(units_notation=units_notation)
+
+    # Initialize a list to store the units
+    units_list = []
+
+    if len(tokens_list) == 0:
+        return UnitDefinitionList(units_list=[])
+
+    units_list = [UnitDefinition.from_token(token) for token in tokens_list]
+    return UnitDefinitionList(units_list=units_list)
+
+
 # This could probably be removed and nanoplot_options made into a dataclass
 # the built-in dataclass decorator doesn't do any validation / coercion, but
 # we could do that in the a __post_init__ hook. (I would switch it over to a
 # dataclass and then pair on a post_init hook).
 # Check that certain values are either a list or a single value
-def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any):
+def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any) -> list[Any] | None:
 
     if nano_opt is None:
         return None
@@ -586,37 +1045,37 @@ def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any):
 
 
 def nanoplot_options(
-    data_point_radius: Optional[Union[int, List[int]]] = None,
-    data_point_stroke_color: Optional[Union[str, List[str]]] = None,
-    data_point_stroke_width: Optional[Union[int, List[int]]] = None,
-    data_point_fill_color: Optional[Union[str, List[str]]] = None,
-    data_line_type: Optional[str] = None,
-    data_line_stroke_color: Optional[str] = None,
-    data_line_stroke_width: Optional[int] = None,
-    data_area_fill_color: Optional[str] = None,
-    data_bar_stroke_color: Optional[Union[str, List[str]]] = None,
-    data_bar_stroke_width: Optional[Union[int, List[int]]] = None,
-    data_bar_fill_color: Optional[Union[str, List[str]]] = None,
-    data_bar_negative_stroke_color: Optional[str] = None,
-    data_bar_negative_stroke_width: Optional[int] = None,
-    data_bar_negative_fill_color: Optional[str] = None,
-    reference_line_color: Optional[str] = None,
-    reference_area_fill_color: Optional[str] = None,
-    vertical_guide_stroke_color: Optional[str] = None,
-    vertical_guide_stroke_width: Optional[int] = None,
-    show_data_points: Optional[bool] = None,
-    show_data_line: Optional[bool] = None,
-    show_data_area: Optional[bool] = None,
-    show_reference_line: Optional[bool] = None,
-    show_reference_area: Optional[bool] = None,
-    show_vertical_guides: Optional[bool] = None,
-    show_y_axis_guide: Optional[bool] = None,
-    interactive_data_values: Optional[bool] = None,
-    y_val_fmt_fn: Optional[Callable[..., str]] = None,
-    y_axis_fmt_fn: Optional[Callable[..., str]] = None,
-    y_ref_line_fmt_fn: Optional[Callable[..., str]] = None,
-    currency: Optional[str] = None,
-) -> Dict[str, Any]:
+    data_point_radius: int | list[int] | None = None,
+    data_point_stroke_color: str | list[str] | None = None,
+    data_point_stroke_width: int | list[int] | None = None,
+    data_point_fill_color: str | list[str] | None = None,
+    data_line_type: str | None = None,
+    data_line_stroke_color: str | None = None,
+    data_line_stroke_width: int | None = None,
+    data_area_fill_color: str | None = None,
+    data_bar_stroke_color: str | list[str] | None = None,
+    data_bar_stroke_width: int | list[int] | None = None,
+    data_bar_fill_color: str | list[str] | None = None,
+    data_bar_negative_stroke_color: str | None = None,
+    data_bar_negative_stroke_width: int | None = None,
+    data_bar_negative_fill_color: str | None = None,
+    reference_line_color: str | None = None,
+    reference_area_fill_color: str | None = None,
+    vertical_guide_stroke_color: str | None = None,
+    vertical_guide_stroke_width: int | None = None,
+    show_data_points: bool | None = None,
+    show_data_line: bool | None = None,
+    show_data_area: bool | None = None,
+    show_reference_line: bool | None = None,
+    show_reference_area: bool | None = None,
+    show_vertical_guides: bool | None = None,
+    show_y_axis_guide: bool | None = None,
+    interactive_data_values: bool | None = None,
+    y_val_fmt_fn: Callable[..., str] | None = None,
+    y_axis_fmt_fn: Callable[..., str] | None = None,
+    y_ref_line_fmt_fn: Callable[..., str] | None = None,
+    currency: str | None = None,
+) -> dict[str, Any]:
     """
     Helper for setting the options for a nanoplot.
 
@@ -740,6 +1199,10 @@ def nanoplot_options(
         If the values are to be displayed as currency values, supply either: (1) a 3-letter currency
         code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency), or (2) a common
         currency name (e.g., `"dollar"`, `"pound"`, `"yen"`, etc.).
+
+    Examples
+    --------
+    See [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`).
     """
 
     data_point_radius = _normalize_listable_nanoplot_options(

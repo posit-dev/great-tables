@@ -1,34 +1,40 @@
-import pytest
 import numpy as np
+import pytest
+
+
+from typing import Any, Union
+from decimal import Decimal
 from great_tables._utils_nanoplots import (
-    _val_is_numeric,
-    _val_is_str,
-    _is_integerlike,
-    _normalize_option_list,
-    _normalize_vals,
-    _normalize_to_dict,
-    calc_ref_value,
+    _flatten_list,
     _format_number_compactly,
-    _gt_mean,
-    _gt_min,
-    _gt_max,
-    _gt_median,
+    _generate_nanoplot,
+    _generate_ref_line_from_keyword,
+    _get_extreme_value,
+    _get_n_intlike,
     _gt_first,
     _gt_last,
-    _gt_quantile,
+    _gt_max,
+    _gt_mean,
+    _gt_median,
+    _gt_min,
     _gt_q1,
     _gt_q3,
-    _flatten_list,
-    _get_extreme_value,
-    _generate_ref_line_from_keyword,
-    _generate_nanoplot,
+    _gt_quantile,
+    _is_integerlike,
+    _is_intlike,
+    _normalize_option_list,
+    _normalize_to_dict,
+    _normalize_vals,
+    _remove_exponent,
+    _val_is_numeric,
+    _val_is_str,
+    calc_ref_value,
 )
-from typing import List, Union, Any
 
-Y_VALS: "list[int | float]" = [-5.3, 6.3, -2.3, 0, 2.3, 6.7, 14.2, 0, 2.3, 13.3]
-X_VALS = [1.2, 3.4, 4.2, 5.0, 5.8, 6.7, 8.3, 10.2, 10.9, 12.2]
+Y_VALS: list[Union[int, float]] = [-5.3, 6.3, -2.3, 0, 2.3, 6.7, 14.2, 0, 2.3, 13.3]
+X_VALS: list[Union[int, float]] = [1.2, 3.4, 4.2, 5.0, 5.8, 6.7, 8.3, 10.2, 10.9, 12.2]
 
-CASES: "list[dict[str, Any]]" = [
+CASES: list[dict[str, Any]] = [
     dict(y_vals=Y_VALS),
     dict(y_vals=Y_VALS, y_ref_line=0),
     dict(y_vals=Y_VALS, y_ref_line="mean"),
@@ -167,7 +173,7 @@ def test_normalize_option_list():
     ],
 )
 def test_normalize_vals(
-    vals: Union[List[Union[int, float]], List[int], List[float]], dst: List[Union[int, float]]
+    vals: Union[list[Union[int, float]], list[int], list[float]], dst: list[Union[int, float]]
 ):
     res = _normalize_vals(vals)
     assert res == dst
@@ -351,7 +357,7 @@ def test_format_number_compactly_currency(num: float, currency: Union[str, None]
         ([2.1e15, 2342, 5.3e8], 700000176667447.4),
     ],
 )
-def test_gt_mean(num: List[Union[int, float]], dst: float):
+def test_gt_mean(num: list[Union[int, float]], dst: float):
     res = _gt_mean(num)
     assert res == dst
 
@@ -366,7 +372,7 @@ def test_gt_mean(num: List[Union[int, float]], dst: float):
         ([2.1e15, 2342, 5.3e8], 2342),
     ],
 )
-def test_gt_min(num: List[Union[int, float]], dst: float):
+def test_gt_min(num: list[Union[int, float]], dst: float):
     res = _gt_min(num)
     assert res == dst
 
@@ -381,7 +387,7 @@ def test_gt_min(num: List[Union[int, float]], dst: float):
         ([2.1e15, 2342, 5.3e8], 2100000000000000.0),
     ],
 )
-def test_gt_max(num: List[Union[int, float]], dst: float):
+def test_gt_max(num: list[Union[int, float]], dst: float):
     res = _gt_max(num)
     assert res == dst
 
@@ -397,7 +403,7 @@ def test_gt_max(num: List[Union[int, float]], dst: float):
         ([2.1e15, 2342, 5.3e8], 5.3e8),
     ],
 )
-def test_gt_median(num: List[Union[int, float]], dst: float):
+def test_gt_median(num: list[Union[int, float]], dst: float):
     res = _gt_median(num)
     assert res == dst
 
@@ -413,7 +419,7 @@ def test_gt_median(num: List[Union[int, float]], dst: float):
         ([0, 2.1e15, 2342, 5.3e8, 0, -2343], 0),
     ],
 )
-def test_gt_first(num: List[Union[int, float]], dst: float):
+def test_gt_first(num: list[Union[int, float]], dst: float):
     res = _gt_first(num)
     assert res == dst
 
@@ -429,7 +435,7 @@ def test_gt_first(num: List[Union[int, float]], dst: float):
         ([0, 2.1e15, 2342, 5.3e8, 0, -2343], -2343.0),
     ],
 )
-def test_gt_last(num: List[Union[int, float]], dst: float):
+def test_gt_last(num: list[Union[int, float]], dst: float):
     res = _gt_last(num)
     assert res == dst
 
@@ -469,7 +475,7 @@ def test_gt_last(num: List[Union[int, float]], dst: float):
         # ([1, 3, 3, 3, 5], 1.0, 5.0), # TODO: causes 'IndexError: list index out of range'
     ],
 )
-def test_gt_quantile(num: List[Union[int, float]], q: float, dst: float):
+def test_gt_quantile(num: list[Union[int, float]], q: float, dst: float):
     res = _gt_quantile(num, q=q)
     assert res == dst
 
@@ -489,7 +495,7 @@ def test_gt_quantile(num: List[Union[int, float]], q: float, dst: float):
         ([0, 2.1e15, 2342, 5.3e8, 0, -2343], 0.0),
     ],
 )
-def test_gt_q_1(num: List[Union[int, float]], dst: float):
+def test_gt_q_1(num: list[Union[int, float]], dst: float):
     res = _gt_q1(num)
     assert res == dst
 
@@ -509,7 +515,7 @@ def test_gt_q_1(num: List[Union[int, float]], dst: float):
         ([0, 2.1e15, 2342, 5.3e8, 0, -2343], 5.3e8),
     ],
 )
-def test_gt_q_3(num: List[Union[int, float]], dst: float):
+def test_gt_q_3(num: list[Union[int, float]], dst: float):
     res = _gt_q3(num)
     assert res == dst
 
@@ -527,7 +533,7 @@ def test_gt_q_3(num: List[Union[int, float]], dst: float):
         ([], []),
     ],
 )
-def test_flatten_list(lst: List[Any], dst: List[Any]):
+def test_flatten_list(lst: list[Any], dst: list[Any]):
     res = _flatten_list(lst)
     assert res == dst
 
@@ -551,7 +557,7 @@ def test_flatten_list(lst: List[Any], dst: List[Any]):
         ([[-13.2, 2.2, None, 14.3], [None, None]], "max", 14.3),
     ],
 )
-def test_get_extreme_value(lst: List[Any], stat: str, dst: List[Any]):
+def test_get_extreme_value(lst: list[Any], stat: str, dst: list[Any]):
     res = _get_extreme_value(*lst, stat=stat)
     assert res == dst
 
@@ -591,7 +597,7 @@ def test_get_extreme_value(lst: List[Any], stat: str, dst: List[Any]):
     ],
 )
 def test_generate_ref_line_from_keyword(
-    num: List[Union[int, float]], keyword: str, dst: Union[int, float]
+    num: list[Union[int, float]], keyword: str, dst: Union[int, float]
 ):
     res = _generate_ref_line_from_keyword(num, keyword=keyword)
     assert res == dst
@@ -603,10 +609,10 @@ def _is_nanoplot_output(nanoplot_str: str):
     return bool(re.match("^<div><svg.*</svg></div>$", nanoplot_str))
 
 
-def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: List[tuple[str, str]]) -> bool:
+def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: list[tuple[str, str]]) -> bool:
     import re
 
-    found: List[bool] = []
+    found: list[bool] = []
 
     for i, _ in enumerate(attrs):
         attrs_i = attrs[i]
@@ -2001,3 +2007,59 @@ def test_nanoplot_x_y_vals_diff_length():
 def test_nanoplot_unknown_plot_type():
     with pytest.raises(ValueError):
         _generate_nanoplot(y_vals=[1, 2, 3], plot_type="unknown")
+
+
+@pytest.mark.parametrize(
+    "n, bool_",
+    [
+        (0, True),
+        (0.0, True),
+        (1, True),
+        (1.0, True),
+        (-12, True),
+        (-12.0, True),
+        ("-12", True),
+        ("−12", True),  # not regular `-`
+        (Decimal("1"), True),
+        (Decimal("1.0"), True),
+        (2.151515, False),
+        (-12.49849, False),
+        ("-12.49849", False),
+        ("−12.49849", False),  # not regular `-`
+        (Decimal("2.151515"), False),
+        ("abc", False),
+        (["abc"], False),
+        (tuple("abc"), False),
+        (set("abc"), False),
+        (dict.fromkeys("abc", object), False),
+    ],
+)
+def test_is_intlike(n: Any, bool_: bool):
+    assert _is_intlike(n) is bool_
+
+
+@pytest.mark.parametrize(
+    "nums, n",
+    [
+        (["1.0", 2.0, 3.00, Decimal(4), "-5.0"], 5),
+        (["1.1", 2.2, 3.03, "abc", "−12.49849"], 0),  # not regular `-`
+    ],
+)
+def test_get_n_intlike(nums: list[Any], n: int):
+    assert _get_n_intlike(nums) == n
+
+
+@pytest.mark.parametrize(
+    "n, result",
+    [
+        ("1.0", "1"),
+        (2.0, "2"),
+        (3.00, "3"),
+        (Decimal(4), "4"),
+        ("-5.0", "-5"),
+        ("−5.0", "-5"),  # not regular `-`
+        ("-7.04K", "-7.04K"),  # not regular `-`
+    ],
+)
+def test_remove_exponent(n: "int | float | str", result: int):
+    assert _remove_exponent(n) == result

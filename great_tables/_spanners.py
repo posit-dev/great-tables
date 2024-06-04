@@ -1,28 +1,27 @@
 from __future__ import annotations
 
 import itertools
-
-from typing import TYPE_CHECKING, Union, List, Dict, Optional, Any
-
-from ._gt_data import Spanners, SpannerInfo
-from ._tbl_data import SelectExpr
+from typing import TYPE_CHECKING, Any, Iterable
+from collections.abc import Generator
+from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
+from ._tbl_data import SelectExpr
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
     from ._types import GTSelf
 
 
-SpannerMatrix = List[Dict[str, Union[str, None]]]
+SpannerMatrix = "list[dict[str, str | None]]"
 
 
 def tab_spanner(
     data: GTSelf,
     label: str,
     columns: SelectExpr = None,
-    spanners: Union[list[str], str, None] = None,
-    level: Optional[int] = None,
-    id: Optional[str] = None,
+    spanners: str | list[str] | None = None,
+    level: int | None = None,
+    id: str | None = None,
     gather: bool = True,
     replace: bool = False,
 ) -> GTSelf:
@@ -124,16 +123,25 @@ def tab_spanner(
     ```
     """
 
-    crnt_spanner_ids = [span.spanner_id for span in data._spanners]
+    crnt_spanner_ids = set([span.spanner_id for span in data._spanners])
 
     if id is None:
-        id = label
+        # The label may contain HTML or Markdown, so we need to extract
+        # it from the Text object
+        if hasattr(label, "text"):
+            id = label.text
+        else:
+            id = label
 
     if isinstance(columns, (str, int)):
         columns = [columns]
+    elif columns is None:
+        columns = []
 
     if isinstance(spanners, (str, int)):
         spanners = [spanners]
+    elif spanners is None:
+        spanners = []
 
     # validations ----
     if level is not None and level < 0:
@@ -143,11 +151,7 @@ def tab_spanner(
 
     # select columns ----
 
-    if columns is None:
-        # TODO: null_means is unimplemented
-        raise NotImplementedError("columns must be specified")
-
-    selected_column_names = resolve_cols_c(data=data, expr=columns, null_means="nothing")
+    selected_column_names = resolve_cols_c(data=data, expr=columns, null_means="nothing") or []
 
     # select spanner ids ----
     # TODO: this supports tidyselect
@@ -158,8 +162,10 @@ def tab_spanner(
     else:
         spanner_ids = []
 
+    # Check that we've selected something explicitly
     if not len(selected_column_names) and not len(spanner_ids):
-        return data
+        # TODO: null_means is unimplemented
+        raise NotImplementedError("columns/spanners must be specified")
 
     # get column names associated with selected spanners ----
     _vars = [span.vars for span in data._spanners if span.spanner_id in spanner_ids]
@@ -188,13 +194,19 @@ def tab_spanner(
     )
 
     spanners = data._spanners.append_entry(new_span)
-
     new_data = data._replace(_spanners=spanners)
 
-    if gather and not len(spanner_ids) and level == 0:
+    if gather and not len(spanner_ids) and level == 0 and column_names:
         return cols_move(new_data, columns=column_names, after=column_names[0])
 
     return new_data
+
+
+def _validate_sel_cols(sel_cols: list[str], col_vars: list[str]) -> None:
+    if not len(sel_cols):
+        raise Exception("No columns selected.")
+    elif not all(col in col_vars for col in sel_cols):
+        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
 
 
 def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
@@ -259,7 +271,7 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
 
     sel_after = resolve_cols_c(data=data, expr=[after])
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in data._boxhead]
 
     if not len(sel_after):
         raise ValueError(f"Column {after} not found in table.")
@@ -268,13 +280,10 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
             f"Only 1 value should be supplied to `after`, recieved argument: {sel_after}"
         )
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all([col in vars for col in sel_cols]):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols if col not in sel_after]
-    other_columns = [col for col in vars if col not in moving_columns]
+    other_columns = [col for col in col_vars if col not in moving_columns]
 
     indx = other_columns.index(after)
     final_vars = [*other_columns[: indx + 1], *moving_columns, *other_columns[indx + 1 :]]
@@ -341,15 +350,12 @@ def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     sel_cols = resolve_cols_c(data=data, expr=columns)
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in data._boxhead]
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all([col in vars for col in sel_cols]):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols]
-    other_columns = [col for col in vars if col not in moving_columns]
+    other_columns = [col for col in col_vars if col not in moving_columns]
 
     final_vars = [*moving_columns, *other_columns]
 
@@ -401,6 +407,7 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     ```{python}
     GT(countrypops_mini).cols_move_to_end(columns=["year", "country_name"])
+    ```
     """
 
     # If `columns` is a string, convert it to a list
@@ -409,15 +416,12 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     sel_cols = resolve_cols_c(data=data, expr=columns)
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in data._boxhead]
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all([col in vars for col in sel_cols]):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols]
-    other_columns = [col for col in vars if col not in moving_columns]
+    other_columns = [col for col in col_vars if col not in moving_columns]
 
     final_vars = [*other_columns, *moving_columns]
 
@@ -446,6 +450,23 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
+
+    Examples
+    --------
+    For this example, we'll use a portion of the `countrypops` dataset to create a simple table.
+    Let's hide the `year` column with the `cols_hide()` method.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import countrypops
+
+    countrypops_mini = countrypops.loc[countrypops["country_name"] == "Benin"][
+        ["country_name", "year", "population"]
+    ].tail(5)
+
+    GT(countrypops_mini).cols_hide(columns="year")
+    ```
+
     Details
     -------
     The hiding of columns is internally a rendering directive, so, all columns that are 'hidden' are
@@ -463,12 +484,9 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
 
     sel_cols = resolve_cols_c(data=data, expr=columns)
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in data._boxhead]
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all([col in vars for col in columns]):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     # New boxhead with hidden columns
     new_boxhead = data._boxhead.set_cols_hidden(sel_cols)
@@ -501,7 +519,6 @@ def spanners_print_matrix(
 
     non_empty_spans = [span for crnt_vars, span in zip(_vars, spanners) if len(crnt_vars)]
     new_levels = [_lvls.index(span.spanner_level) for span in non_empty_spans]
-
     crnt_spans = Spanners(non_empty_spans).relevel(new_levels)
 
     if not crnt_spans:
@@ -543,33 +560,56 @@ def empty_spanner_matrix(
     return [{var: var for var in vars}], vars
 
 
-def seq_groups(seq: list[str]):
-    # TODO: 0-length sequence
-    if len(seq) == 0:
-        raise StopIteration
-    elif len(seq) == 1:
-        yield seq[0], 1
-    else:
-        crnt_ttl = 1
-        for crnt_el, next_el in zip(seq[:-1], seq[1:]):
-            if is_equal(crnt_el, next_el):
-                crnt_ttl += 1
-            else:
-                yield crnt_el, crnt_ttl
-                crnt_ttl = 1
+def pairwise(iterable: Iterable[Any]) -> Generator[tuple[Any, Any], None, None]:
+    """
+    https://docs.python.org/3/library/itertools.html#itertools.pairwise
+    pairwise('ABCDEFG') → AB BC CD DE EF FG
+    """
+    # This function can be replaced by `itertools.pairwise` if we only plan to support
+    # Python 3.10+ in the future.
+    iterator = iter(iterable)
+    a = next(iterator, None)
+    for b in iterator:
+        yield a, b
+        a = b
 
-        # final step has same elements, so we need to yield one last time
+
+def seq_groups(seq: Iterable[str]) -> Generator[tuple[str, int], None, None]:
+    iterator = iter(seq)
+
+    # TODO: 0-length sequence
+    a = next(iterator)  # will raise StopIteration if `seq` is empty
+
+    try:
+        b = next(iterator)
+    except StopIteration:
+        yield a, 1
+        return
+
+    # We can confirm that we have two elements and both are not `None`,
+    # so we can chain them back together as the original seq.
+    seq = itertools.chain([a, b], iterator)
+
+    crnt_ttl = 1
+    for crnt_el, next_el in pairwise(seq):
         if is_equal(crnt_el, next_el):
-            yield crnt_el, crnt_ttl
+            crnt_ttl += 1
         else:
-            yield next_el, 1
+            yield crnt_el, crnt_ttl
+            crnt_ttl = 1
+
+    # final step has same elements, so we need to yield one last time
+    if is_equal(crnt_el, next_el):
+        yield crnt_el, crnt_ttl
+    else:
+        yield next_el, 1
 
 
 def is_equal(x: Any, y: Any) -> bool:
     return x is not None and x == y
 
 
-def cols_width(data: GTSelf, cases: Dict[str, str]) -> GTSelf:
+def cols_width(data: GTSelf, cases: dict[str, str]) -> GTSelf:
     """Set the widths of columns.
 
     Manual specifications of column widths can be performed using the `cols_width()` method. We

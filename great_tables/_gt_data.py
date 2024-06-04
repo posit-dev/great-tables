@@ -2,26 +2,33 @@ from __future__ import annotations
 
 import copy
 import re
-
-from typing import overload, TypeVar, Dict, Optional
-from typing_extensions import Self, TypeAlias
+from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
-from ._utils import _str_detect
-from ._tbl_data import create_empty_frame, to_list, validate_frame, copy_data
+from enum import Enum, auto
+from typing import Any, Callable, TypeVar, overload
+
+from typing_extensions import Self, TypeAlias
 
 # TODO: move this class somewhere else (even gt_data could work)
-
 from ._styles import CellStyle
-
-# Note that we replace with with collections.abc after python 3.8
-from typing import Sequence
+from ._tbl_data import (
+    DataFrameLike,
+    TblData,
+    _get_cell,
+    _set_cell,
+    copy_data,
+    create_empty_frame,
+    get_column_names,
+    n_rows,
+    to_list,
+    validate_frame,
+)
+from ._utils import _str_detect
 
 T = TypeVar("T")
 
 
 # GT Data ----
-from dataclasses import dataclass
-
 __GT = None
 
 
@@ -136,9 +143,6 @@ class _Sequence(Sequence[T]):
 # Body ----
 __Body = None
 
-from typing import Union, List, Any
-from ._tbl_data import DataFrameLike, TblData, _get_cell, _set_cell
-
 
 # TODO: it seems like this could just be a DataFrameLike object?
 # Similar to TblData now being a DataFrame, rather than its own class
@@ -150,7 +154,7 @@ class Body:
     def __init__(self, body: TblData):
         self.body = body
 
-    def render_formats(self, data_tbl: TblData, formats: List[FormatInfo], context: Any):
+    def render_formats(self, data_tbl: TblData, formats: list[FormatInfo], context: Any):
         for fmt in formats:
             eval_func = getattr(fmt.func, context, fmt.func.default)
             if eval_func is None:
@@ -180,11 +184,6 @@ class Body:
 # Boxhead ----
 __Boxhead = None
 
-from typing import Optional, List
-from enum import Enum, auto
-
-from ._tbl_data import TblData, get_column_names
-
 
 class ColumnAlignment(Enum):
     left = auto()
@@ -205,9 +204,9 @@ class ColInfo:
     # TODO: Make var readonly
     var: str
     type: ColInfoTypeEnum = ColInfoTypeEnum.default
-    column_label: Optional[str] = None
-    column_align: Optional[ColumnAlignment] = None
-    column_width: Optional[str] = None
+    column_label: str | None = None
+    column_align: ColumnAlignment | None = None
+    column_width: str | None = None
 
     # The components of the boxhead are:
     # `var` (obtained from column names)
@@ -233,14 +232,14 @@ class ColInfo:
 
 
 class Boxhead(_Sequence[ColInfo]):
-    _d: List[ColInfo]
+    _d: list[ColInfo]
 
     def __init__(
         self,
         data: TblData | list[ColInfo],
         auto_align: bool = True,
-        rowname_col: Optional[str] = None,
-        groupname_col: Optional[str] = None,
+        rowname_col: str | None = None,
+        groupname_col: str | None = None,
     ):
         if isinstance(data, list):
             self._d = data
@@ -281,7 +280,7 @@ class Boxhead(_Sequence[ColInfo]):
     def set_cols_hidden(self, colnames: list[str]):
         # TODO: validate that colname is in the boxhead
         res: list[ColInfo] = []
-        for ii, col in enumerate(self._d):
+        for col in self._d:
             if col.var in colnames:
                 new_col = replace(col, type=ColInfoTypeEnum.hidden)
                 res.append(new_col)
@@ -331,7 +330,7 @@ class Boxhead(_Sequence[ColInfo]):
             col_classes.append(dtype)
 
         # Get a list of `align` values by translating the column classes
-        align: List[str] = []
+        align: list[str] = []
 
         for col_class in col_classes:
             # Ensure that `col_class` is lowercase
@@ -360,16 +359,16 @@ class Boxhead(_Sequence[ColInfo]):
                 align.append("center")
 
         # Set the alignment for each column in the boxhead
-        new_cols: List[ColInfo] = []
+        new_cols: list[ColInfo] = []
         for col, alignment in zip(self._d, align):
             new_cols.append(replace(col, column_align=alignment))
 
         self._d = new_cols
 
-    def vars_from_type(self, type: ColInfoTypeEnum) -> List[str]:
+    def vars_from_type(self, type: ColInfoTypeEnum) -> list[str]:
         return [x.var for x in self._d if x.type == type]
 
-    def reorder(self, vars: List[str]) -> Self:
+    def reorder(self, vars: list[str]) -> Self:
         boxh_vars = [col.var for col in self]
         if set(vars) != set(boxh_vars):
             raise ValueError("Reordering vars must contain all boxhead vars.")
@@ -379,16 +378,16 @@ class Boxhead(_Sequence[ColInfo]):
         return self[new_order]
 
     # Get a list of columns
-    def _get_columns(self) -> List[str]:
+    def _get_columns(self) -> list[str]:
         return [x.var for x in self._d]
 
     # Get a list of column labels
-    def _get_column_labels(self) -> List[str | None]:
+    def _get_column_labels(self) -> list[str | None]:
         return [x.column_label for x in self._d]
 
     # Set column label
-    def _set_column_labels(self, col_labels: Dict[str, str]) -> Self:
-        out_cols: List[ColInfo] = []
+    def _set_column_labels(self, col_labels: dict[str, str]) -> Self:
+        out_cols: list[ColInfo] = []
         for x in self._d:
             new_label = col_labels.get(x.var, None)
             if new_label is not None:
@@ -399,9 +398,9 @@ class Boxhead(_Sequence[ColInfo]):
         return self.__class__(out_cols)
 
     # Set column alignments
-    def _set_column_aligns(self, columns: List[str], align: str) -> Self:
+    def _set_column_aligns(self, columns: list[str], align: str) -> Self:
         set_cols = set(columns)
-        out_cols: List[ColInfo] = []
+        out_cols: list[ColInfo] = []
         for x in self._d:
             if x.var in set_cols:
                 out_cols.append(replace(x, column_align=align))
@@ -411,28 +410,28 @@ class Boxhead(_Sequence[ColInfo]):
         return self.__class__(out_cols)
 
     # Get a list of column widths
-    def _get_column_widths(self) -> List[str | None]:
+    def _get_column_widths(self) -> list[str | None]:
         return [x.column_width for x in self._d]
 
     # Get a list of visible columns
-    def _get_default_columns(self) -> List[ColInfo]:
+    def _get_default_columns(self) -> list[ColInfo]:
         default_columns = [x for x in self._d if x.type == ColInfoTypeEnum.default]
         return default_columns
 
-    def _get_stub_column(self) -> Optional[ColInfo]:
+    def _get_stub_column(self) -> ColInfo | None:
         stub_column = [x for x in self._d if x.type == ColInfoTypeEnum.stub]
         if len(stub_column) == 0:
             return None
         return stub_column[0]
 
     # Get a list of visible column labels
-    def _get_default_column_labels(self) -> List[str | None]:
+    def _get_default_column_labels(self) -> list[str | None]:
         default_column_labels = [
             x.column_label for x in self._d if x.type == ColInfoTypeEnum.default
         ]
         return default_column_labels
 
-    def _get_default_alignments(self) -> List[str]:
+    def _get_default_alignments(self) -> list[str]:
         # Extract alignment strings to only include 'default'-type columns
         alignments = [str(x.column_align) for x in self._d if x.type == ColInfoTypeEnum.default]
         return alignments
@@ -478,7 +477,7 @@ class Boxhead(_Sequence[ColInfo]):
         return n_data_cols
 
     def _set_column_width(self, colname: str, width: str) -> Self:
-        out_cols: List[ColInfo] = []
+        out_cols: list[ColInfo] = []
 
         colnames = [x.var for x in self._d]
 
@@ -497,16 +496,14 @@ class Boxhead(_Sequence[ColInfo]):
 # Stub ----
 __Stub = None
 
-from ._tbl_data import TblData, n_rows
-
 
 @dataclass(frozen=True)
 class RowInfo:
     # TODO: Make `rownum_i` readonly
     rownum_i: int
-    group_id: Optional[str] = None
-    rowname: Optional[str] = None
-    group_label: Optional[str] = None
+    group_id: str | None = None
+    rowname: str | None = None
+    group_label: str | None = None
     built: bool = False
 
     # The components of the stub are:
@@ -574,9 +571,7 @@ class Stub(_Sequence[RowInfo]):
         # Given that there are row groups, we need to look at the option `row_group_as_column` to
         # determine whether they populate a column located in the stub; if set as True then that's
         # the return value
-        row_group_as_column = options.row_group_as_column.value
-
-        row_group_as_column: Any
+        row_group_as_column: Any = options.row_group_as_column.value
         if not isinstance(row_group_as_column, bool):
             raise TypeError(
                 "Variable type mismatch. Expected bool, got something entirely different."
@@ -584,7 +579,7 @@ class Stub(_Sequence[RowInfo]):
 
         return row_group_as_column
 
-    def _get_stub_layout(self, row_groups: RowGroups, options: Options) -> List[str]:
+    def _get_stub_layout(self, row_groups: RowGroups, options: Options) -> list[str]:
         # Determine which stub components are potentially present as columns
         stub_rownames_is_column = "row_id" in self._get_stub_components()
         stub_groupnames_is_column = self._stub_group_names_has_column(
@@ -621,7 +616,7 @@ class Stub(_Sequence[RowInfo]):
 # Row groups ----
 __RowGroups = None
 
-RowGroups: TypeAlias = List[str]
+RowGroups: TypeAlias = list[str]
 
 # Group rows ----
 __GroupRows = None
@@ -631,7 +626,7 @@ __GroupRows = None
 class GroupRowInfo:
     group_id: str
     group_label: str | None = None
-    indices: list[int] = field(default_factory=lambda: [])
+    indices: list[int] = field(default_factory=list)
     # row_start: int | None = None
     # row_end: int | None = None
     has_summary_rows: bool = False
@@ -650,7 +645,7 @@ class MISSING_GROUP:
 class GroupRows(_Sequence[GroupRowInfo]):
     _d: list[GroupRowInfo]
 
-    def __init__(self, data: list[GroupRowInfo] | DataFrameLike, group_key: Optional[str] = None):
+    def __init__(self, data: list[GroupRowInfo] | DataFrameLike, group_key: str | None = None):
         if isinstance(data, list):
             self._d = data
 
@@ -704,8 +699,8 @@ class SpannerInfo:
     spanner_label: str | None = None
     spanner_units: str | None = None
     spanner_pattern: str | None = None
-    vars: list[str] = field(default_factory=lambda: [])
-    built: Optional[str] = None
+    vars: list[str] = field(default_factory=list)
+    built: str | None = None
 
     def built_label(self) -> str:
         """Return a list of spanner labels that have been built."""
@@ -756,37 +751,27 @@ class Spanners(_Sequence[SpannerInfo]):
 # Heading ---
 __Heading = None
 
-from typing import Optional, Union, List
-
 
 @dataclass(frozen=True)
 class Heading:
-    title: Optional[str] = None
-    subtitle: Optional[str] = None
-    preheader: Optional[Union[str, List[str]]] = None
+    title: str | None = None
+    subtitle: str | None = None
+    preheader: str | list[str] | None = None
 
 
 # Stubhead ----
 __Stubhead = None
 
-from typing import Optional
-
-Stubhead: TypeAlias = Optional[str]
+Stubhead: TypeAlias = "str | None"
 
 
 # Sourcenotes ----
 __Sourcenotes = None
 
-from typing import List
-
-
-SourceNotes = List[str]
+SourceNotes = list[str]
 
 # Footnotes ----
 __Footnotes = None
-
-from typing import Optional, List
-from enum import Enum, auto
 
 
 class FootnotePlacement(Enum):
@@ -797,56 +782,48 @@ class FootnotePlacement(Enum):
 
 @dataclass(frozen=True)
 class FootnoteInfo:
-    locname: Optional[str] = None
-    grpname: Optional[str] = None
-    colname: Optional[str] = None
-    locnum: Optional[int] = None
-    rownum: Optional[int] = None
-    colnum: Optional[int] = None
-    footnotes: Optional[List[str]] = None
-    placement: Optional[FootnotePlacement] = None
+    locname: str | None = None
+    grpname: str | None = None
+    colname: str | None = None
+    locnum: int | None = None
+    rownum: int | None = None
+    colnum: int | None = None
+    footnotes: list[str] | None = None
+    placement: FootnotePlacement | None = None
 
 
-Footnotes: TypeAlias = List[FootnoteInfo]
+Footnotes: TypeAlias = list[FootnoteInfo]
 
 # Styles ----
 __Styles = None
-
-from typing import List, Optional
 
 
 @dataclass(frozen=True)
 class StyleInfo:
     locname: str
     locnum: int
-    grpname: Optional[str] = None
-    colname: Optional[str] = None
-    rownum: Optional[int] = None
-    colnum: Optional[int] = None
-    styles: List[CellStyle] = field(default_factory=list)
+    grpname: str | None = None
+    colname: str | None = None
+    rownum: int | None = None
+    colnum: int | None = None
+    styles: list[CellStyle] = field(default_factory=list)
 
 
-Styles: TypeAlias = List[StyleInfo]
+Styles: TypeAlias = list[StyleInfo]
 
 # Locale ----
 __Locale = None
 
-from typing import Optional
-
 
 class Locale:
-    locale: Optional[str]
+    locale: str | None
 
-    def __init__(self, locale: Optional[str]):
-        self._locale: Union[str, None] = locale
+    def __init__(self, locale: str | None):
+        self._locale: str | None = locale
 
 
 # Formats ----
 __Formats = None
-
-from typing import Any, Callable, TypeVar, Union, List, Optional, Tuple
-
-from ._tbl_data import n_rows
 
 
 class FormatterSkipElement:
@@ -857,30 +834,28 @@ FormatFn = Callable[[Any], "str | FormatterSkipElement"]
 
 
 class FormatFns:
-    html: Optional[FormatFn]
-    latex: Optional[FormatFn]
-    rtf: Optional[FormatFn]
-    default: Optional[FormatFn]
+    html: FormatFn | None
+    latex: FormatFn | None
+    rtf: FormatFn | None
+    default: FormatFn | None
 
     def __init__(self, **kwargs: FormatFn):
         for format in ["html", "latex", "rtf", "default"]:
-            if kwargs.get(format):
-                setattr(self, format, kwargs[format])
+            if fmt := kwargs.get(format):
+                setattr(self, format, fmt)
 
 
 class CellSubset:
-    def __init__(self):
-        pass
 
-    def resolve(self) -> List[Tuple[str, int]]:
+    def resolve(self) -> list[tuple[str, int]]:
         raise NotImplementedError("Not implemented")
 
 
 class CellRectangle(CellSubset):
-    cols: List[str]
-    rows: List[int]
+    cols: list[str]
+    rows: list[int]
 
-    def __init__(self, cols: List[str], rows: List[int]):
+    def __init__(self, cols: list[str], rows: list[int]):
         self.cols = cols
         self.rows = rows
 
@@ -897,7 +872,7 @@ class FormatInfo:
     func: FormatFns
     cells: CellSubset
 
-    def __init__(self, func: FormatFns, cols: List[str], rows: List[int]):
+    def __init__(self, func: FormatFns, cols: list[str], rows: list[int]):
         self.func = func
         self.cells = CellRectangle(cols, rows)
 
@@ -908,14 +883,10 @@ class FormatInfo:
 #         pass
 Formats = list
 
-# Tbl Data ----
-from ._tbl_data import TblData
-
 
 # Options ----
 __Options = None
 
-from typing import Optional, Union, List, Any
 
 default_fonts_list = [
     "-apple-system",
@@ -938,7 +909,7 @@ class OptionsInfo:
     scss: bool
     category: str
     type: str
-    value: Optional[Union[Any, List[str]]]
+    value: Any
 
 
 @dataclass(frozen=True)
@@ -1150,10 +1121,10 @@ class Options:
     quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
     quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
 
-    def _get_all_options_keys(self) -> List[Union[str, None]]:
+    def _get_all_options_keys(self) -> list[str | None]:
         return [x.parameter for x in self._options.values()]
 
-    # def _get_option_type(self, option: str) -> Union[Any, List[str]]:
+    # def _get_option_type(self, option: str) -> Any | list[str]:
     #    return self._options[option].type
 
     def _set_option_value(self, option: str, value: Any):

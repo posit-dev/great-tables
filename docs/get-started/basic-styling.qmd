@@ -222,7 +222,7 @@ import polars.selectors as cs
 gt_pl_air.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(
-        columns=cs.all().exclude(["Month", "Day"]),
+        columns=cs.exclude(["Month", "Day"]),
         rows=pl.col("Temp") == pl.col("Temp").max()
     )
 )
@@ -232,5 +232,5 @@ gt_pl_air.tab_style(
 
 * API Docs:
   - [`GT.tab_style()`](/reference/GT.tab_style.qmd).
-  - [`style.*` and `loc.*` functions`](/reference/index.qmd#location-targeting-and-styling-classes).
-  - [`from_column()`](/reference/from_column.qmd)
+  - [`style.*` and `loc.*` functions](/reference/index.qmd#location-targeting-and-styling-classes).
+  - [`from_column()`](/reference/from_column.qmd).

@@ -1,7 +1,6 @@
 import pandas as pd
 import polars as pl
-
-from great_tables._styles import FromColumn, CellStyleText
+from great_tables._styles import CellStyleText, CellStyleBorders, FromColumn
 
 
 def test_from_column_replace():
@@ -43,3 +42,14 @@ def test_cell_value_from_polars_expr():
     new_style = style._evaluate_expressions(df)._from_row(df, 0)
 
     assert new_style.color == "RED"
+
+
+def test_cell_style_borders_all():
+    res = CellStyleBorders(sides=["all"], color="blue")._to_html_style()
+    assert res.split(";") == [
+        "border-top: 1px solid blue",
+        "border-bottom: 1px solid blue",
+        "border-left: 1px solid blue",
+        "border-right: 1px solid blue",
+        "",
+    ]

@@ -2,22 +2,22 @@ import pandas as pd
 import polars as pl
 import polars.testing
 import pytest
-
 from great_tables._tbl_data import (
+    DataFrameLike,
+    SeriesLike,
     _get_cell,
     _get_column_dtype,
     _set_cell,
-    get_column_names,
-    DataFrameLike,
-    SeriesLike,
-    reorder,
-    eval_select,
+    _validate_selector_list,
+    cast_frame_to_string,
     create_empty_frame,
-    validate_frame,
+    eval_select,
+    get_column_names,
+    is_series,
+    reorder,
     to_frame,
-    to_list,
+    validate_frame,
 )
-
 
 params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars")]
 params_series = [pytest.param(pd.Series, id="pandas"), pytest.param(pl.Series, id="polars")]
@@ -71,12 +71,71 @@ def test_reorder(df: DataFrameLike):
     assert_frame_equal(res, dst)
 
 
-@pytest.mark.parametrize(
-    "expr", [["col2", "col1"], [1, 0], ["col2", 0], pl.selectors.all().exclude("col3")]
-)
+@pytest.mark.parametrize("expr", [["col2", "col1"], [1, 0], ["col2", 0], [1, "col1"]])
 def test_eval_select_with_list(df: DataFrameLike, expr):
-    sel = eval_select(df, ["col2", "col1"])
+    sel = eval_select(df, expr)
     assert sel == [("col2", 1), ("col1", 0)]
+
+
+@pytest.mark.parametrize(
+    "expr",
+    [
+        pl.selectors.exclude("col3"),
+        pl.selectors.starts_with("col1") | pl.selectors.starts_with("col2"),
+        [pl.col("col1"), pl.col("col2")],
+        [pl.col("col1"), pl.selectors.by_name("col2")],
+        pl.col("col1", "col2"),
+        pl.all().exclude("col3"),
+    ],
+)
+def test_eval_select_with_list_pl_selector(expr):
+    df = pl.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+    sel = eval_select(df, expr)
+    assert sel == [("col1", 0), ("col2", 1)]
+
+
+@pytest.mark.parametrize("expr", [["col2", 1.2]])
+def test_eval_select_pandas_raises1(expr):
+    df = pd.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+    with pytest.raises(TypeError) as exc_info:
+        eval_select(df, expr)
+
+    assert "Only int and str are supported." in str(exc_info.value.args[0])
+
+
+@pytest.mark.parametrize("expr", [3.45, {"col2"}, ("col2",)])
+def test_eval_select_pandas_raises2(expr):
+    df = pd.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+    with pytest.raises(NotImplementedError) as exc_info:
+        eval_select(df, expr)
+
+    assert "Unsupported selection expr: " in str(exc_info.value.args[0])
+
+
+@pytest.mark.parametrize("expr", [3.45, {6}, (7.8,)])
+def test_eval_select_polars_raises(expr):
+    df = pl.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+    with pytest.raises(TypeError) as exc_info:
+        eval_select(df, expr)
+
+    assert "Unsupported selection expr type:" in str(exc_info.value.args[0])
+
+
+def test_eval_selector_polars_list_raises():
+    expr = ["col1", 1.2]
+    df = pl.DataFrame({"col1": [], "col2": [], "col3": []})
+    with pytest.raises(TypeError) as exc_info:
+        eval_select(df, expr)
+
+    assert "entry 1 is type: <class 'float'>" in str(exc_info.value.args[0])
+
+
+def test_validate_selector_list_strict_raises():
+    with pytest.raises(TypeError) as exc_info:
+        _validate_selector_list([pl.col("a")])
+
+    msg = "entry 0 is a polars Expr, which is only supported for polars versions >= 0.20.30."
+    assert msg in str(exc_info.value.args[0])
 
 
 def test_create_empty_frame(df: DataFrameLike):
@@ -139,3 +198,20 @@ def test_to_frame(ser: SeriesLike):
         assert_frame_equal(df, pd.DataFrame({"x": [1.0, 2.0, None]}))
     else:
         raise AssertionError(f"Unexpected series type: {type(ser)}")
+
+
+def test_is_series(ser: SeriesLike):
+    assert is_series(ser)
+
+
+def test_is_series_false():
+    assert not is_series(1)
+
+
+def test_cast_frame_to_string_polars_list_col():
+    df = pl.DataFrame({"x": [[1, 2], [3]], "y": [1, None], "z": [{"a": 1}, {"a": 2}]})
+    new_df = cast_frame_to_string(df)
+
+    assert new_df["x"].dtype.is_(pl.String)
+    assert new_df["y"].dtype.is_(pl.String)
+    assert new_df["z"].dtype.is_(pl.String)

@@ -56,6 +56,14 @@ p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     content: "()"
 }
 
+[id^=table-options] td a:after {
+    content: "()"
+}
+
+[id^=export] td a:after {
+    content: "()"
+}
+
 [id^=value-formatting] td a:after {
     content: "()"
 }
@@ -141,4 +149,8 @@ p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     width: 150%;
     padding-right: 7px;
     vertical-align: middle;
+}
+
+.shrink-example .cell-output table {
+    zoom: 60%;
 }

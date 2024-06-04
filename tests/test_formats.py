@@ -1,30 +1,28 @@
-from typing import Union
+import re
+from typing import Any, Union
+
 import pandas as pd
 import polars as pl
 import pytest
-import re
-
-from great_tables import GT
+import sys
+from great_tables import GT, _locale
+from great_tables._data_color.base import _html_color
+from great_tables._formats import (
+    FmtImage,
+    _expand_exponential_to_full_string,
+    _format_number_n_sigfig,
+    _format_number_fixed_decimals,
+    _get_currency_str,
+    _get_locale_currency_code,
+    _get_locale_dec_mark,
+    _get_locale_sep_mark,
+    _normalize_locale,
+    _validate_locale,
+    fmt,
+)
+from great_tables._utils_render_html import create_body_component_h
 from great_tables.data import exibble
 from great_tables.gt import _get_column_of_values
-from great_tables._data_color.base import _html_color
-from great_tables._utils_render_html import create_body_component_h
-from great_tables._formats import (
-    _format_number_fixed_decimals,
-    _expand_exponential_to_full_string,
-    fmt,
-    FmtImage,
-    _normalize_locale,
-    _get_locale_sep_mark,
-    _get_locale_dec_mark,
-    _get_locale_currency_code,
-    _get_currency_str,
-    _validate_locale,
-)
-from great_tables._locations import RowSelectExpr
-from great_tables import _locale
-
-from typing import Any
 
 
 def assert_rendered_body(snapshot, gt):
@@ -39,6 +37,13 @@ def assert_repr_html(snapshot, gt):
     body = re.sub(r"^.*?<table (.*?)</table>.*$", r"\1", body, flags=re.DOTALL)
 
     assert snapshot == body
+
+
+def strip_windows_drive(x):
+    # this is a hacky approach to ensuring fmt_image path tests succeed
+    # on our windows build. On linux root is just "/". On windows its a
+    # drive name. Assumes our windows runner uses D:\
+    return x.replace('src="D:\\', 'src="/')
 
 
 def test_format_fns():
@@ -74,7 +79,7 @@ def test_format_repr_snap(snapshot):
     assert_repr_html(snapshot, new_gt)
 
 
-@pytest.mark.parametrize("expr", [[0, -1], pl.selectors.all().exclude("y")])
+@pytest.mark.parametrize("expr", [[0, -1], pl.selectors.exclude("y")])
 def test_format_col_selection_multi(expr: Any):
     df = pd.DataFrame({"x": [1], "y": [2], "z": [3]})
 
@@ -124,7 +129,7 @@ def test_format_row_selection(expr):
 
 
 @pytest.mark.parametrize(
-    "scale_values, placement, incl_space, force_sign, x_out",
+    "scale_values,placement,incl_space,force_sign,x_out",
     [
         (
             True,
@@ -300,7 +305,7 @@ def test_fmt_percent_basic_0(
 
 
 @pytest.mark.parametrize(
-    "decimals, x_out",
+    "decimals,x_out",
     [
         (0, ["1", "1", "1", "1", "1", "1", "1", "1", "1"]),
         (1, ["1.0", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2"]),
@@ -417,7 +422,7 @@ def test_fmt_number_basic_0(decimals: int, x_out: str):
 
 
 @pytest.mark.parametrize(
-    "decimals, x_out",
+    "decimals,x_out",
     [
         (0, ["0", "0", "0", "0", "0", "0", "0", "0", "0"]),
         (1, ["0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0"]),
@@ -547,7 +552,7 @@ def test_fmt_number_basic_1(decimals: int, x_out: str):
 
 
 @pytest.mark.parametrize(
-    "n_sigfig, x_out",
+    "n_sigfig,x_out",
     [
         (
             1,
@@ -761,7 +766,7 @@ def test_fmt_number_n_sigfig(n_sigfig: int, x_out: str):
 
 
 @pytest.mark.parametrize(
-    "decimals, drop_trailing_zeros, drop_trailing_dec_mark, x_out",
+    "decimals,drop_trailing_zeros,drop_trailing_dec_mark,x_out",
     [
         (0, False, False, ["1.", "2."]),
         (0, False, True, ["1", "2"]),
@@ -813,7 +818,7 @@ def test_fmt_number_drop_trailing_00(
 
 
 @pytest.mark.parametrize(
-    "n_sigfig, drop_trailing_zeros, drop_trailing_dec_mark, x_out",
+    "n_sigfig,drop_trailing_zeros,drop_trailing_dec_mark,x_out",
     [
         (1, False, False, ["1.", "2."]),
         (1, False, True, ["1", "2"]),
@@ -845,7 +850,7 @@ def test_fmt_number_drop_trailing_01(
 
 
 @pytest.mark.parametrize(
-    "n_sigfig, use_seps, sep_mark, dec_mark, x_out",
+    "n_sigfig,use_seps,sep_mark,dec_mark,x_out",
     [
         (1, True, ",", ".", ["1,000,000", "\u2212" + "5,000"]),
         (1, True, ".", ",", ["1.000.000", "\u2212" + "5.000"]),
@@ -906,7 +911,7 @@ def test_fmt_number_n_sigfig_seps(
 
 
 @pytest.mark.parametrize(
-    "force_sign, x_out",
+    "force_sign,x_out",
     [
         (
             False,
@@ -941,7 +946,7 @@ def test_fmt_number_force_sign(force_sign: bool, x_out: str):
 
 
 @pytest.mark.parametrize(
-    "pattern, x_out",
+    "pattern,x_out",
     [
         ("{x}", ["\u2212" + "234.65", "0.00", "25,342.00"]),
         ("a{x}b", ["a" + "\u2212" + "234.65b", "a0.00b", "a25,342.00b"]),
@@ -978,7 +983,7 @@ def test_fmt_number_pattern(pattern: str, x_out: str):
 
 # Test `_format_number_fixed_decimals()` util function
 @pytest.mark.parametrize(
-    "value, x_out",
+    "value,x_out",
     [
         (8234252645325, "8,234,252,645,325.00"),
         (234252645325, "234,252,645,325.00"),
@@ -1007,6 +1012,7 @@ def test_fmt_number_pattern(pattern: str, x_out: str):
         (0.00023, "0.00"),
         (0.000033, "0.00"),
         (0.00000000446453, "0.00"),
+        (-325, "-325.00"),
     ],
 )
 def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
@@ -1015,7 +1021,19 @@ def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
 
 
 @pytest.mark.parametrize(
-    "str_number, x_out",
+    "value, out",
+    [
+        (325, "325"),
+        (-325, "-325"),
+        (-1320, "-1,320"),
+    ],
+)
+def test_format_number_n_sigfig_3(value, out: str):
+    assert _format_number_n_sigfig(value, 3) == out
+
+
+@pytest.mark.parametrize(
+    "str_number,x_out",
     [
         ("1e-5", "0.00001"),
         ("1.5e-5", "0.000015"),
@@ -1065,6 +1083,280 @@ def test_format_number_with_sep_dec_marks():
     gt = GT(df).fmt_number(columns="x", decimals=5, sep_mark=".", dec_mark=",")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["12.345.678,12346", "1,00000", "0,00000", "\u2212" + "12.345.678,12346"]
+
+
+# ------------------------------------------------------------------------------
+# Tests of `fmt_currency()`
+# ------------------------------------------------------------------------------
+
+FMT_CURRENCY_CASES: list[tuple[dict[str, Any], list[str]]] = [
+    (dict(), ["$1,234,567.00", "−$5,432.37"]),
+    (dict(currency="USD"), ["$1,234,567.00", "−$5,432.37"]),
+    (dict(currency="EUR"), ["&#8364;1,234,567.00", "−&#8364;5,432.37"]),
+    (dict(use_subunits=False), ["$1,234,567", "−$5,432"]),
+    (dict(use_subunits=False, decimals=4), ["$1,234,567.0000", "−$5,432.3700"]),
+    (dict(decimals=4), ["$1,234,567.0000", "−$5,432.3700"]),
+    (
+        dict(decimals=0, drop_trailing_dec_mark=False),
+        ["$1,234,567.", "−$5,432."],
+    ),
+    (dict(use_seps=False), ["$1234567.00", "−$5432.37"]),
+    (dict(placement="right"), ["1,234,567.00$", "−5,432.37$"]),
+    (dict(placement="right", incl_space=True), ["1,234,567.00 $", "−5,432.37 $"]),
+    (dict(incl_space=True), ["$ 1,234,567.00", "−$ 5,432.37"]),
+]
+
+
+@pytest.mark.parametrize("fmt_currency_kwargs,x_out", FMT_CURRENCY_CASES)
+def test_fmt_currency_case(fmt_currency_kwargs: dict[str, Any], x_out: list[str]):
+    df = pd.DataFrame({"x": [1234567, -5432.37]})
+    gt = GT(df).fmt_currency(columns="x", **fmt_currency_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+def test_fmt_currency_force_sign():
+
+    df = pd.DataFrame({"x": [-234.654, -0.0001, 0, 2352.23, 12354.3, 9939293923.23]})
+
+    gt = GT(df).fmt_currency(columns="x", force_sign=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == [
+        "−$234.65",
+        "−$0.00",
+        "$0.00",
+        "+$2,352.23",
+        "+$12,354.30",
+        "+$9,939,293,923.23",
+    ]
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_time()`
+# ------------------------------------------------------------------------------
+
+df_fmt_time = pd.DataFrame({"x": ["10:59:59", "13:23:59", "23:15"]})
+
+
+def test_fmt_time_iso():
+
+    gt = GT(df_fmt_time).fmt_time(columns="x", time_style="iso")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["10:59:59", "13:23:59", "23:15:00"]
+
+
+def test_fmt_time_iso_short():
+
+    gt = GT(df_fmt_time).fmt_time(columns="x", time_style="iso-short")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["10:59", "13:23", "23:15"]
+
+
+def test_fmt_time_h_m_s_p():
+
+    gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_m_s_p")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["10:59:59 AM", "1:23:59 PM", "11:15:00 PM"]
+
+
+def test_fmt_time_h_m_p():
+
+    gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_m_p")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["10:59 AM", "1:23 PM", "11:15 PM"]
+
+
+def test_fmt_time_h_p():
+
+    gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_p")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["10 AM", "1 PM", "11 PM"]
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_date()`
+# ------------------------------------------------------------------------------
+
+
+def test_fmt_date():
+
+    df = pd.DataFrame(
+        {
+            "x": [
+                "2020-05-20",
+                "2020-05-20 22:30",
+                "2020-05-20T22:30",
+                "2020-05-20 22:30:05",
+                "2020-05-20 22:30:05.824",
+            ]
+        }
+    )
+
+    gt = GT(df).fmt_date(columns="x", date_style="wd_m_day_year")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == [
+        "Wed, May 20, 2020",
+        "Wed, May 20, 2020",
+        "Wed, May 20, 2020",
+        "Wed, May 20, 2020",
+        "Wed, May 20, 2020",
+    ]
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_datetime()`
+# ------------------------------------------------------------------------------
+
+
+def test_fmt_datetime():
+
+    df = pd.DataFrame(
+        {
+            "x": [
+                "2023-01-05 00:00:00",
+                "2013-05-15 23:15",
+                "2020-05-20",
+                "2020-05-20 22:30",
+                "2020-05-20T22:30",
+                "2020-05-20 22:30:05",
+                "2020-05-20T22:30:05.232",
+            ]
+        }
+    )
+
+    gt = GT(df).fmt_datetime(
+        columns="x", date_style="wday_month_day_year", time_style="h_m_s_p", sep=" at "
+    )
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == [
+        "Thursday, January 5, 2023 at 12:00:00 AM",
+        "Wednesday, May 15, 2013 at 11:15:00 PM",
+        "Wednesday, May 20, 2020 at 12:00:00 AM",
+        "Wednesday, May 20, 2020 at 10:30:00 PM",
+        "Wednesday, May 20, 2020 at 10:30:00 PM",
+        "Wednesday, May 20, 2020 at 10:30:05 PM",
+        "Wednesday, May 20, 2020 at 10:30:05 PM",
+    ]
+
+
+def test_fmt_datetime_bad_date_style_raises():
+
+    df = pd.DataFrame(
+        {
+            "x": [
+                "2023-01-05 00:00:00",
+                "2013-05-15 23:15",
+            ]
+        }
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        gt = GT(df).fmt_datetime(
+            columns="x", date_style="quarter_month_day_year", time_style="h_m_s_p", sep=" at "
+        )
+
+    assert "date_style must be one of:" in exc_info.value.args[0]
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_bytes()`
+# ------------------------------------------------------------------------------
+@pytest.mark.parametrize(
+    "src,dst",
+    [
+        (-3, "−3 B"),
+        (0, "0 B"),
+        (0.9, "0 B"),
+        (1, "1 B"),
+        (994, "994 B"),
+        (1000, "1 kB"),
+        (1024, "1 kB"),
+        (2346345274.3, "2.3 GB"),
+        (902487216348759693489128343269, "902,487.2 YB"),
+    ],
+)
+def test_fmt_bytes_default(src: float, dst: str):
+    df = pd.DataFrame({"x": [src]})
+    gt = GT(df).fmt_bytes(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == [dst]
+
+
+@pytest.mark.parametrize(
+    "fmt_bytes_kwargs,x_in,x_out",
+    [
+        (dict(standard="binary"), [1000, 1024, 2346345274.3], ["1,000 B", "1 KiB", "2.2 GiB"]),
+        (dict(standard="binary", decimals=2), [845653745232536], ["769.12 TiB"]),
+        (
+            dict(standard="binary", use_seps=False, force_sign=True, incl_space=False),
+            [902487216348759693489128343269],
+            ["+746519.9YiB"],
+        ),
+    ],
+)
+def test_fmt_bytes_case(fmt_bytes_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]):
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_roman()`
+# ------------------------------------------------------------------------------
+
+
+df_fmt_roman = pd.DataFrame({"x": [-1234, 0, 0.4, 0.8, 1, 99, 4500]})
+
+
+def test_fmt_roman_upper():
+
+    gt = GT(df_fmt_roman).fmt_roman(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["MCCXXXIV", "N", "N", "I", "I", "XCIX", "ex terminis"]
+
+
+def test_fmt_roman_lower():
+
+    gt = GT(df_fmt_roman).fmt_roman(columns="x", case="lower")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["mccxxxiv", "n", "n", "i", "i", "xcix", "ex terminis"]
+
+
+def test_fmt_roman_bad_case_raises():
+    with pytest.raises(ValueError) as exc_info:
+        gt = GT(df_fmt_roman).fmt_roman(columns="x", case="case")
+
+    assert "The `case` argument must be either 'upper' or 'lower'" in exc_info.value.args[0]
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_markdown()`
+# ------------------------------------------------------------------------------
+
+
+def test_fmt_markdown():
+    df = pd.DataFrame(
+        {
+            "x": [
+                "**bold** and *italic*",
+                "__bold__ and _italic_",
+                "<strong>bold</strong> and <em>italic</em>",
+                "`code` and [link](www.example.com)",
+            ]
+        }
+    )
+
+    # Expect that the smaller values in `x` are formatted correctly when
+    # varying the number of fixed decimal places (`decimals`)
+    gt = GT(df).fmt_markdown(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == [
+        "<strong>bold</strong> and <em>italic</em>",
+        "<strong>bold</strong> and <em>italic</em>",
+        "<strong>bold</strong> and <em>italic</em>",
+        '<code>code</code> and <a href="www.example.com">link</a>',
+    ]
 
 
 # ------------------------------------------------------------------------------
@@ -1124,7 +1416,15 @@ def test_fmt_image_single():
     res = formatter.to_html("/a")
     dst = formatter.SPAN_TEMPLATE.format('<img src="/a.svg" style="vertical-align: middle;">')
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
+
+
+def test_fmt_image_missing():
+    formatter = FmtImage()
+    assert formatter.to_html(None) is None
+
+    formatter_pd = FmtImage(pd.DataFrame())
+    assert formatter_pd.to_html(pd.NA) is pd.NA
 
 
 def test_fmt_image_multiple():
@@ -1136,7 +1436,7 @@ def test_fmt_image_multiple():
         '<img src="/b.svg" style="vertical-align: middle;">'
     )
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_encode(tmpdir):
@@ -1151,10 +1451,10 @@ def test_fmt_image_encode(tmpdir):
     res = formatter.to_html(f"{tmpdir}/some")
 
     b64_content = b64encode(content.encode()).decode()
-    img_src = f"data: image/svg+xml; base64,{b64_content}"
+    img_src = f"data:image/svg+xml;base64,{b64_content}"
     dst = formatter.SPAN_TEMPLATE.format(f'<img src="{img_src}" style="vertical-align: middle;">')
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_width_height_str():
@@ -1163,7 +1463,7 @@ def test_fmt_image_width_height_str():
     dst_img = '<img src="/a" style="height: 30px;width: 20px;vertical-align: middle;">'
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_height_int():
@@ -1172,7 +1472,7 @@ def test_fmt_image_height_int():
     dst_img = '<img src="/a" style="height: 30px;vertical-align: middle;">'
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
-    assert res == dst
+    assert strip_windows_drive(res) == dst
 
 
 def test_fmt_image_width_int():
@@ -1182,10 +1482,529 @@ def test_fmt_image_width_int():
         formatter.to_html("/a")
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="uses linux specific paths")
 def test_fmt_image_path():
     formatter = FmtImage(encode=False, path="/a/b")
     res = formatter.to_html("c")
-    assert 'src="/a/b/c"' in res
+    assert 'src="/a/b/c"' in strip_windows_drive(res)
+
+
+@pytest.mark.parametrize(
+    "src,dst",
+    [
+        # 1. unit with superscript
+        ("m^2", 'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>'),
+        # 2. unit with subscript
+        ("h_0", 'h<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span>'),
+        # 3. unit with superscript and subscript
+        (
+            "h_0^3",
+            'h<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span><span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span>',
+        ),
+        # 4. unit with superscript and subscript (using overstriking)
+        (
+            "h[_0^3]",
+            'h<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">3<br>0</span>',
+        ),
+        # 5. slashed-unit shorthand for a '-1' exponent
+        (
+            "/s",
+            's<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        ),
+        # 6. slashes between units normalized
+        (
+            "t_0 / t_n",
+            't<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span>/t<span style="white-space:nowrap;"><sub style="line-height:0;">n</sub></span>',
+        ),
+        # 7. multiple inline units, separating by a space
+        (
+            "kg^2 m^-1",
+            'kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        ),
+        # 8. use of a number allowed with previous rules
+        (
+            "10^3 kg^2 m^-1",
+            '10<span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span> kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        ),
+        # 9. use of 'x' preceding number to form scalar multiplier
+        (
+            "x10^3 kg^2 m^-1",
+            '&times;10<span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span> kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;1</sup></span>',
+        ),
+        # 10. hyphen is transformed to minus sign when preceding a unit
+        (
+            "-h^2",
+            '−h<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # 11. italicization of base unit
+        (
+            "*m*^2",
+            '<em>m</em><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # 12. emboldening of base unit
+        (
+            "**m**^2",
+            '<strong>m</strong><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # 13. italicizing and emboldening of base unit
+        (
+            "_**m**_^2",
+            '<em><strong>m</strong></em><span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        ),
+        # 14. styling of subscripts and superscripts
+        (
+            "h_*0*^**3**",
+            'h<span style="white-space:nowrap;"><sub style="line-height:0;"><em>0</em></sub></span><span style="white-space:nowrap;"><sup style="line-height:0;"><strong>3</strong></sup></span>',
+        ),
+        # 15. transformation of common units from ASCII to preferred form
+        ("ug", "µg"),
+        # 16. insertion of common symbols and Greek letters via `:[symbol name]:`
+        (":angstrom:", "Å"),
+        # 17. use of chemical formulas via `%[chemical formula]%`
+        (
+            "%C6H12O6%",
+            'C<span style="white-space:nowrap;"><sub style="line-height:0;">6</sub></span>H<span style="white-space:nowrap;"><sub style="line-height:0;">12</sub></span>O<span style="white-space:nowrap;"><sub style="line-height:0;">6</sub></span>',
+        ),
+        # 18. Any '<' and '>' characters from input are escaped to prevent HTML rendering as tags
+        (
+            "m^2 <tag> s_0",
+            'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> &lt;tag&gt; s<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span>',
+        ),
+    ],
+)
+def test_fmt_units(src: str, dst: str):
+
+    units_tbl = pl.DataFrame({"units": [src]})
+    gt_tbl = GT(units_tbl).fmt_units(columns="units")
+
+    assert dst == _get_column_of_values(gt_tbl, column_name="units", context="html")[0]
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_nanoplot()`
+# ------------------------------------------------------------------------------
+
+
+def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: list[tuple[str, str]]) -> bool:
+    import re
+
+    found: list[bool] = []
+
+    for i, _ in enumerate(attrs):
+        attrs_i = attrs[i]
+        attr_str = f'{attrs_i[0]}="{attrs_i[1]}"'
+
+        found_i = bool(re.search(f"<{tag}.*?{attr_str}.*?</{tag}>", nanoplot_str))
+
+        found.append(found_i)
+
+    return all(found)
+
+
+df_fmt_nanoplot_single = pl.DataFrame({"vals": [-5.3, 6.3]})
+
+df_fmt_nanoplot_multi = pl.DataFrame(
+    {
+        "vals": [
+            {"x": [-12.0, -5.0, 6.0, 3.0, 0.0, 8.0, -7.0]},
+            {"x": [2, 0, 15, 7, 8, 10, 1, 24, 17, 13, 6]},
+        ],
+    }
+)
+
+
+FMT_NANOPLOT_CASES: list[dict[str, Any]] = [
+    # 1. default case
+    dict(),
+    # 2. reference line with 0 value
+    dict(reference_line=0),
+    # 3. reference line using a string
+    dict(reference_line="mean"),
+    # 4. use of a reference area
+    dict(reference_area=[0.1, 5.3]),
+    # 5. use of a reference line and a reference area
+    dict(reference_line=0, reference_area=[2.3, "max"]),
+    # 6. expansion in the y direction using a single value
+    dict(expand_y=20),
+    # 7. expansion in the y direction using a single value (same as #6)
+    dict(expand_y=[20]),
+    # 8. expansion in the y direction using two values
+    dict(expand_y=[-30, 20]),
+    # 9. expansions in the x and y directions
+    dict(expand_x=[-30, 20], expand_y=[-30, 20]),
+]
+
+
+# Test category 1: Horizontal line-based nanoplot single values
+def test_fmt_nanoplot_single_vals_only_line():
+
+    gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
+        columns="vals",
+        plot_type="line",
+        **FMT_NANOPLOT_CASES[0],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="line",
+        attrs=[
+            ("x1", "0.0"),
+            ("y1", "65.0"),
+            ("stroke", "#4682B4"),
+            ("stroke-width", "8"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="g",
+        attrs=[
+            ("class", "horizontal-line"),
+        ],
+    )
+
+    # All other test cases for the horizontal line nanoplot will produce the same output
+    # as this previous one (none will error as the non-relevant options are no ops)
+
+    for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
+
+        gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
+            columns="vals",
+            plot_type="line",
+            **params,
+        )
+        res_other = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+        assert res == res_other
+
+
+# Test category 2: Horizontal bar-based nanoplot single values
+def test_fmt_nanoplot_single_vals_only_bar():
+
+    gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
+        columns="vals",
+        plot_type="bar",
+        **FMT_NANOPLOT_CASES[0],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("stroke", "transparent"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="text",
+        attrs=[
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "30px"),
+        ],
+    )
+
+    # All other test cases for the horizontal bar nanoplot will produce the same output
+    # as this previous one (none will error as the non-relevant options are no ops)
+    for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
+
+        gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
+            columns="vals",
+            plot_type="bar",
+            **params,
+        )
+        res_other = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+        assert res == res_other
+
+
+# Test category 3: Line-based nanoplot, multiple values per row
+def test_fmt_nanoplot_multi_vals_line():
+
+    # Subcase with default options
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
+        columns="vals",
+        plot_type="line",
+        **FMT_NANOPLOT_CASES[0],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="pattern",
+        attrs=[
+            ("width", "8"),
+            ("height", "8"),
+            ("patternUnits", "userSpaceOnUse"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="path",
+        attrs=[
+            ("class", "area-closed"),
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="circle",
+        attrs=[
+            ("cx", "50.0"),
+            ("cy", "115.0"),
+            ("r", "10"),
+            ("stroke", "#FFFFFF"),
+            ("stroke-width", "4"),
+            ("fill", "#FF0000"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="g",
+        attrs=[
+            ("class", "vert-line"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="g",
+        attrs=[
+            ("class", "y-axis-line"),
+        ],
+    )
+
+
+# Test category 3: Line-based nanoplot, multiple values per row, use of reference line
+def test_fmt_nanoplot_multi_vals_line_ref_line():
+
+    # Subcase with reference line
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
+        columns="vals",
+        plot_type="line",
+        **FMT_NANOPLOT_CASES[1],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
+
+
+# Test category 4: Line-based nanoplot, multiple values per row, use of reference
+# line and reference area
+def test_fmt_nanoplot_multi_vals_line_ref_line_ref_area():
+
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
+        columns="vals",
+        plot_type="line",
+        **FMT_NANOPLOT_CASES[4],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
+
+
+# Test category 5: Bar-based nanoplot, multiple values per row
+def test_fmt_nanoplot_multi_vals_bar():
+
+    # Subcase with default options
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
+        columns="vals",
+        plot_type="bar",
+        **FMT_NANOPLOT_CASES[0],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("stroke", "#CC3243"),
+            ("stroke-width", "4"),
+            ("fill", "#D75A68"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="rect",
+        attrs=[
+            ("x", "0"),
+            ("y", "0"),
+            ("width", "65"),
+            ("height", "130"),
+            ("stroke", "transparent"),
+            ("stroke-width", "0"),
+            ("fill", "transparent"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="text",
+        attrs=[
+            ("x", "0"),
+            ("y", "19.0"),
+            ("fill", "transparent"),
+            ("stroke", "transparent"),
+            ("font-size", "25"),
+        ],
+    )
+
+
+# Test category 6: Bar-based nanoplot, multiple values per row, use of reference line
+def test_fmt_nanoplot_multi_vals_bar_ref_line():
+
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
+        columns="vals",
+        plot_type="bar",
+        **FMT_NANOPLOT_CASES[1],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
+
+
+# Test category 7: Bar-based nanoplot, multiple values per row, reference line and reference area
+def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
+
+    gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
+        columns="vals",
+        plot_type="bar",
+        **FMT_NANOPLOT_CASES[4],
+    )
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="line",
+        attrs=[
+            ("class", "ref-line"),
+            ("stroke", "#75A8B0"),
+            ("stroke-width", "1"),
+            ("stroke-dasharray", "4 3"),
+            ("stroke-linecap", "round"),
+            ("vector-effect", "non-scaling-stroke"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill", "#A6E6F2"),
+            ("fill-opacity", "0.8"),
+        ],
+    )
+
+
+@pytest.mark.parametrize(
+    "plot_type",
+    [
+        ("bars"),
+        ("abc"),
+    ],
+)
+def test_fmt_nanoplot_raise_implemented_error(plot_type: str):
+    with pytest.raises(NotImplementedError) as exc_info:
+        GT(df_fmt_nanoplot_single).fmt_nanoplot(columns="vals", plot_type=plot_type)
+        assert f"Value received: {plot_type}" in exc_info.value.args[0]
+
+
+def test_fmt_nanoplot_polars_listcol(snapshot):
+    gt = GT(pl.DataFrame({"x": [[1, 2], [3, 4]]})).fmt_nanoplot("x")
+
+    assert_rendered_body(snapshot, gt)
 
 
 def test_normalize_locale():

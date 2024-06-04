@@ -1,4 +1,4 @@
-exclude: "(.*\\.svg)|(.*\\.qmd)|(.*\\.ambr)|(.*\\.csv)|(.*\\.txt)"
+exclude: "(.*\\.svg)|(.*\\.qmd)|(.*\\.ambr)|(.*\\.csv)|(.*\\.txt)|(.*\\.json)"
 repos:
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0

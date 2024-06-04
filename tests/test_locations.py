@@ -1,30 +1,41 @@
 import pandas as pd
 import polars as pl
 import pytest
-
+from great_tables import GT
+from great_tables._gt_data import Spanners
 from great_tables._locations import (
-    LocColumnSpanners,
-    LocBody,
-    LocTitle,
     CellPos,
+    LocBody,
+    LocColumnSpanners,
+    LocTitle,
     resolve,
-    resolve_vector_i,
     resolve_cols_i,
     resolve_rows_i,
+    resolve_vector_i,
     set_style,
 )
 from great_tables._styles import CellStyleText, FromColumn
-from great_tables._gt_data import Spanners, SpannerInfo
-from great_tables import GT
 
 
 def test_resolve_vector_i():
     assert resolve_vector_i(["x", "a"], ["a", "b", "x"], "") == [0, 2]
 
 
+def test_resolve_vector_i_raises():
+    with pytest.raises(NotImplementedError) as exc_info:
+        resolve_vector_i([1, 2], ["a", "b", "x"], "")
+
+    assert "Selecting entries currently requires a list of strings." in exc_info.value.args[0]
+
+
 def test_resolve_cols_i_gt_data():
     gt = GT(pd.DataFrame(columns=["a", "b", "x"]))
     assert resolve_cols_i(gt, ["x", "a"]) == [("x", 2), ("a", 0)]
+
+
+def test_resolve_cols_i_polars_in_list():
+    gt = GT(pl.DataFrame({"a": [], "b": [], "x": []}))
+    assert resolve_cols_i(gt, [pl.col("x"), "a"]) == [("x", 2), ("a", 0)]
 
 
 def test_resolve_cols_i_strings():
@@ -37,13 +48,33 @@ def test_resolve_cols_i_ints():
     assert resolve_cols_i(df, [-1, 0]) == [("x", 2), ("a", 0)]
 
 
+def test_resolve_cols_i_raises():
+    df = pd.DataFrame(columns=["a", "b", "x"])
+    assert resolve_cols_i(df, [-1, 0]) == [("x", 2), ("a", 0)]
+
+
 def test_resolve_rows_i_gt_data():
     gt = GT(pd.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
     assert resolve_rows_i(gt, ["b", "a"]) == [("a", 0), ("b", 1)]
 
 
+def test_resolve_rows_i_gt_data_nothing():
+    gt = GT(pd.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    assert resolve_rows_i(gt, null_means="nothing") == []
+
+
+@pytest.mark.parametrize("s, resolved", [("x", [("x", 1)]), ("a", [("a", 0), ("a", 2)])])
+def test_resolve_rows_i_string(s, resolved):
+    assert resolve_rows_i(["a", "x", "a", "b"], s) == resolved
+
+
 def test_resolve_rows_i_strings():
     assert resolve_rows_i(["a", "x", "a", "b"], ["x", "a"]) == [("a", 0), ("x", 1), ("a", 2)]
+
+
+@pytest.mark.parametrize("i, resolved", [(0, [("a", 0)]), (-1, [("b", 3)])])
+def test_resolve_rows_i_int(i, resolved):
+    assert resolve_rows_i(["a", "x", "a", "b"], i) == resolved
 
 
 def test_resolve_rows_i_ints():
@@ -58,6 +89,31 @@ def test_resolve_rows_i_polars_expr():
 def test_resolve_rows_i_func_expr():
     gt = GT(pd.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
     assert resolve_rows_i(gt, lambda D: D["x"].isin(["a", "b"])) == [("a", 0), ("b", 1)]
+
+
+def test_resolve_rows_i_func_expr_return_non_bool_pd_series():
+    gt = GT(pd.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    with pytest.raises(ValueError) as exc_info:
+        resolve_rows_i(gt, lambda D: pd.Series([4, 5, 6]))
+
+    assert (
+        "If you select rows using a callable, it must take a DataFrame, "
+        + "and return a boolean Series."
+        in exc_info.value.args[0]
+    )
+
+
+@pytest.mark.parametrize("bad_expr", [(4, 5, 6), {7, 8, 9}, {"col1": 1, "col2": 2, "col3": 3}])
+def test_resolve_rows_i_raises(bad_expr):
+    gt = GT(pd.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    with pytest.raises(NotImplementedError) as exc_info:
+        resolve_rows_i(gt, bad_expr)
+
+    expected = exc_info.value.args[0]
+    assert "Currently, rows can only be selected using these approaches:" in expected
+    assert "a list of integers" in expected
+    assert "a polars expression" in expected
+    assert "a callable that takes a DataFrame and returns a boolean Series" in expected
 
 
 def test_resolve_loc_body():

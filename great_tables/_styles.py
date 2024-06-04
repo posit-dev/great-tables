@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, Any, Callable, Literal, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Literal, Union
+
 from typing_extensions import Self, TypeAlias
 
-from ._tbl_data import TblData, _get_cell, PlExpr, eval_transform
-
+from ._helpers import px
+from ._tbl_data import PlExpr, TblData, _get_cell, eval_transform
 
 if TYPE_CHECKING:
     from ._locations import Loc
@@ -180,6 +181,10 @@ class CellStyleText(CellStyle):
     CellStyleText
         A CellStyleText object, which is used for a `styles` argument if specifying any cell text
         properties.
+
+    Examples
+    ------
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
 
     color: str | ColumnExpr | None = None
@@ -262,10 +267,14 @@ class CellStyleFill(CellStyle):
     CellStyleFill
         A CellStyleFill object, which is used for a `styles` argument if specifying a cell fill
         value.
+
+    Examples
+    ------
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
 
     color: str | ColumnExpr
-    # alpha: Optional[float] = None
+    # alpha: float | None = None
 
     def _to_html_style(self) -> str:
         return f"background-color: {self.color};"
@@ -299,11 +308,15 @@ class CellStyleBorders(CellStyle):
     -------
     CellStyleBorders
         A CellStyleBorders object, which is used for a `styles` argument if specifying cell borders.
+
+    Examples
+    ------
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
 
     sides: (
         Literal["all", "top", "bottom", "left", "right"]
-        | List[Literal["all", "top", "bottom", "left", "right"]]
+        | list[Literal["all", "top", "bottom", "left", "right"]]
         | ColumnExpr
     ) = "all"
     color: str | ColumnExpr = "#000000"
@@ -312,7 +325,7 @@ class CellStyleBorders(CellStyle):
 
     def _to_html_style(self) -> str:
         # If sides is an empty list, return an empty string
-        if self.sides == []:
+        if isinstance(self.sides, list) and not self.sides:
             return ""
 
         # If self.sides is a string, convert to a list
@@ -321,16 +334,21 @@ class CellStyleBorders(CellStyle):
 
         # If 'all' is provided then call the function recursively with all sides
         if "all" in self.sides:
-            return CellStyleBorders(sides=["top", "bottom", "left", "right"])._to_html_style()
+            return CellStyleBorders(
+                sides=["top", "bottom", "left", "right"],
+                color=self.color,
+                style=self.style,
+                weight=self.weight,
+            )._to_html_style()
 
         weight = self.weight
         if isinstance(weight, int):
-            weight = f"{weight}px"
+            weight = px(weight)
 
         color = self.color
         style = self.style
 
-        border_css_list: List[str] = []
+        border_css_list: list[str] = []
         for side in self.sides:
             if side not in ["top", "bottom", "left", "right"]:
                 raise ValueError(f"Invalid side '{side}' provided.")

@@ -1,11 +1,21 @@
-import pytest
-
 from typing import Any
-from great_tables._formats import _generate_data_vals
+
+import polars as pl
+import pytest
+from great_tables._formats import _generate_data_vals, _process_number_stream
 
 
 @pytest.mark.parametrize(
-    "src", ["1 2 3", "1  2, 3", "a1 b2 c3", [1, 2, 3], {"x": [1, 2, 3]}, {"any_name": [1, 2, 3]}]
+    "src",
+    [
+        "1 2 3",
+        "1  2, 3",
+        "a1 b2 c3",
+        [1, 2, 3],
+        {"x": [1, 2, 3]},
+        {"any_name": [1, 2, 3]},
+        pl.Series([1, 2, 3]),
+    ],
 )
 def test_generate_data_vals(src: Any):
     assert _generate_data_vals(src) == [1, 2, 3]
@@ -48,3 +58,19 @@ def test_generate_data_vals_fails_nested_list(nested_el):
 def test_nanoplot_ref_line_area():
     # TODO: add this test
     assert False
+
+
+@pytest.mark.parametrize(
+    "src,dst",
+    [
+        ("1 2 3", [1, 2, 3]),
+        ("1,   2,3, 4.5", [1, 2, 3, 4.5]),
+        ("1.1; 2;3;   4.5", [1.1, 2, 3, 4.5]),
+        (" 1.1, 2 3;   4.5 5 ", [1.1, 2, 3, 4.5, 5]),
+        (" 1.342e12, 2.e-2 3,  4.55634 -5.23 ", [1.342e12, 2.0e-2, 3, 4.55634, -5.23]),
+        (" +1.342e12, +2.E-2 +3,  4.55634 -5.23 ", [1.342e12, 2.0e-2, 3, 4.55634, -5.23]),
+    ],
+)
+def test_process_number_stream(src: str, dst: list[float]):
+    res = _process_number_stream(data_vals=src)
+    assert res == dst

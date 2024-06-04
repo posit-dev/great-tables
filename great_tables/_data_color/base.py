@@ -1,28 +1,29 @@
 from __future__ import annotations
-from typing import (
-    TYPE_CHECKING,
-    Union,
-    List,
-    Optional,
-    Tuple,
-)
-from .constants import DEFAULT_PALETTE, COLOR_NAME_TO_HEX, ALL_PALETTES
-from great_tables._tbl_data import is_na, DataFrameLike
-from great_tables.style import fill, text
-from great_tables.loc import body
+
+from typing import TYPE_CHECKING
+
 import numpy as np
+from great_tables._tbl_data import DataFrameLike, is_na
+from great_tables.loc import body
+from great_tables.style import fill, text
+from typing_extensions import TypeAlias
+
+from .constants import ALL_PALETTES, COLOR_NAME_TO_HEX, DEFAULT_PALETTE
 
 if TYPE_CHECKING:
     from great_tables._types import GTSelf
 
 
+RGBColor: TypeAlias = tuple[int, int, int]
+
+
 def data_color(
     self: GTSelf,
-    columns: Union[str, List[str], None] = None,
-    palette: Union[str, List[str], None] = None,
-    domain: Union[List[str], List[float], List[int], None] = None,
-    na_color: Optional[str] = None,
-    alpha: Optional[Union[int, float]] = None,
+    columns: str | list[str] | None = None,
+    palette: str | list[str] | None = None,
+    domain: list[str] | list[int] | list[float] | None = None,
+    na_color: str | None = None,
+    alpha: int | float | None = None,
     reverse: bool = False,
     autocolor_text: bool = True,
 ) -> GTSelf:
@@ -166,12 +167,8 @@ def data_color(
     ```
     """
 
-    try:
-        from mizani.palettes import gradient_n_pal
-    except ModuleNotFoundError:
-        raise ModuleNotFoundError(
-            "The `mizani` package is required to use the `data_color()` method."
-        )
+    # TODO: there is a circular import in palettes (which imports functions from this module)
+    from great_tables._data_color.palettes import GradientPalette
 
     # If no color is provided to `na_color`, use a light gray color as a default
     if na_color is None:
@@ -186,10 +183,7 @@ def data_color(
         # Check if the `palette` value refers to a ColorBrewer or viridis palette
         # and, if it is, then convert it to a list of hexadecimal color values; otherwise,
         # convert it to a list (this assumes that the value is a single color)
-        if palette in ALL_PALETTES:
-            palette = ALL_PALETTES[palette]
-        else:
-            palette = [palette]
+        palette = ALL_PALETTES.get(palette, [palette])
 
     # Reverse the palette if `reverse` is set to `True`
     if reverse:
@@ -199,17 +193,14 @@ def data_color(
     palette = _html_color(colors=palette, alpha=alpha)
 
     # Set a flag to indicate whether or not the domain should be calculated automatically
-    if domain is None:
-        autocalc_domain = True
-    else:
-        autocalc_domain = False
+    autocalc_domain = domain is None
 
     # Get the internal data table
     data_table = self._tbl_data
 
     # If `columns` is a single value, convert it to a list; if it is None then
     # get a list of all columns in the table body
-    columns_resolved: List[str]
+    columns_resolved: list[str]
 
     if isinstance(columns, str):
         columns_resolved = [columns]
@@ -259,7 +250,7 @@ def data_color(
         scaled_vals = [np.nan if is_na(data_table, x) else x for x in scaled_vals]
 
         # Create a color scale function from the palette
-        color_scale_fn = gradient_n_pal(colors=palette)
+        color_scale_fn = GradientPalette(colors=palette)
 
         # Call the color scale function on the scaled values to get a list of colors
         color_vals = color_scale_fn(scaled_vals)
@@ -269,18 +260,18 @@ def data_color(
 
         # for every color value in color_vals, apply a fill to the corresponding cell
         # by using `tab_style()`
-        for i, _ in enumerate(color_vals):
+        for i, color_val in enumerate(color_vals):
             if autocolor_text:
-                fgnd_color = _ideal_fgnd_color(bgnd_color=color_vals[i])
+                fgnd_color = _ideal_fgnd_color(bgnd_color=color_val)
 
                 gt_obj = gt_obj.tab_style(
-                    style=[text(color=fgnd_color), fill(color=color_vals[i])],
+                    style=[text(color=fgnd_color), fill(color=color_val)],
                     locations=body(columns=col, rows=[i]),
                 )
 
             else:
                 gt_obj = gt_obj.tab_style(
-                    style=fill(color=color_vals[i]), locations=body(columns=col, rows=[i])
+                    style=fill(color=color_val), locations=body(columns=col, rows=[i])
                 )
     return gt_obj
 
@@ -328,7 +319,7 @@ def _get_wcag_contrast_ratio(color_1: str, color_2: str) -> float:
     return contrast_ratio
 
 
-def _hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
+def _hex_to_rgb(hex_color: str) -> RGBColor:
     """
     Convert a hexadecimal color value to RGB.
 
@@ -339,7 +330,7 @@ def _hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
 
     Returns
     -------
-    Tuple[int, int, int]
+    RGBColor
         The RGB values.
     """
 
@@ -351,10 +342,10 @@ def _hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
     # Convert the hexadecimal color value to RGB
     rgb = tuple(int(hex_color[i : i + 2], 16) for i in (1, 3, 5))
 
-    return rgb
+    return rgb  # type: ignore
 
 
-def _relative_luminance(rgb: Tuple[int, int, int]) -> float:
+def _relative_luminance(rgb: RGBColor) -> float:
     """
     Calculate the relative luminance of an RGB color.
 
@@ -403,7 +394,7 @@ def _srgb(x: int) -> float:
     return x_frac
 
 
-def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) -> List[str]:
+def _html_color(colors: list[str], alpha: int | float | None = None) -> list[str]:
     """
     Normalize HTML colors.
 
@@ -432,7 +423,7 @@ def _html_color(colors: List[str], alpha: Optional[Union[int, float]] = None) ->
     return colors
 
 
-def _add_alpha(colors: List[str], alpha: Union[int, float]) -> List[str]:
+def _add_alpha(colors: list[str], alpha: int | float) -> list[str]:
     # If `alpha` is an integer, then convert it to a float
     if isinstance(alpha, int):
         alpha = float(alpha)
@@ -460,7 +451,7 @@ def _add_alpha(colors: List[str], alpha: Union[int, float]) -> List[str]:
     return colors
 
 
-def _remove_alpha(colors: List[str]) -> List[str]:
+def _remove_alpha(colors: list[str]) -> list[str]:
     # Loop through the colors and remove the alpha value from each one
     for i in range(len(colors)):
         color = colors[i]
@@ -503,11 +494,11 @@ def _float_to_hex(x: float) -> str:
     return x_hex
 
 
-def _color_name_to_hex(colors: List[str]) -> List[str]:
+def _color_name_to_hex(colors: list[str]) -> list[str]:
     # If any of the colors are in the color_name_dict, then replace them with the
     # corresponding hexadecimal value
 
-    hex_colors: List[str] = []
+    hex_colors: list[str] = []
 
     for color in colors:
 
@@ -524,7 +515,7 @@ def _color_name_to_hex(colors: List[str]) -> List[str]:
     return hex_colors
 
 
-def _color_name_list() -> List[str]:
+def _color_name_list() -> list[str]:
     return list(COLOR_NAME_TO_HEX)
 
 
@@ -535,13 +526,13 @@ def _is_short_hex(color: str) -> bool:
     return re.match(pattern, color) is not None
 
 
-def _is_hex_col(colors: List[str]) -> List[bool]:
+def _is_hex_col(colors: list[str]) -> list[bool]:
     import re
 
     return [bool(re.match(r"^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", color)) for color in colors]
 
 
-def _is_standard_hex_col(colors: List[str]) -> List[bool]:
+def _is_standard_hex_col(colors: list[str]) -> list[bool]:
     import re
 
     return [bool(re.match(r"^#[0-9a-fA-F]{6}$", color)) for color in colors]
@@ -564,24 +555,15 @@ def _expand_short_hex(hex_color: str) -> str:
     # Get the hex color without the leading '#'
     hex_color = hex_color[1:]
 
-    # Get the first character of the hex color
-    first_char = hex_color[0]
-
-    # Get the second character of the hex color
-    second_char = hex_color[1]
-
-    # Get the third character of the hex color
-    third_char = hex_color[2]
-
     # Return the expanded 6-digit hexadecimal color value
-    expanded = "#" + first_char + first_char + second_char + second_char + third_char + third_char
+    expanded = "#" + "".join(x * 2 for x in hex_color)
     expanded = expanded.upper()
     return expanded
 
 
 def _rescale_numeric(
-    df: DataFrameLike, vals: List[Union[int, float]], domain: List[float]
-) -> List[float]:
+    df: DataFrameLike, vals: list[int | float], domain: list[float]
+) -> list[float]:
     """
     Rescale numeric values
 
@@ -589,8 +571,7 @@ def _rescale_numeric(
     """
 
     # Get the minimum and maximum values from `domain`
-    domain_min = domain[0]
-    domain_max = domain[1]
+    domain_min, domain_max = domain
 
     # Get the range of values in `domain`
     domain_range = domain_max - domain_min
@@ -609,8 +590,8 @@ def _rescale_numeric(
 
 
 def _rescale_factor(
-    df: DataFrameLike, vals: List[Union[int, float]], domain: List[float], palette: List[str]
-) -> List[float]:
+    df: DataFrameLike, vals: list[int | float], domain: list[float], palette: list[str]
+) -> list[float]:
     """
     Rescale factor values
 
@@ -636,7 +617,7 @@ def _rescale_factor(
     return scaled_vals
 
 
-def _get_domain_numeric(df: DataFrameLike, vals: List[Union[int, float]]) -> List[float]:
+def _get_domain_numeric(df: DataFrameLike, vals: list[int | float]) -> list[float]:
     """
     Get the domain of numeric values.
 
@@ -656,7 +637,7 @@ def _get_domain_numeric(df: DataFrameLike, vals: List[Union[int, float]]) -> Lis
     return domain
 
 
-def _get_domain_factor(df: DataFrameLike, vals: List[str]) -> List[str]:
+def _get_domain_factor(df: DataFrameLike, vals: list[str]) -> list[str]:
     """
     Get the domain of factor values.
 
@@ -667,12 +648,10 @@ def _get_domain_factor(df: DataFrameLike, vals: List[str]) -> List[str]:
     vals = [x for x in vals if not is_na(df, x)]
 
     # Create the domain by getting the unique values in `vals` in order provided
-    unique_list: List[str] = []
-    seen: List[str] = []
+    seen: list[str] = []
 
     for item in vals:
         if item not in seen:
-            unique_list.append(item)
             seen.append(item)
 
     return seen

@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from great_tables import GT, md, exibble
+from great_tables import GT, exibble, md
 from great_tables._scss import compile_scss
 
 

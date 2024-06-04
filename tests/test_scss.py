@@ -24,6 +24,18 @@ def test_font_color(src, dst):
 
 
 @pytest.mark.parametrize(
+    "src, dst",
+    [
+        ("transparent", "#000000"),
+        ("currentColor", "currentcolor"),
+        ("black", "#FFFFFF"),
+    ],
+)
+def test_font_color_normalizes_table_color_names(src, dst):
+    assert font_color(src, "black", "white") == dst
+
+
+@pytest.mark.parametrize(
     "src,dst",
     [
         ("1px", "2px"),

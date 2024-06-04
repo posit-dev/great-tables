@@ -1,25 +1,28 @@
-import pandas as pd
+import math
+
 import numpy as np
+import pandas as pd
 import pytest
 from great_tables._data_color.base import (
-    _ideal_fgnd_color,
+    _add_alpha,
+    _color_name_to_hex,
+    _expand_short_hex,
+    _float_to_hex,
+    _get_domain_factor,
+    _get_domain_numeric,
     _get_wcag_contrast_ratio,
     _hex_to_rgb,
-    _relative_luminance,
-    _srgb,
     _html_color,
-    _add_alpha,
-    _remove_alpha,
-    _float_to_hex,
-    _color_name_to_hex,
-    _is_short_hex,
+    _ideal_fgnd_color,
     _is_hex_col,
+    _is_short_hex,
     _is_standard_hex_col,
-    _expand_short_hex,
+    _relative_luminance,
+    _remove_alpha,
     _rescale_numeric,
-    _get_domain_numeric,
-    _get_domain_factor,
+    _srgb,
 )
+from great_tables._data_color.palettes import GradientPalette
 
 
 def test_ideal_fgnd_color_dark_contrast():
@@ -523,3 +526,91 @@ def test_get_domain_factor():
     vals = ["A", "B", "B", "C"]
     result = _get_domain_factor(df, vals)
     assert result == ["A", "B", "C"]
+
+
+def test_gradient_n_pal():
+    palette = GradientPalette(["red", "blue"])
+
+    res = palette([0, 0.25, 0.5, 0.75, 1])
+    assert res == ["#ff0000", "#bf0040", "#800080", "#4000bf", "#0000ff"]
+
+
+@pytest.mark.parametrize(
+    "src,dst", [(0.001, "#ff0000"), (0.004, "#fe0001"), (0.999, "#0000ff"), (0.996, "#0100fe")]
+)
+def test_gradient_n_pal_rounds(src, dst):
+    palette = GradientPalette(["red", "blue"])
+
+    res = palette([src])
+    assert res == [dst]
+
+
+def test_gradient_n_pal_inf():
+    palette = GradientPalette(["red", "blue"])
+
+    res = palette([-math.inf, 0, math.nan, 1, math.inf])
+    assert res == [None, "#ff0000", None, "#0000ff", None]
+
+    # same but with numpy
+    res = palette([-np.inf, 0, np.nan, 1, np.inf])
+    assert res == [None, "#ff0000", None, "#0000ff", None]
+
+
+def test_gradient_n_pal_symmetric():
+    # based on mizani unit tests
+    palette = GradientPalette(["red", "blue", "red"], values=[0, 0.5, 1])
+
+    res = palette([0.2, 0.5, 0.8])
+    assert res == ["#990066", "#0000ff", "#990066"]
+
+
+def test_gradient_n_pal_manual_values():
+    # note that green1 is #0000ff (and green is not!)
+    palette = GradientPalette(["red", "blue", "green1"], values=[0, 0.8, 1])
+
+    res = palette([0, 0.8, 0.9, 1])
+    assert res == ["#ff0000", "#0000ff", "#008080", "#00ff00"]
+
+
+def test_gradient_n_pal_guard_raises():
+    with pytest.raises(ValueError) as exc_info:
+        GradientPalette(["red"])
+
+    assert "only 1 provided" in exc_info.value.args[0]
+
+    # values must start with 0
+    with pytest.raises(ValueError) as exc_info:
+        GradientPalette(["red", "blue"], values=[0.1, 1])
+
+    assert "start with 0" in exc_info.value.args[0]
+
+    # values must end with 1
+    with pytest.raises(ValueError) as exc_info:
+        GradientPalette(["red", "blue"], values=[0, 0.1])
+
+    assert "end with 1" in exc_info.value.args[0]
+
+    # len(color) != len(values)
+    with pytest.raises(ValueError) as exc_info:
+        GradientPalette(["red", "blue"], values=[0, 1.1, 1])
+
+    assert "Received 3 values and 2 colors" in exc_info.value.args[0]
+
+    with pytest.raises(NotImplementedError) as exc_info:
+        GradientPalette([(255, 0, 0), (0, 255, 0)])
+
+    assert "Currently, rgb tuples can't be passed directly." in exc_info.value.args[0]
+
+
+def test_gradient_n_pal_out_of_bounds_raises():
+    palette = GradientPalette(["red", "blue"])
+
+    with pytest.raises(ValueError) as exc_info:
+        palette([0, 1.1])
+
+    assert "Value: 1.1" in exc_info.value.args[0]
+
+    with pytest.raises(ValueError) as exc_info:
+        palette([0, -0.1])
+
+    assert "Value: -0.1" in exc_info.value.args[0]

@@ -1,14 +1,14 @@
+from math import nan
+
+import numpy as np
 import pandas as pd
 import polars as pl
 import polars.testing
-import numpy as np
 import pytest
-
 from great_tables import GT
-from great_tables._tbl_data import DataFrameLike, _get_cell, to_list
-from great_tables._substitution import SubMissing, SubZero
 from great_tables._gt_data import FormatterSkipElement
-from math import nan
+from great_tables._substitution import SubMissing, SubZero
+from great_tables._tbl_data import DataFrameLike, to_list
 
 params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars")]
 

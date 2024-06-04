@@ -1,13 +1,19 @@
 from __future__ import annotations
-from ._gt_data import GTData
-from ._utils import _try_import
-from typing import Optional, TYPE_CHECKING
 
 import tempfile
+import time
+import warnings
+
+from typing import TYPE_CHECKING, Literal
+from typing_extensions import TypeAlias
+
+from ._utils import _try_import
 
 if TYPE_CHECKING:
     # Note that as_raw_html uses methods on the GT class, not just data
     from .gt import GT
+
+    from selenium import webdriver
 
 
 def as_raw_html(
@@ -30,6 +36,18 @@ def as_raw_html(
     -------
     str
         An HTML fragment containing a table.
+
+    Examples:
+    ------
+    Let's use the `row` column of `exibble` dataset to create a table. With the `as_raw_html()`
+    method, we're able to output the HTML content.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+    GT(exibble[["row"]]).as_raw_html()
+    ```
+
     """
     built_table = self._build_data(context="html")
 
@@ -41,22 +59,32 @@ def as_raw_html(
     return html_table
 
 
+# Create a list of all selenium webdrivers
+WebDrivers: TypeAlias = Literal[
+    "chrome",
+    "firefox",
+    "safari",
+    "edge",
+]
+
+DebugDumpOptions: TypeAlias = Literal["zoom", "width_resize", "final_resize"]
+
+
 def save(
-    self: GTData,
+    self: GT,
     file: str,
     selector: str = "table",
     scale: float = 1.0,
     expand: int = 5,
+    web_driver: WebDrivers = "chrome",
     window_size: tuple[int, int] = (6000, 6000),
+    debug_port: None | int = None,
+    _debug_dump: DebugDumpOptions | None = None,
 ) -> None:
     """
-    Save a table as an image file or a PDF document.
+    Produce a high-resolution image file or PDF of the table.
 
-    The `save()` method makes it easy to save a table object as an image file. The function produces
-    a high-resolution image file or PDF of the table. The output file is create by first taking a
-    screenshot of the table using a headless Chrome browser. Then, the screenshot is then cropped to
-    only include the table element. Finally, and the resulting image is saved to the specified file
-    path in the format specified (via the file extension).
+    The output file is created by taking a screenshot of the table using a headless browser.
 
     Parameters
     ----------
@@ -64,27 +92,27 @@ def save(
         The name of the file to save the image to. Accepts names ending with .png, .bmp, and other
         image extensions. Also accepts the extension .pdf.
     selector
-        The HTML element selector to use to select the table. By default, this is set to "table",
-        which selects the first table element in the HTML content.
+        (NOT IMPLEMENTED) The HTML element name used to select table. Defaults to the whole table.
     scale
-        The scaling factor that will be used when generating the image. By default, this is set to a
-        value of `1.0`. Lowering this will result in a smaller image, whereas increasing it will
-        result in a much higher-resolution image. This can be considered a quality setting, yet it
-        also affects the file size. The default value of `1.0` is a good balance between file size
-        and quality.
+        The scaling factor that will be used when generating the image.  Lower values decrease
+        resolution. A scale of 2 is equivalent to doubling the width of the table in pixels. Note
+        that higher resolution results in larger file sizes.
     expand
-        The number of pixels to expand the screenshot by. By default, this is set to 5. This can be
+        (NOT IMPLEMENTED) The number of pixels to expand the screenshot by.  This can be
         increased to capture more of the surrounding area, or decreased to capture less.
+    web_driver
+        The webdriver to use when taking the screenshot. By default, uses Google Chrome. Supports
+        `"firefox"` (Mozilla Firefox), `"safari"` (Apple Safari), and `"edge"` (Microsoft Edge).
+        Specified browser must be installed.
     window_size
-        The size of the window to use when taking the screenshot. This is a tuple of two integers,
-        representing the width and height of the window. By default, this is set to `(6000, 6000)`,
-        a large size that should be sufficient for most tables. If the table is larger than this
-        (and this will be obvious once inspecting the image file) you can increase the appropriate
-        values of the tuple. If the table is very small, then a reduction in these these values will
-        result in a speed gain during image capture. Please note that the window size is *not* the
-        same as the final image size. The table will be captured at the same size as it is displayed
-        in the headless browser, and the window size is used to ensure that the entire table is
-        visible in the screen capture before the cropping process occurs.
+        The size of the browser window to use when laying out the table. This shouldn't be necessary
+        to capture a table, but may affect the tables appearance.
+    debug_port
+        Port number to use for debugging. By default no debugging port is opened.
+    _debug_dump
+        Whether the saved image should be a big browser window, with key elements outlined. This is
+        helpful for debugging this function's resizing, cropping heuristics. This is an internal
+        parameter and subject to change.
 
     Returns
     -------
@@ -115,15 +143,11 @@ def save(
 
     # Import the required packages
     _try_import(name="selenium", pip_install_line="pip install selenium")
-    _try_import(name="PIL", pip_install_line="pip install pillow")
 
     from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from PIL import Image
-    from io import BytesIO
-    from pathlib import Path
 
-    Image.MAX_IMAGE_PIXELS = None
+    if selector != "table":
+        raise NotImplementedError("Currently, only selector='table' is supported.")
 
     # Get the file extension from the file name
     file_extension = file.split(".")[-1]
@@ -133,68 +157,155 @@ def save(
         file += ".png"
 
     # Get the HTML content from the displayed output
-    html_content = as_raw_html(self=self)
+    html_content = as_raw_html(self)
 
-    # Create a temp directory to store the HTML file
-    temp_dir = tempfile.mkdtemp()
+    # Set the webdriver and options based on the chosen browser (`web_driver=` argument)
+    if web_driver == "chrome":
+        wdriver = webdriver.Chrome
+        wd_options = webdriver.ChromeOptions()
+    elif web_driver == "safari":
+        wdriver = webdriver.Safari
+        wd_options = webdriver.SafariOptions()
+    elif web_driver == "firefox":
+        wdriver = webdriver.Firefox
+        wd_options = webdriver.FirefoxOptions()
+    elif web_driver == "edge":
+        wdriver = webdriver.Edge
+        wd_options = webdriver.EdgeOptions()
 
-    # Set up the Chrome webdriver options
-    options = webdriver.ChromeOptions()
+    # specify headless flag ----
+    if web_driver in {"firefox", "edge"}:
+        wd_options.add_argument("--headless")
+    elif web_driver == "chrome":
+        # Operate all webdrivers in headless mode
+        wd_options.add_argument("--headless=new")
+    else:
+        # note that safari currently doesn't support headless browsing
+        pass
 
-    # Use headless mode with an extremely large window size
-    options.add_argument("--headless")
+    if debug_port:
+        if web_driver == "chrome":
+            wd_options.add_argument(f"--remote-debugging-port={debug_port}")
+        elif web_driver == "firefox":
+            # TODO: not sure how to connect to this session on firefox?
+            wd_options.add_argument(f"--start-debugger-server {debug_port}")
+        else:
+            warnings.warn("debug_port argument only supported on chrome and firefox")
+            debug_port = None
 
-    # Set the window size (x by y) to a large value to ensure the entire table
-    # is visible in the screenshot; this is settable via the `window_size=` argument
-    options.add_argument(f"--window-size={window_size[0]},{window_size[1]}")
-
+    # run browser ----
     with (
-        tempfile.NamedTemporaryFile(suffix=".html", dir=temp_dir) as temp_file,
-        webdriver.Chrome(options=options) as chrome,
+        tempfile.TemporaryDirectory() as tmp_dir,
+        wdriver(options=wd_options) as headless_browser,
     ):
 
         # Write the HTML content to the temp file
-        with open(temp_file.name, "w") as fp:
-            fp.write(html_content)
+        with open(f"{tmp_dir}/table.html", "w") as temp_file:
+            temp_file.write(html_content)
 
-        # Convert the scale value to a percentage string used by the
-        # Chrome browser for zooming
-        zoom_level = str(scale * 100) + "%"
+        # Open the HTML file in the headless browser
+        headless_browser.set_window_size(window_size[0], window_size[1])
+        headless_browser.get("file://" + temp_file.name)
 
-        # Get the scaling factor by multiplying `scale` by 2
-        scaling_factor = scale * 2
+        _save_screenshot(headless_browser, scale, file, debug=_debug_dump)
 
-        # Adjust the expand value by the scaling factor
-        expansion_amount = expand * scaling_factor
+        if debug_port:
+            input(
+                f"Currently debugging on port {debug_port}.\n\n"
+                "If you are using Chrome, enter chrome://inspect to preview the headless browser."
+                "Other browsers may have different ways to preview headless browser sessions.\n\n"
+                "Press enter to continue."
+            )
 
-        # Open the HTML file in the Chrome browser
-        chrome.get("file://" + temp_file.name)
-        chrome.execute_script(f"document.body.style.zoom = '{zoom_level}'")
 
-        # Get only the chosen element from the page; by default, this is the table element
-        element = chrome.find_element(by=By.TAG_NAME, value=selector)
+def _save_screenshot(
+    driver: webdriver.Chrome, scale, path: str, debug: DebugDumpOptions | None
+) -> None:
+    from io import BytesIO
+    from selenium.webdriver.common.by import By
 
-        # Get the location and size of the table element; this will be used
-        # to crop the screenshot later
-        location = element.location
-        size = element.size
+    # Based on: https://stackoverflow.com/a/52572919/
+    # In some headless browsers, element position and width do not always reflect
+    # css transforms like zoom.
+    #
+    # This approach works on the following assumptions:
+    #   * Zoomed table width cannot always be obtained directly, but is its clientWidth * scale
+    #   * Zoomed table height is obtained by the height of the div wrapping it
+    #   * A sleep may be necessary before the final screen capture
+    #
+    # I can't say for sure whether the final sleep is needed. Only that it seems like
+    # on CI with firefox sometimes the final screencapture is wider than necessary.
 
-        # Get a screenshot of the entire page as a PNG image
-        png = chrome.get_screenshot_as_png()
+    original_size = driver.get_window_size()
 
-    # Open the screenshot as an image with the PIL library; since the screenshot will be large
-    # (due to the large window size), we use the BytesIO class to handle the large image data
-    image = Image.open(fp=BytesIO(png))
+    # set table zoom ----
+    driver.execute_script(
+        "var el = document.getElementsByTagName('table')[0]; "
+        f"el.style.zoom = '{scale}'; "
+        "el.parentNode.style.display='none'; "
+        "el.parentNode.style.display='';"
+    )
 
-    # Crop the image to only include the table element; the scaling factor
-    # of 6 is used to account for the zoom level of 300% set earlier
-    left = (location["x"] * scaling_factor) - expansion_amount
-    top = (location["y"] * scaling_factor) - expansion_amount
-    right = ((location["x"] + size["width"]) * scaling_factor) + expansion_amount
-    bottom = ((location["y"] + size["height"]) * scaling_factor) + expansion_amount
+    if debug == "zoom":
+        return _dump_debug_screenshot(driver, path)
 
-    # Save the cropped image to the output path
-    image = image.crop((left, top, right, bottom))
+    # get table width and height, resizing window as we go ----
 
-    # Save the image to the output path in the specified format
-    image.save(fp=file)
+    # the window can be bigger than the table, but smaller risks pushing text
+    # onto new lines. this pads width and height for a little slack.
+    # note that this is mostly to account for body, div padding, and table borders.
+    crud_factor = 100
+
+    offset_left, offset_top = driver.execute_script(
+        "var div = document.body.childNodes[0]; return [div.offsetLeft, div.offsetTop];"
+    )
+    reported_width = driver.execute_script(
+        "var el = document.getElementsByTagName('table')[0]; return el.clientWidth;"
+    )
+    required_width = (reported_width + offset_left * 2 + crud_factor) * scale
+
+    # set to our required_width first, in case it changes the height of the table
+    driver.set_window_size(required_width, original_size["height"])
+
+    if debug == "width_resize":
+        return _dump_debug_screenshot(driver, path)
+
+    # height accounts for top-padding supplied by the browser (doubled to pad top and bottom)
+    div_height = driver.execute_script(
+        "var div = document.body.childNodes[0]; return div.scrollHeight;"
+    )
+    required_height = div_height + crud_factor + offset_top * 2
+
+    # final resize window and capture image ----
+    driver.set_window_size(required_width, required_height)
+
+    if debug == "final_resize":
+        return _dump_debug_screenshot(driver, path)
+
+    el = driver.find_element(by=By.TAG_NAME, value="body")
+
+    time.sleep(0.05)
+
+    if path.endswith(".png"):
+        el.screenshot(path)
+    else:
+        _try_import(name="PIL", pip_install_line="pip install pillow")
+
+        from PIL import Image
+
+        # convert to other formats (e.g. pdf, bmp) using PIL
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            fname = f"{tmp_dir}/image.png"
+            el.screenshot(fname)
+
+            with open(fname, "rb") as f:
+                Image.open(fp=BytesIO(f.read())).save(fp=path)
+
+
+def _dump_debug_screenshot(driver, path):
+    driver.execute_script(
+        "document.body.style.border = '5px solid blue'; "
+        "document.body.childNodes[0].style.border = '5px solid orange'; "
+        "document.getElementsByTagName('table')[0].style.border = '5px solid green'; "
+    )
+    driver.save_screenshot(path)

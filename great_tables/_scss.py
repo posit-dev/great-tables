@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from importlib_resources import files
 import re
-
 from dataclasses import fields
 from functools import partial
-from typing import Optional
 from string import Template
 
-from ._gt_data import GTData
-from ._utils import _as_css_font_family_attr, _unique_set
+from importlib_resources import files
+
 from ._data_color.base import _html_color, _ideal_fgnd_color
+from ._gt_data import GTData
+from ._helpers import pct, px
+from ._utils import _as_css_font_family_attr, _unique_set
 
 DEFAULTS_TABLE_BACKGROUND = (
     "heading_background_color",
@@ -39,12 +39,20 @@ FONT_COLOR_VARS = (
 )
 
 
-def font_color(color: str, table_font_color: str, table_font_color_light: str) -> str:
+def font_color(color: str, dark_option: str, light_option: str) -> str:
+    """Return either dark_option or light_option, whichever is higher contrast with color.
+
+    Handles common html color kinds (like transparent), and always returns a hex color.
+    """
+
+    # Normalize return options to hex colors
+    dark_normalized = _html_color(colors=[dark_option])[0]
+    light_normalized = _html_color(colors=[light_option])[0]
 
     if color == "transparent":
         # With the `transparent` color, the font color should have the same value
-        # as the `table_font_color` option since the background will be transparent
-        return table_font_color
+        # as the `dark_option` option since the background will be transparent
+        return dark_normalized
     if color in ["currentcolor", "currentColor"]:
         # With two variations of `currentColor` value, normalize to `currentcolor`
         return "currentcolor"
@@ -58,8 +66,8 @@ def font_color(color: str, table_font_color: str, table_font_color_light: str) -
     # Determine the ideal font color given the different background colors
     ideal_font_color = _ideal_fgnd_color(
         bgnd_color=color_normalized[0],
-        light=table_font_color,
-        dark=table_font_color_light,
+        light=light_normalized,
+        dark=dark_normalized,
     )
 
     return ideal_font_color
@@ -69,15 +77,15 @@ def css_add(value: str | int, amount: int):
     if isinstance(value, int):
         return value + amount
     elif value.endswith("px"):
-        return f"{int(value[:-2]) + amount}px"
+        return px(int(value[:-2]) + amount)
     elif value.endswith("%"):
-        return f"{int(value[:-1]) + amount}%"
+        return pct(int(value[:-1]) + amount)
     else:
         raise NotImplementedError(f"Unable to add to CSS value: {value}")
 
 
 def compile_scss(
-    data: GTData, id: Optional[str], compress: bool = True, all_important: bool = False
+    data: GTData, id: str | None, compress: bool = True, all_important: bool = False
 ) -> str:
     """Return CSS for styling a table, based on options set."""
 
@@ -93,8 +101,8 @@ def compile_scss(
     # TODO: at this stage, the params below (e.g. table_font_color) have to exist, right?
     p_font_color = partial(
         font_color,
-        table_font_color=params["table_font_color"],
-        table_font_color_light=params["table_font_color_light"],
+        dark_option=params["table_font_color"],
+        light_option=params["table_font_color_light"],
     )
 
     font_params = {f"font_color_{k}": p_font_color(scss_params[k]) for k in FONT_COLOR_VARS}
@@ -135,9 +143,7 @@ def compile_scss(
           -moz-osx-font-smoothing: grayscale;
         }}"""
 
-    gt_styles_default_file = open(str(files("great_tables") / "css/gt_styles_default.scss"))
-
-    gt_styles_default = gt_styles_default_file.read()
+    gt_styles_default = (files("great_tables") / "css/gt_styles_default.scss").read_text()
 
     if compress:
         gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, 0, re.MULTILINE)

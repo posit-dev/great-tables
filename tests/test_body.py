@@ -1,8 +1,7 @@
-import pytest
-
-from great_tables._gt_data import Body, Stub, Boxhead
-from great_tables._body import body_reassemble
 import pandas as pd
+import pytest
+from great_tables._body import body_reassemble
+from great_tables._gt_data import Body, Boxhead, Stub
 from pandas.testing import assert_frame_equal
 
 

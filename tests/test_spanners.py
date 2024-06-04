@@ -1,19 +1,60 @@
-import pandas as pd
-import pytest
+from collections.abc import Generator
 
+import pandas as pd
+import polars as pl
+import polars.selectors as cs
+import pytest
+from great_tables import GT, exibble
+from great_tables._gt_data import Boxhead, ColInfo, ColInfoTypeEnum, SpannerInfo, Spanners
 from great_tables._spanners import (
-    spanners_print_matrix,
-    empty_spanner_matrix,
-    tab_spanner,
+    _validate_sel_cols,
     cols_hide,
     cols_move,
+    cols_move_to_end,
+    cols_move_to_start,
+    empty_spanner_matrix,
+    spanners_print_matrix,
+    seq_groups,
+    tab_spanner,
 )
-from great_tables._gt_data import Spanners, SpannerInfo, Boxhead, ColInfo, ColInfoTypeEnum
-from great_tables import GT
+
+
+@pytest.mark.parametrize(
+    "seq, grouped",
+    [
+        ("a", [("a", 1)]),
+        ("abc", [("a", 1), ("b", 1), ("c", 1)]),
+        ("aabbcc", [("a", 2), ("b", 2), ("c", 2)]),
+        ("aabbccd", [("a", 2), ("b", 2), ("c", 2), ("d", 1)]),
+        (("a", "b", "c"), [("a", 1), ("b", 1), ("c", 1)]),
+        (("aa", "bb", "cc"), [("aa", 1), ("bb", 1), ("cc", 1)]),
+        (iter("xyyzzz"), [("x", 1), ("y", 2), ("z", 3)]),
+        ((i for i in "333221"), [("3", 3), ("2", 2), ("1", 1)]),
+        (["a", "a", "b", None, "c"], [("a", 2), ("b", 1), (None, 1), ("c", 1)]),
+        (["a", "a", "b", None, None, "c"], [("a", 2), ("b", 1), (None, 1), (None, 1), ("c", 1)]),
+        ([None, "a", "a", "b"], [(None, 1), ("a", 2), ("b", 1)]),
+        ([None, None, "a", "a", "b"], [(None, 1), (None, 1), ("a", 2), ("b", 1)]),
+        ([None, None, None, "a", "a", "b"], [(None, 1), (None, 1), (None, 1), ("a", 2), ("b", 1)]),
+        ([None, None, None], [(None, 1), (None, 1), (None, 1)]),
+    ],
+)
+def test_seq_groups(seq, grouped):
+    g = seq_groups(seq)
+    assert isinstance(g, Generator)
+    assert list(g) == grouped
+
+
+def test_seq_groups_raises():
+    """
+    https://stackoverflow.com/questions/66566960/pytest-raises-does-not-catch-stopiteration-error
+    """
+    with pytest.raises(RuntimeError) as exc_info:
+        next(seq_groups([]))
+    assert "StopIteration" in str(exc_info.value)
 
 
 @pytest.fixture
-def spanners():
+def spanners() -> Spanners:
     return Spanners(
         [
             SpannerInfo(spanner_id="a", spanner_level=0, vars=["col1"], built="A"),
@@ -23,7 +64,7 @@ def spanners():
 
 
 @pytest.fixture
-def boxhead():
+def boxhead() -> Boxhead:
     return Boxhead(
         [
             ColInfo(var="col1"),
@@ -34,19 +75,19 @@ def boxhead():
     )
 
 
-def test_spanners_next_level_above_first(spanners):
+def test_spanners_next_level_above_first(spanners: Spanners):
     assert spanners.next_level(["col1"]) == 1
 
 
-def test_spanners_next_level_above_second(spanners):
+def test_spanners_next_level_above_second(spanners: Spanners):
     assert spanners.next_level(["col2"]) == 2
 
 
-def test_spanners_next_level_unique(spanners):
+def test_spanners_next_level_unique(spanners: Spanners):
     assert spanners.next_level(["col3"]) == 0
 
 
-def test_spanners_print_matrix(spanners, boxhead):
+def test_spanners_print_matrix(spanners: Spanners, boxhead: Boxhead):
     mat, vars = spanners_print_matrix(spanners, boxhead)
     assert vars == ["col1", "col2", "col3"]
     assert mat == [
@@ -56,7 +97,7 @@ def test_spanners_print_matrix(spanners, boxhead):
     ]
 
 
-def test_spanners_print_matrix_arg_omit_columns_row(spanners, boxhead):
+def test_spanners_print_matrix_arg_omit_columns_row(spanners: Spanners, boxhead: Boxhead):
     mat, vars = spanners_print_matrix(spanners, boxhead, omit_columns_row=True)
     assert vars == ["col1", "col2", "col3"]
     assert mat == [
@@ -65,7 +106,7 @@ def test_spanners_print_matrix_arg_omit_columns_row(spanners, boxhead):
     ]
 
 
-def test_spanners_print_matrix_arg_include_hidden(spanners, boxhead):
+def test_spanners_print_matrix_arg_include_hidden(spanners: Spanners, boxhead: Boxhead):
     mat, vars = spanners_print_matrix(spanners, boxhead, include_hidden=True)
     assert vars == ["col1", "col2", "col3", "col4"]
     assert mat == [
@@ -141,6 +182,29 @@ def test_tab_spanners_overlap():
     assert new_gt._spanners[1] == dst_span
 
 
+def test_multiple_spanners_above_one():
+    from great_tables import GT, exibble
+
+    gt = (
+        GT(exibble, rowname_col="row", groupname_col="group")
+        .tab_spanner("A", ["num", "char", "fctr"])
+        .tab_spanner("B", ["fctr"])
+        .tab_spanner("C", ["num", "char"])
+        .tab_spanner("D", ["fctr", "date", "time"])
+        .tab_spanner("E", spanners=["B", "C"])
+    )
+
+    # Assert that the spanners have been added in the correct
+    # format and in the correct levels
+
+    assert len(gt._spanners) == 5
+    assert gt._spanners[0] == SpannerInfo("A", 0, "A", vars=["num", "char", "fctr"])
+    assert gt._spanners[1] == SpannerInfo("B", 1, "B", vars=["fctr"])
+    assert gt._spanners[2] == SpannerInfo("C", 1, "C", vars=["num", "char"])
+    assert gt._spanners[3] == SpannerInfo("D", 2, "D", vars=["fctr", "date", "time"])
+    assert gt._spanners[4] == SpannerInfo("E", 3, "E", vars=["fctr", "num", "char"])
+
+
 def test_tab_spanners_with_gather():
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
     src_gt = GT(df)
@@ -149,36 +213,6 @@ def test_tab_spanners_with_gather():
 
     assert len(new_gt._spanners) == 1
     assert [col.var for col in new_gt._boxhead] == ["a", "c", "b"]
-
-
-def test_cols_hide():
-    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
-    src_gt = GT(df)
-
-    new_gt = cols_hide(src_gt, columns=["a"])
-    assert [col.var for col in new_gt._boxhead if col.visible] == ["b", "c"]
-
-    new_gt = cols_hide(src_gt, columns=["a", "b"])
-    assert [col.var for col in new_gt._boxhead if col.visible] == ["c"]
-
-
-def test_cols_move():
-    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
-    src_gt = GT(df)
-
-    new_gt = cols_move(src_gt, columns=["a"], after="b")
-    assert [col.var for col in new_gt._boxhead] == ["b", "a", "c"]
-
-
-def test_cols_move_polars():
-    import polars as pl
-    import polars.selectors as cs
-
-    df = pl.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
-    src_gt = GT(df)
-
-    new_gt = cols_move(src_gt, columns=cs.starts_with("a"), after="b")
-    assert [col.var for col in new_gt._boxhead] == ["b", "a", "c"]
 
 
 def test_cols_width_partial_set():
@@ -224,3 +258,103 @@ def test_cols_width_fully_set_pct_2():
     assert gt_tbl._boxhead[0].column_width == "10%"
     assert gt_tbl._boxhead[1].column_width == "10%"
     assert gt_tbl._boxhead[2].column_width == "40%"
+
+
+@pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "a"), (pl.DataFrame, cs.starts_with("a"))])
+def test_cols_move_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_move(src_gt, columns=columns, after="b")
+    assert [col.var for col in new_gt._boxhead] == ["b", "a", "c", "d"]
+
+
+@pytest.mark.parametrize(
+    "DF, columns",
+    [(pd.DataFrame, ["a", "d"]), (pl.DataFrame, cs.starts_with("a") | cs.ends_with("d"))],
+)
+def test_cols_move_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_move(src_gt, columns=columns, after="b")
+    assert [col.var for col in new_gt._boxhead] == ["b", "a", "d", "c"]
+
+
+@pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "c"), (pl.DataFrame, cs.starts_with("c"))])
+def test_cols_move_to_start_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_move_to_start(src_gt, columns=columns)
+    assert [col.var for col in new_gt._boxhead] == ["c", "a", "b", "d"]
+
+
+@pytest.mark.parametrize(
+    "DF, columns",
+    [(pd.DataFrame, ["c", "d"]), (pl.DataFrame, cs.starts_with("c") | cs.ends_with("d"))],
+)
+def test_cols_move_to_start_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_move_to_start(src_gt, columns=columns)
+    assert [col.var for col in new_gt._boxhead] == ["c", "d", "a", "b"]
+
+
+@pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "c"), (pl.DataFrame, cs.starts_with("c"))])
+def test_cols_move_to_end_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_move_to_end(src_gt, columns=columns)
+    assert [col.var for col in new_gt._boxhead] == ["a", "b", "d", "c"]
+
+
+@pytest.mark.parametrize(
+    "DF, columns",
+    [(pd.DataFrame, ["a", "c"]), (pl.DataFrame, cs.starts_with("a") | cs.ends_with("c"))],
+)
+def test_cols_move_to_end_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_move_to_end(src_gt, columns=columns)
+    assert [col.var for col in new_gt._boxhead] == ["b", "d", "a", "c"]
+
+
+@pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "c"), (pl.DataFrame, cs.starts_with("c"))])
+def test_cols_hide_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_hide(src_gt, columns=columns)
+    assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "d"]
+
+
+@pytest.mark.parametrize(
+    "DF, columns",
+    [(pd.DataFrame, ["a", "d"]), (pl.DataFrame, cs.starts_with("a") | cs.ends_with("d"))],
+)
+def test_cols_hide_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_hide(src_gt, columns=columns)
+    assert [col.var for col in new_gt._boxhead if col.visible] == ["b", "c"]
+
+
+def test_validate_sel_cols():
+    sel_cols = ["a", "b", "c"]
+    col_vars = ["a", "b", "c", "d"]
+    _validate_sel_cols(sel_cols, col_vars)
+
+
+def test_validate_sel_cols_raises():
+    sel_cols = []
+    col_vars = ["a", "b", "c", "d"]
+    with pytest.raises(Exception) as exc_info:
+        _validate_sel_cols(sel_cols, col_vars)
+
+    assert "No columns selected." in exc_info.value.args[0]
+
+    sel_cols = ["a", "b", "c", "x"]
+    with pytest.raises(ValueError) as exc_info:
+        _validate_sel_cols(sel_cols, col_vars)
+
+    assert (
+        "All `columns` must exist and be visible in the input `data` table."
+        in exc_info.value.args[0]
+    )

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import warnings
+import re
 
 from functools import singledispatch
-from typing import Any, Dict, List, Optional, Union, Callable, Tuple, TYPE_CHECKING
+from importlib_metadata import version
+from typing import TYPE_CHECKING, Any, Callable, Optional, Tuple, Union
+
 from typing_extensions import TypeAlias
 
 from ._databackend import AbstractBackend
@@ -91,12 +94,24 @@ else:
 # utils ----
 
 
-def _raise_not_implemented(data):
+def _raise_not_implemented(data: Any):
     raise NotImplementedError(f"Unsupported data type: {type(data)}")
 
 
-def _raise_pandas_required(msg):
+def _raise_pandas_required(msg: Any):
     raise ImportError(msg)
+
+
+def _re_version(raw_version: str) -> Tuple[int, int, int]:
+    """Return a semver-like version string as a 3-tuple of integers.
+
+    Note two important caveats: (1) separators like dev are dropped (e.g. "3.2.1dev3" -> (3, 2, 1)),
+    and (2) it simply integer converts parts (e.g. "3.2.0001" -> (3,2,1)).
+    """
+
+    # Note two major caveats
+    regex = r"(?P<major>\d+)\.(?P<minor>\d+).(?P<patch>\d+)"
+    return tuple(map(int, re.match(regex, raw_version).groups()))
 
 
 class Agnostic:
@@ -128,7 +143,7 @@ def _(data: PlDataFrame):
 
 # get_column_names ----
 @singledispatch
-def get_column_names(data: DataFrameLike) -> List[str]:
+def get_column_names(data: DataFrameLike) -> list[str]:
     """Get a list of column names from the input data table"""
     _raise_not_implemented(data)
 
@@ -154,7 +169,7 @@ def n_rows(data: DataFrameLike) -> int:
 
 @n_rows.register(PdDataFrame)
 @n_rows.register(PlDataFrame)
-def _(data):
+def _(data: Any) -> int:
     return len(data)
 
 
@@ -169,12 +184,12 @@ def _get_cell(data: DataFrameLike, row: int, column: str) -> Any:
 
 
 @_get_cell.register(PlDataFrame)
-def _(data, row: int, column: str):
+def _(data: Any, row: int, column: str) -> Any:
     return data[column][row]
 
 
 @_get_cell.register(PdDataFrame)
-def _(data, row, col):
+def _(data: Any, row: int, col: str) -> Any:
     col_ii = data.columns.get_loc(col)
 
     if not isinstance(col_ii, int):
@@ -192,7 +207,7 @@ def _set_cell(data: DataFrameLike, row: int, column: str, value: Any):
 
 
 @_set_cell.register(PdDataFrame)
-def _(data, row: int, column: str, value: Any):
+def _(data, row: int, column: str, value: Any) -> None:
     # TODO: This assumes column names are unique
     # if this is violated, get_loc will return a mask
     col_indx = data.columns.get_loc(column)
@@ -200,7 +215,7 @@ def _(data, row: int, column: str, value: Any):
 
 
 @_set_cell.register(PlDataFrame)
-def _(data, row: int, column: str, value: Any):
+def _(data, row: int, column: str, value: Any) -> None:
     data[row, column] = value
 
 
@@ -217,13 +232,13 @@ def _get_column_dtype(data: DataFrameLike, column: str) -> str:
 
 
 @singledispatch
-def reorder(data: DataFrameLike, rows: List[int], columns: List[str]) -> DataFrameLike:
+def reorder(data: DataFrameLike, rows: list[int], columns: list[str]) -> DataFrameLike:
     """Return a re-ordered DataFrame."""
     _raise_not_implemented(data)
 
 
 @reorder.register
-def _(data: PdDataFrame, rows: List[int], columns: List[str]) -> PdDataFrame:
+def _(data: PdDataFrame, rows: list[int], columns: list[str]) -> PdDataFrame:
     # note that because loc is label based, we need
     # reset index to allow us to use integer indexing on the rows
     # note that this means the index is not preserved when reordering pandas
@@ -231,24 +246,24 @@ def _(data: PdDataFrame, rows: List[int], columns: List[str]) -> PdDataFrame:
 
 
 @reorder.register
-def _(data: PlDataFrame, rows: List[int], columns: List[str]) -> PlDataFrame:
+def _(data: PlDataFrame, rows: list[int], columns: list[str]) -> PlDataFrame:
     return data[rows, columns]
 
 
 # group_splits ----
 @singledispatch
-def group_splits(data: DataFrameLike, group_key: str) -> Dict[Any, List[int]]:
+def group_splits(data: DataFrameLike, group_key: str) -> dict[Any, list[int]]:
     raise NotImplementedError(f"Unsupported data type: {type(data)}")
 
 
 @group_splits.register
-def _(data: PdDataFrame, group_key: str) -> Dict[Any, List[int]]:
+def _(data: PdDataFrame, group_key: str) -> dict[Any, list[int]]:
     g_df = data.groupby(group_key)
     return {k: list(v) for k, v in g_df.indices.items()}
 
 
 @group_splits.register
-def _(data: PlDataFrame, group_key: str) -> Dict[Any, List[int]]:
+def _(data: PlDataFrame, group_key: str) -> dict[Any, list[int]]:
     # TODO: should ensure row count name isn't already in data
     import polars as pl
 
@@ -266,14 +281,15 @@ def _(data: PlDataFrame, group_key: str) -> Dict[Any, List[int]]:
 # eval_select ----
 
 SelectExpr: TypeAlias = Union[
-    List["str | int"],
+    list["str | int"],
     PlSelectExpr,
+    list[PlSelectExpr],
     str,
     int,
     Callable[[str], bool],
     None,
 ]
-_NamePos: TypeAlias = List[Tuple[str, int]]
+_NamePos: TypeAlias = list[tuple[str, int]]
 
 
 @singledispatch
@@ -285,7 +301,9 @@ def eval_select(data: DataFrameLike, expr: SelectExpr, strict: bool = True) -> _
 
 @eval_select.register
 def _(
-    data: PdDataFrame, expr: Union[List[Union[str, int]], Callable[[str], bool]], strict=True
+    data: PdDataFrame,
+    expr: Union[list[Union[str, int]], Callable[[str], bool]],
+    strict: bool = True,
 ) -> _NamePos:
     if isinstance(expr, (str, int)):
         expr = [expr]
@@ -302,30 +320,77 @@ def _(
 
 
 @eval_select.register
-def _(data: PlDataFrame, expr: Union[List[str], _selector_proxy_], strict=True) -> _NamePos:
+def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool = True) -> _NamePos:
     # TODO: how to annotate type of a polars selector?
     # Seems to be polars.selectors._selector_proxy_.
+    import polars.selectors as cs
+
     from polars import Expr
-    from polars import selectors
+
+    pl_version = _re_version(version("polars"))
+    expand_opts = {"strict": False} if pl_version >= (0, 20, 30) else {}
+
+    # just in case _selector_proxy_ gets renamed or something
+    # it inherits from Expr, so we can just use that in a pinch
+    cls_selector = getattr(cs, "_selector_proxy_", Expr)
 
     if isinstance(expr, (str, int)):
         expr = [expr]
 
+    if isinstance(expr, list):
+        # convert str and int entries to selectors ----
+        all_selectors = [
+            cs.by_name(x) if isinstance(x, str) else cs.by_index(x) if isinstance(x, int) else x
+            for x in expr
+        ]
+
+        # validate all entries ----
+        _validate_selector_list(all_selectors, **expand_opts)
+
+        # perform selection ----
+        # use a dictionary, with values set to True, as an ordered list.
+        selection_set = {}
+
+        # this should be equivalent to reducing selectors using an "or" operator,
+        # which isn't possible when there are selectors mixed with expressions
+        # like pl.col("some_col")
+        for sel in all_selectors:
+            new_cols = cs.expand_selector(data, sel, **expand_opts)
+            for col_name in new_cols:
+                selection_set[col_name] = True
+
+        final_columns = list(selection_set)
+
+    else:
+        if not isinstance(expr, (cls_selector, Expr)):
+            raise TypeError(f"Unsupported selection expr type: {type(expr)}")
+
+        final_columns = cs.expand_selector(data, expr, **expand_opts)
+
     col_pos = {k: ii for ii, k in enumerate(data.columns)}
 
-    # just in case _selector_proxy_ gets renamed or something
-    # it inherits from Expr, so we can just use that in a pinch
-    cls_selector = getattr(selectors, "_selector_proxy_", Expr)
-
-    if not isinstance(expr, (list, cls_selector)):
-        raise TypeError(f"Unsupported selection expr type: {type(expr)}")
-
     # I don't think there's a way to get the columns w/o running the selection
-    final_columns = selectors.expand_selector(data, expr)
     return [(col, col_pos[col]) for col in final_columns]
 
 
-def _eval_select_from_list(columns: list[str], expr: list[str | int]) -> list[tuple[str, int]]:
+def _validate_selector_list(selectors: list, strict=True):
+    from polars.selectors import is_selector
+    from polars import Expr
+
+    for ii, sel in enumerate(selectors):
+        if isinstance(sel, Expr):
+            if strict:
+                raise TypeError(
+                    f"Expected a list of selectors, but entry {ii} is a polars Expr, which is only "
+                    "supported for polars versions >= 0.20.30."
+                )
+        elif not is_selector(sel):
+            raise TypeError(f"Expected a list of selectors, but entry {ii} is type: {type(sel)}.")
+
+
+def _eval_select_from_list(
+    columns: list[str], expr: list[Union[str, int]]
+) -> list[tuple[str, int]]:
     col_pos = {k: ii for ii, k in enumerate(columns)}
 
     # TODO: should prohibit duplicate names in expr?
@@ -401,8 +466,16 @@ def _(df: PdDataFrame):
 @cast_frame_to_string.register
 def _(df: PlDataFrame):
     import polars as pl
+    import polars.selectors as cs
 
-    return df.cast(pl.Utf8)
+    list_cols = [
+        name for name, dtype in zip(df.columns, df.dtypes) if issubclass(dtype.base_type(), pl.List)
+    ]
+
+    return df.with_columns(
+        cs.by_name(list_cols).map_elements(lambda x: str(x.to_list()), return_dtype=pl.String),
+        cs.all().exclude(list_cols).cast(pl.Utf8),
+    )
 
 
 # replace_null_frame ----
@@ -428,30 +501,48 @@ def _(df: PlDataFrame, replacement: PlDataFrame):
 
 
 @singledispatch
-def to_list(ser: SeriesLike) -> List[Any]:
+def to_list(ser: SeriesLike) -> list[Any]:
     raise NotImplementedError(f"Unsupported type: {type(ser)}")
 
 
 @to_list.register
-def _(ser: PdSeries) -> List[Any]:
+def _(ser: PdSeries) -> list[Any]:
     return ser.tolist()
 
 
 @to_list.register
-def _(ser: PlSeries) -> List[Any]:
+def _(ser: PlSeries) -> list[Any]:
     return ser.to_list()
+
+
+# is_series ----
+
+
+@singledispatch
+def is_series(ser: Any) -> bool:
+    False
+
+
+@is_series.register
+def _(ser: PdSeries) -> bool:
+    return True
+
+
+@is_series.register
+def _(ser: PlSeries) -> bool:
+    return True
 
 
 # mutate ----
 
 
 @singledispatch
-def eval_transform(df: DataFrameLike, expr: Any) -> List[Any]:
+def eval_transform(df: DataFrameLike, expr: Any) -> list[Any]:
     raise NotImplementedError(f"Unsupported type: {type(df)}")
 
 
 @eval_transform.register
-def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> List[Any]:
+def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> list[Any]:
     res = expr(df)
 
     if not isinstance(res, PdSeries):
@@ -466,7 +557,7 @@ def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> List[Any]:
 
 
 @eval_transform.register
-def _(df: PlDataFrame, expr: PlExpr) -> List[Any]:
+def _(df: PlDataFrame, expr: PlExpr) -> list[Any]:
     df_res = df.select(expr)
 
     if len(df_res.columns) > 1:
