@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from itertools import chain, groupby
+from itertools import chain
 from typing import Any, cast
 
-from great_tables._spanners import seq_groups, spanners_print_matrix
+from great_tables._spanners import spanners_print_matrix
 from htmltools import HTML, TagList, css, tags
 
 from ._gt_data import GTData
 from ._tbl_data import _get_cell, cast_frame_to_string, n_rows, replace_null_frame
 from ._text import StringBuilder, _process_text, _process_text_id
-from ._utils import heading_has_subtitle, heading_has_title
+from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
 
 def create_heading_component_h(data: GTData) -> StringBuilder:
