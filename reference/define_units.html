@@ -20,40 +20,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -180,7 +146,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <ul>
   <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
-  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#specification-of-units-notation" id="toc-specification-of-units-notation" class="nav-link" data-scroll-target="#specification-of-units-notation">Specification Of Units Notation</a></li>
   </ul>
 </nav>
     </div>
@@ -189,7 +155,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">GT.sub_missing</h1>
+<h1 class="title">define_units</h1>
 </div>
 
 
@@ -206,12 +172,17 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </header>
 
 
-<p><code>GT.sub_missing(self, columns=None, rows=None, missing_text=None)</code></p>
-<p>Substitute missing values in the table body.</p>
-<p>Wherever there is missing data (i.e., <code>None</code> values) customizable content may present better than the standard representation of missing values that would otherwise appear. The <code>sub_missing()</code> method allows for this replacement through its <code>missing_text=</code> argument. And by not supplying anything to <code>missing_text=</code>, an em dash will serve as a default indicator of missingness.</p>
+<p><code>define_units(units_notation)</code></p>
+<p>With <code>define_units()</code> you can work with a specially-crafted units notation string and emit the units as HTML (with the <code>.to_html()</code> method). This function is useful as a standalone utility and it powers the <code>fmt_units()</code> method in <strong>Great Tables</strong>.</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 19%">
+<col style="width: 39%">
+<col style="width: 16%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Name</th>
@@ -222,22 +193,10 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>columns</code></td>
-<td><code>SelectExpr</code></td>
-<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td><code>rows</code></td>
-<td><code>int</code> | <code>list</code>[<code>int</code>] | None</td>
-<td>In conjunction with <code>columns=</code>, we can specify which of their rows should be scanned for missing values. The default is all rows, resulting in all rows in all targeted columns being considered for this substitution. Alternatively, we can supply a list of row indices.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td><code>missing_text</code></td>
-<td><code>str</code> | <code>Text</code> | None</td>
-<td>The text to be used in place of missing values in the rendered table. We can optionally use the <a href="../reference/md.html#great_tables.md"><code>md()</code></a> or <a href="../reference/html.html#great_tables.html"><code>html()</code></a> helper functions to style the text as Markdown or to retain HTML elements in the text.</td>
-<td><code>None</code></td>
+<td><code>units_notation</code></td>
+<td><code>str</code></td>
+<td>A string of units notation.</td>
+<td><em>required</em></td>
 </tr>
 </tbody>
 </table>
@@ -245,6 +204,10 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="returns" class="level2">
 <h2 class="anchored" data-anchor-id="returns">Returns</h2>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 69%">
+<col style="width: 30%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Type</th>
@@ -253,123 +216,126 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </thead>
 <tbody>
 <tr class="odd">
-<td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
-<td>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</td>
+<td><code>UnitDefinitionList</code></td>
+<td>A list of unit definitions.</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="examples" class="level2">
-<h2 class="anchored" data-anchor-id="examples">Examples</h2>
-<p>Using a subset of the <code>exibble</code> dataset, let’s create a new table. The missing values in two selections of columns will be given different variations of replacement text (across two separate calls of <code>sub_missing()</code>).</p>
-<div id="27699578" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, md, html, exibble</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars.selectors <span class="im">as</span> cs</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>exibble_mini <span class="op">=</span> pl.from_pandas(exibble).drop(<span class="st">"row"</span>, <span class="st">"group"</span>, <span class="st">"fctr"</span>).<span class="bu">slice</span>(<span class="dv">4</span>, <span class="dv">8</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    GT(exibble_mini)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    .sub_missing(</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>[<span class="st">"num"</span>, <span class="st">"char"</span>],</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        missing_text<span class="op">=</span><span class="st">"missing"</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    .sub_missing(</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>cs.contains((<span class="st">"date"</span>, <span class="st">"time"</span>)) <span class="op">|</span> cs.by_name(<span class="st">"currency"</span>),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        missing_text<span class="op">=</span><span class="st">"nothing"</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="specification-of-units-notation" class="level2">
+<h2 class="anchored" data-anchor-id="specification-of-units-notation">Specification Of Units Notation</h2>
+<p>The following table demonstrates the various ways in which units can be specified in the <code>units_notation</code> string and how the input is processed by the <code>define_units()</code> function. The concluding step for display of the units in HTML is to use the <code>to_html()</code> method.</p>
+<div id="7ea2b16c" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="rqzylmirla" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="oewqnnpweh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#rqzylmirla table {
+#oewqnnpweh table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#rqzylmirla thead, tbody, tfoot, tr, td, th { border-style: none; }
+#oewqnnpweh thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#rqzylmirla p { margin: 0; padding: 0; }
- #rqzylmirla .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #rqzylmirla .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #rqzylmirla .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #rqzylmirla .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #rqzylmirla .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #rqzylmirla .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #rqzylmirla .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #rqzylmirla .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #rqzylmirla .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #rqzylmirla .gt_column_spanner_outer:first-child { padding-left: 0; }
- #rqzylmirla .gt_column_spanner_outer:last-child { padding-right: 0; }
- #rqzylmirla .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #rqzylmirla .gt_spanner_row { border-bottom-style: hidden; }
- #rqzylmirla .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #rqzylmirla .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #rqzylmirla .gt_from_md> :first-child { margin-top: 0; }
- #rqzylmirla .gt_from_md> :last-child { margin-bottom: 0; }
- #rqzylmirla .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #rqzylmirla .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #rqzylmirla .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #rqzylmirla .gt_row_group_first td { border-top-width: 2px; }
- #rqzylmirla .gt_row_group_first th { border-top-width: 2px; }
- #rqzylmirla .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #rqzylmirla .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #rqzylmirla .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #rqzylmirla .gt_left { text-align: left; }
- #rqzylmirla .gt_center { text-align: center; }
- #rqzylmirla .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #rqzylmirla .gt_font_normal { font-weight: normal; }
- #rqzylmirla .gt_font_bold { font-weight: bold; }
- #rqzylmirla .gt_font_italic { font-style: italic; }
- #rqzylmirla .gt_super { font-size: 65%; }
- #rqzylmirla .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #rqzylmirla .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#oewqnnpweh p { margin: 0; padding: 0; }
+ #oewqnnpweh .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #oewqnnpweh .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #oewqnnpweh .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #oewqnnpweh .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #oewqnnpweh .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #oewqnnpweh .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #oewqnnpweh .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #oewqnnpweh .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #oewqnnpweh .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #oewqnnpweh .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #oewqnnpweh .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #oewqnnpweh .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #oewqnnpweh .gt_spanner_row { border-bottom-style: hidden; }
+ #oewqnnpweh .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #oewqnnpweh .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #oewqnnpweh .gt_from_md> :first-child { margin-top: 0; }
+ #oewqnnpweh .gt_from_md> :last-child { margin-bottom: 0; }
+ #oewqnnpweh .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #oewqnnpweh .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #oewqnnpweh .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #oewqnnpweh .gt_row_group_first td { border-top-width: 2px; }
+ #oewqnnpweh .gt_row_group_first th { border-top-width: 2px; }
+ #oewqnnpweh .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #oewqnnpweh .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #oewqnnpweh .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #oewqnnpweh .gt_left { text-align: left; }
+ #oewqnnpweh .gt_center { text-align: center; }
+ #oewqnnpweh .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #oewqnnpweh .gt_font_normal { font-weight: normal; }
+ #oewqnnpweh .gt_font_bold { font-weight: bold; }
+ #oewqnnpweh .gt_font_italic { font-style: italic; }
+ #oewqnnpweh .gt_super { font-size: 65%; }
+ #oewqnnpweh .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #oewqnnpweh .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 
 <tbody><tr class="gt_col_headings">
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="date">date</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="time">time</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="datetime">datetime</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="rule">rule</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="input">input</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="output">output</th>
 </tr>
 </tbody><tbody class="gt_table_body">
   <tr>
-    <td class="gt_row gt_right">5550.0</td>
-    <td class="gt_row gt_left">missing</td>
-    <td class="gt_row gt_left">2015-05-15</td>
-    <td class="gt_row gt_left">17:55</td>
-    <td class="gt_row gt_left">2018-05-05 04:00</td>
-    <td class="gt_row gt_right">1325.81</td>
+    <td class="gt_row gt_left">'^' creates a superscript</td>
+    <td style="font-family: courier;" class="gt_row gt_left">m^2</td>
+    <td class="gt_row gt_left">m<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span></td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">missing</td>
-    <td class="gt_row gt_left">fig</td>
-    <td class="gt_row gt_left">2015-06-15</td>
-    <td class="gt_row gt_left">nothing</td>
-    <td class="gt_row gt_left">2018-06-06 16:11</td>
-    <td class="gt_row gt_right">13.255</td>
+    <td class="gt_row gt_left">'_' creates a subscript</td>
+    <td style="font-family: courier;" class="gt_row gt_left">h_0</td>
+    <td class="gt_row gt_left">h<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span></td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">777000.0</td>
-    <td class="gt_row gt_left">grapefruit</td>
-    <td class="gt_row gt_left">nothing</td>
-    <td class="gt_row gt_left">19:10</td>
-    <td class="gt_row gt_left">2018-07-07 05:22</td>
-    <td class="gt_row gt_right">nothing</td>
+    <td class="gt_row gt_left">subscripts and superscripts can be combined</td>
+    <td style="font-family: courier;" class="gt_row gt_left">h_0^3</td>
+    <td class="gt_row gt_left">h<span style="white-space:nowrap;"><sub style="line-height:0;">0</sub></span><span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span></td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">8880000.0</td>
-    <td class="gt_row gt_left">honeydew</td>
-    <td class="gt_row gt_left">2015-08-15</td>
-    <td class="gt_row gt_left">20:20</td>
-    <td class="gt_row gt_left">nothing</td>
-    <td class="gt_row gt_right">0.44</td>
+    <td class="gt_row gt_left">use '[_subscript^superscript]' to create an overstrike</td>
+    <td style="font-family: courier;" class="gt_row gt_left">h[_0^3]</td>
+    <td class="gt_row gt_left">h<span style="display:inline-block;line-height:1em;text-align:left;font-size:60%;vertical-align:-0.25em;margin-left:0.1em;">3<br>0</span></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">a '/' at the beginning adds the superscript '-1'</td>
+    <td style="font-family: courier;" class="gt_row gt_left">/s</td>
+    <td class="gt_row gt_left">s<span style="white-space:nowrap;"><sup style="line-height:0;">−1</sup></span></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">hyphen is transformed to minus sign when preceding a unit</td>
+    <td style="font-family: courier;" class="gt_row gt_left">-h^2</td>
+    <td class="gt_row gt_left">−h<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">'x' at the beginning is transformed to '×'</td>
+    <td style="font-family: courier;" class="gt_row gt_left">x10^3 kg^2 m^-1</td>
+    <td class="gt_row gt_left">×10<span style="white-space:nowrap;"><sup style="line-height:0;">3</sup></span> kg<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span> m<span style="white-space:nowrap;"><sup style="line-height:0;">−1</sup></span></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">ASCII terms from biology/chemistry turned into terminology forms</td>
+    <td style="font-family: courier;" class="gt_row gt_left">ug</td>
+    <td class="gt_row gt_left">µg</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">can create italics with '*' or '_'; create bold text with '**' or '__'</td>
+    <td style="font-family: courier;" class="gt_row gt_left">*m*^**2**</td>
+    <td class="gt_row gt_left"><em>m</em><span style="white-space:nowrap;"><sup style="line-height:0;"><strong>2</strong></sup></span></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">special symbol set surrounded by colons</td>
+    <td style="font-family: courier;" class="gt_row gt_left">:permille:C</td>
+    <td class="gt_row gt_left">‰C</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_left">chemistry notation: '%C6H6%'</td>
+    <td style="font-family: courier;" class="gt_row gt_left">g/L %C6H12O6%</td>
+    <td class="gt_row gt_left">g/L C<span style="white-space:nowrap;"><sub style="line-height:0;">6</sub></span>H<span style="white-space:nowrap;"><sub style="line-height:0;">12</sub></span>O<span style="white-space:nowrap;"><sub style="line-height:0;">6</sub></span></td>
   </tr>
 </tbody>
 

@@ -56,6 +56,14 @@ p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
     content: "()"
 }
 
+[id^=table-options] td a:after {
+    content: "()"
+}
+
+[id^=export] td a:after {
+    content: "()"
+}
+
 [id^=value-formatting] td a:after {
     content: "()"
 }

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.554">
+<meta name="generator" content="quarto-1.4.555">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -168,7 +168,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="table-creation" class="level2">
 <h2 class="anchored" data-anchor-id="table-creation">Table Creation</h2>
 <p>All tables created in <strong>Great Tables</strong> begin by using <a href="../reference/GT.html#great_tables.GT"><code>GT()</code></a>. With this class, we supply the input data table and some basic options for creating a stub and row groups (with the <code>rowname_col=</code> and <code>groupname_col=</code> arguments).</p>
-<table class="table">
+<table class="caption-top table">
 <tbody>
 <tr class="odd">
 <td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
@@ -179,8 +179,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </section>
 <section id="creating-or-modifying-parts-of-a-table" class="level2">
 <h2 class="anchored" data-anchor-id="creating-or-modifying-parts-of-a-table">Creating or modifying parts of a table</h2>
-<p>A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can perform styling on targeted table locations with the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method.</p>
-<table class="table">
+<p>A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can perform styling on targeted table locations with the <a href="../reference/GT.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method.</p>
+<table class="caption-top table">
 <tbody>
 <tr class="odd">
 <td><a href="../reference/GT.tab_header.html#great_tables.GT.tab_header">GT.tab_header</a></td>
@@ -211,8 +211,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </section>
 <section id="formatting-column-data" class="level2">
 <h2 class="anchored" data-anchor-id="formatting-column-data">Formatting column data</h2>
-<p>Columns of data can be formatted with the <code>fmt_*()</code> methods. We can specify the rows of these columns quite precisely with the <code>rows</code> argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the <a href="../reference/GT.fmt.html#great_tables.GT.fmt"><code>fmt()</code></a> method and define your own formatter.</p>
-<table class="table">
+<p>Columns of data can be formatted with the <code>fmt_*()</code> methods. We can specify the rows of these columns quite precisely with the <code>rows</code> argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the <a href="../reference/GT.html#great_tables.GT.fmt"><code>fmt()</code></a> method and define your own formatter.</p>
+<table class="caption-top table">
 <tbody>
 <tr class="odd">
 <td><a href="../reference/GT.fmt_number.html#great_tables.GT.fmt_number">GT.fmt_number</a></td>
@@ -259,26 +259,30 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <td>Format Markdown text.</td>
 </tr>
 <tr class="even">
+<td><a href="../reference/GT.fmt_units.html#great_tables.GT.fmt_units">GT.fmt_units</a></td>
+<td>Format measurement units.</td>
+</tr>
+<tr class="odd">
 <td><a href="../reference/GT.fmt_image.html#great_tables.GT.fmt_image">GT.fmt_image</a></td>
 <td>Format image paths to generate images in cells.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot">GT.fmt_nanoplot</a></td>
 <td>Format data for nanoplot visualizations.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="../reference/GT.fmt.html#great_tables.GT.fmt">GT.fmt</a></td>
 <td>Set a column format with a formatter function.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="../reference/GT.data_color.html#great_tables.GT.data_color">GT.data_color</a></td>
 <td>Perform data cell colorization.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="../reference/GT.sub_missing.html#great_tables.GT.sub_missing">GT.sub_missing</a></td>
 <td>Substitute missing values in the table body.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="../reference/GT.sub_zero.html#great_tables.GT.sub_zero">GT.sub_zero</a></td>
 <td>Substitute zero values in the table body.</td>
 </tr>
@@ -287,8 +291,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </section>
 <section id="modifying-columns" class="level2">
 <h2 class="anchored" data-anchor-id="modifying-columns">Modifying columns</h2>
-<p>The <code>cols_*()</code> methods allow for modifications that act on entire columns. This includes alignment of the data in columns (<a href="../reference/GT.cols_align.html#great_tables.GT.cols_align"><code>cols_align()</code></a>), hiding columns from view (<a href="../reference/GT.cols_hide.html#great_tables.GT.cols_hide"><code>cols_hide()</code></a>), re-labeling the column labels (<a href="../reference/GT.cols_label.html#great_tables.GT.cols_label"><code>cols_label()</code></a>), and moving columns around (with the <code>cols_move*()</code> methods).</p>
-<table class="table">
+<p>The <code>cols_*()</code> methods allow for modifications that act on entire columns. This includes alignment of the data in columns (<a href="../reference/GT.html#great_tables.GT.cols_align"><code>cols_align()</code></a>), hiding columns from view (<a href="../reference/GT.html#great_tables.GT.cols_hide"><code>cols_hide()</code></a>), re-labeling the column labels (<a href="../reference/GT.html#great_tables.GT.cols_label"><code>cols_label()</code></a>), and moving columns around (with the <code>cols_move*()</code> methods).</p>
+<table class="caption-top table">
 <tbody>
 <tr class="odd">
 <td><a href="../reference/GT.cols_align.html#great_tables.GT.cols_align">GT.cols_align</a></td>
@@ -323,8 +327,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </section>
 <section id="location-targeting-and-styling-classes" class="level2">
 <h2 class="anchored" data-anchor-id="location-targeting-and-styling-classes">Location Targeting and Styling Classes</h2>
-<p>Location targeting is a powerful feature of <strong>Great Tables</strong>. It allows for the precise selection of table locations for styling (using the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method). The styling classes allow for the specification of the styling properties to be applied to the targeted locations.</p>
-<table class="table">
+<p>Location targeting is a powerful feature of <strong>Great Tables</strong>. It allows for the precise selection of table locations for styling (using the <a href="../reference/GT.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method). The styling classes allow for the specification of the styling properties to be applied to the targeted locations.</p>
+<table class="caption-top table">
 <tbody>
 <tr class="odd">
 <td><a href="../reference/loc.body.html#great_tables.loc.body">loc.body</a></td>
@@ -347,8 +351,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </section>
 <section id="helper-functions" class="level2">
 <h2 class="anchored" data-anchor-id="helper-functions">Helper functions</h2>
-<p>An assortment of helper functions is available in the <strong>Great Tables</strong> package. The <a href="../reference/md.html#great_tables.md"><code>md()</code></a> and <a href="../reference/html.html#great_tables.html"><code>html()</code></a> helper functions can used during label creation with the <a href="../reference/GT.tab_header.html#great_tables.GT.tab_header"><code>tab_header()</code></a>, <a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner"><code>tab_spanner()</code></a>, <a href="../reference/GT.tab_stubhead.html#great_tables.GT.tab_stubhead"><code>tab_stubhead()</code></a>, and <a href="../reference/GT.tab_source_note.html#great_tables.GT.tab_source_note"><code>tab_source_note()</code></a> methods.</p>
-<table class="table">
+<p>An assortment of helper functions is available in the <strong>Great Tables</strong> package. The <a href="../reference/md.html#great_tables.md"><code>md()</code></a> and <a href="../reference/html.html#great_tables.html"><code>html()</code></a> helper functions can used during label creation with the <a href="../reference/GT.html#great_tables.GT.tab_header"><code>tab_header()</code></a>, <a href="../reference/GT.html#great_tables.GT.tab_spanner"><code>tab_spanner()</code></a>, <a href="../reference/GT.html#great_tables.GT.tab_stubhead"><code>tab_stubhead()</code></a>, and <a href="../reference/GT.html#great_tables.GT.tab_source_note"><code>tab_source_note()</code></a> methods.</p>
+<table class="caption-top table">
 <tbody>
 <tr class="odd">
 <td><a href="../reference/md.html#great_tables.md">md</a></td>
@@ -367,6 +371,10 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <td>Get a themed font stack that works well across systems.</td>
 </tr>
 <tr class="odd">
+<td><a href="../reference/define_units.html#great_tables.define_units">define_units</a></td>
+<td>With <code>define_units()</code> you can work with a specially-crafted units notation string and emit the</td>
+</tr>
+<tr class="even">
 <td><a href="../reference/nanoplot_options.html#great_tables.nanoplot_options">nanoplot_options</a></td>
 <td>Helper for setting the options for a nanoplot.</td>
 </tr>
@@ -376,7 +384,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="table-options" class="level2">
 <h2 class="anchored" data-anchor-id="table-options">Table options</h2>
 <p>With the <code>opt_*()</code> functions, we have an easy way to set commonly-used table options without having to use <code>tab_options()</code> directly.</p>
-<table class="table">
+<table class="caption-top table">
 <tbody>
 <tr class="odd">
 <td><a href="../reference/GT.opt_align_table_header.html#great_tables.GT.opt_align_table_header">GT.opt_align_table_header</a></td>
@@ -408,7 +416,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="export" class="level2">
 <h2 class="anchored" data-anchor-id="export">Export</h2>
 <p>There may come a day when you need to export a table to some specific format. A great method for that is <code>save()</code>, which allows us to save the table as a standalone image file. You can also get the table code as an HTML fragment with the <code>as_raw_html()</code> method.</p>
-<table class="table">
+<table class="caption-top table">
 <tbody>
 <tr class="odd">
 <td><a href="../reference/GT.save.html#great_tables.GT.save">GT.save</a></td>
@@ -424,7 +432,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="value-formatting-functions" class="level2">
 <h2 class="anchored" data-anchor-id="value-formatting-functions">Value formatting functions</h2>
 <p>If you have single values (or lists of them) in need of formatting, we have a set of <code>val_fmt_*()</code> functions that have been adapted from the corresponding <code>fmt_*()</code> methods.</p>
-<table class="table">
+<table class="caption-top table">
 <tbody>
 <tr class="odd">
 <td><a href="../reference/vals.fmt_number.html#great_tables.vals.fmt_number">vals.fmt_number</a></td>
@@ -472,7 +480,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="built-in-datasets" class="level2">
 <h2 class="anchored" data-anchor-id="built-in-datasets">Built in datasets</h2>
 <p>The <strong>Great Tables</strong> package is equipped with ten datasets that come in all shapes and sizes. Many examples thoughout the help docs use these datasets to quickly demonstrate the awesome features of the package!</p>
-<table class="table">
+<table class="caption-top table">
 <tbody>
 <tr class="odd">
 <td><a href="../reference/data.countrypops.html#great_tables.data.countrypops">data.countrypops</a></td>
