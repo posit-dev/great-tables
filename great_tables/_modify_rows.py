@@ -58,46 +58,6 @@ def tab_stub(self: GTSelf, rowname_col: str | None = None, groupname_col: str | 
     return self._replace(_stub=stub, _boxhead=boxhead)
 
 
-def with_rowname_col(self: GTSelf, column: str | None = None):
-    """Set a column to be the rownames in the table stub."""
-
-    # in case it was the groupname_col, need to remove group styles ----
-    if column is not None:
-        self = self._replace(_styles=_remove_from_group_styles(self._styles, column))
-
-    # remove from spanners ----
-    if column is not None:
-        self = self._replace(_spanners=self._spanners.remove_column(column))
-
-    # get existing groupname column ----
-    _info = self._boxhead._get_row_group_column()
-    groupname_col = _info.var if _info is not None else None
-
-    stub, boxhead = self._stub._set_cols(self._tbl_data, self._boxhead, column, groupname_col)
-
-    return self._replace(_stub=stub, _boxhead=boxhead)
-
-
-def with_groupname_col(self: GTSelf, column: str = None):
-    """Set a column to be the groupnames in the table stub."""
-
-    # remove any table body styles ----
-    if column is not None:
-        self = self._replace(_styles=_remove_from_body_styles(self._styles, column))
-
-    # remove from spanners ----
-    if column is not None:
-        self = self._replace(_spanners=self._spanners.remove_column(column))
-
-    # get existing rowname column ----
-    _info = self._boxhead._get_stub_column()
-    rowname_col = _info.var if _info is not None else None
-
-    stub, boxhead = self._stub._set_cols(self._tbl_data, self._boxhead, rowname_col, column)
-
-    return self._replace(_stub=stub, _boxhead=boxhead)
-
-
 def with_locale(self: GTSelf, locale: str | None = None):
     """Set a column to be the locale."""
 
