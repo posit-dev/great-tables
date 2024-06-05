@@ -44,3 +44,13 @@ island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] 
     .tab_stubhead(label="landmass")
 )
 ```
+
+## GT convenience arguments
+
+Rather than using the `GT.tab_stub()` method, the `GT(rowname_col=..., groupname_col=...)` arguments
+provide a quick way to specify row names and groups.
+
+
+```{python}
+GT(island_groups, rowname_col="name", groupname_col="group")
+```
