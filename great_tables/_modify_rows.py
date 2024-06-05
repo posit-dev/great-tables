@@ -27,7 +27,36 @@ def _remove_from_group_styles(styles: Styles, column: str):
     return list(styles)
 
 
-def tab_stub(self: GTSelf, rowname_col: str | None = None, groupname_col: str | None = None):
+def tab_stub(
+    self: GTSelf, rowname_col: str | None = None, groupname_col: str | None = None
+) -> GTSelf:
+    """Add a table stub, to emphasize row and group information.
+
+    Parameters
+    ----------
+    rowname_col:
+        The column to use for row names. By default, no row names added.
+    groupname_col:
+        The column to use for group names. By default no group names added.
+
+    Examples
+    --------
+
+    By default, all data is together in the body of the table.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+    GT(exibble)
+    ```
+
+    The table stub separates row names with a vertical line, and puts group names
+    on their own line.
+
+    ```{python}
+    GT(exibble).tab_stub(rowname_col="row", groupname_col="group")
+    ```
+    """
     # old columns ----
     _info = self._boxhead._get_row_group_column()
     old_groupname_col = _info.var if _info is not None else None
