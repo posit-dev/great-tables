@@ -31,6 +31,7 @@ from great_tables._heading import tab_header
 from great_tables._helpers import random_id
 from great_tables._modify_rows import (
     row_group_order,
+    tab_stub,
     with_groupname_col,
     with_rowname_col,
     with_id,
@@ -260,6 +261,7 @@ class GT(
     tab_options = tab_options
 
     row_group_order = row_group_order
+    tab_stub = tab_stub
     with_groupname_col = with_groupname_col
     with_rowname_col = with_rowname_col
     with_id = with_id

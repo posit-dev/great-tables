@@ -20,7 +20,7 @@ def test_row_group_order(snapshot):
 def test_with_groupname_col():
     gt = GT(pd.DataFrame({"g": ["b", "a"], "x": [1, 2], "y": [3, 4]}))
 
-    new_gt = gt.with_groupname_col("g")
+    new_gt = gt.tab_stub(groupname_col="g")
     group_rows = new_gt._stub.group_rows
 
     assert list(grp.group_id for grp in group_rows) == ["b", "a"]
@@ -41,7 +41,7 @@ def test_with_groupname_col_undo_spanner_style():
     assert len(gt._styles) == 2
     assert {style.colname for style in gt._styles} == set(STYLE_COLS)
 
-    new_gt = gt.with_groupname_col("g")
+    new_gt = gt.tab_stub(groupname_col="g")
 
     # grouping col dropped from spanner vars
     assert len(new_gt._spanners) == 1
@@ -63,7 +63,7 @@ def test_with_groupname_col_unset():
     assert gt._boxhead._get_row_group_column().var == "g"
     assert len(gt._stub.group_rows) == 1
 
-    new_gt = gt.with_groupname_col()
+    new_gt = gt.tab_stub(rowname_col="row")
 
     # check row unchanged ----
     assert new_gt._boxhead._get_stub_column().var == "row"
@@ -77,7 +77,7 @@ def test_with_groupname_col_unset():
 def test_with_rowname_col():
     gt = GT(pd.DataFrame({"g": ["b", "a"], "x": [1, 2], "y": [3, 4]}))
 
-    new_gt = gt.with_rowname_col("g")
+    new_gt = gt.tab_stub(rowname_col="g")
     rows = new_gt._stub.rows
 
     assert [row.rowname for row in rows] == ["b", "a"]
@@ -97,7 +97,7 @@ def test_with_rowname_col_undo_spanner_style():
     assert len(gt._styles) == 2
     assert {style.colname for style in gt._styles} == set(STYLE_COLS)
 
-    new_gt = gt.with_rowname_col("g")
+    new_gt = gt.tab_stub(rowname_col="g")
 
     # rowname col dropped from spanner vars
     assert len(new_gt._spanners) == 1
@@ -118,7 +118,7 @@ def test_with_rowname_col_unset():
     assert gt._boxhead._get_stub_column().var == "row"
     assert gt._stub.rows[0].rowname == "one"
 
-    new_gt = gt.with_rowname_col()
+    new_gt = gt.tab_stub(groupname_col="g")
 
     # check row removed ----
     assert new_gt._boxhead._get_stub_column() is None
