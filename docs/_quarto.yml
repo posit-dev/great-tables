@@ -155,6 +155,8 @@ quartodoc:
         [`tab_stubhead()`](`great_tables.GT.tab_stubhead`), and
         [`tab_source_note()`](`great_tables.GT.tab_source_note`) methods.
       contents:
+        - GT.with_id
+        - GT.with_locale
         - md
         - html
         - from_column

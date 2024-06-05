@@ -88,10 +88,19 @@ def tab_stub(
 
 
 def with_locale(self: GTSelf, locale: str | None = None):
-    """Set a column to be the locale."""
+    """Set a column to be the default locale.
+
+    Setting a default locale affects formatters like .fmt_number, and .fmt_date,
+    by having them default to locale-specific features (e.g. representing one thousand
+    as 1.000,00)
+    """
 
     return self._replace(_locale=Locale(locale))
 
 
 def with_id(self: GTSelf, id: str | None = None):
+    """Set the id for this table.
+
+    Note that this is a shortcut for the `table_id=` argument in `GT.tab_options()`.
+    """
     return self._replace(_options=self._options._set_option_value("table_id", id))
