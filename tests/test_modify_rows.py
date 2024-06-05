@@ -12,9 +12,9 @@ def assert_rendered_body(snapshot, gt):
 
 
 def test_row_group_order(snapshot):
-    gt = GT(pd.DataFrame({"g": ["b", "a"], "x": [1, 2], "y": [3, 4]}))
+    gt = GT(pd.DataFrame({"g": ["a", "b"], "x": [1, 2], "y": [3, 4]}), groupname_col="g")
 
-    assert_rendered_body(snapshot, gt)
+    assert_rendered_body(snapshot, gt.row_group_order(["b", "a"]))
 
 
 def test_with_groupname_col():
