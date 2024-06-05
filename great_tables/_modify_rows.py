@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def row_group_order(self: GTSelf, groups: RowGroups):
+def row_group_order(self: GTSelf, groups: RowGroups) -> GTSelf:
     new_stub = self._stub.order_groups(groups)
 
     return self._replace(_stub=new_stub)
@@ -87,7 +87,7 @@ def tab_stub(
     return self._replace(_stub=stub, _boxhead=boxhead)
 
 
-def with_locale(self: GTSelf, locale: str | None = None):
+def with_locale(self: GTSelf, locale: str | None = None) -> GTSelf:
     """Set a column to be the default locale.
 
     Setting a default locale affects formatters like .fmt_number, and .fmt_date,
@@ -98,7 +98,7 @@ def with_locale(self: GTSelf, locale: str | None = None):
     return self._replace(_locale=Locale(locale))
 
 
-def with_id(self: GTSelf, id: str | None = None):
+def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
     """Set the id for this table.
 
     Note that this is a shortcut for the `table_id=` argument in `GT.tab_options()`.
