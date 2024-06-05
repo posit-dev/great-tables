@@ -29,7 +29,13 @@ from great_tables._formats import (
 )
 from great_tables._heading import tab_header
 from great_tables._helpers import random_id
-from great_tables._modify_rows import row_group_order
+from great_tables._modify_rows import (
+    row_group_order,
+    with_groupname_col,
+    with_rowname_col,
+    with_id,
+    with_locale,
+)
 from great_tables._options import (
     opt_align_table_header,
     opt_all_caps,
@@ -254,6 +260,10 @@ class GT(
     tab_options = tab_options
 
     row_group_order = row_group_order
+    with_groupname_col = with_groupname_col
+    with_rowname_col = with_rowname_col
+    with_id = with_id
+    with_locale = with_locale
 
     save = save
     as_raw_html = as_raw_html

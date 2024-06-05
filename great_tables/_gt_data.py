@@ -256,48 +256,57 @@ class ColInfo:
 class Boxhead(_Sequence[ColInfo]):
     _d: list[ColInfo]
 
-    def __init__(
-        self,
+    def __new__(
+        cls,
         data: TblData | list[ColInfo],
         auto_align: bool = True,
         rowname_col: str | None = None,
         groupname_col: str | None = None,
     ):
+        obj = super().__new__(cls)
+
         if isinstance(data, list):
-            self._d = data
+            obj._d = data
         else:
             # Obtain the column names from the data and initialize the
             # `_boxhead` from that
             column_names = get_column_names(data)
-            self._d = [ColInfo(col) for col in column_names]
+            obj._d = [ColInfo(col) for col in column_names]
+            obj = obj.set_stub_cols(rowname_col, groupname_col)
+
         if not isinstance(data, list) and auto_align:
-            self.align_from_data(data=data)
+            return obj.align_from_data(data=data)
 
-        if rowname_col is not None:
-            self.set_rowname_col(rowname_col)
+        return obj
 
-        if groupname_col is not None:
-            self.set_groupname_col(groupname_col)
+    def __init__(self, *args, **kwargs):
+        pass
 
-    def set_rowname_col(self, rowname_col: str):
+    def set_stub_cols(self, rowname_col: str | None, groupname_col: str | None):
+        # Note that None unsets a column
         # TODO: validate that rowname_col is in the boxhead
-        for ii, col in enumerate(self._d):
+        if rowname_col is not None and rowname_col == groupname_col:
+            raise ValueError(
+                "rowname_col and groupname_col may not be set to the same column. "
+                f"Received column name: `{rowname_col}`."
+            )
+        new_cols = []
+        for col in self:
+            # either set the col to be the new stub or row_group ----
+            # note that this assumes col.var is always a string, so never equals None
             if col.var == rowname_col:
                 new_col = replace(col, type=ColInfoTypeEnum.stub)
-                self._d[ii] = new_col
-            elif col.type == ColInfoTypeEnum.stub:
-                new_col = replace(col, type=ColInfoTypeEnum.default)
-                self._d[ii] = new_col
-
-    def set_groupname_col(self, groupname_col: str):
-        # TODO: validate that groupname_col is in the boxhead
-        for ii, col in enumerate(self._d):
-            if col.var == groupname_col:
+            elif col.var == groupname_col:
                 new_col = replace(col, type=ColInfoTypeEnum.row_group)
-                self._d[ii] = new_col
-            elif col.type == ColInfoTypeEnum.row_group:
+            # otherwise, unset the existing stub or row_group ----
+            elif col.type == ColInfoTypeEnum.stub or col.type == ColInfoTypeEnum.row_group:
                 new_col = replace(col, type=ColInfoTypeEnum.default)
-                self._d[ii] = new_col
+            else:
+                new_col = replace(col)
+
+            new_cols.append(new_col)
+
+        return self.__class__(new_cols)
 
     def set_cols_hidden(self, colnames: list[str]):
         # TODO: validate that colname is in the boxhead
@@ -385,7 +394,7 @@ class Boxhead(_Sequence[ColInfo]):
         for col, alignment in zip(self._d, align):
             new_cols.append(replace(col, column_align=alignment))
 
-        self._d = new_cols
+        return self.__class__(new_cols)
 
     def vars_from_type(self, type: ColInfoTypeEnum) -> list[str]:
         return [x.var for x in self._d if x.type == type]
@@ -445,6 +454,12 @@ class Boxhead(_Sequence[ColInfo]):
         if len(stub_column) == 0:
             return None
         return stub_column[0]
+
+    def _get_row_group_column(self) -> ColInfo | None:
+        column = [x for x in self._d if x.type == ColInfoTypeEnum.row_group]
+        if len(column) == 0:
+            return None
+        return column[0]
 
     # Get a list of visible column labels
     def _get_default_column_labels(self) -> list[str | None]:
@@ -581,6 +596,19 @@ class Stub:
         group_rows = GroupRows(data, group_key=groupname_col).reorder(group_names)
 
         return cls(row_info, group_rows)
+
+    def _set_cols(
+        self, data: TblData, boxhead: Boxhead, rowname_col: str | None, groupname_col: str | None
+    ) -> Tuple[Stub, Boxhead]:
+        """Return a new Stub and Boxhead, with updated rowname and groupname columns.
+
+        Note that None unsets a column.
+        """
+
+        new_boxhead = boxhead.set_stub_cols(rowname_col, groupname_col)
+        new_stub = self.from_data(data, rowname_col, groupname_col)
+
+        return new_stub, new_boxhead
 
     @property
     def group_ids(self) -> RowGroups:
@@ -759,6 +787,14 @@ class SpannerInfo:
             raise ValueError("Spanner label must be a string and not None.")
         return label
 
+    def drop_var(self, name: str) -> Self:
+        new_vars = [entry for entry in self.vars if entry != name]
+
+        if len(new_vars) == len(self.vars):
+            return self
+
+        return replace(self, vars=new_vars)
+
 
 class Spanners(_Sequence[SpannerInfo]):
     _d: list[SpannerInfo]
@@ -789,13 +825,16 @@ class Spanners(_Sequence[SpannerInfo]):
             return 0
 
         overlapping_levels = [
-            s.spanner_level for s in self if any(v in column_names for v in s.vars)
+            span.spanner_level for span in self if any(v in column_names for v in span.vars)
         ]
 
         return max(overlapping_levels, default=-1) + 1
 
     def append_entry(self, span: SpannerInfo) -> Self:
         return self.__class__(self._d + [span])
+
+    def remove_column(self, column: str) -> Self:
+        return self.__class__([span.drop_var(column) for span in self])
 
 
 # Heading ---
@@ -1167,5 +1206,7 @@ class Options:
     #    return self._options[option].type
 
     def _set_option_value(self, option: str, value: Any):
-        self._options[option].value = value
-        return self
+        old_info = getattr(self, option)
+        new_info = replace(old_info, value=value)
+
+        return replace(self, **{option: new_info})

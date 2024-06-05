@@ -19,6 +19,13 @@ def test_gt_replace(gt_tbl: GT):
     assert new_gt_tbl._has_built
 
 
+def test_gt_groupname_and_rowname_col_equal_raises():
+    with pytest.raises(ValueError) as exc_info:
+        GT(pd.DataFrame({"g": [1], "row": [1]}), rowname_col="g", groupname_col="g")
+
+    assert "may not be set to the same column." in exc_info.value.args[0]
+
+
 def test_gt_object_prerender(gt_tbl: GT):
     assert type(gt_tbl).__name__ == "GT"
 
