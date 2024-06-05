@@ -12,6 +12,8 @@ TupleStartFinal: TypeAlias = tuple[int, int]
 
 
 def get_row_reorder_df(stub_df: Stub, groups: RowGroups | None = None) -> list[TupleStartFinal]:
+    # TODO: this function should be removed, since the stub generates indices directly.
+
     if groups is None:
         groups = stub_df.group_ids
 
