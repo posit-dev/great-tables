@@ -33,6 +33,10 @@ T = TypeVar("T")
 
 
 def _prep_gt(data, rowname_col, groupname_col, auto_align) -> Tuple[Stub, Boxhead, GroupRows]:
+    # this function is similar to Stub._set_cols, except it differs in two ways.
+    #   * it supports auto-alignment (an expensive operation)
+    #   * it assumes its run on data initialization, whereas _set_cols may be run after
+
     stub = Stub.from_data(data, rowname_col=rowname_col, groupname_col=groupname_col)
     boxhead = Boxhead(
         data, auto_align=auto_align, rowname_col=rowname_col, groupname_col=groupname_col
@@ -103,31 +107,6 @@ class GTData:
             _formats=[],
             _substitutions=[],
             _options=options,
-        )
-
-    def init(
-        self,
-        rowname_col: str | None = None,
-        groupname_col: str | None = None,
-        auto_align: bool = True,
-        id: str | None = None,
-        locale: str | None = None,
-    ):
-        stub, boxhead = _prep_gt(self._tbl_data, rowname_col, groupname_col, auto_align)
-
-        # set id if not None
-        # self._options
-        locale = Locale(locale) if locale is not None else self._locale
-
-        if id is not None:
-            res = tab_options(self)
-        else:
-            res = self
-
-        return res._replace(
-            _stub=stub,
-            _boxhead=boxhead,
-            _locale=locale,
         )
 
 
