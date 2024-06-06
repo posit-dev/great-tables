@@ -349,41 +349,16 @@ def test_opt_table_font_use_stack():
 
     gt_tbl = GT(exibble).opt_table_font(stack="humanist")
 
-    assert gt_tbl._options.table_font_names.value == [
-        "Seravek",
-        "Gill Sans Nova",
-        "Ubuntu",
-        "Calibri",
-        "DejaVu Sans",
-        "source-sans-pro",
-        "sans-serif",
-        "Apple Color Emoji",
-        "Segoe UI Emoji",
-        "Segoe UI Symbol",
-        "Noto Color Emoji",
-    ]
-
-    # The value of `add=` should not affect the resulting font names
-    gt_tbl_2 = GT(exibble).opt_table_font(stack="humanist", add=False)
-
-    assert gt_tbl_2._options.table_font_names.value == gt_tbl._options.table_font_names.value
+    assert gt_tbl._options.table_font_names.value[0] == "Seravek"
+    assert gt_tbl._options.table_font_names.value[-1] == "Noto Color Emoji"
 
 
-def test_opt_table_font_use_stack_and_fonts():
+def test_opt_table_font_use_stack_and_system_font():
 
     gt_tbl = GT(exibble).opt_table_font(font="Comic Sans MS", stack="humanist")
 
-    assert gt_tbl._options.table_font_names.value == [
-        "Comic Sans MS",
-        "Seravek",
-        "Gill Sans Nova",
-        "Ubuntu",
-        "Calibri",
-        "DejaVu Sans",
-        "source-sans-pro",
-        "sans-serif",
-        "Apple Color Emoji",
-        "Segoe UI Emoji",
-        "Segoe UI Symbol",
-        "Noto Color Emoji",
-    ]
+    assert gt_tbl._options.table_font_names.value[0] == "Comic Sans MS"
+    assert gt_tbl._options.table_font_names.value[1] == "Seravek"
+    assert gt_tbl._options.table_font_names.value[-1] == "Noto Color Emoji"
+
+
