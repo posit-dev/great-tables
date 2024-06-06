@@ -1057,10 +1057,10 @@ def opt_table_outline(
 
 def opt_table_font(
     self: GTSelf,
-    font: Union[Optional[str], Optional[List[str]]] = None,
-    stack: Optional[FontStackName] = None,
-    weight: Optional[str] = None,
-    style: Optional[str] = None,
+    font: str | list[str] | None = None,
+    stack: FontStackName | None = None,
+    weight: str | None = None,
+    style: str | None = None,
     add: bool = True,
 ) -> GTSelf:
     """Options to define font choices for the entire table.
