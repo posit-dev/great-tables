@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://posit-dev.github.io/great-tables/"><img src="./docs/assets/GT_logo.svg" width="350px"/></a>
+<a href="https://posit-dev.github.io/great-tables/"><img src="https://posit-dev.github.io/great-tables/assets/GT_logo.svg" width="350px"/></a>
 
 _Absolutely Delightful Table-making in Python_
 
@@ -23,7 +23,7 @@ _Absolutely Delightful Table-making in Python_
 With **Great Tables** anyone can make wonderful-looking tables in Python. The philosophy here is that we can construct a wide variety of useful tables by working with a cohesive set of table components. You can mix and match things like a _header_ and _footer_, attach a _stub_ (which contains row labels), arrange _spanner labels_ over top of the _column labels_, and much more. Not only that, but you can format the cell values in a variety of awesome ways.
 
 <div align="center">
-<img src="./docs/assets/the_components_of_a_table.svg" width="800px">
+<img src="https://posit-dev.github.io/great-tables/assets/the_components_of_a_table.svg" width="800px">
 </div>
 
 It all begins with **table data** in the form of a Pandas or Polars DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a **Quarto** document.
@@ -53,13 +53,13 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 ```
 
 <div align="center">
-<img src="./docs/assets/gt_sp500_table.svg" width="800px">
+<img src="https://posit-dev.github.io/great-tables/assets/gt_sp500_table.svg" width="800px">
 </div>
 
 There are ten datasets provided by **Great Tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `metro`, `constants`, and `illness`.
 
 <div align="center" style="padding-top:20px">
-<img src="./docs/assets/datasets.png" style="width:100%;">
+<img src="https://posit-dev.github.io/great-tables/assets/datasets.png" style="width:100%;">
 </div>
 
 All of this tabular data is great for experimenting with the functionality available inside **Great Tables** and we make extensive use of these datasets in our documentation.
@@ -78,7 +78,7 @@ Another fine venue for discussion is in our [_Discord server_](https://discord.c
 
 [![Discord Server](https://img.shields.io/badge/Discord-Chat%20with%20us-blue?style=social&logo=discord&logoColor=purple)](https://discord.com/invite/Ux7nrcXHVV)
 
-Finally, there is the [_X account_](https://twitter.com/gt_package). There you'll find tweets about **Great Tables** (including sneak previews about in-development features) and other table-generation packages.
+Finally, there is the [_X account_](https://twitter.com/gt_package). There you'll find posts about **Great Tables** (including sneak previews about in-development features) and other table-generation packages.
 
 [![X Follow](https://img.shields.io/twitter/follow/gt_package?style=social)](https://twitter.com/gt_package)
 
