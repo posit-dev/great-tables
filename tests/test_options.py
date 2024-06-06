@@ -2,22 +2,7 @@ import pandas as pd
 import pytest
 from great_tables import GT, exibble, md
 from great_tables._scss import compile_scss
-
-
-DEFAULT_FONTS = [
-    "-apple-system",
-    "BlinkMacSystemFont",
-    "Segoe UI",
-    "Roboto",
-    "Oxygen",
-    "Ubuntu",
-    "Cantarell",
-    "Helvetica Neue",
-    "Fira Sans",
-    "Droid Sans",
-    "Arial",
-    "sans-serif",
-]
+from great_tables._gt_data import default_fonts_list
 
 
 def test_options_overwrite():
