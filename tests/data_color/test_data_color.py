@@ -55,6 +55,28 @@ def test_data_color_simple_exibble_snap(snapshot: str, df: DataFrameLike):
     assert_rendered_body(snapshot, gt)
 
 
+def test_data_color_pd_cols_rows_snap(snapshot: str):
+    df = pd.DataFrame({"a": [1, 2, 3, 4, 5, 200], "b": [51, 52, 53, 54, 55, 200]})
+    new_gt = GT(df).data_color(columns=["a"], rows=[0, 1, 2, 3, 4])
+    assert_rendered_body(snapshot, new_gt)
+    new_gt2 = GT(df).data_color(columns=["a"], rows=lambda df_: df_["a"].lt(60))
+    assert create_body_component_h(new_gt._build_data("html")) == create_body_component_h(
+        new_gt2._build_data("html")
+    )
+
+
+def test_data_color_pl_cols_rows_snap(snapshot: str):
+    import polars.selectors as cs
+
+    df = pl.DataFrame({"a": [1, 2, 3, 4, 5, 200], "b": [51, 52, 53, 54, 55, 200]})
+    new_gt = GT(df).data_color(columns=["b"], rows=[0, 1, 2, 3, 4])
+    assert_rendered_body(snapshot, new_gt)
+    new_gt2 = GT(df).data_color(columns=cs.starts_with("b"), rows=pl.col("b").lt(60))
+    assert create_body_component_h(new_gt._build_data("html")) == create_body_component_h(
+        new_gt2._build_data("html")
+    )
+
+
 @pytest.mark.parametrize("none_val", [None, np.nan, float("nan"), pd.NA])
 @pytest.mark.parametrize("df_cls", [pd.DataFrame, pl.DataFrame])
 def test_data_color_missing_value(df_cls, none_val):
