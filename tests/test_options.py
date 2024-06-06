@@ -362,3 +362,10 @@ def test_opt_table_font_use_stack_and_system_font():
     assert gt_tbl._options.table_font_names.value[-1] == "Noto Color Emoji"
 
 
+def test_opt_table_font_raises():
+
+    # Both `font` and `stack` cannot be `None`
+    with pytest.raises(ValueError) as exc_info:
+        GT(exibble).opt_table_font(font=None, stack=None)
+
+    assert "Either `font=` or `stack=` must be provided." in exc_info.value.args[0]
