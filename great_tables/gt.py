@@ -30,6 +30,12 @@ from great_tables._formats import (
 )
 from great_tables._heading import tab_header
 from great_tables._helpers import random_id
+from great_tables._modify_rows import (
+    row_group_order,
+    tab_stub,
+    with_id,
+    with_locale,
+)
 from great_tables._options import (
     opt_align_table_header,
     opt_all_caps,
@@ -254,6 +260,11 @@ class GT(
     tab_style = tab_style
     tab_options = tab_options
 
+    row_group_order = row_group_order
+    tab_stub = tab_stub
+    with_id = with_id
+    with_locale = with_locale
+
     save = save
     as_raw_html = as_raw_html
 
@@ -291,11 +302,11 @@ class GT(
         # built._body = _migrate_unformatted_to_output(body)
 
         # built._perform_col_merge()
-        final_body = body_reassemble(built._body, built._row_groups, built._stub, built._boxhead)
+        final_body = body_reassemble(built._body, built._stub, built._boxhead)
 
         # Reordering of the metadata elements of the table
 
-        final_stub = reorder_stub_df(built._stub, built._row_groups)
+        final_stub = reorder_stub_df(built._stub)
         # self = self.reorder_footnotes()
         # self = self.reorder_styles()
 

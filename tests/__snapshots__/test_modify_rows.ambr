@@ -1,0 +1,15 @@
+# serializer version: 1
+# name: test_row_group_order
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">4</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">3</td>
+    </tr>
+  </tbody>
+  '''
+# ---
