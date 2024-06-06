@@ -1169,6 +1169,9 @@ def opt_table_font(
 
     res = self
 
+    if stack is not None:
+        add = False
+
     if font is not None:
 
         # If `font` is a string, convert it to a list
