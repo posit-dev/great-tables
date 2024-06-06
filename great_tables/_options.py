@@ -1181,12 +1181,6 @@ def opt_table_font(
     else:
         font = []
 
-        # TODO: add the `_normalize_font_input` function
-        # font = _normalize_font_input(font_input=font)
-
-        # additional_css = [font.import_stmt, existing_additional_css]
-        # res = tab_options(res, table_additional_css=additional_css)
-
     if stack is not None:
 
         # Case where value is given to `stack=` and this is a keyword that returns a
