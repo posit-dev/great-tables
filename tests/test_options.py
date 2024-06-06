@@ -331,7 +331,7 @@ def test_opt_table_font_add_font():
 
     gt_tbl = GT(exibble).opt_table_font(font="Arial", weight="bold", style="italic")
 
-    assert gt_tbl._options.table_font_names.value == ["Arial"] + DEFAULT_FONTS
+    assert gt_tbl._options.table_font_names.value == ["Arial"] + default_fonts_list
     assert gt_tbl._options.table_font_weight.value == "bold"
     assert gt_tbl._options.table_font_style.value == "italic"
 
