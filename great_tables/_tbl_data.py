@@ -258,7 +258,7 @@ def group_splits(data: DataFrameLike, group_key: str) -> dict[Any, list[int]]:
 
 @group_splits.register
 def _(data: PdDataFrame, group_key: str) -> dict[Any, list[int]]:
-    g_df = data.groupby(group_key)
+    g_df = data.groupby(group_key, dropna=False)
     return {k: list(v) for k, v in g_df.indices.items()}
 
 
