@@ -220,6 +220,12 @@
 # ---
 # name: test_repr_html_vscode
   '''
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="utf-8"/>
+  </head>
+  <body>
   <div id="test" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   <style>
   #test table {
@@ -289,5 +295,8 @@
   
   </div>
           
+  </body>
+  </html>
+              
   '''
 # ---
