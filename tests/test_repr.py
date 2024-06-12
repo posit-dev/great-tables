@@ -43,7 +43,7 @@ def test_repr_html_vscode(gt, snapshot):
 
 
 @mock.patch.dict(os.environ, {"POSITRON_VERSION": "1"}, clear=True)
-def test_repr_html_vscode(gt, snapshot):
+def test_repr_html_positron(gt, snapshot):
 
     assert infer_render_env() == "positron"
 
