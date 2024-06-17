@@ -1,9 +1,15 @@
+import pytest
+import requests
 import sys
+import tempfile
 import time
+
+from great_tables import GT, exibble, md
+from great_tables._export import _infer_render_target, _create_temp_file_server
 from pathlib import Path
 
-import pytest
-from great_tables import GT, exibble, md
+from IPython.terminal.interactiveshell import TerminalInteractiveShell, InteractiveShell
+from ipykernel.zmqshell import ZMQInteractiveShell
 
 
 @pytest.fixture
@@ -45,3 +51,35 @@ def test_save_image_file(gt_tbl: GT, tmp_path):
 def test_save_non_png(gt_tbl: GT, tmp_path):
     f_path = tmp_path / "test_image.pdf"
     gt_tbl.save(file=str(f_path))
+
+
+@pytest.mark.parametrize(
+    "src, dst",
+    [
+        (InteractiveShell, "notebook"),
+        (TerminalInteractiveShell, "browser"),
+        (ZMQInteractiveShell, "notebook"),
+        (None, "browser"),
+    ],
+)
+def test_infer_render_target(src, dst):
+    shell = src() if src is not None else src
+    assert _infer_render_target(shell) == dst
+
+
+def test_create_temp_file_server():
+    from threading import Thread
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        p_file = Path(tmp_dir, "index.html")
+        p_file.write_text("abc")
+        server = _create_temp_file_server(p_file)
+        thread = Thread(target=server.handle_request)
+        thread.start()
+
+        time.sleep(0.3)
+        r = requests.get(f"http://127.0.0.1:{server.server_port}/{p_file.name}")
+        r.raise_for_status()
+        r.content.decode() == "abc"
+
+        thread.join()

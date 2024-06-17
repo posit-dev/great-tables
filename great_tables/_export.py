@@ -3,7 +3,11 @@ from __future__ import annotations
 import tempfile
 import time
 import warnings
+import webbrowser
 
+from functools import partial
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 from typing_extensions import TypeAlias
 
@@ -12,8 +16,111 @@ from ._utils import _try_import
 if TYPE_CHECKING:
     # Note that as_raw_html uses methods on the GT class, not just data
     from .gt import GT
+    from ._types import GTSelf
 
     from selenium import webdriver
+    from IPython.core.interactiveshell import InteractiveShell
+
+
+class MISSING:
+    """Represent a missing argument (where None has a special meaning)."""
+
+
+class LogHTTPServer(HTTPServer):
+    def finish_request(self, request, *args, **kwargs):
+        print(request)
+        print(type(request))
+
+        return super().finish_request(request, *args, **kwargs)
+
+
+def _create_temp_file_server(fname: Path) -> HTTPServer:
+    """Return a HTTPServer, so we can serve a single request (to show the table)."""
+
+    Handler = partial(SimpleHTTPRequestHandler, directory=str(fname.parent))
+    server = LogHTTPServer(("127.0.0.1", 0), Handler)
+
+    return server
+
+
+def _infer_render_target(ipy: InteractiveShell | None | MISSING = MISSING) -> str:
+    # adapted from py-htmltools
+    # Note that `ipy` arguments are possible return values of IPython.get_ipython()
+    # They are manually passed in from unit tests to validate this function.
+    try:
+        import IPython  # pyright: ignore[reportUnknownVariableType]
+        from IPython.terminal.interactiveshell import TerminalInteractiveShell
+
+        if ipy is MISSING:
+            # Note that get_ipython may be None, to indicate no shell in use
+            # e.g. if you're in the normal python repl
+            ipy = IPython.get_ipython()
+
+        if isinstance(ipy, TerminalInteractiveShell):
+            target = "browser"
+        elif ipy is None:
+            target = "browser"
+        else:
+            target = "notebook"
+
+    except ImportError:
+        target = "browser"
+
+    return target
+
+
+def show(
+    self: GTSelf,
+    target: Literal["auto", "notebook", "browser"] = "auto",
+):
+    """Display the table in a notebook or a web browser.
+
+    Note that this function is often unecessary in a notebook. However, it's sometimes useful for
+    manually triggering display within a code cell.
+
+    Parameters
+    ----------
+    target:
+        Where to show the table. If "auto", infer whether the table can be displayed inline (e.g. in
+        a notebook), or whether a browser is needed (e.g. in a console).
+
+    Examples
+    --------
+
+    The example below when in the Great Tables documentation, should appear on the page.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+    GT(exibble.head(2)).show()
+    GT(exibble.tail(2)).show()
+    ```
+
+    """
+
+    html = self.as_raw_html()
+
+    if target == "auto":
+        target = _infer_render_target()
+
+    if target == "notebook":
+        from IPython.core.display import display_html
+
+        # https://github.com/ipython/ipython/pull/10962
+        return display_html(  # pyright: ignore[reportUnknownVariableType]
+            html, raw=True, metadata={"text/html": {"isolated": True}}
+        )
+    elif target == "browser":
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            f_path = Path(tmp_dir) / "index.html"
+            f_path.write_text(html)
+
+            # create a server that closes after 1 request ----
+            server = _create_temp_file_server(f_path)
+            webbrowser.open(f"http://127.0.0.1:{server.server_port}/{f_path.name}")
+            server.handle_request()
+
+    raise Exception(f"Unknown target display: {target}")
 
 
 def as_raw_html(
