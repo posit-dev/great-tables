@@ -1154,6 +1154,28 @@ def opt_table_font(
     the existing font stack. This way, if both fonts are not available, the table will fall back to
     using the list of default table fonts. This behavior is controlled by the `add=` argument, which
     is `True` by default.
+
+    With the `sza` dataset we'll create a two-column, eleven-row table. Within `opt_table_font()`,
+    the `stack=` argument will be supplied with the "rounded-sans" font stack. This sets up a family
+    of fonts with rounded, curved letterforms that should be locally available in different
+    computing environments.
+
+    ```{python}
+    from great_tables.data import sza
+
+    sza_mini = (
+        pl.from_pandas(sza)
+        .filter((pl.col("latitude") == "20") & (pl.col("month") == "jan"))
+        .drop_nulls()
+        .drop(["latitude", "month"])
+    )
+
+    (
+        GT(sza_mini)
+        .opt_table_font(stack="rounded-sans")
+        .opt_all_caps()
+    )
+    ```
     """
 
     if font is None and stack is None:
