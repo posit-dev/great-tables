@@ -206,6 +206,8 @@ class ColInfo:
     var: str
     type: ColInfoTypeEnum = ColInfoTypeEnum.default
     column_label: str | None = None
+    column_units: str | None = None
+    column_pattern: str | None = None
     column_align: ColumnAlignment | None = None
     column_width: str | None = None
 
