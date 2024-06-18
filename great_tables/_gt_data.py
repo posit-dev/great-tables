@@ -1063,6 +1063,9 @@ class Options:
         True, "column_labels", "value", "#D3D3D3"
     )
     column_labels_hidden: OptionsInfo = OptionsInfo(False, "column_labels", "boolean", False)
+    column_labels_units_pattern: OptionsInfo = OptionsInfo(
+        False, "column_labels", "value", "{1}, {2}"
+    )
     row_group_background_color: OptionsInfo = OptionsInfo(True, "row_group", "value", None)
     row_group_font_size: OptionsInfo = OptionsInfo(True, "row_group", "px", "100%")
     row_group_font_weight: OptionsInfo = OptionsInfo(True, "row_group", "value", "initial")
