@@ -411,6 +411,18 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self.__class__(out_cols)
 
+    # Set column units
+    def _set_column_units(self, col_units: dict[str, str]) -> Self:
+        out_cols: list[ColInfo] = []
+        for x in self._d:
+            new_unit = col_units.get(x.var, None)
+            if new_unit is not None:
+                out_cols.append(replace(x, column_units=new_unit))
+            else:
+                out_cols.append(x)
+
+        return self.__class__(out_cols)
+
     # Set column alignments
     def _set_column_aligns(self, columns: list[str], align: str) -> Self:
         set_cols = set(columns)
