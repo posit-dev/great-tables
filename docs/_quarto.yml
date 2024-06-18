@@ -58,6 +58,7 @@ filters:
   - interlinks
 
 interlinks:
+  fast: true
   sources:
     numpy:
       url: https://numpy.org/doc/stable/
@@ -183,6 +184,7 @@ quartodoc:
         also get the table code as an HTML fragment with the `as_raw_html()` method.
       contents:
         - GT.save
+        - GT.show
         - GT.as_raw_html
     - title: Value formatting functions
       desc: >
