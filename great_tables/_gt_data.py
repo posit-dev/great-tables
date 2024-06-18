@@ -223,6 +223,9 @@ class ColInfo:
         if self.column_label is None:
             super().__setattr__("column_label", self.var)
 
+    def replace_column_label(self, column_label: str) -> Self:
+        return replace(self, column_label=column_label)
+
     @property
     def visible(self) -> bool:
         return self.type != ColInfoTypeEnum.hidden
