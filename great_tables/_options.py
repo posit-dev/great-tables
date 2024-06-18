@@ -74,6 +74,7 @@ def tab_options(
     column_labels_border_lr_width: str | None = None,
     column_labels_border_lr_color: str | None = None,
     column_labels_hidden: bool | None = None,
+    column_labels_units_pattern: str | None = None,
     row_group_background_color: str | None = None,
     row_group_font_size: str | None = None,
     row_group_font_weight: str | None = None,
