@@ -85,6 +85,7 @@ def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
     )
     ```
     """
+    from great_tables._helpers import UnitStr
 
     # If nothing is provided, return `data` unchanged
     if len(kwargs) == 0:
@@ -99,7 +100,13 @@ def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
     # msg: "All column names provided must exist in the input `.data` table."
     _assert_list_is_subset(mod_columns, set_list=column_names)
 
-    boxhead = self._boxhead._set_column_labels(kwargs)
+    # Handle units syntax in labels (e.g., "Density ({{ppl / mi^2}})")
+    new_kwargs: dict[str, UnitStr] = {}
+
+    for k, v in kwargs.items():
+        new_kwargs[k] = UnitStr.from_str(v)
+
+    boxhead = self._boxhead._set_column_labels(new_kwargs)
 
     return self._replace(_boxhead=boxhead)
 
