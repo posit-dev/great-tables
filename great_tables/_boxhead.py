@@ -101,10 +101,15 @@ def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
     _assert_list_is_subset(mod_columns, set_list=column_names)
 
     # Handle units syntax in labels (e.g., "Density ({{ppl / mi^2}})")
-    new_kwargs: dict[str, UnitStr] = {}
+    new_kwargs: dict[str, UnitStr | str] = {}
 
     for k, v in kwargs.items():
-        new_kwargs[k] = UnitStr.from_str(v)
+        # If the text is a string with has units notation within (detectable by "{{" and "}}")
+        # convert it to a UnitStr object
+        if isinstance(v, str) and ("{{" in v and "}}" in v):
+            new_kwargs[k] = UnitStr.from_str(v)
+        else:
+            new_kwargs[k] = v
 
     boxhead = self._boxhead._set_column_labels(new_kwargs)
 
