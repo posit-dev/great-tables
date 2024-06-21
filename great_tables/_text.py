@@ -11,7 +11,14 @@ import commonmark
 @dataclass
 class Text:
     text: str
-    type: Literal["from_markdown", "html"]
+
+
+class Md(Text):
+    """Markdown text"""
+
+
+class Html(Text):
+    """HTML text"""
 
 
 class StringBuilder:
