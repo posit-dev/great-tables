@@ -7,7 +7,7 @@ from typing import Any, Callable, Literal
 
 from typing_extensions import TypeAlias, Self
 
-from ._text import Text
+from ._text import Text, Md, Html
 
 import re
 from dataclasses import dataclass
@@ -208,7 +208,7 @@ def pct(x: int | float) -> str:
     return f"{x}%"
 
 
-def md(text: str) -> Text:
+def md(text: str) -> Md:
     """Interpret input text as Markdown-formatted text.
 
     Markdown can be used in certain places (e.g., source notes, table title/subtitle, etc.) and we
@@ -232,7 +232,7 @@ def md(text: str) -> Text:
     return Text(text=text, type="from_markdown")
 
 
-def html(text: str) -> Text:
+def html(text: str) -> Html:
     """Interpret input text as HTML-formatted text.
 
     For certain pieces of text (like in column labels or table headings) we may want to express them
