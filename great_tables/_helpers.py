@@ -220,16 +220,11 @@ def md(text: str) -> Md:
     text
         The text that is understood to contain Markdown formatting.
 
-    Returns
-    -------
-    Text
-        An instance of the Text class is returned, where the text `type` is `"from_markdown"`.
-
     Examples
     ------
     See [`GT.tab_header()`](`great_tables.GT.tab_header`).
     """
-    return Text(text=text, type="from_markdown")
+    return Md(text=text)
 
 
 def html(text: str) -> Html:
@@ -245,16 +240,11 @@ def html(text: str) -> Html:
     text
         The text that is understood to contain HTML formatting.
 
-    Returns
-    -------
-    Text
-        An instance of the Text class is returned, where the text `type` is `"html"`.
-
     Examples
     ------
     See [`GT.tab_header()`](`great_tables.GT.tab_header`).
     """
-    return Text(text=text, type="html")
+    return Html(text=text)
 
 
 def random_id(n: int = 10) -> str:
