@@ -52,24 +52,23 @@ def _md_html(x: str) -> str:
 
 
 def _process_text(x: str | Text | None) -> str:
+    from great_tables._helpers import UnitStr
+
     if x is None:
         return ""
 
-    if isinstance(x, str):
-        text = x
-        type = "plaintext"
+    if isinstance(x, Md):
+        return _md_html(x.text)
+    elif isinstance(x, Html):
+        return x.text
+    elif isinstance(x, str):
+        return _html_escape(x)
+    elif isinstance(x, Text):
+        return x.text
+    elif isinstance(x, UnitStr):
+        return x.to_html()
     else:
-        text = x.text
-        type = x.type
-
-    if type == "from_markdown":
-        x_out = _md_html(text)
-    elif type == "html":
-        x_out = text
-    else:
-        x_out = _html_escape(text)
-
-    return x_out
+        raise TypeError(f"Invalid type: {type(x)}")
 
 
 def _process_text_id(x: str | Text | None) -> str:
