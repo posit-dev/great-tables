@@ -5,7 +5,7 @@ import random
 import string
 from typing import Any, Callable, Literal
 
-from typing_extensions import TypeAlias
+from typing_extensions import TypeAlias, Self
 
 from ._text import Text
 
@@ -759,12 +759,62 @@ class UnitDefinition:
         return units_str
 
 
+class UnitStr:
+    def __init__(self, units_str: list[str | UnitDefinitionList]):
+        self.units_str = units_str
+
+    def __repr__(self) -> str:
+        return f"UnitStr({self.units_str})"
+
+    def to_html(self) -> str:
+
+        built_units = "".join(
+            [
+                unit_def.to_html() if isinstance(unit_def, UnitDefinitionList) else unit_def
+                for unit_def in self.units_str
+            ]
+        )
+
+        return built_units
+
+    def _repr_html_(self):
+        return self.to_html()
+
+    @classmethod
+    def from_str(cls, string: str) -> Self:
+
+        # "energy ({{J m^-1}})"
+        # UnitStr(["energy (", define_units("J m^-1"), ")"])
+
+        # "speed {{m s^-1}} and acceleration {{m s^-2}}"
+        # UnitStr(["speed ", define_units("m s^-1"), " and acceleration ", define_units("m s^-2")])
+
+        # "speed {{ s^-1"
+        # UnitStr(["speed {{m s^-1"])
+
+        # "speed m s^-1}}"
+        # UnitStr(["speed m s^-1}}"])
+
+        token_parts: list[str | UnitDefinitionList] = []
+
+        for part in re.split(r"(\{\{.*?\}\})", string):
+
+            m = re.match(r"\{\{(.*?)\}\}", part)
+
+            if m:
+                token_parts.append(define_units(m.group(1)))
+            else:
+                token_parts.append(part)
+
+        return cls(token_parts)
+
+
 class UnitDefinitionList:
     def __init__(self, units_list: list[UnitDefinition]):
         self.units_list = units_list
 
     def __repr__(self) -> str:
-        return f"UnitDefinitionList({self.__dict__})"
+        return f"UnitDefinitionList({self.units_list})"
 
     def __len__(self) -> int:
         return len(self.units_list)

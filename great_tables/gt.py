@@ -8,7 +8,7 @@ from great_tables._gt_data import GTData
 
 # Main gt imports ----
 from great_tables._body import body_reassemble
-from great_tables._boxhead import cols_align, cols_label, cols_units
+from great_tables._boxhead import cols_align, cols_label
 from great_tables._data_color import data_color
 from great_tables._export import as_raw_html, save, show
 from great_tables._formats import (
@@ -248,7 +248,6 @@ class GT(
     cols_align = cols_align
     cols_width = cols_width
     cols_label = cols_label
-    cols_units = cols_units
     cols_move = cols_move
     cols_move_to_start = cols_move_to_start
     cols_move_to_end = cols_move_to_end

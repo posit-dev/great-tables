@@ -104,52 +104,6 @@ def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
     return self._replace(_boxhead=boxhead)
 
 
-def cols_units(self: GTSelf, **kwargs: str) -> GTSelf:
-    """
-    Define units for one or more columns.
-
-    Column labels can sometimes contain measurement units, and these might range from easy to define
-    and typeset (e.g., `"m/s"`) to very difficult. Such difficulty can arise from the need to
-    include subscripts or superscripts, non-ASCII symbols, etc. The `cols_units()` method tries to
-    make this task easier by letting you apply text pertaining to units to various columns. This
-    takes advantage of the specialized units notation available in **Great Tables** (e.g.,
-    `"J Hz^-1 mol^-1"` can be used to generate units for the *molar Planck constant*). The notation
-    here provides several conveniences for defining units, and it places the burden of formatting
-    units for display on **Great Tables**.
-
-    Parameters
-    ----------
-    **kwargs
-        The column names and new units to apply. The column names are provided as keyword arguments
-        and the text related to units are provided as the values for those keyword arguments. For
-        example, `cols_units(col1="m s^-1", col2="N m")` would make it such that the formatted units
-        appear next to the labels set for columns `col1` and `col2`.
-
-    Returns
-    -------
-    GT
-        The GT object is returned. This is the same object that the method is called on so that we
-        can facilitate method chaining.
-    """
-
-    # If nothing is provided, return `data` unchanged
-    if len(kwargs) == 0:
-        return self
-
-    mod_columns = list(kwargs.keys())
-
-    # Get the full list of column names for the data
-    column_names = self._boxhead._get_columns()
-
-    # Stop function if any of the column names specified are not in `cols_labels`
-    # msg: "All column names provided must exist in the input `.data` table."
-    _assert_list_is_subset(mod_columns, set_list=column_names)
-
-    boxhead = self._boxhead._set_column_units(kwargs)
-
-    return self._replace(_boxhead=boxhead)
-
-
 def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) -> GTSelf:
     """
     Set the alignment of one or more columns.

@@ -206,16 +206,12 @@ class ColInfo:
     var: str
     type: ColInfoTypeEnum = ColInfoTypeEnum.default
     column_label: str | None = None
-    column_units: str | None = None
-    column_pattern: str | None = None
     column_align: ColumnAlignment | None = None
     column_width: str | None = None
 
     # The components of the boxhead are:
     # `var` (obtained from column names)
     # `column_label` (obtained from column names)
-    # `column_units` (added through .cols_units())
-    # `column_pattern` (added through .cols_units())
     # `column_align` = None
     # `column_width` = None
 
