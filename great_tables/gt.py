@@ -296,78 +296,11 @@ class GT(
         new_body.render_formats(self._tbl_data, self._substitutions, context)
         return self._replace(_body=new_body)
 
-    def _boxhead_build(self) -> Self:
-
-        from great_tables._text import _process_text
-
-        # Get the boxhead object
-        new_boxhead = self._boxhead
-
-        # Use process_text on each of the label values
-        for i in range(len(new_boxhead)):
-
-            # Get the label value for i
-            column_label_i = new_boxhead[i].column_label
-
-            # Replace the label value after processing the text
-            new_boxhead[i].replace_column_label(column_label=_process_text(column_label_i))
-
-        #
-        # Merge column units into column labels
-        #
-
-        # Extract a list of column units from new_boxhead
-        column_units = [x.column_units for x in new_boxhead]
-
-        if any(column_units):
-
-            from great_tables._helpers import define_units
-            import re
-
-            for i in range(len(new_boxhead)):
-
-                # Get the `column_units` value for i
-                column_units_i = new_boxhead[i].column_units
-
-                # If this is None, then we skip this iteration
-                if column_units_i is None:
-                    continue
-
-                # Get the column pattern for i
-                column_pattern_i = new_boxhead[i].column_pattern
-
-                # Get the column label for i
-                column_label_i = str(new_boxhead[i].column_label)
-
-                # If this is None, get the default from the options
-                if column_pattern_i is None:
-                    column_pattern_i = str(self._options.column_labels_units_pattern.value)
-
-                # Build the units with `define_units()` and render to HTML
-                units_built_i = define_units(units_notation=column_units_i).to_html()
-
-                # Build the column label with `column_pattern_i`
-                # - `{1}` is replaced with `column_label_i`
-                # - `{2}` is replaced with `units_built_i`
-                # - ensure these are literal replacements
-                new_column_label_i = column_pattern_i
-
-                new_column_label_i = re.sub(r"\{1\}", column_label_i, new_column_label_i)
-                new_column_label_i = re.sub(r"\{2\}", units_built_i, new_column_label_i)
-
-                print(new_column_label_i)
-
-                # Replace the label value after creating the new column label
-                new_boxhead[i].replace_column_label(column_label=new_column_label_i)
-
-        return self._replace(_boxhead=new_boxhead)
-
     def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         built = self._render_formats(context)
         # built._body = _migrate_unformatted_to_output(body)
-        built = built._boxhead_build()
 
         # built._perform_col_merge()
         final_body = body_reassemble(built._body, built._stub, built._boxhead)
