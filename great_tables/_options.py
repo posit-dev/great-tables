@@ -74,7 +74,6 @@ def tab_options(
     column_labels_border_lr_width: str | None = None,
     column_labels_border_lr_color: str | None = None,
     column_labels_hidden: bool | None = None,
-    column_labels_units_pattern: str | None = None,
     row_group_background_color: str | None = None,
     row_group_font_size: str | None = None,
     row_group_font_weight: str | None = None,
@@ -336,10 +335,6 @@ def tab_options(
     column_labels_hidden
         An option to hide the column labels. If providing `True` then the entire `column_labels`
         location won't be seen and the table header (if present) will collapse downward.
-    column_labels_units_pattern
-        The default pattern for combining column labels with any defined units for column labels.
-        The pattern is initialized as `"{1}, {2}"`, where `"{1}"` refers to the column label text
-        and `"{2}"` is the text related to the associated units.
     row_group_background_color
         The background color for the row group labels. A color name or a hexadecimal color code
         should be provided.
