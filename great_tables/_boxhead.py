@@ -5,12 +5,13 @@ from typing import TYPE_CHECKING
 from ._locations import resolve_cols_c
 from ._utils import _assert_list_is_subset
 from ._tbl_data import SelectExpr
+from ._text import Text
 
 if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
+def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
     """
     Relabel one or more columns.
 
@@ -101,14 +102,20 @@ def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
     _assert_list_is_subset(mod_columns, set_list=column_names)
 
     # Handle units syntax in labels (e.g., "Density ({{ppl / mi^2}})")
-    new_kwargs: dict[str, UnitStr | str] = {}
+    new_kwargs: dict[str, UnitStr | str | Text] = {}
 
     for k, v in kwargs.items():
-        # If the text is a string with has units notation within (detectable by "{{" and "}}")
-        # convert it to a UnitStr object
-        if isinstance(v, str) and ("{{" in v and "}}" in v):
-            new_kwargs[k] = UnitStr.from_str(v)
-        else:
+
+        if isinstance(v, str):
+
+            unitstr_v = UnitStr.from_str(v)
+
+            if len(unitstr_v.units_str) == 1 and isinstance(unitstr_v.units_str[0], str):
+                new_kwargs[k] = unitstr_v.units_str[0]
+            else:
+                new_kwargs[k] = unitstr_v
+
+        elif isinstance(v, Text):
             new_kwargs[k] = v
 
     boxhead = self._boxhead._set_column_labels(new_kwargs)

@@ -13,6 +13,8 @@ from great_tables._helpers import (
     _units_html_sub_super,
     _replace_units_symbol,
     _units_symbol_replacements,
+    UnitStr,
+    UnitDefinitionList,
 )
 import pytest
 
@@ -278,3 +280,47 @@ def assert_units_symbol_replacements(text: str, x_out: str):
 def assert_define_units_html_superscript():
     x = define_units(units_notation="m^2").to_html()
     assert x == 'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>'
+
+
+def test_unit_str_from_str_single_unit():
+
+    res = UnitStr.from_str("speed {{m s^-1}}").units_str
+
+    assert len(res) == 3
+    assert res[0] == "speed "
+    assert isinstance(res[1], UnitDefinitionList)
+    assert res[1] == define_units(units_notation="m s^-1")
+    assert res[2] == ""
+
+
+def test_unit_str_from_str_two_units():
+
+    res = UnitStr.from_str("speed {{m s^-1}} and acceleration {{m s^-2}}").units_str
+
+    assert len(res) == 5
+    assert res[0] == "speed "
+    assert isinstance(res[1], UnitDefinitionList)
+    assert res[1] == define_units(units_notation="m s^-1")
+    assert res[2] == " and acceleration "
+    assert isinstance(res[3], UnitDefinitionList)
+    assert res[3] == define_units(units_notation="m s^-2")
+    assert res[4] == ""
+
+
+def test_unit_str_from_without_units():
+
+    res = UnitStr.from_str("a b").units_str
+
+    assert len(res) == 1
+    assert res[0] == "a b"
+
+
+def test_unit_str_unmatched_brackets():
+
+    res = UnitStr.from_str("speed {{m s^-1 and acceleration {{m s^-2}}").units_str
+
+    assert len(res) == 3
+    assert res[0] == "speed "
+    assert isinstance(res[1], UnitDefinitionList)
+    assert res[1] == define_units(units_notation="m s^-1 and acceleration {{m s^-2")
+    assert res[2] == ""

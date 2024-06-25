@@ -770,6 +770,9 @@ class UnitStr:
     def _repr_html_(self):
         return self.to_html()
 
+    def __len__(self) -> int:
+        return len(self.units_str)
+
     @classmethod
     def from_str(cls, string: str) -> Self:
 
@@ -799,9 +802,9 @@ class UnitStr:
         return cls(token_parts)
 
 
+@dataclass
 class UnitDefinitionList:
-    def __init__(self, units_list: list[UnitDefinition]):
-        self.units_list = units_list
+    units_list: list[UnitDefinition]
 
     def __repr__(self) -> str:
         return f"UnitDefinitionList({self.units_list})"

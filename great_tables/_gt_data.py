@@ -27,7 +27,7 @@ from ._tbl_data import (
 from ._utils import _str_detect
 
 if TYPE_CHECKING:
-    from ._helpers import Md, Html, UnitStr
+    from ._helpers import Md, Html, UnitStr, Text
 
 T = TypeVar("T")
 
@@ -402,7 +402,7 @@ class Boxhead(_Sequence[ColInfo]):
         return [x.column_label for x in self._d]
 
     # Set column label
-    def _set_column_labels(self, col_labels: dict[str, str | UnitStr]) -> Self:
+    def _set_column_labels(self, col_labels: dict[str, str | UnitStr | Text]) -> Self:
         out_cols: list[ColInfo] = []
         for x in self._d:
             new_label = col_labels.get(x.var, None)
