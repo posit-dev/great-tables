@@ -22,23 +22,22 @@ if TYPE_CHECKING:
     from IPython.core.interactiveshell import InteractiveShell
 
 
+class PatchedHTTPRequestHandler(SimpleHTTPRequestHandler):
+    """Patched handler, which does not log requests to stderr"""
+
+    def log_request(self, *args, **kwargs):
+        pass
+
+
 class MISSING:
     """Represent a missing argument (where None has a special meaning)."""
-
-
-class LogHTTPServer(HTTPServer):
-    def finish_request(self, request, *args, **kwargs):
-        print(request)
-        print(type(request))
-
-        return super().finish_request(request, *args, **kwargs)
 
 
 def _create_temp_file_server(fname: Path) -> HTTPServer:
     """Return a HTTPServer, so we can serve a single request (to show the table)."""
 
-    Handler = partial(SimpleHTTPRequestHandler, directory=str(fname.parent))
-    server = LogHTTPServer(("127.0.0.1", 0), Handler)
+    Handler = partial(PatchedHTTPRequestHandler, directory=str(fname.parent))
+    server = HTTPServer(("127.0.0.1", 0), Handler)
 
     return server
 
@@ -98,7 +97,7 @@ def show(
 
     """
 
-    html = self.as_raw_html()
+    html = self._repr_html_()
 
     if target == "auto":
         target = _infer_render_target()
@@ -107,7 +106,7 @@ def show(
         from IPython.core.display import display_html
 
         # https://github.com/ipython/ipython/pull/10962
-        return display_html(  # pyright: ignore[reportUnknownVariableType]
+        display_html(  # pyright: ignore[reportUnknownVariableType]
             html, raw=True, metadata={"text/html": {"isolated": True}}
         )
     elif target == "browser":
@@ -119,8 +118,8 @@ def show(
             server = _create_temp_file_server(f_path)
             webbrowser.open(f"http://127.0.0.1:{server.server_port}/{f_path.name}")
             server.handle_request()
-
-    raise Exception(f"Unknown target display: {target}")
+    else:
+        raise Exception(f"Unknown target display: {target}")
 
 
 def as_raw_html(

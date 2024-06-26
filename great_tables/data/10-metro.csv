@@ -12,7 +12,7 @@ Franklin D. Roosevelt,,"1, 9",,,,,6173830,48.868977,2.30989,Paris 8th
 Gare de Lyon,,"1, 14","A, D",,R,"TGV, TGV Lyria, Renfe-SNCF, OUIGO, Frecciarossa",28640475,48.844722,2.373889,Paris 12th
 George V,,1,,,,,3842260,48.871944,2.300556,Paris 8th
 Hôtel de Ville,,"1, 11",,,,,7251729,48.857487,2.351525,Paris 4th
-La Défense,Grande Arche,1,A,T2,"L, U",,9256802,48.891852,2.238539,Puteaux
+La Défense,Grande Arche,1,"A, E",T2,"L, U",,9256802,48.891852,2.238539,Puteaux
 Les Sablons,Jardin d'Acclimatation,1,,,,,3954920,48.880833,2.272222,Neuilly-sur-Seine
 Louvre—Rivoli,,1,,,,,1869612,48.86108,2.340283,Paris 1st
 Nation,,"1, 2, 6, 9",A,,,,6050797,48.848333,2.395833,"Paris 11th, Paris 12th"
@@ -81,7 +81,7 @@ Château Rouge,,4,,,,,5841122,48.886667,2.349444,Paris 18th
 Cité,,4,,,,,1004657,48.855278,2.346389,Paris 4th
 Denfert-Rochereau,,"4, 6",B,,,,2543959,48.833901,2.332728,Paris 14th
 Étienne Marcel,,4,,,,,1705639,48.864167,2.350556,Paris 1st
-Gare de l'Est,,"4, 5, 7",E,,P,"TGV, TER, OUIGO, Nightjet",15538471,48.876111,2.358333,Paris 10th
+Gare de l'Est,,"4, 5, 7",,,P,"TGV, TER, OUIGO, Nightjet",15538471,48.876111,2.358333,Paris 10th
 Gare du Nord,,"4, 5","B, D, E",,"H, K","TGV, TER, Thalys, Eurostar",34503097,48.880556,2.355,Paris 10th
 Les Halles,,4,"A, B, D",,,,10623876,48.8625,2.34611,Paris 1st
 Mairie de Montrouge,,4,,,,,4316647,48.81843,2.31953,Montrouge
@@ -205,7 +205,7 @@ Porte de Charenton,,8,,T3a,,,1529778,48.83278,2.4004,Paris 12th
 Porte Dorée,,8,,T3a,,,1918182,48.835481,2.4061,Paris 12th
 Richelieu—Drouot,,8,,,,,2994510,48.871987,2.338741,"Paris 2nd, Paris 9th"
 Saint-Sébastien—Froissart,,8,,,,,1151192,48.86048,2.367358,"Paris 3rd, Paris 11th"
-Alma—Marceau,,9,C,,,,2564842,48.864904,2.300234,"Paris 8th, Paris 16th"
+Alma—Marceau,,9,,,,,2564842,48.864904,2.300234,"Paris 8th, Paris 16th"
 Billancourt,,9,,,,,1967532,48.83209,2.238177,Boulogne-Billancourt
 Buzenval,,9,,,,,1448855,48.851976,2.402045,Paris 20th
 Charonne,,9,,,,,2705320,48.855103,2.384639,Paris 11th
@@ -248,6 +248,12 @@ Porte d'Auteuil,,10,,,,,375748,48.848025,2.25875,Paris 16th
 Ségur,,10,,,,,1100151,48.847434,2.306853,"Paris 7th, Paris 15th"
 Sèvres—Babylone,,"10, 12",,,,,3392504,48.85151,2.326655,"Paris 6th, Paris 7th"
 Vaneau,,10,,,,,725826,48.848947,2.321557,"Paris 6th, Paris 7th"
+Côteaux Beauclair,,11,,,,,,48.882319,2.467539,"Rosny-sous-Bois, Noisy-le-Sec"
+La Dhuys,,11,,,,,,48.877536,2.4651,"Montreuil, Rosny-sous-Bois"
+Montreuil-Hôpital,,11,,,,,,48.8783,2.454617,Montreuil
+Romainville—Carnot,,11,,,,,,48.883253,2.440822,Romainville
+Rosny-Bois Perrier,,11,E,,,,,48.88264,2.4815,Rosny-sous-Bois
+Serge Gainsbourg,,11,,,,,,48.881258,2.427228,Les Lilas
 Goncourt,Hôpital Saint-Louis,11,,,,,2199170,48.869831,2.370687,"Paris 10th, Paris 11th"
 Jourdain,,11,,,,,1881321,48.8752,2.389508,"Paris 19th, Paris 20th"
 Mairie des Lilas,,11,,,,,2894622,48.879788,2.416289,Les Lilas
@@ -273,7 +279,7 @@ Porte de Versailles,Parc des Expositions,12,,"T2, T3a",,,3268157,48.832328,2.287
 Rennes,,12,,,,,861334,48.848193,2.327763,Paris 6th
 Rue du Bac,,12,,,,,1423364,48.85569,2.325607,Paris 7th
 Saint-Georges,,12,,,,,1258381,48.878449,2.337382,Paris 9th
-Solférino,Musée d'Orsay,12,C,,,,1269143,48.858249,2.323225,Paris 7th
+Solférino,Musée d'Orsay,12,,,,,1269143,48.858249,2.323225,Paris 7th
 Trinité—d'Estienne d'Orves,,12,,,,,1051982,48.876302,2.333197,Paris 9th
 Vaugirard,,12,,,,,2482886,48.839649,2.301491,Paris 15th
 Volontaires,,12,,,,,1734848,48.841343,2.3075040000000002,Paris 15th
