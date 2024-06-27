@@ -5,38 +5,31 @@ from typing import TYPE_CHECKING
 from ._locations import resolve_cols_c
 from ._utils import _assert_list_is_subset
 from ._tbl_data import SelectExpr
+from ._text import Text
 
 if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
+def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
     """
     Relabel one or more columns.
 
-    Column labels can be modified from their default values (the names of the columns from the
-    input table data). When you create a table object using [`GT()`](`great_tables.GT`), column
-    names effectively become the column labels. While this serves as a good first approximation,
-    column names aren't often appealing as column labels in an output table. The `cols_label()`
-    method provides the flexibility to relabel one or more columns and we even have the option to
-    use the [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helpers for rendering
-    column labels from Markdown or using HTML.
+    There are three important pieces to labelling:
 
-    It's important to note that while columns can be freely relabeled, we continue to refer to
-    columns by their names for targeting purposes. Column names in the input data table must be
-    unique whereas column labels in **Great Tables** have no requirement for uniqueness (which
-    is useful for labeling columns as, say, measurement units that may be repeated several
-    times---usually under different spanner labels). Thus, we can still easily distinguish
-    between columns in other method calls (e.g., in all of the `fmt*()` methods) even though we
-    may lose distinguishability in column labels once they have been relabeled.
+    * Each argument has the form: {name in data} = {new label}.
+    * Multiple columns may be given the same label.
+    * Labels may use curly braces to apply special formatting, called unit notation.
+      For example, "area ({{ft^2}})" would appear as "area (ft²)".
+
+    See [`define_units()`](`great_tables.define_units`) for details on unit notation.
 
     Parameters
     ----------
     **kwargs
-        The column names and new labels. The column names are provided as keyword arguments and the
-        new labels are provided as the values for those keyword arguments. For example,
-        `cols_label(col1="Column 1", col2="Column 2")` would relabel columns `col1` and `col2` with
-        the labels `"Column 1"` and `"Column 2"`, respectively.
+        New labels expressed as keyword arguments. Column names should be the keyword (left-hand side).
+        Labels may use [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helpers for
+        formatting.
 
     Returns
     -------
@@ -44,11 +37,15 @@ def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
+    Notes
+    -----
+    GT always selects columns using their name in the underlying data. This means that a column's
+    label is purely for final presentation.
+
     Examples
     --------
-    Let's use a portion of the `countrypops` dataset to create a table. We can relabel all the
-    table's columns with the `cols_label()` method to improve its presentation. In this simple
-    case we are supplying the name of the column as the key, and the label text as the value.
+
+    The example below relabels columns from the `countrypops` data to start with uppercase.
 
     ```{python}
     from great_tables import GT
@@ -61,12 +58,14 @@ def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
     (
         GT(countrypops_mini)
         .cols_label(
-            country_name="Name",
+            country_name="Country Name",
             year="Year",
             population="Population"
         )
     )
     ```
+
+    Note that we supplied the name of the column as the key, and the new label as the value.
 
     We can also use Markdown formatting for the column labels. In this example, we'll use
     `md("*Population*")` to make the label italicized.
@@ -84,7 +83,33 @@ def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
         )
     )
     ```
+
+    We can also use unit notation to format the column labels. In this example, we'll use
+    `{{cm^3 molecules^-1 s^-1}}` for part of the label for the `OH_k298` column.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import reactions
+    import polars as pl
+
+    reactions_mini = (
+        pl.from_pandas(reactions)
+        .filter(pl.col("cmpd_type") == "mercaptan")
+        .select(["cmpd_name", "OH_k298"])
+    )
+
+    (
+        GT(reactions_mini)
+        .fmt_scientific("OH_k298")
+        .sub_missing()
+        .cols_label(
+            cmpd_name="Compound Name",
+            OH_k298="OH, {{cm^3 molecules^-1 s^-1}}",
+        )
+    )
+    ```
     """
+    from great_tables._helpers import UnitStr
 
     # If nothing is provided, return `data` unchanged
     if len(kwargs) == 0:
@@ -99,7 +124,24 @@ def cols_label(self: GTSelf, **kwargs: str) -> GTSelf:
     # msg: "All column names provided must exist in the input `.data` table."
     _assert_list_is_subset(mod_columns, set_list=column_names)
 
-    boxhead = self._boxhead._set_column_labels(kwargs)
+    # Handle units syntax in labels (e.g., "Density ({{ppl / mi^2}})")
+    new_kwargs: dict[str, UnitStr | str | Text] = {}
+
+    for k, v in kwargs.items():
+
+        if isinstance(v, str):
+
+            unitstr_v = UnitStr.from_str(v)
+
+            if len(unitstr_v.units_str) == 1 and isinstance(unitstr_v.units_str[0], str):
+                new_kwargs[k] = unitstr_v.units_str[0]
+            else:
+                new_kwargs[k] = unitstr_v
+
+        elif isinstance(v, Text):
+            new_kwargs[k] = v
+
+    boxhead = self._boxhead._set_column_labels(new_kwargs)
 
     return self._replace(_boxhead=boxhead)
 
