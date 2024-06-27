@@ -15,29 +15,21 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
     """
     Relabel one or more columns.
 
-    Column labels can be modified from their default values (the names of the columns from the
-    input table data). When you create a table object using [`GT()`](`great_tables.GT`), column
-    names effectively become the column labels. While this serves as a good first approximation,
-    column names aren't often appealing as column labels in an output table. The `cols_label()`
-    method provides the flexibility to relabel one or more columns and we even have the option to
-    use the [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helpers for rendering
-    column labels from Markdown or using HTML.
+    There are three important pieces to labelling:
 
-    It's important to note that while columns can be freely relabeled, we continue to refer to
-    columns by their names for targeting purposes. Column names in the input data table must be
-    unique whereas column labels in **Great Tables** have no requirement for uniqueness (which
-    is useful for labeling columns as, say, measurement units that may be repeated several
-    times---usually under different spanner labels). Thus, we can still easily distinguish
-    between columns in other method calls (e.g., in all of the `fmt*()` methods) even though we
-    may lose distinguishability in column labels once they have been relabeled.
+    * Each argument has the form: {name in data} = {new label}.
+    * Multiple columns may be given the same label.
+    * Labels may use curly braces to apply special formatting, called unit notation.
+      For example, "area ({{ft^2}})" would appear as "area (ft²)".
+
+    See [`define_units()`](`great_tables.define_units`) for details on unit notation.
 
     Parameters
     ----------
     **kwargs
-        The column names and new labels. The column names are provided as keyword arguments and the
-        new labels are provided as the values for those keyword arguments. For example,
-        `cols_label(col1="Column 1", col2="Column 2")` would relabel columns `col1` and `col2` with
-        the labels `"Column 1"` and `"Column 2"`, respectively.
+        New labels expressed as keyword arguments. Column names should be the keyword (left-hand side).
+        Labels may use [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helpers for
+        formatting.
 
     Returns
     -------
@@ -45,72 +37,15 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
-    Specification of units notation
-    -------------------------------
-    Measurement units are often seen as part of column labels and indeed it can be much more
-    straightforward to include them here rather than using other devices to make readers aware of
-    units for specific columns. It is possible to define units along with the column label in this
-    method. To do this, we have to surround the portion of text in the label that corresponds to the
-    units definition with `"{{"`/`"}}"`.
-
-    The following table demonstrates the various ways in which units can be specified in the
-    `units_notation` string and how the input is processed.
-
-    ```{python}
-    #| echo: false
-
-    from great_tables import GT, style, loc
-    import polars as pl
-
-    units_tbl = pl.DataFrame(
-        {
-            "rule": [
-                "'^' creates a superscript",
-                "'_' creates a subscript",
-                "subscripts and superscripts can be combined",
-                "use '[_subscript^superscript]' to create an overstrike",
-                "a '/' at the beginning adds the superscript '-1'",
-                "hyphen is transformed to minus sign when preceding a unit",
-                "'x' at the beginning is transformed to '×'",
-                "ASCII terms from biology/chemistry turned into terminology forms",
-                "can create italics with '*' or '_'; create bold text with '**' or '__'",
-                "special symbol set surrounded by colons",
-                "chemistry notation: '%C6H6%'",
-            ],
-            "input": [
-                "m^2",
-                "h_0",
-                "h_0^3",
-                "h[_0^3]",
-                "/s",
-                "-h^2",
-                "x10^3 kg^2 m^-1",
-                "ug",
-                "*m*^**2**",
-                ":permille:C",
-                "g/L %C6H12O6%",
-            ],
-        }
-    ).with_columns(output=pl.col("input"))
-
-    (
-        GT(units_tbl)
-        .fmt_units(columns="output")
-        .tab_style(
-            style=style.text(font="courier"),
-            locations=loc.body(columns="input")
-        )
-    )
-    ```
-
-    See also [`define_units()`](`great_tables.define_units`) for a function that can be used to
-    define units notation strings independently of the `cols_label()` method.
+    Notes
+    -----
+    GT always selects columns using their name in the underlying data. This means that a column's
+    label is purely for final presentation.
 
     Examples
     --------
-    Let's use a portion of the `countrypops` dataset to create a table. We can relabel all the
-    table's columns with the `cols_label()` method to improve its presentation. In this simple
-    case we are supplying the name of the column as the key, and the label text as the value.
+
+    The example below relabels columns from the `countrypops` data to start with uppercase.
 
     ```{python}
     from great_tables import GT
@@ -123,12 +58,14 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
     (
         GT(countrypops_mini)
         .cols_label(
-            country_name="Name",
+            country_name="Country Name",
             year="Year",
             population="Population"
         )
     )
     ```
+
+    Note that we supplied the name of the column as the key, and the new label as the value.
 
     We can also use Markdown formatting for the column labels. In this example, we'll use
     `md("*Population*")` to make the label italicized.
@@ -146,6 +83,8 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
         )
     )
     ```
+
+    TODO: UNITS EXAMPLE
     """
     from great_tables._helpers import UnitStr
 
