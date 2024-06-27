@@ -14,6 +14,7 @@ from great_tables._helpers import (
     _replace_units_symbol,
     _units_symbol_replacements,
     UnitStr,
+    UnitDefinition,
     UnitDefinitionList,
 )
 import pytest
@@ -280,6 +281,26 @@ def assert_units_symbol_replacements(text: str, x_out: str):
 def assert_define_units_html_superscript():
     x = define_units(units_notation="m^2").to_html()
     assert x == 'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>'
+
+
+def test_unit_definition_class_construction():
+    unit_def = UnitDefinition(token="m^2", unit="m", exponent="2")
+    assert unit_def.token == "m^2"
+    assert unit_def.unit == "m"
+    assert unit_def.exponent == "2"
+    assert unit_def.unit_subscript is None
+    assert unit_def.sub_super_overstrike is False
+    assert unit_def.chemical_formula is False
+
+
+def test_unit_definition_list_class_construction():
+    unit_def_list = UnitDefinitionList([UnitDefinition(token="m^2", unit="m", exponent="2")])
+    assert unit_def_list.units_list == [UnitDefinition(token="m^2", unit="m", exponent="2")]
+
+
+def test_unit_str_class_construction():
+    unit_str = UnitStr(["a b"])
+    assert unit_str.units_str == ["a b"]
 
 
 def test_unit_str_from_str_single_unit():
