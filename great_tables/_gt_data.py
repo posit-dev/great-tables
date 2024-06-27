@@ -5,7 +5,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
-from typing import Any, Callable, Tuple, TypeVar, overload
+from typing import Any, Callable, Tuple, TypeVar, overload, TYPE_CHECKING
 
 from typing_extensions import Self, TypeAlias
 
@@ -25,6 +25,9 @@ from ._tbl_data import (
     validate_frame,
 )
 from ._utils import _str_detect
+
+if TYPE_CHECKING:
+    from ._helpers import Md, Html, UnitStr, Text
 
 T = TypeVar("T")
 
@@ -205,7 +208,7 @@ class ColInfo:
     # TODO: Make var readonly
     var: str
     type: ColInfoTypeEnum = ColInfoTypeEnum.default
-    column_label: str | None = None
+    column_label: str | Md | Html | UnitStr | None = None
     column_align: ColumnAlignment | None = None
     column_width: str | None = None
 
@@ -218,6 +221,9 @@ class ColInfo:
     def __post_init__(self):
         if self.column_label is None:
             super().__setattr__("column_label", self.var)
+
+    def replace_column_label(self, column_label: str) -> Self:
+        return replace(self, column_label=column_label)
 
     @property
     def visible(self) -> bool:
@@ -396,7 +402,7 @@ class Boxhead(_Sequence[ColInfo]):
         return [x.column_label for x in self._d]
 
     # Set column label
-    def _set_column_labels(self, col_labels: dict[str, str]) -> Self:
+    def _set_column_labels(self, col_labels: dict[str, str | UnitStr | Text]) -> Self:
         out_cols: list[ColInfo] = []
         for x in self._d:
             new_label = col_labels.get(x.var, None)
