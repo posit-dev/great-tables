@@ -84,7 +84,30 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
     )
     ```
 
-    TODO: UNITS EXAMPLE
+    We can also use unit notation to format the column labels. In this example, we'll use
+    `{{cm^3 molecules^-1 s^-1}}` for part of the label for the `OH_k298` column.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import reactions
+    import polars as pl
+
+    reactions_mini = (
+        pl.from_pandas(reactions)
+        .filter(pl.col("cmpd_type") == "mercaptan")
+        .select(["cmpd_name", "OH_k298"])
+    )
+
+    (
+        GT(reactions_mini)
+        .fmt_scientific("OH_k298")
+        .sub_missing()
+        .cols_label(
+            cmpd_name="Compound Name",
+            OH_k298="OH, {{cm^3 molecules^-1 s^-1}}",
+        )
+    )
+    ```
     """
     from great_tables._helpers import UnitStr
 
