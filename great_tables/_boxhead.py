@@ -45,6 +45,67 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
+    Specification of units notation
+    -------------------------------
+    Measurement units are often seen as part of column labels and indeed it can be much more
+    straightforward to include them here rather than using other devices to make readers aware of
+    units for specific columns. It is possible to define units along with the column label in this
+    method. To do this, we have to surround the portion of text in the label that corresponds to the
+    units definition with `"{{"`/`"}}"`.
+
+    The following table demonstrates the various ways in which units can be specified in the
+    `units_notation` string and how the input is processed.
+
+    ```{python}
+    #| echo: false
+
+    from great_tables import GT, style, loc
+    import polars as pl
+
+    units_tbl = pl.DataFrame(
+        {
+            "rule": [
+                "'^' creates a superscript",
+                "'_' creates a subscript",
+                "subscripts and superscripts can be combined",
+                "use '[_subscript^superscript]' to create an overstrike",
+                "a '/' at the beginning adds the superscript '-1'",
+                "hyphen is transformed to minus sign when preceding a unit",
+                "'x' at the beginning is transformed to '×'",
+                "ASCII terms from biology/chemistry turned into terminology forms",
+                "can create italics with '*' or '_'; create bold text with '**' or '__'",
+                "special symbol set surrounded by colons",
+                "chemistry notation: '%C6H6%'",
+            ],
+            "input": [
+                "m^2",
+                "h_0",
+                "h_0^3",
+                "h[_0^3]",
+                "/s",
+                "-h^2",
+                "x10^3 kg^2 m^-1",
+                "ug",
+                "*m*^**2**",
+                ":permille:C",
+                "g/L %C6H12O6%",
+            ],
+        }
+    ).with_columns(output=pl.col("input"))
+
+    (
+        GT(units_tbl)
+        .fmt_units(columns="output")
+        .tab_style(
+            style=style.text(font="courier"),
+            locations=loc.body(columns="input")
+        )
+    )
+    ```
+
+    See also [`define_units()`](`great_tables.define_units`) for a function that can be used to
+    define units notation strings independently of the `cols_label()` method.
+
     Examples
     --------
     Let's use a portion of the `countrypops` dataset to create a table. We can relabel all the
