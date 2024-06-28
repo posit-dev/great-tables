@@ -26,7 +26,7 @@ def tab_options(
     # table_additional_css: str | None = None,
     table_font_names: str | list[str] | None = None,
     table_font_size: str | None = None,
-    table_font_weight: str | None = None,
+    table_font_weight: str | int | float | None = None,
     table_font_style: str | None = None,
     table_font_color: str | None = None,
     table_font_color_light: str | None = None,
@@ -45,9 +45,9 @@ def tab_options(
     heading_background_color: str | None = None,
     heading_align: str | None = None,
     heading_title_font_size: str | None = None,
-    heading_title_font_weight: str | None = None,
+    heading_title_font_weight: str | int | float | None = None,
     heading_subtitle_font_size: str | None = None,
-    heading_subtitle_font_weight: str | None = None,
+    heading_subtitle_font_weight: str | int | float | None = None,
     heading_padding: str | None = None,
     heading_padding_horizontal: str | None = None,
     heading_border_bottom_style: str | None = None,
@@ -58,7 +58,7 @@ def tab_options(
     heading_border_lr_color: str | None = None,
     column_labels_background_color: str | None = None,
     column_labels_font_size: str | None = None,
-    column_labels_font_weight: str | None = None,
+    column_labels_font_weight: str | int | float | None = None,
     column_labels_text_transform: str | None = None,
     column_labels_padding: str | None = None,
     column_labels_padding_horizontal: str | None = None,
@@ -77,7 +77,7 @@ def tab_options(
     column_labels_hidden: bool | None = None,
     row_group_background_color: str | None = None,
     row_group_font_size: str | None = None,
-    row_group_font_weight: str | None = None,
+    row_group_font_weight: str | int | float | None = None,
     row_group_text_transform: str | None = None,
     row_group_padding: str | None = None,
     row_group_padding_horizontal: str | None = None,
@@ -109,13 +109,13 @@ def tab_options(
     table_body_border_bottom_color: str | None = None,
     stub_background_color: str | None = None,
     stub_font_size: str | None = None,
-    stub_font_weight: str | None = None,
+    stub_font_weight: str | int | float | None = None,
     stub_text_transform: str | None = None,
     stub_border_style: str | None = None,
     stub_border_width: str | None = None,
     stub_border_color: str | None = None,
     stub_row_group_font_size: str | None = None,
-    stub_row_group_font_weight: str | None = None,
+    stub_row_group_font_weight: str | int | float | None = None,
     stub_row_group_text_transform: str | None = None,
     stub_row_group_border_style: str | None = None,
     stub_row_group_border_width: str | None = None,
@@ -1059,7 +1059,7 @@ def opt_table_font(
     self: GTSelf,
     font: str | list[str] | None = None,
     stack: FontStackName | None = None,
-    weight: str | None = None,
+    weight: str | int | float | None = None,
     style: str | None = None,
     add: bool = True,
 ) -> GTSelf:
@@ -1233,7 +1233,18 @@ def opt_table_font(
     if weight is not None:
 
         if isinstance(weight, int) or isinstance(weight, float):
-            weight = str(weight)
+
+            if weight < 1 or weight > 1000:
+                raise ValueError(
+                    "If `weight=` provided as a numeric value, it must be between 1 and 1000."
+                )
+
+            weight = str(round(weight))
+
+        elif not isinstance(weight, str):
+            raise TypeError(
+                "`weight=` must be a numeric value between 1 and 1000 or a text-based keyword."
+            )
 
         res = tab_options(res, table_font_weight=weight)
         res = tab_options(res, column_labels_font_weight=weight)
