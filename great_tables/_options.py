@@ -1222,11 +1222,6 @@ def opt_table_font(
 
         if isinstance(weight, int) or isinstance(weight, float):
 
-            if weight < 1 or weight > 1000:
-                raise ValueError(
-                    "If `weight=` provided as a numeric value, it must be between 1 and 1000."
-                )
-
             weight = str(round(weight))
 
         elif not isinstance(weight, str):
