@@ -175,6 +175,7 @@ quartodoc:
         - GT.opt_vertical_padding
         - GT.opt_horizontal_padding
         - GT.opt_table_outline
+        - GT.opt_table_font
         - GT.opt_stylize
     - title: Export
       desc: >

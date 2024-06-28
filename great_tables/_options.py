@@ -4,6 +4,7 @@ from dataclasses import dataclass, fields, replace
 from typing import TYPE_CHECKING, ClassVar, cast
 
 from great_tables import _utils
+from great_tables._helpers import FontStackName
 
 
 if TYPE_CHECKING:
@@ -25,7 +26,7 @@ def tab_options(
     # table_additional_css: str | None = None,
     table_font_names: str | list[str] | None = None,
     table_font_size: str | None = None,
-    table_font_weight: str | None = None,
+    table_font_weight: str | int | float | None = None,
     table_font_style: str | None = None,
     table_font_color: str | None = None,
     table_font_color_light: str | None = None,
@@ -44,9 +45,9 @@ def tab_options(
     heading_background_color: str | None = None,
     heading_align: str | None = None,
     heading_title_font_size: str | None = None,
-    heading_title_font_weight: str | None = None,
+    heading_title_font_weight: str | int | float | None = None,
     heading_subtitle_font_size: str | None = None,
-    heading_subtitle_font_weight: str | None = None,
+    heading_subtitle_font_weight: str | int | float | None = None,
     heading_padding: str | None = None,
     heading_padding_horizontal: str | None = None,
     heading_border_bottom_style: str | None = None,
@@ -57,7 +58,7 @@ def tab_options(
     heading_border_lr_color: str | None = None,
     column_labels_background_color: str | None = None,
     column_labels_font_size: str | None = None,
-    column_labels_font_weight: str | None = None,
+    column_labels_font_weight: str | int | float | None = None,
     column_labels_text_transform: str | None = None,
     column_labels_padding: str | None = None,
     column_labels_padding_horizontal: str | None = None,
@@ -76,7 +77,7 @@ def tab_options(
     column_labels_hidden: bool | None = None,
     row_group_background_color: str | None = None,
     row_group_font_size: str | None = None,
-    row_group_font_weight: str | None = None,
+    row_group_font_weight: str | int | float | None = None,
     row_group_text_transform: str | None = None,
     row_group_padding: str | None = None,
     row_group_padding_horizontal: str | None = None,
@@ -108,13 +109,13 @@ def tab_options(
     table_body_border_bottom_color: str | None = None,
     stub_background_color: str | None = None,
     stub_font_size: str | None = None,
-    stub_font_weight: str | None = None,
+    stub_font_weight: str | int | float | None = None,
     stub_text_transform: str | None = None,
     stub_border_style: str | None = None,
     stub_border_width: str | None = None,
     stub_border_color: str | None = None,
     stub_row_group_font_size: str | None = None,
-    stub_row_group_font_weight: str | None = None,
+    stub_row_group_font_weight: str | int | float | None = None,
     stub_row_group_text_transform: str | None = None,
     stub_row_group_border_style: str | None = None,
     stub_row_group_border_width: str | None = None,
@@ -1050,6 +1051,190 @@ def opt_table_outline(
 
     # Set the table outline options
     res = tab_options(self=self, **params)
+
+    return res
+
+
+def opt_table_font(
+    self: GTSelf,
+    font: str | list[str] | None = None,
+    stack: FontStackName | None = None,
+    weight: str | int | float | None = None,
+    style: str | None = None,
+    add: bool = True,
+) -> GTSelf:
+    """Options to define font choices for the entire table.
+
+    The `opt_table_font()` method makes it possible to define fonts used for an entire table. Any
+    font names supplied in `font=` will (by default, with `add=True`) be placed before the names
+    present in the existing font stack (i.e., they will take precedence). You can choose to base the
+    font stack on those provided by the [`system_fonts()`](`system_fonts.md`) helper function by
+    providing a valid keyword for a themed set of fonts. Take note that you could still have
+    entirely different fonts in specific locations of the table. To make that possible you would
+    need to use [`tab_style()`](`great_tables.GT.tab_style`) in conjunction with
+    [`style.text()`](`great_tables.style.text`).
+
+    Parameters
+    ----------
+    font
+        One or more font names available on the user system. This can be a string or a list of
+        strings. The default value is `None` since you could instead opt to use `stack` to define
+        a list of fonts.
+    stack
+        A name that is representative of a font stack (obtained via internally via the
+        `system_fonts()` helper function. If provided, this new stack will replace any defined fonts
+        and any `font=` values will be prepended.
+    style
+        An option to modify the text style. Can be one of either `"normal"`, `"italic"`, or
+        `"oblique"`.
+    weight
+        Option to set the weight of the font. Can be a text-based keyword such as `"normal"`,
+        `"bold"`, `"lighter"`, `"bolder"`, or, a numeric value between `1` and `1000`. Please note
+        that typefaces have varying support for the numeric mapping of weight.
+    add
+        Should fonts be added to the beginning of any already-defined fonts for the table? By
+        default, this is `True` and is recommended since those fonts already present can serve as
+        fallbacks when everything specified in `font` is not available. If a `stack=` value is
+        provided, then `add` will automatically set to `False`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Possibilities for the `stack` argument
+    --------------------------------------
+
+    There are several themed font stacks available via the [`system_fonts()`](`system_fonts.md`)
+    helper function. That function can be used to generate all or a segment of a list supplied to
+    the `font=` argument. However, using the `stack=` argument with one of the 15 keywords for the
+    font stacks available in [`system_fonts()`](`system_fonts.md`), we could be sure that the
+    typeface class will work across multiple computer systems. Any of the following keywords can be
+    used with `stack=`:
+
+    - `"system-ui"`
+    - `"transitional"`
+    - `"old-style"`
+    - `"humanist"`
+    - `"geometric-humanist"`
+    - `"classical-humanist"`
+    - `"neo-grotesque"`
+    - `"monospace-slab-serif"`
+    - `"monospace-code"`
+    - `"industrial"`
+    - `"rounded-sans"`
+    - `"slab-serif"`
+    - `"antique"`
+    - `"didone"`
+    - `"handwritten"`
+
+    Examples
+    --------
+    Let's use a subset of the `sp500` dataset to create a small table. With `opt_table_font()` we
+    can add some preferred font choices for modifying the text of the entire table. Here we'll use
+    the `"Superclarendon"` and `"Georgia"` fonts (the second font serves as a fallback).
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT
+    from great_tables.data import sp500
+
+    sp500_mini = pl.from_pandas(sp500).slice(0, 10).drop(["volume", "adj_close"])
+
+    (
+        GT(sp500_mini, rowname_col="date")
+        .fmt_currency(use_seps=False)
+        .opt_table_font(font=["Superclarendon", "Georgia"])
+    )
+    ```
+
+    In practice, both of these fonts are not likely to be available on all systems. The
+    `opt_table_font()` method safeguards against this by prepending the fonts in the `font=` list to
+    the existing font stack. This way, if both fonts are not available, the table will fall back to
+    using the list of default table fonts. This behavior is controlled by the `add=` argument, which
+    is `True` by default.
+
+    With the `sza` dataset we'll create a two-column, eleven-row table. Within `opt_table_font()`,
+    the `stack=` argument will be supplied with the "rounded-sans" font stack. This sets up a family
+    of fonts with rounded, curved letterforms that should be locally available in different
+    computing environments.
+
+    ```{python}
+    from great_tables.data import sza
+
+    sza_mini = (
+        pl.from_pandas(sza)
+        .filter((pl.col("latitude") == "20") & (pl.col("month") == "jan"))
+        .drop_nulls()
+        .drop(["latitude", "month"])
+    )
+
+    (
+        GT(sza_mini)
+        .opt_table_font(stack="rounded-sans")
+        .opt_all_caps()
+    )
+    ```
+    """
+
+    if font is None and stack is None:
+        raise ValueError("Either `font=` or `stack=` must be provided.")
+
+    # Get the existing fonts for the table from the options; we may either prepend to this
+    # list or replace it entirely
+    existing_fonts = self._options.table_font_names.value
+
+    # If `existing_fonts` is not a list, throw an error
+    if not isinstance(existing_fonts, list):
+        raise ValueError("The value from `_options.table_font_names` must be a list.")
+
+    res = self
+
+    if font is not None:
+
+        # If `font` is a string, convert it to a list
+        if isinstance(font, str):
+            font = [font]
+
+    else:
+        font = []
+
+    if stack is not None:
+
+        # Case where value is given to `stack=` and this is a keyword that returns a
+        # list of fonts (i.e., the font stack); in this case we combine with `font=` values
+        # (if provided) and we *always* replace the existing fonts (`add=` is ignored)
+        from great_tables._helpers import system_fonts
+
+        font_stack = system_fonts(name=stack)
+        combined_fonts = font + font_stack
+    elif add:
+        # Case where `font=` is prepended to existing fonts
+        combined_fonts = font + existing_fonts
+    else:
+        # Case where  `font=` replacing existing fonts
+        combined_fonts = font
+
+    res = tab_options(res, table_font_names=combined_fonts)
+
+    if weight is not None:
+
+        if isinstance(weight, int) or isinstance(weight, float):
+
+            weight = str(round(weight))
+
+        elif not isinstance(weight, str):
+            raise TypeError(
+                "`weight=` must be a numeric value between 1 and 1000 or a text-based keyword."
+            )
+
+        res = tab_options(res, table_font_weight=weight)
+        res = tab_options(res, column_labels_font_weight=weight)
+
+    if style is not None:
+
+        res = tab_options(res, table_font_style=style)
 
     return res
 

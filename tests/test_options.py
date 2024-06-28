@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 from great_tables import GT, exibble, md
 from great_tables._scss import compile_scss
+from great_tables._gt_data import default_fonts_list
 
 
 def test_options_overwrite():
@@ -324,3 +325,47 @@ def test_scss_from_opt_table_outline(gt_tbl: GT, snapshot):
         assert getattr(gt_tbl_outline._options, f"table_border_{part}_color").value == "blue"
 
     assert snapshot == compile_scss(gt_tbl_outline, id="abc", compress=False)
+
+
+def test_opt_table_font_add_font():
+
+    gt_tbl = GT(exibble).opt_table_font(font="Arial", weight="bold", style="italic")
+
+    assert gt_tbl._options.table_font_names.value == ["Arial"] + default_fonts_list
+    assert gt_tbl._options.table_font_weight.value == "bold"
+    assert gt_tbl._options.table_font_style.value == "italic"
+
+
+def test_opt_table_font_replace_font():
+
+    gt_tbl = GT(exibble).opt_table_font(font="Arial", weight="bold", style="bold", add=False)
+
+    assert gt_tbl._options.table_font_names.value == ["Arial"]
+    assert gt_tbl._options.table_font_weight.value == "bold"
+    assert gt_tbl._options.table_font_style.value == "bold"
+
+
+def test_opt_table_font_use_stack():
+
+    gt_tbl = GT(exibble).opt_table_font(stack="humanist")
+
+    assert gt_tbl._options.table_font_names.value[0] == "Seravek"
+    assert gt_tbl._options.table_font_names.value[-1] == "Noto Color Emoji"
+
+
+def test_opt_table_font_use_stack_and_system_font():
+
+    gt_tbl = GT(exibble).opt_table_font(font="Comic Sans MS", stack="humanist")
+
+    assert gt_tbl._options.table_font_names.value[0] == "Comic Sans MS"
+    assert gt_tbl._options.table_font_names.value[1] == "Seravek"
+    assert gt_tbl._options.table_font_names.value[-1] == "Noto Color Emoji"
+
+
+def test_opt_table_font_raises():
+
+    # Both `font` and `stack` cannot be `None`
+    with pytest.raises(ValueError) as exc_info:
+        GT(exibble).opt_table_font(font=None, stack=None)
+
+    assert "Either `font=` or `stack=` must be provided." in exc_info.value.args[0]

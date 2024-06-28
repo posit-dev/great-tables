@@ -44,6 +44,7 @@ from great_tables._options import (
     opt_row_striping,
     opt_stylize,
     opt_table_outline,
+    opt_table_font,
     opt_vertical_padding,
     tab_options,
 )
@@ -244,6 +245,7 @@ class GT(
     opt_vertical_padding = opt_vertical_padding
     opt_horizontal_padding = opt_horizontal_padding
     opt_table_outline = opt_table_outline
+    opt_table_font = opt_table_font
 
     cols_align = cols_align
     cols_width = cols_width
