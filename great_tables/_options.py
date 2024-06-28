@@ -1191,13 +1191,6 @@ def opt_table_font(
 
     res = self
 
-    # If `stack` is provided, we ignore the `add` argument and always replace the existing fonts;
-    # This is because users are likely to want to use the font stack as a whole the set is safe
-    # enough to use across different systems (so keeping fallbacks usually won't be seen as
-    # necessary)
-    if stack is not None:
-        add = False
-
     if font is not None:
 
         # If `font` is a string, convert it to a list
