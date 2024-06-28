@@ -1215,20 +1215,15 @@ def opt_table_font(
         from great_tables._helpers import system_fonts
 
         font_stack = system_fonts(name=stack)
-
         combined_fonts = font + font_stack
-        res = tab_options(res, table_font_names=combined_fonts)
-
+    elif add:
+        # Case where `font=` is prepended to existing fonts
+        combined_fonts = font + existing_fonts
     else:
+        # Case where  `font=` replacing existing fonts
+        combined_fonts = font
 
-        # Case where only `font=` is provided and that value is a list of fonts which may be
-        # prepended to the existing fonts or replaced entirely (depending on the `add=` value)
-        if add:
-            combined_fonts = font + existing_fonts
-            res = tab_options(res, table_font_names=combined_fonts)
-
-        else:
-            res = tab_options(res, table_font_names=font)
+    res = tab_options(res, table_font_names=combined_fonts)
 
     if weight is not None:
 
