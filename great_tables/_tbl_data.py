@@ -327,7 +327,12 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
 
     from polars import Expr
 
-    pl_version = _re_version(version("polars"))
+    pl_version = None
+    try:
+        pl_version = _re_version(version("polars"))
+    except:
+        pl_version = _re_version(version("polars-u64-idx"))
+
     expand_opts = {"strict": False} if pl_version >= (0, 20, 30) else {}
 
     # just in case _selector_proxy_ gets renamed or something
