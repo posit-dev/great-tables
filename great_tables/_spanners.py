@@ -199,6 +199,11 @@ def tab_spanner(
     elif isinstance(label, Text):
         new_label = label
 
+    else:
+        raise ValueError(
+            "Spanner labels must be strings or Text objects. Use `md()` or `html()` for formatting."
+        )
+
     new_span = SpannerInfo(
         spanner_id=id,
         spanner_level=level,

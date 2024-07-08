@@ -141,6 +141,11 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
         elif isinstance(v, Text):
             new_kwargs[k] = v
 
+        else:
+            raise ValueError(
+                "Column labels must be strings or Text objects. Use `md()` or `html()` for formatting."
+            )
+
     boxhead = self._boxhead._set_column_labels(new_kwargs)
 
     return self._replace(_boxhead=boxhead)
