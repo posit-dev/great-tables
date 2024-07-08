@@ -25,21 +25,22 @@ If you're at SciPy 2024 in Tacoma, WA, Rich's talk is scheduled for July 11 (16:
 
 ## Unit and scientific notation
 
-{SHORT BACKGROUND ON DATA}.
+We added the `reactions` dataset to serve as the basis for examples in the discipline of Atmospheric Chemistry. The dataset contains reaction rate constants for gas-phase reactions of 1,683 organic compounds. Each of these compounds can potentially undergo reaction with hydroxyl radicals (OH), nitrate radicals (NO<sub>3</sub>), or chlorine atoms (Cl). These reaction rate constants are typically very small values in units of cm<sup>3</sup> molecules<sup>-1</sup> s<sup>-1</sup>. In the upcoming example, we'll pare down this massive dataset to only 11 rows representing the class of organic compounds known as mercaptans.
 
-Reporting this requires representing three pieces:
+To make this table work well in a scientific reporting context, we need three pieces:
 
-* units like `cm^3`
-* chemical compounds like CH<sub>4</sub>
-* very small numbers in scientific format.
+* way to represent units, like cm<sup>3</sup>
+* method for typesetting chemical formulae, as in CH<sub>4</sub>
+* formatting for very small numbers in scientific notation.
 
-This is shown in the table below:
+**Great Tables** provides the necessary functionality for all three requirements. Here is a summary table that tabulates rate constants for mercaptan compounds undergoing reaction with OH, O<sub>3</sub>, and Cl:
 
 ```{python}
 from great_tables import GT, md, system_fonts
 from great_tables.data import reactions
 import polars as pl
 import polars.selectors as ps
+
 reactions_mini = (
     pl.from_pandas(reactions)
     .filter(pl.col("cmpd_type") == "mercaptan")
