@@ -4,6 +4,7 @@ import polars.selectors as cs
 import pytest
 from great_tables import GT, exibble
 from great_tables._gt_data import Boxhead, ColInfo, ColInfoTypeEnum, SpannerInfo, Spanners
+from great_tables._helpers import UnitStr
 from great_tables._spanners import (
     _validate_sel_cols,
     cols_hide,
@@ -128,6 +129,16 @@ def test_tab_spanners_with_spanner_ids():
 
     assert len(new_gt._spanners) == 2
     assert new_gt._spanners[1] == dst_span
+
+
+def test_tab_spanner_units_text():
+    df = pd.DataFrame({"x": [1.234, 2.345], "y": [3.456, 4.567], "z": [5.678, 6.789]})
+
+    gt = GT(df).tab_spanner(label="Area ({{m^2}})", columns=["x", "y"])
+
+    spanner = gt._spanners[0]
+
+    assert isinstance(spanner.spanner_label, UnitStr)
 
 
 def test_tab_spanners_overlap():

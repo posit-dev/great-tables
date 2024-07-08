@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
+from ._text import Text
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
@@ -17,7 +18,7 @@ SpannerMatrix = "list[dict[str, str | None]]"
 
 def tab_spanner(
     data: GTSelf,
-    label: str,
+    label: str | Text,
     columns: SelectExpr = None,
     spanners: str | list[str] | None = None,
     level: int | None = None,
@@ -122,6 +123,7 @@ def tab_spanner(
     )
     ```
     """
+    from great_tables._helpers import UnitStr
 
     crnt_spanner_ids = set([span.spanner_id for span in data._spanners])
 
@@ -184,13 +186,31 @@ def tab_spanner(
     spanner_units = None
     spanner_pattern = None
 
+    # Handle units syntax in the label (e.g., "Density ({{ppl / mi^2}})")
+    if isinstance(label, str):
+
+        unitstr = UnitStr.from_str(label)
+
+        if len(unitstr.units_str) == 1 and isinstance(unitstr.units_str[0], str):
+            new_label = unitstr.units_str[0]
+        else:
+            new_label = unitstr
+
+    elif isinstance(label, Text):
+        new_label = label
+
+    else:
+        raise ValueError(
+            "Spanner labels must be strings or Text objects. Use `md()` or `html()` for formatting."
+        )
+
     new_span = SpannerInfo(
         spanner_id=id,
         spanner_level=level,
         vars=column_names,
         spanner_units=spanner_units,
         spanner_pattern=spanner_pattern,
-        spanner_label=label,
+        spanner_label=new_label,
     )
 
     spanners = data._spanners.append_entry(new_span)
