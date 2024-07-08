@@ -144,6 +144,10 @@ gibraltar_mini = (
     temp="Temperature, {{:degree:C}}",
     humidity="Humidity, % (RH)",
   )
+  .cols_align(
+    align="left",
+    columns=["temp", "humidity"]
+  )
 )
 ```
 
