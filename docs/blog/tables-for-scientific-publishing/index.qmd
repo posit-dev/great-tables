@@ -1,5 +1,8 @@
 ---
 title: Great Tables for Scientific Publishing
+html-table-processing: none
+author: Rich Iannone
+date: 2024-07-08
 jupyter: python3
 format:
   html:
