@@ -151,4 +151,8 @@ The **Polars** library helps us to easily aggregate the temperature and humidity
 
 Units notation is also used here! It could potentially be difficult to format even simple things like the units of temperature. In this case we wanted to express the units of °C for the `temperature` column. Units notation has a collection of symbols available, including `":degree:"` (colons encapsulate the collection of symbol keywords), for insertion within units notation text.
 
+## Hope all your (science-y) tables are great!
 
+We did scientific work pretty heavily in the past and so we understand that great tables in the realm of science publication is something that could and should be possible. We'll keep doing more to make this even better in upcoming releases.
+
+Hope to see you at SciPy 2024!
