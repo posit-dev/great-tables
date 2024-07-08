@@ -89,19 +89,14 @@ The combination of units notation (and chemistry notation, which is a part of th
 
 ## Nanoplots
 
+We added the nanoplots feature to **Great Tables** in v0.4.0 (check out the [intro blog post](https://posit-dev.github.io/great-tables/blog/introduction-0.4.0/) for a quick explainer) so that tables can contain small, info-packed plots that fit reasonably well into a table context. They are interactive in that hovering over the data points provides additional plot information. This approach brings together the advantages of plots (elucidation of trends in data) and tables (access to numerical values representing the data points) in a single summary visualization. Version `0.10.0` of **Great Tables** adds the `gibraltar` dataset, which provides meteorological data (temeperature, humidity, wind speed, etc.) for the entire month of May 2024 at Gibraltar Airport Station.
 
+Nanoplots, as mentioned, are great for condensing a lot of information into a small area. Our example here with the `gibraltar` dataset takes all of the temperature and humidity data for the first 10 days of May 2023 and displays them in easy-to-explore nanoplots across two columns:
 
 ```{python}
 from great_tables import GT, nanoplot_options
 from great_tables.data import gibraltar
 import polars as pl
-import polars.selectors as ps
-
-def to_seconds(timestr):
-    seconds = 0
-    for part in timestr.split(':'):
-        seconds = seconds*60 + int(part, 10)
-    return seconds
 
 nano_opts = nanoplot_options(
     data_point_radius=4,
@@ -148,3 +143,9 @@ gibraltar_mini = (
   )
 )
 ```
+
+The **Polars** library helps us to easily aggregate the temperature and humidity data in the `temp` and `humidity` columns by `date`. Once we have the data aggregated in the form of list columns, the `.fmt_nanoplot()` method is then called on the two aforementioned columns to create the two columns of nanoplots. We have a lot of customization options for nanoplots available in the `nanoplot_options()` function and its use here allows us to craft visuals that fit within the data-display conventions of specific disciplines. In this case, we wanted a monochrome look and so we applied the result of the `nanoplot_options()` call to the `options=` arg of `.fmt_nanoplot()` (which is used twice here).
+
+Units notation is also used here! It could potentially be difficult to format even simple things like the units of temperature. In this case we wanted to express the units of °C for the `temperature` column. Units notation has a collection of symbols available, including `":degree:"` (colons encapsulate the collection of symbol keywords), for insertion within units notation text.
+
+
