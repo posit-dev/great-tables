@@ -7,22 +7,21 @@ format:
     code-summary: "Show the Code"
 ---
 
-Great Tables version `0.10.0` released today, with a host of new features to support tables for scientific publishing.
+Great Tables version `0.10.0` has be released today and it contains a host of new features to support tables meant for scientific publishing.
 
 In this post, we'll review the big pieces that scientific tables need:
 
-* **Unit notation**: rendering units and chemical formulas (e.g. °C or CH<sub>4</sub>).
-* **Scientific notation**: formatting for very large and small numbers (e.g. 3.50 × 10<sup>−11</sup>)
+* **Unit notation**: rendering units and chemical formulas (e.g., °C or C<sub>6</sub>H<sub>6</sub>).
+* **Scientific notation**: formatting for very large and small numbers (e.g., 3.50 × 10<sup>−11</sup>)
 * **Nanoplots**: compact visualizations for revealing trends.
 
-We've added **6 new datasets**, to help quickly show off scientific publishing! We'll use our `reactions` and `gibraltar` data to highlight examples from atmospheric chemistry and meterology, respectively.
+We've added **6 new datasets**, to help quickly show off scientific publishing! We'll use the new `reactions` and `gibraltar` datasets to create examples in the fields of Atmospheric Chemistry and Meterology, respectively.
 
 :::{.callout-tip}
-Rich will be speaking on this at scipy.
+Rich will be speaking on this at SciPy!
 
-TODO: add details (and link to session?)
+If you're at SciPy 2024 in Tacoma, WA, Rich's talk is scheduled for July 11 (16:30–17:00 PT). The talk is called *Great Tables for Everyone* and it's sure to be both exciting and educational. If you're not attending that's okay, the talk is available [in GitHub](https://github.com/rich-iannone/presentations/tree/main/2024-07-11-SciPy-talk-GT).
 :::
-
 
 ## Unit and scientific notation
 
