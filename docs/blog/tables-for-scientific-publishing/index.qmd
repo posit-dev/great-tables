@@ -92,7 +92,9 @@ The combination of units notation (and chemistry notation, which is a part of th
 
 ## Nanoplots
 
-We added the nanoplots feature to **Great Tables** in v0.4.0 (check out the [intro blog post](https://posit-dev.github.io/great-tables/blog/introduction-0.4.0/) for a quick explainer) so that tables can contain small, info-packed plots that fit reasonably well into a table context. They are interactive in that hovering over the data points provides additional plot information. This approach brings together the advantages of plots (elucidation of trends in data) and tables (access to numerical values representing the data points) in a single summary visualization. Version `0.10.0` of **Great Tables** adds the `gibraltar` dataset, which provides meteorological data (temeperature, humidity, wind speed, etc.) for the entire month of May 2024 at Gibraltar Airport Station.
+We added the nanoplots feature to **Great Tables** in v0.4.0 (check out the [intro blog post](https://posit-dev.github.io/great-tables/blog/introduction-0.4.0/) for a quick explainer) so that tables can contain small, info-packed plots that fit reasonably well into a table context. They are interactive in that hovering over the data points provides additional plot information. This approach brings together the advantages of plots (elucidation of trends in data) and tables (access to numerical values representing the data points) in a single summary visualization.
+
+Version `0.10.0` of **Great Tables** adds the `gibraltar` dataset, which provides meteorological data (temeperature, humidity, wind speed, etc.) for the entire month of May 2024 at Gibraltar Airport Station.
 
 Nanoplots, as mentioned, are great for condensing a lot of information into a small area. Our example here with the `gibraltar` dataset takes all of the temperature and humidity data for the first 10 days of May 2023 and displays them in easy-to-explore nanoplots across two columns:
 
