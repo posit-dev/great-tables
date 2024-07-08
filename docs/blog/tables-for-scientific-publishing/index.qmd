@@ -147,9 +147,9 @@ gibraltar_mini = (
 )
 ```
 
-The **Polars** library helps us to easily aggregate the temperature and humidity data in the `temp` and `humidity` columns by `date`. Once we have the data aggregated in the form of list columns, the `.fmt_nanoplot()` method is then called on the two aforementioned columns to create the two columns of nanoplots. We have a lot of customization options for nanoplots available in the `nanoplot_options()` function and its use here allows us to craft visuals that fit within the data-display conventions of specific disciplines. In this case, we wanted a monochrome look and so we applied the result of the `nanoplot_options()` call to the `options=` arg of `.fmt_nanoplot()` (which is used twice here).
+Once we have the data aggregated in the form of list columns, the `.fmt_nanoplot()` method shows us the trends of temperature and relative humidity values throughout the day (from `00:00` to `24:00`). One interesting observation that can be made from the table is that on May 9, 2023 there was a late-day temperature increase that coincided with a corresponding decrease in relative humidity. Making such an observation without nanoplots would be quite a bit more difficult and would require some serious determination, necessitating a careful scanning of numbers across a row cells.
 
-Units notation is also used here! It could potentially be difficult to format even simple things like the units of temperature. In this case we wanted to express the units of °C for the `temperature` column. Units notation has a collection of symbols available, including `":degree:"` (colons encapsulate the collection of symbol keywords), for insertion within units notation text.
+Units notation is ever useful and it is applied in one of the column labels of this table. It could potentially be difficult to format even simple things like the units of temperature. In this case we wanted to add in the temperature units of °C for the `temperature` column. Units notation has a collection of symbols available, including `":degree:"` (colons encapsulate the collection of symbol keywords), for insertion within units notation text. The example takes advantage of the available symbols and so having °C as part of a label is not too hard to express.
 
 ## Hope all your (science-y) tables are great!
 
