@@ -7,7 +7,7 @@ format:
     code-summary: "Show the Code"
 ---
 
-Great Tables version `0.10.0` has be released today and it contains a host of new features to support tables meant for scientific publishing.
+**Great Tables** version `0.10.0` has be released today and it contains a host of new features to support tables meant for scientific publishing.
 
 In this post, we'll review the big pieces that scientific tables need:
 
@@ -15,17 +15,17 @@ In this post, we'll review the big pieces that scientific tables need:
 * **Scientific notation**: formatting for very large and small numbers (e.g., 3.50 × 10<sup>−11</sup>)
 * **Nanoplots**: compact visualizations for revealing trends.
 
-We've added **6 new datasets**, to help quickly show off scientific publishing! We'll use the new `reactions` and `gibraltar` datasets to create examples in the fields of Atmospheric Chemistry and Meterology, respectively.
+We've added **six new datasets**, to help quickly show off scientific publishing! We'll use the new `reactions` and `gibraltar` datasets to create examples in the fields of Atmospheric Chemistry and Meterology, respectively.
 
 :::{.callout-tip}
 Rich will be speaking on this at SciPy!
 
-If you're at SciPy 2024 in Tacoma, WA, Rich's talk is scheduled for July 11 (16:30–17:00 PT). The talk is called *Great Tables for Everyone* and it's sure to be both exciting and educational. If you're not attending that's okay, the talk is available [in GitHub](https://github.com/rich-iannone/presentations/tree/main/2024-07-11-SciPy-talk-GT).
+If you're at SciPy 2024 in Tacoma, WA, Rich's talk is scheduled for July 11, 2024 (16:30–17:00 PT). The talk is called *Great Tables for Everyone* and it's sure to be both exciting and educational. If you're not attending that's okay, the talk is available [in GitHub](https://github.com/rich-iannone/presentations/tree/main/2024-07-11-SciPy-talk-GT).
 :::
 
 ## Unit and scientific notation
 
-We added the `reactions` dataset to serve as the basis for examples in the discipline of Atmospheric Chemistry. The dataset contains reaction rate constants for gas-phase reactions of 1,683 organic compounds. Each of these compounds can potentially undergo reaction with hydroxyl radicals (OH), nitrate radicals (NO<sub>3</sub>), or chlorine atoms (Cl). These reaction rate constants are typically very small values in units of cm<sup>3</sup> molecules<sup>-1</sup> s<sup>-1</sup>. In the upcoming example, we'll pare down this massive dataset to only 11 rows representing the class of organic compounds known as mercaptans.
+We added the `reactions` dataset to serve as the basis for examples in the discipline of Atmospheric Chemistry. The dataset contains reaction rate constants for gas-phase reactions of 1,683 organic compounds. Each of these compounds can potentially undergo reaction with hydroxyl radicals (OH), nitrate radicals (NO<sub>3</sub>), or chlorine atoms (Cl). These reaction rate constants are typically very small values in units of cm<sup>3</sup> molecules<sup>–1</sup> s<sup>–1</sup>. In the upcoming example, we'll pare down this massive dataset to only 11 rows representing the class of organic compounds known as mercaptans.
 
 To make this table work well in a scientific reporting context, we need three pieces:
 
@@ -87,7 +87,7 @@ This is a nice-looking table! And note these pieces:
 * The `.fmt_units()` method converts values that are already in units notation in the table body. For example, a cell with text `"%CH4S%"` becomes CH<sub>4</sub>S (the surrounding `%` indicates that the text should be interpreted as chemistry notation).
 * The `.fmt_scientific()` method formats values (in this case, very small values) to scientific notation (e.g., 3.50 × 10<sup>–11</sup>). Not doing so would make the table look very strange to a researcher that is familar with this sort of data.
 
-The combination of units notation (and chemistry notation, which is a part of that) really makes the presentation of this table complete and understandable to a practioner of the field. Great Tables supports the use of units notation in spanner labels (with `.tab_spanner()`) and also in column labels (with `.cols_labels()`). The column label 'NO<sub>3</sub>' was created with the latter method by supplying the text `"{{%NO3%}}"` as the column label for the `NO3_k298` column.
+The combination of units notation (and chemistry notation, which is a part of that) really makes the presentation of this table complete and understandable to a practioner of the field. **Great Tables** supports the use of units notation in spanner labels (with `.tab_spanner()`) and also in column labels (with `.cols_labels()`). The column label 'NO<sub>3</sub>' was created with the latter method by supplying the text `"{{%NO3%}}"` as the column label for the `NO3_k298` column.
 
 ## Nanoplots
 
