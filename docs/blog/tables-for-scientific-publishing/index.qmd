@@ -1,0 +1,158 @@
+---
+title: Great Tables for Scientific Publishing
+jupyter: python3
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the Code"
+---
+
+Great Tables version `0.10.0` released today, with a host of new features to support tables for scientific publishing.
+
+In this post, we'll review the big pieces that scientific tables need:
+
+* **Unit notation**: rendering units and chemical formulas (e.g. °C or CH<sub>4</sub>).
+* **Scientific notation**: formatting for very large and small numbers (e.g. 3.50 × 10<sup>−11</sup>)
+* **Nanoplots**: compact visualizations for revealing trends.
+
+We've added **6 new datasets**, to help quickly show off scientific publishing! We'll use our `reactions` and `gibraltar` data to highlight examples from atmospheric chemistry and meterology, respectively.
+
+:::{.callout-tip}
+Rich will be speaking on this at scipy.
+
+TODO: add details (and link to session?)
+:::
+
+
+## Unit and scientific notation
+
+{SHORT BACKGROUND ON DATA}.
+
+Reporting this requires representing three pieces:
+
+* units like `cm^3`
+* chemical compounds like CH<sub>4</sub>
+* very small numbers in scientific format.
+
+This is shown in the table below:
+
+```{python}
+from great_tables import GT, md, system_fonts
+from great_tables.data import reactions
+import polars as pl
+import polars.selectors as ps
+reactions_mini = (
+    pl.from_pandas(reactions)
+    .filter(pl.col("cmpd_type") == "mercaptan")
+    .select([
+        "cmpd_name",
+        "cmpd_formula",
+        ps.ends_with("k298")
+    ])
+    .with_columns(
+        cmpd_formula=pl.concat_str(
+            "%" + pl.col("cmpd_formula") + "%"
+        )
+    )
+)
+(
+    GT(reactions_mini, rowname_col="cmpd_name")
+    .tab_header(title="Gas-phase reactions \
+    of selected mercaptan compounds")
+    .tab_spanner(
+        columns=ps.ends_with("k298"),
+        label = "Reaction Rate Constant (298 K),<br>{{cm^3 molecules^–1 s^–1}}"
+    )
+    .fmt_units(columns="cmpd_formula")
+    .fmt_scientific(columns=ps.ends_with("k298"))
+    .sub_missing()
+    .cols_hide(columns="O3_k298")
+    .cols_label(
+        cmpd_formula="",
+        OH_k298="OH",
+        NO3_k298="{{%NO3%}}",
+        Cl_k298="Cl",
+    )
+    .opt_stylize(style=1, color="blue")
+    .opt_horizontal_padding(scale=3)
+    .tab_options(
+        table_font_names=system_fonts("humanist"),
+    )
+)
+```
+
+Note these pieces:
+
+* The `label=` argument to functions like `tab_spanner()` supports a curly braces for special units syntax. `"{{cm^3 molecules^–1 s^–1}}"` becomes cm<sup>3</sup> TODO finish
+* The `fmt_units()` converts values that are unit syntax directly. For example the cell "%CH4S%"` becomes CH<sub>4</sub>S.
+
+
+## Nanoplots
+
+
+
+
+```{python}
+from great_tables import GT, md, nanoplot_options
+from great_tables.data import gibraltar
+import polars as pl
+import polars.selectors as ps
+from datetime import datetime
+def to_seconds(timestr):
+    seconds= 0
+    for part in timestr.split(':'):
+        seconds= seconds*60 + int(part, 10)
+    return seconds
+nano_opts = nanoplot_options(
+    data_point_radius=4,
+    data_point_stroke_width=4,
+    data_point_stroke_color="black",
+    data_point_fill_color="white",
+    data_line_stroke_width=4,
+    data_line_stroke_color="gray",
+    show_data_line=True,
+    show_data_points=True,
+    show_data_area=False,
+  )
+gibraltar_mini = (
+    pl.from_pandas(gibraltar)
+    .filter(pl.col("date") <= "2023-05-10")
+    #.with_columns(time=pl.concat_str(pl.col("time") + ":00"))
+    #.with_columns(
+    #    pl.col("time").map_elements(
+    #        to_seconds,
+    #        return_dtype=int
+    #    )
+    #)
+    .with_columns(pl.col("humidity") * 100)
+    .select(["date", "temp", "humidity"])
+    .group_by("date")
+    .agg(
+        pl.col("temp"),
+        pl.col("humidity"),
+    )
+    .sort("date")
+)
+(
+  GT(gibraltar_mini)
+  .tab_header(
+    title="Meteorological Summary of Gibraltar Station",
+    subtitle="Data taken from May 1-10, 2023."
+  )
+  .fmt_nanoplot(
+    columns="temp", autoscale=True, options=nano_opts
+  )
+  .fmt_nanoplot(
+    columns="humidity", autoscale=True, options=nano_opts
+  )
+  .fmt_date(
+    columns="date",
+    date_style="wd_m_day_year"
+  )
+  .cols_label(
+    date="Date",
+    temp="Temperature, {{:degree:C}}",
+    humidity="Humidity, % (RH)",
+  )
+)
+```
