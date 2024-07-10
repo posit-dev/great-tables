@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>gt.fmt – great_tables</title>
+<title>data.nuclides – great_tables</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,44 +20,10 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -109,9 +75,6 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
-
-<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -178,271 +141,46 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
-  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
-  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#great_tables.data.nuclides" id="toc-great_tables.data.nuclides" class="nav-link active" data-scroll-target="#great_tables.data.nuclides">data.nuclides</a>
+  <ul class="collapse">
+  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content column-page-left" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">GT.fmt</h1>
-</div>
 
 
 
-<div class="quarto-title-meta column-page-left">
+<section id="great_tables.data.nuclides" class="level1">
+<h1>data.nuclides</h1>
+<p><code>data.nuclides</code></p>
+<p>Nuclide data.</p>
+<p>The <code>nuclides</code> dataset contains information on all known nuclides, providing data on nuclear structure and decay modes across 118 elements. There is data here on natural abundances, atomic mass, spin, half-life, and more. The typical users for such a dataset include researchers in fields such as nuclear physics, radiochemistry, and nuclear medicine.</p>
+<section id="details" class="level2">
+<h2 class="anchored" data-anchor-id="details">Details</h2>
+<p>This is a dataset with 3,383 rows and 29 columns.</p>
+<ul>
+<li><code>nuclide</code>: The symbol for the nuclide.</li>
+<li><code>z</code>, <code>n</code>: The number of protons and neutrons.</li>
+<li><code>element</code>: The element symbol.</li>
+<li><code>radius</code>, <code>radius_uncert</code>: The charge radius and its associated uncertainty. In units of fm.</li>
+<li><code>abundance</code>, <code>abundance_uncert</code>: The abundance of the stable isotope as a mole fraction (in relation to other stable isotopes of the same element). Values are provided for the nuclide only if <code>is_stable</code> is <code>"TRUE"</code>.</li>
+<li><code>is_stable</code>: Is the nuclide a stable isotope?</li>
+<li><code>half_life</code>, <code>half_life_uncert</code>: The nuclide’s half life represented as seconds.</li>
+<li><code>isospin</code>: The isospin, or the quantum number related to the up and down quark content of the particle.</li>
+<li><code>decay_1</code>, <code>decay_2</code>, <code>decay_3</code>: The 1st, 2nd, and 3rd decay modes.</li>
+<li><code>decay_1_pct</code>, <code>decay_1_pct_uncert</code>, <code>decay_2_pct</code>, <code>decay_2_pct_uncert</code>, <code>decay_3_pct</code>, <code>decay_3_pct_uncert</code>: The branching proportions for the 1st, 2nd, and 3rd decays (along with uncertainty values).</li>
+<li><code>magnetic_dipole</code>, <code>magnetic_dipole_uncert</code>: The magnetic dipole and its associated uncertainty. Expressed in units of micro N, or nuclear magneton values.</li>
+<li><code>electric_quadrupole</code>, <code>electric_quadrupole_uncert</code>: The electric quadrupole and its associated uncertainty. In units of barn (b).</li>
+<li><code>atomic_mass</code>, <code>atomic_mass_uncert</code>: The atomic mass and its associated uncertainty. In units of micro AMU.</li>
+<li><code>mass_excess</code>, <code>mass_excess_uncert</code>: The mass excess and its associated uncertainty. In units of keV.</li>
+</ul>
 
-    
-  
-    
-  </div>
-  
 
-
-</header>
-
-
-<p><code>GT.fmt(self, fns, columns=None, rows=None, is_substitution=False)</code></p>
-<p>Set a column format with a formatter function.</p>
-<p>The <code>fmt()</code> method provides a way to execute custom formatting functionality with raw data values in a way that can consider all output contexts.</p>
-<p>Along with the <code>columns</code> and <code>rows</code> arguments that provide some precision in targeting data cells, the <code>fns</code> argument allows you to define one or more functions for manipulating the raw data.</p>
-<section id="parameters" class="level2">
-<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 5%">
-<col style="width: 27%">
-<col style="width: 63%">
-<col style="width: 3%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>fns</code></td>
-<td><code>FormatFn</code> | <code>FormatFns</code></td>
-<td>Either a single formatting function or a named list of functions.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td><code>columns</code></td>
-<td><code>SelectExpr</code></td>
-<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td><code>rows</code></td>
-<td><code>int</code> | <code>list</code>[<code>int</code>] | None</td>
-<td>In conjunction with <code>columns=</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in <code>columns</code> being formatted. Alternatively, we can supply a list of row indices.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td><code>is_substitution</code></td>
-<td><code>bool</code></td>
-<td>Whether the formatter is a substitution. Substitutions are run last, after other formatters.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
 </section>
-<section id="returns" class="level2">
-<h2 class="anchored" data-anchor-id="returns">Returns</h2>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
-<td>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="examples" class="level2">
-<h2 class="anchored" data-anchor-id="examples">Examples</h2>
-<p>Let’s use the <code>exibble</code> dataset to create a table. With the <code>fmt()</code> method, we’ll add a prefix <code>^</code> and a suffix <code>$</code> to the <code>row</code> and <code>group</code> columns.</p>
-<div id="eeccedb0" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    GT(exibble)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    .fmt(<span class="kw">lambda</span> x: <span class="ss">f"^</span><span class="sc">{</span>x<span class="sc">}</span><span class="ss">$"</span>, columns<span class="op">=</span>[<span class="st">"row"</span>, <span class="st">"group"</span>])</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<div id="pkvjkjwzsb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>
-#pkvjkjwzsb table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#pkvjkjwzsb thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#pkvjkjwzsb p { margin: 0; padding: 0; }
- #pkvjkjwzsb .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #pkvjkjwzsb .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #pkvjkjwzsb .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #pkvjkjwzsb .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #pkvjkjwzsb .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #pkvjkjwzsb .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pkvjkjwzsb .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #pkvjkjwzsb .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #pkvjkjwzsb .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #pkvjkjwzsb .gt_column_spanner_outer:first-child { padding-left: 0; }
- #pkvjkjwzsb .gt_column_spanner_outer:last-child { padding-right: 0; }
- #pkvjkjwzsb .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #pkvjkjwzsb .gt_spanner_row { border-bottom-style: hidden; }
- #pkvjkjwzsb .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #pkvjkjwzsb .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #pkvjkjwzsb .gt_from_md> :first-child { margin-top: 0; }
- #pkvjkjwzsb .gt_from_md> :last-child { margin-bottom: 0; }
- #pkvjkjwzsb .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #pkvjkjwzsb .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #pkvjkjwzsb .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #pkvjkjwzsb .gt_row_group_first td { border-top-width: 2px; }
- #pkvjkjwzsb .gt_row_group_first th { border-top-width: 2px; }
- #pkvjkjwzsb .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pkvjkjwzsb .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pkvjkjwzsb .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #pkvjkjwzsb .gt_left { text-align: left; }
- #pkvjkjwzsb .gt_center { text-align: center; }
- #pkvjkjwzsb .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #pkvjkjwzsb .gt_font_normal { font-weight: normal; }
- #pkvjkjwzsb .gt_font_bold { font-weight: bold; }
- #pkvjkjwzsb .gt_font_italic { font-style: italic; }
- #pkvjkjwzsb .gt_super { font-size: 65%; }
- #pkvjkjwzsb .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #pkvjkjwzsb .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-
-<tbody><tr class="gt_col_headings">
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="date">date</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="time">time</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="datetime">datetime</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="row">row</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group">group</th>
-</tr>
-</tbody><tbody class="gt_table_body">
-  <tr>
-    <td class="gt_row gt_right">0.1111</td>
-    <td class="gt_row gt_left">apricot</td>
-    <td class="gt_row gt_left">one</td>
-    <td class="gt_row gt_right">2015-01-15</td>
-    <td class="gt_row gt_right">13:35</td>
-    <td class="gt_row gt_right">2018-01-01 02:22</td>
-    <td class="gt_row gt_right">49.95</td>
-    <td class="gt_row gt_left">^row_1$</td>
-    <td class="gt_row gt_left">^grp_a$</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">2.222</td>
-    <td class="gt_row gt_left">banana</td>
-    <td class="gt_row gt_left">two</td>
-    <td class="gt_row gt_right">2015-02-15</td>
-    <td class="gt_row gt_right">14:40</td>
-    <td class="gt_row gt_right">2018-02-02 14:33</td>
-    <td class="gt_row gt_right">17.95</td>
-    <td class="gt_row gt_left">^row_2$</td>
-    <td class="gt_row gt_left">^grp_a$</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">33.33</td>
-    <td class="gt_row gt_left">coconut</td>
-    <td class="gt_row gt_left">three</td>
-    <td class="gt_row gt_right">2015-03-15</td>
-    <td class="gt_row gt_right">15:45</td>
-    <td class="gt_row gt_right">2018-03-03 03:44</td>
-    <td class="gt_row gt_right">1.39</td>
-    <td class="gt_row gt_left">^row_3$</td>
-    <td class="gt_row gt_left">^grp_a$</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">444.4</td>
-    <td class="gt_row gt_left">durian</td>
-    <td class="gt_row gt_left">four</td>
-    <td class="gt_row gt_right">2015-04-15</td>
-    <td class="gt_row gt_right">16:50</td>
-    <td class="gt_row gt_right">2018-04-04 15:55</td>
-    <td class="gt_row gt_right">65100.0</td>
-    <td class="gt_row gt_left">^row_4$</td>
-    <td class="gt_row gt_left">^grp_a$</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">5550.0</td>
-    <td class="gt_row gt_left"><na></na></td>
-    <td class="gt_row gt_left">five</td>
-    <td class="gt_row gt_right">2015-05-15</td>
-    <td class="gt_row gt_right">17:55</td>
-    <td class="gt_row gt_right">2018-05-05 04:00</td>
-    <td class="gt_row gt_right">1325.81</td>
-    <td class="gt_row gt_left">^row_5$</td>
-    <td class="gt_row gt_left">^grp_b$</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right"><na></na></td>
-    <td class="gt_row gt_left">fig</td>
-    <td class="gt_row gt_left">six</td>
-    <td class="gt_row gt_right">2015-06-15</td>
-    <td class="gt_row gt_right"><na></na></td>
-    <td class="gt_row gt_right">2018-06-06 16:11</td>
-    <td class="gt_row gt_right">13.255</td>
-    <td class="gt_row gt_left">^row_6$</td>
-    <td class="gt_row gt_left">^grp_b$</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">777000.0</td>
-    <td class="gt_row gt_left">grapefruit</td>
-    <td class="gt_row gt_left">seven</td>
-    <td class="gt_row gt_right"><na></na></td>
-    <td class="gt_row gt_right">19:10</td>
-    <td class="gt_row gt_right">2018-07-07 05:22</td>
-    <td class="gt_row gt_right"><na></na></td>
-    <td class="gt_row gt_left">^row_7$</td>
-    <td class="gt_row gt_left">^grp_b$</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">8880000.0</td>
-    <td class="gt_row gt_left">honeydew</td>
-    <td class="gt_row gt_left">eight</td>
-    <td class="gt_row gt_right">2015-08-15</td>
-    <td class="gt_row gt_right">20:20</td>
-    <td class="gt_row gt_right"><na></na></td>
-    <td class="gt_row gt_right">0.44</td>
-    <td class="gt_row gt_left">^row_8$</td>
-    <td class="gt_row gt_left">^grp_b$</td>
-  </tr>
-</tbody>
-
-
-</table>
-
-</div>
-        
-</div>
-</div>
-
-
 </section>
 
 </main> <!-- /main -->
