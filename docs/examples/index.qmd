@@ -104,7 +104,7 @@ wide_pops = (
         & pl.col("year").is_in([2000, 2010, 2020])
     )
     .with_columns(pl.col("country_code_2").replace(country_to_region).alias("region"))
-    .pivot(index=["country_name", "region"], columns="year", values="population")
+    .pivot(index=["country_name", "region"], on="year", values="population")
     .sort("2020", descending=True)
 )
 
@@ -175,7 +175,7 @@ sza_pivot = (
     .filter((pl.col("latitude") == "20") & (pl.col("tst") <= "1200"))
     .select(pl.col("*").exclude("latitude"))
     .drop_nulls()
-    .pivot(values="sza", index="month", columns="tst", sort_columns=True)
+    .pivot(values="sza", index="month", on="tst", sort_columns=True)
 )
 
 (
