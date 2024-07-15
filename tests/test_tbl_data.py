@@ -17,6 +17,7 @@ from great_tables._tbl_data import (
     group_splits,
     is_series,
     reorder,
+    subset_frame,
     to_frame,
     validate_frame,
 )
@@ -35,8 +36,11 @@ def ser(request) -> SeriesLike:
     return request.param([1.0, 2.0, None])
 
 
-def assert_frame_equal(src, target):
+def assert_frame_equal(src, target, include_index=True):
     if isinstance(src, pd.DataFrame):
+        if not include_index:
+            src = src.reset_index(drop=True)
+            target = target.reset_index(drop=True)
         pd.testing.assert_frame_equal(src, target)
     elif isinstance(src, pl.DataFrame):
         pl.testing.assert_frame_equal(src, target)
@@ -246,3 +250,12 @@ def test_cast_frame_to_string_polars_list_col():
     assert new_df["x"].dtype.is_(pl.String)
     assert new_df["y"].dtype.is_(pl.String)
     assert new_df["z"].dtype.is_(pl.String)
+
+
+def test_subset_frame(df):
+    res = subset_frame(df, rows=[0, 2], cols=["col1", "col3"])
+    assert_frame_equal(
+        res,
+        df.__class__({"col1": [1, 3], "col3": [4.0, 6.0]}),
+        include_index=False,
+    )

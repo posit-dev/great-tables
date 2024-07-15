@@ -219,6 +219,35 @@ def _(data, row: int, column: str, value: Any) -> None:
     data[row, column] = value
 
 
+@singledispatch
+def subset_frame(
+    data: DataFrameLike, row: Optional[list[int]], column: Optional[list[str]]
+) -> DataFrameLike:
+    _raise_not_implemented(data)
+
+
+@subset_frame.register
+def _(
+    data: PdDataFrame, rows: Optional[list[int]] = None, cols: Optional[list[str]] = None
+) -> PdDataFrame:
+
+    cols_indx = slice(None) if cols is None else data.columns.get_indexer_for(cols)
+    rows_indx = slice(None) if rows is None else rows
+
+    return data.iloc[rows_indx, cols_indx]
+
+
+@subset_frame.register
+def _(
+    data: PlDataFrame, rows: Optional[list[int]] = None, cols: Optional[list[str]] = None
+) -> PlDataFrame:
+
+    cols_indx = slice(None) if cols is None else cols
+    rows_indx = slice(None) if rows is None else rows
+
+    return data[rows_indx, cols_indx]
+
+
 # _get_column_dtype ----
 
 
@@ -518,6 +547,24 @@ def _(ser: PdSeries) -> list[Any]:
 @to_list.register
 def _(ser: PlSeries) -> list[Any]:
     return ser.to_list()
+
+
+# to_column_dict ----
+
+
+@singledispatch
+def to_column_dict(data: DataFrameLike) -> dict[str, list[Any]]:
+    raise _raise_not_implemented(data)
+
+
+@to_column_dict.register
+def _(data: PdDataFrame) -> dict[str, list[Any]]:
+    return {col: data[col].tolist() for col in data.columns}
+
+
+@to_column_dict.register
+def _(data: PlDataFrame) -> dict[str, list[Any]]:
+    return {col: data[col].to_list() for col in data.columns}
 
 
 # is_series ----
