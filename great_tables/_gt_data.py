@@ -819,6 +819,9 @@ class Heading:
     subtitle: str | None = None
     preheader: str | list[str] | None = None
 
+    def is_empty(self):
+        return self.title is None and self.subtitle is None and self.preheader is None
+
 
 # Stubhead ----
 Stubhead: TypeAlias = "str | None"
