@@ -1186,3 +1186,6 @@ class Options:
         new_info = replace(old_info, value=value)
 
         return replace(self, **{option: new_info})
+
+    def __getitem__(self, k: str) -> Any:
+        return getattr(self, k).value
