@@ -7,6 +7,7 @@ from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
 from ._text import Text
+from ._utils import _create_ordered_list
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
@@ -171,10 +172,9 @@ def tab_spanner(
 
     # get column names associated with selected spanners ----
     _vars = [span.vars for span in data._spanners if span.spanner_id in spanner_ids]
-    spanner_column_names = list({k: True for k in itertools.chain(*_vars)})
+    spanner_column_names = _create_ordered_list(itertools.chain(*_vars))
 
-    column_names = list({k: True for k in [*selected_column_names, *spanner_column_names]})
-
+    column_names = _create_ordered_list([*selected_column_names, *spanner_column_names])
     # combine columns names and those from spanners ----
 
     # get spanner level ----

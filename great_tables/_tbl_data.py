@@ -323,6 +323,7 @@ def _(
 def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool = True) -> _NamePos:
     # TODO: how to annotate type of a polars selector?
     # Seems to be polars.selectors._selector_proxy_.
+    from ._utils import _create_ordered_list
     import polars.selectors as cs
 
     from polars import Expr
@@ -352,20 +353,14 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
         # validate all entries ----
         _validate_selector_list(all_selectors, **expand_opts)
 
-        # perform selection ----
-        # use a dictionary, with values set to True, as an ordered list.
-        selection_set = {}
-
         # this should be equivalent to reducing selectors using an "or" operator,
         # which isn't possible when there are selectors mixed with expressions
         # like pl.col("some_col")
-        for sel in all_selectors:
-            new_cols = cs.expand_selector(data, sel, **expand_opts)
-            for col_name in new_cols:
-                selection_set[col_name] = True
-
-        final_columns = list(selection_set)
-
+        final_columns = _create_ordered_list(
+            col_name
+            for sel in all_selectors
+            for col_name in cs.expand_selector(data, sel, **expand_opts)
+        )
     else:
         if not isinstance(expr, (cls_selector, Expr)):
             raise TypeError(f"Unsupported selection expr type: {type(expr)}")
