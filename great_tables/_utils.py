@@ -85,7 +85,11 @@ def _str_scalar_to_list(x: str) -> list[str]:
 def _unique_set(x: list[Any] | None) -> list[Any] | None:
     if x is None:
         return None
-    return list({k: True for k in x})
+    return _create_ordered_list(x)
+
+
+def _create_ordered_list(x: Iterable[Any]) -> list[Any]:
+    return list(dict.fromkeys(x).keys())
 
 
 def _as_css_font_family_attr(fonts: list[str], value_only: bool = False) -> str:

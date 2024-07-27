@@ -6,6 +6,7 @@ from great_tables._utils import (
     _assert_str_list,
     _assert_str_scalar,
     _collapse_list_elements,
+    _create_ordered_list,
     _insert_into_list,
     _match_arg,
     _str_scalar_to_list,
@@ -116,6 +117,19 @@ def test_unique_set():
     result = _unique_set(x)
     assert isinstance(result, list)
     assert len(result) == 2
+
+
+@pytest.mark.parametrize(
+    "iterable, ordered_list",
+    [
+        (["1", "2", "3"], ["1", "2", "3"]),
+        (["1", "3", "2", "3", "1"], ["1", "3", "2"]),
+        ((1, 3, 2, 3, 1, 1, 3, 2, 2), [1, 3, 2]),
+        (iter("223311"), ["2", "3", "1"]),
+    ],
+)
+def test_create_ordered_list(iterable, ordered_list):
+    assert _create_ordered_list(iterable) == ordered_list
 
 
 def test_collapse_list_elements():
