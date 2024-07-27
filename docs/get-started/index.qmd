@@ -41,6 +41,32 @@ gt_tbl
 
 That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a **Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
 
+## **Polars** DataFrame is supported
+`GT` not only accepts **Pandas** DataFrames but also **Polars** DataFrames. You can pass a **Polars** DataFrame to `GT` like this:
+
+```{python}
+import polars as pl
+
+
+# pl.from_pandas(islands_mini) is a Polars DataFrame
+gt_tbl = GT(pl.from_pandas(islands_mini))
+
+# Show the output table
+gt_tbl
+```
+
+During the development of **Great Tables**, we received a lot of support from the developers of **Polars**. After **Polars v1**, you can also get a `GT` object using `DataFrame.style`, like this:
+
+```{python}
+# pl.from_pandas(islands_mini).style returns a `GT` object
+gt_tbl = pl.from_pandas(islands_mini).style
+
+# Show the output table
+gt_tbl
+```
+
+Please note that this feature is considered [unstable](https://docs.pola.rs/api/python/stable/reference/dataframe/style.html#polars.DataFrame.style) and should be used with caution.
+
 ## Some Beautiful Examples
 
 In the following pages we'll use **Great Tables** to turn DataFrames into beautiful tables, like the ones below.
