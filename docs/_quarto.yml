@@ -203,7 +203,7 @@ quartodoc:
         - vals.fmt_markdown
     - title: Built in datasets
       desc: >
-        The **Great Tables** package is equipped with ten datasets that come in all shapes and
+        The **Great Tables** package is equipped with sixteen datasets that come in all shapes and
         sizes. Many examples thoughout the help docs use these datasets to quickly demonstrate the
         awesome features of the package!
       contents:
