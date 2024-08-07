@@ -446,18 +446,6 @@ class Boxhead(_Sequence[ColInfo]):
             return None
         return column[0]
 
-    # Get a list of visible column labels
-    def _get_default_column_labels(self) -> list[str | None]:
-        default_column_labels = [
-            x.column_label for x in self._d if x.type == ColInfoTypeEnum.default
-        ]
-        return default_column_labels
-
-    def _get_default_alignments(self) -> list[str]:
-        # Extract alignment strings to only include 'default'-type columns
-        alignments = [str(x.column_align) for x in self._d if x.type == ColInfoTypeEnum.default]
-        return alignments
-
     # Get the alignment for a specific var value
     def _get_boxhead_get_alignment_by_var(self, var: str) -> str:
         # Get the column alignments and also the alignment class names
@@ -831,6 +819,9 @@ class Heading:
     subtitle: str | None = None
     preheader: str | list[str] | None = None
 
+    def is_empty(self):
+        return self.title is None and self.subtitle is None and self.preheader is None
+
 
 # Stubhead ----
 Stubhead: TypeAlias = "str | None"
@@ -1195,3 +1186,6 @@ class Options:
         new_info = replace(old_info, value=value)
 
         return replace(self, **{option: new_info})
+
+    def __getitem__(self, k: str) -> Any:
+        return getattr(self, k).value
