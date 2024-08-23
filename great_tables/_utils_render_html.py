@@ -39,22 +39,20 @@ def create_heading_component_h(data: GTData) -> StringBuilder:
     )
 
     if has_subtitle:
-        heading = f"""
-  <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}</th>
+        heading = f"""<tr class="gt_heading">
+    <td colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}</td>
   </tr>
-  <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}</th>
+  <tr class="gt_heading">
+    <td colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}</td>
   </tr>"""
     else:
-        heading = f"""
-  <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}</th>
+        heading = f"""<tr class="gt_heading">
+    <td colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}</td>
   </tr>"""
 
     result.append(heading)
 
-    return StringBuilder('<thead class="gt_header">', result, "\n</thead>")
+    return StringBuilder(result)
 
 
 def create_columns_component_h(data: GTData) -> str:
