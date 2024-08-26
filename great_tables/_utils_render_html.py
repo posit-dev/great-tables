@@ -39,7 +39,8 @@ def create_heading_component_h(data: GTData) -> StringBuilder:
     )
 
     if has_subtitle:
-        heading = f"""<tr class="gt_heading">
+        heading = f"""
+  <tr class="gt_heading">
     <td colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}</td>
   </tr>
   <tr class="gt_heading">
