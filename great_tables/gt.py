@@ -367,7 +367,7 @@ class GT(
 
         html_table = f"""{table_tag_open}{table_colgroups}
 <thead>
-{heading_component.make_string()}
+{heading_component}
 {column_labels_component}
 </thead>
 {body_component}
