@@ -143,10 +143,9 @@ def compile_scss(
     # Determine if there are any additional CSS statements
     has_additional_css = additional_css is not None
 
-    # Combine any additional CSS statements and separate with `\n`
+    # TODO: Combine any additional CSS statements and separate with `\n`
     if has_additional_css:
         table_additional_css = additional_css
-        # "\n".join(additional_css)
     else:
         table_additional_css = ""
 
