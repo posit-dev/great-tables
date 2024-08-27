@@ -1060,7 +1060,7 @@ def opt_table_outline(
 
 def opt_table_font(
     self: GTSelf,
-    font: str | list[str] | None = None,
+    font: str | list[str] | dict[str, str] | None = None,
     stack: FontStackName | None = None,
     weight: str | int | float | None = None,
     style: str | None = None,
@@ -1199,6 +1199,14 @@ def opt_table_font(
         # If `font` is a string, convert it to a list
         if isinstance(font, str):
             font = [font]
+
+        # If `font` is a dictionary, then it is a Google Font definition
+        if isinstance(font, dict):
+
+            font_import_stmt = font["import_stmt"]
+            font = [font["name"]]
+
+            res = tab_options(res, table_additional_css=font_import_stmt)
 
     else:
         font = []
