@@ -137,7 +137,20 @@ def compile_scss(
     # Generate styles ----
     gt_table_open_str = f"#{id} table" if has_id else ".gt_table"
 
-    gt_table_class_str = f"""{gt_table_open_str} {{
+    # Prepend any additional CSS ----
+    additional_css = data._options.table_additional_css.value
+
+    # Determine if there are any additional CSS statements
+    has_additional_css = additional_css is not None
+
+    # Combine any additional CSS statements and separate with `\n`
+    if has_additional_css:
+        table_additional_css = additional_css
+        # "\n".join(additional_css)
+    else:
+        table_additional_css = ""
+
+    gt_table_class_str = f"""{table_additional_css}{gt_table_open_str} {{
           {font_family_attr}
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
