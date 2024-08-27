@@ -23,7 +23,7 @@ def tab_options(
     table_margin_left: str | None = None,
     table_margin_right: str | None = None,
     table_background_color: str | None = None,
-    # table_additional_css: str | None = None,
+    table_additional_css: str | None = None,
     table_font_names: str | list[str] | None = None,
     table_font_size: str | None = None,
     table_font_weight: str | int | float | None = None,
