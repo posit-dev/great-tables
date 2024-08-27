@@ -207,6 +207,9 @@ def tab_options(
     table_background_color
         The background color for the table. A color name or a hexadecimal color code should be
         provided.
+    table_additional_css
+        Additional CSS that can be added to the table. This can be used to add any custom CSS
+        that is not covered by the other options.
     table_font_names
         The names of the fonts used for the table. This should be provided as a list of font
         names. If the first font isn't available, then the next font is tried (and so on).
