@@ -1196,16 +1196,15 @@ def opt_table_font(
 
     if font is not None:
 
-        # If `font` is a string, convert it to a list
         if isinstance(font, str):
+            # Case where `font=` is a string; here, it's converted to a list
             font = [font]
-
-        # If `font` is a dictionary, then it is a Google Font definition
-        if isinstance(font, dict):
-
+        elif isinstance(font, dict):
+            # Case where `font=` is a dictionary, then it is assumed to be Google Font definition
             font_import_stmt = font["import_stmt"]
             font = [font["name"]]
 
+            # Add the import statement to the `table_additional_css` option
             res = tab_options(res, table_additional_css=font_import_stmt)
 
     else:
