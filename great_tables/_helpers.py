@@ -281,7 +281,21 @@ def LETTERS() -> list[str]:
     return list(string.ascii_uppercase)
 
 
-def google_font(name: str) -> dict[str, str]:
+@dataclass
+class GoogleFont:
+    font: str
+
+    def __repr__(self) -> str:
+        return f"GoogleFont({self.font})"
+
+    def make_import_stmt(self) -> str:
+        return f"@import url('https://fonts.googleapis.com/css2?family={self.font.replace(' ', '+')}&display=swap');"
+
+    def get_font_name(self) -> str:
+        return self.font
+
+
+def google_font(name: str) -> GoogleFont:
     """Specify a font from the *Google Fonts* service.
 
     Parameters
@@ -297,9 +311,7 @@ def google_font(name: str) -> dict[str, str]:
         available fonts (https://fonts.google.com/).
     """
 
-    import_stmt = f"@import url('https://fonts.googleapis.com/css2?family={name.replace(' ', '+')}&display=swap');"
-
-    return dict(name=name, import_stmt=import_stmt)
+    return GoogleFont(font=name)
 
 
 def system_fonts(name: FontStackName = "system-ui") -> list[str]:
