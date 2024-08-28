@@ -1196,19 +1196,34 @@ def opt_table_font(
 
     if font is not None:
 
-        if isinstance(font, str):
-            # Case where `font=` is a string; here, it's converted to a list
+        # If font is a string or GoogleFont object, convert to a list
+        if isinstance(font, str) or isinstance(font, GoogleFont):
             font = [font]
-        elif isinstance(font, GoogleFont):
-            # Case where `font=` is a GoogleFont object
-            font_import_stmt = font.make_import_stmt()
-            font = [font.get_font_name()]
 
-            # Append the import statement to the `table_additional_css` list
-            existing_additional_css = self._options.table_additional_css.value + [font_import_stmt]
+        new_font_list: list[str] = []
 
-            # Add revised CSS list via the `tab_options()` method
-            res = tab_options(res, table_additional_css=existing_additional_css)
+        for item in font:
+
+            if isinstance(item, str):
+                # Case where list item is a string; here, it's converted to a list
+                new_font_list.append(item)
+
+            elif isinstance(item, GoogleFont):
+                # Case where the list item is a GoogleFont object
+                new_font_list.append(item.get_font_name())
+
+                # Append the import statement to the `table_additional_css` list
+                existing_additional_css = self._options.table_additional_css.value + [
+                    item.make_import_stmt()
+                ]
+
+                # Add revised CSS list via the `tab_options()` method
+                res = tab_options(res, table_additional_css=existing_additional_css)
+
+            else:
+                raise TypeError("`font=` must be a string or a list of strings.")
+
+        font = new_font_list
 
     else:
         font = []
