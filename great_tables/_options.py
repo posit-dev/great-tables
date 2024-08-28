@@ -4,7 +4,7 @@ from dataclasses import dataclass, fields, replace
 from typing import TYPE_CHECKING, ClassVar, cast
 
 from great_tables import _utils
-from great_tables._helpers import FontStackName
+from great_tables._helpers import FontStackName, GoogleFont
 
 
 if TYPE_CHECKING:
@@ -1199,13 +1199,16 @@ def opt_table_font(
         if isinstance(font, str):
             # Case where `font=` is a string; here, it's converted to a list
             font = [font]
-        elif isinstance(font, dict):
-            # Case where `font=` is a dictionary, then it is assumed to be Google Font definition
-            font_import_stmt = font["import_stmt"]
-            font = [font["name"]]
+        elif isinstance(font, GoogleFont):
+            # Case where `font=` is a GoogleFont object
+            font_import_stmt = font.make_import_stmt()
+            font = [font.get_font_name()]
 
-            # Add the import statement to the `table_additional_css` option
-            res = tab_options(res, table_additional_css=font_import_stmt)
+            # Append the import statement to the `table_additional_css` list
+            existing_additional_css = self._options.table_additional_css.value + [font_import_stmt]
+
+            # Add revised CSS list via the `tab_options()` method
+            res = tab_options(res, table_additional_css=existing_additional_css)
 
     else:
         font = []
