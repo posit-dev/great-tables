@@ -141,11 +141,15 @@ def compile_scss(
     additional_css = data._options.table_additional_css.value
 
     # Determine if there are any additional CSS statements
-    has_additional_css = additional_css is not None
+    has_additional_css = (
+        additional_css is not None and isinstance(additional_css, list) and len(additional_css) > 0
+    )
 
-    # TODO: Combine any additional CSS statements and separate with `\n`
+    # Ensure that list items in `additional_css` are unique and then combine statements while
+    # separating with `\n`; use an empty string if list is empty or value is None
     if has_additional_css:
-        table_additional_css = additional_css
+        additional_css_unique = _unique_set(additional_css)
+        table_additional_css = "\n".join(additional_css_unique) + "\n"
     else:
         table_additional_css = ""
 
