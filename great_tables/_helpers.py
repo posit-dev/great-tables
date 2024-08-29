@@ -302,7 +302,7 @@ def google_font(name: str) -> GoogleFont:
     are two instances where this helper can be used:
 
     1. `opt_table_font(font=...)` (for setting a table font)
-    2. `style.text(font=...)` (itself used in `tab_style()`)
+    2. `style.text(font=...)` (itself used in [`tab_style()`](`great_tables.GT.tab_style`))
 
     Parameters
     ----------
@@ -311,20 +311,20 @@ def google_font(name: str) -> GoogleFont:
 
     Returns
     -------
-    GoogleFont:
+    GoogleFont
         A GoogleFont object, which contains the name of the font and methods for incorporating the
         font in HTML output tables.
 
     Examples
     --------
     Let's use the `exibble` dataset to create a table of two columns and eight rows. We'll replace
-    missing values with em dashes using `sub_missing()`. For text in the time column, we will use
-    the font called `"IBM Plex Mono"` which is available from Google Fonts. This is defined inside
-    the `google_font()` call, itself within the `style.text()` method that's applied to the `style=`
-    parameter of `tab_style()`.
+    missing values with em dashes using [`sub_missing()`](`great_tables.GT.sub_missing`). For text
+    in the time column, we will use the font called `"IBM Plex Mono"` which is available from Google
+    Fonts. This is defined inside the `google_font()` call, itself within the
+    [`style.text()`](`great_tables.style.text`) method that's applied to the `style=` parameter of
+    [`tab_style()`](`great_tables.GT.tab_style`).
 
     ```{python}
-
     from great_tables import GT, exibble, style, loc, google_font
 
     (
@@ -337,9 +337,10 @@ def google_font(name: str) -> GoogleFont:
     )
     ```
 
-    We can use a subset of the `sp500` dataset to create a small table. With `fmt_currency()`, we
-    can display values as monetary values. Then, we'll set a larger font size for the table and opt
-    to use the `"Merriweather"` font by calling `google_font()` within `opt_table_font()`. In cases
+    We can use a subset of the `sp500` dataset to create a small table. With
+    [`fmt_currency()`](`great_tables.GT.fmt_currency`), we can display values as monetary values.
+    Then, we'll set a larger font size for the table and opt to use the `"Merriweather"` font by
+    calling `google_font()` within [`opt_table_font()`](`great_tables.GT.opt_table_font`). In cases
     where that font may not materialize, we include two font fallbacks: `"Cochin"` and the catchall
     `"Serif"` group.
 
@@ -351,7 +352,7 @@ def google_font(name: str) -> GoogleFont:
         GT(sp500.drop(columns=["volume", "adj_close"]).head(10))
         .fmt_currency(columns=["open", "high", "low", "close"])
         .tab_options(table_font_size="20px")
-        .opt_table_font(font=[google_font("Merriweather"), "Cochin", "Serif"])
+        .opt_table_font(font=[google_font(name="Merriweather"), "Cochin", "Serif"])
     )
     ```
     """
