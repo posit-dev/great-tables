@@ -4,6 +4,7 @@ from great_tables._helpers import (
     pct,
     px,
     random_id,
+    google_font,
     _get_font_stack,
     define_units,
     FONT_STACKS,
@@ -13,6 +14,7 @@ from great_tables._helpers import (
     _units_html_sub_super,
     _replace_units_symbol,
     _units_symbol_replacements,
+    GoogleFont,
     UnitStr,
     UnitDefinition,
     UnitDefinitionList,
@@ -78,6 +80,27 @@ def test_uppercases():
 
     bad_letters = "#$!^%#tables"
     assert set(bad_letters).difference(uppercases)
+
+
+def test_google_font():
+    font_name = "Roboto"
+    font = google_font(font_name)
+    assert isinstance(font, GoogleFont)
+    assert font.get_font_name() == font_name
+    assert (
+        font.make_import_stmt()
+        == "@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');"
+    )
+
+
+def test_google_font_class():
+    font_name = "Roboto"
+    font = GoogleFont(font_name)
+    assert font.get_font_name() == font_name
+    assert (
+        font.make_import_stmt()
+        == "@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');"
+    )
 
 
 def test_get_font_stack_raises():
