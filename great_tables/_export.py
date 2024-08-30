@@ -360,7 +360,7 @@ def _save_screenshot(
     # the window can be bigger than the table, but smaller risks pushing text
     # onto new lines. this pads width and height for a little slack.
     # note that this is mostly to account for body, div padding, and table borders.
-    crud_factor = 200
+    crud_factor = 100
 
     offset_left, offset_top = driver.execute_script(
         "var div = document.body.childNodes[0]; return [div.offsetLeft, div.offsetTop];"
@@ -372,6 +372,8 @@ def _save_screenshot(
 
     # set to our required_width first, in case it changes the height of the table
     driver.set_window_size(required_width, original_size["height"])
+
+    time.sleep(0.05)
 
     if debug == "width_resize":
         return _dump_debug_screenshot(driver, path)
