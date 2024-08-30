@@ -384,7 +384,7 @@ def _save_screenshot(
     div_height = driver.execute_script(
         "var div = document.body.childNodes[0]; return div.scrollHeight;"
     )
-    required_height = div_height + offset_top * 2 + crud_factor + outer_height
+    required_height = div_height + offset_top * 2 + outer_height
 
     # final resize window and capture image ----
     driver.set_window_size(required_width, required_height)
@@ -414,8 +414,8 @@ def _save_screenshot(
 
 def _dump_debug_screenshot(driver, path):
     driver.execute_script(
-        "document.body.style.border = '5px solid blue'; "
-        "document.body.childNodes[0].style.border = '5px solid orange'; "
-        "document.getElementsByTagName('table')[0].style.border = '5px solid green'; "
+        "document.body.style.border = '3px solid blue'; "
+        "document.body.childNodes[0].style.border = '3px solid orange'; "
+        "document.getElementsByTagName('table')[0].style.border = '3px solid green'; "
     )
     driver.save_screenshot(path)
