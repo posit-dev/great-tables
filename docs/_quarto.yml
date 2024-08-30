@@ -50,7 +50,9 @@ website:
 format:
   html:
     theme: cosmo
-    css: styles.css
+    css:
+      - styles.css
+      - reference/_styles-quartodoc.css
     toc: true
     page-layout: full
 
@@ -72,8 +74,12 @@ quartodoc:
   dir: reference
   title: API Reference
   style: pkgdown
+  css: reference/_styles-quartodoc.css
   dynamic: true
   render_interlinks: true
+  renderer:
+    style: markdown
+    table_style: description-list
   sections:
     - title: Table Creation
       desc: >
