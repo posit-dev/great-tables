@@ -40,6 +40,16 @@ def tab_spanner(
     `level` as space permits) and with `replace`, which allows for full or partial spanner
     replacement.
 
+    Labels may use either of three types of input:
+
+    1. plain text
+    2. Markdown or HTML text through use of the [`md()`](`great_tables.md`) or
+    [`html()`](`great_tables.html`) helpers, respectively.
+    3. Text set in curly braces for applying special formatting, called unit notation. For example,
+    "area ({{ft^2}})" would appear as "area (ft²)".
+
+    See [`define_units()`](`great_tables.define_units`) for details on unit notation.
+
     Parameters
     ----------
     label
