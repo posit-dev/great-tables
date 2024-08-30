@@ -9,6 +9,7 @@ from great_tables._utils import (
     _create_ordered_list,
     _insert_into_list,
     _match_arg,
+    OrderedSet,
     _str_scalar_to_list,
     _unique_set,
     heading_has_subtitle,
@@ -117,6 +118,18 @@ def test_unique_set():
     result = _unique_set(x)
     assert isinstance(result, list)
     assert len(result) == 2
+
+
+def test_orderedSet():
+    o = OrderedSet([1, 2, "x", "y", 1, 2])
+
+    assert all(x in o for x in [1, 2, "x", "y"])
+    assert len(o) == 4
+    assert list(o) == [1, 2, "x", "y"]
+    assert o.as_list() == [1, 2, "x", "y"]
+    assert o.as_set() == {1, 2, "x", "y"}
+    assert o.as_dict() == {1: True, 2: True, "x": True, "y": True}
+    assert repr(o) == "OrderedSet([1, 2, 'x', 'y'])"
 
 
 @pytest.mark.parametrize(

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Set
 import importlib
 import itertools
 import json
@@ -89,7 +90,38 @@ def _unique_set(x: list[Any] | None) -> list[Any] | None:
 
 
 def _create_ordered_list(x: Iterable[Any]) -> list[Any]:
-    return list(dict.fromkeys(x).keys())
+    return OrderedSet(x).as_list()
+
+
+class OrderedSet(Set):
+    def __init__(self, d: Iterable = ()):
+        self._d = self._create(d)
+
+    def _create(self, d: Iterable):
+        return {k: True for k in d}
+
+    def as_set(self):
+        return set(self._d)
+
+    def as_list(self):
+        return list(self._d)
+
+    def as_dict(self):
+        return dict(self._d)
+
+    def __contains__(self, k):
+        return k in self._d
+
+    def __iter__(self):
+        return iter(self._d)
+
+    def __len__(self):
+        return len(self._d)
+
+    def __repr__(self):
+        cls_name = type(self).__name__
+        lst = self.as_list()
+        return f"{cls_name}({lst!r})"
 
 
 def _as_css_font_family_attr(fonts: list[str], value_only: bool = False) -> str:
