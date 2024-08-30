@@ -360,7 +360,7 @@ def _save_screenshot(
     # the window can be bigger than the table, but smaller risks pushing text
     # onto new lines. this pads width and height for a little slack.
     # note that this is mostly to account for body, div padding, and table borders.
-    crud_factor = 10
+    crud_factor = 20
     outer_width, outer_height = driver.execute_script(
         "var w = window; return [w.outerWidth - w.innerWidth, w.outerHeight - w.innerHeight]"
     )
