@@ -83,16 +83,6 @@ def _str_scalar_to_list(x: str) -> list[str]:
     return [x]
 
 
-def _unique_set(x: list[Any] | None) -> list[Any] | None:
-    if x is None:
-        return None
-    return _create_ordered_list(x)
-
-
-def _create_ordered_list(x: Iterable[Any]) -> list[Any]:
-    return OrderedSet(x).as_list()
-
-
 class OrderedSet(Set):
     def __init__(self, d: Iterable = ()):
         self._d = self._create(d)

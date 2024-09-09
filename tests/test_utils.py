@@ -6,12 +6,10 @@ from great_tables._utils import (
     _assert_str_list,
     _assert_str_scalar,
     _collapse_list_elements,
-    _create_ordered_list,
     _insert_into_list,
     _match_arg,
     OrderedSet,
     _str_scalar_to_list,
-    _unique_set,
     heading_has_subtitle,
     heading_has_title,
     seq_groups,
@@ -109,17 +107,6 @@ def test_str_scalar_to_list():
     assert x[0] == "x"
 
 
-def test_unique_set_None():
-    assert _unique_set(None) is None
-
-
-def test_unique_set():
-    x = ["a", "a", "b"]
-    result = _unique_set(x)
-    assert isinstance(result, list)
-    assert len(result) == 2
-
-
 def test_orderedSet():
     o = OrderedSet([1, 2, "x", "y", 1, 2])
 
@@ -142,7 +129,7 @@ def test_orderedSet():
     ],
 )
 def test_create_ordered_list(iterable, ordered_list):
-    assert _create_ordered_list(iterable) == ordered_list
+    assert OrderedSet(iterable).as_list() == ordered_list
 
 
 def test_collapse_list_elements():
