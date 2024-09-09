@@ -21,31 +21,6 @@ class Html(Text):
     """HTML text"""
 
 
-class StringBuilder:
-    pieces: list[Union[str, "StringBuilder"]]
-
-    def __init__(self, *args: Union[str, "StringBuilder"]):
-        self.pieces = list(args)
-
-    def _collect(self, lst: list[str]):
-        for piece in self.pieces:
-            if isinstance(piece, str):
-                lst.append(piece)
-            else:
-                piece._collect(lst)
-
-    def make_string(self) -> str:
-        lst = []
-        self._collect(lst)
-        return "".join(lst)
-
-    def append(self, *args: str) -> None:
-        self.pieces.extend(args)
-
-    def prepend(self, *args: str) -> None:
-        self.pieces[0:0] = args
-
-
 def _md_html(x: str) -> str:
     str = commonmark.commonmark(x)
     return re.sub(r"^<p>|</p>\n$", "", str)

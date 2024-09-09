@@ -132,9 +132,10 @@ def data_color(
     do this with the `exibble` dataset:
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT
+    from great_tables.data import exibble
 
-    gt.GT(gt.data.exibble).data_color()
+    GT(exibble).data_color()
     ```
 
     What's happened is that `data_color()` applies background colors to all cells of every column
@@ -146,8 +147,7 @@ def data_color(
     supply `palette=` values of `"red"` and `"green"`.
 
     ```{python}
-
-    gt.GT(gt.data.exibble).data_color(
+    GT(exibble).data_color(
         columns=["num", "currency"],
         palette=["red", "green"]
     )
@@ -164,7 +164,7 @@ def data_color(
     (so we'll set that to `"lightgray"`).
 
     ```{python}
-    gt.GT(gt.data.exibble).data_color(
+    GT(exibble).data_color(
         columns="currency",
         palette=["red", "green"],
         domain=[0, 50],
