@@ -130,7 +130,7 @@ def tab_spanner(
     if id is None:
         # The label may contain HTML or Markdown, so we need to extract
         # it from the Text object
-        if hasattr(label, "text"):
+        if isinstance(label, Text):
             id = label.text
         else:
             id = label
