@@ -940,36 +940,25 @@ def opt_all_caps(
 
     # Set new options for `locations` selected, or, reset to default options
     # if `all_caps` is False
-    # TODO: the code constantly reassigns res, in order to prepare for a
-    # world where options are not mutating the GT options object.
-    # TODO: is there a way to set multiple options at once?
     res = self
-    if all_caps:
-        if "column_labels" in locations:
-            res = tab_options(res, column_labels_font_size="80%")
-            res = tab_options(res, column_labels_font_weight="bolder")
-            res = tab_options(res, column_labels_text_transform="uppercase")
 
-        if "stub" in locations:
-            res = tab_options(res, stub_font_size="80%")
-            res = tab_options(res, stub_font_weight="bolder")
-            res = tab_options(res, stub_text_transform="uppercase")
+    # Predicates for locations
+    p1 = all_caps and "column_labels" in locations
+    p2 = all_caps and "stub" in locations
+    p3 = all_caps and "row_group" in locations
 
-        if "row_group" in locations:
-            res = tab_options(res, row_group_font_size="80%")
-            res = tab_options(res, row_group_font_weight="bolder")
-            res = tab_options(res, row_group_text_transform="uppercase")
-
-    else:
-        res = tab_options(res, column_labels_font_size="100%")
-        res = tab_options(res, column_labels_font_weight="normal")
-        res = tab_options(res, column_labels_text_transform="inherit")
-        res = tab_options(res, stub_font_size="100%")
-        res = tab_options(res, stub_font_weight="initial")
-        res = tab_options(res, stub_text_transform="inherit")
-        res = tab_options(res, row_group_font_size="100%")
-        res = tab_options(res, row_group_font_weight="initial")
-        res = tab_options(res, row_group_text_transform="inherit")
+    res = tab_options(
+        res,
+        column_labels_font_size="80%" if p1 else "100%",
+        column_labels_font_weight="bolder" if p1 else "normal",
+        column_labels_text_transform="uppercase" if p1 else "inherit",
+        stub_font_size="80%" if p2 else "100%",
+        stub_font_weight="bolder" if p2 else "initial",
+        stub_text_transform="uppercase" if p2 else "inherit",
+        row_group_font_size="80%" if p3 else "100%",
+        row_group_font_weight="bolder" if p3 else "initial",
+        row_group_text_transform="uppercase" if p3 else "inherit",
+    )
 
     return res
 
