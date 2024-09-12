@@ -45,7 +45,8 @@ def tab_spanner(
     label
         The text to use for the spanner label. We can optionally use the [`md()`](`great_tables.md`)
         and [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to
-        retain HTML elements in the text.
+        retain HTML elements in the text. Alternatively, units notation can be used (see
+        [`define_units()`](`great_tables.define_units`) for details).
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
