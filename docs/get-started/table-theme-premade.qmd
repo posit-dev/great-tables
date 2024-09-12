@@ -52,7 +52,7 @@ gt_ex.opt_stylize(style=2, color="red")
 :::
 ::::::
 
-Notice that first table (blue) emphasizes the row labels with a solid background color. The second table (red) emphasizes the column labels, and uses solid lines to separate the body cell values. See [`.opt_stylize()`](`great_tables.GT.opt_stylize`) for all available color options.
+Notice that first table (blue) emphasizes the row labels with a solid background color. The second table (red) emphasizes the column labels, and uses solid lines to separate the body cell values. See [`opt_stylize()`](`great_tables.GT.opt_stylize`) for all available color options.
 
 There are six styles available, each emphasizing different table parts. The `style=` values are numbered from `1` to `6`:
 
