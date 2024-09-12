@@ -50,8 +50,97 @@ gt_ex.opt_stylize(style = 2, color = "red")
 
 Notice that first table (blue) emphasizes the row labels with a solid background color. The second table (red) emphasizes the column labels, and uses solid lines to separate the body cell values.
 
-There are six styles available, each emphasizing different table parts. The styles are currently numbered 1-6. The options for colors are `"blue"`, `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`.
+There are six styles available, each emphasizing different table parts. The `style=` values are numbered from `1` to `6`:
 
+```{=html}
+<style>
+.shrink-example table {
+    zoom: 60%;
+}
+</style>
+```
+
+```{python}
+# | echo: false
+# | output: asis
+
+from great_tables import GT, exibble, loc, style, md
+
+print(":::{.grid}")
+
+for ii in range(1, 7):
+
+    gt_tbl = (
+        GT(
+            exibble[["num", "char", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group",
+        )
+        .tab_header(
+            title=md("Data listing from **exibble**"),
+            subtitle=md("This is a **Great Tables** dataset."),
+        )
+        .fmt_number(columns="num")
+        .fmt_currency(columns="currency")
+        .tab_source_note(source_note="This is only a subset of the dataset.")
+        .opt_vertical_padding(scale=0.5)
+        .opt_stylize(style=ii)
+        .as_raw_html()
+    )
+
+    print(
+        ":::{.g-col-lg-4 .g-col-12 .shrink-example}",
+        f"<div style='text-align:center;'>{ii}</div>",
+        gt_tbl,
+        ":::",
+        sep="\n\n"
+    )
+
+print(":::")
+```
+
+<br>
+
+There are six `color=` options `"blue"`, `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`:
+
+```{python}
+# | echo: false
+# | output: asis
+
+from great_tables import GT, exibble, loc, style, md
+
+print(":::{.grid}")
+
+for color_option in ["blue", "cyan", "pink", "green", "red", "gray"]:
+
+    gt_tbl = (
+        GT(
+            exibble[["num", "char", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group",
+        )
+        .tab_header(
+            title=md("Data listing from **exibble**"),
+            subtitle=md("This is a **Great Tables** dataset."),
+        )
+        .fmt_number(columns="num")
+        .fmt_currency(columns="currency")
+        .tab_source_note(source_note="This is only a subset of the dataset.")
+        .opt_vertical_padding(scale=0.5)
+        .opt_stylize(style=1, color=color_option)
+        .as_raw_html()
+    )
+
+    print(
+        ":::{.g-col-lg-4 .g-col-12 .shrink-example}",
+        f"<div style='text-align:center;'>{color_option}</div>",
+        gt_tbl,
+        ":::",
+        sep="\n\n"
+    )
+
+print(":::")
+```
 
 ## `opt_*()` convenience methods
 
