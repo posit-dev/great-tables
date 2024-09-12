@@ -1251,7 +1251,7 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     that each use a range of five color tints. Each of the color tints have been fine-tuned to
     maximize the contrast between text and its background. There are 36 combinations of `style` and
     `color` to choose from. For examples of each style, see the
-    [*Table Theme Options*](../docs/user_guide/table_theme_options.md) section of the
+    [*Table Theme Options*](https://posit-dev.github.io/great-tables/get-started/table-theme-options.html) section of the
     **Get Started** guide.
 
     Parameters
