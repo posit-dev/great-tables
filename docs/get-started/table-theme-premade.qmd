@@ -132,10 +132,35 @@ for color_option in ["blue", "cyan", "pink", "green", "red", "gray"]:
         f"<div style='text-align:center;'>{color_option}</div>",
         gt_tbl,
         ":::",
-        sep="\n\n"
+        sep="\n\n",
     )
 
 print(":::")
+```
+
+<br>
+
+You can experiment with the different `style=` and `color=` options with the following table code (used in the previous examples).
+
+```python
+from great_tables import GT, exibble, md
+
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group",
+    )
+    .tab_header(
+        title=md("Data listing from **exibble**"),
+        subtitle=md("This is a **Great Tables** dataset."),
+    )
+    .fmt_number(columns="num")
+    .fmt_currency(columns="currency")
+    .tab_source_note(source_note="This is only a subset of the dataset.")
+    .opt_vertical_padding(scale=0.5)
+    .opt_stylize(style=1, color="blue")
+)
 ```
 
 ## `opt_*()` convenience methods
