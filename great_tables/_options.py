@@ -938,29 +938,54 @@ def opt_all_caps(
 
     # TODO: Ensure that all values within `locations` are valid
 
-    # Set new options for `locations` selected, or, reset to default options
-    # if `all_caps` is False
-    res = self
+    # if `all_caps` is False, reset options to default, or, set new options
+    # for `locations` selected
+    if not all_caps:
+        return tab_options(
+            self,
+            column_labels_font_size="100%",
+            column_labels_font_weight="normal",
+            column_labels_text_transform="inherit",
+            stub_font_size="100%",
+            stub_font_weight="initial",
+            stub_text_transform="inherit",
+            row_group_font_size="100%",
+            row_group_font_weight="initial",
+            row_group_text_transform="inherit",
+        )
 
-    # Predicates for locations
-    p1 = all_caps and "column_labels" in locations
-    p2 = all_caps and "stub" in locations
-    p3 = all_caps and "row_group" in locations
+    info = [
+        (
+            "column_labels",
+            {
+                "column_labels_font_size": "80%",
+                "column_labels_font_weight": "bolder",
+                "column_labels_text_transform": "uppercase",
+            },
+        ),
+        (
+            "stub",
+            {
+                "stub_font_size": "80%",
+                "stub_font_weight": "bolder",
+                "stub_text_transform": "uppercase",
+            },
+        ),
+        (
+            "row_group",
+            {
+                "row_group_font_size": "80%",
+                "row_group_font_weight": "bolder",
+                "row_group_text_transform": "uppercase",
+            },
+        ),
+    ]
+    d = {}
+    for location, params in info:
+        if location in locations:
+            d |= params
 
-    res = tab_options(
-        res,
-        column_labels_font_size="80%" if p1 else "100%",
-        column_labels_font_weight="bolder" if p1 else "normal",
-        column_labels_text_transform="uppercase" if p1 else "inherit",
-        stub_font_size="80%" if p2 else "100%",
-        stub_font_weight="bolder" if p2 else "initial",
-        stub_text_transform="uppercase" if p2 else "inherit",
-        row_group_font_size="80%" if p3 else "100%",
-        row_group_font_weight="bolder" if p3 else "initial",
-        row_group_text_transform="uppercase" if p3 else "inherit",
-    )
-
-    return res
+    return tab_options(self, **d)
 
 
 def opt_table_outline(
