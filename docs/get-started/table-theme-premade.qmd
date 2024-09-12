@@ -12,7 +12,6 @@ There are two important kinds of `GT.opt_*()` methods:
 
 We'll use the basic GT object below for most examples, since it marks some of the table parts.
 
-
 ```{python}
 from great_tables import GT, exibble, md
 
@@ -20,14 +19,19 @@ lil_exibble = exibble.head(5)[["num", "char", "row", "group"]]
 
 gt_ex = (
     GT(lil_exibble, rowname_col="row", groupname_col="group")
-    .tab_header("THE HEADING", "(a subtitle)")
-    .tab_stubhead("THE STUBHEAD")
-    .tab_source_note("THE SOURCE NOTE")
+    .tab_header(
+        title=md("Data listing from exibble"),
+        subtitle=md("This is a **Great Tables** dataset."),
+    )
+    .tab_stubhead(label="row")
+    .fmt_number(columns="num")
+    .fmt_currency(columns="currency")
+    .tab_source_note(source_note="This is only a portion of the dataset.")
+    .opt_vertical_padding(scale=0.5)
 )
 
 gt_ex
 ```
-
 
 ## `opt_stylize()`: premade themes
 
@@ -37,18 +41,18 @@ Below are the first two premade styles. The first uses `color="blue"`, and the s
 :::{.g-col-lg-6 .g-col-12}
 
 ```{python}
-gt_ex.opt_stylize(style = 1, color = "blue")
+gt_ex.opt_stylize(style=1, color="blue")
 ```
 
 :::
 :::{.g-col-lg-6 .g-col-12}
 ```{python}
-gt_ex.opt_stylize(style = 2, color = "red")
+gt_ex.opt_stylize(style=2, color="red")
 ```
 :::
 ::::::
 
-Notice that first table (blue) emphasizes the row labels with a solid background color. The second table (red) emphasizes the column labels, and uses solid lines to separate the body cell values.
+Notice that first table (blue) emphasizes the row labels with a solid background color. The second table (red) emphasizes the column labels, and uses solid lines to separate the body cell values. There are six options for the `color=` argument: `"blue"`, `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`.
 
 There are six styles available, each emphasizing different table parts. The `style=` values are numbered from `1` to `6`:
 
@@ -68,99 +72,17 @@ print(":::{.grid}")
 
 for ii in range(1, 7):
 
-    gt_tbl = (
-        GT(
-            exibble[["num", "char", "currency", "row", "group"]],
-            rowname_col="row",
-            groupname_col="group",
-        )
-        .tab_header(
-            title=md("Data listing from **exibble**"),
-            subtitle=md("This is a **Great Tables** dataset."),
-        )
-        .fmt_number(columns="num")
-        .fmt_currency(columns="currency")
-        .tab_source_note(source_note="This is only a subset of the dataset.")
-        .opt_vertical_padding(scale=0.5)
-        .opt_stylize(style=ii)
-        .as_raw_html()
-    )
+    gt_html = gt_ex.opt_stylize(style=ii).as_raw_html()
 
     print(
         ":::{.g-col-lg-4 .g-col-12 .shrink-example}",
         f"<div style='text-align:center;'>{ii}</div>",
-        gt_tbl,
+        gt_html,
         ":::",
         sep="\n\n"
     )
 
 print(":::")
-```
-
-<br>
-
-There six `color=` options are `"blue"`, `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`:
-
-```{python}
-# | echo: false
-# | output: asis
-
-print(":::{.grid}")
-
-for color_option in ["blue", "cyan", "pink", "green", "red", "gray"]:
-
-    gt_tbl = (
-        GT(
-            exibble[["num", "char", "currency", "row", "group"]],
-            rowname_col="row",
-            groupname_col="group",
-        )
-        .tab_header(
-            title=md("Data listing from **exibble**"),
-            subtitle=md("This is a **Great Tables** dataset."),
-        )
-        .fmt_number(columns="num")
-        .fmt_currency(columns="currency")
-        .tab_source_note(source_note="This is only a subset of the dataset.")
-        .opt_vertical_padding(scale=0.5)
-        .opt_stylize(style=1, color=color_option)
-        .as_raw_html()
-    )
-
-    print(
-        ":::{.g-col-lg-4 .g-col-12 .shrink-example}",
-        f"<div style='text-align:center;'>{color_option}</div>",
-        gt_tbl,
-        ":::",
-        sep="\n\n",
-    )
-
-print(":::")
-```
-
-<br>
-
-You can experiment with the different `style=` and `color=` options with the following table code (used in the previous examples).
-
-```python
-from great_tables import GT, exibble, md
-
-(
-    GT(
-        exibble[["num", "char", "currency", "row", "group"]],
-        rowname_col="row",
-        groupname_col="group",
-    )
-    .tab_header(
-        title=md("Data listing from **exibble**"),
-        subtitle=md("This is a **Great Tables** dataset."),
-    )
-    .fmt_number(columns="num")
-    .fmt_currency(columns="currency")
-    .tab_source_note(source_note="This is only a subset of the dataset.")
-    .opt_vertical_padding(scale=0.5)
-    .opt_stylize(style=1, color="blue")
-)
 ```
 
 ## `opt_*()` convenience methods
