@@ -14,7 +14,7 @@ We'll use the basic GT object below for most examples, since it marks some of th
 
 
 ```{python}
-from great_tables import GT, exibble
+from great_tables import GT, exibble, md
 
 lil_exibble = exibble.head(5)[["num", "char", "row", "group"]]
 
@@ -64,8 +64,6 @@ There are six styles available, each emphasizing different table parts. The `sty
 # | echo: false
 # | output: asis
 
-from great_tables import GT, exibble, loc, style, md
-
 print(":::{.grid}")
 
 for ii in range(1, 7):
@@ -106,8 +104,6 @@ There six `color=` options are `"blue"`, `"cyan"`, `"pink"`, `"green"`, `"red"`,
 ```{python}
 # | echo: false
 # | output: asis
-
-from great_tables import GT, exibble, loc, style, md
 
 print(":::{.grid}")
 
