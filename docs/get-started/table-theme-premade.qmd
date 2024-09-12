@@ -101,7 +101,7 @@ print(":::")
 
 <br>
 
-There are six `color=` options `"blue"`, `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`:
+There six `color=` options are `"blue"`, `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`:
 
 ```{python}
 # | echo: false
