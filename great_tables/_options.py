@@ -1246,7 +1246,9 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     have vertical lines. In addition to choosing a `style` preset, there are six `color` variations
     that each use a range of five color tints. Each of the color tints have been fine-tuned to
     maximize the contrast between text and its background. There are 36 combinations of `style` and
-    `color` to choose from.
+    `color` to choose from. For examples of each style, see the
+    [*Premade Themes*](../get-started/table-theme-premade.qmd) section of the **Get Started**
+    guide.
 
     Parameters
     ----------
