@@ -20,7 +20,7 @@ def assert_rendered_source_notes(snapshot, gt):
 
 def assert_rendered_heading(snapshot, gt):
     built = gt._build_data("html")
-    heading = create_heading_component_h(built).make_string()
+    heading = create_heading_component_h(built)
 
     assert snapshot == heading
 
