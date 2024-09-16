@@ -171,7 +171,7 @@ def tab_spanner(
         raise NotImplementedError("columns/spanners must be specified")
 
     # get column names associated with selected spanners ----
-    _vars = [span.vars for span in data._spanners if span.spanner_id in spanner_ids]
+    _vars = [span.vars for span in self._spanners if span.spanner_id in spanner_ids]
     spanner_column_names = OrderedSet(itertools.chain(*_vars))
 
     column_names = list(OrderedSet([*selected_column_names, *spanner_column_names]))
@@ -179,7 +179,7 @@ def tab_spanner(
 
     # get spanner level ----
     if level is None:
-        level = data._spanners.next_level(list(column_names))
+        level = self._spanners.next_level(list(column_names))
 
     # get spanner units and labels ----
     # TODO: grep units from {{.*}}, may need to switch delimiters
