@@ -23,7 +23,7 @@ We've added **six new datasets**, to help quickly show off scientific publishing
 :::{.callout-tip}
 Rich presented on this topic at SciPy 2024!
 
-At SciPy 2024 (July 11, 2024, Tacoma, WA), Rich delivered a talk called *Great Tables for Everyone* and it presented some of the tables shown in this post. If you weren't in attendence that's okay, you can [watch the recorded talk](https://youtu.be/uvH-Z39ZUj0?si=3NVipMteXaeO3vb1) and the materials are available [in GitHub](https://github.com/rich-iannone/presentations/tree/main/2024-07-11-SciPy-talk-GT).
+At SciPy 2024 (on July 11, 2024), Rich delivered a talk called *Great Tables for Everyone* and it presented some of the tables shown in this post. If you weren't in attendence that's okay, you can [watch the recorded talk](https://youtu.be/uvH-Z39ZUj0?si=3NVipMteXaeO3vb1) and the materials are available [in GitHub](https://github.com/rich-iannone/presentations/tree/main/2024-07-11-SciPy-talk-GT).
 :::
 
 ## Unit and scientific notation
