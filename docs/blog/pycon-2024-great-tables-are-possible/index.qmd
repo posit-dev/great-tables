@@ -9,7 +9,7 @@ freeze: true
 The Great Tables crew is excited to share that we'll be presenting on tables at PyCon 2024!
 If you're around and want to meet, be sure to stop by the Posit Booth, or reach out on linkedin to [Rich](https://www.linkedin.com/in/richard-iannone-a5640017/) or [Michael](https://www.linkedin.com/in/michael-a-chow/)!
 
-The talk, Making Beautiful, Publication Quality Tables is Possible in 2024 is [10:45am Friday](https://us.pycon.org/2024/schedule/presentation/65/).
+The talk, Making Beautiful, Publication Quality Tables is Possible in 2024 happened on [May 17, 2024](https://us.pycon.org/2024/schedule/presentation/65/). You can watch the [recording on YouTube](https://youtu.be/08yLWPpFdo4?si=vBK9h-ObXNKp9tHH).
 
 In addition to the talk, there are two other events worth mentioning:
 
@@ -79,9 +79,10 @@ We’ll cover the following:
 
 Check out these resources to learn more about the wild and beautiful life of display tables:
 
-* [Great Tables example gallery](/docs/examples)
-* [The Design Philosophy of Great Tables (blog post)](http://localhost:6877/blog/design-philosophy/)
+* [Great Tables example gallery](../examples/index.html)
+* [The Design Philosophy of Great Tables (blog post)](blog/design-philosophy/)
 * [20 Minute Table Tutorial by Albert Rapp](https://youtu.be/ESyWcOFuMQc?si=1_bBRZEKENFKVNpB)
+* [PyCon talk: Making Beautiful, Publication Quality Tables is Possible in 2024](https://youtu.be/08yLWPpFdo4?si=vBK9h-ObXNKp9tHH)
 
 ## Hope all your tables are great!
 
