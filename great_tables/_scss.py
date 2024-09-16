@@ -10,7 +10,7 @@ from importlib_resources import files
 from ._data_color.base import _html_color, _ideal_fgnd_color
 from ._gt_data import GTData
 from ._helpers import pct, px
-from ._utils import _as_css_font_family_attr, _unique_set
+from ._utils import _as_css_font_family_attr, OrderedSet
 
 DEFAULTS_TABLE_BACKGROUND = (
     "heading_background_color",
@@ -126,7 +126,11 @@ def compile_scss(
 
     # Handle fonts ----
     # Get the unique list of fonts from `gt_options_dict`
-    font_list = _unique_set(data._options.table_font_names.value)
+    _font_names = data._options.table_font_names.value
+    if _font_names is not None:
+        font_list = OrderedSet(_font_names).as_list()
+    else:
+        font_list = None
 
     # Generate a `font-family` string
     if font_list is not None:

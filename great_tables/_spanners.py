@@ -7,6 +7,7 @@ from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
 from ._text import Text
+from ._utils import OrderedSet
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
@@ -172,15 +173,14 @@ def tab_spanner(
 
     # get column names associated with selected spanners ----
     _vars = [span.vars for span in self._spanners if span.spanner_id in spanner_ids]
-    spanner_column_names = list({k: True for k in itertools.chain(*_vars)})
+    spanner_column_names = OrderedSet(itertools.chain(*_vars))
 
-    column_names = list({k: True for k in [*selected_column_names, *spanner_column_names]})
-
+    column_names = list(OrderedSet([*selected_column_names, *spanner_column_names]))
     # combine columns names and those from spanners ----
 
     # get spanner level ----
     if level is None:
-        level = self._spanners.next_level(column_names)
+        level = self._spanners.next_level(list(column_names))
 
     # get spanner units and labels ----
     # TODO: grep units from {{.*}}, may need to switch delimiters

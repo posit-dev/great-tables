@@ -24,7 +24,7 @@ from ._tbl_data import (
     to_list,
     validate_frame,
 )
-from ._utils import _str_detect
+from ._utils import _str_detect, OrderedSet
 
 if TYPE_CHECKING:
     from ._helpers import Md, Html, UnitStr, Text
@@ -577,7 +577,7 @@ class Stub:
         row_info = [RowInfo(*i) for i in zip(row_indices, group_id, row_names)]
 
         # create groups, and ensure they're ordered by first observed
-        group_names = list({row.group_id: True for row in row_info if row.group_id is not None})
+        group_names = list(OrderedSet(row.group_id for row in row_info if row.group_id is not None))
         group_rows = GroupRows(data, group_key=groupname_col).reorder(group_names)
 
         return cls(row_info, group_rows)
