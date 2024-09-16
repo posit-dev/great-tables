@@ -3492,7 +3492,6 @@ class FmtImage:
     SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
 
     def to_html(self, val: Any):
-        import re
         from pathlib import Path
 
         # TODO: are we assuming val is a string? (or coercing?)
@@ -3526,9 +3525,8 @@ class FmtImage:
         for file in full_files:
             # Case 1: from url
             if self.path and (self.path.startswith("http://") or self.path.startswith("https://")):
-                norm_path = re.sub(r"/\s+$", self.path)
+                norm_path = self.path.rstrip().removesuffix("/")
                 uri = f"{norm_path}/{file}"
-
             # Case 2:
             else:
                 filename = (Path(self.path or "") / file).expanduser().absolute()
