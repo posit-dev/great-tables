@@ -188,7 +188,7 @@ class CellStyleText(CellStyle):
     """
 
     color: str | ColumnExpr | None = None
-    font: str | ColumnExpr | None = None
+    font: str | ColumnExpr | GoogleFont | None = None
     size: str | ColumnExpr | None = None
     align: Literal["center", "left", "right", "justify"] | ColumnExpr | None = None
     v_align: Literal["middle", "top", "bottom"] | ColumnExpr | None = None
