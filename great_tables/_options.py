@@ -4,7 +4,7 @@ from dataclasses import dataclass, fields, replace
 from typing import TYPE_CHECKING, ClassVar, cast
 
 from great_tables import _utils
-from great_tables._helpers import FontStackName, GoogleFont
+from great_tables._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
 
 
 if TYPE_CHECKING:
@@ -768,9 +768,7 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     # then reattach the units after the multiplication
     # TODO: a current limitation is that the padding values must be in pixels and not percentages
     # TODO: another limitation is that the returned values must be in integer pixel values
-    new_vertical_padding_vals = [
-        str(int(float(v.split("px")[0]) * scale)) + "px" for v in vertical_padding_vals
-    ]
+    new_vertical_padding_vals = [px(_intify_scaled_px(v, scale)) for v in vertical_padding_vals]
 
     return tab_options(self, **dict(zip(vertical_padding_params, new_vertical_padding_vals)))
 
@@ -867,9 +865,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     # then reattach the units after the multiplication
     # TODO: a current limitation is that the padding values must be in pixels and not percentages
     # TODO: another limitation is that the returned values must be in integer pixel values
-    new_horizontal_padding_vals = [
-        str(int(float(v.split("px")[0]) * scale)) + "px" for v in horizontal_padding_vals
-    ]
+    new_horizontal_padding_vals = [px(_intify_scaled_px(v, scale)) for v in horizontal_padding_vals]
 
     return tab_options(self, **dict(zip(horizontal_padding_params, new_horizontal_padding_vals)))
 
@@ -1278,7 +1274,9 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     have vertical lines. In addition to choosing a `style` preset, there are six `color` variations
     that each use a range of five color tints. Each of the color tints have been fine-tuned to
     maximize the contrast between text and its background. There are 36 combinations of `style` and
-    `color` to choose from.
+    `color` to choose from. For examples of each style, see the
+    [*Premade Themes*](../get-started/table-theme-premade.qmd) section of the **Get Started**
+    guide.
 
     Parameters
     ----------

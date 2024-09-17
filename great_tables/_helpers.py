@@ -610,6 +610,10 @@ def _generate_tokens_list(units_notation: str) -> list[str]:
     return tokens_list
 
 
+def _intify_scaled_px(v: str, scale: float) -> int:
+    return int(float(v.removesuffix("px")) * scale)
+
+
 @dataclass
 class UnitDefinition:
     token: str

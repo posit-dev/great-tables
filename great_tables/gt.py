@@ -366,8 +366,10 @@ class GT(
             table_tag_open = f'<table style="{table_defs["table_style"]}" class="gt_table" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">'
 
         html_table = f"""{table_tag_open}{table_colgroups}
-{heading_component.make_string()}
+<thead>
+{heading_component}
 {column_labels_component}
+</thead>
 {body_component}
 {source_notes_component}
 {footnotes_component}

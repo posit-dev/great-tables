@@ -8,12 +8,11 @@ from htmltools import HTML, TagList, css, tags
 
 from ._gt_data import GTData
 from ._tbl_data import _get_cell, cast_frame_to_string, n_rows, replace_null_frame
-from ._text import StringBuilder, _process_text, _process_text_id
+from ._text import _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
 
-def create_heading_component_h(data: GTData) -> StringBuilder:
-    result = StringBuilder()
+def create_heading_component_h(data: GTData) -> str:
 
     title = data._heading.title
     subtitle = data._heading.subtitle
@@ -23,7 +22,7 @@ def create_heading_component_h(data: GTData) -> StringBuilder:
 
     # If there is no title or heading component, then return an empty string
     if not has_title and not has_subtitle:
-        return result
+        return ""
 
     # Raise an error if there is a subtitle but no title
     if not has_title and has_subtitle:
@@ -40,21 +39,19 @@ def create_heading_component_h(data: GTData) -> StringBuilder:
 
     if has_subtitle:
         heading = f"""
-  <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}</th>
+  <tr class="gt_heading">
+    <td colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}</td>
   </tr>
-  <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}</th>
+  <tr class="gt_heading">
+    <td colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">{subtitle}</td>
   </tr>"""
     else:
         heading = f"""
-  <tr>
-    <th colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}</th>
+  <tr class="gt_heading">
+    <td colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal">{title}</td>
   </tr>"""
 
-    result.append(heading)
-
-    return StringBuilder('<thead class="gt_header">', result, "\n</thead>")
+    return heading
 
 
 def create_columns_component_h(data: GTData) -> str:

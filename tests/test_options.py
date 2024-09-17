@@ -3,6 +3,7 @@ import pytest
 from great_tables import GT, exibble, md, google_font
 from great_tables._scss import compile_scss
 from great_tables._gt_data import default_fonts_list
+from great_tables._helpers import _intify_scaled_px
 
 
 def test_options_overwrite():
@@ -384,3 +385,60 @@ def test_opt_table_font_raises():
         GT(exibble).opt_table_font(font=None, stack=None)
 
     assert "Either `font=` or `stack=` must be provided." in exc_info.value.args[0]
+
+
+@pytest.mark.parametrize("align", ["left", "center", "right"])
+def test_opt_align_table_header(gt_tbl: GT, align: list[str]):
+    tbl = gt_tbl.opt_align_table_header(align=align)
+
+    assert tbl._options.heading_align.value == align
+
+
+@pytest.mark.parametrize("scale, expected", [(0.7, "3px"), (1.0, "5px"), (2.1, "10px")])
+def test_opt_vertical_padding(gt_tbl: GT, scale: float, expected: int):
+    """
+    css_length_val_small = "5px"
+    => int(0.7 * 5) = 3
+    => int(1.0 * 5) = 5
+    => int(2.1 * 5) = 10
+    """
+    tbl = gt_tbl.opt_vertical_padding(scale=scale)
+
+    assert tbl._options.heading_padding.value == expected
+    assert tbl._options.column_labels_padding.value == expected
+    assert tbl._options.data_row_padding.value == expected
+    assert tbl._options.row_group_padding.value == expected
+    assert tbl._options.source_notes_padding.value == expected
+
+
+@pytest.mark.parametrize("scale", [-0.2, 3.2])
+def test_opt_vertical_padding_raises(gt_tbl: GT, scale: float):
+    with pytest.raises(ValueError) as exc_info:
+        gt_tbl.opt_vertical_padding(scale=scale)
+
+    assert "`scale` must be a value between `0` and `3`." in exc_info.value.args[0]
+
+
+@pytest.mark.parametrize("scale, expected", [(0.1, "0px"), (1.0, "5px"), (2.2, "11px")])
+def test_opt_horizontal_padding(gt_tbl: GT, scale: float, expected: int):
+    """
+    css_length_val_small = "5px"
+    => int(0.1 * 5) = 0
+    => int(1.0 * 5) = 5
+    => int(2.2 * 5) = 11
+    """
+    tbl = gt_tbl.opt_horizontal_padding(scale=scale)
+
+    assert tbl._options.heading_padding_horizontal.value == expected
+    assert tbl._options.column_labels_padding_horizontal.value == expected
+    assert tbl._options.data_row_padding_horizontal.value == expected
+    assert tbl._options.row_group_padding_horizontal.value == expected
+    assert tbl._options.source_notes_padding_horizontal.value == expected
+
+
+@pytest.mark.parametrize("scale", [-0.2, 3.2])
+def test_opt_horizontal_padding_raises(gt_tbl: GT, scale: float):
+    with pytest.raises(ValueError) as exc_info:
+        gt_tbl.opt_horizontal_padding(scale=scale)
+
+    assert "`scale` must be a value between `0` and `3`." in exc_info.value.args[0]

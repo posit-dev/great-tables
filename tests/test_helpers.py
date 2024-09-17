@@ -8,6 +8,7 @@ from great_tables._helpers import (
     _get_font_stack,
     define_units,
     FONT_STACKS,
+    _intify_scaled_px,
     _generate_tokens_list,
     _units_to_subscript,
     _units_to_superscript,
@@ -368,3 +369,10 @@ def test_unit_str_unmatched_brackets():
     assert isinstance(res[1], UnitDefinitionList)
     assert res[1] == define_units(units_notation="m s^-1 and acceleration {{m s^-2")
     assert res[2] == ""
+
+
+@pytest.mark.parametrize(
+    "value, scale, expected", [("0.5px", 0.5, 0), ["1px", 1, 1], ["2.1px", 2.1, 4]]
+)
+def test_intify_scaled_px(value: str, scale: float, expected: int):
+    assert _intify_scaled_px(value, scale) == expected
