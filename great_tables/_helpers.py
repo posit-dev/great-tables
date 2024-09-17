@@ -1085,9 +1085,9 @@ def define_units(units_notation: str) -> UnitDefinitionList:
 
     ```{python}
     (
-        GT(df).tab_header(
-            title="Linear Algebra", subtitle="y={{a_2}}{{x^2}}+{{a_1}}x+{{a_0}}"
-        )
+        GT(df)
+        .cols_label(a2="{{a_2}}", a1="{{a_1}}", a0="{{a_0}}")
+        .tab_header(title="Linear Algebra", subtitle="y={{a_2}}{{x^2}}+{{a_1}}x+{{a_0}}")
     )
     ```
 
@@ -1113,7 +1113,11 @@ def define_units(units_notation: str) -> UnitDefinitionList:
         + u2html("{{a_0}}")
     )
 
-    (GT(df).tab_header(title="Linear Algebra", subtitle=html(subtitle)))
+    (
+        GT(df)
+        .cols_label(a2="{{a_2}}", a1="{{a_1}}", a0="{{a_0}}")
+        .tab_header(title="Linear Algebra", subtitle=html(subtitle))
+    )
     ```
 
     """
