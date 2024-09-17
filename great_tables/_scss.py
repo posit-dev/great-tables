@@ -152,7 +152,7 @@ def compile_scss(
     # Ensure that list items in `additional_css` are unique and then combine statements while
     # separating with `\n`; use an empty string if list is empty or value is None
     if has_additional_css:
-        additional_css_unique = _unique_set(additional_css)
+        additional_css_unique = OrderedSet(additional_css).as_list()
         table_additional_css = "\n".join(additional_css_unique) + "\n"
     else:
         table_additional_css = ""
