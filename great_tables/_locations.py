@@ -473,11 +473,11 @@ def _(loc: LocHeader, data: GTData, style: list[CellStyle]) -> GTData:
 
     # set ----
     if loc.groups == "header":
-        info = StyleInfo(locname="header", locnum=1, styles=style)
+        info = StyleInfo(locname=loc, locnum=1, styles=style)
     elif loc.groups == "title":
-        info = StyleInfo(locname="title", locnum=2, styles=style)
+        info = StyleInfo(locname=loc, locnum=2, styles=style)
     elif loc.groups == "subtitle":
-        info = StyleInfo(locname="subtitle", locnum=3, styles=style)
+        info = StyleInfo(locname=loc, locnum=3, styles=style)
     else:
         raise ValueError(f"Unknown title group: {loc.groups}")
     return data._replace(_styles=data._styles + [info])
@@ -488,9 +488,7 @@ def _(loc: LocTitle, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="title", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -498,9 +496,7 @@ def _(loc: LocSubTitle, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="subtitle", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -508,9 +504,7 @@ def _(loc: LocStubhead, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="stubhead", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -518,9 +512,7 @@ def _(loc: LocStubheadLabel, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="stubhead_label", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -528,9 +520,7 @@ def _(loc: LocColumnLabels, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="column_labels", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -543,7 +533,7 @@ def _(loc: LocColumnLabel, data: GTData, style: list[CellStyle]) -> GTData:
     all_info: list[StyleInfo] = []
     for col_pos in positions:
         crnt_info = StyleInfo(
-            locname="column_label",
+            locname=loc,
             locnum=2,
             colname=col_pos.colname,
             rownum=col_pos.row,
@@ -559,9 +549,7 @@ def _(loc: LocSpannerLabel, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
     # TODO resolve
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="column_labels", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -569,7 +557,7 @@ def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname="stub", locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -578,9 +566,7 @@ def _(loc: LocRowGroupLabel, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
     # TODO resolve
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="row_group_label", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -589,9 +575,7 @@ def _(loc: LocRowLabel, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
     # TODO resolve
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="row_label", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -600,9 +584,7 @@ def _(loc: LocSummaryLabel, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
     # TODO resolve
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="summary_label", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -616,7 +598,7 @@ def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
     for col_pos in positions:
         row_styles = [entry._from_row(data._tbl_data, col_pos.row) for entry in style_ready]
         crnt_info = StyleInfo(
-            locname="data", locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=row_styles
+            locname=loc, locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=row_styles
         )
         all_info.append(crnt_info)
 
@@ -628,9 +610,7 @@ def _(loc: LocSummary, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="summary", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -638,9 +618,7 @@ def _(loc: LocFooter, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="footer", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -649,9 +627,7 @@ def _(loc: LocFootnotes, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
     # TODO resolve
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="footnotes", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 @set_style.register
@@ -660,9 +636,7 @@ def _(loc: LocSourceNotes, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
     # TODO resolve
-    return data._replace(
-        _styles=data._styles + [StyleInfo(locname="source_notes", locnum=1, styles=style)]
-    )
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
 
 
 # Set footnote generic =================================================================
@@ -688,9 +662,9 @@ def _(loc: LocTitle, data: GTData, footnote: str, placement: PlacementOptions) -
     # can be a list of strings.
     place = FootnotePlacement[placement]
     if loc.groups == "title":
-        info = FootnoteInfo(locname="title", locnum=1, footnotes=[footnote], placement=place)
+        info = FootnoteInfo(locname=loc, locnum=1, footnotes=[footnote], placement=place)
     elif loc.groups == "subtitle":
-        info = FootnoteInfo(locname="subtitle", locnum=2, footnotes=[footnote], placement=place)
+        info = FootnoteInfo(locname=loc, locnum=2, footnotes=[footnote], placement=place)
     else:
         raise ValueError(f"Unknown title group: {loc.groups}")
 
