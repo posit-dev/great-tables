@@ -3428,6 +3428,12 @@ def fmt_image(
         The option to always use Base64 encoding for image paths that are determined to be local. By
         default, this is `True`.
 
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
     Examples
     --------
     Using a small portion of `metro` dataset, let's create a new table. We will only include a few
@@ -3655,6 +3661,12 @@ def fmt_nanoplot(
     options
         By using the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function here,
         you can alter the layout and styling of the nanoplots in the new column.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Details
     -------
