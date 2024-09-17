@@ -173,9 +173,9 @@ def tab_spanner(
 
     # get column names associated with selected spanners ----
     _vars = [span.vars for span in self._spanners if span.spanner_id in spanner_ids]
-    spanner_column_names = OrderedSet(itertools.chain(*_vars))
+    spanner_column_names = OrderedSet(itertools.chain(*_vars)).as_list()
 
-    column_names = list(OrderedSet([*selected_column_names, *spanner_column_names]))
+    column_names = OrderedSet([*selected_column_names, *spanner_column_names]).as_list()
     # combine columns names and those from spanners ----
 
     # get spanner level ----
