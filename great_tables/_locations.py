@@ -3,7 +3,7 @@ from __future__ import annotations
 import itertools
 from dataclasses import dataclass, field
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Literal, Union
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, Union
 
 from typing_extensions import TypeAlias
 
@@ -57,48 +57,48 @@ class CellPos:
 class Loc:
     """A location."""
 
-    groups: LocName
+    groups: ClassVar[LocName]
 
 
 @dataclass
 class LocHeader(Loc):
     """A location for targeting the table title and subtitle."""
 
-    groups: LocHeaderName = "header"
+    groups: ClassVar[LocHeaderName] = "header"
 
 
 @dataclass
 class LocTitle(Loc):
-    groups: Literal["title"] = "title"
+    groups: ClassVar[Literal["title"]] = "title"
 
 
 @dataclass
 class LocSubTitle(Loc):
-    groups: Literal["subtitle"] = "subtitle"
+    groups: ClassVar[Literal["subtitle"]] = "subtitle"
 
 
 @dataclass
 class LocStubhead(Loc):
     """A location for targeting the table stubhead and stubhead label."""
 
-    groups: LocStubheadName = "stubhead"
+    groups: ClassVar[LocStubheadName] = "stubhead"
 
 
 @dataclass
 class LocStubheadLabel(Loc):
-    groups: Literal["stubhead_label"] = "stubhead_label"
+    groups: ClassVar[Literal["stubhead_label"]] = "stubhead_label"
 
 
 @dataclass
 class LocColumnLabels(Loc):
     """A location for column spanners and column labels."""
 
-    groups: LocColumnLabelsName = "column_labels"
+    groups: ClassVar[LocColumnLabelsName] = "column_labels"
 
 
 @dataclass
 class LocColumnLabel(Loc):
-    groups: Literal["column_label"] = "column_label"
+    groups: ClassVar[Literal["column_label"]] = "column_label"
     columns: SelectExpr = None
 
 
@@ -106,7 +106,7 @@ class LocColumnLabel(Loc):
 class LocSpannerLabel(Loc):
     """A location for column spanners."""
 
-    groups: Literal["spanner_label"] = "spanner_label"
+    groups: ClassVar[Literal["spanner_label"]] = "spanner_label"
     ids: SelectExpr = None
 
 
@@ -114,25 +114,25 @@ class LocSpannerLabel(Loc):
 class LocStub(Loc):
     """A location for targeting the table stub, row group labels, summary labels, and body."""
 
-    groups: Literal["stub"] = "stub"
+    groups: ClassVar[Literal["stub"]] = "stub"
     rows: RowSelectExpr = None
 
 
 @dataclass
 class LocRowGroupLabel(Loc):
-    groups: Literal["row_group_label"] = "row_group_label"
+    groups: ClassVar[Literal["row_group_label"]] = "row_group_label"
     rows: RowSelectExpr = None
 
 
 @dataclass
 class LocRowLabel(Loc):
-    groups: Literal["row_label"] = "row_label"
+    groups: ClassVar[Literal["row_label"]] = "row_label"
     rows: RowSelectExpr = None
 
 
 @dataclass
 class LocSummaryLabel(Loc):
-    groups: Literal["summary_label"] = "summary_label"
+    groups: ClassVar[Literal["summary_label"]] = "summary_label"
     rows: RowSelectExpr = None
 
 
@@ -163,7 +163,7 @@ class LocBody(Loc):
     ------
     See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
-    groups: LocBodyName = "body"
+    groups: ClassVar[LocBodyName] = "data"
 
     columns: SelectExpr = None
     rows: RowSelectExpr = None
@@ -172,19 +172,19 @@ class LocBody(Loc):
 @dataclass
 class LocSummary(Loc):
     # TODO: these can be tidyselectors
-    groups: LocName = "summary"
+    groups: ClassVar[LocName] = "summary"
     columns: SelectExpr = None
     rows: RowSelectExpr = None
 
 
 @dataclass
 class LocFooter(Loc):
-    groups: LocFooterName = "footer"
+    groups: ClassVar[LocFooterName] = "footer"
 
 
 @dataclass
 class LocFootnotes(Loc):
-    groups: Literal["footnotes"] = "footnotes"
+    groups: ClassVar[Literal["footnotes"]] = "footnotes"
 
 
 @dataclass
@@ -192,7 +192,7 @@ class LocSourceNotes(Loc):
     # This dataclass in R has a `groups` field, which is a literal value.
     # In python, we can use an isinstance check to determine we're seeing an
     # instance of this class
-    groups: Literal["source_notes"] = "source_notes"
+    groups: ClassVar[Literal["source_notes"]] = "source_notes"
 
 
 # Utils ================================================================================
@@ -616,7 +616,7 @@ def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
     for col_pos in positions:
         row_styles = [entry._from_row(data._tbl_data, col_pos.row) for entry in style_ready]
         crnt_info = StyleInfo(
-            locname="cell", locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=row_styles
+            locname="data", locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=row_styles
         )
         all_info.append(crnt_info)
 

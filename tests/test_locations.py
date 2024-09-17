@@ -178,7 +178,7 @@ def test_set_style_loc_body_from_column(expr):
     new_gt = set_style(loc, gt_df, [style])
 
     # 1 style info added
-    assert len(new_gt._styles) == 2
+    assert len(new_gt._styles) == 1
     cell_info = new_gt._styles[0]
 
     # style info has single cell style, with new color
@@ -190,7 +190,7 @@ def test_set_style_loc_body_from_column(expr):
 def test_set_style_loc_title_from_column_error(snapshot):
     df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
     gt_df = GT(df)
-    loc = LocTitle("title")
+    loc = LocTitle()
     style = CellStyleText(color=FromColumn("color"))
 
     with pytest.raises(TypeError) as exc_info:

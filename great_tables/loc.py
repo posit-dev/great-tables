@@ -1,26 +1,31 @@
 from __future__ import annotations
 
 from ._locations import (
-    # Header elements
+    # Header ----
     LocHeader as header,
     LocTitle as title,
     LocSubTitle as subtitle,
-    # Stubhead elements
+    #
+    # Stubhead ----
     LocStubhead as stubhead,
     LocStubheadLabel as stubhead_label,
-    # Column Labels elements
+    #
+    # Column Labels ----
     LocColumnLabels as column_labels,
     LocSpannerLabel as spanner_label,
     LocColumnLabel as column_label,
-    # Stub elements
+    #
+    # Stub ----
     LocStub as stub,
     LocRowGroupLabel as row_group_label,
     LocRowLabel as row_label,
     LocSummaryLabel as summary_label,
-    # Body elements
+    #
+    # Body ----
     LocBody as body,
     LocSummary as summary,
-    # Footer elements
+    #
+    # Footer ----
     LocFooter as footer,
     LocFootnotes as footnotes,
     LocSourceNotes as source_notes,

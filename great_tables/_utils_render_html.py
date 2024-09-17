@@ -11,6 +11,14 @@ from ._gt_data import GTData, Styles
 from ._tbl_data import _get_cell, cast_frame_to_string, n_rows, replace_null_frame
 from ._text import _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
+from . import _locations as loc
+
+
+def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
+    if isinstance(loc, str):
+        return loc == cls.groups
+
+    return isinstance(loc, cls)
 
 
 def _flatten_styles(styles: Styles, wrap: bool = False) -> str:
@@ -53,9 +61,9 @@ def create_heading_component_h(data: GTData) -> str:
     subtitle = _process_text(subtitle)
 
     # Filter list of StyleInfo for the various header components
-    styles_header = [x for x in data._styles if x.locname == "header"]
-    styles_title = [x for x in data._styles if x.locname == "title"]
-    styles_subtitle = [x for x in data._styles if x.locname == "subtitle"]
+    styles_header = [x for x in data._styles if _is_loc(x.locname, loc.LocHeader)]
+    styles_title = [x for x in data._styles if _is_loc(x.locname, loc.LocTitle)]
+    styles_subtitle = [x for x in data._styles if _is_loc(x.locname, loc.LocSubTitle)]
     header_style = _flatten_styles(styles_header, wrap=True) if styles_header else ""
     title_style = _flatten_styles(styles_title, wrap=True) if styles_title else ""
     subtitle_style = _flatten_styles(styles_subtitle, wrap=True) if styles_subtitle else ""
@@ -125,11 +133,11 @@ def create_columns_component_h(data: GTData) -> str:
     headings_info = boxhead._get_default_columns()
 
     # Filter list of StyleInfo for the various stubhead and column labels components
-    styles_stubhead = [x for x in data._styles if x.locname == "stubhead"]
-    styles_stubhead_label = [x for x in data._styles if x.locname == "stubhead_label"]
-    styles_column_labels = [x for x in data._styles if x.locname == "column_labels"]
-    styles_spanner_label = [x for x in data._styles if x.locname == "spanner_label"]
-    styles_column_label = [x for x in data._styles if x.locname == "column_label"]
+    styles_stubhead = [x for x in data._styles if _is_loc(x.locname, loc.LocStubhead)]
+    styles_stubhead_label = [x for x in data._styles if _is_loc(x.locname, loc.LocStubheadLabel)]
+    styles_column_labels = [x for x in data._styles if _is_loc(x.locname, loc.LocColumnLabels)]
+    styles_spanner_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSpannerLabel)]
+    styles_column_label = [x for x in data._styles if _is_loc(x.locname, loc.LocColumnLabel)]
 
     # If columns are present in the stub, then replace with a set stubhead label or nothing
     if len(stub_layout) > 0 and stubh is not None:
@@ -410,16 +418,16 @@ def create_body_component_h(data: GTData) -> str:
     tbl_data = replace_null_frame(data._body.body, _str_orig_data)
 
     # Filter list of StyleInfo to only those that apply to the stub
-    styles_stub = [x for x in data._styles if x.locname == "stub"]
-    styles_row_group_label = [x for x in data._styles if x.locname == "row_group_label"]
-    styles_row_label = [x for x in data._styles if x.locname == "row_label"]
-    styles_summary_label = [x for x in data._styles if x.locname == "summary_label"]
+    styles_stub = [x for x in data._styles if _is_loc(x.locname, loc.LocStub)]
+    styles_row_group_label = [x for x in data._styles if _is_loc(x.locname, loc.LocRowGroupLabel)]
+    styles_row_label = [x for x in data._styles if _is_loc(x.locname, loc.LocRowLabel)]
+    styles_summary_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSummaryLabel)]
     stub_style = _flatten_styles(styles_stub, wrap=True) if styles_stub else ""
 
     # Filter list of StyleInfo to only those that apply to the body
-    styles_cells = [x for x in data._styles if x.locname == "cell"]
-    styles_body = [x for x in data._styles if x.locname == "body"]
-    styles_summary = [x for x in data._styles if x.locname == "summary"]
+    styles_cells = [x for x in data._styles if _is_loc(x.locname, loc.LocBody)]
+    # styles_body = [x for x in data._styles if _is_loc(x.locname, loc.LocBody2)]
+    # styles_summary = [x for x in data._styles if _is_loc(x.locname, loc.LocSummary)]
 
     # Get the default column vars
     column_vars = data._boxhead._get_default_columns()
@@ -514,7 +522,7 @@ def create_source_notes_component_h(data: GTData) -> str:
     source_notes = data._source_notes
 
     # Filter list of StyleInfo to only those that apply to the source notes
-    styles_source_notes = [x for x in data._styles if x.locname == "source_notes"]
+    styles_source_notes = [x for x in data._styles if _is_loc(x.locname, loc.LocSourceNotes)]
 
     # If there are no source notes, then return an empty string
     if source_notes == []:
@@ -583,7 +591,7 @@ def create_source_notes_component_h(data: GTData) -> str:
 
 def create_footnotes_component_h(data: GTData):
     # Filter list of StyleInfo to only those that apply to the footnotes
-    styles_footnotes = [x for x in data._styles if x.locname == "footnotes"]
+    styles_footnotes = [x for x in data._styles if _is_loc(x.locname, loc.LocFootnotes)]
 
     return ""
 
