@@ -185,6 +185,7 @@ def save(
     web_driver: WebDrivers = "chrome",
     window_size: tuple[int, int] = (6000, 6000),
     debug_port: None | int = None,
+    encoding: str = "utf-8",
     _debug_dump: DebugDumpOptions | None = None,
 ) -> None:
     """
@@ -215,6 +216,8 @@ def save(
         to capture a table, but may affect the tables appearance.
     debug_port
         Port number to use for debugging. By default no debugging port is opened.
+    encoding
+        The encoding used when writing temporary files.
     _debug_dump
         Whether the saved image should be a big browser window, with key elements outlined. This is
         helpful for debugging this function's resizing, cropping heuristics. This is an internal
@@ -255,11 +258,8 @@ def save(
     if selector != "table":
         raise NotImplementedError("Currently, only selector='table' is supported.")
 
-    # Get the file extension from the file name
-    file_extension = file.split(".")[-1]
-
     # If there is no file extension, add the .png extension
-    if len(file_extension) == len(file):
+    if not Path(file).suffix:
         file += ".png"
 
     # Get the HTML content from the displayed output
@@ -306,11 +306,11 @@ def save(
     ):
 
         # Write the HTML content to the temp file
-        with open(f"{tmp_dir}/table.html", "w") as temp_file:
+        with open(f"{tmp_dir}/table.html", "w", encoding=encoding) as temp_file:
             temp_file.write(html_content)
 
         # Open the HTML file in the headless browser
-        headless_browser.set_window_size(window_size[0], window_size[1])
+        headless_browser.set_window_size(*window_size)
         headless_browser.get("file://" + temp_file.name)
 
         _save_screenshot(headless_browser, scale, file, debug=_debug_dump)
