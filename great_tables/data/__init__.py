@@ -308,6 +308,17 @@ This is a dataset with 13,545 rows and 5 columns.
 - `year`: The year for the population estimate.
 - `population`: The population estimate, midway through the year.
 
+Preview
+-------
+```
+  country_name country_code_2 country_code_3  year  population
+0        Aruba             AW            ABW  1960       54608
+1        Aruba             AW            ABW  1961       55811
+2        Aruba             AW            ABW  1962       56682
+3        Aruba             AW            ABW  1963       57475
+4        Aruba             AW            ABW  1964       58178
+```
+
 Source
 ------
 <https://data.worldbank.org/indicator/SP.POP.TOTL>
@@ -342,6 +353,17 @@ This is a dataset with 816 rows and 4 columns.
 zenith angle is calculated.
 - `sza`: The solar zenith angle in degrees, where missing values indicate that sunrise hadn't yet
 occurred by the `tst` value.
+
+Preview
+-------
+```
+  latitude month   tst  sza
+0       20   jan  0400  NaN
+1       20   jan  0430  NaN
+2       20   jan  0500  NaN
+3       20   jan  0530  NaN
+4       20   jan  0600  NaN
+```
 
 Source
 ------
@@ -383,6 +405,25 @@ car could have automatic transmission (`"a"`), manual transmission (`"m"`), an o
 between both types (`"am"`), or, direct drive (`"dd"`)
 - `ctry_origin`: The country name for where the vehicle manufacturer is headquartered.
 - `msrp`: Manufacturer's suggested retail price in U.S. dollars (USD).
+
+Preview
+-------
+```
+       mfr         model    year        trim    bdy_style     hp  hp_rpm  \
+0     Ford            GT  2017.0  Base Coupe        coupe  647.0  6250.0
+1  Ferrari  458 Speciale  2015.0  Base Coupe        coupe  597.0  9000.0
+2  Ferrari    458 Spider  2015.0        Base  convertible  562.0  9000.0
+3  Ferrari    458 Italia  2014.0  Base Coupe        coupe  562.0  9000.0
+4  Ferrari       488 GTB  2016.0  Base Coupe        coupe  661.0  8000.0
+
+     trq  trq_rpm  mpg_c  mpg_h drivetrain trsmn    ctry_origin      msrp
+0  550.0   5900.0   11.0   18.0        rwd    7a  United States  447000.0
+1  398.0   6000.0   13.0   17.0        rwd    7a          Italy  291744.0
+2  398.0   6000.0   13.0   17.0        rwd    7a          Italy  263553.0
+3  398.0   6000.0   13.0   17.0        rwd    7a          Italy  233509.0
+4  561.0   3000.0   15.0   22.0        rwd    7a          Italy  245400.0
+```
+
 """
 
 sp500: pd.DataFrame = pd.read_csv(_sp500_fname, dtype=_sp500_dtype)  # type: ignore
@@ -402,6 +443,25 @@ This is a dataset with 16,607 rows and 7 columns.
 `close` price is adjusted for splits.
 - `volume`: The number of trades for the given `date`.
 - `adj_close`: The close price adjusted for both dividends and splits.
+
+Preview
+-------
+```
+         date       open       high      low      close        volume  \
+0  2015-12-31  2060.5901  2062.5400  2043.62  2043.9399  2.655330e+09
+1  2015-12-30  2077.3401  2077.3401  2061.97  2063.3601  2.367430e+09
+2  2015-12-29  2060.5400  2081.5601  2060.54  2078.3601  2.542000e+09
+3  2015-12-28  2057.7700  2057.7700  2044.20  2056.5000  2.492510e+09
+4  2015-12-24  2063.5200  2067.3601  2058.73  2060.9900  1.411860e+09
+
+   adj_close
+0  2043.9399
+1  2063.3601
+2  2078.3601
+3  2056.5000
+4  2060.9900
+```
+
 """
 
 pizzaplace: pd.DataFrame = pd.read_csv(_pizzaplace_fname, dtype=_pizzaplace_dtype)  # type: ignore
@@ -504,6 +564,18 @@ extended time format ('hh:mm:ss').
 - `type`: The category or type of pizza, which can either be `"classic"`, `"chicken"`, `"supreme"`,
 or `"veggie"`.
 - `price`: The price of the pizza and the amount that it sold for (in USD).
+
+Preview
+-------
+```
+            id        date      time         name size     type  price
+0  2015-000001  2015-01-01  11:38:36     hawaiian    M  classic  13.25
+1  2015-000002  2015-01-01  11:57:40  classic_dlx    M  classic  16.00
+2  2015-000002  2015-01-01  11:57:40     mexicana    M   veggie  16.00
+3  2015-000002  2015-01-01  11:57:40     thai_ckn    L  chicken  20.75
+4  2015-000002  2015-01-01  11:57:40  five_cheese    L   veggie  18.50
+```
+
 """
 
 exibble: pd.DataFrame = pd.read_csv(_exibble_fname, dtype=_exibble_dtype)  # type: ignore
@@ -530,6 +602,25 @@ This is a dataset with 8 rows and 9 columns.
 in a table stub.
 - `group`: A string-based column with four `"grp_a"` values and four `"grp_b"` values which can be
 useful for testing tables that contain row groups.
+
+Preview
+-------
+```
+         num     char   fctr        date   time          datetime  currency  \
+0     0.1111  apricot    one  2015-01-15  13:35  2018-01-01 02:22     49.95
+1     2.2220   banana    two  2015-02-15  14:40  2018-02-02 14:33     17.95
+2    33.3300  coconut  three  2015-03-15  15:45  2018-03-03 03:44      1.39
+3   444.4000   durian   four  2015-04-15  16:50  2018-04-04 15:55  65100.00
+4  5550.0000      NaN   five  2015-05-15  17:55  2018-05-05 04:00   1325.81
+
+     row  group
+0  row_1  grp_a
+1  row_2  grp_a
+2  row_3  grp_a
+3  row_4  grp_a
+4  row_5  grp_b
+```
+
 """
 
 towny: pd.DataFrame = pd.read_csv(_towny_fname, dtype=_towny_dtype)  # type: ignore
@@ -573,6 +664,60 @@ the 1996 to 2021 census years.
 - `pop_change_1996_2001_pct`, `pop_change_2001_2006_pct`, `pop_change_2006_2011_pct`,
 `pop_change_2011_2016_pct`, `pop_change_2016_2021_pct`:  Population changes between adjacent pairs
 of census years, from 1996 to 2021.
+
+Preview
+-------
+```
+                  name                         website      status  csd_type  \
+0  Addington Highlands   https://addingtonhighlands.ca  lower-tier  township
+1    Adelaide Metcalfe  https://adelaidemetcalfe.on.ca  lower-tier  township
+2    Adjala-Tosorontio           https://www.adjtos.ca  lower-tier  township
+3     Admaston/Bromley     https://admastonbromley.com  lower-tier  township
+4                 Ajax             https://www.ajax.ca  lower-tier      town
+
+             census_div   latitude  longitude  land_area_km2  population_1996  \
+0  Lennox and Addington  45.000000 -77.250000        1293.99             2429
+1             Middlesex  42.950000 -81.700000         331.11             3128
+2                Simcoe  44.133333 -79.933333         371.53             9359
+3               Renfrew  45.529167 -76.896944         519.59             2837
+4                Durham  43.858333 -79.036389          66.64            64430
+
+   population_2001  population_2006  population_2011  population_2016  \
+0             2402             2512             2517             2318
+1             3149             3135             3028             2990
+2            10082            10695            10603            10975
+3             2824             2716             2844             2935
+4            73753            90167           109600           119677
+
+   population_2021  density_1996  density_2001  density_2006  density_2011  \
+0             2534          1.88          1.86          1.94          1.95
+1             3011          9.45          9.51          9.47          9.14
+2            10989         25.19         27.14         28.79         28.54
+3             2995          5.46          5.44          5.23          5.47
+4           126666        966.84       1106.74       1353.05       1644.66
+
+   density_2016  density_2021  pop_change_1996_2001_pct  \
+0          1.79          1.96                   -0.0111
+1          9.03          9.09                    0.0067
+2         29.54         29.58                    0.0773
+3          5.65          5.76                   -0.0046
+4       1795.87       1900.75                    0.1447
+
+   pop_change_2001_2006_pct  pop_change_2006_2011_pct  \
+0                    0.0458                    0.0020
+1                   -0.0044                   -0.0341
+2                    0.0608                   -0.0086
+3                   -0.0382                    0.0471
+4                    0.2226                    0.2155
+
+   pop_change_2011_2016_pct  pop_change_2016_2021_pct
+0                   -0.0791                    0.0932
+1                   -0.0125                    0.0070
+2                    0.0351                    0.0013
+3                    0.0320                    0.0204
+4                    0.0919                    0.0584
+```
+
 """
 
 peeps: pd.DataFrame = pd.read_csv(_peeps_fname, dtype=_peeps_dtype)  # type: ignore
@@ -607,6 +752,32 @@ the phone number.
 - `dob`: The individual's date of birth (DOB) in the ISO 8601 form of `YYYY-MM-DD`.
 - `height_cm`, `weight_kg`: The height and weight of the individual in centimeters (cm) and
 kilograms (kg), respectively.
+
+Preview
+-------
+```
+  name_given name_family                  address                 city  \
+0       Ruth       Conte        4299 Bobcat Drive   Baileys Crossroads
+1      Peter      Möller    3705 Hidden Pond Road  Red Boiling Springs
+2    Fanette     Gadbois   4200 Swick Hill Street          New Orleans
+3     Judyta   Borkowska  2287 Cherry Ridge Drive             Oakfield
+4    Leonard      Jacobs     1496 Hillhaven Drive          Los Angeles
+
+  state_prov postcode country               email_addr  phone_number  \
+0         MD    22041     USA      rcconte@example.com  240-783-7630
+1         TN    37150     USA     pmoeller@example.com  615-699-3517
+2         LA    70112     USA  fan_gadbois@example.com  985-205-2970
+3         NY    14125     USA     jdtabork@example.com  585-948-7790
+4         CA    90036     USA    leojacobs@example.com  323-857-6576
+
+  country_code  gender         dob  height_cm  weight_kg
+0            1  female  1949-03-16        153       76.4
+1            1    male  1939-11-22        175       74.9
+2            1  female  1970-12-20        167       61.6
+3            1  female  1965-07-19        156       54.5
+4            1    male  1985-10-01        177      113.2
+```
+
 """
 
 films: pd.DataFrame = pd.read_csv(_films_fname, dtype=_films_dtype)  # type: ignore
@@ -637,6 +808,32 @@ language codes (primarily as two-letter codes, but using three-letter codes wher
 - `run_time`: The run time of the film in hours and minutes. This is given as a string in the format
 `<x>h <y>m`.
 - `imdb_url`: The URL of the film's information page in the Internet Movie Database (IMDB).
+
+Preview
+-------
+```
+   year                      title     original_title           director  \
+0  1946                 The Lovers     Amanti in fuga  Giacomo Gentilomo
+1  1946  Anna and the King of Siam                NaN      John Cromwell
+2  1946             Blood and Fire       Blod och eld   Anders Henrikson
+3  1946       Letter from the Dead  Brevet fra afdøde     Johan Jacobsen
+4  1946            Brief Encounter                NaN         David Lean
+
+  languages countries_of_origin run_time  \
+0        it                  IT   1h 30m
+1        en                  US    2h 8m
+2        sv                  SE   1h 40m
+3        da                  DK   1h 18m
+4     en,fr                  GB   1h 26m
+
+                                imdb_url
+0  https://www.imdb.com/title/tt0038297/
+1  https://www.imdb.com/title/tt0038303/
+2  https://www.imdb.com/title/tt0037544/
+3  https://www.imdb.com/title/tt0124300/
+4  https://www.imdb.com/title/tt0037558/
+```
+
 """
 
 metro: pd.DataFrame = pd.read_csv(_metro_fname, dtype=_metro_dtype)  # type: ignore
@@ -671,8 +868,8 @@ interest. This is missing if there isn't a caption for the station name.
 series of line names.
 - `connect_rer`: Station connections with the RER. The RER system has five lines (A, B, C, D, and E)
 with 257 stations and several interchanges with the Metro.
-- `connect_tram`: Connections with tramway lines. This system has twelve lines in operation (T1, T2,
-T3a, T3b, T4, T5, T6, T7, T8, T9, T11, and T13) with 235 stations.
+- `connect_tramway`: Connections with tramway lines. This system has twelve lines in operation (T1,
+T2, T3a, T3b, T4, T5, T6, T7, T8, T9, T11, and T13) with 235 stations.
 - `connect_transilien`: Connections with Transilien lines. This system has eight lines in operation
 (H, J, K, L, N, P, R, and U).
 - `connect_other`: Other connections with transportation infrastructure such as regional, intercity,
@@ -684,6 +881,32 @@ stations located at borders, the grouping of locations will be presented as a co
 series.
 - `passengers`: The total number of Metro station entries during 2021. Some of the newest stations
 in the Metro system do not have this data, thus they show as missing values.
+
+Preview
+-------
+```
+                        name       caption    lines connect_rer  \
+0                  Argentine           NaN        1         NaN
+1                   Bastille           NaN  1, 5, 8         NaN
+2                    Bérault           NaN        1         NaN
+3  Champs-Élysées—Clemenceau  Grand Palais    1, 13         NaN
+4   Charles de Gaulle—Étoile           NaN  1, 2, 6           A
+
+  connect_tramway connect_transilien connect_other  passengers   latitude  \
+0             NaN                NaN           NaN     2079212  48.875278
+1             NaN                NaN           NaN     8069243  48.853082
+2             NaN                NaN           NaN     2106827  48.845278
+3             NaN                NaN           NaN     1909005  48.867500
+4             NaN                NaN           NaN     4291663  48.873889
+
+   longitude                           location
+0   2.290000             Paris 16th, Paris 17th
+1   2.369077  Paris 4th, Paris 11th, Paris 12th
+2   2.428333             Saint-Mandé, Vincennes
+3   2.313500                          Paris 8th
+4   2.295000  Paris 8th, Paris 16th, Paris 17th
+```
+
 """
 
 gibraltar: pd.DataFrame = pd.read_csv(_gibraltar_fname, dtype=_gibraltar_dtype)  # type: ignore
@@ -708,6 +931,25 @@ provided in units of meters per second. If there was a measurable wind gust, the
 is recorded as m/s values (otherwise the value is `0`).
 - `pressure`: The atmospheric pressure in hectopascals (hPa).
 - `condition`: The weather condition.
+
+Preview
+-------
+```
+         date   time  temp  dew_point  humidity wind_dir  wind_speed  \
+0  2023-05-01  00:20  18.9       12.8      0.68        W         6.7
+1  2023-05-01  00:50  18.9       13.9      0.73      WSW         7.2
+2  2023-05-01  01:20  17.8       13.9      0.77        W         6.7
+3  2023-05-01  01:50  18.9       13.9      0.73        W         6.7
+4  2023-05-01  02:20  18.9       12.8      0.68      WSW         6.7
+
+   wind_gust  pressure condition
+0        0.0    1015.2      Fair
+1        0.0    1015.2      Fair
+2        0.0    1014.6      Fair
+3        0.0    1014.6      Fair
+4        0.0    1014.6      Fair
+```
+
 """
 
 constants: pd.DataFrame = pd.read_csv(_constants_fname, dtype=_constants_dtype)  # type: ignore
@@ -724,7 +966,7 @@ National Institute of Standards and Technology (NIST), Gaithersburg, Maryland, U
 
 Details
 -------
-This is a dataset with 354 rows and 4 columns.
+This is a dataset with 354 rows and 6 columns.
 
 - `name`: The name of the constant.
 - `value`: The value of the constant.
@@ -733,6 +975,25 @@ This is a dataset with 354 rows and 4 columns.
 - `sf_value`, `sf_uncert`: The number of significant figures associated with the value and any
 uncertainty value.
 - `units`: The units associated with the constant.
+
+Preview
+-------
+```
+                                           name         value        uncert  \
+0            alpha particle-electron mass ratio  7.294300e+03  2.400000e-07
+1                           alpha particle mass  6.644657e-27  2.000000e-36
+2         alpha particle mass energy equivalent  5.971920e-10  1.800000e-19
+3  alpha particle mass energy equivalent in MeV  3.727379e+03  1.100000e-06
+4                      alpha particle mass in u  4.001506e+00  6.300000e-11
+
+   sf_value  sf_uncert units
+0        12          2   NaN
+1        11          2    kg
+2        11          2     J
+3        11          2   MeV
+4        13          2     u
+```
+
 """
 
 illness: pd.DataFrame = pd.read_csv(_illness_fname, dtype=_illness_dtype)  # type: ignore
@@ -799,6 +1060,25 @@ This is a dataset with 39 rows and 11 columns.
 each test administered from days 3 to 9. A missing value indicates that the test could not be
 performed that day.
 - `norm_l`, `norm_u`: Lower and upper bounds for the normal range associated with the test.
+
+Preview
+-------
+```
+          test          units     day_3    day_4    day_5   day_6   day_7  \
+0   Viral load  copies per mL  12000.00  4200.00  1600.00  830.00  760.00
+1          WBC      x10^9 / L      5.26     4.26     9.92   10.49   24.77
+2  Neutrophils      x10^9 / L      4.87     4.72     7.92   18.21   22.08
+3          RBC     x10^12 / L      5.72     5.98     4.23    4.83    4.12
+4           Hb          g / L    153.00   135.00   126.00  115.00   75.00
+
+    day_8   day_9  norm_l  norm_u
+0  520.00  250.00     NaN     NaN
+1   30.26   19.03     4.0    10.0
+2   27.17   16.59     2.0     8.0
+3    2.68    3.32     4.0     5.5
+4   87.00   95.00   120.0   160.0
+```
+
 """
 
 reactions: pd.DataFrame = pd.read_csv(_reactions_fname, dtype=_reactions_dtype)  # type: ignore
@@ -869,6 +1149,60 @@ cm^3 molecules^-1 s^-1, `B` is in units of K, and `n` is dimensionless. Any miss
 that data is not available.
 - `Cl_t_low`, `Cl_t_high`: The low and high temperature boundaries (in units of K) for which the
 `Cl_a`, `Cl_b`, and `Cl_n` parameters are valid.
+
+Preview
+-------
+```
+       cmpd_name  cmpd_mwt cmpd_formula               cmpd_type cmpd_smiles  \
+0        methane     16.04          CH4           normal alkane           C
+1   formaldehyde     30.03         CH2O                aldehyde         C=O
+2       methanol     32.04         CH4O       alcohol or glycol          CO
+3  fluoromethane     34.03         CH3F  haloalkane (separated)          CF
+4    formic acid     46.03        CH2O2         carboxylic acid        OC=O
+
+                          cmpd_inchi                cmpd_inchikey  \
+0                  InChI=1S/CH4/h1H4  VNWKTOKETHGBQD-UHFFFAOYSA-N
+1            InChI=1S/CH2O/c1-2/h1H2  WSFSSNUMVMOOMR-UHFFFAOYSA-N
+2         InChI=1S/CH4O/c1-2/h2H,1H3  OKKJLVBELUTLKV-UHFFFAOYSA-N
+3            InChI=1S/CH3F/c1-2/h1H3  NBVXSUQYWXRMNV-UHFFFAOYSA-N
+4  InChI=1S/CH2O2/c2-1-3/h1H,(H,2,3)  BDAGIHXWWSANSR-UHFFFAOYSA-N
+
+        OH_k298  OH_uncert  OH_u_fac          OH_A         OH_B      OH_n  \
+0  6.360000e-15        0.1       NaN  3.620000e-13  1200.348660  2.179936
+1  8.500000e-12        0.2       NaN  5.400000e-12  -135.000000       NaN
+2  8.780000e-13        0.1       NaN  2.320000e-13  -402.000000  2.720000
+3  1.970000e-14        0.1       NaN  1.990000e-13   685.420421  2.040182
+4  4.500000e-13        NaN       1.4  4.500000e-13          NaN       NaN
+
+   OH_t_low  OH_t_high  O3_k298  O3_uncert  O3_u_fac  O3_A  O3_B  O3_n  \
+0     200.0     2025.0      NaN        NaN       NaN   NaN   NaN   NaN
+1     200.0      300.0      NaN        NaN       NaN   NaN   NaN   NaN
+2     210.0     1344.0      NaN        NaN       NaN   NaN   NaN   NaN
+3     240.0     1800.0      NaN        NaN       NaN   NaN   NaN   NaN
+4     290.0      450.0      NaN        NaN       NaN   NaN   NaN   NaN
+
+   O3_t_low  O3_t_high      NO3_k298  NO3_uncert  NO3_u_fac         NO3_A  \
+0       NaN        NaN           NaN         NaN        NaN           NaN
+1       NaN        NaN  5.500000e-16         NaN        1.6           NaN
+2       NaN        NaN  1.300000e-16         NaN        3.0  9.400000e-13
+3       NaN        NaN           NaN         NaN        NaN           NaN
+4       NaN        NaN           NaN         NaN        NaN           NaN
+
+    NO3_B  NO3_n  NO3_t_low  NO3_t_high       Cl_k298  Cl_uncert  Cl_u_fac  \
+0     NaN    NaN        NaN         NaN  1.000000e-13       0.15       NaN
+1     NaN    NaN        NaN         NaN  7.200000e-11       0.15       NaN
+2  2650.0    NaN      250.0       370.0  5.100000e-11       0.20       NaN
+3     NaN    NaN        NaN         NaN  3.600000e-13        NaN       1.4
+4     NaN    NaN        NaN         NaN  1.900000e-13        NaN       1.4
+
+           Cl_A    Cl_B  Cl_n  Cl_t_low  Cl_t_high
+0  6.600000e-12  1240.0   NaN     200.0      300.0
+1  8.100000e-11    34.0   NaN     200.0      500.0
+2  5.100000e-11     0.0   NaN     225.0      950.0
+3  4.900000e-12   781.0   NaN     200.0      300.0
+4           NaN     NaN   NaN       NaN        NaN
+```
+
 """
 
 photolysis: pd.DataFrame = pd.read_csv(_photolysis_fname, dtype=_photolysis_dtype)  # type: ignore
@@ -904,6 +1238,39 @@ photons absorbed.
 photoabsorption data for the compound undergoing photolysis. The values in `wavelength_nm` provide
 the wavelength of light in nanometer units; the `sigma_298_cm2` values are paired with the
 `wavelength_nm` values and they are in units of `cm^2 molecule^-1`.
+
+Preview
+-------
+```
+           cmpd_name cmpd_formula        products                 type  \
+0              ozone           O3  -> O(^1D) + O2  inorganic reactions
+1              ozone           O3  -> O(^3P) + O2  inorganic reactions
+2  hydrogen peroxide         H2O2      -> OH + OH  inorganic reactions
+3   nitrogen dioxide          NO2  -> NO + O(^3P)  inorganic reactions
+4    nitrate radical          NO3      -> NO + O2  inorganic reactions
+
+          l      m      n  quantum_yield  \
+0  0.000061  1.743  0.474            NaN
+1  0.000478  0.298  0.080            NaN
+2  0.000010  0.723  0.279            1.0
+3  0.011650  0.244  0.267            NaN
+4  0.024850  0.168  0.108            1.0
+
+                                       wavelength_nm  \
+0  290,291,292,293,294,295,296,297,298,299,300,30...
+1  290,291,292,293,294,295,296,297,298,299,300,30...
+2  190,195,200,205,210,215,220,225,230,235,240,24...
+3  400,401,402,403,404,405,406,407,408,409,410,41...
+4  400,401,402,403,404,405,406,407,408,409,410,41...
+
+                                       sigma_298_cm2
+0  1.43E-18,1.27E-18,1.11E-18,9.94E-19,8.68E-19,7...
+1  1.43E-18,1.27E-18,1.11E-18,9.94E-19,8.68E-19,7...
+2  6.72E-19,5.63E-19,4.75E-19,4.08E-19,3.57E-19,3...
+3  0,0,0,2.00E-20,0,3.00E-20,2.00E-20,1.00E-20,3....
+4  0,0,0,2.00E-22,0,3.00E-22,2.00E-22,1.00E-22,3....
+```
+
 """
 
 nuclides: pd.DataFrame = pd.read_csv(_nuclides_fname, dtype=_nuclides_dtype)  # type: ignore
@@ -942,6 +1309,53 @@ uncertainty. In units of barn (b).
 micro AMU.
 - `mass_excess`, `mass_excess_uncert`: The mass excess and its associated uncertainty. In units of
 keV.
+
+Preview
+-------
+```
+      nuclide  z  n element  radius  radius_uncert  abundance  \
+0  ^{1}_{1}H0  1  0       H  0.8783         0.0086   0.999855
+1  ^{2}_{1}H1  1  1       H  2.1421         0.0088   0.000145
+2  ^{3}_{1}H2  1  2       H  1.7591         0.0363        NaN
+3  ^{4}_{1}H3  1  3       H     NaN            NaN        NaN
+4  ^{5}_{1}H4  1  4       H     NaN            NaN        NaN
+
+   abundance_uncert is_stable     half_life  half_life_uncert isospin decay_1  \
+0          0.000078      TRUE           NaN               NaN     NaN     NaN
+1          0.000078      TRUE           NaN               NaN     NaN     NaN
+2               NaN     FALSE  3.887813e+08      6.311385e+05     NaN      B-
+3               NaN     FALSE           NaN               NaN       1       N
+4               NaN     FALSE  8.608259e-23      6.496799e-24     NaN      2N
+
+   decay_1_pct  decay_1_pct_uncert decay_2  decay_2_pct  decay_2_pct_uncert  \
+0          NaN                 NaN     NaN          NaN                 NaN
+1          NaN                 NaN     NaN          NaN                 NaN
+2          1.0                 NaN     NaN          NaN                 NaN
+3          1.0                 NaN     NaN          NaN                 NaN
+4          1.0                 NaN     NaN          NaN                 NaN
+
+  decay_3  decay_3_pct  decay_3_pct_uncert  magnetic_dipole  \
+0     NaN          NaN                 NaN         2.792847
+1     NaN          NaN                 NaN         0.857438
+2     NaN          NaN                 NaN         2.978962
+3     NaN          NaN                 NaN              NaN
+4     NaN          NaN                 NaN              NaN
+
+   magnetic_dipole_uncert  electric_quadrupole  electric_quadrupole_uncert  \
+0            9.000000e-09                  NaN                         NaN
+1            5.000000e-09             0.002858                3.000000e-07
+2            1.400000e-08                  NaN                         NaN
+3                     NaN                  NaN                         NaN
+4                     NaN                  NaN                         NaN
+
+    atomic_mass  atomic_mass_uncert   mass_excess  mass_excess_uncert
+0  1.007825e+06            0.000014   7288.971064            0.000013
+1  2.014102e+06            0.000015  13135.722895            0.000015
+2  3.016049e+06            0.000080  14949.810900            0.000080
+3  4.026432e+06          107.354000  24621.129000          100.000000
+4  5.035311e+06           96.020000  32892.447000           89.443000
+```
+
 """
 
 islands: pd.DataFrame = pd.read_csv(_islands_fname)  # type: ignore
