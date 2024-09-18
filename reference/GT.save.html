@@ -192,7 +192,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 <section id="great_tables.GT.save" class="level1">
 <h1>GT.save</h1>
-<p><code>GT.save(self, file, selector='table', scale=1.0, expand=5, web_driver='chrome', window_size=(6000, 6000), debug_port=None, _debug_dump=None)</code></p>
+<p><code>GT.save(self, file, selector='table', scale=1.0, expand=5, web_driver='chrome', window_size=(6000, 6000), debug_port=None, encoding='utf-8', _debug_dump=None)</code></p>
 <p>Produce a high-resolution image file or PDF of the table.</p>
 <p>The output file is created by taking a screenshot of the table using a headless browser.</p>
 <section id="parameters" class="level2">
@@ -256,6 +256,12 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <td><code>None</code></td>
 </tr>
 <tr class="even">
+<td><code>encoding</code></td>
+<td><code>str</code></td>
+<td>The encoding used when writing temporary files.</td>
+<td><code>'utf-8'</code></td>
+</tr>
+<tr class="odd">
 <td><code>_debug_dump</code></td>
 <td><code>DebugDumpOptions</code> | None</td>
 <td>Whether the saved image should be a big browser window, with key elements outlined. This is helpful for debugging this function’s resizing, cropping heuristics. This is an internal parameter and subject to change.</td>
