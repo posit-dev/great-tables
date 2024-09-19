@@ -188,9 +188,9 @@ def create_columns_component_h(data: GTData) -> str:
             )
 
         # Join the <th> cells into a string and begin each with a newline
-        th_cells = "\n" + "\n".join(["  " + str(tag) for tag in table_col_headings]) + "\n"
+        # th_cells = "\n" + "\n".join(["  " + str(tag) for tag in table_col_headings]) + "\n"
 
-        table_col_headings = tags.tr(HTML(th_cells), class_="gt_col_headings")
+        table_col_headings = tags.tr(*table_col_headings, class_="gt_col_headings")
 
     #
     # Create the spanners and column labels in the case where there *are* spanners -------------
@@ -274,7 +274,8 @@ def create_columns_component_h(data: GTData) -> str:
                     styles_i = [
                         x
                         for x in styles_spanner_label
-                        if x.grpname == spanner_ids_level_1_index[ii]
+                        # TODO: refactor use of set
+                        if set(x.grpname) & set([spanner_ids_level_1_index[ii]])
                     ]
 
                     level_1_spanners.append(
@@ -356,7 +357,10 @@ def create_columns_component_h(data: GTData) -> str:
                     # Filter by column label / id, join with overall column labels style
                     # TODO check this filter logic
                     styles_i = [
-                        x for x in styles_column_label if x.grpname in (colspan, span_label)
+                        x
+                        for x in styles_column_label
+                        # TODO: refactor use of set
+                        if set(x.grpname) & set([colspan, span_label])
                     ]
 
                     if span_label:
@@ -408,7 +412,7 @@ def create_columns_component_h(data: GTData) -> str:
             higher_spanner_rows,
             table_col_headings,
         )
-    return str(table_col_headings)
+    return table_col_headings
 
 
 def create_body_component_h(data: GTData) -> str:

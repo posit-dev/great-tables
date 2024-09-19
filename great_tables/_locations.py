@@ -549,7 +549,12 @@ def _(loc: LocSpannerLabel, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
     # TODO resolve
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+
+    new_loc = resolve(loc, data._spanners)
+    return data._replace(
+        _styles=data._styles
+        + [StyleInfo(locname=new_loc, locnum=1, grpname=new_loc.ids, styles=style)]
+    )
 
 
 @set_style.register

@@ -1,5 +1,6 @@
 import pandas as pd
 import polars as pl
+import polars.selectors as cs
 import pytest
 from great_tables import GT
 from great_tables._gt_data import Spanners
@@ -116,6 +117,9 @@ def test_resolve_rows_i_raises(bad_expr):
     assert "a callable that takes a DataFrame and returns a boolean Series" in expected
 
 
+# Resolve Loc tests --------------------------------------------------------------------------------
+
+
 def test_resolve_loc_body():
     gt = GT(pd.DataFrame({"x": [1, 2], "y": [3, 4]}))
 
@@ -132,20 +136,36 @@ def test_resolve_loc_body():
     assert pos.colname == "x"
 
 
-def test_resolve_column_spanners_simple():
+@pytest.mark.xfail
+def test_resolve_loc_spanners_label_single():
+    spanners = Spanners.from_ids(["a", "b"])
+    loc = LocSpannerLabel(ids="a")
+
+    new_loc = resolve(loc, spanners)
+
+    assert new_loc.ids == ["a"]
+
+
+@pytest.mark.parametrize(
+    "expr",
+    [
+        ["a", "c"],
+        pytest.param(cs.by_name("a", "c"), marks=pytest.mark.xfail),
+    ],
+)
+def test_resolve_loc_spanners_label(expr):
     # note that this essentially a no-op
     ids = ["a", "b", "c"]
 
     spanners = Spanners.from_ids(ids)
-    loc = LocSpannerLabel(ids=["a", "c"])
+    loc = LocSpannerLabel(ids=expr)
 
     new_loc = resolve(loc, spanners)
 
-    assert new_loc == loc
     assert new_loc.ids == ["a", "c"]
 
 
-def test_resolve_column_spanners_error_missing():
+def test_resolve_loc_spanner_label_error_missing():
     # note that this essentially a no-op
     ids = ["a", "b", "c"]
 

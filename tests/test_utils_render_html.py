@@ -29,7 +29,7 @@ def assert_rendered_columns(snapshot, gt):
     built = gt._build_data("html")
     columns = create_columns_component_h(built)
 
-    assert snapshot == columns
+    assert snapshot == str(columns)
 
 
 def assert_rendered_body(snapshot, gt):
@@ -191,3 +191,16 @@ def test_multiple_spanners_pads_for_stubhead_label(snapshot):
     )
 
     assert_rendered_columns(snapshot, gt)
+
+
+# Location style rendering -------------------------------------------------------------------------
+# these tests focus on location classes being correctly picked up
+def test_loc_column_label():
+    gt = GT(pl.DataFrame({"x": [1], "y": [2]}))
+
+    new_gt = gt.tab_style(style.fill("yellow"), loc.column_label(columns=["x"]))
+    el = create_columns_component_h(new_gt._build_data("html"))
+
+    assert el.name == "tr"
+    assert el.children[0].attrs["style"] == "background-color: yellow;"
+    assert "style" not in el.children[1].attrs
