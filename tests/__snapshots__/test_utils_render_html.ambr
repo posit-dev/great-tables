@@ -41,10 +41,10 @@
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_title gt_font_normal"style="TITLE" >title</td>
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" style="TITLE">title</td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"style="SUBTITLE" >subtitle</td>
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="SUBTITLE">subtitle</td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" style="STUBHEAD" scope="col" id="stubhead">stubhead</th>

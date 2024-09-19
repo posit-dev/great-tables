@@ -31,7 +31,7 @@ def _flatten_styles(styles: Styles, wrap: bool = False) -> str:
     if wrap:
         if rendered_styles:
             # return style html attribute
-            return f'style="{" ".join(rendered_styles)}"' + " "
+            return f' style="{" ".join(rendered_styles)}"'
         # if no rendered styles, just return a blank
         return ""
     if rendered_styles:
@@ -505,11 +505,11 @@ def create_body_component_h(data: GTData) -> str:
 
             if is_stub_cell:
                 body_cells.append(
-                    f"""    <th {stub_style}class="gt_row gt_left gt_stub">{cell_str}</th>"""
+                    f"""    <th{stub_style} class="gt_row gt_left gt_stub">{cell_str}</th>"""
                 )
             else:
                 body_cells.append(
-                    f"""    <td {cell_styles}class="gt_row gt_{cell_alignment}">{cell_str}</td>"""
+                    f"""    <td{cell_styles} class="gt_row gt_{cell_alignment}">{cell_str}</td>"""
                 )
 
         prev_group_label = group_label
