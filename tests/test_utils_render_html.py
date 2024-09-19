@@ -204,3 +204,39 @@ def test_loc_column_label():
     assert el.name == "tr"
     assert el.children[0].attrs["style"] == "background-color: yellow;"
     assert "style" not in el.children[1].attrs
+
+
+def test_loc_kitchen_sink(snapshot):
+    gt = (
+        GT(exibble.loc[[0], ["num", "char", "fctr", "row", "group"]])
+        .tab_header("title", "subtitle")
+        .tab_stub(rowname_col="row", groupname_col="group")
+        .tab_source_note("yo")
+        .tab_spanner("spanner", ["char", "fctr"])
+        .tab_stubhead("stubhead")
+    )
+
+    new_gt = (
+        gt.tab_style(style.css("BODY"), loc.body())
+        # Columns -----------
+        .tab_style(style.css("COLUMN_LABEL"), loc.column_label(columns="num"))
+        .tab_style(style.css("COLUMN_LABELS"), loc.column_labels())
+        .tab_style(style.css("SPANNER_LABEL"), loc.spanner_label(ids=["spanner"]))
+        # Header -----------
+        .tab_style(style.css("HEADER"), loc.header())
+        .tab_style(style.css("SUBTITLE"), loc.subtitle())
+        .tab_style(style.css("TITLE"), loc.title())
+        # Footer -----------
+        # .tab_style(style.css("AAA"), loc.source_notes())
+        # .tab_style(style.css("AAA"), loc.footnotes())
+        # .tab_style(style.css("AAA"), loc.footer())
+        # Stub --------------
+        .tab_style(style.css("GROUP_LABEL"), loc.row_group_label())
+        .tab_style(style.css("ROW_LABEL"), loc.row_label(rows=1))
+        .tab_style(style.css("STUB"), loc.stub())
+        .tab_style(style.css("STUBHEAD"), loc.stubhead())
+    )
+
+    html = new_gt.as_raw_html()
+    cleaned = html[html.index("<table") :]
+    assert cleaned == snapshot
