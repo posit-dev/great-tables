@@ -35,6 +35,54 @@
   </tbody>
   '''
 # ---
+# name: test_loc_kitchen_sink
+  '''
+  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+  
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_title gt_font_normal"style="TITLE" >title</td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"style="SUBTITLE" >subtitle</td>
+    </tr>
+  <tr class="gt_col_headings gt_spanner_row">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" style="STUBHEAD" scope="col" id="stubhead">stubhead</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" style="COLUMN_LABELS COLUMN_LABEL" scope="col" id="num">num</th>
+    <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" style="COLUMN_LABELS SPANNER_LABEL" scope="colgroup" id="spanner">
+      <span class="gt_column_spanner">spanner</span>
+    </th>
+  </tr>
+  <tr class="gt_col_headings">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="COLUMN_LABELS" scope="col" id="char">char</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="COLUMN_LABELS" scope="col" id="fctr">fctr</th>
+  </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="4">grp_a</th>
+    </tr>
+    <tr>
+      <th style="STUB" class="gt_row gt_left gt_stub">row_1</th>
+      <td style="BODY" class="gt_row gt_right">0.1111</td>
+      <td style="BODY" class="gt_row gt_left">apricot</td>
+      <td style="BODY" class="gt_row gt_left">one</td>
+    </tr>
+  </tbody>
+    <tfoot class="gt_sourcenotes">
+    
+    <tr>
+      <td class="gt_sourcenote" colspan="4">yo</td>
+    </tr>
+  
+  </tfoot>
+  
+  </table>
+  
+  </div>
+          
+  '''
+# ---
 # name: test_multiple_spanners_pads_for_stubhead_label
   '''
   <tr class="gt_col_headings gt_spanner_row">
