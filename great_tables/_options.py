@@ -4,7 +4,7 @@ from dataclasses import dataclass, fields, replace
 from typing import TYPE_CHECKING, ClassVar, cast
 
 from great_tables import _utils
-from great_tables._helpers import FontStackName, _intify_scaled_px, px
+from great_tables._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
 
 
 if TYPE_CHECKING:
@@ -23,7 +23,7 @@ def tab_options(
     table_margin_left: str | None = None,
     table_margin_right: str | None = None,
     table_background_color: str | None = None,
-    # table_additional_css: str | None = None,
+    table_additional_css: list[str] | None = None,
     table_font_names: str | list[str] | None = None,
     table_font_size: str | None = None,
     table_font_weight: str | int | float | None = None,
@@ -207,6 +207,9 @@ def tab_options(
     table_background_color
         The background color for the table. A color name or a hexadecimal color code should be
         provided.
+    table_additional_css
+        Additional CSS that can be added to the table. This can be used to add any custom CSS
+        that is not covered by the other options.
     table_font_names
         The names of the fonts used for the table. This should be provided as a list of font
         names. If the first font isn't available, then the next font is tried (and so on).
@@ -1053,7 +1056,7 @@ def opt_table_outline(
 
 def opt_table_font(
     self: GTSelf,
-    font: str | list[str] | None = None,
+    font: str | list[str] | dict[str, str] | None = None,
     stack: FontStackName | None = None,
     weight: str | int | float | None = None,
     style: str | None = None,
@@ -1189,9 +1192,34 @@ def opt_table_font(
 
     if font is not None:
 
-        # If `font` is a string, convert it to a list
-        if isinstance(font, str):
+        # If font is a string or GoogleFont object, convert to a list
+        if isinstance(font, str) or isinstance(font, GoogleFont):
             font = [font]
+
+        new_font_list: list[str] = []
+
+        for item in font:
+
+            if isinstance(item, str):
+                # Case where list item is a string; here, it's converted to a list
+                new_font_list.append(item)
+
+            elif isinstance(item, GoogleFont):
+                # Case where the list item is a GoogleFont object
+                new_font_list.append(item.get_font_name())
+
+                # Append the import statement to the `table_additional_css` list
+                existing_additional_css = self._options.table_additional_css.value + [
+                    item.make_import_stmt()
+                ]
+
+                # Add revised CSS list via the `tab_options()` method
+                res = tab_options(res, table_additional_css=existing_additional_css)
+
+            else:
+                raise TypeError("`font=` must be a string or a list of strings.")
+
+        font = new_font_list
 
     else:
         font = []

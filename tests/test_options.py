@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from great_tables import GT, exibble, md
+from great_tables import GT, exibble, md, google_font
 from great_tables._scss import compile_scss
 from great_tables._gt_data import default_fonts_list
 from great_tables._helpers import _intify_scaled_px
@@ -361,6 +361,21 @@ def test_opt_table_font_use_stack_and_system_font():
     assert gt_tbl._options.table_font_names.value[0] == "Comic Sans MS"
     assert gt_tbl._options.table_font_names.value[1] == "Seravek"
     assert gt_tbl._options.table_font_names.value[-1] == "Noto Color Emoji"
+
+
+def test_opt_table_font_google_font():
+
+    gt_tbl = GT(exibble).opt_table_font(font=google_font(name="IBM Plex Mono"))
+
+    rendered_html = gt_tbl.as_raw_html()
+
+    assert rendered_html.find(
+        "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap');"
+    )
+
+    assert rendered_html.find(
+        "font-family: 'IBM Plex Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;"
+    )
 
 
 def test_opt_table_font_raises():

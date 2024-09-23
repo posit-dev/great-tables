@@ -986,7 +986,7 @@ class Options:
     table_margin_left: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
     table_margin_right: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
     table_background_color: OptionsInfo = OptionsInfo(True, "table", "value", "#FFFFFF")
-    # table_additional_css: OptionsInfo = OptionsInfo(False, "table", "values", None)
+    table_additional_css: OptionsInfo = OptionsInfo(False, "table", "values", [])
     table_font_names: OptionsInfo = OptionsInfo(False, "table", "values", default_fonts_list)
     table_font_size: OptionsInfo = OptionsInfo(True, "table", "px", "16px")
     table_font_weight: OptionsInfo = OptionsInfo(True, "table", "value", "normal")
