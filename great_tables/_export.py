@@ -97,22 +97,23 @@ def show(
 
     """
 
-    html = self._repr_html_()
-
     if target == "auto":
         target = _infer_render_target()
 
     if target == "notebook":
         from IPython.core.display import display_html
 
+        html = self._repr_html_()
+
         # https://github.com/ipython/ipython/pull/10962
         display_html(  # pyright: ignore[reportUnknownVariableType]
             html, raw=True, metadata={"text/html": {"isolated": True}}
         )
     elif target == "browser":
+        html = self.as_raw_html(make_page=True)
         with tempfile.TemporaryDirectory() as tmp_dir:
             f_path = Path(tmp_dir) / "index.html"
-            f_path.write_text(html)
+            f_path.write_text(html, encoding="utf-8")
 
             # create a server that closes after 1 request ----
             server = _create_temp_file_server(f_path)
