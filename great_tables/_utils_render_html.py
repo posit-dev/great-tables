@@ -134,7 +134,6 @@ def create_columns_component_h(data: GTData) -> str:
 
     # Filter list of StyleInfo for the various stubhead and column labels components
     styles_stubhead = [x for x in data._styles if _is_loc(x.locname, loc.LocStubhead)]
-    styles_stubhead_label = [x for x in data._styles if _is_loc(x.locname, loc.LocStubheadLabel)]
     styles_column_labels = [x for x in data._styles if _is_loc(x.locname, loc.LocColumnLabels)]
     styles_spanner_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSpannerLabel)]
     styles_column_label = [x for x in data._styles if _is_loc(x.locname, loc.LocColumnLabel)]
@@ -164,7 +163,7 @@ def create_columns_component_h(data: GTData) -> str:
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
                     rowspan="1",
                     colspan=len(stub_layout),
-                    style=_flatten_styles(styles_stubhead + styles_stubhead_label),
+                    style=_flatten_styles(styles_stubhead),
                     scope="colgroup" if len(stub_layout) > 1 else "col",
                     id=_process_text_id(stub_label),
                 )
@@ -226,7 +225,7 @@ def create_columns_component_h(data: GTData) -> str:
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{str(stubhead_label_alignment)}",
                     rowspan=2,
                     colspan=len(stub_layout),
-                    style=_flatten_styles(styles_stubhead + styles_stubhead_label),
+                    style=_flatten_styles(styles_stubhead),
                     scope="colgroup" if len(stub_layout) > 1 else "col",
                     id=_process_text_id(stub_label),
                 )

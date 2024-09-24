@@ -8,7 +8,6 @@ from ._locations import (
     #
     # Stubhead ----
     LocStubhead as stubhead,
-    LocStubheadLabel as stubhead_label,
     #
     # Column Labels ----
     LocColumnLabels as column_labels,
@@ -19,14 +18,17 @@ from ._locations import (
     LocStub as stub,
     LocRowGroupLabel as row_group_label,
     LocRowLabel as row_label,
+    # TODO: remove for now
     LocSummaryLabel as summary_label,
     #
     # Body ----
     LocBody as body,
+    # TODO: remove for now
     LocSummary as summary,
     #
     # Footer ----
     LocFooter as footer,
+    # TODO: remove for now
     LocFootnotes as footnotes,
     LocSourceNotes as source_notes,
 )
@@ -36,7 +38,6 @@ __all__ = (
     "title",
     "subtitle",
     "stubhead",
-    "stubhead_label",
     "column_labels",
     "spanner_label",
     "column_label",
