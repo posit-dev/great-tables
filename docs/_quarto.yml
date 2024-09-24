@@ -171,6 +171,7 @@ quartodoc:
         having to use `tab_options()` directly.
       contents:
         - GT.opt_align_table_header
+        - GT.opt_row_striping
         - GT.opt_all_caps
         - GT.opt_vertical_padding
         - GT.opt_horizontal_padding
