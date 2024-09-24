@@ -332,17 +332,17 @@ def resolve_rows_i(
         expr: list[str | int] = [expr]
 
     if isinstance(data, GTData):
-        if expr is None:
-            if null_means == "everything":
-                return [(row.rowname, ii) for ii, row in enumerate(data._stub)]
-            else:
-                return []
-
         row_names = [row.rowname for row in data._stub]
     else:
         row_names = data
 
-    if isinstance(expr, list):
+    if expr is None:
+        if null_means == "everything":
+            return [(row.rowname, ii) for ii, row in enumerate(data._stub)]
+        else:
+            return []
+
+    elif isinstance(expr, list):
         # TODO: manually doing row selection here for now
         target_names = set(x for x in expr if isinstance(x, str))
         target_pos = set(
