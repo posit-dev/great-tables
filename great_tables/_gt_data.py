@@ -608,7 +608,7 @@ class Stub:
         # TODO: validate
         return self.__class__(self.rows, self.group_rows.reorder(group_order))
 
-    def group_indices_map(self) -> list[tuple[int, str | None]]:
+    def group_indices_map(self) -> list[tuple[int, GroupRowInfo | None]]:
         return self.group_rows.indices_map(len(self.rows))
 
     def __iter__(self):
@@ -738,7 +738,7 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
         return self.__class__(reordered)
 
-    def indices_map(self, n: int) -> list[tuple[int, str | None]]:
+    def indices_map(self, n: int) -> list[tuple[int, GroupRowInfo]]:
         """Return pairs of row index, group label for all rows in data.
 
         Note that when no groupings exist, n is used to return from range(n).
@@ -749,7 +749,7 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
         if not len(self._d):
             return [(ii, None) for ii in range(n)]
-        return [(ind, info.defaulted_label()) for info in self for ind in info.indices]
+        return [(ind, info) for info in self for ind in info.indices]
 
 
 # Spanners ----

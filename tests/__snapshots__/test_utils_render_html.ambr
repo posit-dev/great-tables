@@ -60,7 +60,7 @@
   </thead>
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="4">grp_a</th>
+      <th class="gt_group_heading" colspan="4" style="GROUP_LABEL">grp_a</th>
     </tr>
     <tr>
       <th style="STUB" class="gt_row gt_left gt_stub">row_1</th>

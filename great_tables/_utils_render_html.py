@@ -7,7 +7,7 @@ from typing import Any, cast
 from great_tables._spanners import spanners_print_matrix
 from htmltools import HTML, TagList, css, tags
 
-from ._gt_data import GTData, Styles
+from ._gt_data import GTData, Styles, GroupRowInfo
 from ._tbl_data import _get_cell, cast_frame_to_string, n_rows, replace_null_frame
 from ._text import _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
@@ -451,34 +451,36 @@ def create_body_component_h(data: GTData) -> str:
     body_rows: list[str] = []
 
     # iterate over rows (ordered by groupings)
-    prev_group_label = None
+    prev_group_info = None
 
-    ordered_index = data._stub.group_indices_map()
+    ordered_index: list[tuple[int, GroupRowInfo]] = data._stub.group_indices_map()
 
-    for i, group_label in ordered_index:
+    for i, group_info in ordered_index:
         body_cells: list[str] = []
 
+        # Create row for group (if applicable)
         if has_stub_column and has_groups and not has_two_col_stub:
             colspan_value = data._boxhead._get_effective_number_of_columns(
                 stub=data._stub, options=data._options
             )
 
-            # Generate a row that contains the row group label (this spans the entire row) but
-            # only if `i` indicates there should be a row group label
-            if group_label != prev_group_label:
+            # Only create if this is the first row within the group
+            if group_info is not prev_group_info:
+                group_label = group_info.defaulted_label()
                 group_class = (
                     "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
                 )
 
+                _styles = [style for style in styles_row_group_label if i in style.grpname]
+                group_styles = _flatten_styles(_styles, wrap=True)
+                print(group_styles)
                 group_row = f"""  <tr class="{group_class}">
-    <th class="gt_group_heading" colspan="{colspan_value}">{group_label}</th>
+    <th class="gt_group_heading" colspan="{colspan_value}"{group_styles}>{group_label}</th>
   </tr>"""
-
-                prev_group_label = group_label
 
                 body_rows.append(group_row)
 
-        # Create a single cell and append result to `body_cells`
+        # Create row cells
         for colinfo in column_vars:
             cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
             cell_str: str = str(cell_content)
@@ -512,7 +514,8 @@ def create_body_component_h(data: GTData) -> str:
                     f"""    <td{cell_styles} class="gt_row gt_{cell_alignment}">{cell_str}</td>"""
                 )
 
-        prev_group_label = group_label
+        prev_group_info = group_info
+
         body_rows.append("  <tr>\n" + "\n".join(body_cells) + "\n  </tr>")
 
     all_body_rows = "\n".join(body_rows)
