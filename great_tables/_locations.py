@@ -419,14 +419,16 @@ def _(loc: LocColumnLabel, data: GTData) -> list[CellPos]:
 @resolve.register
 def _(loc: LocRowGroupLabel, data: GTData) -> set[int]:
     # TODO: what are the rules for matching row groups?
+    # TODO: resolve_rows_i will match a list expr to row names (not group names)
     group_pos = set(pos for _, pos in resolve_rows_i(data, loc.rows))
     return list(group_pos)
 
 
 @resolve.register
-def _(loc: LocRowLabel, data: GTData) -> list[CellPos]:
+def _(loc: LocRowLabel, data: GTData) -> set[int]:
+    # TODO: what are the rules for matching row groups?
     rows = resolve_rows_i(data=data, expr=loc.rows)
-    cell_pos = [CellPos(0, row[1], colname="", rowname=row[0]) for row in rows]
+    cell_pos = set(row[1] for row in rows)
     return cell_pos
 
 
@@ -592,7 +594,8 @@ def _(loc: LocRowLabel, data: GTData, style: list[CellStyle]) -> GTData:
     # TODO resolve
     cells = resolve(loc, data)
 
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    new_styles = [StyleInfo(locname=loc, locnum=1, rownum=rownum, styles=style) for rownum in cells]
+    return data._replace(_styles=data._styles + new_styles)
 
 
 @set_style.register

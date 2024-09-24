@@ -458,13 +458,13 @@ def create_body_component_h(data: GTData) -> str:
     for i, group_info in ordered_index:
         body_cells: list[str] = []
 
-        # Create row for group (if applicable)
+        # Create table row specifically for group (if applicable)
         if has_stub_column and has_groups and not has_two_col_stub:
             colspan_value = data._boxhead._get_effective_number_of_columns(
                 stub=data._stub, options=data._options
             )
 
-            # Only create if this is the first row within the group
+            # Only create if this is the first row of data within the group
             if group_info is not prev_group_info:
                 group_label = group_info.defaulted_label()
                 group_class = (
@@ -497,19 +497,20 @@ def create_body_component_h(data: GTData) -> str:
 
             # Get the style attributes for the current cell by filtering the
             # `styles_cells` list for the current row and column
-            styles_i = [x for x in styles_cells if x.rownum == i and x.colname == colinfo.var]
-
-            # Develop the `style` attribute for the current cell
-            if len(styles_i) > 0:
-                cell_styles = _flatten_styles(styles_i, wrap=True)
-            else:
-                cell_styles = ""
+            _body_styles = [x for x in styles_cells if x.rownum == i and x.colname == colinfo.var]
 
             if is_stub_cell:
+                # TODO: what order should styles for these parts be combined in?
+                _rowname_styles = [x for x in styles_row_label if x.rownum == i]
+                cell_styles = _flatten_styles(
+                    styles_stub + _body_styles + _rowname_styles,
+                    wrap=True,
+                )
                 body_cells.append(
-                    f"""    <th{stub_style} class="gt_row gt_left gt_stub">{cell_str}</th>"""
+                    f"""    <th{cell_styles} class="gt_row gt_left gt_stub">{cell_str}</th>"""
                 )
             else:
+                cell_styles = _flatten_styles(_body_styles, wrap=True)
                 body_cells.append(
                     f"""    <td{cell_styles} class="gt_row gt_{cell_alignment}">{cell_str}</td>"""
                 )
