@@ -556,10 +556,11 @@ def create_source_notes_component_h(data: GTData) -> str:
         for note in source_notes:
             note_str = _process_text(note)
 
+            _styles = _flatten_styles(styles_source_notes, wrap=True)
             source_notes_tr.append(
                 f"""
   <tr>
-    <td class="gt_sourcenote" colspan="{n_cols_total}">{note_str}</td>
+    <td class="gt_sourcenote" colspan="{n_cols_total}"{_styles}>{note_str}</td>
   </tr>
 """
             )
