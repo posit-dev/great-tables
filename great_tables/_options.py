@@ -625,7 +625,34 @@ def opt_row_striping(self: GTSelf, row_striping: bool = True) -> GTSelf:
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+    Using only a few columns from the `exibble` dataset, let's create a table with a number of
+    components added. Following that, we'll add row striping to every second row with the
+    `opt_row_striping()` method.
+
+    ```{python}
+    from great_tables import GT, exibble, md
+
+    (
+        GT(
+            exibble[["num", "char", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group"
+        )
+        .tab_header(
+            title=md("Data listing from **exibble**"),
+            subtitle=md("`exibble` is a **Great Tables** dataset.")
+        )
+        .fmt_number(columns="num")
+        .fmt_currency(columns="currency")
+        .tab_source_note(source_note="This is only a subset of the dataset.")
+        .opt_row_striping()
+    )
+    ```
     """
+
     return tab_options(self, row_striping_include_table_body=row_striping)
 
 
