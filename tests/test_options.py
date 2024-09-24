@@ -387,6 +387,36 @@ def test_opt_table_font_raises():
     assert "Either `font=` or `stack=` must be provided." in exc_info.value.args[0]
 
 
+def test_opt_row_striping():
+
+    gt_tbl_0 = GT(exibble)
+    gt_tbl_1 = GT(exibble).opt_row_striping()
+    gt_tbl_2 = GT(exibble).opt_row_striping().opt_row_striping(row_striping=False)
+
+    assert gt_tbl_0._options.row_striping_include_table_body.value == False
+    assert gt_tbl_1._options.row_striping_include_table_body.value == True
+    assert gt_tbl_2._options.row_striping_include_table_body.value == False
+
+
+def test_tab_options_striping():
+
+    gt_tbl_opt = GT(exibble, id="test").opt_row_striping()
+    gt_tbl_tab_options = GT(exibble, id="test").tab_options(row_striping_include_table_body=True)
+
+    assert gt_tbl_opt.as_raw_html() == gt_tbl_tab_options.as_raw_html()
+
+
+def test_tab_options_striping_snap(snapshot):
+
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group", id="test").tab_options(
+        row_striping_include_table_body=True,
+        row_striping_include_stub=True,
+        row_striping_background_color="lightblue",
+    )
+
+    assert snapshot == gt_tbl.as_raw_html()
+
+
 @pytest.mark.parametrize("align", ["left", "center", "right"])
 def test_opt_align_table_header(gt_tbl: GT, align: list[str]):
     tbl = gt_tbl.opt_align_table_header(align=align)
