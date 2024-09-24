@@ -608,11 +608,11 @@ def opt_footnote_marks(self: GTSelf, marks: str | list[str] = "numbers") -> GTSe
 
 def opt_row_striping(self: GTSelf, row_striping: bool = True) -> GTSelf:
     """
-    Option to add or remove row striping.1
+    Option to add or remove row striping.
 
-    By default, a gt*table does not have row striping enabled. However, this method allows us to
-    easily enable or disable striped rows in the table body. It's a convenient shortcut for
-    `gt.tab_options(row_striping_include_table_body=<True|False>)`.
+    By default, a table does not have row striping enabled. However, this method allows us to easily
+    enable or disable striped rows in the table body. It's a convenient shortcut for
+    `tab_options(row_striping_include_table_body=<True|False>)`.
 
     Parameters
     ----------
