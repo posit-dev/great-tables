@@ -472,7 +472,6 @@ def create_body_component_h(data: GTData) -> str:
 
                 _styles = [style for style in styles_row_group_label if i in style.grpname]
                 group_styles = _flatten_styles(_styles, wrap=True)
-                print(group_styles)
                 group_row = f"""  <tr class="{group_class}">
     <th class="gt_group_heading" colspan="{colspan_value}"{group_styles}>{group_label}</th>
   </tr>"""
