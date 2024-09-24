@@ -63,7 +63,7 @@
       <th class="gt_group_heading" colspan="4" style="GROUP_LABEL">grp_a</th>
     </tr>
     <tr>
-      <th style="STUB" class="gt_row gt_left gt_stub">row_1</th>
+      <th style="STUB ROW_LABEL" class="gt_row gt_left gt_stub">row_1</th>
       <td style="BODY" class="gt_row gt_right">0.1111</td>
       <td style="BODY" class="gt_row gt_left">apricot</td>
       <td style="BODY" class="gt_row gt_left">one</td>
