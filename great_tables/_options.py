@@ -161,9 +161,9 @@ def tab_options(
     source_notes_border_lr_color: str | None = None,
     source_notes_multiline: bool | None = None,
     source_notes_sep: str | None = None,
-    # row_striping_background_color: str | None = None,
-    # row_striping_include_stub: bool | None = None,
-    # row_striping_include_table_body: bool | None = None,
+    row_striping_background_color: str | None = None,
+    row_striping_include_stub: bool | None = None,
+    row_striping_include_table_body: bool | None = None,
 ) -> GTSelf:
     """
     Modify the table output options.
@@ -466,6 +466,13 @@ def tab_options(
         this border is larger, then it will be the visible border.
     source_notes_border_lr_color
         The color of the left and right borders of the `source_notes` location.
+    row_striping_background_color
+        The background color for striped table body rows. A color name or a hexadecimal color code
+        should be provided.
+    row_striping_include_stub
+        An option for whether to include the stub when striping rows.
+    row_striping_include_table_body
+        An option for whether to include the table body when striping rows.
 
     Returns
     -------
@@ -601,7 +608,7 @@ def opt_footnote_marks(self: GTSelf, marks: str | list[str] = "numbers") -> GTSe
 
 def opt_row_striping(self: GTSelf, row_striping: bool = True) -> GTSelf:
     """
-    Option to add or remove row striping.
+    Option to add or remove row striping.1
 
     By default, a gt*table does not have row striping enabled. However, this method allows us to
     easily enable or disable striped rows in the table body. It's a convenient shortcut for

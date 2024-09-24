@@ -272,6 +272,10 @@
     border-top-width: 5px;
   }
   
+  #abc .gt_striped {
+    background-color: rgba(128,128,128,0.05);
+  }
+  
   #abc .gt_table_body {
     border-top-style: solid;
     border-top-width: 5px;
@@ -617,6 +621,10 @@
   
   #abc .gt_row_group_first th {
     border-top-width: 2px;
+  }
+  
+  #abc .gt_striped {
+    background-color: rgba(128,128,128,0.05);
   }
   
   #abc .gt_table_body {
