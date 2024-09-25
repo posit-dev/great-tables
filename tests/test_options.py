@@ -411,12 +411,26 @@ def test_tab_options_striping():
     assert gt_tbl_opt_stri._options.row_striping_include_stub.value == False
 
 
-def test_tab_options_striping_snap(snapshot):
+def test_tab_options_striping_body_snap(snapshot):
 
     gt_tbl = GT(
         exibble[["row", "group", "char"]].head(4), rowname_col="row", groupname_col="group"
     ).tab_options(
         row_striping_include_table_body=True,
+        row_striping_background_color="lightblue",
+    )
+
+    built = gt_tbl._build_data("html")
+    body = create_body_component_h(built)
+
+    assert snapshot == body
+
+
+def test_tab_options_striping_stub_snap(snapshot):
+
+    gt_tbl = GT(
+        exibble[["row", "group", "char"]].head(4), rowname_col="row", groupname_col="group"
+    ).tab_options(
         row_striping_include_stub=True,
         row_striping_background_color="lightblue",
     )
