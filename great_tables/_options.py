@@ -1297,7 +1297,9 @@ def opt_table_font(
     return res
 
 
-def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
+def opt_stylize(
+    self: GTSelf, style: int = 1, color: str = "blue", add_row_striping: bool = True
+) -> GTSelf:
     """
     Stylize your table with a colorful look.
 
