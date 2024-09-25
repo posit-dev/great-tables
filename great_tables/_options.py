@@ -1399,6 +1399,24 @@ def opt_stylize(
     if add_row_striping:
         mapped_params["row_striping_include_table_body"] = ["True"]
 
+    if style in [2, 4, 5]:
+        # For styles 2, 4, and 5 we need to set the border colors and widths
+
+        # Use a dictionary comprehension to generate the border parameters
+        directions = ["top", "bottom", "left", "right"]
+        attributes = ["color", "width", "style"]
+
+        border_params: dict[str, str] = {
+            f"table_border_{d}_{a}": (
+                "#D5D5D5" if a == "color" else "3px" if a == "width" else "solid"
+            )
+            for d in directions
+            for a in attributes
+        }
+
+        # Append the border parameters to the `mapped_params` dictionary
+        mapped_params.update(border_params)
+
     # Apply the style parameters to the table using the `tab_options()` method
     res = tab_options(self=self, **mapped_params)
 
