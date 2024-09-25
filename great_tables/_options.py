@@ -1552,7 +1552,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#D5D5D5",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "blue-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1568,7 +1567,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#89D3FE",
         "grand_summary_row_background_color": "#00A1FF",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "cyan-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1584,7 +1582,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#A5FEF2",
         "grand_summary_row_background_color": "#7FE9DB",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "pink-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1600,7 +1597,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFC6E3",
         "grand_summary_row_background_color": "#EF5FA7",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "green-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1616,7 +1612,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#CAFFAF",
         "grand_summary_row_background_color": "#89FD61",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "red-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1632,7 +1627,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFCCC7",
         "grand_summary_row_background_color": "#FF644E",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "gray-3": {
         "table_hlines_color": "#929292",
@@ -1738,7 +1732,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#5F5F5F",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "blue-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1754,7 +1747,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#0076BA",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "cyan-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1770,7 +1762,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#01837B",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "pink-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1786,7 +1777,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#CB2A7B",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "green-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1802,7 +1792,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#038901",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "red-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1818,7 +1807,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#E4220C",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "gray-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1834,7 +1822,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "blue-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1850,7 +1837,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "cyan-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1866,7 +1852,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "pink-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1882,7 +1867,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "green-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1898,7 +1882,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "red-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1914,7 +1897,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "gray-6": {
         "table_hlines_color": "#5F5F5F",
