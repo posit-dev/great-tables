@@ -703,161 +703,26 @@
 # ---
 # name: test_tab_options_striping_snap
   '''
-  <div id="test" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-  <style>
-  #test table {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-          }
-  
-  #test thead, tbody, tfoot, tr, td, th { border-style: none; }
-   tr { background-color: transparent; }
-  #test p { margin: 0; padding: 0; }
-   #test .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-   #test .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-   #test .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-   #test .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-   #test .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-   #test .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-   #test .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-   #test .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-   #test .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-   #test .gt_column_spanner_outer:first-child { padding-left: 0; }
-   #test .gt_column_spanner_outer:last-child { padding-right: 0; }
-   #test .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-   #test .gt_spanner_row { border-bottom-style: hidden; }
-   #test .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-   #test .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-   #test .gt_from_md> :first-child { margin-top: 0; }
-   #test .gt_from_md> :last-child { margin-bottom: 0; }
-   #test .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-   #test .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-   #test .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-   #test .gt_row_group_first td { border-top-width: 2px; }
-   #test .gt_row_group_first th { border-top-width: 2px; }
-   #test .gt_striped { background-color: lightblue; }
-   #test .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-   #test .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-   #test .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-   #test .gt_left { text-align: left; }
-   #test .gt_center { text-align: center; }
-   #test .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-   #test .gt_font_normal { font-weight: normal; }
-   #test .gt_font_bold { font-weight: bold; }
-   #test .gt_font_italic { font-style: italic; }
-   #test .gt_super { font-size: 65%; }
-   #test .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-   #test .gt_asterisk { font-size: 100%; vertical-align: 0; }
-   
-  </style>
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-  <thead>
-  
-  <tr class="gt_col_headings">
-    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="date">date</th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="time">time</th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="datetime">datetime</th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
-  </tr>
-  </thead>
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="8">grp_a</th>
+      <th class="gt_group_heading" colspan="2">grp_a</th>
     </tr>
     <tr>
       <th class="gt_row gt_left gt_stub">row_1</th>
-      <td class="gt_row gt_right">0.1111</td>
       <td class="gt_row gt_left">apricot</td>
-      <td class="gt_row gt_left">one</td>
-      <td class="gt_row gt_right">2015-01-15</td>
-      <td class="gt_row gt_right">13:35</td>
-      <td class="gt_row gt_right">2018-01-01 02:22</td>
-      <td class="gt_row gt_right">49.95</td>
     </tr>
     <tr>
       <th class="gt_row gt_left gt_stub gt_striped">row_2</th>
-      <td class="gt_row gt_right gt_striped">2.222</td>
       <td class="gt_row gt_left gt_striped">banana</td>
-      <td class="gt_row gt_left gt_striped">two</td>
-      <td class="gt_row gt_right gt_striped">2015-02-15</td>
-      <td class="gt_row gt_right gt_striped">14:40</td>
-      <td class="gt_row gt_right gt_striped">2018-02-02 14:33</td>
-      <td class="gt_row gt_right gt_striped">17.95</td>
     </tr>
     <tr>
       <th class="gt_row gt_left gt_stub">row_3</th>
-      <td class="gt_row gt_right">33.33</td>
       <td class="gt_row gt_left">coconut</td>
-      <td class="gt_row gt_left">three</td>
-      <td class="gt_row gt_right">2015-03-15</td>
-      <td class="gt_row gt_right">15:45</td>
-      <td class="gt_row gt_right">2018-03-03 03:44</td>
-      <td class="gt_row gt_right">1.39</td>
     </tr>
     <tr>
       <th class="gt_row gt_left gt_stub gt_striped">row_4</th>
-      <td class="gt_row gt_right gt_striped">444.4</td>
       <td class="gt_row gt_left gt_striped">durian</td>
-      <td class="gt_row gt_left gt_striped">four</td>
-      <td class="gt_row gt_right gt_striped">2015-04-15</td>
-      <td class="gt_row gt_right gt_striped">16:50</td>
-      <td class="gt_row gt_right gt_striped">2018-04-04 15:55</td>
-      <td class="gt_row gt_right gt_striped">65100.0</td>
-    </tr>
-    <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="8">grp_b</th>
-    </tr>
-    <tr>
-      <th class="gt_row gt_left gt_stub">row_5</th>
-      <td class="gt_row gt_right">5550.0</td>
-      <td class="gt_row gt_left"><NA></td>
-      <td class="gt_row gt_left">five</td>
-      <td class="gt_row gt_right">2015-05-15</td>
-      <td class="gt_row gt_right">17:55</td>
-      <td class="gt_row gt_right">2018-05-05 04:00</td>
-      <td class="gt_row gt_right">1325.81</td>
-    </tr>
-    <tr>
-      <th class="gt_row gt_left gt_stub gt_striped">row_6</th>
-      <td class="gt_row gt_right gt_striped"><NA></td>
-      <td class="gt_row gt_left gt_striped">fig</td>
-      <td class="gt_row gt_left gt_striped">six</td>
-      <td class="gt_row gt_right gt_striped">2015-06-15</td>
-      <td class="gt_row gt_right gt_striped"><NA></td>
-      <td class="gt_row gt_right gt_striped">2018-06-06 16:11</td>
-      <td class="gt_row gt_right gt_striped">13.255</td>
-    </tr>
-    <tr>
-      <th class="gt_row gt_left gt_stub">row_7</th>
-      <td class="gt_row gt_right">777000.0</td>
-      <td class="gt_row gt_left">grapefruit</td>
-      <td class="gt_row gt_left">seven</td>
-      <td class="gt_row gt_right"><NA></td>
-      <td class="gt_row gt_right">19:10</td>
-      <td class="gt_row gt_right">2018-07-07 05:22</td>
-      <td class="gt_row gt_right"><NA></td>
-    </tr>
-    <tr>
-      <th class="gt_row gt_left gt_stub gt_striped">row_8</th>
-      <td class="gt_row gt_right gt_striped">8880000.0</td>
-      <td class="gt_row gt_left gt_striped">honeydew</td>
-      <td class="gt_row gt_left gt_striped">eight</td>
-      <td class="gt_row gt_right gt_striped">2015-08-15</td>
-      <td class="gt_row gt_right gt_striped">20:20</td>
-      <td class="gt_row gt_right gt_striped"><NA></td>
-      <td class="gt_row gt_right gt_striped">0.44</td>
     </tr>
   </tbody>
-  
-  
-  </table>
-  
-  </div>
-          
   '''
 # ---

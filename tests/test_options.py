@@ -4,6 +4,7 @@ from great_tables import GT, exibble, md, google_font
 from great_tables._scss import compile_scss
 from great_tables._gt_data import default_fonts_list
 from great_tables._helpers import _intify_scaled_px
+from great_tables._utils_render_html import create_body_component_h
 
 
 def test_options_overwrite():
@@ -400,21 +401,30 @@ def test_opt_row_striping():
 
 def test_tab_options_striping():
 
-    gt_tbl_opt = GT(exibble, id="test").opt_row_striping()
-    gt_tbl_tab_options = GT(exibble, id="test").tab_options(row_striping_include_table_body=True)
+    gt_tbl_tab_opts = GT(exibble).tab_options(row_striping_include_table_body=True)
+    gt_tbl_opt_stri = GT(exibble).opt_row_striping()
 
-    assert gt_tbl_opt.as_raw_html() == gt_tbl_tab_options.as_raw_html()
+    assert gt_tbl_tab_opts._options.row_striping_include_table_body.value == True
+    assert gt_tbl_tab_opts._options.row_striping_include_stub.value == False
+
+    assert gt_tbl_opt_stri._options.row_striping_include_table_body.value == True
+    assert gt_tbl_opt_stri._options.row_striping_include_stub.value == False
 
 
 def test_tab_options_striping_snap(snapshot):
 
-    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group", id="test").tab_options(
+    gt_tbl = GT(
+        exibble[["row", "group", "char"]].head(4), rowname_col="row", groupname_col="group"
+    ).tab_options(
         row_striping_include_table_body=True,
         row_striping_include_stub=True,
         row_striping_background_color="lightblue",
     )
 
-    assert snapshot == gt_tbl.as_raw_html()
+    built = gt_tbl._build_data("html")
+    body = create_body_component_h(built)
+
+    assert snapshot == body
 
 
 @pytest.mark.parametrize("align", ["left", "center", "right"])
