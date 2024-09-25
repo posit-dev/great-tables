@@ -1322,6 +1322,8 @@ def opt_stylize(
     color
         The color scheme of the table. The default value is `"blue"`. The valid values are `"blue"`,
         `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`.
+    add_row_striping
+        An option to enable row striping in the table body for the style chosen.
 
     Returns
     -------
