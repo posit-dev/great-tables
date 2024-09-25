@@ -405,12 +405,7 @@ def _save_screenshot(
         from PIL import Image
 
         # convert to other formats (e.g. pdf, bmp) using PIL
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            fname = f"{tmp_dir}/image.png"
-            el.screenshot(fname)
-
-            with open(fname, "rb") as f:
-                Image.open(fp=BytesIO(f.read())).save(fp=path)
+        Image.open(fp=BytesIO(el.screenshot_as_png)).save(fp=path)
 
 
 def _dump_debug_screenshot(driver, path):
