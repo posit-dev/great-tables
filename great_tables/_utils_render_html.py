@@ -516,30 +516,28 @@ def create_body_component_h(data: GTData) -> str:
 
             if is_stub_cell:
 
-                th_classes = ["gt_row", "gt_left", "gt_stub"]
+                el_name = "th"
+
+                classes = ["gt_row", "gt_left", "gt_stub"]
 
                 if table_stub_striped and odd_i_row:
-                    th_classes.append("gt_striped")
-
-                # Ensure that th_classes becomes a space-separated string
-                th_classes_str = " ".join(th_classes)
-
-                body_cells.append(
-                    f"""    <th {cell_styles}class="{th_classes_str}">{cell_str}</th>"""
-                )
+                    classes.append("gt_striped")
 
             else:
 
-                td_classes = ["gt_row", f"gt_{cell_alignment}"]
+                el_name = "td"
+
+                classes = ["gt_row", f"gt_{cell_alignment}"]
 
                 if table_body_striped and odd_i_row:
-                    td_classes.append("gt_striped")
+                    classes.append("gt_striped")
 
-                td_classes_str = " ".join(td_classes)
+            # Ensure that `classes` becomes a space-separated string
+            classes = " ".join(classes)
 
-                body_cells.append(
-                    f"""    <td {cell_styles}class="{td_classes_str}">{cell_str}</td>"""
-                )
+            body_cells.append(
+                f"""    <{el_name} {cell_styles}class="{classes}">{cell_str}</{el_name}>"""
+            )
 
         prev_group_label = group_label
         body_rows.append("  <tr>\n" + "\n".join(body_cells) + "\n  </tr>")
