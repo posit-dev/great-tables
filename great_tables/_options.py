@@ -161,9 +161,9 @@ def tab_options(
     source_notes_border_lr_color: str | None = None,
     source_notes_multiline: bool | None = None,
     source_notes_sep: str | None = None,
-    # row_striping_background_color: str | None = None,
-    # row_striping_include_stub: bool | None = None,
-    # row_striping_include_table_body: bool | None = None,
+    row_striping_background_color: str | None = None,
+    row_striping_include_stub: bool | None = None,
+    row_striping_include_table_body: bool | None = None,
 ) -> GTSelf:
     """
     Modify the table output options.
@@ -466,6 +466,13 @@ def tab_options(
         this border is larger, then it will be the visible border.
     source_notes_border_lr_color
         The color of the left and right borders of the `source_notes` location.
+    row_striping_background_color
+        The background color for striped table body rows. A color name or a hexadecimal color code
+        should be provided.
+    row_striping_include_stub
+        An option for whether to include the stub when striping rows.
+    row_striping_include_table_body
+        An option for whether to include the table body when striping rows.
 
     Returns
     -------
@@ -603,9 +610,9 @@ def opt_row_striping(self: GTSelf, row_striping: bool = True) -> GTSelf:
     """
     Option to add or remove row striping.
 
-    By default, a gt*table does not have row striping enabled. However, this method allows us to
-    easily enable or disable striped rows in the table body. It's a convenient shortcut for
-    `gt.tab_options(row_striping_include_table_body=<True|False>)`.
+    By default, a table does not have row striping enabled. However, this method allows us to easily
+    enable or disable striped rows in the table body. It's a convenient shortcut for
+    `tab_options(row_striping_include_table_body=<True|False>)`.
 
     Parameters
     ----------
@@ -618,7 +625,34 @@ def opt_row_striping(self: GTSelf, row_striping: bool = True) -> GTSelf:
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+    Using only a few columns from the `exibble` dataset, let's create a table with a number of
+    components added. Following that, we'll add row striping to every second row with the
+    `opt_row_striping()` method.
+
+    ```{python}
+    from great_tables import GT, exibble, md
+
+    (
+        GT(
+            exibble[["num", "char", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group"
+        )
+        .tab_header(
+            title=md("Data listing from **exibble**"),
+            subtitle=md("`exibble` is a **Great Tables** dataset.")
+        )
+        .fmt_number(columns="num")
+        .fmt_currency(columns="currency")
+        .tab_source_note(source_note="This is only a subset of the dataset.")
+        .opt_row_striping()
+    )
+    ```
     """
+
     return tab_options(self, row_striping_include_table_body=row_striping)
 
 

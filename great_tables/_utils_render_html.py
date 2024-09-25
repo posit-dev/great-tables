@@ -444,6 +444,12 @@ def create_body_component_h(data: GTData) -> str:
     if stub_var is not None:
         column_vars = [stub_var] + column_vars
 
+    # Is the stub to be striped?
+    table_stub_striped = data._options.row_striping_include_stub.value
+
+    # Are the rows in the table body to be striped?
+    table_body_striped = data._options.row_striping_include_table_body.value
+
     body_rows: list[str] = []
 
     # iterate over rows (ordered by groupings)
@@ -452,6 +458,12 @@ def create_body_component_h(data: GTData) -> str:
     ordered_index = data._stub.group_indices_map()
 
     for i, group_label in ordered_index:
+
+        # For table striping we want to add a striping CSS class to the even-numbered
+        # rows in the rendered table; to target these rows, determine if `i` in the current
+        # row render is an odd number
+        odd_i_row = i % 2 == 1
+
         body_cells: list[str] = []
 
         if has_stub_column and has_groups and not has_two_col_stub:
@@ -503,11 +515,29 @@ def create_body_component_h(data: GTData) -> str:
                 cell_styles = ""
 
             if is_stub_cell:
-                body_cells.append(f"""    <th class="gt_row gt_left gt_stub">{cell_str}</th>""")
+
+                el_name = "th"
+
+                classes = ["gt_row", "gt_left", "gt_stub"]
+
+                if table_stub_striped and odd_i_row:
+                    classes.append("gt_striped")
+
             else:
-                body_cells.append(
-                    f"""    <td {cell_styles}class="gt_row gt_{cell_alignment}">{cell_str}</td>"""
-                )
+
+                el_name = "td"
+
+                classes = ["gt_row", f"gt_{cell_alignment}"]
+
+                if table_body_striped and odd_i_row:
+                    classes.append("gt_striped")
+
+            # Ensure that `classes` becomes a space-separated string
+            classes = " ".join(classes)
+
+            body_cells.append(
+                f"""    <{el_name} {cell_styles}class="{classes}">{cell_str}</{el_name}>"""
+            )
 
         prev_group_label = group_label
         body_rows.append("  <tr>\n" + "\n".join(body_cells) + "\n  </tr>")

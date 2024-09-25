@@ -272,6 +272,10 @@
     border-top-width: 5px;
   }
   
+  #abc .gt_striped {
+    background-color: rgba(128,128,128,0.05);
+  }
+  
   #abc .gt_table_body {
     border-top-style: solid;
     border-top-width: 5px;
@@ -619,6 +623,10 @@
     border-top-width: 2px;
   }
   
+  #abc .gt_striped {
+    background-color: rgba(128,128,128,0.05);
+  }
+  
   #abc .gt_table_body {
     border-top-style: solid;
     border-top-width: 2px;
@@ -691,5 +699,80 @@
     vertical-align: 0;
   }
   
+  '''
+# ---
+# name: test_tab_options_striping_body_snap
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">grp_a</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">row_1</th>
+      <td class="gt_row gt_left">apricot</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">row_2</th>
+      <td class="gt_row gt_left gt_striped">banana</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">row_3</th>
+      <td class="gt_row gt_left">coconut</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">row_4</th>
+      <td class="gt_row gt_left gt_striped">durian</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_tab_options_striping_snap
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">grp_a</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">row_1</th>
+      <td class="gt_row gt_left">apricot</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_striped">row_2</th>
+      <td class="gt_row gt_left gt_striped">banana</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">row_3</th>
+      <td class="gt_row gt_left">coconut</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_striped">row_4</th>
+      <td class="gt_row gt_left gt_striped">durian</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_tab_options_striping_stub_snap
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">grp_a</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">row_1</th>
+      <td class="gt_row gt_left">apricot</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_striped">row_2</th>
+      <td class="gt_row gt_left">banana</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">row_3</th>
+      <td class="gt_row gt_left">coconut</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_striped">row_4</th>
+      <td class="gt_row gt_left">durian</td>
+    </tr>
+  </tbody>
   '''
 # ---
