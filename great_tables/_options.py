@@ -1395,6 +1395,10 @@ def opt_stylize(
 
     mapped_params = StyleMapper(**params).map_all()
 
+    # Add the `add_row_striping` parameter to the `mapped_params` dictionary
+    if add_row_striping:
+        mapped_params["row_striping_include_table_body"] = ["True"]
+
     # Apply the style parameters to the table using the `tab_options()` method
     res = tab_options(self=self, **mapped_params)
 
