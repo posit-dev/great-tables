@@ -1381,14 +1381,11 @@ def opt_stylize(
 
     # Omit keys that are not needed for the `tab_options()` method
     # TODO: the omitted keys are for future use when:
-    #  (1) row striping is implemented
-    #  (2) summary rows are implemented
-    #  (3) grand summary rows are implemented
+    #  (1) summary rows are implemented
+    #  (2) grand summary rows are implemented
     omit_keys = {
         "summary_row_background_color",
         "grand_summary_row_background_color",
-        "row_striping_background_color",
-        "table_outline_color",
     }
 
     def dict_omit_keys(dict: dict[str, str], omit_keys: set[str]) -> dict[str, str]:
