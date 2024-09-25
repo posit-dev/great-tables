@@ -1413,6 +1413,7 @@ class StyleMapper:
     data_hlines_color: str
     data_vlines_style: str
     data_vlines_color: str
+    row_striping_background_color: str
 
     mappings: ClassVar[dict[str, list[str]]] = {
         "table_hlines_color": ["table_border_top_color", "table_border_bottom_color"],
@@ -1433,6 +1434,7 @@ class StyleMapper:
         "data_hlines_color": ["table_body_hlines_color"],
         "data_vlines_style": ["table_body_vlines_style"],
         "data_vlines_color": ["table_body_vlines_color"],
+        "row_striping_background_color": ["row_striping_background_color"],
     }
 
     def map_entry(self, name: str) -> dict[str, list[str]]:
