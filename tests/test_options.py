@@ -441,6 +441,22 @@ def test_tab_options_striping_stub_snap(snapshot):
     assert snapshot == body
 
 
+def test_opt_stylize_default(snapshot):
+
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize()
+
+    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+
+
+def test_opt_stylize_no_striping(snapshot):
+
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize(
+        add_row_striping=False
+    )
+
+    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+
+
 @pytest.mark.parametrize("align", ["left", "center", "right"])
 def test_opt_align_table_header(gt_tbl: GT, align: list[str]):
     tbl = gt_tbl.opt_align_table_header(align=align)
