@@ -1403,6 +1403,114 @@
   
   '''
 # ---
+# name: test_opt_stylize_outline_present[1]
+  '''
+  
+    border-top-style: solid;
+    border-top-width: 2px;
+    border-top-color: #004D80;
+    border-right-style: none;
+    border-right-width: 2px;
+    border-right-color: #D3D3D3;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    border-bottom-color: #004D80;
+    border-left-style: none;
+    border-left-width: 2px;
+    border-left-color: #D3D3D3;
+  
+  '''
+# ---
+# name: test_opt_stylize_outline_present[2]
+  '''
+  
+    border-top-style: solid;
+    border-top-width: 3px;
+    border-top-color: #D5D5D5;
+    border-right-style: solid;
+    border-right-width: 3px;
+    border-right-color: #D5D5D5;
+    border-bottom-style: solid;
+    border-bottom-width: 3px;
+    border-bottom-color: #D5D5D5;
+    border-left-style: solid;
+    border-left-width: 3px;
+    border-left-color: #D5D5D5;
+  
+  '''
+# ---
+# name: test_opt_stylize_outline_present[3]
+  '''
+  
+    border-top-style: solid;
+    border-top-width: 2px;
+    border-top-color: #929292;
+    border-right-style: none;
+    border-right-width: 2px;
+    border-right-color: #D3D3D3;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    border-bottom-color: #929292;
+    border-left-style: none;
+    border-left-width: 2px;
+    border-left-color: #D3D3D3;
+  
+  '''
+# ---
+# name: test_opt_stylize_outline_present[4]
+  '''
+  
+    border-top-style: solid;
+    border-top-width: 3px;
+    border-top-color: #D5D5D5;
+    border-right-style: solid;
+    border-right-width: 3px;
+    border-right-color: #D5D5D5;
+    border-bottom-style: solid;
+    border-bottom-width: 3px;
+    border-bottom-color: #D5D5D5;
+    border-left-style: solid;
+    border-left-width: 3px;
+    border-left-color: #D5D5D5;
+  
+  '''
+# ---
+# name: test_opt_stylize_outline_present[5]
+  '''
+  
+    border-top-style: solid;
+    border-top-width: 3px;
+    border-top-color: #D5D5D5;
+    border-right-style: solid;
+    border-right-width: 3px;
+    border-right-color: #D5D5D5;
+    border-bottom-style: solid;
+    border-bottom-width: 3px;
+    border-bottom-color: #D5D5D5;
+    border-left-style: solid;
+    border-left-width: 3px;
+    border-left-color: #D5D5D5;
+  
+  '''
+# ---
+# name: test_opt_stylize_outline_present[6]
+  '''
+  
+    border-top-style: solid;
+    border-top-width: 2px;
+    border-top-color: #5F5F5F;
+    border-right-style: none;
+    border-right-width: 2px;
+    border-right-color: #D3D3D3;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    border-bottom-color: #5F5F5F;
+    border-left-style: none;
+    border-left-width: 2px;
+    border-left-color: #D3D3D3;
+  
+  '''
+# ---
 # name: test_scss_default_generated
   '''
   #abc table {
