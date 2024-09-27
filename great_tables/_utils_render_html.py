@@ -64,9 +64,8 @@ def create_heading_component_h(data: GTData) -> str:
     styles_header = [x for x in data._styles if _is_loc(x.locname, loc.LocHeader)]
     styles_title = [x for x in data._styles if _is_loc(x.locname, loc.LocTitle)]
     styles_subtitle = [x for x in data._styles if _is_loc(x.locname, loc.LocSubTitle)]
-    header_style = _flatten_styles(styles_header, wrap=True) if styles_header else ""
-    title_style = _flatten_styles(styles_title, wrap=True) if styles_title else ""
-    subtitle_style = _flatten_styles(styles_subtitle, wrap=True) if styles_subtitle else ""
+    title_style = _flatten_styles(styles_header + styles_title, wrap=True)
+    subtitle_style = _flatten_styles(styles_header + styles_subtitle, wrap=True)
 
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
