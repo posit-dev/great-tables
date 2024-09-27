@@ -133,9 +133,9 @@ def create_columns_component_h(data: GTData) -> str:
 
     # Filter list of StyleInfo for the various stubhead and column labels components
     styles_stubhead = [x for x in data._styles if _is_loc(x.locname, loc.LocStubhead)]
-    styles_column_labels = [x for x in data._styles if _is_loc(x.locname, loc.LocColumnLabels)]
-    styles_spanner_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSpannerLabel)]
-    styles_column_label = [x for x in data._styles if _is_loc(x.locname, loc.LocColumnLabel)]
+    styles_column_labels = [x for x in data._styles if _is_loc(x.locname, loc.LocColumnHeader)]
+    styles_spanner_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSpannerLabels)]
+    styles_column_label = [x for x in data._styles if _is_loc(x.locname, loc.LocColumnLabels)]
 
     # If columns are present in the stub, then replace with a set stubhead label or nothing
     if len(stub_layout) > 0 and stubh is not None:
@@ -420,11 +420,9 @@ def create_body_component_h(data: GTData) -> str:
     tbl_data = replace_null_frame(data._body.body, _str_orig_data)
 
     # Filter list of StyleInfo to only those that apply to the stub
-    styles_stub = [x for x in data._styles if _is_loc(x.locname, loc.LocStub)]
     styles_row_group_label = [x for x in data._styles if _is_loc(x.locname, loc.LocRowGroupLabel)]
-    styles_row_label = [x for x in data._styles if _is_loc(x.locname, loc.LocRowLabel)]
+    styles_row_label = [x for x in data._styles if _is_loc(x.locname, loc.LocStub)]
     styles_summary_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSummaryLabel)]
-    stub_style = _flatten_styles(styles_stub, wrap=True) if styles_stub else ""
 
     # Filter list of StyleInfo to only those that apply to the body
     styles_cells = [x for x in data._styles if _is_loc(x.locname, loc.LocBody)]
@@ -514,7 +512,7 @@ def create_body_component_h(data: GTData) -> str:
 
                 classes = ["gt_row", "gt_left", "gt_stub"]
 
-                _rowname_styles = styles_stub + [x for x in styles_row_label if x.rownum == i]
+                _rowname_styles = [x for x in styles_row_label if x.rownum == i]
 
                 if table_stub_striped and odd_i_row:
                     classes.append("gt_striped")

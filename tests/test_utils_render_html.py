@@ -195,10 +195,10 @@ def test_multiple_spanners_pads_for_stubhead_label(snapshot):
 
 # Location style rendering -------------------------------------------------------------------------
 # these tests focus on location classes being correctly picked up
-def test_loc_column_label():
+def test_loc_column_labels():
     gt = GT(pl.DataFrame({"x": [1], "y": [2]}))
 
-    new_gt = gt.tab_style(style.fill("yellow"), loc.column_label(columns=["x"]))
+    new_gt = gt.tab_style(style.fill("yellow"), loc.column_labels(columns=["x"]))
     el = create_columns_component_h(new_gt._build_data("html"))
 
     assert el.name == "tr"
@@ -219,9 +219,9 @@ def test_loc_kitchen_sink(snapshot):
     new_gt = (
         gt.tab_style(style.css("BODY"), loc.body())
         # Columns -----------
-        .tab_style(style.css("COLUMN_LABEL"), loc.column_label(columns="num"))
-        .tab_style(style.css("COLUMN_LABELS"), loc.column_labels())
-        .tab_style(style.css("SPANNER_LABEL"), loc.spanner_label(ids=["spanner"]))
+        .tab_style(style.css("COLUMN_LABEL"), loc.column_labels(columns="num"))
+        .tab_style(style.css("COLUMN_HEADER"), loc.column_header())
+        .tab_style(style.css("SPANNER_LABEL"), loc.spanner_labels(ids=["spanner"]))
         # Header -----------
         .tab_style(style.css("HEADER"), loc.header())
         .tab_style(style.css("SUBTITLE"), loc.subtitle())
@@ -232,8 +232,8 @@ def test_loc_kitchen_sink(snapshot):
         # .tab_style(style.css("AAA"), loc.footnotes())
         # Stub --------------
         .tab_style(style.css("GROUP_LABEL"), loc.row_group_label())
-        .tab_style(style.css("ROW_LABEL"), loc.row_label(rows=[0]))
         .tab_style(style.css("STUB"), loc.stub())
+        .tab_style(style.css("ROW_LABEL"), loc.stub(rows=[0]))
         .tab_style(style.css("STUBHEAD"), loc.stubhead())
     )
 

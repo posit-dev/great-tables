@@ -7,7 +7,7 @@ from great_tables._gt_data import Spanners
 from great_tables._locations import (
     CellPos,
     LocBody,
-    LocSpannerLabel,
+    LocSpannerLabels,
     LocTitle,
     resolve,
     resolve_cols_i,
@@ -139,7 +139,7 @@ def test_resolve_loc_body():
 @pytest.mark.xfail
 def test_resolve_loc_spanners_label_single():
     spanners = Spanners.from_ids(["a", "b"])
-    loc = LocSpannerLabel(ids="a")
+    loc = LocSpannerLabels(ids="a")
 
     new_loc = resolve(loc, spanners)
 
@@ -158,7 +158,7 @@ def test_resolve_loc_spanners_label(expr):
     ids = ["a", "b", "c"]
 
     spanners = Spanners.from_ids(ids)
-    loc = LocSpannerLabel(ids=expr)
+    loc = LocSpannerLabels(ids=expr)
 
     new_loc = resolve(loc, spanners)
 
@@ -170,7 +170,7 @@ def test_resolve_loc_spanner_label_error_missing():
     ids = ["a", "b", "c"]
 
     spanners = Spanners.from_ids(ids)
-    loc = LocSpannerLabel(ids=["a", "d"])
+    loc = LocSpannerLabels(ids=["a", "d"])
 
     with pytest.raises(ValueError):
         resolve(loc, spanners)

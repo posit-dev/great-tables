@@ -10,14 +10,13 @@ from ._locations import (
     LocStubhead as stubhead,
     #
     # Column Labels ----
+    LocColumnHeader as column_header,
+    LocSpannerLabels as spanner_labels,
     LocColumnLabels as column_labels,
-    LocSpannerLabel as spanner_label,
-    LocColumnLabel as column_label,
     #
     # Stub ----
     LocStub as stub,
     LocRowGroupLabel as row_group_label,
-    LocRowLabel as row_label,
     # TODO: remove for now
     LocSummaryLabel as summary_label,
     #
@@ -38,12 +37,11 @@ __all__ = (
     "title",
     "subtitle",
     "stubhead",
+    "column_header",
+    "spanner_labels",
     "column_labels",
-    "spanner_label",
-    "column_label",
     "stub",
     "row_group_label",
-    "row_label",
     "summary_label",
     "body",
     "summary",

@@ -76,17 +76,17 @@ class LocStubheadLabel(Loc):
 
 
 @dataclass
-class LocColumnLabels(Loc):
+class LocColumnHeader(Loc):
     """A location for column spanners and column labels."""
 
 
 @dataclass
-class LocColumnLabel(Loc):
+class LocColumnLabels(Loc):
     columns: SelectExpr = None
 
 
 @dataclass
-class LocSpannerLabel(Loc):
+class LocSpannerLabels(Loc):
     """A location for column spanners."""
 
     ids: SelectExpr = None
@@ -101,11 +101,6 @@ class LocStub(Loc):
 
 @dataclass
 class LocRowGroupLabel(Loc):
-    rows: RowSelectExpr = None
-
-
-@dataclass
-class LocRowLabel(Loc):
     rows: RowSelectExpr = None
 
 
@@ -371,7 +366,7 @@ def resolve(loc: Loc, *args: Any, **kwargs: Any) -> Loc | list[CellPos]:
 
 
 @resolve.register
-def _(loc: LocSpannerLabel, spanners: Spanners) -> LocSpannerLabel:
+def _(loc: LocSpannerLabels, spanners: Spanners) -> LocSpannerLabels:
     # unique labels (with order preserved)
     spanner_ids = [span.spanner_id for span in spanners]
 
@@ -379,11 +374,11 @@ def _(loc: LocSpannerLabel, spanners: Spanners) -> LocSpannerLabel:
     resolved_spanners = [spanner_ids[idx] for idx in resolved_spanners_idx]
 
     # Create a list object
-    return LocSpannerLabel(ids=resolved_spanners)
+    return LocSpannerLabels(ids=resolved_spanners)
 
 
 @resolve.register
-def _(loc: LocColumnLabel, data: GTData) -> list[CellPos]:
+def _(loc: LocColumnLabels, data: GTData) -> list[CellPos]:
     cols = resolve_cols_i(data=data, expr=loc.columns)
     cell_pos = [CellPos(col[1], 0, colname=col[0]) for col in cols]
     return cell_pos
@@ -398,7 +393,7 @@ def _(loc: LocRowGroupLabel, data: GTData) -> set[int]:
 
 
 @resolve.register
-def _(loc: LocRowLabel, data: GTData) -> set[int]:
+def _(loc: LocStub, data: GTData) -> set[int]:
     # TODO: what are the rules for matching row groups?
     rows = resolve_rows_i(data=data, expr=loc.rows)
     cell_pos = set(row[1] for row in rows)
@@ -452,8 +447,7 @@ def set_style(loc: Loc, data: GTData, style: list[str]) -> GTData:
 @set_style.register(LocSubTitle)
 @set_style.register(LocStubhead)
 @set_style.register(LocStubheadLabel)
-@set_style.register(LocColumnLabels)
-@set_style.register(LocStub)
+@set_style.register(LocColumnHeader)
 @set_style.register(LocFooter)
 @set_style.register(LocSourceNotes)
 def _(
@@ -463,8 +457,7 @@ def _(
         | LocSubTitle
         | LocStubhead
         | LocStubheadLabel
-        | LocColumnLabels
-        | LocStub
+        | LocColumnHeader
         | LocFooter
         | LocSourceNotes
     ),
@@ -479,7 +472,7 @@ def _(
 
 
 @set_style.register
-def _(loc: LocColumnLabel, data: GTData, style: list[CellStyle]) -> GTData:
+def _(loc: LocColumnLabels, data: GTData, style: list[CellStyle]) -> GTData:
     positions: list[CellPos] = resolve(loc, data)
 
     # evaluate any column expressions in styles
@@ -498,7 +491,7 @@ def _(loc: LocColumnLabel, data: GTData, style: list[CellStyle]) -> GTData:
 
 
 @set_style.register
-def _(loc: LocSpannerLabel, data: GTData, style: list[CellStyle]) -> GTData:
+def _(loc: LocSpannerLabels, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
@@ -523,7 +516,7 @@ def _(loc: LocRowGroupLabel, data: GTData, style: list[CellStyle]) -> GTData:
 
 
 @set_style.register
-def _(loc: LocRowLabel, data: GTData, style: list[CellStyle]) -> GTData:
+def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
