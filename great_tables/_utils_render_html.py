@@ -513,8 +513,8 @@ def create_body_component_h(data: GTData) -> str:
                 el_name = "th"
 
                 classes = ["gt_row", "gt_left", "gt_stub"]
-    
-                _rowname_styles = [x for x in styles_row_label if x.rownum == i]
+
+                _rowname_styles = styles_stub + [x for x in styles_row_label if x.rownum == i]
 
                 if table_stub_striped and odd_i_row:
                     classes.append("gt_striped")
@@ -524,7 +524,7 @@ def create_body_component_h(data: GTData) -> str:
                 el_name = "td"
 
                 classes = ["gt_row", f"gt_{cell_alignment}"]
-                
+
                 _rowname_styles = []
 
                 if table_body_striped and odd_i_row:
@@ -533,12 +533,12 @@ def create_body_component_h(data: GTData) -> str:
             # Ensure that `classes` becomes a space-separated string
             classes = " ".join(classes)
             cell_styles = _flatten_styles(
-                styles_stub + _body_styles + _rowname_styles,
+                _body_styles + _rowname_styles,
                 wrap=True,
             )
 
             body_cells.append(
-                f"""    <{el_name} {cell_styles}class="{classes}">{cell_str}</{el_name}>"""
+                f"""    <{el_name}{cell_styles} class="{classes}">{cell_str}</{el_name}>"""
             )
 
         prev_group_info = group_info
