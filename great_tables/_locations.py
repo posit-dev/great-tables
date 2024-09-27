@@ -447,52 +447,34 @@ def set_style(loc: Loc, data: GTData, style: list[str]) -> GTData:
     raise NotImplementedError(f"Unsupported location type: {type(loc)}")
 
 
-@set_style.register
-def _(loc: LocHeader, data: GTData, style: list[CellStyle]) -> GTData:
+@set_style.register(LocHeader)
+@set_style.register(LocTitle)
+@set_style.register(LocSubTitle)
+@set_style.register(LocStubhead)
+@set_style.register(LocStubheadLabel)
+@set_style.register(LocColumnLabels)
+@set_style.register(LocStub)
+@set_style.register(LocFooter)
+@set_style.register(LocSourceNotes)
+def _(
+    loc: (
+        LocHeader
+        | LocTitle
+        | LocSubTitle
+        | LocStubhead
+        | LocStubheadLabel
+        | LocColumnLabels
+        | LocStub
+        | LocFooter
+        | LocSourceNotes
+    ),
+    data: GTData,
+    style: list[CellStyle],
+) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
 
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
-
-
-@set_style.register
-def _(loc: LocTitle, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
-
-
-@set_style.register
-def _(loc: LocSubTitle, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
-
-
-@set_style.register
-def _(loc: LocStubhead, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
-
-
-@set_style.register
-def _(loc: LocStubheadLabel, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
-
-
-@set_style.register
-def _(loc: LocColumnLabels, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
     return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
@@ -529,14 +511,6 @@ def _(loc: LocSpannerLabel, data: GTData, style: list[CellStyle]) -> GTData:
 
 
 @set_style.register
-def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
-
-
-@set_style.register
 def _(loc: LocRowGroupLabel, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
@@ -561,15 +535,6 @@ def _(loc: LocRowLabel, data: GTData, style: list[CellStyle]) -> GTData:
 
 
 @set_style.register
-def _(loc: LocSummaryLabel, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-    # TODO resolve
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
-
-
-@set_style.register
 def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
     positions: list[CellPos] = resolve(loc, data)
 
@@ -585,40 +550,6 @@ def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
         all_info.append(crnt_info)
 
     return data._replace(_styles=data._styles + all_info)
-
-
-@set_style.register
-def _(loc: LocSummary, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
-
-
-@set_style.register
-def _(loc: LocFooter, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
-
-
-@set_style.register
-def _(loc: LocFootnotes, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-    # TODO resolve
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
-
-
-@set_style.register
-def _(loc: LocSourceNotes, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-    # TODO resolve
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 # Set footnote generic =================================================================
