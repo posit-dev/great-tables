@@ -7,21 +7,21 @@ freeze: true
 jupyter: python3
 ---
 
-In Great Tables `0.12.0` we did something that is sure to please those who obsess over styling, and this is the ability to style virtually any part (i.e., *location*) of a table. Also, the use of *Google Fonts* is now integrated into the package (with lots of font choices there). Lastly, we incorporated row striping as an option so that you can get that zebra stripe look in your table. In this post, we'll present a few examples in the following big features:
+In Great Tables `0.12.0` we added two features that provide more options for customizing the appearance of a table: we incorporated row striping as an option so that you can get that zebra stripe look in your table. In this post, we'll present a few examples in the following big features:
 
-- using `tab_style()` in more `locations=`
-- putting some Google Fonts into a table with `tab_style()`/`opt_table_font()` + `google_font()`
-- adding row stripes with `tab_options()` or `opt_row_striping()`
+- using typefaces from Google Fonts via `tab_style()` or `opt_table_font()`
+- adding table striping via `tab_options()` and `opt_row_striping()`
 
-### Styles all over the table with an enhanced `loc` module
+Let's have a look at how these new features can be used!
 
-Before `v0.12.0` we were able to style parts of the table with `tab_style()` but that was limited only to the body of the table by having only `loc.body()` being usable in `tab_style()`'s `locations=` argument. Now, we have quite a few locations that cover all locations in the table! Here's the complete set:
+### Using fonts from *Google Fonts*
 
-- `loc.body()` - the table body
-- ...
+Google Fonts is a free service that allows use of hosted typefaces in your own websites. In Great Tables, we added the `google_font()` helper function to easily incorporate such fonts in your tables. There are two ways to go about this:
 
+1. use `google_font()` with `opt_table_font()` to set a Google Font for the entire table
+2. invoke `google_font()` within `tab_style(styles=style.text(font=...))` to set the font within a location
 
-Let's start with this small, yet unstyled table. It has a few locations included thanks to its use of several `tab_*()` methods.
+Let's start with this small table that uses the default set of fonts for the entire table.
 
 ```{python}
 
@@ -30,10 +30,9 @@ Let's start with this small, yet unstyled table. It has a few locations included
 
 from great_tables import GT, exibble, style, loc
 
-
 gt_tbl = (
     GT(exibble.head(), rowname_col="row", groupname_col="group")
-    .cols_hide(columns=["fctr", "date", "time"])
+    .cols_hide(columns=["char", "fctr", "date", "time"])
     .tab_header(
         title="A small piece of the exibble dataset",
         subtitle="Displaying the first five rows (of eight)",
@@ -46,41 +45,30 @@ gt_tbl = (
 gt_tbl
 ```
 
+Now, with `opt_table_font()` + `google_font()`, we'll change the table's font to one from Google Fonts. I like [`Noto Serif`](https://fonts.google.com/noto/specimen/Noto+Serif) so let's use that here!
 
 ```{python}
-from great_tables import GT, exibble, style, loc
+from great_tables import GT, exibble, style, loc, google_font
 
 (
     gt_tbl
-    .tab_style(
-        style=style.fill(color="lightblue"),
-        locations=loc.body(columns="num", rows=[1, 2]),
-    )
-    .tab_style(
-        style=[
-            style.text(color="white", weight="bold"),
-            style.fill(color="olivedrab")
-        ],
-        locations=loc.body(columns="currency")
-    )
-    #.tab_style(
-    #    style=style.fill(color="aqua"),
-    #    locations=[
-    #        loc.column_labels(columns=["num", "currency"]),
-    #        loc.title(),
-    #        loc.subtitle()
-    #    ]
-    #)
+    .opt_table_font(font=google_font(name="Noto Serif"))
 )
 ```
 
+Looking good! And we don't have to apply the font to the entire table. We might just wanted to use a Google Font in the table body. For that use case, `tab_style()` is the preferred method. Here's an example that uses the [`IBM Plex Mono`](https://fonts.google.com/specimen/IBM+Plex+Mono) typeface.
 
+```{python}
+(
+    gt_tbl
+    .tab_style(
+        style=style.text(font=google_font(name="IBM Plex Mono")),
+        locations=loc.body()
+    )
+)
+```
 
-
-
-### Using fonts from Google Fonts
-
-
+Nice! And it's refreshing to see tables with fonts different from default set, as good as it might be. We kept the `google_font()` helper function as simple as possible, requiring only the font name in its `name=` argument. There are hundreds of fonts hosted on [Google Fonts](https://fonts.google.com) so look through the site, experiment, and find the fonts that you think look best in your tables!
 
 ### Striping rows in your table
 
@@ -88,4 +76,5 @@ from great_tables import GT, exibble, style, loc
 
 ### Wrapping up
 
-We got a lot of feedback on how limiting table styling was so we're happy that enhanced styling is now released with `v0.12.0`. If you're new to the wide world of table styling, check out the [*Get Started* guide on styling the table](https://posit-dev.github.io/great-tables/get-started/basic-styling.html) for primer on the subject. As ever, please let us know through [GitHub Issues](https://github.com/posit-dev/great-tables/issues) whether you ran into problems with any feature (new or old), or, if you have suggestions for further improvement!
+
+If you're new to the wide world of table styling, check out the [*Get Started* guide on styling the table](https://posit-dev.github.io/great-tables/get-started/basic-styling.html) for primer on the subject. As ever, please let us know through [GitHub Issues](https://github.com/posit-dev/great-tables/issues) whether you ran into problems with any feature (new or old), or, if you have suggestions for further improvement!
