@@ -28,6 +28,7 @@ from ._utils import _str_detect, OrderedSet
 
 if TYPE_CHECKING:
     from ._helpers import Md, Html, UnitStr, Text
+    from ._locations import Loc
 
 T = TypeVar("T")
 
@@ -850,47 +851,9 @@ class FootnotePlacement(Enum):
     auto = auto()
 
 
-LocHeaderName = Literal[
-    "header",
-    "title",
-    "subtitle",
-]
-LocStubheadName = Literal[
-    "stubhead",
-    "stubhead_label",
-]
-LocColumnLabelsName = Literal[
-    "column_labels",
-    "spanner_label",
-    "column_label",
-]
-LocStubName = Literal[
-    "stub",
-    "row_group_label",
-    "row_label",
-    "summary_label",
-]
-LocBodyName = Literal["body", "cell", "summary"]
-LocFooterName = Literal[
-    "footer",
-    "footnotes",
-    "source_notes",
-]
-LocUnknownName = Literal["none",]
-LocName = Union[
-    LocHeaderName,
-    LocStubheadName,
-    LocColumnLabelsName,
-    LocStubName,
-    LocBodyName,
-    LocFooterName,
-    LocUnknownName,
-]
-
-
 @dataclass(frozen=True)
 class FootnoteInfo:
-    locname: LocName | None = None
+    locname: Loc | None = None
     grpname: str | None = None
     colname: str | None = None
     locnum: int | None = None
@@ -907,8 +870,7 @@ Footnotes: TypeAlias = list[FootnoteInfo]
 
 @dataclass(frozen=True)
 class StyleInfo:
-    locname: LocName
-    locnum: int
+    locname: Loc
     grpname: str | None = None
     colname: str | None = None
     rownum: int | None = None

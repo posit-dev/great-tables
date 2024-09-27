@@ -17,14 +17,6 @@ from ._gt_data import (
     GTData,
     Spanners,
     StyleInfo,
-    LocName,
-    LocHeaderName,
-    LocStubheadName,
-    LocColumnLabelsName,
-    LocStubName,
-    LocBodyName,
-    LocFooterName,
-    LocUnknownName,
 )
 from ._styles import CellStyle
 from ._tbl_data import PlDataFrame, PlExpr, eval_select, eval_transform
@@ -461,7 +453,7 @@ def _(loc: LocHeader, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
 
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=3, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 @set_style.register
@@ -469,7 +461,7 @@ def _(loc: LocTitle, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 @set_style.register
@@ -477,7 +469,7 @@ def _(loc: LocSubTitle, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 @set_style.register
@@ -485,7 +477,7 @@ def _(loc: LocStubhead, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 @set_style.register
@@ -493,7 +485,7 @@ def _(loc: LocStubheadLabel, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 @set_style.register
@@ -501,7 +493,7 @@ def _(loc: LocColumnLabels, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 @set_style.register
@@ -515,7 +507,6 @@ def _(loc: LocColumnLabel, data: GTData, style: list[CellStyle]) -> GTData:
     for col_pos in positions:
         crnt_info = StyleInfo(
             locname=loc,
-            locnum=2,
             colname=col_pos.colname,
             rownum=col_pos.row,
             styles=styles,
@@ -533,8 +524,7 @@ def _(loc: LocSpannerLabel, data: GTData, style: list[CellStyle]) -> GTData:
 
     new_loc = resolve(loc, data._spanners)
     return data._replace(
-        _styles=data._styles
-        + [StyleInfo(locname=new_loc, locnum=1, grpname=new_loc.ids, styles=style)]
+        _styles=data._styles + [StyleInfo(locname=new_loc, grpname=new_loc.ids, styles=style)]
     )
 
 
@@ -543,7 +533,7 @@ def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 @set_style.register
@@ -554,7 +544,7 @@ def _(loc: LocRowGroupLabel, data: GTData, style: list[CellStyle]) -> GTData:
 
     row_groups = resolve(loc, data)
     return data._replace(
-        _styles=data._styles + [StyleInfo(locname=loc, locnum=1, grpname=row_groups, styles=style)]
+        _styles=data._styles + [StyleInfo(locname=loc, grpname=row_groups, styles=style)]
     )
 
 
@@ -566,7 +556,7 @@ def _(loc: LocRowLabel, data: GTData, style: list[CellStyle]) -> GTData:
     # TODO resolve
     cells = resolve(loc, data)
 
-    new_styles = [StyleInfo(locname=loc, locnum=1, rownum=rownum, styles=style) for rownum in cells]
+    new_styles = [StyleInfo(locname=loc, rownum=rownum, styles=style) for rownum in cells]
     return data._replace(_styles=data._styles + new_styles)
 
 
@@ -576,7 +566,7 @@ def _(loc: LocSummaryLabel, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
     # TODO resolve
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 @set_style.register
@@ -590,7 +580,7 @@ def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
     for col_pos in positions:
         row_styles = [entry._from_row(data._tbl_data, col_pos.row) for entry in style_ready]
         crnt_info = StyleInfo(
-            locname=loc, locnum=5, colname=col_pos.colname, rownum=col_pos.row, styles=row_styles
+            locname=loc, colname=col_pos.colname, rownum=col_pos.row, styles=row_styles
         )
         all_info.append(crnt_info)
 
@@ -602,7 +592,7 @@ def _(loc: LocSummary, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 @set_style.register
@@ -610,7 +600,7 @@ def _(loc: LocFooter, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 @set_style.register
@@ -619,7 +609,7 @@ def _(loc: LocFootnotes, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
     # TODO resolve
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 @set_style.register
@@ -628,7 +618,7 @@ def _(loc: LocSourceNotes, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
     # TODO resolve
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=1, styles=style)])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
 
 
 # Set footnote generic =================================================================
@@ -643,7 +633,7 @@ def set_footnote(loc: Loc, data: GTData, footnote: str, placement: PlacementOpti
 @set_footnote.register(type(None))
 def _(loc: None, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
     place = FootnotePlacement[placement]
-    info = FootnoteInfo(locname="none", locnum=0, footnotes=[footnote], placement=place)
+    info = FootnoteInfo(locname="none", footnotes=[footnote], placement=place)
 
     return data._replace(_footnotes=data._footnotes + [info])
 
