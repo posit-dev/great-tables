@@ -1297,7 +1297,9 @@ def opt_table_font(
     return res
 
 
-def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
+def opt_stylize(
+    self: GTSelf, style: int = 1, color: str = "blue", add_row_striping: bool = True
+) -> GTSelf:
     """
     Stylize your table with a colorful look.
 
@@ -1320,6 +1322,8 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     color
         The color scheme of the table. The default value is `"blue"`. The valid values are `"blue"`,
         `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`.
+    add_row_striping
+        An option to enable row striping in the table body for the style chosen.
 
     Returns
     -------
@@ -1377,14 +1381,11 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
 
     # Omit keys that are not needed for the `tab_options()` method
     # TODO: the omitted keys are for future use when:
-    #  (1) row striping is implemented
-    #  (2) summary rows are implemented
-    #  (3) grand summary rows are implemented
+    #  (1) summary rows are implemented
+    #  (2) grand summary rows are implemented
     omit_keys = {
         "summary_row_background_color",
         "grand_summary_row_background_color",
-        "row_striping_background_color",
-        "table_outline_color",
     }
 
     def dict_omit_keys(dict: dict[str, str], omit_keys: set[str]) -> dict[str, str]:
@@ -1393,6 +1394,28 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     params = dict_omit_keys(dict=params, omit_keys=omit_keys)
 
     mapped_params = StyleMapper(**params).map_all()
+
+    # Add the `add_row_striping` parameter to the `mapped_params` dictionary
+    if add_row_striping:
+        mapped_params["row_striping_include_table_body"] = ["True"]
+
+    if style in [2, 4, 5]:
+        # For styles 2, 4, and 5 we need to set the border colors and widths
+
+        # Use a dictionary comprehension to generate the border parameters
+        directions = ["top", "bottom", "left", "right"]
+        attributes = ["color", "width", "style"]
+
+        border_params: dict[str, str] = {
+            f"table_border_{d}_{a}": (
+                "#D5D5D5" if a == "color" else "3px" if a == "width" else "solid"
+            )
+            for d in directions
+            for a in attributes
+        }
+
+        # Append the border parameters to the `mapped_params` dictionary
+        mapped_params.update(border_params)
 
     # Apply the style parameters to the table using the `tab_options()` method
     res = tab_options(self=self, **mapped_params)
@@ -1412,6 +1435,7 @@ class StyleMapper:
     data_hlines_color: str
     data_vlines_style: str
     data_vlines_color: str
+    row_striping_background_color: str
 
     mappings: ClassVar[dict[str, list[str]]] = {
         "table_hlines_color": ["table_border_top_color", "table_border_bottom_color"],
@@ -1432,6 +1456,7 @@ class StyleMapper:
         "data_hlines_color": ["table_body_hlines_color"],
         "data_vlines_style": ["table_body_vlines_style"],
         "data_vlines_color": ["table_body_vlines_color"],
+        "row_striping_background_color": ["row_striping_background_color"],
     }
 
     def map_entry(self, name: str) -> dict[str, list[str]]:
@@ -1549,7 +1574,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#D5D5D5",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "blue-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1565,7 +1589,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#89D3FE",
         "grand_summary_row_background_color": "#00A1FF",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "cyan-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1581,7 +1604,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#A5FEF2",
         "grand_summary_row_background_color": "#7FE9DB",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "pink-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1597,7 +1619,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFC6E3",
         "grand_summary_row_background_color": "#EF5FA7",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "green-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1613,7 +1634,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#CAFFAF",
         "grand_summary_row_background_color": "#89FD61",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "red-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1629,7 +1649,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFCCC7",
         "grand_summary_row_background_color": "#FF644E",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "gray-3": {
         "table_hlines_color": "#929292",
@@ -1735,7 +1754,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#5F5F5F",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "blue-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1751,7 +1769,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#0076BA",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "cyan-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1767,7 +1784,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#01837B",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "pink-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1783,7 +1799,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#CB2A7B",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "green-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1799,7 +1814,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#038901",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "red-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1815,7 +1829,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#E4220C",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "gray-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1831,7 +1844,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "blue-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1847,7 +1859,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "cyan-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1863,7 +1874,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "pink-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1879,7 +1889,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "green-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1895,7 +1904,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "red-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1911,7 +1919,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "gray-6": {
         "table_hlines_color": "#5F5F5F",

@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 import pytest
 from great_tables import GT, exibble, md, google_font
@@ -439,6 +441,36 @@ def test_tab_options_striping_stub_snap(snapshot):
     body = create_body_component_h(built)
 
     assert snapshot == body
+
+
+def test_opt_stylize_default(snapshot):
+
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize()
+
+    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+
+
+def test_opt_stylize_no_striping(snapshot):
+
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize(
+        add_row_striping=False
+    )
+
+    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+
+
+@pytest.mark.parametrize("style", [1, 2, 3, 4, 5, 6])
+def test_opt_stylize_outline_present(style, snapshot):
+
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize(style=style)
+
+    css = compile_scss(gt_tbl, id="abc", compress=False)
+
+    css_gt_table_cls = re.sub(r"^.*?#abc \.gt_table \{\n(.*?)\}.*$", r"\1", css, flags=re.DOTALL)
+
+    css_gt_table_border = re.sub(r".*?width: auto;(.*)", r"\1", css_gt_table_cls, flags=re.DOTALL)
+
+    assert snapshot == css_gt_table_border
 
 
 @pytest.mark.parametrize("align", ["left", "center", "right"])
