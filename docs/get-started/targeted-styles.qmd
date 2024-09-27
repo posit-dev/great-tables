@@ -3,12 +3,20 @@ title: Targeted styles
 jupyter: python3
 ---
 
+In [Styling the Table Body](./basic-styling), we discussed styling table data with `.tab_style()`.
+In this article we'll cover how the same method can be used to style many other parts of the table, like the header, specific spanner labels, the footer, and more.
+
+:::{.callout-warning}
+This feature is currently a work in progress, and not yet released. Great Tables must be installed from github in order to try it.
+:::
+
+
 ## Kitchen sink
+
+Below is a big example that shows all possible `loc` specifiers being used.
 
 ```{python}
 from great_tables import GT, exibble, loc, style
-
-COLOR = "yellow"
 
 # https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12
 brewer_colors = [
@@ -49,12 +57,11 @@ gt = (
     .tab_style(style.fill(next(c)), loc.subtitle())
     .tab_style(style.fill(next(c)), loc.title())
     # Footer -----------
-    .tab_style(style.fill(next(c)), loc.source_notes())
-    # .tab_style(style.fill(next(c)), loc.footnotes())
-    # .tab_style(style.fill(next(c)), loc.footer())
+    .tab_style(style.borders(weight="3px"), loc.source_notes())
+    .tab_style(style.fill(next(c)), loc.footer())
     # Stub --------------
     .tab_style(style.fill(next(c)), loc.row_groups())
-    .tab_style(style.fill(next(c)), loc.stub(rows=1))
+    .tab_style(style.borders(weight="3px"), loc.stub(rows=1))
     .tab_style(style.fill(next(c)), loc.stub())
     .tab_style(style.fill(next(c)), loc.stubhead())
 )
@@ -63,7 +70,7 @@ gt = (
 ## Body
 
 ```{python}
-gt.tab_style(style.fill(COLOR), loc.body())
+gt.tab_style(style.fill("yellow"), loc.body())
 ```
 
 ## Column labels
@@ -71,7 +78,7 @@ gt.tab_style(style.fill(COLOR), loc.body())
 ```{python}
 (
     gt
-    .tab_style(style.fill(COLOR), loc.column_header())
+    .tab_style(style.fill("yellow"), loc.column_header())
     .tab_style(style.fill("blue"), loc.column_labels(columns="num"))
     .tab_style(style.fill("red"), loc.spanner_labels(ids=["spanner"]))
 )
@@ -84,7 +91,7 @@ gt.tab_style(style.fill(COLOR), loc.body())
 
 ```{python}
 (
-    gt.tab_style(style.fill(COLOR), loc.header())
+    gt.tab_style(style.fill("yellow"), loc.header())
     .tab_style(style.fill("blue"), loc.title())
     .tab_style(style.fill("red"), loc.subtitle())
 )
@@ -95,10 +102,10 @@ gt.tab_style(style.fill(COLOR), loc.body())
 ```{python}
 (
     gt.tab_style(
-        style.fill(COLOR),
+        style.fill("yellow"),
         loc.source_notes(),
     ).tab_style(
-        style.fill(COLOR),
+        style.borders(weight="3px"),
         loc.footer(),
     )
 )
@@ -108,7 +115,7 @@ gt.tab_style(style.fill(COLOR), loc.body())
 
 ```{python}
 (
-    gt.tab_style(style.fill(COLOR), loc.stub())
+    gt.tab_style(style.fill("yellow"), loc.stub())
     .tab_style(style.fill("blue"), loc.row_groups())
     .tab_style(
         style.borders(style="dashed", weight="3px", color="red"),
@@ -120,5 +127,5 @@ gt.tab_style(style.fill(COLOR), loc.body())
 ## Stubhead
 
 ```{python}
-gt.tab_style(style.fill(COLOR), loc.stubhead())
+gt.tab_style(style.fill("yellow"), loc.stubhead())
 ```
