@@ -1490,6 +1490,20 @@ def test_fmt_image_path():
 
 
 @pytest.mark.parametrize(
+    "url", ["http://posit.co/", "http://posit.co", "https://posit.co/", "https://posit.co"]
+)
+def test_fmt_image_path_http(url: str):
+    formatter = FmtImage(encode=False, height=30, path=url)
+    res = formatter.to_html("c")
+    dst_img = '<img src="{}/c" style="height: 30px;vertical-align: middle;">'.format(
+        url.removesuffix("/")
+    )
+    dst = formatter.SPAN_TEMPLATE.format(dst_img)
+
+    assert strip_windows_drive(res) == dst
+
+
+@pytest.mark.parametrize(
     "src,dst",
     [
         # 1. unit with superscript

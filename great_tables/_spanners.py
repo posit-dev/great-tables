@@ -7,6 +7,7 @@ from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
 from ._text import Text
+from ._utils import OrderedSet, _assert_list_is_subset
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
@@ -172,15 +173,14 @@ def tab_spanner(
 
     # get column names associated with selected spanners ----
     _vars = [span.vars for span in self._spanners if span.spanner_id in spanner_ids]
-    spanner_column_names = list({k: True for k in itertools.chain(*_vars)})
+    spanner_column_names = OrderedSet(itertools.chain(*_vars)).as_list()
 
-    column_names = list({k: True for k in [*selected_column_names, *spanner_column_names]})
-
+    column_names = OrderedSet([*selected_column_names, *spanner_column_names]).as_list()
     # combine columns names and those from spanners ----
 
     # get spanner level ----
     if level is None:
-        level = self._spanners.next_level(column_names)
+        level = self._spanners.next_level(list(column_names))
 
     # get spanner units and labels ----
     # TODO: grep units from {{.*}}, may need to switch delimiters
@@ -581,7 +581,7 @@ def empty_spanner_matrix(
     return [{var: var for var in vars}], vars
 
 
-def cols_width(self: GTSelf, cases: dict[str, str]) -> GTSelf:
+def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str) -> GTSelf:
     """Set the widths of columns.
 
     Manual specifications of column widths can be performed using the `cols_width()` method. We
@@ -594,6 +594,10 @@ def cols_width(self: GTSelf, cases: dict[str, str]) -> GTSelf:
     cases
         A dictionary where the keys are column names and the values are the widths. Widths can be
         specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`).
+
+    **kwargs
+        Keyword arguments to specify column widths. Each keyword corresponds to a column name, with
+        its value indicating the width in pixels or percentages.
 
     Returns
     -------
@@ -684,10 +688,24 @@ def cols_width(self: GTSelf, cases: dict[str, str]) -> GTSelf:
     column widths based on the content (and you wouldn't get the overflowing behavior seen in the
     previous example).
     """
+    cases = cases if cases is not None else {}
+    new_cases = cases | kwargs
+
+    # If nothing is provided, return `data` unchanged
+    if len(new_cases) == 0:
+        return self
 
     curr_boxhead = self._boxhead
 
-    for col, width in cases.items():
+    # Get the full list of column names for the data
+    column_names = curr_boxhead._get_columns()
+    mod_columns = list(new_cases.keys())
+
+    # Stop function if any of the column names specified are not in `cols_width`
+    # msg: "All column names provided must exist in the input `.data` table."
+    _assert_list_is_subset(mod_columns, set_list=column_names)
+
+    for col, width in new_cases.items():
         curr_boxhead = curr_boxhead._set_column_width(col, width)
 
     return self._replace(_boxhead=curr_boxhead)

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import math
+import re
+from dataclasses import dataclass
 from datetime import date, datetime, time
 from decimal import Decimal
 from pathlib import Path
@@ -3426,6 +3428,12 @@ def fmt_image(
         The option to always use Base64 encoding for image paths that are determined to be local. By
         default, this is `True`.
 
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
     Examples
     --------
     Using a small portion of `metro` dataset, let's create a new table. We will only include a few
@@ -3476,9 +3484,6 @@ def fmt_image(
     return fmt(self, fns=formatter.to_html, columns=columns, rows=rows)
 
 
-from dataclasses import dataclass
-
-
 @dataclass
 class FmtImage:
     dispatch_on: DataFrameLike | Agnostic = Agnostic()
@@ -3492,9 +3497,6 @@ class FmtImage:
     SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
 
     def to_html(self, val: Any):
-        import re
-        from pathlib import Path
-
         # TODO: are we assuming val is a string? (or coercing?)
 
         # otherwise...
@@ -3526,9 +3528,8 @@ class FmtImage:
         for file in full_files:
             # Case 1: from url
             if self.path and (self.path.startswith("http://") or self.path.startswith("https://")):
-                norm_path = re.sub(r"/\s+$", self.path)
+                norm_path = self.path.rstrip().removesuffix("/")
                 uri = f"{norm_path}/{file}"
-
             # Case 2:
             else:
                 filename = (Path(self.path or "") / file).expanduser().absolute()
@@ -3563,8 +3564,6 @@ class FmtImage:
 
     @staticmethod
     def _get_mime_type(filename: str) -> str:
-        from pathlib import Path
-
         # note that we strip off the leading "."
         suffix = Path(filename).suffix[1:]
 
@@ -3662,6 +3661,12 @@ def fmt_nanoplot(
     options
         By using the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function here,
         you can alter the layout and styling of the nanoplots in the new column.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Details
     -------
@@ -3971,8 +3976,6 @@ def _generate_data_vals(
         list[Any]: A list of data values.
     """
 
-    import re
-
     if is_series(data_vals):
         data_vals = to_list(data_vals)
 
@@ -4065,8 +4068,6 @@ def _process_number_stream(data_vals: str) -> list[float]:
         list[float]: A list of numeric values.
     """
 
-    import re
-
     number_stream = re.sub(r"[;,]", " ", data_vals)
     number_stream = re.sub(r"\\[|\\]", " ", number_stream)
     number_stream = re.sub(r"^\\s+|\\s+$", "", number_stream)
@@ -4075,9 +4076,6 @@ def _process_number_stream(data_vals: str) -> list[float]:
     number_stream = [float(val) for val in number_stream]
 
     return number_stream
-
-
-import re
 
 
 def _process_time_stream(data_vals: str) -> list[float]:

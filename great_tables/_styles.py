@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, Union
 
 from typing_extensions import Self, TypeAlias
 
-from ._helpers import px
+from ._helpers import px, GoogleFont
 from ._tbl_data import PlExpr, TblData, _get_cell, eval_transform
 
 if TYPE_CHECKING:
@@ -196,7 +196,7 @@ class CellStyleText(CellStyle):
     """
 
     color: str | ColumnExpr | None = None
-    font: str | ColumnExpr | None = None
+    font: str | ColumnExpr | GoogleFont | None = None
     size: str | ColumnExpr | None = None
     align: Literal["center", "left", "right", "justify"] | ColumnExpr | None = None
     v_align: Literal["middle", "top", "bottom"] | ColumnExpr | None = None
@@ -228,12 +228,23 @@ class CellStyleText(CellStyle):
     ) = None
 
     def _to_html_style(self) -> str:
+
         rendered = ""
 
         if self.color:
             rendered += f"color: {self.color};"
         if self.font:
-            rendered += f"font-family: {self.font};"
+            font = self.font
+            if isinstance(font, str) or isinstance(font, FromColumn):
+                # Case where `font=` is a string or a FromColumn expression
+                font_name = font
+            elif isinstance(font, GoogleFont):
+                # Case where `font=` is a GoogleFont
+                font_name = font.get_font_name()
+            else:
+                # Case where font is of an invalid type
+                raise ValueError(f"Invalid font type '{type(font)}' provided.")
+            rendered += f"font-family: {font_name};"
         if self.size:
             rendered += f"font-size: {self.size};"
         if self.align:

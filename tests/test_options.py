@@ -1,9 +1,12 @@
+import re
+
 import pandas as pd
 import pytest
-from great_tables import GT, exibble, md
+from great_tables import GT, exibble, md, google_font
 from great_tables._scss import compile_scss
 from great_tables._gt_data import default_fonts_list
 from great_tables._helpers import _intify_scaled_px
+from great_tables._utils_render_html import create_body_component_h
 
 
 def test_options_overwrite():
@@ -363,6 +366,21 @@ def test_opt_table_font_use_stack_and_system_font():
     assert gt_tbl._options.table_font_names.value[-1] == "Noto Color Emoji"
 
 
+def test_opt_table_font_google_font():
+
+    gt_tbl = GT(exibble).opt_table_font(font=google_font(name="IBM Plex Mono"))
+
+    rendered_html = gt_tbl.as_raw_html()
+
+    assert rendered_html.find(
+        "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap');"
+    )
+
+    assert rendered_html.find(
+        "font-family: 'IBM Plex Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;"
+    )
+
+
 def test_opt_table_font_raises():
 
     # Both `font` and `stack` cannot be `None`
@@ -370,6 +388,89 @@ def test_opt_table_font_raises():
         GT(exibble).opt_table_font(font=None, stack=None)
 
     assert "Either `font=` or `stack=` must be provided." in exc_info.value.args[0]
+
+
+def test_opt_row_striping():
+
+    gt_tbl_0 = GT(exibble)
+    gt_tbl_1 = GT(exibble).opt_row_striping()
+    gt_tbl_2 = GT(exibble).opt_row_striping().opt_row_striping(row_striping=False)
+
+    assert gt_tbl_0._options.row_striping_include_table_body.value == False
+    assert gt_tbl_1._options.row_striping_include_table_body.value == True
+    assert gt_tbl_2._options.row_striping_include_table_body.value == False
+
+
+def test_tab_options_striping():
+
+    gt_tbl_tab_opts = GT(exibble).tab_options(row_striping_include_table_body=True)
+    gt_tbl_opt_stri = GT(exibble).opt_row_striping()
+
+    assert gt_tbl_tab_opts._options.row_striping_include_table_body.value == True
+    assert gt_tbl_tab_opts._options.row_striping_include_stub.value == False
+
+    assert gt_tbl_opt_stri._options.row_striping_include_table_body.value == True
+    assert gt_tbl_opt_stri._options.row_striping_include_stub.value == False
+
+
+def test_tab_options_striping_body_snap(snapshot):
+
+    gt_tbl = GT(
+        exibble[["row", "group", "char"]].head(4), rowname_col="row", groupname_col="group"
+    ).tab_options(
+        row_striping_include_table_body=True,
+        row_striping_background_color="lightblue",
+    )
+
+    built = gt_tbl._build_data("html")
+    body = create_body_component_h(built)
+
+    assert snapshot == body
+
+
+def test_tab_options_striping_stub_snap(snapshot):
+
+    gt_tbl = GT(
+        exibble[["row", "group", "char"]].head(4), rowname_col="row", groupname_col="group"
+    ).tab_options(
+        row_striping_include_stub=True,
+        row_striping_background_color="lightblue",
+    )
+
+    built = gt_tbl._build_data("html")
+    body = create_body_component_h(built)
+
+    assert snapshot == body
+
+
+def test_opt_stylize_default(snapshot):
+
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize()
+
+    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+
+
+def test_opt_stylize_no_striping(snapshot):
+
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize(
+        add_row_striping=False
+    )
+
+    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+
+
+@pytest.mark.parametrize("style", [1, 2, 3, 4, 5, 6])
+def test_opt_stylize_outline_present(style, snapshot):
+
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize(style=style)
+
+    css = compile_scss(gt_tbl, id="abc", compress=False)
+
+    css_gt_table_cls = re.sub(r"^.*?#abc \.gt_table \{\n(.*?)\}.*$", r"\1", css, flags=re.DOTALL)
+
+    css_gt_table_border = re.sub(r".*?width: auto;(.*)", r"\1", css_gt_table_cls, flags=re.DOTALL)
+
+    assert snapshot == css_gt_table_border
 
 
 @pytest.mark.parametrize("align", ["left", "center", "right"])
