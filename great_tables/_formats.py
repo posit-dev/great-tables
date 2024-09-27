@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, TypedDict, TypeVar, cast
 
 import babel
-from babel.dates import format_date, format_datetime, format_time
+from babel.dates import format_date, format_datetime, format_time, format_timedelta
 from typing_extensions import TypeAlias
 
 from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
@@ -29,6 +29,8 @@ from ._tbl_data import (
 from ._text import _md_html
 from ._utils import _str_detect, _str_replace
 from ._utils_nanoplots import _generate_nanoplot
+
+import pandas as pd
 
 
 if TYPE_CHECKING:
@@ -60,6 +62,20 @@ TimeStyle: TypeAlias = Literal[
     "h_m_s_p",
     "h_m_p",
     "h_p",
+]
+Granularity: TypeAlias = Literal[
+    "year",
+    "month",
+    "week",
+    "day",
+    "hour",
+    "minute",
+    "second",
+]
+DurationFormat: TypeAlias = Literal[
+    "narrow",
+    "short",
+    "long",
 ]
 PlotType: TypeAlias = Literal[
     "line",
@@ -2029,6 +2045,140 @@ def fmt_datetime(
         return x_formatted
 
     return fmt(self, fns=fmt_datetime_fn, columns=columns, rows=rows)
+
+
+def fmt_duration(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    granularity: Granularity = "second",
+    threshold: float = 0.85,
+    add_direction: bool = False,
+    duration_format: DurationFormat = "long",
+    pattern: str = "{x}",
+    locale: str | None = None,
+) -> GTSelf:
+    """
+    Format values as durations.
+
+    Format input values to duration values using the ISO 8601 duration format. Input can be in the
+    form of `timedelta` values or as numeric values representing seconds (or fractions thereof).
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    locale
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `date`
+    and `time` columns). With the `fmt_duration()` method, we'll format the `time` column to display
+    durations formatted with the ISO 8601 duration format.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+    exibble_mini = exibble[["date", "time"]]
+
+    (
+        GT(exibble_mini)
+        .fmt_duration(columns="time")
+    )
+    ```
+    """
+
+    # Stop if `locale` does not have a valid value; normalize locale and resolve one
+    # that might be set globally
+    _validate_locale(locale=locale)
+    locale = _normalize_locale(locale=locale)
+
+    # Generate a function that will operate on single `x` values in the table body
+    def fmt_duration_fn(
+        x: Any,
+        granularity: Granularity = granularity,
+        threshold: float = threshold,
+        add_direction: bool = add_direction,
+        duration_format: DurationFormat = duration_format,
+        pattern: str = pattern,
+        locale: str | None = locale,
+    ) -> str:
+
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if is_na(self._tbl_data, x):
+            return x
+
+        # If `x` is a timedelta object, convert it to a duration string
+        if isinstance(x, pd.Timedelta):
+            x = x.total_seconds()
+
+        # Stop if `x` is not a valid duration value
+        _validate_duration_obj(x=x)
+
+        # Fix up the locale for `format_duration()` by replacing any hyphens with underscores
+        if locale is None:
+            locale = "en_US"
+        else:
+            locale = _str_replace(locale, "-", "_")
+
+        # Use Babel's `format_timedelta()` function to format the duration value to a string
+        x_formatted = format_timedelta(
+            x,
+            granularity=granularity,
+            threshold=threshold,
+            add_direction=add_direction,
+            format=duration_format,
+            locale=locale,
+        )
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    return fmt(self, fns=fmt_duration_fn, columns=columns, rows=rows)
+
+
+def _validate_duration_obj(x: Any) -> None:
+    """
+    Validate that the input value is a valid duration object.
+
+    Parameters
+    ----------
+    x
+        The input value to validate.
+
+    Raises
+    ------
+    ValueError
+        If the input value is not a valid duration object.
+    """
+    if not isinstance(x, (int, float, pd.Timedelta)):
+        raise ValueError(
+            f"Value '{x}' is not a valid duration object. "
+            f"Expected a numeric value or a Pandas Timedelta object."
+        )
 
 
 def fmt_markdown(

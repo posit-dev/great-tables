@@ -17,6 +17,7 @@ from great_tables._formats import (
     fmt_currency,
     fmt_date,
     fmt_datetime,
+    fmt_duration,
     fmt_image,
     fmt_integer,
     fmt_markdown,
@@ -228,6 +229,7 @@ class GT(
     fmt_date = fmt_date
     fmt_time = fmt_time
     fmt_datetime = fmt_datetime
+    fmt_duration = fmt_duration
     fmt_markdown = fmt_markdown
     fmt_image = fmt_image
     fmt_units = fmt_units
