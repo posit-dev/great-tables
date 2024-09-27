@@ -15,15 +15,67 @@ In Great Tables `0.12.0` we did something that is sure to please those who obses
 
 ### Styles all over the table with an enhanced `loc` module
 
+Before `v0.12.0` we were able to style parts of the table with `tab_style()` but that was limited only to the body of the table by having only `loc.body()` being usable in `tab_style()`'s `locations=` argument. Now, we have quite a few locations that cover all locations in the table! Here's the complete set:
+
+- `loc.body()` - the table body
+- ...
+
+
+Let's start with this small, yet unstyled table. It has a few locations included thanks to its use of several `tab_*()` methods.
+
+```{python}
+
+#| code-fold: true
+#| code-summary: "Show the code"
+
+from great_tables import GT, exibble, style, loc
+
+
+gt_tbl = (
+    GT(exibble.head(), rowname_col="row", groupname_col="group")
+    .cols_hide(columns=["fctr", "date", "time"])
+    .tab_header(
+        title="A small piece of the exibble dataset",
+        subtitle="Displaying the first five rows (of eight)",
+    )
+    .tab_source_note(
+        source_note="This dataset is included in Great Tables."
+    )
+)
+
+gt_tbl
+```
 
 
 ```{python}
-from great_tables import GT, md
-from great_tables.data import illness
-import polars as pl
+from great_tables import GT, exibble, style, loc
 
-
+(
+    gt_tbl
+    .tab_style(
+        style=style.fill(color="lightblue"),
+        locations=loc.body(columns="num", rows=[1, 2]),
+    )
+    .tab_style(
+        style=[
+            style.text(color="white", weight="bold"),
+            style.fill(color="olivedrab")
+        ],
+        locations=loc.body(columns="currency")
+    )
+    #.tab_style(
+    #    style=style.fill(color="aqua"),
+    #    locations=[
+    #        loc.column_labels(columns=["num", "currency"]),
+    #        loc.title(),
+    #        loc.subtitle()
+    #    ]
+    #)
+)
 ```
+
+
+
 
 
 ### Using fonts from Google Fonts
