@@ -41,9 +41,9 @@ gt = (
     gt.tab_style(style.fill(next(c)), loc.body())
     # Columns -----------
     # TODO: appears in browser, but not vs code
-    .tab_style(style.fill(next(c)), loc.column_label(columns="num"))
-    .tab_style(style.fill(next(c)), loc.column_labels())
-    .tab_style(style.fill(next(c)), loc.spanner_label(ids=["spanner"]))
+    .tab_style(style.fill(next(c)), loc.column_labels(columns="num"))
+    .tab_style(style.fill(next(c)), loc.column_header())
+    .tab_style(style.fill(next(c)), loc.spanner_labels(ids=["spanner"]))
     # Header -----------
     .tab_style(style.fill(next(c)), loc.header())
     .tab_style(style.fill(next(c)), loc.subtitle())
@@ -53,8 +53,8 @@ gt = (
     # .tab_style(style.fill(next(c)), loc.footnotes())
     # .tab_style(style.fill(next(c)), loc.footer())
     # Stub --------------
-    .tab_style(style.fill(next(c)), loc.row_group_label())
-    .tab_style(style.fill(next(c)), loc.row_label(rows=1))
+    .tab_style(style.fill(next(c)), loc.row_groups())
+    .tab_style(style.fill(next(c)), loc.stub(rows=1))
     .tab_style(style.fill(next(c)), loc.stub())
     .tab_style(style.fill(next(c)), loc.stubhead())
 )
@@ -71,9 +71,9 @@ gt.tab_style(style.fill(COLOR), loc.body())
 ```{python}
 (
     gt
-    .tab_style(style.fill(COLOR), loc.column_labels())
-    .tab_style(style.fill("blue"), loc.column_label(columns="num"))
-    .tab_style(style.fill("red"), loc.spanner_label(ids=["spanner"]))
+    .tab_style(style.fill(COLOR), loc.column_header())
+    .tab_style(style.fill("blue"), loc.column_labels(columns="num"))
+    .tab_style(style.fill("red"), loc.spanner_labels(ids=["spanner"]))
 )
 
 ```
@@ -109,10 +109,10 @@ gt.tab_style(style.fill(COLOR), loc.body())
 ```{python}
 (
     gt.tab_style(style.fill(COLOR), loc.stub())
-    .tab_style(style.fill("blue"), loc.row_group_label())
+    .tab_style(style.fill("blue"), loc.row_groups())
     .tab_style(
         style.borders(style="dashed", weight="3px", color="red"),
-        loc.row_label(rows=[1]),
+        loc.stub(rows=[1]),
     )
 )
 ```
