@@ -46,7 +46,6 @@ website:
             - get-started/column-selection.qmd
             - get-started/row-selection.qmd
             - get-started/nanoplots.qmd
-            - get-started/targeted-styles.qmd
 
 format:
   html:

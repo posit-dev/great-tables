@@ -5,7 +5,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
-from typing import Any, Callable, Literal, Tuple, TypeVar, Union, overload, TYPE_CHECKING
+from typing import Any, Callable, Tuple, TypeVar, overload, TYPE_CHECKING
 
 from typing_extensions import Self, TypeAlias
 
@@ -28,7 +28,6 @@ from ._utils import _str_detect, OrderedSet
 
 if TYPE_CHECKING:
     from ._helpers import Md, Html, UnitStr, Text
-    from ._locations import Loc
 
 T = TypeVar("T")
 
@@ -611,7 +610,7 @@ class Stub:
         # TODO: validate
         return self.__class__(self.rows, self.group_rows.reorder(group_order))
 
-    def group_indices_map(self) -> list[tuple[int, GroupRowInfo | None]]:
+    def group_indices_map(self) -> list[tuple[int, str | None]]:
         return self.group_rows.indices_map(len(self.rows))
 
     def __iter__(self):
@@ -741,7 +740,7 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
         return self.__class__(reordered)
 
-    def indices_map(self, n: int) -> list[tuple[int, GroupRowInfo]]:
+    def indices_map(self, n: int) -> list[tuple[int, str | None]]:
         """Return pairs of row index, group label for all rows in data.
 
         Note that when no groupings exist, n is used to return from range(n).
@@ -752,7 +751,7 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
         if not len(self._d):
             return [(ii, None) for ii in range(n)]
-        return [(ind, info) for info in self for ind in info.indices]
+        return [(ind, info.defaulted_label()) for info in self for ind in info.indices]
 
 
 # Spanners ----
@@ -853,7 +852,7 @@ class FootnotePlacement(Enum):
 
 @dataclass(frozen=True)
 class FootnoteInfo:
-    locname: Loc | None = None
+    locname: str | None = None
     grpname: str | None = None
     colname: str | None = None
     locnum: int | None = None
@@ -870,7 +869,8 @@ Footnotes: TypeAlias = list[FootnoteInfo]
 
 @dataclass(frozen=True)
 class StyleInfo:
-    locname: Loc
+    locname: str
+    locnum: int
     grpname: str | None = None
     colname: str | None = None
     rownum: int | None = None
