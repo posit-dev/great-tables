@@ -100,7 +100,7 @@ class LocStub(Loc):
 
 
 @dataclass
-class LocRowGroupLabel(Loc):
+class LocRowGroups(Loc):
     rows: RowSelectExpr = None
 
 
@@ -385,7 +385,7 @@ def _(loc: LocColumnLabels, data: GTData) -> list[CellPos]:
 
 
 @resolve.register
-def _(loc: LocRowGroupLabel, data: GTData) -> set[int]:
+def _(loc: LocRowGroups, data: GTData) -> set[int]:
     # TODO: what are the rules for matching row groups?
     # TODO: resolve_rows_i will match a list expr to row names (not group names)
     group_pos = set(pos for _, pos in resolve_rows_i(data, loc.rows))
@@ -504,7 +504,7 @@ def _(loc: LocSpannerLabels, data: GTData, style: list[CellStyle]) -> GTData:
 
 
 @set_style.register
-def _(loc: LocRowGroupLabel, data: GTData, style: list[CellStyle]) -> GTData:
+def _(loc: LocRowGroups, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)

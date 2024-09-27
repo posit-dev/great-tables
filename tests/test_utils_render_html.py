@@ -231,7 +231,7 @@ def test_loc_kitchen_sink(snapshot):
         .tab_style(style.css("SOURCE_NOTES"), loc.source_notes())
         # .tab_style(style.css("AAA"), loc.footnotes())
         # Stub --------------
-        .tab_style(style.css("GROUP_LABEL"), loc.row_group_label())
+        .tab_style(style.css("GROUP_LABEL"), loc.row_groups())
         .tab_style(style.css("STUB"), loc.stub())
         .tab_style(style.css("ROW_LABEL"), loc.stub(rows=[0]))
         .tab_style(style.css("STUBHEAD"), loc.stubhead())

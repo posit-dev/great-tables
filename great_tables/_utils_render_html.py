@@ -420,7 +420,7 @@ def create_body_component_h(data: GTData) -> str:
     tbl_data = replace_null_frame(data._body.body, _str_orig_data)
 
     # Filter list of StyleInfo to only those that apply to the stub
-    styles_row_group_label = [x for x in data._styles if _is_loc(x.locname, loc.LocRowGroupLabel)]
+    styles_row_group_label = [x for x in data._styles if _is_loc(x.locname, loc.LocRowGroups)]
     styles_row_label = [x for x in data._styles if _is_loc(x.locname, loc.LocStub)]
     styles_summary_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSummaryLabel)]
 

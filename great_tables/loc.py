@@ -16,19 +16,13 @@ from ._locations import (
     #
     # Stub ----
     LocStub as stub,
-    LocRowGroupLabel as row_group_label,
-    # TODO: remove for now
-    LocSummaryLabel as summary_label,
+    LocRowGroups as row_groups,
     #
     # Body ----
     LocBody as body,
-    # TODO: remove for now
-    LocSummary as summary,
     #
     # Footer ----
     LocFooter as footer,
-    # TODO: remove for now
-    LocFootnotes as footnotes,
     LocSourceNotes as source_notes,
 )
 
@@ -41,11 +35,8 @@ __all__ = (
     "spanner_labels",
     "column_labels",
     "stub",
-    "row_group_label",
-    "summary_label",
+    "row_groups",
     "body",
-    "summary",
     "footer",
-    "footnotes",
     "source_notes",
 )
