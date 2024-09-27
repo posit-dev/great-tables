@@ -556,6 +556,7 @@ def create_source_notes_component_h(data: GTData) -> str:
     source_notes = data._source_notes
 
     # Filter list of StyleInfo to only those that apply to the source notes
+    styles_footer = [x for x in data._styles if _is_loc(x.locname, loc.LocFooter)]
     styles_source_notes = [x for x in data._styles if _is_loc(x.locname, loc.LocSourceNotes)]
 
     # If there are no source notes, then return an empty string
@@ -579,10 +580,10 @@ def create_source_notes_component_h(data: GTData) -> str:
 
         source_notes_tr: list[str] = []
 
+        _styles = _flatten_styles(styles_footer + styles_source_notes, wrap=True)
         for note in source_notes:
             note_str = _process_text(note)
 
-            _styles = _flatten_styles(styles_source_notes, wrap=True)
             source_notes_tr.append(
                 f"""
   <tr>

@@ -227,9 +227,9 @@ def test_loc_kitchen_sink(snapshot):
         .tab_style(style.css("SUBTITLE"), loc.subtitle())
         .tab_style(style.css("TITLE"), loc.title())
         # Footer -----------
+        .tab_style(style.css("FOOTER"), loc.footer())
         .tab_style(style.css("SOURCE_NOTES"), loc.source_notes())
         # .tab_style(style.css("AAA"), loc.footnotes())
-        # .tab_style(style.css("AAA"), loc.footer())
         # Stub --------------
         .tab_style(style.css("GROUP_LABEL"), loc.row_group_label())
         .tab_style(style.css("ROW_LABEL"), loc.row_label(rows=[0]))
