@@ -126,14 +126,6 @@ class CellStyle:
 
 
 @dataclass
-class CellStyleCss(CellStyle):
-    rule: str
-
-    def _to_html_style(self):
-        return self.rule
-
-
-@dataclass
 class CellStyleText(CellStyle):
     """A style specification for cell text.
 

@@ -15,12 +15,8 @@ def row_group_order(self: GTSelf, groups: RowGroups) -> GTSelf:
 
 
 def _remove_from_body_styles(styles: Styles, column: str) -> Styles:
-    # TODO: refactor
-    from ._utils_render_html import _is_loc
-    from ._locations import LocBody
-
     new_styles = [
-        info for info in styles if not (_is_loc(info.locname, LocBody) and info.colname == column)
+        info for info in styles if not (info.locname == "data" and info.colname == column)
     ]
 
     return new_styles

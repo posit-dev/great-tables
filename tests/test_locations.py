@@ -1,13 +1,12 @@
 import pandas as pd
 import polars as pl
-import polars.selectors as cs
 import pytest
 from great_tables import GT
 from great_tables._gt_data import Spanners
 from great_tables._locations import (
     CellPos,
     LocBody,
-    LocSpannerLabels,
+    LocColumnSpanners,
     LocTitle,
     resolve,
     resolve_cols_i,
@@ -117,9 +116,6 @@ def test_resolve_rows_i_raises(bad_expr):
     assert "a callable that takes a DataFrame and returns a boolean Series" in expected
 
 
-# Resolve Loc tests --------------------------------------------------------------------------------
-
-
 def test_resolve_loc_body():
     gt = GT(pd.DataFrame({"x": [1, 2], "y": [3, 4]}))
 
@@ -136,41 +132,25 @@ def test_resolve_loc_body():
     assert pos.colname == "x"
 
 
-@pytest.mark.xfail
-def test_resolve_loc_spanners_label_single():
-    spanners = Spanners.from_ids(["a", "b"])
-    loc = LocSpannerLabels(ids="a")
-
-    new_loc = resolve(loc, spanners)
-
-    assert new_loc.ids == ["a"]
-
-
-@pytest.mark.parametrize(
-    "expr",
-    [
-        ["a", "c"],
-        pytest.param(cs.by_name("a", "c"), marks=pytest.mark.xfail),
-    ],
-)
-def test_resolve_loc_spanners_label(expr):
+def test_resolve_column_spanners_simple():
     # note that this essentially a no-op
     ids = ["a", "b", "c"]
 
     spanners = Spanners.from_ids(ids)
-    loc = LocSpannerLabels(ids=expr)
+    loc = LocColumnSpanners(ids=["a", "c"])
 
     new_loc = resolve(loc, spanners)
 
+    assert new_loc == loc
     assert new_loc.ids == ["a", "c"]
 
 
-def test_resolve_loc_spanner_label_error_missing():
+def test_resolve_column_spanners_error_missing():
     # note that this essentially a no-op
     ids = ["a", "b", "c"]
 
     spanners = Spanners.from_ids(ids)
-    loc = LocSpannerLabels(ids=["a", "d"])
+    loc = LocColumnSpanners(ids=["a", "d"])
 
     with pytest.raises(ValueError):
         resolve(loc, spanners)
@@ -210,7 +190,7 @@ def test_set_style_loc_body_from_column(expr):
 def test_set_style_loc_title_from_column_error(snapshot):
     df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
     gt_df = GT(df)
-    loc = LocTitle()
+    loc = LocTitle("title")
     style = CellStyleText(color=FromColumn("color"))
 
     with pytest.raises(TypeError) as exc_info:
