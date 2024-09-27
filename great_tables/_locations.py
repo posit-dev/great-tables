@@ -57,48 +57,39 @@ class CellPos:
 class Loc:
     """A location."""
 
-    groups: ClassVar[LocName]
-
 
 @dataclass
 class LocHeader(Loc):
     """A location for targeting the table title and subtitle."""
 
-    groups: ClassVar[LocHeaderName] = "header"
-
 
 @dataclass
 class LocTitle(Loc):
-    groups: ClassVar[Literal["title"]] = "title"
+    """A location for targeting the title."""
 
 
 @dataclass
 class LocSubTitle(Loc):
-    groups: ClassVar[Literal["subtitle"]] = "subtitle"
+    """A location for targeting the subtitle."""
 
 
 @dataclass
 class LocStubhead(Loc):
     """A location for targeting the table stubhead and stubhead label."""
 
-    groups: ClassVar[LocStubheadName] = "stubhead"
-
 
 @dataclass
 class LocStubheadLabel(Loc):
-    groups: ClassVar[Literal["stubhead_label"]] = "stubhead_label"
+    """A location for targetting the stubhead."""
 
 
 @dataclass
 class LocColumnLabels(Loc):
     """A location for column spanners and column labels."""
 
-    groups: ClassVar[LocColumnLabelsName] = "column_labels"
-
 
 @dataclass
 class LocColumnLabel(Loc):
-    groups: ClassVar[Literal["column_label"]] = "column_label"
     columns: SelectExpr = None
 
 
@@ -106,7 +97,6 @@ class LocColumnLabel(Loc):
 class LocSpannerLabel(Loc):
     """A location for column spanners."""
 
-    groups: ClassVar[Literal["spanner_label"]] = "spanner_label"
     ids: SelectExpr = None
 
 
@@ -114,25 +104,21 @@ class LocSpannerLabel(Loc):
 class LocStub(Loc):
     """A location for targeting the table stub, row group labels, summary labels, and body."""
 
-    groups: ClassVar[Literal["stub"]] = "stub"
     rows: RowSelectExpr = None
 
 
 @dataclass
 class LocRowGroupLabel(Loc):
-    groups: ClassVar[Literal["row_group_label"]] = "row_group_label"
     rows: RowSelectExpr = None
 
 
 @dataclass
 class LocRowLabel(Loc):
-    groups: ClassVar[Literal["row_label"]] = "row_label"
     rows: RowSelectExpr = None
 
 
 @dataclass
 class LocSummaryLabel(Loc):
-    groups: ClassVar[Literal["summary_label"]] = "summary_label"
     rows: RowSelectExpr = None
 
 
@@ -163,7 +149,6 @@ class LocBody(Loc):
     ------
     See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
-    groups: ClassVar[LocBodyName] = "data"
 
     columns: SelectExpr = None
     rows: RowSelectExpr = None
@@ -172,27 +157,23 @@ class LocBody(Loc):
 @dataclass
 class LocSummary(Loc):
     # TODO: these can be tidyselectors
-    groups: ClassVar[LocName] = "summary"
     columns: SelectExpr = None
     rows: RowSelectExpr = None
 
 
 @dataclass
 class LocFooter(Loc):
-    groups: ClassVar[LocFooterName] = "footer"
+    """A location for targeting the footer."""
 
 
 @dataclass
 class LocFootnotes(Loc):
-    groups: ClassVar[Literal["footnotes"]] = "footnotes"
+    """A location for targeting footnotes."""
 
 
 @dataclass
 class LocSourceNotes(Loc):
-    # This dataclass in R has a `groups` field, which is a literal value.
-    # In python, we can use an isinstance check to determine we're seeing an
-    # instance of this class
-    groups: ClassVar[Literal["source_notes"]] = "source_notes"
+    """A location for targeting source notes."""
 
 
 # Utils ================================================================================
@@ -480,16 +461,7 @@ def _(loc: LocHeader, data: GTData, style: list[CellStyle]) -> GTData:
     for entry in style:
         entry._raise_if_requires_data(loc)
 
-    # set ----
-    if loc.groups == "header":
-        info = StyleInfo(locname=loc, locnum=1, styles=style)
-    elif loc.groups == "title":
-        info = StyleInfo(locname=loc, locnum=2, styles=style)
-    elif loc.groups == "subtitle":
-        info = StyleInfo(locname=loc, locnum=3, styles=style)
-    else:
-        raise ValueError(f"Unknown title group: {loc.groups}")
-    return data._replace(_styles=data._styles + [info])
+    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, locnum=3, styles=style)])
 
 
 @set_style.register
@@ -678,14 +650,4 @@ def _(loc: None, data: GTData, footnote: str, placement: PlacementOptions) -> GT
 
 @set_footnote.register
 def _(loc: LocTitle, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
-    # TODO: note that footnote here is annotated as a string, but I think that in R it
-    # can be a list of strings.
-    place = FootnotePlacement[placement]
-    if loc.groups == "title":
-        info = FootnoteInfo(locname=loc, locnum=1, footnotes=[footnote], placement=place)
-    elif loc.groups == "subtitle":
-        info = FootnoteInfo(locname=loc, locnum=2, footnotes=[footnote], placement=place)
-    else:
-        raise ValueError(f"Unknown title group: {loc.groups}")
-
-    return data._replace(_footnotes=data._footnotes + [info])
+    raise NotImplementedError()
