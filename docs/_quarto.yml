@@ -162,6 +162,7 @@ quartodoc:
         - md
         - html
         - from_column
+        - google_font
         - system_fonts
         - define_units
         - nanoplot_options
