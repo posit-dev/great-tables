@@ -1,0 +1,39 @@
+---
+title: "Great Tables `v0.12.0`: Styling all over the place (and so much more)"
+html-table-processing: none
+author: Rich Iannone
+date: 2024-09-27
+freeze: true
+jupyter: python3
+---
+
+In Great Tables `0.12.0` we did something that is sure to please those who obsess over styling, and this is the ability to style virtually any part (i.e., *location*) of a table. Also, the use of *Google Fonts* is now integrated into the package (with lots of font choices there). Lastly, we incorporated row striping as an option so that you can get that zebra stripe look in your table. In this post, we'll present a few examples in the following big features:
+
+- using `tab_style()` in more `locations=`
+- putting some Google Fonts into a table with `tab_style()`/`opt_table_font()` + `google_font()`
+- adding row stripes with `tab_options()` or `opt_row_striping()`
+
+### Styles all over the table with an enhanced `loc` module
+
+
+
+```{python}
+from great_tables import GT, md
+from great_tables.data import illness
+import polars as pl
+
+
+```
+
+
+### Using fonts from Google Fonts
+
+
+
+### Striping rows in your table
+
+
+
+### Wrapping up
+
+We got a lot of feedback on how limiting table styling was so we're happy that enhanced styling is now released with `v0.12.0`. If you're new to the wide world of table styling, check out the [*Get Started* guide on styling the table](https://posit-dev.github.io/great-tables/get-started/basic-styling.html) for primer on the subject. As ever, please let us know through [GitHub Issues](https://github.com/posit-dev/great-tables/issues) whether you ran into problems with any feature (new or old), or, if you have suggestions for further improvement!
