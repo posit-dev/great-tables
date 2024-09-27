@@ -72,9 +72,38 @@ Nice! And it's refreshing to see tables with fonts different from default set, a
 
 ### Striping rows in your table
 
+Some people like having row striping (a.k.a. zebra stripes) in their display tables. We get that, and that's why we now have that option in the package. There are two ways to enable this:
 
+1. invoking `opt_row_striping()` to quickly set row stripes in the table body
+2. using some combination of three `row_striping_*` arguments in `tab_options()`
+
+Let's use that example table with `opt_row_striping()`.
+
+```{python}
+gt_tbl.opt_row_striping()
+```
+
+It's somewhat subtle but there is an alternating, slightly gray background (starting on the `"row_2"` row). The color is `#808080` but with an alpha (transparency) value of `0.05`.
+
+If this is not exactly what you want, there is an alternative to this. The `tab_options()` method has three new arguments:
+
+- `row_striping_background_color`: color to use for row striping
+- `row_striping_include_stub`: should striping include cells in the stub?
+- `row_striping_include_table_body`: should striping include cells in the body?
+
+With these new options, we can choose to stripe the *entire* row (stub cells + body cells) and use a darker color like `"lightblue"`.
+
+```{python}
+(
+    gt_tbl
+    .tab_options(
+        row_striping_background_color="lightblue",
+        row_striping_include_stub=True,
+        row_striping_include_table_body=True,
+    )
+)
+```
 
 ### Wrapping up
-
 
 If you're new to the wide world of table styling, check out the [*Get Started* guide on styling the table](https://posit-dev.github.io/great-tables/get-started/basic-styling.html) for primer on the subject. As ever, please let us know through [GitHub Issues](https://github.com/posit-dev/great-tables/issues) whether you ran into problems with any feature (new or old), or, if you have suggestions for further improvement!
