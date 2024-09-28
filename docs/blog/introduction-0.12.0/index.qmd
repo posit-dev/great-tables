@@ -1,20 +1,20 @@
 ---
-title: "Great Tables `v0.12.0`: Styling all over the place (and so much more)"
+title: "Great Tables `v0.12.0`: Google Fonts and zebra stripes"
 html-table-processing: none
 author: Rich Iannone
-date: 2024-09-27
+date: 2024-09-30
 freeze: true
 jupyter: python3
 ---
 
-In Great Tables `0.12.0` we added two features that provide more options for customizing the appearance of a table: we incorporated row striping as an option so that you can get that zebra stripe look in your table. In this post, we'll present a few examples in the following big features:
+In Great Tables `0.12.0` we focused on adding options for customizing the appearance of a table. In this post, we'll present two new features:
 
 - using typefaces from Google Fonts via `tab_style()` or `opt_table_font()`
 - adding table striping via `tab_options()` and `opt_row_striping()`
 
 Let's have a look at how these new features can be used!
 
-### Using fonts from *Google Fonts*
+### Using fonts from Google Fonts
 
 Google Fonts is a free service that allows use of hosted typefaces in your own websites. In Great Tables, we added the `google_font()` helper function to easily incorporate such fonts in your tables. There are two ways to go about this:
 
@@ -72,7 +72,7 @@ Nice! And it's refreshing to see tables with fonts different from default set, a
 
 ### Striping rows in your table
 
-Some people like having row striping (a.k.a. zebra stripes) in their display tables. We get that, and that's why we now have that option in the package. There are two ways to enable this:
+Some people like having row striping (a.k.a. zebra stripes) in their display tables. We also know that some [advise against the practice](https://www.darkhorseanalytics.com/blog/clear-off-the-table/). We understand it's a controversial table issue, however, we also want to give you the creative freedom to just include the stripes. To that end, we now have that option in the package. There are two ways to enable this look:
 
 1. invoking `opt_row_striping()` to quickly set row stripes in the table body
 2. using some combination of three `row_striping_*` arguments in `tab_options()`
@@ -103,6 +103,8 @@ With these new options, we can choose to stripe the *entire* row (stub cells + b
     )
 )
 ```
+
+These alternating fills can be a good idea in some table display circumstances. Now, you can make that call and the functionality is there to support your decision.
 
 ### Wrapping up
 
