@@ -9,7 +9,7 @@ jupyter: python3
 
 In Great Tables `0.12.0` we focused on adding options for customizing the appearance of a table. In this post, we'll present two new features:
 
-- using typefaces from Google Fonts via `tab_style()` or `opt_table_font()`
+- using typefaces from Google Fonts via `tab_style()` and `opt_table_font()`
 - adding table striping via `tab_options()` and `opt_row_striping()`
 
 Let's have a look at how these new features can be used!
@@ -108,4 +108,4 @@ These alternating fills can be a good idea in some table display circumstances. 
 
 ### Wrapping up
 
-If you're new to the wide world of table styling, check out the [*Get Started* guide on styling the table](https://posit-dev.github.io/great-tables/get-started/basic-styling.html) for primer on the subject. As ever, please let us know through [GitHub Issues](https://github.com/posit-dev/great-tables/issues) whether you ran into problems with any feature (new or old), or, if you have suggestions for further improvement!
+We are excited that this new functionality is now available in Great Tables. As ever, please let us know through [GitHub Issues](https://github.com/posit-dev/great-tables/issues) whether you ran into problems with any feature (new or old), or, if you have suggestions for further improvement!
