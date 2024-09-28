@@ -333,6 +333,7 @@ def test_unit_definition_list_class_construction():
 def test_unit_str_class_construction():
     unit_str = UnitStr(["a b"])
     assert unit_str.units_str == ["a b"]
+    assert str(unit_str) == repr(unit_str) == "UnitStr(['a b'])"
     assert len(unit_str) == 1
 
 
