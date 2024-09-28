@@ -92,6 +92,7 @@ def test_google_font():
         font.make_import_stmt()
         == "@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');"
     )
+    assert str(font) == repr(font) == f"GoogleFont({font_name})"
 
 
 def test_google_font_class():
@@ -320,11 +321,19 @@ def test_unit_definition_class_construction():
 def test_unit_definition_list_class_construction():
     unit_def_list = UnitDefinitionList([UnitDefinition(token="m^2", unit="m", exponent="2")])
     assert unit_def_list.units_list == [UnitDefinition(token="m^2", unit="m", exponent="2")]
+    assert (
+        str(unit_def_list)
+        == repr(unit_def_list)
+        == "UnitDefinitionList([UnitDefinition("
+        + "token='m^2', unit='m', unit_subscript=None, exponent='2', sub_super_overstrike=False, "
+        + "chemical_formula=False, built=None)])"
+    )
 
 
 def test_unit_str_class_construction():
     unit_str = UnitStr(["a b"])
     assert unit_str.units_str == ["a b"]
+    assert len(unit_str) == 1
 
 
 def test_unit_str_from_str_single_unit():
