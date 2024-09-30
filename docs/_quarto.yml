@@ -147,6 +147,7 @@ quartodoc:
       contents:
         - loc.body
         - loc.column_labels
+        - loc.footer
         - loc.source_notes
         - style.fill
         - style.text
