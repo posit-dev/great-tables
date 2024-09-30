@@ -256,8 +256,8 @@ class LocSpannerLabels(Loc):
     --------
     Let's use a subset of the `gtcars` dataset in a new table. We create two spanner labels through
     two separate calls of the [`tab_spanner()`](`great_tables.GT.tab_spanner`) method. In each of
-    those, the text supplied to `label=` argument is used as the ID value (though they have be
-    explicitly set via the `id=` argument). We will style only the spanner label with the text
+    those, the text supplied to `label=` argument is used as the ID value (though they have to be
+    explicitly set via the `id=` argument). We will style only the spanner label having the text
     `"performance"` by using `locations=loc.spanner_labels(ids=["performance"])` within
     [`tab_style()`](`great_tables.GT.tab_style`).
 
