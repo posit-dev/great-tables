@@ -286,7 +286,7 @@ class GoogleFont:
     font: str
 
     def __repr__(self) -> str:
-        return f"GoogleFont({self.font})"
+        return f"{type(self).__name__}({self.font})"
 
     def make_import_stmt(self) -> str:
         return f"@import url('https://fonts.googleapis.com/css2?family={self.font.replace(' ', '+')}&display=swap');"
@@ -837,7 +837,7 @@ class UnitStr:
         self.units_str = units_str
 
     def __repr__(self) -> str:
-        return f"UnitStr({self.units_str})"
+        return f"{type(self).__name__}({self.units_str})"
 
     def to_html(self) -> str:
 
@@ -890,7 +890,7 @@ class UnitDefinitionList:
     units_list: list[UnitDefinition]
 
     def __repr__(self) -> str:
-        return f"UnitDefinitionList({self.units_list})"
+        return f"{type(self).__name__}({self.units_list})"
 
     def __len__(self) -> int:
         return len(self.units_list)
