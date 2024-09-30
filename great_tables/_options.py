@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, ClassVar, cast
+from typing import TYPE_CHECKING, ClassVar, cast, Iterable
 
 from great_tables import _utils
 from great_tables._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
@@ -1090,7 +1090,7 @@ def opt_table_outline(
 
 def opt_table_font(
     self: GTSelf,
-    font: str | list[str] | dict[str, str] | None = None,
+    font: str | list[str] | dict[str, str] | GoogleFont | None = None,
     stack: FontStackName | None = None,
     weight: str | int | float | None = None,
     style: str | None = None,
@@ -1110,9 +1110,10 @@ def opt_table_font(
     Parameters
     ----------
     font
-        One or more font names available on the user system. This can be a string or a list of
-        strings. The default value is `None` since you could instead opt to use `stack` to define
-        a list of fonts.
+        One or more font names available on the user's system. This can be provided as a string or
+        a list of strings. Alternatively, you can specify font names using the `google_font()`
+        helper function. The default value is `None` since you could instead opt to use `stack` to
+        define a list of fonts.
     stack
         A name that is representative of a font stack (obtained via internally via the
         `system_fonts()` helper function. If provided, this new stack will replace any defined fonts
@@ -1227,8 +1228,16 @@ def opt_table_font(
     if font is not None:
 
         # If font is a string or GoogleFont object, convert to a list
-        if isinstance(font, str) or isinstance(font, GoogleFont):
-            font = [font]
+        if isinstance(font, (str, GoogleFont)):
+            font: list[str | GoogleFont] = [font]
+
+        if not isinstance(font, Iterable):
+            # We need to raise an exception here. Otherwise, if the provided `font` is not iterable,
+            # the `for item in font` loop will raise a `TypeError` with a message stating that the
+            # object is not iterable.
+            raise TypeError(
+                "`font=` must be a string/GoogleFont object or a list of strings/GoogleFont objects."
+            )
 
         new_font_list: list[str] = []
 
@@ -1251,9 +1260,11 @@ def opt_table_font(
                 res = tab_options(res, table_additional_css=existing_additional_css)
 
             else:
-                raise TypeError("`font=` must be a string or a list of strings.")
+                raise TypeError(
+                    "`font=` must be a string/GoogleFont object or a list of strings/GoogleFont objects."
+                )
 
-        font = new_font_list
+        font: list[str] = new_font_list
 
     else:
         font = []
@@ -1278,7 +1289,7 @@ def opt_table_font(
 
     if weight is not None:
 
-        if isinstance(weight, int) or isinstance(weight, float):
+        if isinstance(weight, (int, float)):
 
             weight = str(round(weight))
 

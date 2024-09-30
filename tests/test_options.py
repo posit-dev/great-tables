@@ -390,6 +390,27 @@ def test_opt_table_font_raises():
     assert "Either `font=` or `stack=` must be provided." in exc_info.value.args[0]
 
 
+@pytest.mark.parametrize("font", [1, [1]])
+def test_opt_table_font_raises_font(font):
+    with pytest.raises(TypeError) as exc_info:
+        GT(exibble).opt_table_font(font=font)
+
+    assert (
+        "`font=` must be a string/GoogleFont object or a list of strings/GoogleFont objects."
+        in exc_info.value.args[0]
+    )
+
+
+def test_opt_table_font_raises_weight():
+    with pytest.raises(TypeError) as exc_info:
+        GT(exibble).opt_table_font(stack="humanist", weight=(1, 2))
+
+    assert (
+        "`weight=` must be a numeric value between 1 and 1000 or a text-based keyword."
+        in exc_info.value.args[0]
+    )
+
+
 def test_opt_row_striping():
 
     gt_tbl_0 = GT(exibble)
