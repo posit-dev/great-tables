@@ -279,11 +279,6 @@ def fmt_number(
     Take a look at the functional version of this method:
     [`val_fmt_number()`](`great_tables._formats_vals.val_fmt_number`).
     """
-
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
     locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
@@ -458,10 +453,7 @@ def fmt_integer(
     [`val_fmt_integer()`](`great_tables._formats_vals.val_fmt_integer`).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -665,10 +657,7 @@ def fmt_scientific(
     # large exponent values
     use_seps = True
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -919,10 +908,7 @@ def fmt_percent(
     single numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -1143,10 +1129,7 @@ def fmt_currency(
     single numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -1483,10 +1466,7 @@ def fmt_bytes(
     numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -1692,10 +1672,7 @@ def fmt_date(
     numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Get the date format string based on the `date_style` value
     date_format_str = _get_date_format(date_style=date_style)
@@ -1826,10 +1803,7 @@ def fmt_time(
     numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Get the time format string based on the `time_style` value
     time_format_str = _get_time_format(time_style=time_style)
@@ -1976,10 +1950,7 @@ def fmt_datetime(
     ```
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Get the date format string based on the `date_style` value
     date_format_str = _get_date_format(date_style=date_style)
@@ -2899,9 +2870,8 @@ def _resolve_locale(x: GTData, locale: str | None = None) -> str | None:
 
     # TODO: why do both the normalize and validate functions convert
     # underscores to hyphens? Should we remove from validate locale?
-    locale = _normalize_locale(locale=locale)
-
     _validate_locale(locale=locale)
+    locale = _normalize_locale(locale=locale)
 
     return locale
 
