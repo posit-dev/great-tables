@@ -82,7 +82,9 @@ quartodoc:
         class, we supply the input data table and some basic options for creating a stub and row
         groups (with the `rowname_col=` and `groupname_col=` arguments).
       contents:
-        - GT
+        - name: GT
+          members: []
+          
     - title: Creating or modifying parts of a table
       desc: >
         A table can contain a few useful components for conveying additional information. These
