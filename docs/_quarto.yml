@@ -148,6 +148,7 @@ quartodoc:
         - loc.body
         - loc.title
         - loc.subtitle
+        - loc.header
         - loc.column_labels
         - loc.footer
         - loc.source_notes
