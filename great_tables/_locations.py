@@ -167,8 +167,9 @@ class LocBody(Loc):
 
     Returns
     -------
-    LocBody
-        A LocBody object, which is used for a `locations=` argument if specifying the table body.
+    LocColumnLabels
+        A LocColumnLabels object, which is used for a `locations=` argument if specifying the
+        table's column labels.
 
     Examples
     --------
