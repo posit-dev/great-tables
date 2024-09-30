@@ -11,7 +11,9 @@ if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
+def cols_label(
+    self: GTSelf, cases: dict[str, str | Text] | None = None, **kwargs: str | Text
+) -> GTSelf:
     """
     Relabel one or more columns.
 
@@ -26,10 +28,13 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
 
     Parameters
     ----------
+    cases
+        A dictionary where the keys are column names and the values are the labels. Labels may use
+        [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helpers for formatting.
+
     **kwargs
-        New labels expressed as keyword arguments. Column names should be the keyword (left-hand side).
-        Labels may use [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helpers for
-        formatting.
+        Keyword arguments to specify column labels. Each keyword corresponds to a column name, with
+        its value indicating the new label.
 
     Returns
     -------
@@ -111,14 +116,16 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
     """
     from great_tables._helpers import UnitStr
 
-    # If nothing is provided, return `data` unchanged
-    if len(kwargs) == 0:
-        return self
+    cases = cases if cases is not None else {}
+    new_cases = cases | kwargs
 
-    mod_columns = list(kwargs.keys())
+    # If nothing is provided, return `data` unchanged
+    if len(new_cases) == 0:
+        return self
 
     # Get the full list of column names for the data
     column_names = self._boxhead._get_columns()
+    mod_columns = list(new_cases.keys())
 
     # Stop function if any of the column names specified are not in `cols_labels`
     # msg: "All column names provided must exist in the input `.data` table."
@@ -127,7 +134,7 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
     # Handle units syntax in labels (e.g., "Density ({{ppl / mi^2}})")
     new_kwargs: dict[str, UnitStr | str | Text] = {}
 
-    for k, v in kwargs.items():
+    for k, v in new_cases.items():
 
         if isinstance(v, str):
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import math
+import re
+from dataclasses import dataclass
 from datetime import date, datetime, time
 from decimal import Decimal
 from pathlib import Path
@@ -277,11 +279,6 @@ def fmt_number(
     Take a look at the functional version of this method:
     [`val_fmt_number()`](`great_tables._formats_vals.val_fmt_number`).
     """
-
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
     locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
@@ -456,10 +453,7 @@ def fmt_integer(
     [`val_fmt_integer()`](`great_tables._formats_vals.val_fmt_integer`).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -663,10 +657,7 @@ def fmt_scientific(
     # large exponent values
     use_seps = True
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -917,10 +908,7 @@ def fmt_percent(
     single numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -1141,10 +1129,7 @@ def fmt_currency(
     single numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -1481,10 +1466,7 @@ def fmt_bytes(
     numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -1690,10 +1672,7 @@ def fmt_date(
     numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Get the date format string based on the `date_style` value
     date_format_str = _get_date_format(date_style=date_style)
@@ -1824,10 +1803,7 @@ def fmt_time(
     numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Get the time format string based on the `time_style` value
     time_format_str = _get_time_format(time_style=time_style)
@@ -1974,10 +1950,7 @@ def fmt_datetime(
     ```
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Get the date format string based on the `date_style` value
     date_format_str = _get_date_format(date_style=date_style)
@@ -2897,9 +2870,8 @@ def _resolve_locale(x: GTData, locale: str | None = None) -> str | None:
 
     # TODO: why do both the normalize and validate functions convert
     # underscores to hyphens? Should we remove from validate locale?
-    locale = _normalize_locale(locale=locale)
-
     _validate_locale(locale=locale)
+    locale = _normalize_locale(locale=locale)
 
     return locale
 
@@ -3426,6 +3398,12 @@ def fmt_image(
         The option to always use Base64 encoding for image paths that are determined to be local. By
         default, this is `True`.
 
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
     Examples
     --------
     Using a small portion of `metro` dataset, let's create a new table. We will only include a few
@@ -3476,9 +3454,6 @@ def fmt_image(
     return fmt(self, fns=formatter.to_html, columns=columns, rows=rows)
 
 
-from dataclasses import dataclass
-
-
 @dataclass
 class FmtImage:
     dispatch_on: DataFrameLike | Agnostic = Agnostic()
@@ -3492,8 +3467,6 @@ class FmtImage:
     SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
 
     def to_html(self, val: Any):
-        from pathlib import Path
-
         # TODO: are we assuming val is a string? (or coercing?)
 
         # otherwise...
@@ -3561,8 +3534,6 @@ class FmtImage:
 
     @staticmethod
     def _get_mime_type(filename: str) -> str:
-        from pathlib import Path
-
         # note that we strip off the leading "."
         suffix = Path(filename).suffix[1:]
 
@@ -3660,6 +3631,12 @@ def fmt_nanoplot(
     options
         By using the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function here,
         you can alter the layout and styling of the nanoplots in the new column.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Details
     -------
@@ -3969,8 +3946,6 @@ def _generate_data_vals(
         list[Any]: A list of data values.
     """
 
-    import re
-
     if is_series(data_vals):
         data_vals = to_list(data_vals)
 
@@ -4063,8 +4038,6 @@ def _process_number_stream(data_vals: str) -> list[float]:
         list[float]: A list of numeric values.
     """
 
-    import re
-
     number_stream = re.sub(r"[;,]", " ", data_vals)
     number_stream = re.sub(r"\\[|\\]", " ", number_stream)
     number_stream = re.sub(r"^\\s+|\\s+$", "", number_stream)
@@ -4073,9 +4046,6 @@ def _process_number_stream(data_vals: str) -> list[float]:
     number_stream = [float(val) for val in number_stream]
 
     return number_stream
-
-
-import re
 
 
 def _process_time_stream(data_vals: str) -> list[float]:

@@ -263,6 +263,10 @@ p {
   border-top-width: $row_group_border_top_width;
 }
 
+.gt_striped {
+  background-color: $row_striping_background_color;
+}
+
 .gt_table_body {
   border-top-style: $table_body_border_top_style;
   border-top-width: $table_body_border_top_width;

@@ -80,7 +80,7 @@ sza_pivot = (
     .filter((pl.col("latitude") == "20") & (pl.col("tst") <= "1200"))
     .select(pl.col("*").exclude("latitude"))
     .drop_nulls()
-    .pivot(values="sza", index="month", columns="tst", sort_columns=True)
+    .pivot(values="sza", index="month", on="tst", sort_columns=True)
 )
 
 (

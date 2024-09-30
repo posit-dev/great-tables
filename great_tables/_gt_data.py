@@ -5,7 +5,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
-from typing import Any, Callable, Tuple, TypeVar, overload, TYPE_CHECKING
+from typing import Any, Callable, Literal, Tuple, TypeVar, Union, overload, TYPE_CHECKING
 
 from typing_extensions import Self, TypeAlias
 
@@ -28,6 +28,7 @@ from ._utils import _str_detect, OrderedSet
 
 if TYPE_CHECKING:
     from ._helpers import Md, Html, UnitStr, Text
+    from ._locations import Loc
 
 T = TypeVar("T")
 
@@ -577,7 +578,9 @@ class Stub:
         row_info = [RowInfo(*i) for i in zip(row_indices, group_id, row_names)]
 
         # create groups, and ensure they're ordered by first observed
-        group_names = list(OrderedSet(row.group_id for row in row_info if row.group_id is not None))
+        group_names = OrderedSet(
+            row.group_id for row in row_info if row.group_id is not None
+        ).as_list()
         group_rows = GroupRows(data, group_key=groupname_col).reorder(group_names)
 
         return cls(row_info, group_rows)
@@ -608,7 +611,7 @@ class Stub:
         # TODO: validate
         return self.__class__(self.rows, self.group_rows.reorder(group_order))
 
-    def group_indices_map(self) -> list[tuple[int, str | None]]:
+    def group_indices_map(self) -> list[tuple[int, GroupRowInfo | None]]:
         return self.group_rows.indices_map(len(self.rows))
 
     def __iter__(self):
@@ -738,7 +741,7 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
         return self.__class__(reordered)
 
-    def indices_map(self, n: int) -> list[tuple[int, str | None]]:
+    def indices_map(self, n: int) -> list[tuple[int, GroupRowInfo]]:
         """Return pairs of row index, group label for all rows in data.
 
         Note that when no groupings exist, n is used to return from range(n).
@@ -749,7 +752,7 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
         if not len(self._d):
             return [(ii, None) for ii in range(n)]
-        return [(ind, info.defaulted_label()) for info in self for ind in info.indices]
+        return [(ind, info) for info in self for ind in info.indices]
 
 
 # Spanners ----
@@ -850,7 +853,7 @@ class FootnotePlacement(Enum):
 
 @dataclass(frozen=True)
 class FootnoteInfo:
-    locname: str | None = None
+    locname: Loc | None = None
     grpname: str | None = None
     colname: str | None = None
     locnum: int | None = None
@@ -867,8 +870,7 @@ Footnotes: TypeAlias = list[FootnoteInfo]
 
 @dataclass(frozen=True)
 class StyleInfo:
-    locname: str
-    locnum: int
+    locname: Loc
     grpname: str | None = None
     colname: str | None = None
     rownum: int | None = None
@@ -984,7 +986,7 @@ class Options:
     table_margin_left: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
     table_margin_right: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
     table_background_color: OptionsInfo = OptionsInfo(True, "table", "value", "#FFFFFF")
-    # table_additional_css: OptionsInfo = OptionsInfo(False, "table", "values", None)
+    table_additional_css: OptionsInfo = OptionsInfo(False, "table", "values", [])
     table_font_names: OptionsInfo = OptionsInfo(False, "table", "values", default_fonts_list)
     table_font_size: OptionsInfo = OptionsInfo(True, "table", "px", "16px")
     table_font_weight: OptionsInfo = OptionsInfo(True, "table", "value", "normal")
@@ -1158,11 +1160,11 @@ class Options:
     )
     source_notes_multiline: OptionsInfo = OptionsInfo(False, "source_notes", "boolean", True)
     source_notes_sep: OptionsInfo = OptionsInfo(False, "source_notes", "value", " ")
-    # row_striping_background_color: OptionsInfo = OptionsInfo(
-    #     True, "row", "value", "rgba(128,128,128,0.05)"
-    # )
-    # row_striping_include_stub: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
-    # row_striping_include_table_body: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
+    row_striping_background_color: OptionsInfo = OptionsInfo(
+        True, "row", "value", "rgba(128,128,128,0.05)"
+    )
+    row_striping_include_stub: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
+    row_striping_include_table_body: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
     container_width: OptionsInfo = OptionsInfo(False, "container", "px", "auto")
     container_height: OptionsInfo = OptionsInfo(False, "container", "px", "auto")
     container_padding_x: OptionsInfo = OptionsInfo(False, "container", "px", "0px")
