@@ -82,6 +82,44 @@ class LocColumnHeader(Loc):
 
 @dataclass
 class LocColumnLabels(Loc):
+    """A location specification for targeting column labels.
+
+    With `loc.column_labels()`, we can target the cells containing the column labels. This is useful
+    for applying custom styling with the [`tab_style()`](`great_tables.GT.tab_style`) method. That
+    method has a `locations=` argument and this class should be used there to perform the targeting.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list. If no columns are specified, all columns are targeted.
+
+    Returns
+    -------
+    LocBody
+        A LocBody object, which is used for a `locations=` argument if specifying the table body.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style all three of the column
+    labels by using `locations=loc.column_labels()` within
+    [`tab_style()`](`great_tables.GT.tab_style`). Note that no specification of `columns=` is needed
+    here because we want to target all columns.
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars[["mfr", "model", "msrp"]].head(5))
+        .tab_style(
+            style=style.text(color="blue", size="large", weight="bold"),
+            locations=loc.column_labels()
+        )
+    )
+    ```
+    """
+
     columns: SelectExpr = None
 
 
@@ -133,7 +171,7 @@ class LocBody(Loc):
         A LocBody object, which is used for a `locations=` argument if specifying the table body.
 
     Examples
-    ------
+    --------
     See [`GT.tab_style()`](`great_tables.GT.tab_style`).
     """
 
@@ -165,7 +203,7 @@ class LocFooter(Loc):
 
     Examples
     --------
-    Let's use a subset of the [`gtcars`] dataset in a new table. Add a source note (with
+    Let's use a subset of the `gtcars` dataset in a new table. Add a source note (with
     [`tab_source_note()`](`great_tables.GT.tab_source_note`) and style this footer section inside of
     [`tab_style()`](`great_tables.GT.tab_style`) with `locations=loc.footer()`.
 
@@ -208,7 +246,7 @@ class LocSourceNotes(Loc):
 
     Examples
     --------
-    Let's use a subset of the [`gtcars`] dataset in a new table. Add a source note (with
+    Let's use a subset of the `gtcars` dataset in a new table. Add a source note (with
     [`tab_source_note()`](`great_tables.GT.tab_source_note`) and style the source notes section
     inside [`tab_style()`](`great_tables.GT.tab_style`) with `locations=loc.source_notes()`.
 
