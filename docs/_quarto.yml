@@ -84,8 +84,8 @@ quartodoc:
       contents:
         - name: GT
           children: linked
-          
-          
+
+
     - title: Creating or modifying parts of a table
       desc: >
         A table can contain a few useful components for conveying additional information. These
