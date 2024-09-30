@@ -146,6 +146,7 @@ quartodoc:
         specification of the styling properties to be applied to the targeted locations.
       contents:
         - loc.body
+        - loc.source_note
         - style.fill
         - style.text
         - style.borders
