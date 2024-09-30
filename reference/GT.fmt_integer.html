@@ -180,7 +180,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <ul>
   <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
-  <li><a href="#adapting-output-to-a-specific-locale" id="toc-adapting-output-to-a-specific-locale" class="nav-link" data-scroll-target="#adapting-output-to-a-specific-locale">Adapting Output To A Specific <code>Locale</code></a></li>
+  <li><a href="#adapting-output-to-a-specific-locale-.doc-section-.doc-section-adapting-output-to-a-specific-locale" id="toc-adapting-output-to-a-specific-locale-.doc-section-.doc-section-adapting-output-to-a-specific-locale" class="nav-link" data-scroll-target="#adapting-output-to-a-specific-locale-.doc-section-.doc-section-adapting-output-to-a-specific-locale">Adapting Output To A Specific <code>Locale</code> {.doc-section .doc-section-Adapting-output-to-a-specific-<code>locale</code>}</a></li>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
   </ul>
@@ -208,7 +208,18 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </header>
 
 
-<p><code>GT.fmt_integer(self, columns=None, rows=None, use_seps=True, scale_by=1, compact=False, pattern='{x}', sep_mark=',', force_sign=False, locale=None)</code></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>GT.fmt_integer(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    rows<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    use_seps<span class="op">=</span><span class="va">True</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    scale_by<span class="op">=</span><span class="dv">1</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    compact<span class="op">=</span><span class="va">False</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    pattern<span class="op">=</span><span class="st">'</span><span class="sc">{x}</span><span class="st">'</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    sep_mark<span class="op">=</span><span class="st">','</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    force_sign<span class="op">=</span><span class="va">False</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    locale<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Format values as integers.</p>
 <p>With numeric values in one or more table columns, we can perform number-based formatting so that the targeted values are always rendered as integer values.</p>
 <p>We can have fine control over integer formatting with the following options:</p>
@@ -219,13 +230,13 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li>pattern: option to use a text pattern for decoration of the formatted values</li>
 <li>locale-based formatting: providing a locale ID will result in number formatting specific to the chosen locale</li>
 </ul>
-<section id="parameters" class="level2">
-<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 4%">
+<col style="width: 3%">
 <col style="width: 17%">
-<col style="width: 74%">
+<col style="width: 75%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -238,141 +249,143 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>columns</code></td>
+<td>columns</td>
 <td><code>SelectExpr</code></td>
 <td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>rows</code></td>
+<td>rows</td>
 <td><code>int</code> | <code>list</code>[<code>int</code>] | None</td>
 <td>In conjunction with <code>columns=</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in targeted columns being formatted. Alternatively, we can supply a list of row indices.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>use_seps</code></td>
+<td>use_seps</td>
 <td><code>bool</code></td>
 <td>The <code>use_seps</code> option allows for the use of digit group separators. The type of digit group separator is set by <code>sep_mark</code> and overridden if a locale ID is provided to <code>locale</code>. This setting is <code>True</code> by default.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="even">
-<td><code>scale_by</code></td>
+<td>scale_by</td>
 <td><code>float</code></td>
 <td>All numeric values will be multiplied by the <code>scale_by</code> value before undergoing formatting. Since the <code>default</code> value is <code>1</code>, no values will be changed unless a different multiplier value is supplied.</td>
 <td><code>1</code></td>
 </tr>
 <tr class="odd">
-<td><code>compact</code></td>
+<td>compact</td>
 <td><code>bool</code></td>
 <td>A boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., <code>1230</code> becomes <code>1K</code>, and <code>1230000</code> becomes <code>1M</code>). The <code>compact</code> option is <code>False</code> by default.</td>
 <td><code>False</code></td>
 </tr>
 <tr class="even">
-<td><code>pattern</code></td>
+<td>pattern</td>
 <td><code>str</code></td>
 <td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
 <td><code>'{x}'</code></td>
 </tr>
 <tr class="odd">
-<td><code>sep_mark</code></td>
+<td>sep_mark</td>
 <td><code>str</code></td>
-<td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
+<td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=\",\"</code> with a value of <code>1000</code> would result in a formatted value of <code>\"1,000\"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
 <td><code>','</code></td>
 </tr>
 <tr class="even">
-<td><code>force_sign</code></td>
+<td>force_sign</td>
 <td><code>bool</code></td>
 <td>Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign.</td>
 <td><code>False</code></td>
 </tr>
 <tr class="odd">
-<td><code>locale</code></td>
+<td>locale</td>
 <td><code>str</code> | None</td>
-<td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
+<td>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</td>
 <td><code>None</code></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="returns" class="level2">
-<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
 <table class="caption-top table">
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
 <td>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="adapting-output-to-a-specific-locale" class="level2">
-<h2 class="anchored" data-anchor-id="adapting-output-to-a-specific-locale">Adapting Output To A Specific <code>Locale</code></h2>
+<section id="adapting-output-to-a-specific-locale-.doc-section-.doc-section-adapting-output-to-a-specific-locale" class="level2">
+<h2 class="anchored" data-anchor-id="adapting-output-to-a-specific-locale-.doc-section-.doc-section-adapting-output-to-a-specific-locale">Adapting Output To A Specific <code>Locale</code> {.doc-section .doc-section-Adapting-output-to-a-specific-<code>locale</code>}</h2>
 <p>This formatting method can adapt outputs according to a provided <code>locale</code> value. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France). The use of a valid locale ID here means separator marks will be correct for the given locale. Should any value be provided in <code>sep_mark</code>, it will be overridden by the locale’s preferred value.</p>
 <p>Note that a <code>locale</code> value provided here will override any global locale setting performed in <a href="../reference/GT.html#great_tables.GT"><code>GT()</code></a>’s own <code>locale</code> argument (it is settable there as a value received by all other methods that have a <code>locale</code> argument).</p>
 </section>
-<section id="examples" class="level2">
-<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>For this example, we’ll use the <code>exibble</code> dataset as the input table. With the <code>fmt_integer()</code> method, we’ll format the <code>num</code> column as integer values having no digit separators (with the <code>use_seps=False</code> option).</p>
-<div id="0627636f" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    GT(exibble)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    .fmt_integer(columns<span class="op">=</span><span class="st">"num"</span>, use_seps<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="a18fbbd2" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    GT(exibble)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    .fmt_integer(columns<span class="op">=</span><span class="st">"num"</span>, use_seps<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="quwowzeyac" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="wxndcmonsd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#quwowzeyac table {
+#wxndcmonsd table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#quwowzeyac thead, tbody, tfoot, tr, td, th { border-style: none; }
+#wxndcmonsd thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#quwowzeyac p { margin: 0; padding: 0; }
- #quwowzeyac .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #quwowzeyac .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #quwowzeyac .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #quwowzeyac .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #quwowzeyac .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #quwowzeyac .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #quwowzeyac .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #quwowzeyac .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #quwowzeyac .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #quwowzeyac .gt_column_spanner_outer:first-child { padding-left: 0; }
- #quwowzeyac .gt_column_spanner_outer:last-child { padding-right: 0; }
- #quwowzeyac .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #quwowzeyac .gt_spanner_row { border-bottom-style: hidden; }
- #quwowzeyac .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #quwowzeyac .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #quwowzeyac .gt_from_md> :first-child { margin-top: 0; }
- #quwowzeyac .gt_from_md> :last-child { margin-bottom: 0; }
- #quwowzeyac .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #quwowzeyac .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #quwowzeyac .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #quwowzeyac .gt_row_group_first td { border-top-width: 2px; }
- #quwowzeyac .gt_row_group_first th { border-top-width: 2px; }
- #quwowzeyac .gt_striped { background-color: rgba(128,128,128,0.05); }
- #quwowzeyac .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #quwowzeyac .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #quwowzeyac .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #quwowzeyac .gt_left { text-align: left; }
- #quwowzeyac .gt_center { text-align: center; }
- #quwowzeyac .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #quwowzeyac .gt_font_normal { font-weight: normal; }
- #quwowzeyac .gt_font_bold { font-weight: bold; }
- #quwowzeyac .gt_font_italic { font-style: italic; }
- #quwowzeyac .gt_super { font-size: 65%; }
- #quwowzeyac .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #quwowzeyac .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#wxndcmonsd p { margin: 0; padding: 0; }
+ #wxndcmonsd .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #wxndcmonsd .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #wxndcmonsd .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #wxndcmonsd .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #wxndcmonsd .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #wxndcmonsd .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #wxndcmonsd .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #wxndcmonsd .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #wxndcmonsd .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #wxndcmonsd .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #wxndcmonsd .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #wxndcmonsd .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #wxndcmonsd .gt_spanner_row { border-bottom-style: hidden; }
+ #wxndcmonsd .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #wxndcmonsd .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #wxndcmonsd .gt_from_md> :first-child { margin-top: 0; }
+ #wxndcmonsd .gt_from_md> :last-child { margin-bottom: 0; }
+ #wxndcmonsd .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #wxndcmonsd .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #wxndcmonsd .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #wxndcmonsd .gt_row_group_first td { border-top-width: 2px; }
+ #wxndcmonsd .gt_row_group_first th { border-top-width: 2px; }
+ #wxndcmonsd .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #wxndcmonsd .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #wxndcmonsd .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #wxndcmonsd .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #wxndcmonsd .gt_left { text-align: left; }
+ #wxndcmonsd .gt_center { text-align: center; }
+ #wxndcmonsd .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #wxndcmonsd .gt_font_normal { font-weight: normal; }
+ #wxndcmonsd .gt_font_bold { font-weight: bold; }
+ #wxndcmonsd .gt_font_italic { font-style: italic; }
+ #wxndcmonsd .gt_super { font-size: 65%; }
+ #wxndcmonsd .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #wxndcmonsd .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -489,9 +502,9 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </div>
 </div>
 </section>
-<section id="see-also" class="level2">
-<h2 class="anchored" data-anchor-id="see-also">See Also</h2>
-<p>The <a href="../reference/GT.html#great_tables.GT.fmt_number"><code>fmt_number()</code></a> method might be more of what you need if you’d like decimal values in your outputs. Need to do integer-based formatting on a value or list of values? Take a look at the functional version of this method: <a href="../reference/vals.fmt_integer.html#great_tables.vals.fmt_integer"><code>val_fmt_integer()</code></a>.</p>
+<section id="see-also" class="level2 doc-section doc-section-See-Also">
+<h2 class="doc-section doc-section-See-Also anchored" data-anchor-id="see-also">See Also</h2>
+<p>The <a href="../reference/GT.fmt_number.html#great_tables.GT.fmt_number"><code>fmt_number()</code></a> method might be more of what you need if you’d like decimal values in your outputs. Need to do integer-based formatting on a value or list of values? Take a look at the functional version of this method: <a href="../reference/vals.fmt_integer.html#great_tables.vals.fmt_integer"><code>val_fmt_integer()</code></a>.</p>
 
 
 </section>

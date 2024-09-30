@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -157,7 +191,21 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 <section id="great_tables.vals.fmt_percent" class="level1">
 <h1>vals.fmt_percent</h1>
-<p><code>vals.fmt_percent(x, decimals=2, drop_trailing_zeros=False, drop_trailing_dec_mark=True, scale_values=True, use_seps=True, pattern='{x}', sep_mark=',', dec_mark='.', force_sign=False, placement='right', incl_space=False, locale=None)</code></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>vals.fmt_percent(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    x</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    decimals<span class="op">=</span><span class="dv">2</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    drop_trailing_zeros<span class="op">=</span><span class="va">False</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    drop_trailing_dec_mark<span class="op">=</span><span class="va">True</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    scale_values<span class="op">=</span><span class="va">True</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    use_seps<span class="op">=</span><span class="va">True</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    pattern<span class="op">=</span><span class="st">'</span><span class="sc">{x}</span><span class="st">'</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    sep_mark<span class="op">=</span><span class="st">','</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    dec_mark<span class="op">=</span><span class="st">'.'</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    force_sign<span class="op">=</span><span class="va">False</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    placement<span class="op">=</span><span class="st">'right'</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    incl_space<span class="op">=</span><span class="va">False</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    locale<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Format values as a percentage.</p>
 <p>With numeric values in a list, we can perform percentage-based formatting. It is assumed the input numeric values are proportional values and, in this case, the values will be automatically multiplied by <code>100</code> before decorating with a percent sign (the other case is accommodated though setting <code>scale_values</code> to <code>False</code>). For more control over percentage formatting, we can use the following options:</p>
 <ul>
@@ -168,8 +216,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li>pattern: option to use a text pattern for decoration of the formatted values</li>
 <li>locale-based formatting: providing a locale ID will result in number formatting specific to the chosen locale</li>
 </ul>
-<section id="parameters" class="level2">
-<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 6%">
@@ -187,101 +235,104 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>x</code></td>
+<td>x</td>
 <td><code>X</code></td>
 <td>A list of values to be formatted.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
-<td><code>decimals</code></td>
+<td>decimals</td>
 <td><code>int</code></td>
-<td>The <code>decimals</code> values corresponds to the exact number of decimal places to use. A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and it would result in <code>"2"</code>. With <code>4</code> decimal places, the formatted value becomes <code>"2.3400"</code>. The trailing zeros can be removed with <code>drop_trailing_zeros=True</code>.</td>
+<td>The <code>decimals</code> values corresponds to the exact number of decimal places to use. A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and it would result in <code>\"2\"</code>. With <code>4</code> decimal places, the formatted value becomes <code>\"2.3400\"</code>. The trailing zeros can be removed with <code>drop_trailing_zeros=True</code>.</td>
 <td><code>2</code></td>
 </tr>
 <tr class="odd">
-<td><code>drop_trailing_zeros</code></td>
+<td>drop_trailing_zeros</td>
 <td><code>bool</code></td>
 <td>A boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).</td>
 <td><code>False</code></td>
 </tr>
 <tr class="even">
-<td><code>drop_trailing_dec_mark</code></td>
+<td>drop_trailing_dec_mark</td>
 <td><code>bool</code></td>
 <td>A boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., <code>23</code> becomes <code>23.</code> if <code>False</code>). By default trailing decimal marks are not shown.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="odd">
-<td><code>scale_values</code></td>
+<td>scale_values</td>
 <td><code>bool</code></td>
 <td>Should the values be scaled through multiplication by 100? By default this scaling is performed since the expectation is that incoming values are usually proportional. Setting to <code>False</code> signifies that the values are already scaled and require only the percent sign when formatted.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="even">
-<td><code>use_seps</code></td>
+<td>use_seps</td>
 <td><code>bool</code></td>
 <td>The <code>use_seps</code> option allows for the use of digit group separators. The type of digit group separator is set by <code>sep_mark</code> and overridden if a locale ID is provided to <code>locale</code>. This setting is <code>True</code> by default.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="odd">
-<td><code>pattern</code></td>
+<td>pattern</td>
 <td><code>str</code></td>
 <td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
 <td><code>'{x}'</code></td>
 </tr>
 <tr class="even">
-<td><code>sep_mark</code></td>
+<td>sep_mark</td>
 <td><code>str</code></td>
-<td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
+<td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=\",\"</code> with a value of <code>1000</code> would result in a formatted value of <code>\"1,000\"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
 <td><code>','</code></td>
 </tr>
 <tr class="odd">
-<td><code>dec_mark</code></td>
+<td>dec_mark</td>
 <td><code>str</code></td>
-<td>The string to be used as the decimal mark. For example, using <code>dec_mark=","</code> with the value <code>0.152</code> would result in a formatted value of <code>"0,152"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
+<td>The string to be used as the decimal mark. For example, using <code>dec_mark=\",\"</code> with the value <code>0.152</code> would result in a formatted value of <code>\"0,152\"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
 <td><code>'.'</code></td>
 </tr>
 <tr class="even">
-<td><code>force_sign</code></td>
+<td>force_sign</td>
 <td><code>bool</code></td>
 <td>Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign.</td>
 <td><code>False</code></td>
 </tr>
 <tr class="odd">
-<td><code>placement</code></td>
+<td>placement</td>
 <td><code>str</code></td>
-<td>This option governs the placement of the percent sign. This can be either be <code>"right"</code> (the default) or <code>"left"</code>.</td>
+<td>This option governs the placement of the percent sign. This can be either be <code>\"right\"</code> (the default) or <code>\"left\"</code>.</td>
 <td><code>'right'</code></td>
 </tr>
 <tr class="even">
-<td><code>incl_space</code></td>
+<td>incl_space</td>
 <td><code>bool</code></td>
 <td>An option for whether to include a space between the value and the percent sign. The default is to not introduce a space character.</td>
 <td><code>False</code></td>
 </tr>
 <tr class="odd">
-<td><code>locale</code></td>
+<td>locale</td>
 <td><code>str</code> | None</td>
-<td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
+<td>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</td>
 <td><code>None</code></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="returns" class="level2">
-<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 43%">
-<col style="width: 56%">
+<col style="width: 9%">
+<col style="width: 39%">
+<col style="width: 50%">
 </colgroup>
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td><code>list</code>[<code>str</code>]</td>
 <td>A list of formatted values is returned.</td>
 </tr>

@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -144,7 +178,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <li><a href="#great_tables.vals.fmt_time" id="toc-great_tables.vals.fmt_time" class="nav-link active" data-scroll-target="#great_tables.vals.fmt_time">vals.fmt_time</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
-  <li><a href="#formatting-with-the-time_style-argument" id="toc-formatting-with-the-time_style-argument" class="nav-link" data-scroll-target="#formatting-with-the-time_style-argument">Formatting With The <code>Time_Style</code> Argument</a></li>
+  <li><a href="#formatting-with-the-time_style-argument-.doc-section-.doc-section-formatting-with-the-time_style-argument" id="toc-formatting-with-the-time_style-argument-.doc-section-.doc-section-formatting-with-the-time_style-argument" class="nav-link" data-scroll-target="#formatting-with-the-time_style-argument-.doc-section-.doc-section-formatting-with-the-time_style-argument">Formatting With The <code>Time_Style</code> Argument {.doc-section .doc-section-Formatting-with-the-<code>time_style</code>-argument}</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   </ul></li>
   </ul>
@@ -158,16 +192,16 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 <section id="great_tables.vals.fmt_time" class="level1">
 <h1>vals.fmt_time</h1>
-<p><code>vals.fmt_time(x, time_style='iso', pattern='{x}', locale=None)</code></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>vals.fmt_time(x, time_style<span class="op">=</span><span class="st">'iso'</span>, pattern<span class="op">=</span><span class="st">'</span><span class="sc">{x}</span><span class="st">'</span>, locale<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Format values as times.</p>
 <p>Format input values to time values using one of 5 preset time styles. Input can be in the form of <code>time</code> values, or strings in the ISO 8601 forms of <code>HH:MM:SS</code> or <code>YYYY-MM-DD HH:MM:SS</code>.</p>
-<section id="parameters" class="level2">
-<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 4%">
+<col style="width: 3%">
 <col style="width: 15%">
-<col style="width: 76%">
+<col style="width: 77%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -180,34 +214,34 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>x</code></td>
+<td>x</td>
 <td><code>X</code></td>
 <td>A list of values to be formatted.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
-<td><code>time_style</code></td>
+<td>time_style</td>
 <td><code>TimeStyle</code></td>
-<td>The time style to use. By default this is the short name <code>"iso"</code> which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using <code>info_time_style()</code>.</td>
+<td>The time style to use. By default this is the short name <code>\"iso\"</code> which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using <code>info_time_style()</code>.</td>
 <td><code>'iso'</code></td>
 </tr>
 <tr class="odd">
-<td><code>pattern</code></td>
+<td>pattern</td>
 <td><code>str</code></td>
 <td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
 <td><code>'{x}'</code></td>
 </tr>
 <tr class="even">
-<td><code>locale</code></td>
+<td>locale</td>
 <td><code>str</code> | None</td>
-<td>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</td>
+<td>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</td>
 <td><code>None</code></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="formatting-with-the-time_style-argument" class="level2">
-<h2 class="anchored" data-anchor-id="formatting-with-the-time_style-argument">Formatting With The <code>Time_Style</code> Argument</h2>
+<section id="formatting-with-the-time_style-argument-.doc-section-.doc-section-formatting-with-the-time_style-argument" class="level2">
+<h2 class="anchored" data-anchor-id="formatting-with-the-time_style-argument-.doc-section-.doc-section-formatting-with-the-time_style-argument">Formatting With The <code>Time_Style</code> Argument {.doc-section .doc-section-Formatting-with-the-<code>time_style</code>-argument}</h2>
 <p>We need to supply a preset time style to the <code>time_style</code> argument. The time styles are numerous and can handle localization to any supported locale. The following table provides a listing of all time styles and their output values (corresponding to an input time of <code>14:35:00</code>).</p>
 <table class="caption-top table">
 <thead>
@@ -253,21 +287,24 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </table>
 <p>We can use the <code>info_time_style()</code> function within the console to view a similar table of time styles with example output.</p>
 </section>
-<section id="returns" class="level2">
-<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 43%">
-<col style="width: 56%">
+<col style="width: 9%">
+<col style="width: 39%">
+<col style="width: 50%">
 </colgroup>
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td><code>list</code>[<code>str</code>]</td>
 <td>A list of formatted values is returned.</td>
 </tr>

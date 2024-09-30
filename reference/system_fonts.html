@@ -224,16 +224,16 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </header>
 
 
-<p><code>system_fonts(name='system-ui')</code></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_fonts(name<span class="op">=</span><span class="st">'system-ui'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Get a themed font stack that works well across systems.</p>
 <p>A font stack can be obtained from <code>system_fonts()</code> using one of various keywords such as <code>"system-ui"</code>, <code>"old-style"</code>, and <code>"humanist"</code> (there are 15 in total) representing a themed set of fonts. These sets comprise a font family that has been tested to work across a wide range of computer systems.</p>
-<section id="parameters" class="level2">
-<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 1%">
-<col style="width: 13%">
-<col style="width: 81%">
+<col style="width: 12%">
+<col style="width: 82%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -246,182 +246,185 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>name</code></td>
+<td>name</td>
 <td><code>FontStackName</code></td>
-<td>The name of a font stack. Must be drawn from the set of <code>"system-ui"</code> (the default), <code>"transitional"</code>, <code>"old-style"</code>, <code>"humanist"</code>, <code>"geometric-humanist"</code>, <code>"classical-humanist"</code>, <code>"neo-grotesque"</code>, <code>"monospace-slab-serif"</code>, <code>"monospace-code"</code>, <code>"industrial"</code>, <code>"rounded-sans"</code>, <code>"slab-serif"</code>, <code>"antique"</code>, <code>"didone"</code>, and <code>"handwritten"</code>.</td>
+<td>The name of a font stack. Must be drawn from the set of <code>\"system-ui\"</code> (the default), <code>\"transitional\"</code>, <code>\"old-style\"</code>, <code>\"humanist\"</code>, <code>\"geometric-humanist\"</code>, <code>\"classical-humanist\"</code>, <code>\"neo-grotesque\"</code>, <code>\"monospace-slab-serif\"</code>, <code>\"monospace-code\"</code>, <code>\"industrial\"</code>, <code>\"rounded-sans\"</code>, <code>\"slab-serif\"</code>, <code>\"antique\"</code>, <code>\"didone\"</code>, and <code>\"handwritten\"</code>.</td>
 <td><code>'system-ui'</code></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="returns" class="level2">
-<h2 class="anchored" data-anchor-id="returns">Returns</h2>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 38%">
-<col style="width: 61%">
+<col style="width: 8%">
+<col style="width: 35%">
+<col style="width: 56%">
 </colgroup>
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td><code>list</code>[<code>str</code>]</td>
 <td>A list of font names that make up the font stack.</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="the-font-stacks-and-the-individual-fonts-used-by-platform" class="level2">
-<h2 class="anchored" data-anchor-id="the-font-stacks-and-the-individual-fonts-used-by-platform">The Font Stacks And The Individual Fonts Used By Platform</h2>
+<section id="the-font-stacks-and-the-individual-fonts-used-by-platform" class="level2 doc-section doc-section-The-font-stacks-and-the-individual-fonts-used-by-platform">
+<h2 class="doc-section doc-section-The-font-stacks-and-the-individual-fonts-used-by-platform anchored" data-anchor-id="the-font-stacks-and-the-individual-fonts-used-by-platform">The Font Stacks And The Individual Fonts Used By Platform</h2>
 <section id="system-ui-system-ui" class="level3">
 <h3 class="anchored" data-anchor-id="system-ui-system-ui">System UI (<code>"system-ui"</code>)</h3>
-<div class="sourceCode" id="cb1"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> system-ui<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> system-ui<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The operating system interface’s default typefaces are known as system UI fonts. They contain a variety of font weights, are quite readable at small sizes, and are perfect for UI elements. These typefaces serve as a great starting point for text in data tables and so this font stack is the default for <strong>Great Tables</strong>.</p>
 </section>
 <section id="transitional-transitional" class="level3">
 <h3 class="anchored" data-anchor-id="transitional-transitional">Transitional (<code>"transitional"</code>)</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Charter<span class="op">,</span> 'Bitstream Charter'<span class="op">,</span> 'Sitka Text'<span class="op">,</span> Cambria<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Charter<span class="op">,</span> 'Bitstream Charter'<span class="op">,</span> 'Sitka Text'<span class="op">,</span> Cambria<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The Enlightenment saw the development of transitional typefaces, which combine Old Style and Modern typefaces. <em>Times New Roman</em>, a transitional typeface created for the Times of London newspaper, is among the most well-known instances of this style.</p>
 </section>
 <section id="old-style-old-style" class="level3">
 <h3 class="anchored" data-anchor-id="old-style-old-style">Old Style (<code>"old-style"</code>)</h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Iowan Old Style'<span class="op">,</span> 'Palatino Linotype'<span class="op">,</span> 'URW Palladio L'<span class="op">,</span> P052<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Iowan Old Style'<span class="op">,</span> 'Palatino Linotype'<span class="op">,</span> 'URW Palladio L'<span class="op">,</span> P052<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Old style typefaces were created during the Renaissance and are distinguished by diagonal stress, a lack of contrast between thick and thin strokes, and rounded serifs. <em>Garamond</em> is among the most well-known instances of an antique typeface.</p>
 </section>
 <section id="humanist-humanist" class="level3">
 <h3 class="anchored" data-anchor-id="humanist-humanist">Humanist (<code>"humanist"</code>)</h3>
-<div class="sourceCode" id="cb4"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Seravek<span class="op">,</span> 'Gill Sans Nova'<span class="op">,</span> Ubuntu<span class="op">,</span> Calibri<span class="op">,</span> 'DejaVu Sans'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Seravek<span class="op">,</span> 'Gill Sans Nova'<span class="op">,</span> Ubuntu<span class="op">,</span> Calibri<span class="op">,</span> 'DejaVu Sans'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Low contrast between thick and thin strokes and organic, calligraphic forms are traits of humanist typefaces. These typefaces, which draw their inspiration from Renaissance calligraphy, are frequently regarded as being more readable and easier to read than other sans serif typefaces.</p>
 </section>
 <section id="geometric-humanist-geometric-humanist" class="level3">
 <h3 class="anchored" data-anchor-id="geometric-humanist-geometric-humanist">Geometric Humanist (<code>"geometric-humanist"</code>)</h3>
-<div class="sourceCode" id="cb5"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Avenir<span class="op">,</span> Montserrat<span class="op">,</span> Corbel<span class="op">,</span> 'URW Gothic'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Avenir<span class="op">,</span> Montserrat<span class="op">,</span> Corbel<span class="op">,</span> 'URW Gothic'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Clean, geometric forms and consistent stroke widths are characteristics of geometric humanist typefaces. These typefaces, which are frequently used for headlines and other display purposes, are frequently thought to be contemporary and slick in appearance. A well-known example of this classification is <em>Futura</em>.</p>
 </section>
 <section id="classical-humanist-classical-humanist" class="level3">
 <h3 class="anchored" data-anchor-id="classical-humanist-classical-humanist">Classical Humanist (<code>"classical-humanist"</code>)</h3>
-<div class="sourceCode" id="cb6"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Optima<span class="op">,</span> Candara<span class="op">,</span> 'Noto Sans'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Optima<span class="op">,</span> Candara<span class="op">,</span> 'Noto Sans'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The way the strokes gradually widen as they approach the stroke terminals without ending in a serif is what distinguishes classical humanist typefaces. The stone carving on Renaissance-era tombstones and classical Roman capitals served as inspiration for these typefaces.</p>
 </section>
 <section id="neo-grotesque-neo-grotesque" class="level3">
 <h3 class="anchored" data-anchor-id="neo-grotesque-neo-grotesque">Neo-Grotesque (<code>"neo-grotesque"</code>)</h3>
-<div class="sourceCode" id="cb7"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Inter<span class="op">,</span> Roboto<span class="op">,</span> 'Helvetica Neue'<span class="op">,</span> 'Arial Nova'<span class="op">,</span> 'Nimbus Sans'<span class="op">,</span> Arial<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Inter<span class="op">,</span> Roboto<span class="op">,</span> 'Helvetica Neue'<span class="op">,</span> 'Arial Nova'<span class="op">,</span> 'Nimbus Sans'<span class="op">,</span> Arial<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Neo-grotesque typefaces are a form of sans serif that originated in the late 19th and early 20th centuries. They are distinguished by their crisp, geometric shapes and regular stroke widths. <em>Helvetica</em> is among the most well-known examples of a Neo-grotesque typeface.</p>
 </section>
 <section id="monospace-slab-serif-monospace-slab-serif" class="level3">
 <h3 class="anchored" data-anchor-id="monospace-slab-serif-monospace-slab-serif">Monospace Slab Serif (<code>"monospace-slab-serif"</code>)</h3>
-<div class="sourceCode" id="cb8"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Nimbus Mono PS'<span class="op">,</span> 'Courier New'<span class="op">,</span> monospace;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Nimbus Mono PS'<span class="op">,</span> 'Courier New'<span class="op">,</span> monospace;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Monospace slab serif typefaces are distinguished by their fixed-width letters, which are the same width irrespective of their shape, and their straightforward, geometric forms. For reports, tabular work, and technical documentation, this technique is used to simulate typewriter output.</p>
 </section>
 <section id="monospace-code-monospace-code" class="level3">
 <h3 class="anchored" data-anchor-id="monospace-code-monospace-code">Monospace Code (<code>"monospace-code"</code>)</h3>
-<div class="sourceCode" id="cb9"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> ui-monospace<span class="op">,</span> 'Cascadia Code'<span class="op">,</span> 'Source Code Pro'<span class="op">,</span> Menlo<span class="op">,</span> Consolas<span class="op">,</span> 'DejaVu Sans Mono'<span class="op">,</span> monospace;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> ui-monospace<span class="op">,</span> 'Cascadia Code'<span class="op">,</span> 'Source Code Pro'<span class="op">,</span> Menlo<span class="op">,</span> Consolas<span class="op">,</span> 'DejaVu Sans Mono'<span class="op">,</span> monospace;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Specifically created for use in programming and other technical applications, monospace code typefaces are used in these fields. These typefaces are distinguished by their clear, readable forms and monospaced design, which ensures that all letters and characters are the same width.</p>
 </section>
 <section id="industrial-industrial" class="level3">
 <h3 class="anchored" data-anchor-id="industrial-industrial">Industrial (<code>"industrial"</code>)</h3>
-<div class="sourceCode" id="cb10"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Bahnschrift<span class="op">,</span> 'DIN Alternate'<span class="op">,</span> 'Franklin Gothic Medium'<span class="op">,</span> 'Nimbus Sans Narrow'<span class="op">,</span> sans-serif-condensed<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Bahnschrift<span class="op">,</span> 'DIN Alternate'<span class="op">,</span> 'Franklin Gothic Medium'<span class="op">,</span> 'Nimbus Sans Narrow'<span class="op">,</span> sans-serif-condensed<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The development of industrial typefaces began in the late 19th century and was greatly influenced by the industrial and technological advancements of the time. Industrial typefaces are distinguished by their strong sans serif letterforms, straightforward appearance, and use of geometric shapes and straight lines.</p>
 </section>
 <section id="rounded-sans-rounded-sans" class="level3">
 <h3 class="anchored" data-anchor-id="rounded-sans-rounded-sans">Rounded Sans (<code>"rounded-sans"</code>)</h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> ui-rounded<span class="op">,</span> 'Hiragino Maru Gothic ProN'<span class="op">,</span> Quicksand<span class="op">,</span> Comfortaa<span class="op">,</span> Manjari<span class="op">,</span> 'Arial Rounded MT'<span class="op">,</span> 'Arial Rounded MT Bold'<span class="op">,</span> Calibri<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> ui-rounded<span class="op">,</span> 'Hiragino Maru Gothic ProN'<span class="op">,</span> Quicksand<span class="op">,</span> Comfortaa<span class="op">,</span> Manjari<span class="op">,</span> 'Arial Rounded MT'<span class="op">,</span> 'Arial Rounded MT Bold'<span class="op">,</span> Calibri<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The rounded, curved letterforms that define rounded typefaces give them a softer, friendlier appearance. The typeface’s rounded edges give it a more natural and playful feel, making it appropriate for use in casual or kid-friendly designs. Since the 1950s, the rounded sans-serif design has gained popularity and is still frequently used in branding, graphic design, and other fields.</p>
 </section>
 <section id="slab-serif-slab-serif" class="level3">
 <h3 class="anchored" data-anchor-id="slab-serif-slab-serif">Slab Serif (<code>"slab-serif"</code>)</h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Rockwell<span class="op">,</span> 'Rockwell Nova'<span class="op">,</span> 'Roboto Slab'<span class="op">,</span> 'DejaVu Serif'<span class="op">,</span> 'Sitka Small'<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Rockwell<span class="op">,</span> 'Rockwell Nova'<span class="op">,</span> 'Roboto Slab'<span class="op">,</span> 'DejaVu Serif'<span class="op">,</span> 'Sitka Small'<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Slab Serif typefaces are distinguished by the thick, block-like serifs that appear at the ends of each letterform. Typically, these serifs are unbracketed, which means that they do not have any curved or tapered transitions to the letter’s main stroke.</p>
 </section>
 <section id="antique-antique" class="level3">
 <h3 class="anchored" data-anchor-id="antique-antique">Antique (<code>"antique"</code>)</h3>
-<div class="sourceCode" id="cb13"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Superclarendon<span class="op">,</span> 'Bookman Old Style'<span class="op">,</span> 'URW Bookman'<span class="op">,</span> 'URW Bookman L'<span class="op">,</span> 'Georgia Pro'<span class="op">,</span> Georgia<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Superclarendon<span class="op">,</span> 'Bookman Old Style'<span class="op">,</span> 'URW Bookman'<span class="op">,</span> 'URW Bookman L'<span class="op">,</span> 'Georgia Pro'<span class="op">,</span> Georgia<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Serif typefaces that were popular in the 19th century include antique typefaces, also referred to as Egyptians. They are distinguished by their thick, uniform stroke weight and block-like serifs. The typeface <em>Clarendon</em> is a highly regarded example of this style and <em>Superclarendon</em> is a modern take on that revered typeface.</p>
 </section>
 <section id="didone-didone" class="level3">
 <h3 class="anchored" data-anchor-id="didone-didone">Didone (<code>"didone"</code>)</h3>
-<div class="sourceCode" id="cb14"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Didot<span class="op">,</span> 'Bodoni MT'<span class="op">,</span> 'Noto Serif Display'<span class="op">,</span> 'URW Palladio L'<span class="op">,</span> P052<span class="op">,</span> Sylfaen<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Didot<span class="op">,</span> 'Bodoni MT'<span class="op">,</span> 'Noto Serif Display'<span class="op">,</span> 'URW Palladio L'<span class="op">,</span> P052<span class="op">,</span> Sylfaen<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Didone typefaces, also referred to as Modern typefaces, are distinguished by their vertical stress, sharp contrast between thick and thin strokes, and hairline serifs without bracketing. The Didone style first appeared in the late 18th century and became well-known in the early 19th century. <em>Bodoni</em> and <em>Didot</em> are two of the most well-known typefaces in this category.</p>
 </section>
 <section id="handwritten-handwritten" class="level3">
 <h3 class="anchored" data-anchor-id="handwritten-handwritten">Handwritten (<code>"handwritten"</code>)</h3>
-<div class="sourceCode" id="cb15"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Segoe Print'<span class="op">,</span> 'Bradley Hand'<span class="op">,</span> Chilanka<span class="op">,</span> TSCu_Comic<span class="op">,</span> casual<span class="op">,</span> cursive;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Segoe Print'<span class="op">,</span> 'Bradley Hand'<span class="op">,</span> Chilanka<span class="op">,</span> TSCu_Comic<span class="op">,</span> casual<span class="op">,</span> cursive;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The appearance and feel of handwriting are replicated by handwritten typefaces. Although there are a wide variety of handwriting styles, this font stack tends to use a more casual and commonplace style. In regards to these types of fonts in tables, one can say that any table having a handwritten font will evoke a feeling of gleefulness.</p>
 </section>
 </section>
-<section id="examples" class="level2">
-<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>Using select columns from the <code>exibble</code> dataset, let’s create a table with a number of components added. Following that, we’ll set a font for the entire table using the <code>tab_options()</code> method with the <code>table_font_names</code> parameter. Instead of passing a list of font names, we’ll use the <code>system_fonts()</code> helper function to get a font stack. In this case, we’ll use the <code>"industrial"</code> font stack.</p>
-<div id="bfbb6306" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble, md, system_fonts</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  GT(</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    exibble[[<span class="st">"num"</span>, <span class="st">"char"</span>, <span class="st">"currency"</span>, <span class="st">"row"</span>, <span class="st">"group"</span>]],</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    rowname_col<span class="op">=</span><span class="st">"row"</span>,</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    groupname_col<span class="op">=</span><span class="st">"group"</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  .tab_header(</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span>md(<span class="st">"Data listing from **exibble**"</span>),</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    subtitle<span class="op">=</span>md(<span class="st">"`exibble` is a **Great Tables** dataset."</span>)</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  .fmt_number(columns<span class="op">=</span><span class="st">"num"</span>)</span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  .fmt_currency(columns<span class="op">=</span><span class="st">"currency"</span>)</span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  .tab_source_note(source_note<span class="op">=</span><span class="st">"This is only a subset of the dataset."</span>)</span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  .opt_align_table_header(align<span class="op">=</span><span class="st">"left"</span>)</span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  .tab_options(table_font_names<span class="op">=</span>system_fonts(<span class="st">"industrial"</span>))</span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="62f58f94" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble, md, system_fonts</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  GT(</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    exibble[[<span class="st">"num"</span>, <span class="st">"char"</span>, <span class="st">"currency"</span>, <span class="st">"row"</span>, <span class="st">"group"</span>]],</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    rowname_col<span class="op">=</span><span class="st">"row"</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    groupname_col<span class="op">=</span><span class="st">"group"</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  .tab_header(</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span>md(<span class="st">"Data listing from **exibble**"</span>),</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    subtitle<span class="op">=</span>md(<span class="st">"`exibble` is a **Great Tables** dataset."</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  .fmt_number(columns<span class="op">=</span><span class="st">"num"</span>)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  .fmt_currency(columns<span class="op">=</span><span class="st">"currency"</span>)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  .tab_source_note(source_note<span class="op">=</span><span class="st">"This is only a subset of the dataset."</span>)</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  .opt_align_table_header(align<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  .tab_options(table_font_names<span class="op">=</span>system_fonts(<span class="st">"industrial"</span>))</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="yhltyizlvm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ihggfeybll" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#yhltyizlvm table {
+#ihggfeybll table {
           font-family: Bahnschrift, 'DIN Alternate', 'Franklin Gothic Medium', 'Nimbus Sans Narrow', sans-serif-condensed, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#yhltyizlvm thead, tbody, tfoot, tr, td, th { border-style: none; }
+#ihggfeybll thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#yhltyizlvm p { margin: 0; padding: 0; }
- #yhltyizlvm .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #yhltyizlvm .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #yhltyizlvm .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #yhltyizlvm .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #yhltyizlvm .gt_heading { background-color: #FFFFFF; text-align: left; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #yhltyizlvm .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #yhltyizlvm .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #yhltyizlvm .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #yhltyizlvm .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #yhltyizlvm .gt_column_spanner_outer:first-child { padding-left: 0; }
- #yhltyizlvm .gt_column_spanner_outer:last-child { padding-right: 0; }
- #yhltyizlvm .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #yhltyizlvm .gt_spanner_row { border-bottom-style: hidden; }
- #yhltyizlvm .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #yhltyizlvm .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #yhltyizlvm .gt_from_md> :first-child { margin-top: 0; }
- #yhltyizlvm .gt_from_md> :last-child { margin-bottom: 0; }
- #yhltyizlvm .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #yhltyizlvm .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #yhltyizlvm .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #yhltyizlvm .gt_row_group_first td { border-top-width: 2px; }
- #yhltyizlvm .gt_row_group_first th { border-top-width: 2px; }
- #yhltyizlvm .gt_striped { background-color: rgba(128,128,128,0.05); }
- #yhltyizlvm .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #yhltyizlvm .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #yhltyizlvm .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #yhltyizlvm .gt_left { text-align: left; }
- #yhltyizlvm .gt_center { text-align: center; }
- #yhltyizlvm .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #yhltyizlvm .gt_font_normal { font-weight: normal; }
- #yhltyizlvm .gt_font_bold { font-weight: bold; }
- #yhltyizlvm .gt_font_italic { font-style: italic; }
- #yhltyizlvm .gt_super { font-size: 65%; }
- #yhltyizlvm .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #yhltyizlvm .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#ihggfeybll p { margin: 0; padding: 0; }
+ #ihggfeybll .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #ihggfeybll .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #ihggfeybll .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #ihggfeybll .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #ihggfeybll .gt_heading { background-color: #FFFFFF; text-align: left; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ihggfeybll .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ihggfeybll .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ihggfeybll .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #ihggfeybll .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #ihggfeybll .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #ihggfeybll .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #ihggfeybll .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #ihggfeybll .gt_spanner_row { border-bottom-style: hidden; }
+ #ihggfeybll .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #ihggfeybll .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #ihggfeybll .gt_from_md> :first-child { margin-top: 0; }
+ #ihggfeybll .gt_from_md> :last-child { margin-bottom: 0; }
+ #ihggfeybll .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #ihggfeybll .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #ihggfeybll .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #ihggfeybll .gt_row_group_first td { border-top-width: 2px; }
+ #ihggfeybll .gt_row_group_first th { border-top-width: 2px; }
+ #ihggfeybll .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #ihggfeybll .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ihggfeybll .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #ihggfeybll .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #ihggfeybll .gt_left { text-align: left; }
+ #ihggfeybll .gt_center { text-align: center; }
+ #ihggfeybll .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #ihggfeybll .gt_font_normal { font-weight: normal; }
+ #ihggfeybll .gt_font_bold { font-weight: bold; }
+ #ihggfeybll .gt_font_italic { font-style: italic; }
+ #ihggfeybll .gt_super { font-size: 65%; }
+ #ihggfeybll .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #ihggfeybll .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">

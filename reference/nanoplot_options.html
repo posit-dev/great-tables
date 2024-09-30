@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -157,16 +191,47 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 <section id="great_tables.nanoplot_options" class="level1">
 <h1>nanoplot_options</h1>
-<p><code>nanoplot_options(data_point_radius=None, data_point_stroke_color=None, data_point_stroke_width=None, data_point_fill_color=None, data_line_type=None, data_line_stroke_color=None, data_line_stroke_width=None, data_area_fill_color=None, data_bar_stroke_color=None, data_bar_stroke_width=None, data_bar_fill_color=None, data_bar_negative_stroke_color=None, data_bar_negative_stroke_width=None, data_bar_negative_fill_color=None, reference_line_color=None, reference_area_fill_color=None, vertical_guide_stroke_color=None, vertical_guide_stroke_width=None, show_data_points=None, show_data_line=None, show_data_area=None, show_reference_line=None, show_reference_area=None, show_vertical_guides=None, show_y_axis_guide=None, interactive_data_values=None, y_val_fmt_fn=None, y_axis_fmt_fn=None, y_ref_line_fmt_fn=None, currency=None)</code></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>nanoplot_options(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    data_point_radius<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    data_point_stroke_color<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    data_point_stroke_width<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    data_point_fill_color<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    data_line_type<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    data_line_stroke_color<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    data_line_stroke_width<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    data_area_fill_color<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    data_bar_stroke_color<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    data_bar_stroke_width<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    data_bar_fill_color<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    data_bar_negative_stroke_color<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    data_bar_negative_stroke_width<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    data_bar_negative_fill_color<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    reference_line_color<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    reference_area_fill_color<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    vertical_guide_stroke_color<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    vertical_guide_stroke_width<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    show_data_points<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    show_data_line<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    show_data_area<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    show_reference_line<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    show_reference_area<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    show_vertical_guides<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    show_y_axis_guide<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    interactive_data_values<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    y_val_fmt_fn<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    y_axis_fmt_fn<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    y_ref_line_fmt_fn<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    currency<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Helper for setting the options for a nanoplot.</p>
 <p>When using <code>cols_nanoplot()</code>, the defaults for the generated nanoplots can be modified with <code>nanoplot_options()</code> within the <code>options=</code> argument.</p>
-<section id="parameters" class="level2">
-<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 5%">
+<col style="width: 4%">
 <col style="width: 9%">
-<col style="width: 83%">
+<col style="width: 84%">
 <col style="width: 1%">
 </colgroup>
 <thead>
@@ -179,191 +244,191 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>data_point_radius</code></td>
+<td>data_point_radius</td>
 <td><code>int</code> | <code>list</code>[<code>int</code>] | None</td>
 <td>The <code>data_point_radius=</code> option lets you set the radius for each of the data points. By default this is set to <code>10</code>. Individual radius values can be set by using a list of numeric values; however, the list provided must match the number of data points.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>data_point_stroke_color</code></td>
+<td>data_point_stroke_color</td>
 <td><code>str</code> | <code>list</code>[<code>str</code>] | None</td>
-<td>The default stroke color of the data points is <code>"#FFFFFF"</code> (<code>"white"</code>). This works well when there is a visible data line combined with data points with a darker fill color. The stroke color can be modified with <code>data_point_stroke_color=</code> for all data points by supplying a single color value. With a list of colors, each data point’s stroke color can be changed (ensure that the list length matches the number of data points).</td>
+<td>The default stroke color of the data points is <code>\"#FFFFFF\"</code> (<code>\"white\"</code>). This works well when there is a visible data line combined with data points with a darker fill color. The stroke color can be modified with <code>data_point_stroke_color=</code> for all data points by supplying a single color value. With a list of colors, each data point's stroke color can be changed (ensure that the list length matches the number of data points).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>data_point_stroke_width</code></td>
+<td>data_point_stroke_width</td>
 <td><code>int</code> | <code>list</code>[<code>int</code>] | None</td>
-<td>The width of the outside stroke for the data points can be modified with the <code>data_point_stroke_width=</code> option. By default, a value of <code>4</code> (as in ‘4px’) is used.</td>
+<td>The width of the outside stroke for the data points can be modified with the <code>data_point_stroke_width=</code> option. By default, a value of <code>4</code> (as in '4px') is used.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>data_point_fill_color</code></td>
+<td>data_point_fill_color</td>
 <td><code>str</code> | <code>list</code>[<code>str</code>] | None</td>
-<td>By default, all data points have a fill color of <code>"#FF0000"</code> (<code>"red"</code>). This can be changed for all data points by providing a different color to <code>data_point_fill_color=</code>. And, a list of different colors can be supplied so long as the length is equal to the number of data points; the fill color values will be applied in order of left to right.</td>
+<td>By default, all data points have a fill color of <code>\"#FF0000\"</code> (<code>\"red\"</code>). This can be changed for all data points by providing a different color to <code>data_point_fill_color=</code>. And, a list of different colors can be supplied so long as the length is equal to the number of data points; the fill color values will be applied in order of left to right.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>data_line_type</code></td>
+<td>data_line_type</td>
 <td><code>str</code> | None</td>
-<td>This can accept either <code>"curved"</code> or <code>"straight"</code>. Curved lines are recommended when the nanoplot has less than 30 points and data points are evenly spaced. In most other cases, straight lines might present better.</td>
+<td>This can accept either <code>\"curved\"</code> or <code>\"straight\"</code>. Curved lines are recommended when the nanoplot has less than 30 points and data points are evenly spaced. In most other cases, straight lines might present better.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>data_line_stroke_color</code></td>
+<td>data_line_stroke_color</td>
 <td><code>str</code> | None</td>
-<td>The color of the data line can be modified from its default <code>"#4682B4"</code> (<code>"steelblue"</code>) color by supplying a color to the <code>data_line_stroke_color=</code> option.</td>
+<td>The color of the data line can be modified from its default <code>\"#4682B4\"</code> (<code>\"steelblue\"</code>) color by supplying a color to the <code>data_line_stroke_color=</code> option.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>data_line_stroke_width</code></td>
+<td>data_line_stroke_width</td>
 <td><code>int</code> | None</td>
-<td>The width of the connecting data line can be modified with <code>data_line_stroke_width=</code>. By default, a value of <code>4</code> (as in ‘4px’) is used.</td>
+<td>The width of the connecting data line can be modified with <code>data_line_stroke_width=</code>. By default, a value of <code>4</code> (as in '4px') is used.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>data_area_fill_color</code></td>
+<td>data_area_fill_color</td>
 <td><code>str</code> | None</td>
-<td>The fill color for the area that bounds the data points in line plot. The default is <code>"#FF0000"</code> (<code>"red"</code>) but can be changed by providing a color value to <code>data_area_fill_color=</code>.</td>
+<td>The fill color for the area that bounds the data points in line plot. The default is <code>\"#FF0000\"</code> (<code>\"red\"</code>) but can be changed by providing a color value to <code>data_area_fill_color=</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>data_bar_stroke_color</code></td>
+<td>data_bar_stroke_color</td>
 <td><code>str</code> | <code>list</code>[<code>str</code>] | None</td>
-<td>The color of the stroke used for the data bars can be modified from its default <code>"#3290CC"</code> color by supplying a color to <code>data_bar_stroke_color=</code>.</td>
+<td>The color of the stroke used for the data bars can be modified from its default <code>\"#3290CC\"</code> color by supplying a color to <code>data_bar_stroke_color=</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>data_bar_stroke_width</code></td>
+<td>data_bar_stroke_width</td>
 <td><code>int</code> | <code>list</code>[<code>int</code>] | None</td>
-<td>The width of the stroke used for the data bars can be modified with the <code>data_bar_stroke_width=</code> option. By default, a value of <code>4</code> (as in ‘4px’) is used.</td>
+<td>The width of the stroke used for the data bars can be modified with the <code>data_bar_stroke_width=</code> option. By default, a value of <code>4</code> (as in '4px') is used.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>data_bar_fill_color</code></td>
+<td>data_bar_fill_color</td>
 <td><code>str</code> | <code>list</code>[<code>str</code>] | None</td>
-<td>By default, all data bars have a fill color of <code>"#3FB5FF"</code>. This can be changed for all data bars by providing a different color to <code>data_bar_fill_color=</code>. And, a list of different colors can be supplied so long as the length is equal to the number of data bars; the fill color values will be applied in order of left to right.</td>
+<td>By default, all data bars have a fill color of <code>\"#3FB5FF\"</code>. This can be changed for all data bars by providing a different color to <code>data_bar_fill_color=</code>. And, a list of different colors can be supplied so long as the length is equal to the number of data bars; the fill color values will be applied in order of left to right.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>data_bar_negative_stroke_color</code></td>
+<td>data_bar_negative_stroke_color</td>
 <td><code>str</code> | None</td>
-<td>The color of the stroke used for the data bars that have negative values. The default color is <code>"#CC3243"</code> but this can be changed by supplying a color value to the <code>data_bar_negative_stroke_color=</code> option.</td>
+<td>The color of the stroke used for the data bars that have negative values. The default color is <code>\"#CC3243\"</code> but this can be changed by supplying a color value to the <code>data_bar_negative_stroke_color=</code> option.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>data_bar_negative_stroke_width</code></td>
+<td>data_bar_negative_stroke_width</td>
 <td><code>int</code> | None</td>
-<td>The width of the stroke used for negative value data bars. This has the same default as <code>data_bar_stroke_width=</code> with a value of <code>4</code> (as in ‘4px’). This can be changed by giving a numeric value to the <code>data_bar_negative_stroke_width=</code> option.</td>
+<td>The width of the stroke used for negative value data bars. This has the same default as <code>data_bar_stroke_width=</code> with a value of <code>4</code> (as in '4px'). This can be changed by giving a numeric value to the <code>data_bar_negative_stroke_width=</code> option.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>data_bar_negative_fill_color</code></td>
+<td>data_bar_negative_fill_color</td>
 <td><code>str</code> | None</td>
-<td>By default, all negative data bars have a fill color of <code>"#D75A68"</code>. This can however be changed by providing a color value to <code>data_bar_negative_fill_color=</code>.</td>
+<td>By default, all negative data bars have a fill color of <code>\"#D75A68\"</code>. This can however be changed by providing a color value to <code>data_bar_negative_fill_color=</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>reference_line_color</code></td>
+<td>reference_line_color</td>
 <td><code>str</code> | None</td>
-<td>The reference line will have a color of <code>"#75A8B0"</code> if it is set to appear. This color can be changed by providing a single color value to <code>reference_line_color=</code>.</td>
+<td>The reference line will have a color of <code>\"#75A8B0\"</code> if it is set to appear. This color can be changed by providing a single color value to <code>reference_line_color=</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>reference_area_fill_color</code></td>
+<td>reference_area_fill_color</td>
 <td><code>str</code> | None</td>
-<td>If a reference area has been defined and is visible it has by default a fill color of <code>"#A6E6F2"</code>. This can be modified by declaring a color value in the <code>reference_area_fill_color=</code> option.</td>
+<td>If a reference area has been defined and is visible it has by default a fill color of <code>\"#A6E6F2\"</code>. This can be modified by declaring a color value in the <code>reference_area_fill_color=</code> option.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>vertical_guide_stroke_color</code></td>
+<td>vertical_guide_stroke_color</td>
 <td><code>str</code> | None</td>
-<td>Vertical guides appear when hovering in the vicinity of data points. Their default color is <code>"#911EB4"</code> (a strong magenta color) and a fill opacity value of <code>0.4</code> is automatically applied to this. However, the base color can be changed with the <code>vertical_guide_stroke_color=</code> option.</td>
+<td>Vertical guides appear when hovering in the vicinity of data points. Their default color is <code>\"#911EB4\"</code> (a strong magenta color) and a fill opacity value of <code>0.4</code> is automatically applied to this. However, the base color can be changed with the <code>vertical_guide_stroke_color=</code> option.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>vertical_guide_stroke_width</code></td>
+<td>vertical_guide_stroke_width</td>
 <td><code>int</code> | None</td>
-<td>The vertical guide’s stroke width, by default, is relatively large at <code>12</code> (this is ‘12px’). This is modifiable by setting a different value with <code>vertical_guide_stroke_width=</code>.</td>
+<td>The vertical guide's stroke width, by default, is relatively large at <code>12</code> (this is '12px'). This is modifiable by setting a different value with <code>vertical_guide_stroke_width=</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>show_data_points</code></td>
+<td>show_data_points</td>
 <td><code>bool</code> | None</td>
 <td>By default, all data points in a nanoplot are shown but this layer can be hidden by setting <code>show_data_points=</code> to <code>False</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>show_data_line</code></td>
+<td>show_data_line</td>
 <td><code>bool</code> | None</td>
 <td>The data line connects data points together and it is shown by default. This data line layer can be hidden by setting <code>show_data_line=</code> to <code>False</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>show_data_area</code></td>
+<td>show_data_area</td>
 <td><code>bool</code> | None</td>
 <td>The data area layer is adjacent to the data points and the data line. It is shown by default but can be hidden with <code>show_data_area=False</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>show_reference_line</code></td>
+<td>show_reference_line</td>
 <td><code>bool</code> | None</td>
 <td>The layer with a horizontal reference line appears underneath that of the data points and the data line. Like vertical guides, hovering over a reference will show its value. The reference line (if available) is shown by default but can be hidden by setting <code>show_reference_line=</code> to <code>False</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>show_reference_area</code></td>
+<td>show_reference_area</td>
 <td><code>bool</code> | None</td>
 <td>The reference area appears at the very bottom of the layer stack, if it is available (i.e., defined in <code>cols_nanoplot()</code>). It will be shown in the default case but can be hidden by using <code>show_reference_area=False</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>show_vertical_guides</code></td>
+<td>show_vertical_guides</td>
 <td><code>bool</code> | None</td>
 <td>Vertical guides appear when hovering over data points. This hidden layer is active by default but can be deactivated by using <code>show_vertical_guides=False</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>show_y_axis_guide</code></td>
+<td>show_y_axis_guide</td>
 <td><code>bool</code> | None</td>
 <td>The <em>y</em>-axis guide will appear when hovering over the far left side of a nanoplot. This hidden layer is active by default but can be deactivated by using <code>show_y_axis_guide=False</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>interactive_data_values</code></td>
+<td>interactive_data_values</td>
 <td><code>bool</code> | None</td>
 <td>By default, numeric data values will be shown only when the user interacts with certain regions of a nanoplot. This is because the values may be numerous (i.e., clutter the display when all are visible) and it can be argued that the values themselves are secondary to the presentation. However, for some types of plots (like horizontal bar plots), a persistent display of values alongside the plot marks may be desirable. By setting <code>interactive_data_values=False</code> we can opt for always displaying the data values alongside the plot components.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>y_val_fmt_fn</code></td>
+<td>y_val_fmt_fn</td>
 <td><code>Callable</code>[…, <code>str</code>] | None</td>
 <td>If providing a function to <code>y_val_fmt_fn=</code>, customized formatting of the <em>y</em> values associated with the data points/bars is possible.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>y_axis_fmt_fn</code></td>
+<td>y_axis_fmt_fn</td>
 <td><code>Callable</code>[…, <code>str</code>] | None</td>
 <td>A function supplied to <code>y_axis_fmt_fn=</code> will result in customized formatting of the <em>y</em>-axis label values.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>y_ref_line_fmt_fn</code></td>
+<td>y_ref_line_fmt_fn</td>
 <td><code>Callable</code>[…, <code>str</code>] | None</td>
 <td>Providing a function for <code>y_ref_line_fmt_fn=</code> yields customized formatting of the reference line (if present).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>currency</code></td>
+<td>currency</td>
 <td><code>str</code> | None</td>
-<td>If the values are to be displayed as currency values, supply either: (1) a 3-letter currency code (e.g., <code>"USD"</code> for U.S. Dollars, <code>"EUR"</code> for the Euro currency), or (2) a common currency name (e.g., <code>"dollar"</code>, <code>"pound"</code>, <code>"yen"</code>, etc.).</td>
+<td>If the values are to be displayed as currency values, supply either: (1) a 3-letter currency code (e.g., <code>\"USD\"</code> for U.S. Dollars, <code>\"EUR\"</code> for the Euro currency), or (2) a common currency name (e.g., <code>\"dollar\"</code>, <code>\"pound\"</code>, <code>\"yen\"</code>, etc.).</td>
 <td><code>None</code></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="examples" class="level2">
-<h2 class="anchored" data-anchor-id="examples">Examples</h2>
-<p>See <a href="../reference/GT.html#great_tables.GT.fmt_nanoplot"><code>fmt_nanoplot()</code></a>.</p>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<p>See <a href="../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot"><code>fmt_nanoplot()</code></a>.</p>
 
 
 </section>
