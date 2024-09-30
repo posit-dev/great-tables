@@ -57,7 +57,43 @@ class LocHeader(Loc):
 
 @dataclass
 class LocTitle(Loc):
-    """A location for targeting the title."""
+    """A location specification for targeting the table title.
+
+    With `loc.title()`, we can target the part of table containing the title (within the table
+    header). This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Returns
+    -------
+    LocTitle
+        A LocTitle object, which is used for a `locations=` argument if specifying the title of the
+        table.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style only the 'title' part
+    of the table header (leaving the 'subtitle' part unaffected). This can be done by using
+    `locations=loc.title()` within [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars[["mfr", "model", "msrp"]].head(5))
+        .tab_header(
+            title="Select Cars from the gtcars Dataset",
+            subtitle="Only the first five cars are displayed"
+        )
+        .tab_style(
+            style=style.text(color="blue", size="large", weight="bold"),
+            locations=loc.title()
+        )
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
 
 
 @dataclass
@@ -96,8 +132,9 @@ class LocColumnLabels(Loc):
 
     Returns
     -------
-    LocBody
-        A LocBody object, which is used for a `locations=` argument if specifying the table body.
+    LocColumnLabels
+        A LocColumnLabels object, which is used for a `locations=` argument if specifying the
+        table's column labels.
 
     Examples
     --------
@@ -167,9 +204,8 @@ class LocBody(Loc):
 
     Returns
     -------
-    LocColumnLabels
-        A LocColumnLabels object, which is used for a `locations=` argument if specifying the
-        table's column labels.
+    LocBody
+        A LocBody object, which is used for a `locations=` argument if specifying the table body.
 
     Examples
     --------
