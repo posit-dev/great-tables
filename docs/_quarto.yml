@@ -83,7 +83,8 @@ quartodoc:
         groups (with the `rowname_col=` and `groupname_col=` arguments).
       contents:
         - name: GT
-          members: []
+          children: linked
+          
           
     - title: Creating or modifying parts of a table
       desc: >
