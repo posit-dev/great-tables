@@ -375,7 +375,53 @@ class LocSpannerLabels(Loc):
 
 @dataclass
 class LocStub(Loc):
-    """A location for targeting the table stub, row group labels, summary labels, and body."""
+    """A location specification for targeting rows of the table stub.
+
+    With `loc.stub()` we can target the cells containing the row labels, which reside in the table
+    stub. This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Parameters
+    ----------
+    rows
+        The rows to target within the stub. Can either be a single row name or a series of row names
+        provided in a list. If no rows are specified, all rows are targeted.
+
+    Returns
+    -------
+    LocStub
+        A LocStub object, which is used for a `locations=` argument if specifying the table's stub.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style the entire table stub
+    (the row labels) by using `locations=loc.stub()` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+            rowname_col="model",
+            groupname_col="mfr"
+        )
+        .tab_stubhead(label="car")
+        .tab_style(
+            style=[
+                style.text(color="crimson", weight="bold"),
+                style.fill(color="lightgray")
+            ],
+            locations=loc.stub()
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
 
     rows: RowSelectExpr = None
 
