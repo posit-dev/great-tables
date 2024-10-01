@@ -428,6 +428,55 @@ class LocStub(Loc):
 
 @dataclass
 class LocRowGroups(Loc):
+    """A location specification for targeting row groups.
+
+    With `loc.row_groups()` we can target the cells containing the row group labels, which span
+    across the table body. This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Parameters
+    ----------
+    rows
+        The row groups to target. Can either be a single group name or a series of group names
+        provided in a list. If no groups are specified, all are targeted.
+
+    Returns
+    -------
+    LocRowGroups
+        A LocRowGroups object, which is used for a `locations=` argument if specifying the table's
+        row groups.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style all of the cells
+    comprising the row group labels by using `locations=loc.row_groups()` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+            rowname_col="model",
+            groupname_col="mfr"
+        )
+        .tab_stubhead(label="car")
+        .tab_style(
+            style=[
+                style.text(color="crimson", weight="bold"),
+                style.fill(color="lightgray")
+            ],
+            locations=loc.row_groups()
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
+
     rows: RowSelectExpr = None
 
 
