@@ -155,6 +155,7 @@ quartodoc:
         - loc.column_labels
         - loc.spanner_labels
         - loc.column_header
+        - loc.stubhead
         - loc.footer
         - loc.source_notes
         - style.fill

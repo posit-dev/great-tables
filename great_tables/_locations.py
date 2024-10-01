@@ -180,7 +180,46 @@ class LocStubhead(Loc):
 
 @dataclass
 class LocStubheadLabel(Loc):
-    """A location specification for targetting the stubhead."""
+    """A location specification for targeting the stubhead.
+
+    With `loc.stubhead_label()`, we can target the part of table that resides both at the top of the
+    stub and also beside the column header. This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Returns
+    -------
+    LocStubheadLabel
+        A LocStubheadLabel object, which is used for a `locations=` argument if specifying the
+        stubhead of the table.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. This table contains a stub (produced
+    by setting `rowname_col="model"` in the initial `GT()` call). The stubhead is given a label by
+    way of the [`tab_stubhead()`](`great_tables.GT.tab_stubhead`) method and this label can be
+    styled by using `locations=loc.stubhead()` within [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+            rowname_col="model",
+            groupname_col="mfr"
+        )
+        .tab_stubhead(label="car")
+        .tab_style(
+            style=style.text(color="red", weight="bold"),
+            locations=loc.stubhead()
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
 
 
 @dataclass
