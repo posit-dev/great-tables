@@ -166,6 +166,30 @@ def as_raw_html(
     return html_table
 
 
+def as_latex(self: GT) -> str:
+    """
+    Output a GT object as LaTeX
+
+    Get the LaTeX content from a GT object as a string.
+
+    Parameters
+    ----------
+    gt
+        A GT object.
+
+    Returns
+    -------
+    str
+        An LaTeX fragment containing a table.
+
+    """
+    built_table = self._build_data(context="latex")
+
+    latex_table = built_table._render_as_latex()
+
+    return latex_table
+
+
 # Create a list of all selenium webdrivers
 WebDrivers: TypeAlias = Literal[
     "chrome",

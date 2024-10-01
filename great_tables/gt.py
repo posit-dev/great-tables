@@ -10,7 +10,7 @@ from great_tables._gt_data import GTData
 from great_tables._body import body_reassemble
 from great_tables._boxhead import cols_align, cols_label
 from great_tables._data_color import data_color
-from great_tables._export import as_raw_html, save, show
+from great_tables._export import as_raw_html, as_latex, save, show
 from great_tables._formats import (
     fmt,
     fmt_bytes,
@@ -70,6 +70,20 @@ from great_tables._utils_render_html import (
     create_footnotes_component_h,
     create_heading_component_h,
     create_source_notes_component_h,
+)
+from great_tables._utils_render_latex import (
+    create_body_component_l,
+    create_caption_component_l,
+    create_columns_component_l,
+    create_footer_component_l,
+    create_heading_component_l,
+    create_table_end_l,
+    create_table_start_l,
+    create_wrap_end_l,
+    create_wrap_start_l,
+    create_fontsize_statement_l,
+    create_colwidth_df_l,
+    derive_table_width_statement_l,
 )
 
 __all__ = ["GT"]
@@ -270,6 +284,7 @@ class GT(
     save = save
     show = show
     as_raw_html = as_raw_html
+    as_latex = as_latex
 
     # -----
 
@@ -419,6 +434,82 @@ class GT(
 </body>
 </html>
             """
+        return finalized_table
+
+    # =============================================================================
+    # LaTeX Rendering
+    # =============================================================================
+    def _render_as_latex(self) -> str:
+
+        # Create a df containing width types for each column
+        colwidth_df = create_colwidth_df_l(data=self)
+
+        # Create a LaTeX fragment for the start of the table
+        table_start = create_table_start_l(data=self, colwidth_df=colwidth_df)
+
+        # Create the caption component
+        caption_component = create_caption_component_l(data=self)
+
+        # Create the heading component
+        heading_component = create_heading_component_l(data=self)
+
+        # Create the columns component
+        columns_component = create_columns_component_l(data=self, colwidth_df=colwidth_df)
+
+        # Create the body component
+        body_component = create_body_component_l(data=self, colwidth_df=colwidth_df)
+
+        # Create the footnotes component
+        footer_component = create_footer_component_l(data=self)
+
+        # Create a LaTeX fragment for the ending tabular statement
+        table_end = create_table_end_l(data=self)
+
+        # Create a LaTeX fragment for the table width statement
+        table_width_statement = derive_table_width_statement_l(data=self)
+
+        # Allow user to set a font-size
+        fontsize_statement = create_fontsize_statement_l(data=self)
+
+        # Create wrapping environment
+        wrap_start_statement = create_wrap_start_l(data=self)
+        wrap_end_statement = create_wrap_end_l(data=self)
+
+        # latex_use_longtable = self._options.latex_use_longtable.value
+        latex_use_longtable = True
+
+        # Compose the LaTeX table
+        if latex_use_longtable:
+
+            finalized_table = f"""{wrap_start_statement}
+{table_width_statement}
+{fontsize_statement}
+{table_start}
+{caption_component}
+{heading_component}
+{columns_component}
+{body_component}
+{table_end}
+{footer_component}
+{wrap_end_statement}
+"""
+
+        else:
+
+            finalized_table = f"""{wrap_start_statement}
+{wrap_start_statement}
+{caption_component}
+{heading_component}
+{table_width_statement}
+{fontsize_statement}
+{table_start}
+{columns_component}
+{body_component}
+{table_end}
+{footer_component}
+{wrap_end_statement}
+"""
+
         return finalized_table
 
 
