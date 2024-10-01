@@ -148,16 +148,16 @@ quartodoc:
         [`tab_style()`](`great_tables.GT.tab_style`) method). The styling classes allow for the
         specification of the styling properties to be applied to the targeted locations.
       contents:
-        - loc.body
+        - loc.header
         - loc.title
         - loc.subtitle
-        - loc.header
-        - loc.column_labels
-        - loc.spanner_labels
-        - loc.column_header
         - loc.stubhead
+        - loc.column_header
+        - loc.spanner_labels
+        - loc.column_labels
         - loc.stub
         - loc.row_groups
+        - loc.body
         - loc.footer
         - loc.source_notes
         - style.fill
