@@ -52,7 +52,7 @@ class Loc:
 
 @dataclass
 class LocHeader(Loc):
-    """A location specification for targeting the table header (title and subtitle).
+    """Target the table header (title and subtitle).
 
     With `loc.header()`, we can target the table header which contains the title and the subtitle.
     This is useful for applying custom styling with the
@@ -93,7 +93,7 @@ class LocHeader(Loc):
 
 @dataclass
 class LocTitle(Loc):
-    """A location specification for targeting the table title.
+    """Target the table title.
 
     With `loc.title()`, we can target the part of table containing the title (within the table
     header). This is useful for applying custom styling with the
@@ -134,7 +134,7 @@ class LocTitle(Loc):
 
 @dataclass
 class LocSubTitle(Loc):
-    """A location specification for targeting the table subtitle.
+    """Target the table subtitle.
 
     With `loc.subtitle()`, we can target the part of table containing the subtitle (within the table
     header). This is useful for applying custom styling with the
@@ -175,7 +175,7 @@ class LocSubTitle(Loc):
 
 @dataclass
 class LocStubhead(Loc):
-    """A location specification for targeting the stubhead.
+    """Target the stubhead.
 
     With `loc.stubhead()`, we can target the part of table that resides both at the top of the
     stub and also beside the column header. This is useful for applying custom styling with the
@@ -219,12 +219,12 @@ class LocStubhead(Loc):
 
 @dataclass
 class LocStubheadLabel(Loc):
-    """A location for targeting the stubhead label"""
+    """Target the stubhead label."""
 
 
 @dataclass
 class LocColumnHeader(Loc):
-    """A location specification for column spanners and column labels.
+    """Target column spanners and column labels.
 
     With `loc.column_header()`, we can target the column header which contains all of the column
     labels and any spanner labels that are present. This is useful for applying custom styling with
@@ -275,7 +275,7 @@ class LocColumnHeader(Loc):
 
 @dataclass
 class LocColumnLabels(Loc):
-    """A location specification for targeting column labels.
+    """Target column labels.
 
     With `loc.column_labels()`, we can target the cells containing the column labels. This is useful
     for applying custom styling with the [`tab_style()`](`great_tables.GT.tab_style`) method. That
@@ -319,7 +319,7 @@ class LocColumnLabels(Loc):
 
 @dataclass
 class LocSpannerLabels(Loc):
-    """A location specification for targeting spanner labels.
+    """Target spanner labels.
 
     With `loc.spanner_labels()`, we can target the cells containing the spanner labels. This is
     useful for applying custom styling with the [`tab_style()`](`great_tables.GT.tab_style`) method.
@@ -375,7 +375,7 @@ class LocSpannerLabels(Loc):
 
 @dataclass
 class LocStub(Loc):
-    """A location specification for targeting rows of the table stub.
+    """Target the table stub.
 
     With `loc.stub()` we can target the cells containing the row labels, which reside in the table
     stub. This is useful for applying custom styling with the
@@ -428,7 +428,7 @@ class LocStub(Loc):
 
 @dataclass
 class LocRowGroups(Loc):
-    """A location specification for targeting row groups.
+    """Target row groups.
 
     With `loc.row_groups()` we can target the cells containing the row group labels, which span
     across the table body. This is useful for applying custom styling with the
@@ -488,7 +488,7 @@ class LocSummaryLabel(Loc):
 @dataclass
 class LocBody(Loc):
     # TODO: these can be tidyselectors
-    """A location specification for targeting data cells in the table body.
+    """Target data cells in the table body.
 
     With `loc.body()`, we can target the data cells in the table body. This is useful for applying
     custom styling with the [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a
@@ -550,7 +550,7 @@ class LocSummary(Loc):
 
 @dataclass
 class LocFooter(Loc):
-    """A location specification for targeting the table footer.
+    """Target the table footer.
 
     With `loc.footer()` we can target the table's footer, which currently contains the source notes
     (and may contain a 'footnotes' location in the future). This is useful when applying custom
@@ -588,12 +588,12 @@ class LocFooter(Loc):
 
 @dataclass
 class LocFootnotes(Loc):
-    """A location for targeting footnotes."""
+    """Target the footnotes."""
 
 
 @dataclass
 class LocSourceNotes(Loc):
-    """A location specification for targeting the source notes.
+    """Target the source notes.
 
     With `loc.source_notes()`, we can target the source notes in the table. This is useful when
     applying custom with the [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a
