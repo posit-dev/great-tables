@@ -175,23 +175,18 @@ class LocSubTitle(Loc):
 
 @dataclass
 class LocStubhead(Loc):
-    """A location for targeting the table stubhead and stubhead label."""
-
-
-@dataclass
-class LocStubheadLabel(Loc):
     """A location specification for targeting the stubhead.
 
-    With `loc.stubhead_label()`, we can target the part of table that resides both at the top of the
+    With `loc.stubhead()`, we can target the part of table that resides both at the top of the
     stub and also beside the column header. This is useful for applying custom styling with the
     [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
     this class should be used there to perform the targeting.
 
     Returns
     -------
-    LocStubheadLabel
-        A LocStubheadLabel object, which is used for a `locations=` argument if specifying the
-        stubhead of the table.
+    LocStubhead
+        A LocStubhead object, which is used for a `locations=` argument if specifying the stubhead
+        of the table.
 
     Examples
     --------
@@ -220,6 +215,11 @@ class LocStubheadLabel(Loc):
     )
     ```
     """
+
+
+@dataclass
+class LocStubheadLabel(Loc):
+    """A location for targeting the stubhead label"""
 
 
 @dataclass
