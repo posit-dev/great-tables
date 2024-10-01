@@ -180,12 +180,58 @@ class LocStubhead(Loc):
 
 @dataclass
 class LocStubheadLabel(Loc):
-    """A location for targetting the stubhead."""
+    """A location specification for targetting the stubhead."""
 
 
 @dataclass
 class LocColumnHeader(Loc):
-    """A location for column spanners and column labels."""
+    """A location specification for column spanners and column labels.
+
+    With `loc.column_header()`, we can target the column header which contains all of the column
+    labels and any spanner labels that are present. This is useful for applying custom styling with
+    the [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument
+    and this class should be used there to perform the targeting.
+
+    Returns
+    -------
+    LocColumnHeader
+        A LocColumnHeader object, which is used for a `locations=` argument if specifying the column
+        header of the table.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We create spanner labels through
+    use of the [`tab_spanner()`](`great_tables.GT.tab_spanner`) method; this gives us a column
+    header with a mix of column labels and spanner labels. We will style the entire column header at
+    once by using `locations=loc.column_header()` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5))
+        .tab_spanner(
+            label="performance",
+            columns=["hp", "trq"]
+        )
+        .tab_spanner(
+            label="make and model",
+            columns=["mfr", "model"]
+        )
+        .tab_style(
+            style=[
+                style.text(color="white", weight="bold"),
+                style.fill(color="steelblue")
+            ],
+            locations=loc.column_header()
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
 
 
 @dataclass
