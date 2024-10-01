@@ -510,7 +510,31 @@ class LocBody(Loc):
 
     Examples
     --------
-    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
+    Let's use a subset of the `gtcars` dataset in a new table. We will style all of the body cells
+    by using `locations=loc.body()` within [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+            rowname_col="model",
+            groupname_col="mfr"
+        )
+        .tab_stubhead(label="car")
+        .tab_style(
+            style=[
+                style.text(color="darkblue", weight="bold"),
+                style.fill(color="gainsboro")
+            ],
+            locations=loc.body()
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
     """
 
     columns: SelectExpr = None
