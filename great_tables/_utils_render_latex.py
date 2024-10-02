@@ -44,7 +44,20 @@ def create_fontsize_statement_l(data: GTData) -> str:
 
 
 def create_wrap_start_l(data: GTData) -> str:
-    return ""
+
+    if check_quarto():
+        tbl_pos = ""
+
+    else:
+        latex_tbl_pos_val = data._options.latex_tbl_pos.value
+        tbl_pos = f"[{latex_tbl_pos_val}]"
+
+    latex_use_longtable = data._options.latex_use_longtable.value
+
+    if latex_use_longtable:
+        return "\\begingroup\n"
+    else:
+        return f"\\begin{{table}}{tbl_pos}\n"
 
 
 def create_wrap_end_l(data: GTData) -> str:
