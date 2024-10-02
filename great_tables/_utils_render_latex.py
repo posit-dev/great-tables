@@ -5,6 +5,8 @@ import re
 from ._gt_data import GTData
 from .quarto import check_quarto
 
+from typing import TypedDict, List
+
 
 LENGTH_TRANSLATIONS_TO_PX = {
     "pt": 4 / 3,
@@ -13,6 +15,15 @@ LENGTH_TRANSLATIONS_TO_PX = {
     "emu": 1 / 9525,
     "em": 16.0,
 }
+
+
+class WidthDict(TypedDict):
+    type: List[str]
+    unspec: List[int]
+    lw: List[float]
+    pt: List[float]
+    column_align: List[str]
+    tbl_width: str | None
 
 
 def get_units_from_length_string(length: str) -> str:
