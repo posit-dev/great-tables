@@ -128,6 +128,24 @@ def create_width_dict_l(data: GTData) -> WidthDict:
 
             else:
                 width_dict["pt"][i] = (pct / 100) * convert_to_pt(tbl_width)
+
+    # if (length(stub_layout) > sum(c('stub', 'row_group') %in% width_df$type)) {
+    #     if ('stub' %in% width_df$type) {
+    #       stub_row_group <- dplyr::filter(width_df, type == "stub")
+    #
+    #       stub_row_group$type <- "stub_row_group"
+    #       stub_row_group$lw <- stub_row_group$lw / 2
+    #       stub_row_group$pt <- stub_row_group$pt / 2
+    #
+    #       width_df$pt[width_df$type == 'stub'] <- width_df$pt[width_df$type == 'stub'] / 2
+    #       width_df$lw[width_df$type == 'stub'] <- width_df$lw[width_df$type == 'stub'] / 2
+    #     } else {
+    #       stub_row_group <- data.frame(type = "stub_row_group", lw = 0, pt = 0)
+    #     }
+    #
+    #     width_df <- vctrs::vec_rbind(stub_row_group, width_df)
+    # }
+
     if tbl_width == "auto":
 
         if any(x > 0 for x in width_dict["unspec"]):
