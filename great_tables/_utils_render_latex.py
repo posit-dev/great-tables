@@ -175,8 +175,6 @@ def create_width_dict_l(data: GTData) -> WidthDict:
 
         width_dict["tbl_width"] = f"{tbl_width_pt}pt"
 
-    print(width_dict)
-
     return width_dict
 
 
