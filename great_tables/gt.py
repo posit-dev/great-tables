@@ -82,7 +82,7 @@ from great_tables._utils_render_latex import (
     create_wrap_end_l,
     create_wrap_start_l,
     create_fontsize_statement_l,
-    create_colwidth_df_l,
+    create_width_dict_l,
     derive_table_width_statement_l,
 )
 
@@ -442,10 +442,10 @@ class GT(
     def _render_as_latex(self) -> str:
 
         # Create a df containing width types for each column
-        colwidth_df = create_colwidth_df_l(data=self)
+        width_dict = create_width_dict_l(data=self)
 
         # Create a LaTeX fragment for the start of the table
-        table_start = create_table_start_l(data=self, colwidth_df=colwidth_df)
+        table_start = create_table_start_l(data=self, width_dict=width_dict)
 
         # Create the caption component
         caption_component = create_caption_component_l(data=self)
@@ -454,10 +454,10 @@ class GT(
         heading_component = create_heading_component_l(data=self)
 
         # Create the columns component
-        columns_component = create_columns_component_l(data=self, colwidth_df=colwidth_df)
+        columns_component = create_columns_component_l(data=self, width_dict=width_dict)
 
         # Create the body component
-        body_component = create_body_component_l(data=self, colwidth_df=colwidth_df)
+        body_component = create_body_component_l(data=self, width_dict=width_dict)
 
         # Create the footnotes component
         footer_component = create_footer_component_l(data=self)
