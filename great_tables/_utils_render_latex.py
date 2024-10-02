@@ -222,8 +222,40 @@ def create_table_end_l(data: GTData) -> str:
 
 def derive_table_width_statement_l(data: GTData) -> str:
 
-    # TODO: implement all logic
-    return ""
+    # Get the table width value
+    tbl_width = data._options.table_width.value
+
+    use_longtable = data._options.latex_use_longtable.value
+
+    # Initialize the statement variables LTleft and LTright
+    sides = ["LTleft", "LTright"]
+
+    # Bookends are not required if a table width is not specified or if using floating table
+    if tbl_width == "auto" or not use_longtable:
+
+        statement = ""
+
+    elif tbl_width.endswith("%"):
+
+        tw = float(tbl_width.strip("%"))
+
+        side_width = (100 - tw) / 200
+        side_width = f"{side_width:.6f}".rstrip("0").rstrip(".")
+
+        statement = "\n".join([f"\\setlength\\{side}{{{side_width}\\linewidth}}" for side in sides])
+
+    else:
+
+        width_in_pt = convert_to_pt(tbl_width)
+
+        halfwidth_in_pt = f"{width_in_pt / 2:.6f}".rstrip("0").rstrip(".")
+
+        statement = "\n".join(
+            f"\\setlength\\{side}{{\\dimexpr(0.5\\linewidth - {halfwidth_in_pt}pt)}}"
+            for side in sides
+        )
+
+    return statement
 
 
 def create_fontsize_statement_l(data: GTData) -> str:
