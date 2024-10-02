@@ -96,27 +96,23 @@ def create_width_dict_l(data: GTData) -> WidthDict:
 
     n = len(boxhead)
 
-    import pandas as pd
-
-    width_df = pd.DataFrame(
-        {
-            "type": [boxhead[i].type.name for i in range(n)],
-            "unspec": [0] * n,
-            "lw": [0] * n,
-            "pt": [0] * n,
-        }
-    )
+    width_dict: WidthDict = {
+        "type": [boxhead[i].type.name for i in range(n)],
+        "unspec": [0] * n,  # Ensure this is initialized as a list of integers
+        "lw": [0] * n,
+        "pt": [0] * n,
+        "column_align": [
+            boxhead[i].column_align if boxhead[i].column_align else "" for i in range(n)
+        ],
+    }
 
     for i in range(n):
 
         raw_val = boxhead[i].column_width
 
-        print(raw_val)
-
         if raw_val is None or raw_val == "":
 
-            width_df.loc[i, "unspec"] = 1
-            print(width_df)
+            width_dict["unspec"][i] = 1
 
             continue
 
@@ -125,16 +121,45 @@ def create_width_dict_l(data: GTData) -> WidthDict:
             pct = float(raw_val.strip("%"))
 
             if tbl_width == "auto":
-                width_df.loc[i, "lw"] = pct / 100
+                width_dict["lw"][i] = pct / 100
 
             elif tbl_width.endswith("%"):
-                width_df.loc[i, "lw"] = (pct * float(tbl_width.strip("%"))) / 1e4
+                width_dict["lw"][i] = (pct * float(tbl_width.strip("%"))) / 1e4
 
             else:
-                width_df.loc[i, "pt"] = (pct / 100) * convert_to_pt(tbl_width)
+                width_dict["pt"][i] = (pct / 100) * convert_to_pt(tbl_width)
+    if tbl_width == "auto":
 
-    # TODO: implement rest of the logic
-    return ""
+        if any(x > 0 for x in width_dict["unspec"]):
+
+            # If any of the column widths are unspecified, a table width can't be inferred
+            width_dict["tbl_width"] = None
+
+        else:
+            pt_total = sum(width_dict["pt"])
+            lw_total = sum(width_dict["lw"])
+
+            if pt_total <= 0:
+                width_dict["tbl_width"] = f"{lw_total}\\linewidth"
+            elif lw_total <= 0:
+                width_dict["tbl_width"] = f"{pt_total}pt"
+            else:
+                width_dict["tbl_width"] = f"{pt_total}pt+{lw_total}\\linewidth"
+
+    elif tbl_width.endswith("%"):
+
+        lw_multiple = float(tbl_width.strip("%")) / 100
+        width_dict["tbl_width"] = f"{lw_multiple}\\linewidth"
+
+    else:
+
+        tbl_width_pt = convert_to_pt(tbl_width)
+
+        width_dict["tbl_width"] = f"{tbl_width_pt}pt"
+
+    print(width_dict)
+
+    return width_dict
 
 
 def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
