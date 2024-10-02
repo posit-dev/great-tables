@@ -197,7 +197,7 @@ class _NoOpDriverCtx:
 
 def save(
     self: GT,
-    file: str,
+    file: Path | str,
     selector: str = "table",
     scale: float = 1.0,
     expand: int = 5,
@@ -279,6 +279,9 @@ def save(
 
     if selector != "table":
         raise NotImplementedError("Currently, only selector='table' is supported.")
+
+    if isinstance(file, Path):
+        file = str(file)
 
     # If there is no file extension, add the .png extension
     if not Path(file).suffix:
