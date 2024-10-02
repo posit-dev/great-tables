@@ -30,12 +30,12 @@ def get_units_from_length_string(length: str) -> str:
 
 def get_px_conversion(length: str) -> float:
 
-    valid_units = list(LENGTH_TRANSLATIONS_TO_PX.keys())
-
     input_units = get_units_from_length_string(length)
 
     if input_units == "px":
         return 1.0
+
+    valid_units = list(LENGTH_TRANSLATIONS_TO_PX.keys())
 
     if input_units not in valid_units:
         raise ValueError(f"Invalid units: {input_units}")
@@ -51,12 +51,16 @@ def convert_to_px(length: str) -> float:
     # Extract the numeric value from the string and convert to a float
     value = float(re.sub(r"[a-zA-Z\s]", "", length))
 
+    # If the units are already in pixels, we can return the value as-is (w/o rounding)
     if units == "px":
         return value
 
-    else:
-        px_conversion = get_px_conversion(length=units)
-        return round(value * px_conversion, 0)
+    # Get the conversion factor for the units
+    # - this defaults to 1.0 if the units are 'px'
+    # - otherwise, it will be a value that converts the units `value` to pixels
+    px_conversion = get_px_conversion(length=units)
+
+    return round(value * px_conversion)
 
 
 def convert_to_pt(x: str) -> float:
