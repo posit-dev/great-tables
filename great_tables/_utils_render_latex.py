@@ -84,7 +84,7 @@ def convert_to_pt(x: str) -> float:
 # TODO: for now this is a fairly faithful translation of the R code, but a finalized
 # implementation should not return a DataFrame but rather an Info object that holds the
 # column widths and other information
-def create_colwidth_df_l(data: GTData) -> str:
+def create_width_dict_l(data: GTData) -> WidthDict:
 
     boxhead = data._boxhead
 
@@ -137,7 +137,7 @@ def create_colwidth_df_l(data: GTData) -> str:
     return ""
 
 
-def create_table_start_l(data: GTData, colwidth_df: str) -> str:
+def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
 
     # TODO: implement all logic
     return ""
@@ -155,13 +155,13 @@ def create_heading_component_l(data: GTData) -> str:
     return ""
 
 
-def create_columns_component_l(data: GTData, colwidth_df: str) -> str:
+def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
 
     # TODO: implement all logic
     return ""
 
 
-def create_body_component_l(data: GTData, colwidth_df: str) -> str:
+def create_body_component_l(data: GTData, width_dict: WidthDict) -> str:
 
     # TODO: implement all logic
     return ""
