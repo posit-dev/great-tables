@@ -210,10 +210,10 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 3%">
-<col style="width: 20%">
-<col style="width: 70%">
-<col style="width: 4%">
+<col style="width: 2%">
+<col style="width: 22%">
+<col style="width: 72%">
+<col style="width: 2%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -226,7 +226,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <tbody>
 <tr class="odd">
 <td>file</td>
-<td><code>str</code></td>
+<td><code>Path</code> | <code>str</code></td>
 <td>The name of the file to save the image to. Accepts names ending with .png, .bmp, and other image extensions. Also accepts the extension .pdf.</td>
 <td><em>required</em></td>
 </tr>
@@ -250,8 +250,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </tr>
 <tr class="odd">
 <td>web_driver</td>
-<td><code>WebDrivers</code></td>
-<td>The webdriver to use when taking the screenshot. By default, uses Google Chrome. Supports <code>\"firefox\"</code> (Mozilla Firefox), <code>\"safari\"</code> (Apple Safari), and <code>\"edge\"</code> (Microsoft Edge). Specified browser must be installed.</td>
+<td><code>WebDrivers</code> | <code>webdriver</code>.<code>Remote</code></td>
+<td>The webdriver to use when taking the screenshot. Either a driver name, or webdriver instance. By default, uses Google Chrome. Supports <code>\"firefox\"</code> (Mozilla Firefox), <code>\"safari\"</code> (Apple Safari), and <code>\"edge\"</code> (Microsoft Edge). Specified browser must be installed. Note that if a webdriver instance is passed, options that require setting up a webdriver, like debug_port, will not be used.</td>
 <td><code>'chrome'</code></td>
 </tr>
 <tr class="even">
