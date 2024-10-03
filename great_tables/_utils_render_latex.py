@@ -27,6 +27,34 @@ class WidthDict(TypedDict):
     tbl_width: str | None
 
 
+def is_css_length_string(x: str) -> bool:
+
+    # This checks if there is a number followed by an optional string (only of letters)
+    return re.match(r"^[0-9.]+[a-zA-Z]*$", x) is not None
+
+
+def is_number_without_units(x: str) -> bool:
+
+    # This check if the string is a number without any text
+    return re.match(r"^[0-9.]+$", x) is not None
+
+
+def css_length_has_supported_units(x: str, no_units_valid: bool = True) -> bool:
+
+    # Check if the the string is a valid CSS length string with a text string
+
+    if not is_css_length_string(x):
+        return False
+
+    # If the string is a number without units, we can return the value of `no_units_valid`
+    if is_number_without_units(x):
+        return no_units_valid
+
+    units = get_units_from_length_string(x)
+
+    return units in LENGTH_TRANSLATIONS_TO_PX.keys()
+
+
 def get_units_from_length_string(length: str) -> str:
 
     # Extract the units from a string that is likely in the form of '123px' or '3.23in' in
