@@ -4,6 +4,8 @@ import re
 
 from ._gt_data import GTData
 from .quarto import check_quarto
+from great_tables._spanners import spanners_print_matrix
+from great_tables._utils_render_html import _get_spanners_matrix_height
 
 from typing import TypedDict, List
 
@@ -120,7 +122,7 @@ def create_width_dict_l(data: GTData) -> WidthDict:
     # Get the table width value
     tbl_width = data._options.table_width.value
 
-    # Get vector representation of stub layout
+    # Get list representation of stub layout
     stub_layout = data._stub._get_stub_layout(options=data._options)
 
     n = len(boxhead)
@@ -207,10 +209,210 @@ def create_width_dict_l(data: GTData) -> WidthDict:
     return width_dict
 
 
+def create_singlecolumn_width_text_l(pt: float, lw: float) -> str:
+
+    if pt <= 0 and lw <= 0:
+        out_txt = "0pt"
+    elif pt <= 0:
+        out_txt = "\\dimexpr {:.2f}\\linewidth -2\\tabcolsep-1.5\\arrayrulewidth".format(lw)
+    elif lw <= 0:
+        out_txt = "\\dimexpr {:.2f}pt -2\\tabcolsep-1.5\\arrayrulewidth".format(pt)
+    else:
+        out_txt = "\\dimexpr {:.2f}pt + {:.2f}\\linewidth -2\\tabcolsep-1.5\\arrayrulewidth".format(
+            pt, lw
+        )
+
+    return out_txt
+
+
+def calculate_multicolumn_width_text_l(
+    begins: list[str], ends: list[str], width_dict: WidthDict
+) -> str:
+
+    out_text = [""] * len(begins)
+
+    for i in range(len(begins)):
+
+        ind = range(begins[i], ends[i])
+
+        # If any of the combined columns has an unspecified width, it can't be determined
+        # so it is left blank
+        if any(width_dict["unspec"][i] > 0):
+
+            continue
+
+        pt_total = sum(width_dict["pt"][ind])
+        lw_total = sum(width_dict["lw"][ind])
+
+        if pt_total <= 0 & lw_total <= 0:
+
+            continue
+
+        else:
+
+            out_text[i] = create_singlecolumn_width_text_l(pt=pt_total, lw=lw_total)
+
+    return out_text
+
+
+def latex_heading_row(content: list[str]) -> str:
+
+    return "".join([" & ".join(content) + " \\\\ \n", "\\midrule\\addlinespace[2.5pt]\n"])
+
+
+def consolidate_cell_styles_l(styles_df: Any):
+    pass
+
+
 def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
 
-    # TODO: implement all logic
-    return ""
+    # Get list representation of stub layout
+    stub_layout = data._stub._get_stub_layout(options=data._options)
+
+    # Is the longtable environment being used?
+    latex_use_longtable = data._options.latex_use_longtable.value
+
+    # Extract only visible columns of `colwidth_df` based on stub_layout
+    types = ["default"]
+
+    if "rowname" in stub_layout:
+        types.append("stub")
+
+    if "group_label" in stub_layout:
+        types.append("row_group")
+
+    # Get indices of the types in `types` that are in the `type` key of `width_dict`
+    width_dict_visible_idx = [i for i, v in enumerate(width_dict["type"]) if v in types]
+
+    # Filter the `width_dict` dict entries based on the indices in `width_dict_visible_idx`
+    width_dict_visible = {k: [v[i] for i in width_dict_visible_idx] for k, v in width_dict.items()}
+
+    # Ensure that the `width_dict_visible` entries are sorted such that the
+    # `"row_group"` entry is first (only if it's located in the stub), then `"stub"`,
+    # and then everything else
+    if "stub" in width_dict_visible["type"]:
+        stub_idx = width_dict_visible["type"].index("stub")
+        othr_idx = [i for i in range(len(width_dict_visible["type"])) if i != stub_idx]
+        width_dict_visible["type"] = ["row_group", "stub"] + width_dict_visible["type"][othr_idx]
+
+    if "row_group" in width_dict_visible["type"]:
+        row_group_idx = width_dict_visible["type"].index("row_group")
+        othr_idx = [i for i in range(len(width_dict_visible["type"])) if i != row_group_idx]
+        width_dict_visible["type"] = ["row_group"] + width_dict_visible["type"][othr_idx]
+
+    # Determine if there are any footnotes or source notes; if any,
+    # add a `\setlength` command that will pull up the minipage environment
+    # for the footnotes block
+
+    source_notes = data._source_notes
+
+    if len(source_notes) > 0:
+
+        longtable_post_length = "\\setlength{\\LTpost}{0mm}\n"
+
+    else:
+
+        longtable_post_length = ""
+
+    # Generate the column definitions for visible columns
+    # these can either be simple `l`, `c`, `r` directive if a width isn't set
+    # for a column, or, use `p{<width>}` statements with leading `>{...}`
+    # specifiers that should have one of the following:
+    # - `>{\raggedright\arraybackslash}` <- left alignment
+    # - `>{\raggedleft\arraybackslash}` <- right alignment
+    # - `>{\centering\arraybackslash}` <- center alignment
+    # the `\arraybackslash` command is used to restore the behavior of the
+    # `\\` command in the table (all of this uses the CTAN `array` package)
+    if any(width_dict_visible["unspec"]) < 1:
+
+        col_defs = []
+
+        for i in range(len(width_dict_visible["type"])):
+
+            if width_dict_visible["unspec"][i] == 1:
+
+                col_defs_i = width_dict_visible["column_align"][i][0]
+
+            else:
+
+                alignments = {
+                    "left": ">{\\raggedright\\arraybackslash}",
+                    "right": ">{\\raggedleft\\arraybackslash}",
+                    "center": ">{\\centering\\arraybackslash}",
+                }
+
+                align = alignments.get(
+                    width_dict_visible["column_align"][i], ">{\\raggedright\\arraybackslash}"
+                )
+
+                col_defs_i = (
+                    align
+                    + "p{"
+                    + create_singlecolumn_width_text_l(
+                        pt=width_dict_visible["pt"][i], lw=width_dict_visible["lw"][i]
+                    )
+                    + "}"
+                )
+
+            col_defs.append(col_defs_i)
+
+    else:
+
+        col_defs = [align[0] for align in width_dict_visible["column_align"]]
+
+    # Add borders to the right of any columns in the stub
+    if len(stub_layout) > 0:
+
+        for i in range(len(stub_layout)):
+            col_defs[i] = col_defs[i] + "|"
+
+    # If a table width is specified, add an extra column
+    # space to fill in enough space to match the width
+    extra_sep = ""
+
+    table_width = data._options.table_width.value
+
+    if table_width != "auto":
+        extra_sep = "@{\\extracolsep{\\fill}}"
+
+    # determine string for table width if using tabular* environment
+    hdr_tabular = ""
+
+    if not latex_use_longtable:
+
+        # we need to use the extracolsep here for tabular* regardless of width
+        extra_sep = "@{\\extracolsep{\\fill}}"
+
+        if table_width.endswith("%"):
+
+            tw = float(table_width.replace("%", ""))
+
+            tw_frac = tw / 100
+
+            hdr_tabular = f"\\begin{{tabular*}}{{{tw_frac}\\linewidth}}{{"
+
+        elif table_width.endswith("px"):
+
+            width_in_pt = convert_to_pt(table_width)
+            hdr_tabular = f"\\begin{{tabular*}}{{{width_in_pt}pt}}{{"
+
+        else:
+
+            hdr_tabular = "\\begin{tabular*}{\\linewidth}{"
+
+    # Generate setup statements for table including default left
+    # alignments and vertical lines for any stub columns
+    table_start = "".join(
+        [
+            longtable_post_length if latex_use_longtable else "",
+            "\\begin{longtable}{" if latex_use_longtable else hdr_tabular,
+            extra_sep,
+            "".join(col_defs),
+            "}\n",
+        ]
+    )
+
+    return table_start
 
 
 def create_caption_component_l(data: GTData) -> str:
@@ -227,8 +429,207 @@ def create_heading_component_l(data: GTData) -> str:
 
 def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
 
-    # TODO: implement all logic
-    return ""
+    # Get list representation of stub layout
+    stub_layout = data._stub._get_stub_layout(options=data._options)
+
+    # Get the style information
+    styles_info = data._styles
+
+    # Determine the finalized number of spanner rows
+    spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
+
+    # Get the column headings
+    headings_vars = data._boxhead._get_default_columns()
+    headings_labels = data._boxhead._get_default_column_labels()
+
+    # TODO: implement all logic for styling cells in the headings
+    # for i, label in enumerate(headings_labels):
+    #     styles_heading_i = consolidate_cell_styles_l(
+    #         styles_tbl[
+    #             (styles_tbl["locname"] == "columns_columns") &
+    #             (styles_tbl["colname"] == label)
+    #         ]
+    #     )
+    #
+    #     headings_labels[i] = apply_cell_styles_l(headings_labels[i], styles_heading_i)
+
+    # If there is a stub then modify the `headings_vars` and `headings_labels`
+    if len(stub_layout) > 0:
+
+        stubh = data._stubhead
+
+        styles_stubhead = consolidate_cell_styles_l(styles_tbl[styles_tbl["locname"] == "stubhead"])
+
+        headings_vars = ["::stub"] + headings_vars
+
+        stub_label = (
+            apply_cell_styles_l(stubh.label, styles_stubhead)
+            if stubh.label and len(stubh.label) > 0
+            else ""
+        )
+
+        if len(stub_layout) > 1:
+
+            # If stub_layout == 1, multicolumn is not needed and `stub_label` is already defined
+            stub_dict = {k: v for k, v in width_dict.items() if v["type"] in ["stub", "row_group"]}
+
+            # If there are any unspecified column widths, we need to use width_txt = "c"
+            if any(stub_dict["unspec"]):
+
+                width_txt = "c"
+
+            else:
+
+                width_txt = ">{\\centering\\arraybackslash}m{{{}}}".format(
+                    create_singlecolumn_width_text_l(
+                        pt=sum(stub_dict["pt"]) if isinstance(stub_dict["pt"], list) else 0,
+                        lw=sum(stub_dict["lw"]) if isinstance(stub_dict["lw"], list) else 0,
+                    )
+                    or ""
+                )
+
+            stub_label = "\\multicolumn{{{}}}{{{}}}{{{}}}".format(
+                len(stub_layout), width_txt, stub_label
+            )
+
+        headings_labels = [stub_label] + headings_labels
+
+    table_col_headings = "".join(latex_heading_row(content=headings_labels))
+
+    if spanner_row_count > 0:
+
+        boxhead = data._boxhead
+
+        table_col_spanners = []
+
+        spanners, _ = spanners_print_matrix(
+            spanners=data._spanners,
+            boxhead=boxhead,
+            include_hidden=False,
+            ids=False,
+            omit_columns_row=True,
+        )
+
+        spanner_ids, _ = spanners_print_matrix(
+            spanners=data._spanners,
+            boxhead=boxhead,
+            include_hidden=False,
+            ids=True,
+            omit_columns_row=True,
+        )
+
+        # Prepend the stub layout to the spanners matrix if it exists
+        if len(stub_layout) > 0:
+
+            stub_matrix = matrix(nrow=nrow(spanners), ncol=len(stub_layout))
+
+            spanners = cbind(stub_matrix, spanners)
+            spanner_ids = cbind(stub_matrix, spanner_ids)
+
+        for i in range(len(spanners)):
+
+            spanners_i = spanners[i]
+            spanner_ids_i = spanner_ids[i,]
+
+            from itertools import groupby
+
+            from typing import Iterable, Tuple
+
+            def rle(iterable: Iterable[str]) -> List[Tuple[str, int]]:
+                return [(key, sum(1 for _ in group)) for key, group in groupby(iterable)]
+
+            # spanners_rle = rle(spanner_ids_i)
+
+            # def cumsum(lst: List[int]) -> List[int]:
+            #    result = []
+            #    total = 0
+            #    for num in lst:
+            #        total += num
+            #        result.append(total)
+            #    return result
+
+            # We need a parallel vector of spanner labels and this could
+            # be part of the `spanners_rle` list
+            # spanners_rle['labels'] = spanners_i[cumsum(spanners_rle['lengths'])]
+
+            # spanners_rle = apply_spanner_styles_l(spanners_rle, styles_tbl)
+
+            # TODO: implement logic for calculating the `begins` and `ends` lists
+            # begins = (cumsum(utils::head(c(0, spanners_rle$lengths), -1)) + 1)[!is.na(spanners_rle$values)]
+            # ends = cumsum(spanners_rle$lengths)[!is.na(spanners_rle$values)]
+            begins = [1]
+            ends = [2]
+
+            cmidrule = "\\cmidrule(lr){{{}}}-{{{}}}".format(begins, ends)
+
+            # TODO: implement logic for calculating this
+            # is_spanner_na = is.na(spanners_rle$values)
+            is_spanner_na = False
+
+            is_spanner_single = spanners_rle["lengths"] == 1
+
+            # TODO: implement logic for calculating this
+            # firsts = utils::head(cumsum(c(1L, spanners_rle$lengths)), -1L)
+            # lasts = cumsum(spanners_rle$lengths)
+            firsts = [1, 2, 3]
+            firsts = [4, 5, 6]
+
+            span_widths = calculate_multicolumn_width_text_l(
+                begins=firsts, ends=lasts, width_dict=width_dict
+            )
+
+            tex_widths = (
+                "c" if span_widths == "" else f">{{\\centering\\arraybackslash}}m{{{span_widths}}}"
+            )
+
+            multicol = (
+                ""
+                if is_spanner_na
+                else (
+                    spanners_rle["labels"]
+                    if is_spanner_single
+                    else "\\multicolumn{{{}}}{{{}}}{{{}}}".format(
+                        spanners_rle["lengths"], tex_widths, spanners_rle["labels"]
+                    )
+                )
+            )
+
+            # If there is a stub we need to tweak the spanners row with a blank
+            # multicolumn statement that's the same width as that in the columns
+            # row; this is to prevent the automatic vertical line that would otherwise
+            # appear here
+            if len(stub_layout) > 1:
+
+                tex_stub_width = calculate_multicolumn_width_text_l(
+                    begins=1, ends=2, width_dict=width_dict
+                )
+
+                if tex_stub_width == "":
+
+                    mc_stub = "l"
+
+                else:
+                    mc_stub = ">{\\raggedright\\arraybackslash}m{{{}}}".format(tex_stub_width)
+
+                multicol = [
+                    "\\multicolumn{{{}}}{{{}}}{{}}".format(len(stub_layout), mc_stub),
+                    *multicol[len(stub_layout) :],
+                ]
+
+        multicol = " & ".join(multicol) + " \\\\ \n"
+        cmidrule = " ".join(cmidrule) + "\n"
+
+        col_spanners_i = multicol + cmidrule
+
+        table_col_spanners += [col_spanners_i]
+
+    else:
+
+        table_col_spanners = ""
+
+    columns_component = "\\toprule\n" + "".join(table_col_spanners) + table_col_headings
+
+    return columns_component
 
 
 def create_body_component_l(data: GTData, width_dict: WidthDict) -> str:
@@ -245,8 +646,13 @@ def create_footer_component_l(data: GTData) -> str:
 
 def create_table_end_l(data: GTData) -> str:
 
-    # TODO: implement all logic
-    return ""
+    latex_use_longtable = data._options.latex_use_longtable.value
+
+    table_end = "\\bottomrule\n" + (
+        "\\end{longtable}\n" if latex_use_longtable else "\\end{tabular*}\n"
+    )
+
+    return table_end
 
 
 def derive_table_width_statement_l(data: GTData) -> str:
@@ -333,5 +739,8 @@ def create_wrap_start_l(data: GTData) -> str:
 
 def create_wrap_end_l(data: GTData) -> str:
 
-    # TODO: implement all logic
-    return ""
+    latex_use_longtable = data._options.latex_use_longtable.value
+
+    wrap_end = "\\endgroup\n" if latex_use_longtable else "\\end{table}\n"
+
+    return wrap_end
