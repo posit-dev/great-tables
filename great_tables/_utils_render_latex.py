@@ -9,6 +9,7 @@ from typing import TypedDict, List
 
 
 LENGTH_TRANSLATIONS_TO_PX = {
+    "px": 1.0,
     "pt": 4 / 3,
     "in": 96.0,
     "cm": 37.7952755906,
