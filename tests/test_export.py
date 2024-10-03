@@ -44,13 +44,26 @@ def test_save_image_file(gt_tbl: GT, tmp_path):
     f_path = tmp_path / "test_image.png"
     gt_tbl.save(file=str(f_path))
 
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert f_path.exists()
 
 
 def test_save_non_png(gt_tbl: GT, tmp_path):
     f_path = tmp_path / "test_image.pdf"
     gt_tbl.save(file=str(f_path))
+
+
+def test_save_custom_webdriver(gt_tbl: GT, tmp_path):
+    from selenium import webdriver
+
+    f_path = tmp_path / "test_image.png"
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless=new")
+    with webdriver.Chrome(options) as wd:
+        gt_tbl.save(file=str(f_path), web_driver=wd)
+
+    time.sleep(0.05)
+    assert f_path.exists()
 
 
 @pytest.mark.parametrize(
