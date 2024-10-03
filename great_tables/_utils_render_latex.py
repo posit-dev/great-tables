@@ -289,8 +289,29 @@ def derive_table_width_statement_l(data: GTData) -> str:
 
 def create_fontsize_statement_l(data: GTData) -> str:
 
-    # TODO: implement all logic
-    return ""
+    table_font_size = data._options.table_font_size.value
+
+    fs_fmt = "\\fontsize{%3.1fpt}{%3.1fpt}\\selectfont\n"
+
+    if table_font_size.endswith("%"):
+
+        multiple = float(table_font_size.strip("%")) / 100
+        fs_statement = fs_fmt % (multiple * 12, multiple * 12 * 1.2)
+
+    elif table_font_size.endswith("pt"):
+
+        size_in_pt = float(table_font_size[:-2])
+        fs_statement = fs_fmt % (size_in_pt, size_in_pt * 1.2)
+
+    elif css_length_has_supported_units(table_font_size):
+
+        size_in_pt = convert_to_px(table_font_size) * 0.75
+        fs_statement = fs_fmt % (size_in_pt, size_in_pt * 1.2)
+
+    else:
+        fs_statement = ""
+
+    return fs_statement
 
 
 def create_wrap_start_l(data: GTData) -> str:
