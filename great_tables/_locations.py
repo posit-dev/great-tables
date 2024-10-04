@@ -773,7 +773,7 @@ def resolve_rows_i(
 
     if expr is None:
         if null_means == "everything":
-            return [(row.rowname, ii) for ii, row in enumerate(data._stub)]
+            return [(name, ii) for ii, name in enumerate(row_names)]
         else:
             return []
 
@@ -856,7 +856,7 @@ def _(loc: LocRowGroups, data: GTData) -> set[int]:
     # TODO: what are the rules for matching row groups?
     # TODO: resolve_rows_i will match a list expr to row names (not group names)
     group_pos = set(name for name, _ in resolve_rows_i(data, loc.rows, row_name_attr="group_id"))
-    return list(group_pos)
+    return group_pos
 
 
 @resolve.register

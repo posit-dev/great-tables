@@ -7,7 +7,9 @@ from great_tables._gt_data import Spanners
 from great_tables._locations import (
     CellPos,
     LocBody,
+    LocRowGroups,
     LocSpannerLabels,
+    LocStub,
     LocTitle,
     resolve,
     resolve_cols_i,
@@ -174,6 +176,45 @@ def test_resolve_loc_spanner_label_error_missing():
 
     with pytest.raises(ValueError):
         resolve(loc, spanners)
+
+
+@pytest.mark.parametrize(
+    "rows, res",
+    [
+        (2, {"b"}),
+        ([2], {"b"}),
+        ("b", {"b"}),
+        (["a", "c"], {"a", "c"}),
+        ([0, 1], {"a"}),
+        (None, {"a", "b", "c"}),
+    ],
+)
+def test_resolve_loc_row_groups(rows, res):
+    df = pl.DataFrame({"group": ["a", "a", "b", "c"]})
+    loc = LocRowGroups(rows=rows)
+    new_loc = resolve(loc, GT(df, groupname_col="group"))
+
+    assert isinstance(new_loc, set)
+    assert new_loc == res
+
+
+@pytest.mark.parametrize(
+    "rows, res",
+    [
+        (2, {2}),
+        ([2], {2}),
+        ("b", {2}),
+        (["a", "c"], {0, 1, 3}),
+        ([0, 1], {0, 1}),
+    ],
+)
+def test_resolve_loc_stub(rows, res):
+    df = pl.DataFrame({"row": ["a", "a", "b", "c"]})
+    loc = LocStub(rows=rows)
+    new_loc = resolve(loc, GT(df, rowname_col="row"))
+
+    assert isinstance(new_loc, set)
+    assert new_loc == res
 
 
 @pytest.mark.parametrize(
