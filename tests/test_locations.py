@@ -187,6 +187,7 @@ def test_resolve_loc_spanner_label_error_missing():
         (["a", "c"], {"a", "c"}),
         ([0, 1], {"a"}),
         (None, {"a", "b", "c"}),
+        (pl.col("group") == "b", {"b"}),
     ],
 )
 def test_resolve_loc_row_groups(rows, res):
@@ -206,6 +207,7 @@ def test_resolve_loc_row_groups(rows, res):
         ("b", {2}),
         (["a", "c"], {0, 1, 3}),
         ([0, 1], {0, 1}),
+        (pl.col("row") == "a", {0, 1}),
     ],
 )
 def test_resolve_loc_stub(rows, res):
