@@ -751,6 +751,7 @@ def resolve_rows_i(
     data: GTData | list[str],
     expr: RowSelectExpr = None,
     null_means: Literal["everything", "nothing"] = "everything",
+    row_name_attr: Literal["rowname", "group_id"] = "rowname",
 ) -> list[tuple[str, int]]:
     """Return matching row numbers, based on expr
 
@@ -766,7 +767,7 @@ def resolve_rows_i(
         expr: list[str | int] = [expr]
 
     if isinstance(data, GTData):
-        row_names = [row.rowname for row in data._stub]
+        row_names = [getattr(row, row_name_attr) for row in data._stub]
     else:
         row_names = data
 
@@ -854,7 +855,7 @@ def _(loc: LocColumnLabels, data: GTData) -> list[CellPos]:
 def _(loc: LocRowGroups, data: GTData) -> set[int]:
     # TODO: what are the rules for matching row groups?
     # TODO: resolve_rows_i will match a list expr to row names (not group names)
-    group_pos = set(pos for _, pos in resolve_rows_i(data, loc.rows))
+    group_pos = set(name for name, _ in resolve_rows_i(data, loc.rows, row_name_attr="group_id"))
     return list(group_pos)
 
 

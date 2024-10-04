@@ -479,7 +479,11 @@ def create_body_component_h(data: GTData) -> str:
                     "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
                 )
 
-                _styles = [style for style in styles_row_group_label if i in style.grpname]
+                _styles = [
+                    style
+                    for style in styles_row_group_label
+                    if group_info.group_id in style.grpname
+                ]
                 group_styles = _flatten_styles(_styles, wrap=True)
                 group_row = f"""  <tr class="{group_class}">
     <th class="gt_group_heading" colspan="{colspan_value}"{group_styles}>{group_label}</th>
