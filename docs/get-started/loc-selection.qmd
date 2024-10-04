@@ -3,6 +3,12 @@ title: Location selection
 jupyter: python3
 ---
 
+Great Tables uses the `loc` module to specify locations for styling in `tab_style()`. Some location specifiers also allow selecting specific columns and rows of data.
+
+For example, you might style a particular row name, group, column, or spanner label.
+
+The table below shows the different location specifiers, along with the types of column or row selection they allow.
+
 ```{python}
 # | echo: false
 import polars as pl
@@ -27,6 +33,11 @@ df = pl.DataFrame(data, schema=["table part", "name", "selection"], orient="row"
 GT(df)
 ```
 
+Note that composite specifiers are ones that target multiple locations. For example, `loc.header()` specifies both `loc.title()` and `loc.subtitle()`.
+
+## Setting up data
+
+The examples below will use this small dataset to show selecting different locations, as well as specific rows and columns within a location (where supported).
 
 ```{python}
 import polars as pl
@@ -35,9 +46,15 @@ import polars.selectors as cs
 from great_tables import GT, loc, style, exibble
 
 pl_exibble = pl.from_pandas(exibble)[[0, 1, 4], ["num", "char", "group"]]
+
+pl_exibble
 ```
 
-## simple locations
+## Simple locations
+
+Simple locations don't take any arguments.
+
+For example, styling the title uses `loc.title()`.
 
 ```{python}
 (
@@ -50,7 +67,11 @@ pl_exibble = pl.from_pandas(exibble)[[0, 1, 4], ["num", "char", "group"]]
 )
 ```
 
-## composite locations
+## Composite locations
+
+Composite locations target multiple simple locations.
+
+For example, `loc.header()` includes both `loc.title()` and `loc.subtitle()`.
 
 ```{python}
 (
@@ -63,7 +84,9 @@ pl_exibble = pl.from_pandas(exibble)[[0, 1, 4], ["num", "char", "group"]]
 )
 ```
 
-## body columns and rows
+## Body columns and rows
+
+Use `loc.body()` to style specific cells in the table body.
 
 ```{python}
 (
@@ -77,7 +100,13 @@ pl_exibble = pl.from_pandas(exibble)[[0, 1, 4], ["num", "char", "group"]]
 )
 ```
 
-## column labels
+This is discussed in detail in [Styling the Table Body](./basic-styling.qmd).
+
+## Column labels
+
+Locations like `loc.spanner_labels()` and `loc.column_labels()` can select specific column and spanner labels.
+
+You can use name strings, index position, or polars selectors.
 
 ```{python}
 GT(pl_exibble).tab_style(
@@ -88,11 +117,15 @@ GT(pl_exibble).tab_style(
 )
 ```
 
-## row and group names
+However, note that `loc.spanner_labels()` currently only accepts list of string names.
+
+## Row and group names
+
+Row and group names in `loc.stub()` and `loc.row_groups()` may be specified three ways:
 
 * by name
 * by index
-* by expression
+* by polars expression
 
 ```{python}
 gt = GT(pl_exibble).tab_stub(
@@ -112,18 +145,35 @@ gt.tab_style(style.fill("yellow"), loc.stub("banana"))
 gt.tab_style(style.fill("yellow"), loc.stub(["apricot", 2]))
 ```
 
-### groups by name and position
+### Groups by name and position
 
-```{python}
-gt.tab_style(
-    style.fill("yellow"),
-    loc.row_groups("grp_b"),
-)
-```
+Note that for specifying row groups, the group corresponding to the group name or row number in the original data is used.
+
+For example, the code below styles the group corresponding to the row at index 1 (i.e. the second row) in the data.
 
 ```{python}
 gt.tab_style(
     style.fill("yellow"),
     loc.row_groups(1),
+)
+```
+
+Since the second row (starting with "banana") is in "grp_a", that is the group that gets styled.
+
+This means you can use a polars expression to select groups:
+
+```{python}
+gt.tab_style(
+    style.fill("yellow"),
+    loc.row_groups(pl.col("group") == "grp_b"),
+)
+```
+
+You can also specify group names using a string (or list of strings).
+
+```{python}
+gt.tab_style(
+    style.fill("yellow"),
+    loc.row_groups("grp_b"),
 )
 ```
