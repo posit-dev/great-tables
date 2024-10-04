@@ -52,55 +52,431 @@ class Loc:
 
 @dataclass
 class LocHeader(Loc):
-    """A location for targeting the table title and subtitle."""
+    """Target the table header (title and subtitle).
+
+    With `loc.header()`, we can target the table header which contains the title and the subtitle.
+    This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Returns
+    -------
+    LocHeader
+        A LocHeader object, which is used for a `locations=` argument if specifying the title of the
+        table.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style the entire table header
+    (the 'title' and 'subtitle' parts. This can be done by using `locations=loc.header()` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars[["mfr", "model", "msrp"]].head(5))
+        .tab_header(
+            title="Select Cars from the gtcars Dataset",
+            subtitle="Only the first five cars are displayed"
+        )
+        .tab_style(
+            style=style.fill(color="lightblue"),
+            locations=loc.header()
+        )
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
 
 
 @dataclass
 class LocTitle(Loc):
-    """A location for targeting the title."""
+    """Target the table title.
+
+    With `loc.title()`, we can target the part of table containing the title (within the table
+    header). This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Returns
+    -------
+    LocTitle
+        A LocTitle object, which is used for a `locations=` argument if specifying the title of the
+        table.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style only the 'title' part
+    of the table header (leaving the 'subtitle' part unaffected). This can be done by using
+    `locations=loc.title()` within [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars[["mfr", "model", "msrp"]].head(5))
+        .tab_header(
+            title="Select Cars from the gtcars Dataset",
+            subtitle="Only the first five cars are displayed"
+        )
+        .tab_style(
+            style=style.text(color="blue", size="large", weight="bold"),
+            locations=loc.title()
+        )
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
 
 
 @dataclass
 class LocSubTitle(Loc):
-    """A location for targeting the subtitle."""
+    """Target the table subtitle.
+
+    With `loc.subtitle()`, we can target the part of table containing the subtitle (within the table
+    header). This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Returns
+    -------
+    LocSubTitle
+        A LocSubTitle object, which is used for a `locations=` argument if specifying the subtitle
+        of the table.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style only the 'subtitle'
+    part of the table header (leaving the 'title' part unaffected). This can be done by using
+    `locations=loc.subtitle()` within [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars[["mfr", "model", "msrp"]].head(5))
+        .tab_header(
+            title="Select Cars from the gtcars Dataset",
+            subtitle="Only the first five cars are displayed"
+        )
+        .tab_style(
+            style=style.fill(color="lightblue"),
+            locations=loc.subtitle()
+        )
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
 
 
 @dataclass
 class LocStubhead(Loc):
-    """A location for targeting the table stubhead and stubhead label."""
+    """Target the stubhead.
+
+    With `loc.stubhead()`, we can target the part of table that resides both at the top of the
+    stub and also beside the column header. This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Returns
+    -------
+    LocStubhead
+        A LocStubhead object, which is used for a `locations=` argument if specifying the stubhead
+        of the table.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. This table contains a stub (produced
+    by setting `rowname_col="model"` in the initial `GT()` call). The stubhead is given a label by
+    way of the [`tab_stubhead()`](`great_tables.GT.tab_stubhead`) method and this label can be
+    styled by using `locations=loc.stubhead()` within [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+            rowname_col="model",
+            groupname_col="mfr"
+        )
+        .tab_stubhead(label="car")
+        .tab_style(
+            style=style.text(color="red", weight="bold"),
+            locations=loc.stubhead()
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
 
 
 @dataclass
 class LocStubheadLabel(Loc):
-    """A location for targetting the stubhead."""
+    """Target the stubhead label."""
 
 
 @dataclass
 class LocColumnHeader(Loc):
-    """A location for column spanners and column labels."""
+    """Target column spanners and column labels.
+
+    With `loc.column_header()`, we can target the column header which contains all of the column
+    labels and any spanner labels that are present. This is useful for applying custom styling with
+    the [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument
+    and this class should be used there to perform the targeting.
+
+    Returns
+    -------
+    LocColumnHeader
+        A LocColumnHeader object, which is used for a `locations=` argument if specifying the column
+        header of the table.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We create spanner labels through
+    use of the [`tab_spanner()`](`great_tables.GT.tab_spanner`) method; this gives us a column
+    header with a mix of column labels and spanner labels. We will style the entire column header at
+    once by using `locations=loc.column_header()` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5))
+        .tab_spanner(
+            label="performance",
+            columns=["hp", "trq"]
+        )
+        .tab_spanner(
+            label="make and model",
+            columns=["mfr", "model"]
+        )
+        .tab_style(
+            style=[
+                style.text(color="white", weight="bold"),
+                style.fill(color="steelblue")
+            ],
+            locations=loc.column_header()
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
 
 
 @dataclass
 class LocColumnLabels(Loc):
+    """Target column labels.
+
+    With `loc.column_labels()`, we can target the cells containing the column labels. This is useful
+    for applying custom styling with the [`tab_style()`](`great_tables.GT.tab_style`) method. That
+    method has a `locations=` argument and this class should be used there to perform the targeting.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list. If no columns are specified, all columns are targeted.
+
+    Returns
+    -------
+    LocColumnLabels
+        A LocColumnLabels object, which is used for a `locations=` argument if specifying the
+        table's column labels.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style all three of the column
+    labels by using `locations=loc.column_labels()` within
+    [`tab_style()`](`great_tables.GT.tab_style`). Note that no specification of `columns=` is needed
+    here because we want to target all columns.
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars[["mfr", "model", "msrp"]].head(5))
+        .tab_style(
+            style=style.text(color="blue", size="large", weight="bold"),
+            locations=loc.column_labels()
+        )
+    )
+    ```
+    """
+
     columns: SelectExpr = None
 
 
 @dataclass
 class LocSpannerLabels(Loc):
-    """A location for column spanners."""
+    """Target spanner labels.
+
+    With `loc.spanner_labels()`, we can target the cells containing the spanner labels. This is
+    useful for applying custom styling with the [`tab_style()`](`great_tables.GT.tab_style`) method.
+    That method has a `locations=` argument and this class should be used there to perform the
+    targeting.
+
+    Parameters
+    ----------
+    ids:
+        The ID values for the spanner labels to target. A list of one or more ID values is required.
+
+    Returns
+    -------
+    LocSpannerLabels
+        A LocSpannerLabels object, which is used for a `locations=` argument if specifying the
+        table's spanner labels.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We create two spanner labels through
+    two separate calls of the [`tab_spanner()`](`great_tables.GT.tab_spanner`) method. In each of
+    those, the text supplied to `label=` argument is used as the ID value (though they have to be
+    explicitly set via the `id=` argument). We will style only the spanner label having the text
+    `"performance"` by using `locations=loc.spanner_labels(ids=["performance"])` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5))
+        .tab_spanner(
+            label="performance",
+            columns=["hp", "trq"]
+        )
+        .tab_spanner(
+            label="make and model",
+            columns=["mfr", "model"]
+        )
+        .tab_style(
+            style=style.text(color="blue", weight="bold"),
+            locations=loc.spanner_labels(ids=["performance"])
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
 
     ids: SelectExpr = None
 
 
 @dataclass
 class LocStub(Loc):
-    """A location for targeting the table stub, row group labels, summary labels, and body."""
+    """Target the table stub.
+
+    With `loc.stub()` we can target the cells containing the row labels, which reside in the table
+    stub. This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Parameters
+    ----------
+    rows
+        The rows to target within the stub. Can either be a single row name or a series of row names
+        provided in a list. If no rows are specified, all rows are targeted.
+
+    Returns
+    -------
+    LocStub
+        A LocStub object, which is used for a `locations=` argument if specifying the table's stub.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style the entire table stub
+    (the row labels) by using `locations=loc.stub()` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+            rowname_col="model",
+            groupname_col="mfr"
+        )
+        .tab_stubhead(label="car")
+        .tab_style(
+            style=[
+                style.text(color="crimson", weight="bold"),
+                style.fill(color="lightgray")
+            ],
+            locations=loc.stub()
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
 
     rows: RowSelectExpr = None
 
 
 @dataclass
 class LocRowGroups(Loc):
+    """Target row groups.
+
+    With `loc.row_groups()` we can target the cells containing the row group labels, which span
+    across the table body. This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Parameters
+    ----------
+    rows
+        The row groups to target. Can either be a single group name or a series of group names
+        provided in a list. If no groups are specified, all are targeted.
+
+    Returns
+    -------
+    LocRowGroups
+        A LocRowGroups object, which is used for a `locations=` argument if specifying the table's
+        row groups.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style all of the cells
+    comprising the row group labels by using `locations=loc.row_groups()` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+            rowname_col="model",
+            groupname_col="mfr"
+        )
+        .tab_stubhead(label="car")
+        .tab_style(
+            style=[
+                style.text(color="crimson", weight="bold"),
+                style.fill(color="lightgray")
+            ],
+            locations=loc.row_groups()
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
+    """
+
     rows: RowSelectExpr = None
 
 
@@ -112,11 +488,11 @@ class LocSummaryLabel(Loc):
 @dataclass
 class LocBody(Loc):
     # TODO: these can be tidyselectors
-    """A location specification for targeting data cells in the table body.
+    """Target data cells in the table body.
 
-    The `loc.body()` class is used to target the data cells in the table body. The class can be used
-    to apply custom styling with the `tab_style()` method. That method has a `locations` argument
-    and this class should be used there to perform the targeting.
+    With `loc.body()`, we can target the data cells in the table body. This is useful for applying
+    custom styling with the [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a
+    `locations=` argument and this class should be used there to perform the targeting.
 
     Parameters
     ----------
@@ -130,11 +506,35 @@ class LocBody(Loc):
     Returns
     -------
     LocBody
-        A LocBody object, which is used for a `locations` argument if specifying the table body.
+        A LocBody object, which is used for a `locations=` argument if specifying the table body.
 
     Examples
-    ------
-    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style all of the body cells
+    by using `locations=loc.body()` within [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+            rowname_col="model",
+            groupname_col="mfr"
+        )
+        .tab_stubhead(label="car")
+        .tab_style(
+            style=[
+                style.text(color="darkblue", weight="bold"),
+                style.fill(color="gainsboro")
+            ],
+            locations=loc.body()
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
     """
 
     columns: SelectExpr = None
@@ -150,17 +550,83 @@ class LocSummary(Loc):
 
 @dataclass
 class LocFooter(Loc):
-    """A location for targeting the footer."""
+    """Target the table footer.
+
+    With `loc.footer()` we can target the table's footer, which currently contains the source notes
+    (and may contain a 'footnotes' location in the future). This is useful when applying custom
+    styling with the [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a
+    `locations=` argument and this class should be used there to perform the targeting. The 'footer'
+    location is generated by [`tab_source_note()`](`great_tables.GT.tab_source_note`).
+
+    Returns
+    -------
+    LocFooter
+        A `LocFooter` object, which is used for a `locations=` argument if specifying the footer of
+        the table.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. Add a source note (with
+    [`tab_source_note()`](`great_tables.GT.tab_source_note`) and style this footer section inside of
+    [`tab_style()`](`great_tables.GT.tab_style`) with `locations=loc.footer()`.
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars[["mfr", "model", "msrp"]].head(5))
+        .tab_source_note(source_note="From edmunds.com")
+        .tab_style(
+            style=style.text(color="blue", size="small", weight="bold"),
+            locations=loc.footer()
+        )
+    )
+    ```
+    """
 
 
 @dataclass
 class LocFootnotes(Loc):
-    """A location for targeting footnotes."""
+    """Target the footnotes."""
 
 
 @dataclass
 class LocSourceNotes(Loc):
-    """A location for targeting source notes."""
+    """Target the source notes.
+
+    With `loc.source_notes()`, we can target the source notes in the table. This is useful when
+    applying custom with the [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a
+    `locations=` argument and this class should be used there to perform the targeting. The
+    'source_notes' location is generated by
+    [`tab_source_note()`](`great_tables.GT.tab_source_note`).
+
+    Returns
+    -------
+    LocSourceNotes
+        A `LocSourceNotes` object, which is used for a `locations=` argument if specifying the
+        source notes.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. Add a source note (with
+    [`tab_source_note()`](`great_tables.GT.tab_source_note`) and style the source notes section
+    inside [`tab_style()`](`great_tables.GT.tab_style`) with `locations=loc.source_notes()`.
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(gtcars[["mfr", "model", "msrp"]].head(5))
+        .tab_source_note(source_note="From edmunds.com")
+        .tab_style(
+            style=style.text(color="blue", size="small", weight="bold"),
+            locations=loc.source_notes()
+        )
+    )
+    ```
+    """
 
 
 # Utils ================================================================================
