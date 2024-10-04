@@ -845,10 +845,9 @@ def _(loc: LocSpannerLabels, spanners: Spanners) -> LocSpannerLabels:
 
 
 @resolve.register
-def _(loc: LocColumnLabels, data: GTData) -> list[CellPos]:
-    cols = resolve_cols_i(data=data, expr=loc.columns)
-    cell_pos = [CellPos(col[1], 0, colname=col[0]) for col in cols]
-    return cell_pos
+def _(loc: LocColumnLabels, data: GTData) -> list[tuple[str, int]]:
+    name_pos = resolve_cols_i(data=data, expr=loc.columns)
+    return name_pos
 
 
 @resolve.register
@@ -940,17 +939,16 @@ def _(
 
 @set_style.register
 def _(loc: LocColumnLabels, data: GTData, style: list[CellStyle]) -> GTData:
-    positions: list[CellPos] = resolve(loc, data)
+    selected = resolve(loc, data)
 
     # evaluate any column expressions in styles
     styles = [entry._evaluate_expressions(data._tbl_data) for entry in style]
 
     all_info: list[StyleInfo] = []
-    for col_pos in positions:
+    for name, pos in selected:
         crnt_info = StyleInfo(
             locname=loc,
-            colname=col_pos.colname,
-            rownum=col_pos.row,
+            colname=name,
             styles=styles,
         )
         all_info.append(crnt_info)

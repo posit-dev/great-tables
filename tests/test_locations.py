@@ -7,6 +7,8 @@ from great_tables._gt_data import Spanners
 from great_tables._locations import (
     CellPos,
     LocBody,
+    LocColumnLabels,
+    LocSpannerLabels,
     LocRowGroups,
     LocSpannerLabels,
     LocStub,
@@ -217,6 +219,39 @@ def test_resolve_loc_stub(rows, res):
 
     assert isinstance(new_loc, set)
     assert new_loc == res
+
+
+@pytest.mark.parametrize(
+    "cols, res",
+    [
+        (["b"], [("b", 1)]),
+        ([0, 2], [("a", 0), ("c", 2)]),
+        (cs.by_name("a"), [("a", 0)]),
+    ],
+)
+def test_resolve_loc_column_labels(cols, res):
+    df = pl.DataFrame({"a": [0], "b": [1], "c": [2]})
+    loc = LocColumnLabels(columns=cols)
+
+    selected = resolve(loc, GT(df))
+    assert selected == res
+
+
+@pytest.mark.parametrize(
+    "ids, res",
+    [
+        (["b"], ["b"]),
+        (["a", "b"], ["a", "b"]),
+        pytest.param(cs.by_name("a"), ["a"], marks=pytest.mark.xfail),
+    ],
+)
+def test_resolve_loc_spanner_labels(ids, res):
+    df = pl.DataFrame({"x": [0], "y": [1], "z": [2]})
+    gt = GT(df).tab_spanner("a", ["x", "y"]).tab_spanner("b", ["z"])
+    loc = LocSpannerLabels(ids=ids)
+
+    new_loc = resolve(loc, gt._spanners)
+    assert new_loc.ids == res
 
 
 @pytest.mark.parametrize(
