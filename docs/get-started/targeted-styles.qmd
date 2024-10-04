@@ -1,5 +1,5 @@
 ---
-title: Targeted styles
+title: Styling the whole table
 jupyter: python3
 ---
 
