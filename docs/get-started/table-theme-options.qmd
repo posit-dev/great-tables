@@ -5,7 +5,7 @@ jupyter: python3
 
 Great Tables exposes options to customize the appearance of tables via two methods:
 
-* [](`~great_tables.GT.tab_style`) - targeted styles (e.g. color a specific cell of data).
+* [](`~great_tables.GT.tab_style`) - targeted styles (e.g. color a specific cell of data, or a specific group label).
 * [](`~great_tables.GT.tab_options`) - broad styles (e.g. color the header and source notes).
 
 Both methods target parts of the table, as shown in the diagram below.
@@ -14,7 +14,6 @@ Both methods target parts of the table, as shown in the diagram below.
 
 This page covers how to style and theme your table using `GT.tab_options()`,
 which is meant to quickly set a broad range of styles.
-In the future, even more granular options will become available via `GT.tab_style()`.
 
 We'll use the basic GT object below for most examples, since it marks some of the table parts.
 
