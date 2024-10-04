@@ -144,6 +144,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <li><a href="#great_tables.data.nuclides" id="toc-great_tables.data.nuclides" class="nav-link active" data-scroll-target="#great_tables.data.nuclides">data.nuclides</a>
   <ul class="collapse">
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#preview" id="toc-preview" class="nav-link" data-scroll-target="#preview">Preview</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -178,6 +179,40 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li><code>atomic_mass</code>, <code>atomic_mass_uncert</code>: The atomic mass and its associated uncertainty. In units of micro AMU.</li>
 <li><code>mass_excess</code>, <code>mass_excess_uncert</code>: The mass excess and its associated uncertainty. In units of keV.</li>
 </ul>
+</section>
+<section id="preview" class="level2 doc-section doc-section-preview">
+<h2 class="doc-section doc-section-preview anchored" data-anchor-id="preview">Preview</h2>
+<pre><code>Rows: 3383
+Columns: 29
+$ nuclide                    &lt;str&gt; '^{1}_{1}H0', '^{2}_{1}H1', '^{3}_{1}H2'
+$ z                          &lt;i64&gt; 1, 1, 1
+$ n                          &lt;i64&gt; 0, 1, 2
+$ element                    &lt;str&gt; 'H', 'H', 'H'
+$ radius                     &lt;f64&gt; 0.8783, 2.1421, 1.7591
+$ radius_uncert              &lt;f64&gt; 0.0086, 0.0088, 0.0363
+$ abundance                  &lt;f64&gt; 0.999855, 0.000145, None
+$ abundance_uncert           &lt;f64&gt; 7.8e-05, 7.8e-05, None
+$ is_stable                  &lt;str&gt; 'TRUE', 'TRUE', 'FALSE'
+$ half_life                  &lt;f64&gt; None, None, 388781328.00697297
+$ half_life_uncert           &lt;f64&gt; None, None, 631138.51949184
+$ isospin                    &lt;str&gt; None, None, None
+$ decay_1                    &lt;str&gt; None, None, 'B-'
+$ decay_1_pct                &lt;f64&gt; None, None, 1.0
+$ decay_1_pct_uncert         &lt;f64&gt; None, None, None
+$ decay_2                    &lt;str&gt; None, None, None
+$ decay_2_pct                &lt;f64&gt; None, None, None
+$ decay_2_pct_uncert         &lt;f64&gt; None, None, None
+$ decay_3                    &lt;str&gt; None, None, None
+$ decay_3_pct                &lt;f64&gt; None, None, None
+$ decay_3_pct_uncert         &lt;f64&gt; None, None, None
+$ magnetic_dipole            &lt;f64&gt; 2.792847351, 0.857438231, 2.97896246
+$ magnetic_dipole_uncert     &lt;f64&gt; 9e-09, 5e-09, 1.4e-08
+$ electric_quadrupole        &lt;f64&gt; None, 0.0028578, None
+$ electric_quadrupole_uncert &lt;f64&gt; None, 3e-07, None
+$ atomic_mass                &lt;f64&gt; 1007825.031898, 2014101.777844, 3016049.28132
+$ atomic_mass_uncert         &lt;f64&gt; 1.4e-05, 1.5e-05, 8e-05
+$ mass_excess                &lt;f64&gt; 7288.971064, 13135.722895, 14949.8109
+$ mass_excess_uncert         &lt;f64&gt; 1.3e-05, 1.5e-05, 8e-05</code></pre>
 
 
 </section>

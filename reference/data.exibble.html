@@ -144,6 +144,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <li><a href="#great_tables.data.exibble" id="toc-great_tables.data.exibble" class="nav-link active" data-scroll-target="#great_tables.data.exibble">data.exibble</a>
   <ul class="collapse">
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#preview" id="toc-preview" class="nav-link" data-scroll-target="#preview">Preview</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -171,6 +172,20 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li><code>row</code>: A string-based column in the format <code>row_X</code> which can be useful for testing with row labels in a table stub.</li>
 <li><code>group</code>: A string-based column with four <code>"grp_a"</code> values and four <code>"grp_b"</code> values which can be useful for testing tables that contain row groups.</li>
 </ul>
+</section>
+<section id="preview" class="level2 doc-section doc-section-preview">
+<h2 class="doc-section doc-section-preview anchored" data-anchor-id="preview">Preview</h2>
+<pre><code>Rows: 8
+Columns: 9
+$ num      &lt;f64&gt; 0.1111, 2.222, 33.33
+$ char     &lt;str&gt; 'apricot', 'banana', 'coconut'
+$ fctr     &lt;str&gt; 'one', 'two', 'three'
+$ date     &lt;str&gt; '2015-01-15', '2015-02-15', '2015-03-15'
+$ time     &lt;str&gt; '13:35', '14:40', '15:45'
+$ datetime &lt;str&gt; '2018-01-01 02:22', '2018-02-02 14:33', '2018-03-03 03:44'
+$ currency &lt;f64&gt; 49.95, 17.95, 1.39
+$ row      &lt;str&gt; 'row_1', 'row_2', 'row_3'
+$ group    &lt;str&gt; 'grp_a', 'grp_a', 'grp_a'</code></pre>
 
 
 </section>

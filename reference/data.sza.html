@@ -144,6 +144,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <li><a href="#great_tables.data.sza" id="toc-great_tables.data.sza" class="nav-link active" data-scroll-target="#great_tables.data.sza">data.sza</a>
   <ul class="collapse">
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#preview" id="toc-preview" class="nav-link" data-scroll-target="#preview">Preview</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
   </ul></li>
   </ul>
@@ -170,6 +171,15 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li><code>tst</code>: The true solar time at the given <code>latitude</code> and date (first of <code>month</code>) for which the solar zenith angle is calculated.</li>
 <li><code>sza</code>: The solar zenith angle in degrees, where missing values indicate that sunrise hadn’t yet occurred by the <code>tst</code> value.</li>
 </ul>
+</section>
+<section id="preview" class="level2 doc-section doc-section-preview">
+<h2 class="doc-section doc-section-preview anchored" data-anchor-id="preview">Preview</h2>
+<pre><code>Rows: 816
+Columns: 4
+$ latitude &lt;str&gt; '20', '20', '20'
+$ month    &lt;str&gt; 'jan', 'jan', 'jan'
+$ tst      &lt;str&gt; '0400', '0430', '0500'
+$ sza      &lt;f64&gt; None, None, None</code></pre>
 </section>
 <section id="source" class="level2 doc-section doc-section-source">
 <h2 class="doc-section doc-section-source anchored" data-anchor-id="source">Source</h2>

@@ -144,6 +144,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <li><a href="#great_tables.data.illness" id="toc-great_tables.data.illness" class="nav-link active" data-scroll-target="#great_tables.data.illness">data.illness</a>
   <ul class="collapse">
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#preview" id="toc-preview" class="nav-link" data-scroll-target="#preview">Preview</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -207,6 +208,22 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li><code>day_3</code>, <code>day_4</code>, <code>day_5</code>, <code>day_6</code>, <code>day_7</code>, <code>day_8</code>, <code>day_9</code>: Measurement values associated with each test administered from days 3 to 9. A missing value indicates that the test could not be performed that day.</li>
 <li><code>norm_l</code>, <code>norm_u</code>: Lower and upper bounds for the normal range associated with the test.</li>
 </ul>
+</section>
+<section id="preview" class="level2 doc-section doc-section-preview">
+<h2 class="doc-section doc-section-preview anchored" data-anchor-id="preview">Preview</h2>
+<pre><code>Rows: 39
+Columns: 11
+$ test   &lt;str&gt; 'Viral load', 'WBC', 'Neutrophils'
+$ units  &lt;str&gt; 'copies per mL', 'x10^9 / L', 'x10^9 / L'
+$ day_3  &lt;f64&gt; 12000.0, 5.26, 4.87
+$ day_4  &lt;f64&gt; 4200.0, 4.26, 4.72
+$ day_5  &lt;f64&gt; 1600.0, 9.92, 7.92
+$ day_6  &lt;f64&gt; 830.0, 10.49, 18.21
+$ day_7  &lt;f64&gt; 760.0, 24.77, 22.08
+$ day_8  &lt;f64&gt; 520.0, 30.26, 27.17
+$ day_9  &lt;f64&gt; 250.0, 19.03, 16.59
+$ norm_l &lt;f64&gt; None, 4.0, 2.0
+$ norm_u &lt;f64&gt; None, 10.0, 8.0</code></pre>
 
 
 </section>

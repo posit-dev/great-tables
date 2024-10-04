@@ -144,6 +144,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <li><a href="#great_tables.data.metro" id="toc-great_tables.data.metro" class="nav-link active" data-scroll-target="#great_tables.data.metro">data.metro</a>
   <ul class="collapse">
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#preview" id="toc-preview" class="nav-link" data-scroll-target="#preview">Preview</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -169,13 +170,31 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li><code>caption</code>: In some cases, a station will have a caption that might describe a nearby place of interest. This is missing if there isn’t a caption for the station name.</li>
 <li><code>lines</code>: All Metro lines associated with the station. This is a string-based, comma-separated series of line names.</li>
 <li><code>connect_rer</code>: Station connections with the RER. The RER system has five lines (A, B, C, D, and E) with 257 stations and several interchanges with the Metro.</li>
-<li><code>connect_tram</code>: Connections with tramway lines. This system has twelve lines in operation (T1, T2, T3a, T3b, T4, T5, T6, T7, T8, T9, T11, and T13) with 235 stations.</li>
+<li><code>connect_tramway</code>: Connections with tramway lines. This system has twelve lines in operation (T1, T2, T3a, T3b, T4, T5, T6, T7, T8, T9, T11, and T13) with 235 stations.</li>
 <li><code>connect_transilien</code>: Connections with Transilien lines. This system has eight lines in operation (H, J, K, L, N, P, R, and U).</li>
 <li><code>connect_other</code>: Other connections with transportation infrastructure such as regional, intercity, night, and high-speed trains (typically at railway stations).</li>
 <li><code>latitude</code>, <code>longitude</code>: The location of the station, given as latitude and longitude values in decimal degrees.</li>
 <li><code>location</code>: The arrondissement of Paris or municipality in which the station resides. For some stations located at borders, the grouping of locations will be presented as a comma-separated series.</li>
 <li><code>passengers</code>: The total number of Metro station entries during 2021. Some of the newest stations in the Metro system do not have this data, thus they show as missing values.</li>
 </ul>
+</section>
+<section id="preview" class="level2 doc-section doc-section-preview">
+<h2 class="doc-section doc-section-preview anchored" data-anchor-id="preview">Preview</h2>
+<pre><code>Rows: 314
+Columns: 11
+$ name               &lt;str&gt; 'Argentine', 'Bastille', 'Bérault'
+$ caption            &lt;str&gt; None, None, None
+$ lines              &lt;str&gt; '1', '1, 5, 8', '1'
+$ connect_rer        &lt;str&gt; None, None, None
+$ connect_tramway    &lt;str&gt; None, None, None
+$ connect_transilien &lt;str&gt; None, None, None
+$ connect_other      &lt;str&gt; None, None, None
+$ passengers         &lt;i64&gt; 2079212, 8069243, 2106827
+$ latitude           &lt;f64&gt; 48.875278, 48.853082, 48.845278
+$ longitude          &lt;f64&gt; 2.29, 2.369077, 2.428333
+$ location           &lt;str&gt; 'Paris 16th, Paris 17th',
+                           'Paris 4th, Paris 11th, Paris 12th',
+                           'Saint-Mandé, Vincennes'</code></pre>
 
 
 </section>

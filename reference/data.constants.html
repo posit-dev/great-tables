@@ -144,6 +144,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <li><a href="#great_tables.data.constants" id="toc-great_tables.data.constants" class="nav-link active" data-scroll-target="#great_tables.data.constants">data.constants</a>
   <ul class="collapse">
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#preview" id="toc-preview" class="nav-link" data-scroll-target="#preview">Preview</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -161,7 +162,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <p>This dataset contains values for over 300 basic fundamental constants in nature. The values originate from the 2018 adjustment which is based on the latest relevant precision measurements and improvements of theoretical calculations. Such work has been carried out under the authority of the Task Group on Fundamental Constants (TGFC) of the Committee on Data of the International Science Council (CODATA). These updated values became available on May 20, 2019. They are published at http://physics.nist.gov/constants, a website of the Fundamental Constants Data Center of the National Institute of Standards and Technology (NIST), Gaithersburg, Maryland, USA.</p>
 <section id="details" class="level2 doc-section doc-section-details">
 <h2 class="doc-section doc-section-details anchored" data-anchor-id="details">Details</h2>
-<p>This is a dataset with 354 rows and 4 columns.</p>
+<p>This is a dataset with 354 rows and 6 columns.</p>
 <ul>
 <li><code>name</code>: The name of the constant.</li>
 <li><code>value</code>: The value of the constant.</li>
@@ -169,6 +170,19 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li><code>sf_value</code>, <code>sf_uncert</code>: The number of significant figures associated with the value and any uncertainty value.</li>
 <li><code>units</code>: The units associated with the constant.</li>
 </ul>
+</section>
+<section id="preview" class="level2 doc-section doc-section-preview">
+<h2 class="doc-section doc-section-preview anchored" data-anchor-id="preview">Preview</h2>
+<pre><code>Rows: 354
+Columns: 6
+$ name      &lt;str&gt; 'alpha particle-electron mass ratio',
+                  'alpha particle mass',
+                  'alpha particle mass energy equivalent'
+$ value     &lt;f64&gt; 7294.29954142, 6.6446573357e-27, 5.9719201914e-10
+$ uncert    &lt;f64&gt; 2.4e-07, 2e-36, 1.8e-19
+$ sf_value  &lt;i64&gt; 12, 11, 11
+$ sf_uncert &lt;i64&gt; 2, 2, 2
+$ units     &lt;str&gt; None, 'kg', 'J'</code></pre>
 
 
 </section>

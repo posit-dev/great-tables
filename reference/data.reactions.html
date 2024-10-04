@@ -144,6 +144,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <li><a href="#great_tables.data.reactions" id="toc-great_tables.data.reactions" class="nav-link active" data-scroll-target="#great_tables.data.reactions">data.reactions</a>
   <ul class="collapse">
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#preview" id="toc-preview" class="nav-link" data-scroll-target="#preview">Preview</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -192,6 +193,52 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li><code>Cl_a</code>, <code>Cl_b</code>, <code>Cl_n</code>: Extended temperature dependence parameters for bimolecular Cl reactions, to be used in the Arrhenius expression: <code>k(T)=A exp(-B/T) (T/300)^n</code>. In that, <code>A</code> is expressed as cm^3 molecules^-1 s^-1, <code>B</code> is in units of K, and <code>n</code> is dimensionless. Any missing values indicate that data is not available.</li>
 <li><code>Cl_t_low</code>, <code>Cl_t_high</code>: The low and high temperature boundaries (in units of K) for which the <code>Cl_a</code>, <code>Cl_b</code>, and <code>Cl_n</code> parameters are valid.</li>
 </ul>
+</section>
+<section id="preview" class="level2 doc-section doc-section-preview">
+<h2 class="doc-section doc-section-preview anchored" data-anchor-id="preview">Preview</h2>
+<pre><code>Rows: 1683
+Columns: 39
+$ cmpd_name     &lt;str&gt; 'methane', 'formaldehyde', 'methanol'
+$ cmpd_mwt      &lt;f64&gt; 16.04, 30.03, 32.04
+$ cmpd_formula  &lt;str&gt; 'CH4', 'CH2O', 'CH4O'
+$ cmpd_type     &lt;str&gt; 'normal alkane', 'aldehyde', 'alcohol or glycol'
+$ cmpd_smiles   &lt;str&gt; 'C', 'C=O', 'CO'
+$ cmpd_inchi    &lt;str&gt; 'InChI=1S/CH4/h1H4', 'InChI=1S/CH2O/c1-2/h1H2', 'InChI=1S/CH4O/c1-2/h2H,1H3'
+$ cmpd_inchikey &lt;str&gt; 'VNWKTOKETHGBQD-UHFFFAOYSA-N',
+                      'WSFSSNUMVMOOMR-UHFFFAOYSA-N',
+                      'OKKJLVBELUTLKV-UHFFFAOYSA-N'
+$ OH_k298       &lt;f64&gt; 6.36e-15, 8.5e-12, 8.78e-13
+$ OH_uncert     &lt;f64&gt; 0.1, 0.2, 0.1
+$ OH_u_fac      &lt;f64&gt; None, None, None
+$ OH_A          &lt;f64&gt; 3.62e-13, 5.4e-12, 2.32e-13
+$ OH_B          &lt;f64&gt; 1200.34866000493, -135.0, -402.0
+$ OH_n          &lt;f64&gt; 2.17993581535803, None, 2.72
+$ OH_t_low      &lt;f64&gt; 200.0, 200.0, 210.0
+$ OH_t_high     &lt;f64&gt; 2025.0, 300.0, 1344.0
+$ O3_k298       &lt;f64&gt; None, None, None
+$ O3_uncert     &lt;f64&gt; None, None, None
+$ O3_u_fac      &lt;f64&gt; None, None, None
+$ O3_A          &lt;f64&gt; None, None, None
+$ O3_B          &lt;f64&gt; None, None, None
+$ O3_n          &lt;f64&gt; None, None, None
+$ O3_t_low      &lt;f64&gt; None, None, None
+$ O3_t_high     &lt;f64&gt; None, None, None
+$ NO3_k298      &lt;f64&gt; None, 5.5e-16, 1.3e-16
+$ NO3_uncert    &lt;f64&gt; None, None, None
+$ NO3_u_fac     &lt;f64&gt; None, 1.6, 3.0
+$ NO3_A         &lt;f64&gt; None, None, 9.4e-13
+$ NO3_B         &lt;f64&gt; None, None, 2650.0
+$ NO3_n         &lt;f64&gt; None, None, None
+$ NO3_t_low     &lt;f64&gt; None, None, 250.0
+$ NO3_t_high    &lt;f64&gt; None, None, 370.0
+$ Cl_k298       &lt;f64&gt; 1e-13, 7.2e-11, 5.1e-11
+$ Cl_uncert     &lt;f64&gt; 0.15, 0.15, 0.2
+$ Cl_u_fac      &lt;f64&gt; None, None, None
+$ Cl_A          &lt;f64&gt; 6.6e-12, 8.1e-11, 5.1e-11
+$ Cl_B          &lt;f64&gt; 1240.0, 34.0, 0.0
+$ Cl_n          &lt;f64&gt; None, None, None
+$ Cl_t_low      &lt;f64&gt; 200.0, 200.0, 225.0
+$ Cl_t_high     &lt;f64&gt; 300.0, 500.0, 950.0</code></pre>
 
 
 </section>
