@@ -240,7 +240,7 @@ def _set_cell(data: DataFrameLike, row: int, column: str, value: Any):
 
 
 @_set_cell.register(PdDataFrame)
-def _(data, row: int, column: str, value: Any) -> None:
+def _(data, row: int, column: str, value: Any) -> PdDataFrame:
     # TODO: This assumes column names are unique
     # if this is violated, get_loc will return a mask
     col_indx = data.columns.get_loc(column)
@@ -249,13 +249,13 @@ def _(data, row: int, column: str, value: Any) -> None:
 
 
 @_set_cell.register(PlDataFrame)
-def _(data, row: int, column: str, value: Any) -> None:
+def _(data, row: int, column: str, value: Any) -> PlDataFrame:
     data[row, column] = value
     return data
 
 
 @_set_cell.register(PyArrowTable)
-def _(data: PyArrowTable, row: int, column: str, value: Any) -> None:
+def _(data: PyArrowTable, row: int, column: str, value: Any) -> PyArrowTable:
     import pyarrow as pa
 
     colindex = data.column_names.index(column)
