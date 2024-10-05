@@ -70,11 +70,13 @@ def test_get_cell(df: DataFrameLike):
 
 
 def test_set_cell(df: DataFrameLike):
+    expected_data = {"col1": [1, 2, 3], "col2": ["a", "x", "c"], "col3": [4.0, 5.0, 6.0]}
     if isinstance(df, pa.Table):
-        pytest.skip("Arrow tables are immutable")
+        expected = pa.table(expected_data)
+    else:
+        expected = df.__class__(expected_data)
 
-    expected = df.__class__({"col1": [1, 2, 3], "col2": ["a", "x", "c"], "col3": [4.0, 5.0, 6.0]})
-    _set_cell(df, 1, "col2", "x")
+    df = _set_cell(df, 1, "col2", "x")
     assert_frame_equal(df, expected)
 
 
@@ -85,7 +87,7 @@ def test_reorder(df: DataFrameLike):
     if isinstance(df, pa.Table):
         dst = pa.table(expected_data)
     else:
-        dst = df.__class__({"col2": ["a", "c"]})
+        dst = df.__class__(expected_data)
 
     if isinstance(dst, pd.DataFrame):
         dst.index = pd.Index([0, 2])
