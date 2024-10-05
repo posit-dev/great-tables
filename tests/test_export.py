@@ -96,3 +96,18 @@ def test_create_temp_file_server():
         r.content.decode() == "abc"
 
         thread.join()
+
+
+def test_write_html(gt_tbl):
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        # pass the filename as a pathlib.Path() object
+        p_file = Path(tmp_dir, "table1.html")
+        gt_tbl.write_html(p_file)
+        assert p_file.exists()
+
+        # Pass the filename as a string
+        import os
+
+        s_file = str(Path(tmp_dir, "table2.html"))
+        gt_tbl.write_html(s_file)
+        assert os.path.exists(s_file)
