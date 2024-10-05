@@ -223,6 +223,7 @@ quartodoc:
         - vals.fmt_date
         - vals.fmt_time
         - vals.fmt_markdown
+        - vals.fmt_image
     - title: Built in datasets
       desc: >
         The **Great Tables** package is equipped with sixteen datasets that come in all shapes and
