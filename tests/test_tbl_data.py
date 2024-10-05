@@ -22,8 +22,16 @@ from great_tables._tbl_data import (
     validate_frame,
 )
 
-params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars"), pytest.param(pa.table, id="arrow")]
-params_series = [pytest.param(pd.Series, id="pandas"), pytest.param(pl.Series, id="polars"), pytest.param(pa.array, id="arrow")]
+params_frames = [
+    pytest.param(pd.DataFrame, id="pandas"),
+    pytest.param(pl.DataFrame, id="polars"),
+    pytest.param(pa.table, id="arrow"),
+]
+params_series = [
+    pytest.param(pd.Series, id="pandas"),
+    pytest.param(pl.Series, id="polars"),
+    pytest.param(pa.array, id="arrow"),
+]
 
 
 @pytest.fixture(params=params_frames, scope="function")
@@ -190,11 +198,16 @@ def test_create_empty_frame(df: DataFrameLike):
     elif isinstance(res, pl.DataFrame):
         dst = pl.DataFrame({"col1": col, "col2": col, "col3": col}).cast(pl.Utf8)
     elif isinstance(res, pa.Table):
-        dst = pa.table({"col1": col, "col2": col, "col3": col}, schema=pa.schema((
-            pa.field("col1", pa.string()),
-            pa.field("col2", pa.string()),
-            pa.field("col3", pa.string())
-        )))
+        dst = pa.table(
+            {"col1": col, "col2": col, "col3": col},
+            schema=pa.schema(
+                (
+                    pa.field("col1", pa.string()),
+                    pa.field("col2", pa.string()),
+                    pa.field("col3", pa.string()),
+                )
+            ),
+        )
     else:
         raise ValueError(f"Unsupported data type: {type(res)}")
 

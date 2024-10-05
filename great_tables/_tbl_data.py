@@ -148,6 +148,7 @@ def _(data: PdDataFrame):
 def _(data: PlDataFrame):
     return data.clone()
 
+
 @copy_data.register(PyArrowTable)
 def _(data: PyArrowTable):
     import pyarrow as pa
@@ -171,9 +172,11 @@ def _(data: PdDataFrame):
 def _(data: PlDataFrame):
     return data.columns
 
+
 @get_column_names.register(PyArrowTable)
 def _(data: PyArrowTable):
     return data.column_names
+
 
 # n_rows ----
 
@@ -189,9 +192,11 @@ def n_rows(data: DataFrameLike) -> int:
 def _(data: Any) -> int:
     return len(data)
 
+
 @n_rows.register(PyArrowTable)
 def _(data: PyArrowTable) -> int:
     return data.num_rows
+
 
 # _get_cell ----
 
@@ -217,9 +222,11 @@ def _(data: Any, row: int, col: str) -> Any:
 
     return data.iloc[row, col_ii]
 
+
 @_get_cell.register(PyArrowTable)
 def _(data: PyArrowTable, row: int, column: str) -> Any:
     return data.column(column).take([row]).to_pylist()[0]
+
 
 # _set_cell ----
 
@@ -241,9 +248,11 @@ def _(data, row: int, column: str, value: Any) -> None:
 def _(data, row: int, column: str, value: Any) -> None:
     data[row, column] = value
 
+
 @_set_cell.register(PyArrowTable)
 def _(data: PyArrowTable, row: int, column: str, value: Any) -> None:
     raise NotImplementedError("Setting values in PyArrow tables is not supported.")
+
 
 # _get_column_dtype ----
 
@@ -257,6 +266,7 @@ def _get_column_dtype(data: DataFrameLike, column: str) -> Any:
 @_get_column_dtype.register(PyArrowTable)
 def _(data: PyArrowTable, column: str) -> Any:
     return data.column(column).type
+
 
 # reorder ----
 
@@ -278,6 +288,7 @@ def _(data: PdDataFrame, rows: list[int], columns: list[str]) -> PdDataFrame:
 @reorder.register
 def _(data: PlDataFrame, rows: list[int], columns: list[str]) -> PlDataFrame:
     return data[rows, columns]
+
 
 @reorder.register
 def _(data: PyArrowTable, rows: list[int], columns: list[str]) -> PyArrowTable:
@@ -325,6 +336,7 @@ def _(data: PyArrowTable, group_key: str) -> dict[Any, list[int]]:
         mask = pc.equal(group_col, idx)
         d[group_key.to_py()] = pc.indices_nonzero(mask).to_pylist()
     return d
+
 
 # eval_select ----
 
@@ -422,7 +434,9 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
 
 
 @eval_select.register
-def _(data: PyArrowTable, expr: Union[list[str], _selector_proxy_], strict: bool = True) -> _NamePos:
+def _(
+    data: PyArrowTable, expr: Union[list[str], _selector_proxy_], strict: bool = True
+) -> _NamePos:
     if isinstance(expr, (str, int)):
         expr = [expr]
 
@@ -524,6 +538,7 @@ def _(df: PyArrowTable):
 
     return pa.table({col: pa.array(df.column(col)) for col in df.column_names})
 
+
 # cast_frame_to_string ----
 
 
@@ -589,9 +604,7 @@ def _(df: PyArrowTable, replacement: PyArrowTable):
 
     return pa.table(
         {
-            col: pc.if_else(
-                pc.is_null(df.column(col)), replacement.column(col), df.column(col)
-            )
+            col: pc.if_else(pc.is_null(df.column(col)), replacement.column(col), df.column(col))
             for col in df.column_names
         }
     )
@@ -616,6 +629,7 @@ def _(ser: PlSeries) -> list[Any]:
 def _(ser: PyArrowArray) -> list[Any]:
     return ser.to_pylist()
 
+
 # is_series ----
 
 
@@ -633,9 +647,11 @@ def _(ser: PdSeries) -> bool:
 def _(ser: PlSeries) -> bool:
     return True
 
+
 @is_series.register
 def _(ser: PyArrowArray) -> bool:
     return True
+
 
 # mutate ----
 
@@ -693,7 +709,6 @@ def _(df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowArray]) -> list[An
         )
 
     return res.to_pylist()
-
 
 
 @singledispatch
@@ -784,6 +799,7 @@ def _(df: PyArrowTable) -> PyArrowTable:
 
     return df
 
+
 # to_frame ----
 
 
@@ -817,6 +833,7 @@ def _(ser: PdSeries, name: Optional[str] = None) -> PdDataFrame:
 @to_frame.register
 def _(ser: PlSeries, name: Optional[str] = None) -> PlDataFrame:
     return ser.to_frame(name)
+
 
 @to_frame.register
 def _(ser: PyArrowArray, name: Optional[str] = None) -> PyArrowTable:
