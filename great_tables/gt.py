@@ -10,7 +10,7 @@ from great_tables._gt_data import GTData
 from great_tables._body import body_reassemble
 from great_tables._boxhead import cols_align, cols_label
 from great_tables._data_color import data_color
-from great_tables._export import as_raw_html, save, show
+from great_tables._export import as_raw_html, save, show, write_html
 from great_tables._formats import (
     fmt,
     fmt_bytes,
@@ -270,6 +270,7 @@ class GT(
     save = save
     show = show
     as_raw_html = as_raw_html
+    write_html = write_html
 
     # -----
 
