@@ -72,6 +72,9 @@ else:
     class PyArrowArray(AbstractBackend):
         _backends = [("pyarrow", "Array")]
 
+    class PyArrowChunkedArray(AbstractBackend):
+        _backends = [("pyarrow", "ChunkedArray")]
+
     class PdNA(AbstractBackend):
         _backends = [("pandas", "NA")]
 
@@ -242,16 +245,25 @@ def _(data, row: int, column: str, value: Any) -> None:
     # if this is violated, get_loc will return a mask
     col_indx = data.columns.get_loc(column)
     data.iloc[row, col_indx] = value
+    return data
 
 
 @_set_cell.register(PlDataFrame)
 def _(data, row: int, column: str, value: Any) -> None:
     data[row, column] = value
+    return data
 
 
 @_set_cell.register(PyArrowTable)
 def _(data: PyArrowTable, row: int, column: str, value: Any) -> None:
-    raise NotImplementedError("Setting values in PyArrow tables is not supported.")
+    import pyarrow as pa
+
+    colindex = data.column_names.index(column)
+    col = data.column(column)
+    pylist = col.to_pylist()
+    pylist[row] = value
+    data = data.set_column(colindex, column, pa.array(pylist))
+    return data
 
 
 # _get_column_dtype ----
@@ -630,6 +642,11 @@ def _(ser: PyArrowArray) -> list[Any]:
     return ser.to_pylist()
 
 
+@to_list.register
+def _(ser: PyArrowChunkedArray) -> list[Any]:
+    return ser.to_pylist()
+
+
 # is_series ----
 
 
@@ -650,6 +667,11 @@ def _(ser: PlSeries) -> bool:
 
 @is_series.register
 def _(ser: PyArrowArray) -> bool:
+    return True
+
+
+@is_series.register
+def _(ser: PyArrowChunkedArray) -> bool:
     return True
 
 
@@ -837,6 +859,13 @@ def _(ser: PlSeries, name: Optional[str] = None) -> PlDataFrame:
 
 @to_frame.register
 def _(ser: PyArrowArray, name: Optional[str] = None) -> PyArrowTable:
+    import pyarrow as pa
+
+    return pa.table({name: ser})
+
+
+@to_frame.register
+def _(ser: PyArrowChunkedArray, name: Optional[str] = None) -> PyArrowTable:
     import pyarrow as pa
 
     return pa.table({name: ser})

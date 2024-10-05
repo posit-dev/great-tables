@@ -3,6 +3,7 @@ from math import nan
 import numpy as np
 import pandas as pd
 import polars as pl
+import pyarrow as pa
 import polars.testing
 import pytest
 from great_tables import GT
@@ -10,7 +11,11 @@ from great_tables._gt_data import FormatterSkipElement
 from great_tables._substitution import SubMissing, SubZero
 from great_tables._tbl_data import DataFrameLike, to_list
 
-params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars")]
+params_frames = [
+    pytest.param(pd.DataFrame, id="pandas"),
+    pytest.param(pl.DataFrame, id="polars"),
+    pytest.param(pa.table, id="arrow"),
+]
 
 
 @pytest.fixture(params=params_frames, scope="function")
@@ -20,7 +25,7 @@ def df(request) -> DataFrameLike:
 
 @pytest.fixture(params=params_frames, scope="function")
 def df_empty(request) -> DataFrameLike:
-    return request.param()
+    return request.param({})
 
 
 def assert_frame_equal(src: DataFrameLike, target: DataFrameLike):
