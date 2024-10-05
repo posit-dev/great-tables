@@ -1,6 +1,7 @@
 import math
 import pandas as pd
 import polars as pl
+import pyarrow as pa
 import polars.testing
 import pytest
 from great_tables._tbl_data import (
@@ -21,8 +22,8 @@ from great_tables._tbl_data import (
     validate_frame,
 )
 
-params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars")]
-params_series = [pytest.param(pd.Series, id="pandas"), pytest.param(pl.Series, id="polars")]
+params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars"), pytest.param(pa.table, id="arrow")]
+params_series = [pytest.param(pd.Series, id="pandas"), pytest.param(pl.Series, id="polars"), pytest.param(pa.array, id="arrow")]
 
 
 @pytest.fixture(params=params_frames, scope="function")
@@ -40,6 +41,8 @@ def assert_frame_equal(src, target):
         pd.testing.assert_frame_equal(src, target)
     elif isinstance(src, pl.DataFrame):
         pl.testing.assert_frame_equal(src, target)
+    elif isinstance(src, pa.Table):
+        assert src.equals(target)
     else:
         raise NotImplementedError(f"Unsupported data type: {type(src)}")
 
@@ -50,7 +53,8 @@ def test_get_column_names(df: DataFrameLike):
 
 
 def test_get_column_dtypes(df: DataFrameLike):
-    assert _get_column_dtype(df, "col1") == df["col1"].dtype
+    col1 = df["col1"]
+    assert _get_column_dtype(df, "col1") == getattr(col1, "dtype", getattr(col1, "type", None))
 
 
 def test_get_cell(df: DataFrameLike):
@@ -58,6 +62,9 @@ def test_get_cell(df: DataFrameLike):
 
 
 def test_set_cell(df: DataFrameLike):
+    if isinstance(df, pa.Table):
+        pytest.skip("Arrow tables are immutable")
+
     expected = df.__class__({"col1": [1, 2, 3], "col2": ["a", "x", "c"], "col3": [4.0, 5.0, 6.0]})
     _set_cell(df, 1, "col2", "x")
     assert_frame_equal(df, expected)
@@ -65,7 +72,12 @@ def test_set_cell(df: DataFrameLike):
 
 def test_reorder(df: DataFrameLike):
     res = reorder(df, [0, 2], ["col2"])
-    dst = df.__class__({"col2": ["a", "c"]})
+
+    expected_data = {"col2": ["a", "c"]}
+    if isinstance(df, pa.Table):
+        dst = pa.table(expected_data)
+    else:
+        dst = df.__class__({"col2": ["a", "c"]})
 
     if isinstance(dst, pd.DataFrame):
         dst.index = pd.Index([0, 2])
@@ -175,8 +187,16 @@ def test_create_empty_frame(df: DataFrameLike):
 
     if isinstance(res, pd.DataFrame):
         dst = pd.DataFrame({"col1": col, "col2": col, "col3": col}, dtype="string")
-    else:
+    elif isinstance(res, pl.DataFrame):
         dst = pl.DataFrame({"col1": col, "col2": col, "col3": col}).cast(pl.Utf8)
+    elif isinstance(res, pa.Table):
+        dst = pa.table({"col1": col, "col2": col, "col3": col}, schema=pa.schema((
+            pa.field("col1", pa.string()),
+            pa.field("col2", pa.string()),
+            pa.field("col3", pa.string())
+        )))
+    else:
+        raise ValueError(f"Unsupported data type: {type(res)}")
 
     assert_frame_equal(res, dst)
 
@@ -227,6 +247,8 @@ def test_to_frame(ser: SeriesLike):
         assert_frame_equal(df, pl.DataFrame({"x": [1.0, 2.0, None]}))
     elif isinstance(ser, pd.Series):
         assert_frame_equal(df, pd.DataFrame({"x": [1.0, 2.0, None]}))
+    elif isinstance(ser, pa.Array):
+        assert_frame_equal(df, pa.table({"x": [1.0, 2.0, None]}))
     else:
         raise AssertionError(f"Unexpected series type: {type(ser)}")
 
