@@ -20,25 +20,30 @@ if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
     import numpy as np
+    import pyarrow as pa
 
     # the class behind selectors
     from polars.selectors import _selector_proxy_
 
     PdDataFrame = pd.DataFrame
     PlDataFrame = pl.DataFrame
+    PyArrowTable = pa.Table
+
     PlSelectExpr = _selector_proxy_
     PlExpr = pl.Expr
 
     PdSeries = pd.Series
     PlSeries = pl.Series
+    PyArrowArray = pa.Array
+    PyArrowChunkedArray = pa.ChunkedArray
 
     PdNA = pd.NA
     PlNull = pl.Null
 
     NpNan = np.nan
 
-    DataFrameLike = Union[PdDataFrame, PlDataFrame]
-    SeriesLike = Union[PdSeries, PlSeries]
+    DataFrameLike = Union[PdDataFrame, PlDataFrame, PyArrowTable]
+    SeriesLike = Union[PdSeries, PlSeries, PyArrowArray, PyArrowChunkedArray]
     TblData = DataFrameLike
 
 else:
@@ -98,6 +103,7 @@ else:
     SeriesLike.register(PdSeries)
     SeriesLike.register(PlSeries)
     SeriesLike.register(PyArrowArray)
+    SeriesLike.register(PyArrowChunkedArray)
 
     TblData = DataFrameLike
 
