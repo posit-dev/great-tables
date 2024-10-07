@@ -106,8 +106,6 @@ def test_write_html(gt_tbl):
         assert p_file.exists()
 
         # Pass the filename as a string
-        import os
-
         s_file = str(Path(tmp_dir, "table2.html"))
         gt_tbl.write_html(s_file)
-        assert os.path.exists(s_file)
+        assert Path(s_file).exists()
