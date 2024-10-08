@@ -94,9 +94,9 @@ This table will serve as a great starting point for demonstrating all the things
 
 Let's focus on the table body first. Just so you know, there is nothing here that is new in `v0.13.0`. This is just an exercise in using the trusty `loc.body()` location helper. But it's a good review nonetheless, so let's do this.
 
-In Great Tables `v0.12.0` (the previous version to the one that's the focus here) we added support for Google Fonts and that's shown in the first invocation of `tab_style()` (using `google_font()`). The text in the columns `atomic_mass` and `half_life` is getting that monospaced treatment.
+In Great Tables `v0.12.0` (the previous version to the one that's the focus here) we added support for Google Fonts and that's shown in the first invocation of `tab_style()` (using `google_font()`). The text in the columns `atomic_mass` and `half_life` will get the monospaced treatment.
 
-The `loc.body()` location helper really does work wonderfully with Polars expressions. Here, we are targeting the cells in the `half_life` column that are *not* `None` values in the input DataFrame. We want to change the text and background colors for everything but those cells that read 'STABLE'.
+The `loc.body()` location helper really does work wonderfully with Polars expressions. The second thing to be done will involve targeting the cells in the `half_life` column that are *not* `None` values in the input DataFrame. In essence, we want to change the text and background colors for all cells in that column except the ones that read 'STABLE'.
 
 ```{python}
 gt_tbl = (
@@ -123,7 +123,9 @@ We mustn't forget the stub. It's a totally separate location, being off to the s
 1. Change the fill color (to 'Linen') and make the text bold for the *entire stub*
 2. Highlight the rows where we have stable isotopes (the extent is both for the stub and the body cells)
 
-For task #1, a simple `loc.stub()` call in `tab_style()`'s `locations=` will be enough to target the entire stub. Task #2 is more interesting. Like `loc.body()`, `loc.stub()` has a `rows=` argument. Because of that, we can use the same Polars expression to target those rows that belong to the stable isotopes (they are identifiable by having `None` values in the `half_life` column). Once we know about the power of Polars expressions in `rows=`, we realize just how much power we have in targeting our table stylings.
+For task #1, a simple `loc.stub()` call in `tab_style()`'s `locations=` argument will be enough to target the entire stub.
+
+Task #2 is more interesting. Like `loc.body()`, `loc.stub()` has a `rows=` argument. Because of that, we can use the same Polars expression to target those rows that belong to the stable isotopes (they are identifiable by having `None` values in the `half_life` column). Once we know about the power of Polars expressions in `rows=`, we realize just how much power we have in targeting our table stylings.
 
 ```{python}
 gt_tbl = (
