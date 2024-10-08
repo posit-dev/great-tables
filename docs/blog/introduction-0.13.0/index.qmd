@@ -114,6 +114,10 @@ gt_tbl = (
 gt_tbl
 ```
 
+Note these important pieces in the code:
+
+* setting monospace font: we used [`google_font()`](/reference/google_font.qmd) (added in the previous release) to apply the monospaced font IBM Plex Mono.
+* filling unstable half lives to turquoise: because the half life cells with the value STABLE are actually missing in the underlying data, and filled in using `GT.sub_missing()`, we used the polars expression `pl.col("half_life").is_not_null()` to target everything that isn't STABLE.
 This is mainly a reminder that Polars expressions are quite something. And targeting cells in the body with `loc.body(rows=...)` can be powerful by extension.
 
 ### Don't forget the stub!
