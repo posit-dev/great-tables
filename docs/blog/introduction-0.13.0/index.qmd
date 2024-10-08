@@ -87,7 +87,7 @@ gt_tbl = (
 gt_tbl
 ```
 
-This table will serve as a great starting point for demonstrating all the things you can do with `tab_style()`. (It'll be `tab_style()` like you've never seen it before.)
+This table will serve as a great starting point for demonstrating all the things you can do with `tab_style()`. (It'll be `tab_style()` like you've never seen it before!)
 
 ### Styling the body
 
