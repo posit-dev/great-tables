@@ -230,8 +230,7 @@ gt_tbl = (
 gt_tbl
 ```
 
-
-The combined location helper for the title and the subtitle is `loc.header()`. This can be used as a shorthand for `locations=[loc.title(), loc_subtitle()]` and it's useful here where we want to change the font for the title and subtitle text.
+The combined location helper for the title and the subtitle is `loc.header()`. As mentioned before, it can be used as a shorthand for `locations=[loc.title(), loc_subtitle()]` and it's useful here where we want to change the font for the title and subtitle text.
 
 ```{python}
 gt_tbl = (
@@ -245,6 +244,7 @@ gt_tbl = (
 gt_tbl
 ```
 
+Though the order of things matters when setting styles via `tab_style()`, it's not a problem here to set a style for the combined 'header' location after doing so for the 'title' and 'subtitle' locations because the 'font' attribute *wasn't* set by `tab_style()` for those smaller locations.
 
 ### How `tab_style()` fits in with `tab_options()`
 
