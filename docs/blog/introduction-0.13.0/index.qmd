@@ -196,7 +196,7 @@ Great! And a good strategy for future tables might be to style with combined loc
 
 ### Styling the title and the subtitle
 
-Although it really doesn't appear to have separate locations, the table header (produced by way of `tab_header()`) indeed has two of them: the title and the subtitle. These can be targeted via `loc.title()` and `loc.subtitle()`. Let's focus in on the title location and add an assortment of styles to it.
+Although it really doesn't appear to have separate locations, the table header (produced by way of `tab_header()`) can have two of them: the title and the subtitle (the latter is optional). These can be targeted via `loc.title()` and `loc.subtitle()`. Let's focus in on the title location and add an assortment of styles to it.
 
 ```{python}
 gt_tbl = (
