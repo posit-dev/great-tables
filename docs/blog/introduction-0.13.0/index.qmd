@@ -150,7 +150,7 @@ We've dressed up the stub so that it is that much more prominent. And that linen
 
 ### Using custom style rules with the new `style.css()`
 
-Aside from decking out the `loc` module with all manner of location methods, we've added a little something to the `style` module: `style.css()`! What's it for? It lets you supply style declarations to its single `rule=` argument. You have to study up on CSS style declarations (and which of those make sense in a table context) but if you know of certain styles that aren't covered in either of `style.fill()`, `style.text()`, or `style.borders()` then `style.css()` will be of major help here.
+Aside from decking out the `loc` module with all manner of location methods, we've added a little something to the `style` module: `style.css()`! What's it for? It lets you supply style declarations to its single `rule=` argument.
 
 As an example, I might want to indent some text in one or more table cells. You can't really do that with the `style.text()` method since it doesn't have an `indent=` argument. So, in Great Tables `0.13.0` you can do this:
 
