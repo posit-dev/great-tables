@@ -88,9 +88,7 @@ gt_tbl = (
 gt_tbl
 ```
 
-This table will serve as a great starting point for demonstrating all the things you can now do with `tab_style()`.
-
-The following checklist will serve as a rough plan for how we will style the table:
+This table will serve as a great starting point for demonstrating all the things you can now do with `tab_style()`. And the following checklist will serve as a rough plan for how we will style the table:
 
 - use `loc.body()` to emphasize isotope half-life values
 - employ `loc.stub()` to draw attention to isotope names (and also point out the 'STABLE' rows)
