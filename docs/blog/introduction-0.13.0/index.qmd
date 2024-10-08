@@ -1,0 +1,226 @@
+---
+title: "Great Tables `v0.13.0`: Styles all over the table"
+html-table-processing: none
+author: Rich Iannone and Michael Chow
+date: 2024-10-08
+freeze: true
+jupyter: python3
+---
+
+We did something in Great Tables (`0.13.0`) that'll make your tables that much more customizable: *super* fine-grained ways of setting styles throughout the table. Before you were largely constrained to styling through the following strategies:
+
+1. use a limited set of styles (e.g., background color, font weight, etc.) to different table locations like the stub, the column labels, etc., through `tab_options()`
+2. use `tab_style()` with a larger set of styling options for the table body cells (specified by `loc.body()`)
+
+In `v0.13.0`, we can target much more than just the table body! Here is the expanded set of `loc.*()` methods along with the locations that they can target.
+
+- `loc.title()`: the table title
+- `loc.subtitle()`: the table subtitle
+- `loc.stubhead()`: the stubhead
+- `loc.spanner_labels()`: the spanner labels
+- `loc.column_labels()`: the column labels
+- `loc.stub()`: the table stub
+- `loc.row_groups()`: the row group labels
+- `loc.body()`: data cells in the table body
+- `loc.source_notes()`: the source notes
+
+This hyperexpansion of the `loc` module to all locations in the table means that there won't be a spot in the table you can't add styling to. And this is great because it gives you free reign fully customize the look of your table.
+
+Let's make a table and see how this new feature could be used.
+
+### Starting things off with a big GT table
+
+The table we'll make uses the `nuclides` dataset (available in the `great_tables.data` module). Through use of the `tab_*()` methods, quite a few table components (hence *locations*) will be added.
+
+```{python}
+
+# | code-fold: true
+# | code-summary: "Show the code"
+
+from great_tables import GT, md, style, loc, google_font
+from great_tables.data import nuclides
+import polars as pl
+import polars.selectors as cs
+
+nuclides_mini = (
+    pl.from_pandas(nuclides)
+    .filter(pl.col("element") == "C")
+    .with_columns(pl.col("nuclide").str.replace(r"[0-9]+$", ""))
+    .with_columns(mass_number=pl.col("z") + pl.col("n"))
+    .with_columns(
+        isotope=pl.concat_str(pl.col("element") + "-" + pl.col("mass_number").cast(pl.String))
+    )
+    .select(["isotope", "atomic_mass", "half_life", "isospin", "decay_1", "decay_2", "decay_3"])
+)
+
+gt_tbl = (
+    GT(nuclides_mini, rowname_col="isotope")
+    .tab_header(
+        title="Isotopes of Carbon",
+        subtitle="There are two stable isotopes of carbon and twelve that are unstable.",
+    )
+    .tab_spanner(label="Decay Mode", columns=cs.starts_with("decay"))
+    .tab_source_note(md("Data obtained from the *nuclides* dataset."))
+    .tab_stubhead(label="Isotope")
+    .fmt_scientific(columns="half_life")
+    .fmt_number(
+        columns="atomic_mass",
+        decimals=4,
+        scale_by=1 / 1e6,
+    )
+    .sub_missing(columns="half_life", missing_text=md("**STABLE**"))
+    .sub_missing(columns=cs.starts_with("decay"))
+    .cols_label(
+        atomic_mass="Atomic Mass",
+        half_life="Half Life, s",
+        decay_1="1",
+        decay_2="2",
+        decay_3="3",
+    )
+    .cols_align(align="center", columns=[cs.starts_with("decay"), "isospin"])
+    .opt_align_table_header(align="left")
+    .opt_table_font(font=google_font(name="IBM Plex Sans"))
+    .opt_vertical_padding(scale=0.5)
+    .opt_horizontal_padding(scale=2)
+)
+
+gt_tbl
+```
+
+### Styling the body
+
+In Great Tables `v0.12.0` we added support for Google Fonts and that's shown in the first invocation of `tab_style()` (using `google_font()`). The `loc.body()` location helper really does work wonderfully with Polars expressions. Here, we are targeting the cells in the `half_life` column that are `None` values in the input DataFrame (we substituted those values with the 'STABLE' text earlier, in the `sub_missing()` call).
+
+```{python}
+gt_tbl = (
+    gt_tbl
+    .tab_style(
+        style=style.text(font=google_font(name="IBM Plex Mono")),
+        locations=loc.body(columns=["atomic_mass", "half_life"]),
+    )
+    .tab_style(
+        style=[style.text(color="Navy"), style.fill(color="PaleTurquoise")],
+        locations=loc.body(columns="half_life", rows=pl.col("half_life").is_not_null())
+    )
+)
+
+gt_tbl
+```
+
+### Don't forget the stub!
+
+```{python}
+gt_tbl = (
+    gt_tbl
+    .tab_style(
+        style=[style.fill(color="Linen"), style.text(weight="bold")],
+        locations=loc.stub()
+    )
+    .tab_style(
+        style=style.fill(color="LightCyan"),
+        locations=[
+            loc.body(rows=pl.col("half_life").is_null()),
+            loc.stub(rows=pl.col("half_life").is_null()),
+        ]
+    )
+ )
+
+gt_tbl
+```
+
+### Using custom style rules with the new `style.css()`
+
+```{python}
+gt_tbl = (
+    gt_tbl
+    .tab_style(
+        style=style.css(rule="text-indent: 4px;"),
+        locations=loc.stub(rows=pl.col("half_life").is_null()),
+    )
+)
+
+gt_tbl
+```
+
+
+### The *combined* location helpers: `loc.column_header()`, `loc.footer()`, and `loc.header()`
+
+
+```{python}
+gt_tbl = (
+    gt_tbl
+    .tab_style(
+        style=[
+            style.text(v_align="middle"),
+            style.fill(color="#EEEEEE"),
+            style.css(rule="font-stretch: 3px;")
+        ],
+        locations=[loc.stubhead(), loc.column_header(), loc.footer()]
+    )
+)
+
+gt_tbl
+```
+
+### Styling the title and the stubtitle
+
+```{python}
+gt_tbl = (
+    gt_tbl
+    .tab_style(
+        style=[
+            style.text(size="24px"),
+            style.fill(color="aliceblue"),
+            style.borders(sides="bottom", color="#BFDFF6", weight="2px")
+        ],
+        locations=loc.title(),
+    )
+)
+
+gt_tbl
+```
+
+```{python}
+gt_tbl = (
+    gt_tbl
+    .tab_style(
+        style=[
+            style.css(rule="padding-top: 5px; padding-bottom: 5px;"),
+            style.css(rule="background-image: linear-gradient(120deg, #d4fc79 0%, #96f6a1100%);")
+        ],
+        locations=loc.subtitle(),
+    )
+)
+
+gt_tbl
+```
+
+
+The combined location helper for the title and the subtitle is `loc.header()`. This can be used as a shorthand for `locations=[loc.title(), loc_subtitle()]` and it's useful here where we want to change the font for the title and subtitle text.
+
+```{python}
+gt_tbl = (
+    gt_tbl
+    .tab_style(
+        style=style.text(font=google_font("IBM Plex Serif")),
+        locations=loc.header(),
+    )
+)
+
+gt_tbl
+```
+
+
+### How `tab_style()` fits in with `tab_options()`
+
+```{python}
+gt_tbl = gt_tbl.tab_options(table_background_color="HoneyDew")
+
+gt_tbl
+```
+
+
+
+### Wrapping up
+
+We are excited that this new functionality is now available in Great Tables. As ever, please let us know through [GitHub Issues](https://github.com/posit-dev/great-tables/issues) whether you ran into problems with any feature (new or old), or, if you have suggestions for further improvement!
