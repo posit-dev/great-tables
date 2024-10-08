@@ -24,7 +24,7 @@ In `v0.13.0`, we can target much more than just the table body! Here is the expa
 - `loc.body()`: data cells in the table body
 - `loc.source_notes()`: the source notes
 
-This augmentation of the `loc` module to include all locations in the table means that there won't be a spot in the table to which you can't add styling. This is terrific because it gives you free reign to fully customize the look of your table.
+This augmentation of the `loc` module to include all locations in the table means that there won't be a spot in the table to which you can't add styling. This is terrific because it gives you free rein to fully customize the look of your table.
 
 Let's make a table and see how this new feature could be used.
 
@@ -92,7 +92,7 @@ This table will serve as a great starting point for demonstrating all the things
 
 ### Styling the body
 
-Let's focus on the table body first. Just so you know, there is nothing here that is new in `v0.13.0`. This is just an exercise in using the trusty `loc.body()` location helper. But it's a good review nonetheless so let's do this.
+Let's focus on the table body first. Just so you know, there is nothing here that is new in `v0.13.0`. This is just an exercise in using the trusty `loc.body()` location helper. But it's a good review nonetheless, so let's do this.
 
 In Great Tables `v0.12.0` (the previous version to the one that's the focus here) we added support for Google Fonts and that's shown in the first invocation of `tab_style()` (using `google_font()`). The text in the columns `atomic_mass` and `half_life` is getting that monospaced treatment.
 
@@ -118,7 +118,7 @@ This is mainly a reminder that Polars expressions are quite something. And targe
 
 ### Don't forget the stub!
 
-We musn't forget the stub. It's a totally separate location, being off to the side and having the important responsibility of holding the row labels. Here, we are going to do two things:
+We mustn't forget the stub. It's a totally separate location, being off to the side and having the important responsibility of holding the row labels. Here, we are going to do two things:
 
 1. Change the fill color (to 'Linen') and make the text bold for the *entire stub*
 2. Highlight the rows where we have stable isotopes (the extent is both for the stub and the body cells)
@@ -148,7 +148,7 @@ We've dressed up the stub so that it is that much more prominent. And that linen
 
 ### Using custom style rules with the new `style.css()`
 
-Aside from decking out the `loc` module with all manner of location methods, we've adding a little something to the `style` module: `style.css()`! What's it for? It let's you supply style declarations to its single `rule=` argument. You have to study up on CSS style declarations (and which of those make sense in a table context) but if you know of certain styles that aren't covered in either of `style.fill()`, `style.text()`, or `style.borders()` then `style.css()` will be of major help here.
+Aside from decking out the `loc` module with all manner of location methods, we've added a little something to the `style` module: `style.css()`! What's it for? It lets you supply style declarations to its single `rule=` argument. You have to study up on CSS style declarations (and which of those make sense in a table context) but if you know of certain styles that aren't covered in either of `style.fill()`, `style.text()`, or `style.borders()` then `style.css()` will be of major help here.
 
 As an example, I might want to indent some text in one or more table cells. You can't really do that with the `style.text()` method since it doesn't have an `indent=` argument. So, in Great Tables `0.13.0` you can do this:
 
@@ -194,7 +194,7 @@ Great! And a good strategy for future tables might be to style with combined loc
 
 ### Styling the title and the subtitle
 
-Although it really doesn't appear the have separate locations, the table header (produced by way of `tab_header()`) indeed has two of them: the title and the subtitle. These can be targeted via `loc.title()` and `loc.subtitle()`. Let's focus in on the title location and add an assortment of styles to it.
+Although it really doesn't appear to have separate locations, the table header (produced by way of `tab_header()`) indeed has two of them: the title and the subtitle. These can be targeted via `loc.title()` and `loc.subtitle()`. Let's focus in on the title location and add an assortment of styles to it.
 
 ```{python}
 gt_tbl = (
@@ -214,7 +214,7 @@ gt_tbl
 
 Looks good. Notice that the title location is separate from the subtitle one, the background fill reveals the extent of its area.
 
-A subtitle is an optional part of the header. We do have one in our table example so let's style that as well. The `style.css()` method will be used to give the subtitle some additional padding, and, we'll put in a fancy background invovling a linear gradient.
+A subtitle is an optional part of the header. We do have one in our table example, so let's style that as well. The `style.css()` method will be used to give the subtitle text some additional top and bottom padding, and, we'll put in a fancy background involving a linear gradient.
 
 ```{python}
 gt_tbl = (
@@ -263,6 +263,6 @@ Even though `tab_options()` was invoked after the many `tab_style()` invocations
 
 ### Wrapping up
 
-We'd like to thank [Tim Paine](https://github.com/timkpaine) in getting the expanded `loc` work off the ground. Additionally, we are grateful to [Jerry Wu](https://github.com/jrycw) for his contributions to the `v0.13.0` release of the package.
+We'd like to thank [Tim Paine](https://github.com/timkpaine) for getting the expanded `loc` work off the ground. Additionally, we are grateful to [Jerry Wu](https://github.com/jrycw) for his contributions to the `v0.13.0` release of the package.
 
-We'd be very pleased to receive comments or suggestions on the new functionality. [GitHub Issues](https://github.com/posit-dev/great-tables/issues) or [GitHub Discussions](https://github.com/posit-dev/great-tables/discussions) are both fine venues for getting in touch with us. Finally, if ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV).
+We'd be very pleased to receive comments or suggestions on the new functionality. [GitHub Issues](https://github.com/posit-dev/great-tables/issues) or [GitHub Discussions](https://github.com/posit-dev/great-tables/discussions) are both fine venues for getting in touch with us. Finally, if ever you want to talk about tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV).
