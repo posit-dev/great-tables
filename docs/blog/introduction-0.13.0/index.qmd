@@ -24,7 +24,7 @@ In `v0.13.0`, we can target much more than just the table body! Here is the expa
 - `loc.body()`: data cells in the table body
 - `loc.source_notes()`: the source notes
 
-This augmentation of the `loc` module to include all locations in the table means that there won't be a spot in the table to which you can't add styling. This is terrific because it gives you free reign fully customize the look of your table.
+This augmentation of the `loc` module to include all locations in the table means that there won't be a spot in the table to which you can't add styling. This is terrific because it gives you free reign to fully customize the look of your table.
 
 Let's make a table and see how this new feature could be used.
 
