@@ -170,13 +170,8 @@ We targeted the cells in the stub that corresponded to the stable isotopes (carb
 
 ### The *combined* location helpers: `loc.column_header()`, `loc.footer()`, and `loc.header()`
 
-Look, I know we brought up the expression *fine-grained* before---right in the first paragraph---but sometimes you need just the opposite. There are lots of little locations in a GT table and some make for logical groupings. To that end, we have the concept of *combined* location helpers. There are three of these and they equate to some collection of location helpers:
+Look, I know we brought up the expression *fine-grained* before---right in the first paragraph---but sometimes you need just the opposite. There are lots of little locations in a GT table and some make for logical groupings. To that end, we have the concept of *combined* location helpers.
 
-- `loc.header()` == `[loc.title(), loc.subtitle()]`
-- `loc.column_header()` == `[loc.column_labels(), loc.spanner_labels()]`
-- `loc.footer()` == `[loc.source_notes()]`
-
-That last one, `loc.footer()`, is currently just an alias for `loc.source_notes()`. However, in the future, when footnotes support is available in the package, the set will expand to include a `loc.footnotes()` location.
 
 Let's style the column labels, spanner labels, stubhead label, and source notes in a single, succinct invocation of `tab_style()`:
 
