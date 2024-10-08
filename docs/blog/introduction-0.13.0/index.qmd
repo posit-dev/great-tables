@@ -111,6 +111,13 @@ gt_tbl
 
 ### Don't forget the stub!
 
+We musn't forget the stub. It's a totally separate location, being off to the side and having the important responsibility of holding the row labels. Here, we are going to do two things:
+
+1. Change the fill color (to 'Linen') and make the text bold for the *entire stub*
+2. Highlight the rows where we have stable isotopes (the extent is both for the stub and the body cells)
+
+For task #1, a simple `loc.stub()` call in `tab_style()`'s `locations=` will be enough to target the entire stub. Task #2 is more interesting. Like `loc.body()`, `loc.stub()` has a `rows=` argument. Because of that, we can use the same Polars expression to target those rows that belong to the stable isotopes (they are identifiable by having `None` values in the `half_life` column). Once we know about the power of Polars expressions in `rows=`, we realize just how much power we have in targeting our table stylings.
+
 ```{python}
 gt_tbl = (
     gt_tbl
@@ -130,6 +137,8 @@ gt_tbl = (
 gt_tbl
 ```
 
+That linen-colored stub goes so well with the light-cyan rows, representative of carbon-12 and carbon-13!
+
 ### Using custom style rules with the new `style.css()`
 
 ```{python}
@@ -144,9 +153,7 @@ gt_tbl = (
 gt_tbl
 ```
 
-
 ### The *combined* location helpers: `loc.column_header()`, `loc.footer()`, and `loc.header()`
-
 
 ```{python}
 gt_tbl = (
@@ -181,6 +188,7 @@ gt_tbl = (
 
 gt_tbl
 ```
+
 
 ```{python}
 gt_tbl = (
