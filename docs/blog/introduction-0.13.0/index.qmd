@@ -30,7 +30,7 @@ Let's make a table and see how this new feature could be used.
 
 ### Starting things off with a big GT table
 
-The table we'll make uses the `nuclides` dataset (available in the `great_tables.data` module). Through use of the `tab_*()` methods, quite a few table components (hence *locations*) will be added.
+The table we'll make uses the `nuclides` dataset (available in the `great_tables.data` module). Through use of the `tab_*()` methods, quite a few table components (hence *locations*) will be added. We have hidden the code here because it is quite lengthy but you're encouraged to check it out to glean some interesting GT tricks.
 
 ```{python}
 
@@ -91,7 +91,11 @@ This table will serve as a great starting point for demonstrating all the things
 
 ### Styling the body
 
-In Great Tables `v0.12.0` we added support for Google Fonts and that's shown in the first invocation of `tab_style()` (using `google_font()`). The `loc.body()` location helper really does work wonderfully with Polars expressions. Here, we are targeting the cells in the `half_life` column that are `None` values in the input DataFrame (we substituted those values with the 'STABLE' text earlier, in the `sub_missing()` call).
+Let's focus on the table body first. Just so you know, there is nothing here that is new in `v0.13.0`. This is just an exercise in using the trusty `loc.body()` location helper. But it's a good review nonetheless so let's do this.
+
+In Great Tables `v0.12.0` (the previous version to the one that's the focus here) we added support for Google Fonts and that's shown in the first invocation of `tab_style()` (using `google_font()`). The text in the columns `atomic_mass` and `half_life` is getting that monospaced treatment.
+
+The `loc.body()` location helper really does work wonderfully with Polars expressions. Here, we are targeting the cells in the `half_life` column that are *not* `None` values in the input DataFrame. We want to change the text and background colors for everything but those cells that read 'STABLE'.
 
 ```{python}
 gt_tbl = (
@@ -108,6 +112,8 @@ gt_tbl = (
 
 gt_tbl
 ```
+
+This is mainly a reminder that Polars expressions are quite something. And targeting cells in the body with `loc.body(rows=...)` can be powerful by extension.
 
 ### Don't forget the stub!
 
