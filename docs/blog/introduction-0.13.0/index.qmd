@@ -73,6 +73,7 @@ gt_tbl = (
     .cols_label(
         atomic_mass="Atomic Mass",
         half_life="Half Life, s",
+        isospin="Isospin",
         decay_1="1",
         decay_2="2",
         decay_3="3",
