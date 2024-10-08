@@ -7,7 +7,7 @@ freeze: true
 jupyter: python3
 ---
 
-We did something in Great Tables (`0.13.0`) that'll make your tables that much more customizable: *super* fine-grained ways of setting styles throughout the table. Before you were largely constrained to styling through the following strategies:
+We did something in Great Tables (`0.13.0`) that'll make your tables that much more customizable: super *fine-grained* ways of setting styles throughout the table. Before you were largely constrained to styling through the following strategies:
 
 1. use a limited set of styles (e.g., background color, font weight, etc.) to different table locations like the stub, the column labels, etc., through `tab_options()`
 2. use `tab_style()` with a larger set of styling options for the table body cells (specified by `loc.body()`)
@@ -103,7 +103,7 @@ gt_tbl = (
     gt_tbl
     .tab_style(
         style=style.text(font=google_font(name="IBM Plex Mono")),
-        locations=loc.body(columns=["atomic_mass", "half_life"]),
+        locations=loc.body(columns=["atomic_mass", "half_life"])
     )
     .tab_style(
         style=[style.text(color="Navy"), style.fill(color="PaleTurquoise")],
@@ -136,7 +136,7 @@ gt_tbl = (
         style=style.fill(color="LightCyan"),
         locations=[
             loc.body(rows=pl.col("half_life").is_null()),
-            loc.stub(rows=pl.col("half_life").is_null()),
+            loc.stub(rows=pl.col("half_life").is_null())
         ]
     )
  )
@@ -144,33 +144,45 @@ gt_tbl = (
 gt_tbl
 ```
 
-That linen-colored stub goes so well with the light-cyan rows, representative of carbon-12 and carbon-13!
+We've dressed up the stub so that it is that much more prominent. And that linen-colored stub goes so well with the light-cyan rows, representative of carbon-12 and carbon-13!
 
 ### Using custom style rules with the new `style.css()`
+
+Aside from decking out the `loc` module with all manner of location methods, we've adding a little something to the `style` module: `style.css()`! What's it for? It let's you supply style declarations to its single `rule=` argument. You have to study up on CSS style declarations (and which of those make sense in a table context) but if you know of certain styles that aren't covered in either of `style.fill()`, `style.text()`, or `style.borders()` then `style.css()` will be of major help here.
+
+As an example, I might want to indent some text in one or more table cells. You can't really do that with the `style.text()` method since it doesn't have an `indent=` argument. So, in Great Tables `0.13.0` you can do this:
 
 ```{python}
 gt_tbl = (
     gt_tbl
     .tab_style(
         style=style.css(rule="text-indent: 4px;"),
-        locations=loc.stub(rows=pl.col("half_life").is_null()),
+        locations=loc.stub(rows=pl.col("half_life").is_null())
     )
 )
 
 gt_tbl
 ```
 
+We targeted the cells in the stub that corresponded to the stable isotopes (carbon-12 and -13) with a Polars expression (same one as in the previous code cell) and now we have a 4px indentation of the 'C-12' and 'C-13' text! This new bonus functionality really allows almost any type of styling possible, provided you have those CSS skillz.
+
 ### The *combined* location helpers: `loc.column_header()`, `loc.footer()`, and `loc.header()`
+
+Look, I know we brought up the expression *fine-grained* before---right in the first paragraph---but sometimes you need just the opposite. There are lots of little locations in a GT table and some make for logical groupings. To that end, we have the concept of *combined* location helpers. There are three of these and they equate to some collection of location helpers:
+
+- `loc.header()` == `[loc.title(), loc.subtitle()]`
+- `loc.column_header()` == `[loc.column_labels(), loc.spanner_labels()]`
+- `loc.footer()` == `[loc.source_notes()]
+
+That last one, `loc.footer()`, yes, it is currently just an alias for `loc.source_notes()` but in the future when footnotes support is available in the package the set will expand to include a `loc.footnotes()` location.
+
+Let's style the column labels, spanner labels, stubhead label, and source notes in a single, succinct invocation of `tab_style()`:
 
 ```{python}
 gt_tbl = (
     gt_tbl
     .tab_style(
-        style=[
-            style.text(v_align="middle"),
-            style.fill(color="#EEEEEE"),
-            style.css(rule="font-stretch: 3px;")
-        ],
+        style=[style.text(v_align="middle"), style.fill(color="#EEEEEE")],
         locations=[loc.stubhead(), loc.column_header(), loc.footer()]
     )
 )
@@ -178,7 +190,11 @@ gt_tbl = (
 gt_tbl
 ```
 
-### Styling the title and the stubtitle
+Great! And a good strategy for future tables might be to style with combined location helpers first and then drill into the specific cells of those super locations with more fine-grained styles in a later `tab_style()` call.
+
+### Styling the title and the subtitle
+
+Although it really doesn't appear the have separate locations, the table header (produced by way of `tab_header()`) indeed has two of them: the title and the subtitle. These can be targeted via `loc.title()` and `loc.subtitle()`.
 
 ```{python}
 gt_tbl = (
@@ -189,7 +205,7 @@ gt_tbl = (
             style.fill(color="aliceblue"),
             style.borders(sides="bottom", color="#BFDFF6", weight="2px")
         ],
-        locations=loc.title(),
+        locations=loc.title()
     )
 )
 
@@ -207,7 +223,7 @@ gt_tbl = (
             "background-image: linear-gradient(120deg, #d4fc79 0%, #96f6a1 100%);"
             )
         ],
-        locations=loc.subtitle(),
+        locations=loc.subtitle()
     )
 )
 
@@ -222,7 +238,7 @@ gt_tbl = (
     gt_tbl
     .tab_style(
         style=style.text(font=google_font("IBM Plex Serif")),
-        locations=loc.header(),
+        locations=loc.header()
     )
 )
 
