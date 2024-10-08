@@ -202,8 +202,10 @@ gt_tbl = (
     gt_tbl
     .tab_style(
         style=[
-            style.css(rule="padding-top: 5px; padding-bottom: 5px;"),
-            style.css(rule="background-image: linear-gradient(120deg, #d4fc79 0%, #96f6a1100%);")
+            style.css(rule="padding-top: 5px;"
+            "padding-bottom: 5px;"
+            "background-image: linear-gradient(120deg, #d4fc79 0%, #96f6a1 100%);"
+            )
         ],
         locations=loc.subtitle(),
     )
