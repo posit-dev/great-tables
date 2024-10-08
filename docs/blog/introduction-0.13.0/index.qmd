@@ -2,7 +2,7 @@
 title: "Great Tables `v0.13.0`: Applying styles to all table locations"
 html-table-processing: none
 author: Rich Iannone and Michael Chow
-date: 2024-10-08
+date: 2024-10-09
 freeze: true
 jupyter: python3
 ---
@@ -88,7 +88,17 @@ gt_tbl = (
 gt_tbl
 ```
 
-This table will serve as a great starting point for demonstrating all the things you can do with `tab_style()`. (It'll be `tab_style()` like you've never seen it before!)
+This table will serve as a great starting point for demonstrating all the things you can now do with `tab_style()`.
+
+The following checklist will serve as a rough plan for how we will style the table:
+
+- use `loc.body()` to emphasize isotope half-life values
+- employ `loc.stub()` to draw attention to isotope names (and also point out the 'STABLE' rows)
+- use `style.css()` for creating custom CSS styles (e.g., to indent row labels for stable isotopes)
+- work with composite locations and style the whole header and footer quite simply
+- set the default table body fill with `tab_options()`
+
+Really this'll be `tab_style()` like you've never seen it before, so let's get on with it.
 
 ### Styling the body
 
@@ -96,7 +106,6 @@ First, we'll use `loc.body()` to emphasize half life values in two ways:
 
 * Make the values in the `atomic_mass` and `half_life` use a monospace font.
 * fill the background of isotopes with STABLE half lives to be PaleTurquoise.
-
 
 ```{python}
 gt_tbl = (
@@ -118,6 +127,7 @@ Note these important pieces in the code:
 
 * setting monospace font: we used [`google_font()`](/reference/google_font.qmd) (added in the previous release) to apply the monospaced font IBM Plex Mono.
 * filling unstable half lives to turquoise: because the half life cells with the value STABLE are actually missing in the underlying data, and filled in using `GT.sub_missing()`, we used the polars expression `pl.col("half_life").is_not_null()` to target everything that isn't STABLE.
+
 This is mainly a reminder that Polars expressions are quite something. And targeting cells in the body with `loc.body(rows=...)` can be powerful by extension.
 
 ### Don't forget the stub!
@@ -152,7 +162,7 @@ gt_tbl
 
 For task #1, a simple `.tab_style(..., locations=loc.stub())` targeted the entire stub.
 
-Task #2 is more interesting. Like `loc.body()`, `loc.stub()` has a `rows=` argument that can  target specific rows with Polars expressions. We used the same Polars expression as in the previous section to target those rows that belong to the stable isotopes. 
+Task #2 is more interesting. Like `loc.body()`, `loc.stub()` has a `rows=` argument that can  target specific rows with Polars expressions. We used the same Polars expression as in the previous section to target those rows that belong to the stable isotopes.
 
 We've dressed up the stub so that it is that much more prominent. And that linen-colored stub goes so well with the light-cyan rows, representative of carbon-12 and carbon-13!
 
@@ -179,7 +189,6 @@ We targeted the cells in the stub that corresponded to the stable isotopes (carb
 ### The *combined* location helpers: `loc.column_header()`, `loc.footer()`, and `loc.header()`
 
 Look, I know we brought up the expression *fine-grained* before---right in the first paragraph---but sometimes you need just the opposite. There are lots of little locations in a GT table and some make for logical groupings. To that end, we have the concept of *combined* location helpers.
-
 
 Let's style the column labels, spanner labels, stubhead label, and source notes in a single, succinct invocation of `tab_style()`:
 
