@@ -150,6 +150,10 @@ gt_tbl = (
 gt_tbl
 ```
 
+For task #1, a simple `.tab_style(..., locations=loc.stub())` targeted the entire stub.
+
+Task #2 is more interesting. Like `loc.body()`, `loc.stub()` has a `rows=` argument that can  target specific rows with Polars expressions. We used the same Polars expression as in the previous section to target those rows that belong to the stable isotopes. 
+
 We've dressed up the stub so that it is that much more prominent. And that linen-colored stub goes so well with the light-cyan rows, representative of carbon-12 and carbon-13!
 
 ### Using custom style rules with the new `style.css()`
