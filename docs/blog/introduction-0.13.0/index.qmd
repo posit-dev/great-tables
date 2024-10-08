@@ -87,6 +87,8 @@ gt_tbl = (
 gt_tbl
 ```
 
+This table will serve as a great starting point for demonstrating all the things you can do with `tab_style()`. (It'll be `tab_style()` like you've never seen it before.)
+
 ### Styling the body
 
 In Great Tables `v0.12.0` we added support for Google Fonts and that's shown in the first invocation of `tab_style()` (using `google_font()`). The `loc.body()` location helper really does work wonderfully with Polars expressions. Here, we are targeting the cells in the `half_life` column that are `None` values in the input DataFrame (we substituted those values with the 'STABLE' text earlier, in the `sub_missing()` call).
