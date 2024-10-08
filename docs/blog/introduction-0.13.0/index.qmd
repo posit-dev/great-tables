@@ -174,7 +174,7 @@ Look, I know we brought up the expression *fine-grained* before---right in the f
 
 - `loc.header()` == `[loc.title(), loc.subtitle()]`
 - `loc.column_header()` == `[loc.column_labels(), loc.spanner_labels()]`
-- `loc.footer()` == `[loc.source_notes()]
+- `loc.footer()` == `[loc.source_notes()]`
 
 That last one, `loc.footer()`, yes, it is currently just an alias for `loc.source_notes()` but in the future when footnotes support is available in the package the set will expand to include a `loc.footnotes()` location.
 
