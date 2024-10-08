@@ -24,7 +24,7 @@ In `v0.13.0`, we can target much more than just the table body! Here is the expa
 - `loc.body()`: data cells in the table body
 - `loc.source_notes()`: the source notes
 
-This hyperexpansion of the `loc` module to all locations in the table means that there won't be a spot in the table you can't add styling to. And this is great because it gives you free reign fully customize the look of your table.
+This augmentation of the `loc` module to include all locations in the table means that there won't be a spot in the table to which you can't add styling. This is terrific because it gives you free reign fully customize the look of your table.
 
 Let's make a table and see how this new feature could be used.
 
@@ -194,7 +194,7 @@ Great! And a good strategy for future tables might be to style with combined loc
 
 ### Styling the title and the subtitle
 
-Although it really doesn't appear the have separate locations, the table header (produced by way of `tab_header()`) indeed has two of them: the title and the subtitle. These can be targeted via `loc.title()` and `loc.subtitle()`.
+Although it really doesn't appear the have separate locations, the table header (produced by way of `tab_header()`) indeed has two of them: the title and the subtitle. These can be targeted via `loc.title()` and `loc.subtitle()`. Let's focus in on the title location and add an assortment of styles to it.
 
 ```{python}
 gt_tbl = (
@@ -212,17 +212,18 @@ gt_tbl = (
 gt_tbl
 ```
 
+Looks good. Notice that the title location is separate from the subtitle one, the background fill reveals the extent of its area.
+
+A subtitle is an optional part of the header. We do have one in our table example so let's style that as well. The `style.css()` method will be used to give the subtitle some additional padding, and, we'll put in a fancy background invovling a linear gradient.
 
 ```{python}
 gt_tbl = (
     gt_tbl
     .tab_style(
-        style=[
-            style.css(rule="padding-top: 5px;"
+        style=style.css(rule="padding-top: 5px;"
             "padding-bottom: 5px;"
             "background-image: linear-gradient(120deg, #d4fc79 0%, #96f6a1 100%);"
-            )
-        ],
+        ),
         locations=loc.subtitle()
     )
 )
@@ -230,7 +231,9 @@ gt_tbl = (
 gt_tbl
 ```
 
-The combined location helper for the title and the subtitle is `loc.header()`. As mentioned before, it can be used as a shorthand for `locations=[loc.title(), loc_subtitle()]` and it's useful here where we want to change the font for the title and subtitle text.
+None of what was done above could be done prior to `v0.13.0`. The `style.css()` method makes this all possible.
+
+The combined location helper for the title and the subtitle locations is `loc.header()`. As mentioned before, it can be used as a shorthand for `locations=[loc.title(), loc_subtitle()]` and it's useful here where we want to change the font for the title and subtitle text.
 
 ```{python}
 gt_tbl = (
@@ -248,14 +251,18 @@ Though the order of things matters when setting styles via `tab_style()`, it's n
 
 ### How `tab_style()` fits in with `tab_options()`
 
+When it comes to styling, you can use `tab_options()` for some of the basics and use `tab_style()` for the more demanding styling tasks. And you could combine the usage of both in your table. The precedence (or priority) is given to `tab_style()`, regardless of the order of invocation. As an example of this, we can add a background color to all remaining locations with `tab_options(table_background_color=...)`:
+
 ```{python}
 gt_tbl = gt_tbl.tab_options(table_background_color="HoneyDew")
 
 gt_tbl
 ```
 
-
+Even though `tab_options()` was invoked after the many `tab_style()` invocations, the 'HoneyDew' background color was only applied to the body cells that didn't have a background color.
 
 ### Wrapping up
 
-We are excited that this new functionality is now available in Great Tables. As ever, please let us know through [GitHub Issues](https://github.com/posit-dev/great-tables/issues) whether you ran into problems with any feature (new or old), or, if you have suggestions for further improvement!
+We'd like to thank [Tim Paine](https://github.com/timkpaine) in getting the expanded `loc` work off the ground. Additionally, we are grateful to [Jerry Wu](https://github.com/jrycw) for his contributions to the `v0.13.0` release of the package.
+
+We'd be very pleased to receive comments or suggestions on the new functionality. [GitHub Issues](https://github.com/posit-dev/great-tables/issues) or [GitHub Discussions](https://github.com/posit-dev/great-tables/discussions) are both fine venues for getting in touch with us. Finally, if ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV).
