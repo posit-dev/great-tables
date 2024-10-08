@@ -92,11 +92,11 @@ This table will serve as a great starting point for demonstrating all the things
 
 ### Styling the body
 
-Let's focus on the table body first. Just so you know, there is nothing here that is new in `v0.13.0`. This is just an exercise in using the trusty `loc.body()` location helper. But it's a good review nonetheless, so let's do this.
+First, we'll use `loc.body()` to emphasize half life values in two ways:
 
-In Great Tables `v0.12.0` (the previous version to the one that's the focus here) we added support for Google Fonts and that's shown in the first invocation of `tab_style()` (using `google_font()`). The text in the columns `atomic_mass` and `half_life` will get the monospaced treatment.
+* Make the values in the `atomic_mass` and `half_life` use a monospace font.
+* fill the background of isotopes with STABLE half lives to be PaleTurquoise.
 
-The `loc.body()` location helper really does work wonderfully with Polars expressions. The second thing to be done will involve targeting the cells in the `half_life` column that are *not* `None` values in the input DataFrame. In essence, we want to change the text and background colors for all cells in that column except the ones that read 'STABLE'.
 
 ```{python}
 gt_tbl = (
