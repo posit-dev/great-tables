@@ -176,7 +176,7 @@ Look, I know we brought up the expression *fine-grained* before---right in the f
 - `loc.column_header()` == `[loc.column_labels(), loc.spanner_labels()]`
 - `loc.footer()` == `[loc.source_notes()]`
 
-That last one, `loc.footer()`, yes, it is currently just an alias for `loc.source_notes()` but in the future when footnotes support is available in the package the set will expand to include a `loc.footnotes()` location.
+That last one, `loc.footer()`, is currently just an alias for `loc.source_notes()`. However, in the future, when footnotes support is available in the package, the set will expand to include a `loc.footnotes()` location.
 
 Let's style the column labels, spanner labels, stubhead label, and source notes in a single, succinct invocation of `tab_style()`:
 
