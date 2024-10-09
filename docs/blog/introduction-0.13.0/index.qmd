@@ -2,7 +2,7 @@
 title: "Great Tables `v0.13.0`: Applying styles to all table locations"
 html-table-processing: none
 author: Rich Iannone and Michael Chow
-date: 2024-10-09
+date: 2024-10-10
 freeze: true
 jupyter: python3
 ---
