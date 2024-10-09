@@ -14,15 +14,7 @@ We did something in Great Tables (`0.13.0`) that'll make your tables that much m
 
 In `v0.13.0`, we can target much more than just the table body! Here is the expanded set of `loc.*()` methods along with the locations that they can target.
 
-- `loc.title()`: the table title
-- `loc.subtitle()`: the table subtitle
-- `loc.stubhead()`: the stubhead
-- `loc.spanner_labels()`: the spanner labels
-- `loc.column_labels()`: the column labels
-- `loc.stub()`: the table stub
-- `loc.row_groups()`: the row group labels
-- `loc.body()`: data cells in the table body
-- `loc.source_notes()`: the source notes
+![](./GT-locations-map.png)
 
 This augmentation of the `loc` module to include all locations in the table means that there won't be a spot in the table to which you can't add styling. This is terrific because it gives you free rein to fully customize the look of your table.
 
