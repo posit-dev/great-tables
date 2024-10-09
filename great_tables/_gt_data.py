@@ -20,6 +20,7 @@ from ._tbl_data import (
     copy_data,
     create_empty_frame,
     get_column_names,
+    _get_column_dtype,
     n_rows,
     to_list,
     validate_frame,
@@ -173,7 +174,7 @@ class Body:
                 # TODO: I think that this is very inefficient with polars, so
                 # we could either accumulate results and set them per column, or
                 # could always use a pandas DataFrame inside Body?
-                _set_cell(self.body, row, col, result)
+                self.body = _set_cell(self.body, row, col, result)
 
         return self
 
@@ -323,7 +324,7 @@ class Boxhead(_Sequence[ColInfo]):
         # a Pandas DataFrame or a Polars DataFrame
         col_classes = []
         for col in get_column_names(data):
-            dtype = data[col].dtype
+            dtype = _get_column_dtype(data, col)
 
             if dtype == "object":
                 # Check whether all values in 'object' columns are strings that
