@@ -4,6 +4,8 @@ import polars as pl
 import pyarrow as pa
 import polars.testing
 import pytest
+from great_tables import GT
+from great_tables._utils_render_html import create_body_component_h
 from great_tables._tbl_data import (
     DataFrameLike,
     SeriesLike,
@@ -283,3 +285,8 @@ def test_cast_frame_to_string_polars_list_col():
     assert new_df["x"].dtype.is_(pl.String)
     assert new_df["y"].dtype.is_(pl.String)
     assert new_df["z"].dtype.is_(pl.String)
+
+
+def test_frame_rendering(df: DataFrameLike, snapshot):
+    gt = GT(df).fmt_number(columns="col3", decimals=0).fmt_currency(columns="col1")
+    assert create_body_component_h(gt._build_data("html")) == snapshot
