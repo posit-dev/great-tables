@@ -160,7 +160,7 @@ We've dressed up the stub so that it is that much more prominent. And that linen
 
 Aside from decking out the `loc` module with all manner of location methods, we've added a little something to the `style` module: `style.css()`! What's it for? It lets you supply style declarations to its single `rule=` argument.
 
-As an example, I might want to indent some text in one or more table cells. You can't really do that with the `style.text()` method since it doesn't have an `indent=` argument. So, in Great Tables `0.13.0` you can do this:
+As an example, I might want to indent some text in one or more table cells. You can't really do that with the `style.text()` method since it doesn't have an `indent=` argument. So, in Great Tables `0.13.0` you can manually indent the row label text for the 'STABLE' rows using a CSS style rule:
 
 ```{python}
 gt_tbl = (
@@ -180,7 +180,7 @@ We targeted the cells in the stub that corresponded to the stable isotopes (carb
 
 Look, I know we brought up the expression *fine-grained* before---right in the first paragraph---but sometimes you need just the opposite. There are lots of little locations in a GT table and some make for logical groupings. To that end, we have the concept of *combined* location helpers.
 
-Let's style the column labels, spanner labels, stubhead label, and source notes in a single, succinct invocation of `tab_style()`:
+Let's set a grey background fill on the stubhead, column header, and footer:
 
 ```{python}
 gt_tbl = (
@@ -200,7 +200,7 @@ A good strategy for your tables would be to style with combined location helpers
 
 ### Styling the title and the subtitle
 
-Although it really doesn't appear to have separate locations, the table header (produced by way of `tab_header()`) can have two of them: the title and the subtitle (the latter is optional). These can be targeted via `loc.title()` and `loc.subtitle()`. Let's focus in on the title location and add an assortment of styles to it.
+Although it really doesn't appear to have separate locations, the table header (produced by way of `tab_header()`) can have two of them: the title and the subtitle (the latter is optional). These can be targeted via `loc.title()` and `loc.subtitle()`. Let's focus in on the title location and set an aliceblue background fill on the title, along with some font and border adjustments.
 
 ```{python}
 gt_tbl = (
@@ -257,7 +257,7 @@ Though the order of things matters when setting styles via `tab_style()`, it's n
 
 ### How `tab_style()` fits in with `tab_options()`
 
-When it comes to styling, you can use `tab_options()` for some of the basics and use `tab_style()` for the more demanding styling tasks. And you could combine the usage of both in your table. Let's use `tab_options()` here:
+When it comes to styling, you can use `tab_options()` for some of the basics and use `tab_style()` for the more demanding styling tasks. And you could combine the usage of both in your table. Let's set a default honeydew background fill on the body values:
 
 ```{python}
 gt_tbl = gt_tbl.tab_options(table_background_color="HoneyDew")
