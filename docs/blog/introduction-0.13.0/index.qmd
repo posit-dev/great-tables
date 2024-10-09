@@ -176,7 +176,7 @@ gt_tbl
 
 We targeted the cells in the stub that corresponded to the stable isotopes (carbon-12 and -13) with a Polars expression (same one as in the previous code cell) and now we have a 4px indentation of the 'C-12' and 'C-13' text! This new bonus functionality really allows almost any type of styling possible, provided you have those CSS skillz.
 
-### The *combined* location helpers: `loc.column_header()`, `loc.footer()`, and `loc.header()`
+### The *combined* location helpers: `loc.column_header()` and `loc.footer()`
 
 Look, I know we brought up the expression *fine-grained* before---right in the first paragraph---but sometimes you need just the opposite. There are lots of little locations in a GT table and some make for logical groupings. To that end, we have the concept of *combined* location helpers.
 
@@ -194,7 +194,9 @@ gt_tbl = (
 gt_tbl
 ```
 
-Great! And a good strategy for future tables might be to style with combined location helpers first and then drill into the specific cells of those super locations with more fine-grained styles in a later `tab_style()` call.
+The [`loc.column_header()`](/reference/loc.column_header.qmd) location always targets both `loc.column_labels()` and `loc.spanner_labels()`.
+
+A good strategy for your tables would be to style with combined location helpers first and then drill into the specific cells of those super locations with more fine-grained styles in a later `tab_style()` call.
 
 ### Styling the title and the subtitle
 
