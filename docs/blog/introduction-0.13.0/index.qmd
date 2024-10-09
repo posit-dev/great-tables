@@ -257,7 +257,7 @@ Though the order of things matters when setting styles via `tab_style()`, it's n
 
 ### How `tab_style()` fits in with `tab_options()`
 
-When it comes to styling, you can use `tab_options()` for some of the basics and use `tab_style()` for the more demanding styling tasks. And you could combine the usage of both in your table. The precedence (or priority) is given to `tab_style()`, regardless of the order of invocation. As an example of this, we can add a background color to all remaining locations with `tab_options(table_background_color=...)`:
+When it comes to styling, you can use `tab_options()` for some of the basics and use `tab_style()` for the more demanding styling tasks. And you could combine the usage of both in your table. Let's use `tab_options()` here:
 
 ```{python}
 gt_tbl = gt_tbl.tab_options(table_background_color="HoneyDew")
@@ -265,7 +265,7 @@ gt_tbl = gt_tbl.tab_options(table_background_color="HoneyDew")
 gt_tbl
 ```
 
-Even though `tab_options()` was invoked after the many `tab_style()` invocations, the 'HoneyDew' background color was only applied to the body cells that didn't have a background color.
+In the example, we asked for the HoneyDew background fill on the entire table with `tab_options()`. However, even though `tab_options()` was used after those `tab_style()` invocations, the 'HoneyDew' background color was only applied to the locations that didn't have a background color set through `tab_style(). The important takeaway here is that the precedence (or priority) is *always* given to `tab_style()`, regardless of the order of invocation.
 
 ### Wrapping up
 
