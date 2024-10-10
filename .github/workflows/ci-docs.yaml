@@ -21,7 +21,6 @@ jobs:
         run: |
           python -m pip install git+https://github.com/machow/quartodoc.git
           python -m pip install ".[all]"
-          pip install git+https://github.com/machow/quartodoc.git@5ed1430d4dc0e75414d0b11532ecd2393965b8d2
       - uses: quarto-dev/quarto-actions/setup@v2
       - name: Build docs
         run: |
