@@ -127,10 +127,6 @@ We mustn't forget the stub. It's a totally separate location, being off to the s
 1. Change the fill color (to 'Linen') and make the text bold for the *entire stub*
 2. Highlight the rows where we have stable isotopes (the extent is both for the stub and the body cells)
 
-For task #1, a simple `loc.stub()` call in `tab_style()`'s `locations=` argument will be enough to target the entire stub.
-
-Task #2 is more interesting. Like `loc.body()`, `loc.stub()` has a `rows=` argument. Because of that, we can use the same Polars expression to target those rows that belong to the stable isotopes (they are identifiable by having `None` values in the `half_life` column). Once we know about the power of Polars expressions in `rows=`, we realize just how much power we have in targeting our table stylings.
-
 ```{python}
 gt_tbl = (
     gt_tbl
