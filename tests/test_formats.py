@@ -1490,6 +1490,20 @@ def test_fmt_image_path():
 
 
 @pytest.mark.parametrize(
+    "url", ["http://posit.co/", "http://posit.co", "https://posit.co/", "https://posit.co"]
+)
+def test_fmt_image_path_http(url: str):
+    formatter = FmtImage(encode=False, height=30, path=url)
+    res = formatter.to_html("c")
+    dst_img = '<img src="{}/c" style="height: 30px;vertical-align: middle;">'.format(
+        url.removesuffix("/")
+    )
+    dst = formatter.SPAN_TEMPLATE.format(dst_img)
+
+    assert strip_windows_drive(res) == dst
+
+
+@pytest.mark.parametrize(
     "src,dst",
     [
         # 1. unit with superscript
@@ -2089,3 +2103,93 @@ def test_get_currency_str():
 def test_get_currency_str_no_match_raises():
     with pytest.raises(Exception):
         _get_currency_str("NOT_A_CURRENCY")
+
+
+@pytest.mark.parametrize(
+    "src, fn",
+    [
+        (1, "fmt_number"),
+        (2, "fmt_integer"),
+        (3, "fmt_scientific"),
+        (4, "fmt_percent"),
+        (5, "fmt_currency"),
+        (6, "fmt_bytes"),
+        ("2023-12-31", "fmt_date"),
+        ("12:34:56", "fmt_time"),
+        ("2023-12-31 12:34:56", "fmt_datetime"),
+    ],
+)
+def test_fmt_with_locale1(src, fn):
+    df = pd.DataFrame({"x": [src]})
+    global_locale = local_locale = "en"
+
+    # w/o global locale, w/o local locale => use default locale => "en"
+    gt1 = getattr(GT(df), fn)()
+    x1 = _get_column_of_values(gt1, column_name="x", context="html")
+
+    # w global locale, w/o local locale => use global locale => "en"
+    gt2 = getattr(GT(df, locale=global_locale), fn)()
+    x2 = _get_column_of_values(gt2, column_name="x", context="html")
+
+    # w/o global locale, w local locale => use local locale => "en"
+    gt3 = getattr(GT(df), fn)(locale=local_locale)
+    x3 = _get_column_of_values(gt3, column_name="x", context="html")
+
+    assert x1 == x2 == x3
+
+
+@pytest.mark.parametrize(
+    "src, fn",
+    [
+        (1, "fmt_number"),
+        (2, "fmt_integer"),
+        (3, "fmt_scientific"),
+        (4, "fmt_percent"),
+        (5, "fmt_currency"),
+        (6, "fmt_bytes"),
+        ("2023-12-31", "fmt_date"),
+        ("12:34:56", "fmt_time"),
+        ("2023-12-31 12:34:56", "fmt_datetime"),
+    ],
+)
+def test_fmt_with_locale2(src, fn):
+    df = pd.DataFrame({"x": [src]})
+    global_locale = local_locale = "ja"
+
+    # w global locale, w/o local locale => use global locale => "ja"
+    gt1 = getattr(GT(df, locale=global_locale), fn)()
+    x1 = _get_column_of_values(gt1, column_name="x", context="html")
+
+    # w/o global locale, w local locale => use local locale => "ja"
+    gt2 = getattr(GT(df), fn)(locale=local_locale)
+    x2 = _get_column_of_values(gt2, column_name="x", context="html")
+
+    assert x1 == x2
+
+
+@pytest.mark.parametrize(
+    "src, fn",
+    [
+        (1, "fmt_number"),
+        (2, "fmt_integer"),
+        (3, "fmt_scientific"),
+        (4, "fmt_percent"),
+        (5, "fmt_currency"),
+        (6, "fmt_bytes"),
+        ("2023-12-31", "fmt_date"),
+        ("12:34:56", "fmt_time"),
+        ("2023-12-31 12:34:56", "fmt_datetime"),
+    ],
+)
+def test_fmt_with_locale3(src, fn):
+    df = pd.DataFrame({"x": [src]})
+    global_locale, local_locale = "ja", "de"
+
+    # w global locale, w local locale => use local locale => "de"
+    gt = getattr(GT(df, locale=global_locale), fn)(locale=local_locale)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    gt_de = getattr(GT(df, locale="de"), fn)()
+    x_de = _get_column_of_values(gt_de, column_name="x", context="html")
+
+    assert x == x_de

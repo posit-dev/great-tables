@@ -207,6 +207,15 @@ def test_cols_width_fully_set():
     assert gt_tbl._boxhead[2].column_width == "30px"
 
 
+def test_cols_width_mix_cases_kwargs():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df).cols_width({"a": "10px"}, **{"b": "20px"}, c="30px")
+
+    assert gt_tbl._boxhead[0].column_width == "10px"
+    assert gt_tbl._boxhead[1].column_width == "20px"
+    assert gt_tbl._boxhead[2].column_width == "30px"
+
+
 def test_cols_width_partial_set_pct():
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
     gt_tbl = GT(df).cols_width({"a": "20%"})

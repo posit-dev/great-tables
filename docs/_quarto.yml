@@ -34,18 +34,24 @@ website:
             - get-started/basic-header.qmd
             - get-started/basic-stub.qmd
             - get-started/basic-column-labels.qmd
-        - section: Format and Style
+        - section: Format
           contents:
             - get-started/basic-formatting.qmd
+            - get-started/nanoplots.qmd
+        - section: Style
+          contents:
             - get-started/basic-styling.qmd
+            - get-started/targeted-styles.qmd
             - get-started/colorizing-with-data.qmd
+        - section: Theming
+          contents:
             - get-started/table-theme-options.qmd
             - get-started/table-theme-premade.qmd
-        - section: Extra Topics
+        - section: Selecting table parts
           contents:
             - get-started/column-selection.qmd
             - get-started/row-selection.qmd
-            - get-started/nanoplots.qmd
+            - get-started/loc-selection.qmd
 
 format:
   html:
@@ -87,7 +93,10 @@ quartodoc:
         class, we supply the input data table and some basic options for creating a stub and row
         groups (with the `rowname_col=` and `groupname_col=` arguments).
       contents:
-        - GT
+        - name: GT
+          children: linked
+
+
     - title: Creating or modifying parts of a table
       desc: >
         A table can contain a few useful components for conveying additional information. These
@@ -150,7 +159,18 @@ quartodoc:
         [`tab_style()`](`great_tables.GT.tab_style`) method). The styling classes allow for the
         specification of the styling properties to be applied to the targeted locations.
       contents:
+        - loc.header
+        - loc.title
+        - loc.subtitle
+        - loc.stubhead
+        - loc.column_header
+        - loc.spanner_labels
+        - loc.column_labels
+        - loc.stub
+        - loc.row_groups
         - loc.body
+        - loc.footer
+        - loc.source_notes
         - style.fill
         - style.text
         - style.borders
@@ -168,6 +188,7 @@ quartodoc:
         - md
         - html
         - from_column
+        - google_font
         - system_fonts
         - define_units
         - nanoplot_options
@@ -177,6 +198,7 @@ quartodoc:
         having to use `tab_options()` directly.
       contents:
         - GT.opt_align_table_header
+        - GT.opt_row_striping
         - GT.opt_all_caps
         - GT.opt_vertical_padding
         - GT.opt_horizontal_padding

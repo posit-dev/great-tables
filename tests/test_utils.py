@@ -8,8 +8,8 @@ from great_tables._utils import (
     _collapse_list_elements,
     _insert_into_list,
     _match_arg,
+    OrderedSet,
     _str_scalar_to_list,
-    _unique_set,
     heading_has_subtitle,
     heading_has_title,
     seq_groups,
@@ -107,15 +107,29 @@ def test_str_scalar_to_list():
     assert x[0] == "x"
 
 
-def test_unique_set_None():
-    assert _unique_set(None) is None
+def test_orderedSet():
+    o = OrderedSet([1, 2, "x", "y", 1, 2])
+
+    assert all(x in o for x in [1, 2, "x", "y"])
+    assert len(o) == 4
+    assert list(o) == [1, 2, "x", "y"]
+    assert o.as_list() == [1, 2, "x", "y"]
+    assert o.as_set() == {1, 2, "x", "y"}
+    assert o.as_dict() == {1: True, 2: True, "x": True, "y": True}
+    assert repr(o) == "OrderedSet([1, 2, 'x', 'y'])"
 
 
-def test_unique_set():
-    x = ["a", "a", "b"]
-    result = _unique_set(x)
-    assert isinstance(result, list)
-    assert len(result) == 2
+@pytest.mark.parametrize(
+    "iterable, ordered_list",
+    [
+        (["1", "2", "3"], ["1", "2", "3"]),
+        (["1", "3", "2", "3", "1"], ["1", "3", "2"]),
+        ((1, 3, 2, 3, 1, 1, 3, 2, 2), [1, 3, 2]),
+        (iter("223311"), ["2", "3", "1"]),
+    ],
+)
+def test_create_ordered_list(iterable, ordered_list):
+    assert OrderedSet(iterable).as_list() == ordered_list
 
 
 def test_collapse_list_elements():

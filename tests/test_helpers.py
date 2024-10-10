@@ -4,15 +4,18 @@ from great_tables._helpers import (
     pct,
     px,
     random_id,
+    google_font,
     _get_font_stack,
     define_units,
     FONT_STACKS,
+    _intify_scaled_px,
     _generate_tokens_list,
     _units_to_subscript,
     _units_to_superscript,
     _units_html_sub_super,
     _replace_units_symbol,
     _units_symbol_replacements,
+    GoogleFont,
     UnitStr,
     UnitDefinition,
     UnitDefinitionList,
@@ -78,6 +81,28 @@ def test_uppercases():
 
     bad_letters = "#$!^%#tables"
     assert set(bad_letters).difference(uppercases)
+
+
+def test_google_font():
+    font_name = "Roboto"
+    font = google_font(font_name)
+    assert isinstance(font, GoogleFont)
+    assert font.get_font_name() == font_name
+    assert (
+        font.make_import_stmt()
+        == "@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');"
+    )
+    assert str(font) == repr(font) == f"GoogleFont({font_name})"
+
+
+def test_google_font_class():
+    font_name = "Roboto"
+    font = GoogleFont(font_name)
+    assert font.get_font_name() == font_name
+    assert (
+        font.make_import_stmt()
+        == "@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');"
+    )
 
 
 def test_get_font_stack_raises():
@@ -296,11 +321,20 @@ def test_unit_definition_class_construction():
 def test_unit_definition_list_class_construction():
     unit_def_list = UnitDefinitionList([UnitDefinition(token="m^2", unit="m", exponent="2")])
     assert unit_def_list.units_list == [UnitDefinition(token="m^2", unit="m", exponent="2")]
+    assert (
+        str(unit_def_list)
+        == repr(unit_def_list)
+        == "UnitDefinitionList([UnitDefinition("
+        + "token='m^2', unit='m', unit_subscript=None, exponent='2', sub_super_overstrike=False, "
+        + "chemical_formula=False, built=None)])"
+    )
 
 
 def test_unit_str_class_construction():
     unit_str = UnitStr(["a b"])
     assert unit_str.units_str == ["a b"]
+    assert str(unit_str) == repr(unit_str) == "UnitStr(['a b'])"
+    assert len(unit_str) == 1
 
 
 def test_unit_str_from_str_single_unit():
@@ -345,3 +379,10 @@ def test_unit_str_unmatched_brackets():
     assert isinstance(res[1], UnitDefinitionList)
     assert res[1] == define_units(units_notation="m s^-1 and acceleration {{m s^-2")
     assert res[2] == ""
+
+
+@pytest.mark.parametrize(
+    "value, scale, expected", [("0.5px", 0.5, 0), ["1px", 1, 1], ["2.1px", 2.1, 4]]
+)
+def test_intify_scaled_px(value: str, scale: float, expected: int):
+    assert _intify_scaled_px(value, scale) == expected

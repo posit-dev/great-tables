@@ -10,7 +10,7 @@ from importlib_resources import files
 from ._data_color.base import _html_color, _ideal_fgnd_color
 from ._gt_data import GTData
 from ._helpers import pct, px
-from ._utils import _as_css_font_family_attr, _unique_set
+from ._utils import _as_css_font_family_attr, OrderedSet
 
 DEFAULTS_TABLE_BACKGROUND = (
     "heading_background_color",
@@ -126,7 +126,11 @@ def compile_scss(
 
     # Handle fonts ----
     # Get the unique list of fonts from `gt_options_dict`
-    font_list = _unique_set(data._options.table_font_names.value)
+    _font_names = data._options.table_font_names.value
+    if _font_names is not None:
+        font_list = OrderedSet(_font_names).as_list()
+    else:
+        font_list = None
 
     # Generate a `font-family` string
     if font_list is not None:
@@ -137,7 +141,23 @@ def compile_scss(
     # Generate styles ----
     gt_table_open_str = f"#{id} table" if has_id else ".gt_table"
 
-    gt_table_class_str = f"""{gt_table_open_str} {{
+    # Prepend any additional CSS ----
+    additional_css = data._options.table_additional_css.value
+
+    # Determine if there are any additional CSS statements
+    has_additional_css = (
+        additional_css is not None and isinstance(additional_css, list) and len(additional_css) > 0
+    )
+
+    # Ensure that list items in `additional_css` are unique and then combine statements while
+    # separating with `\n`; use an empty string if list is empty or value is None
+    if has_additional_css:
+        additional_css_unique = OrderedSet(additional_css).as_list()
+        table_additional_css = "\n".join(additional_css_unique) + "\n"
+    else:
+        table_additional_css = ""
+
+    gt_table_class_str = f"""{table_additional_css}{gt_table_open_str} {{
           {font_family_attr}
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;

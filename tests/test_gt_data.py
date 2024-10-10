@@ -31,7 +31,8 @@ def test_stub_order_groups():
     stub2 = stub.order_groups(["c", "a", "b"])
     assert stub2.group_ids == ["c", "a", "b"]
 
-    assert stub2.group_indices_map() == [(3, "c"), (1, "a"), (0, "b"), (2, "b")]
+    indice_labels = [(ii, info.defaulted_label()) for ii, info in stub2.group_indices_map()]
+    assert indice_labels == [(3, "c"), (1, "a"), (0, "b"), (2, "b")]
 
 
 def test_boxhead_reorder():

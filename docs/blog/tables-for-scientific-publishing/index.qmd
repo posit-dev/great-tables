@@ -21,9 +21,9 @@ In this post, we'll review the big pieces that scientific tables need:
 We've added **six new datasets**, to help quickly show off scientific publishing! We'll use the new `reactions` and `gibraltar` datasets to create examples in the fields of Atmospheric Chemistry and Meteorology, respectively.
 
 :::{.callout-tip}
-Rich will be speaking on this at SciPy!
+Rich presented on this topic at SciPy 2024!
 
-If you're at SciPy 2024 in Tacoma, WA, Rich's talk is scheduled for July 11, 2024 (16:30–17:00 PT). The talk is called *Great Tables for Everyone* and it's sure to be both exciting and educational. If you're not attending that's okay, the talk is available [in GitHub](https://github.com/rich-iannone/presentations/tree/main/2024-07-11-SciPy-talk-GT).
+At SciPy 2024 (on July 11, 2024), Rich delivered a talk called *Great Tables for Everyone* and it presented some of the tables shown in this post. If you weren't in attendence that's okay, you can [watch the recorded talk](https://youtu.be/uvH-Z39ZUj0?si=3NVipMteXaeO3vb1) and the materials are available [in GitHub](https://github.com/rich-iannone/presentations/tree/main/2024-07-11-SciPy-talk-GT).
 :::
 
 ## Unit and scientific notation
@@ -160,5 +160,3 @@ Units notation is ever useful and it is applied in one of the column labels of t
 ## Hope all your (science-y) tables are great!
 
 We did scientific work pretty heavily in the past and so we understand that great tables in the realm of science publication is something that could and should be possible. We'll keep doing more to make this even better in upcoming releases.
-
-Hope to see you at SciPy 2024!

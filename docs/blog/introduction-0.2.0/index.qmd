@@ -59,7 +59,7 @@ wide_pops = (
         pl.col("country_code_2").is_in(["FM", "GU", "KI", "MH", "MP", "NR", "PW"])
         & pl.col("year").is_in([2000, 2010, 2020])
     )
-    .pivot(index="country_name", columns="year", values="population")
+    .pivot(index="country_name", on="year", values="population")
     .sort("2020", descending=True)
 )
 

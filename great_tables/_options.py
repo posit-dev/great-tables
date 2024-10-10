@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, ClassVar, cast
+from typing import TYPE_CHECKING, ClassVar, cast, Iterable
 
 from great_tables import _utils
-from great_tables._helpers import FontStackName
+from great_tables._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
 
 
 if TYPE_CHECKING:
@@ -23,7 +23,7 @@ def tab_options(
     table_margin_left: str | None = None,
     table_margin_right: str | None = None,
     table_background_color: str | None = None,
-    # table_additional_css: str | None = None,
+    table_additional_css: list[str] | None = None,
     table_font_names: str | list[str] | None = None,
     table_font_size: str | None = None,
     table_font_weight: str | int | float | None = None,
@@ -161,9 +161,9 @@ def tab_options(
     source_notes_border_lr_color: str | None = None,
     source_notes_multiline: bool | None = None,
     source_notes_sep: str | None = None,
-    # row_striping_background_color: str | None = None,
-    # row_striping_include_stub: bool | None = None,
-    # row_striping_include_table_body: bool | None = None,
+    row_striping_background_color: str | None = None,
+    row_striping_include_stub: bool | None = None,
+    row_striping_include_table_body: bool | None = None,
 ) -> GTSelf:
     """
     Modify the table output options.
@@ -207,6 +207,9 @@ def tab_options(
     table_background_color
         The background color for the table. A color name or a hexadecimal color code should be
         provided.
+    table_additional_css
+        Additional CSS that can be added to the table. This can be used to add any custom CSS
+        that is not covered by the other options.
     table_font_names
         The names of the fonts used for the table. This should be provided as a list of font
         names. If the first font isn't available, then the next font is tried (and so on).
@@ -463,6 +466,13 @@ def tab_options(
         this border is larger, then it will be the visible border.
     source_notes_border_lr_color
         The color of the left and right borders of the `source_notes` location.
+    row_striping_background_color
+        The background color for striped table body rows. A color name or a hexadecimal color code
+        should be provided.
+    row_striping_include_stub
+        An option for whether to include the stub when striping rows.
+    row_striping_include_table_body
+        An option for whether to include the table body when striping rows.
 
     Returns
     -------
@@ -600,9 +610,9 @@ def opt_row_striping(self: GTSelf, row_striping: bool = True) -> GTSelf:
     """
     Option to add or remove row striping.
 
-    By default, a gt*table does not have row striping enabled. However, this method allows us to
-    easily enable or disable striped rows in the table body. It's a convenient shortcut for
-    `gt.tab_options(row_striping_include_table_body=<True|False>)`.
+    By default, a table does not have row striping enabled. However, this method allows us to easily
+    enable or disable striped rows in the table body. It's a convenient shortcut for
+    `tab_options(row_striping_include_table_body=<True|False>)`.
 
     Parameters
     ----------
@@ -615,7 +625,34 @@ def opt_row_striping(self: GTSelf, row_striping: bool = True) -> GTSelf:
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+    Using only a few columns from the `exibble` dataset, let's create a table with a number of
+    components added. Following that, we'll add row striping to every second row with the
+    `opt_row_striping()` method.
+
+    ```{python}
+    from great_tables import GT, exibble, md
+
+    (
+        GT(
+            exibble[["num", "char", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group"
+        )
+        .tab_header(
+            title=md("Data listing from **exibble**"),
+            subtitle=md("`exibble` is a **Great Tables** dataset.")
+        )
+        .fmt_number(columns="num")
+        .fmt_currency(columns="currency")
+        .tab_source_note(source_note="This is only a subset of the dataset.")
+        .opt_row_striping()
+    )
+    ```
     """
+
     return tab_options(self, row_striping_include_table_body=row_striping)
 
 
@@ -765,9 +802,7 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     # then reattach the units after the multiplication
     # TODO: a current limitation is that the padding values must be in pixels and not percentages
     # TODO: another limitation is that the returned values must be in integer pixel values
-    new_vertical_padding_vals = [
-        str(int(float(v.split("px")[0]) * scale)) + "px" for v in vertical_padding_vals
-    ]
+    new_vertical_padding_vals = [px(_intify_scaled_px(v, scale)) for v in vertical_padding_vals]
 
     return tab_options(self, **dict(zip(vertical_padding_params, new_vertical_padding_vals)))
 
@@ -864,9 +899,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     # then reattach the units after the multiplication
     # TODO: a current limitation is that the padding values must be in pixels and not percentages
     # TODO: another limitation is that the returned values must be in integer pixel values
-    new_horizontal_padding_vals = [
-        str(int(float(v.split("px")[0]) * scale)) + "px" for v in horizontal_padding_vals
-    ]
+    new_horizontal_padding_vals = [px(_intify_scaled_px(v, scale)) for v in horizontal_padding_vals]
 
     return tab_options(self, **dict(zip(horizontal_padding_params, new_horizontal_padding_vals)))
 
@@ -1057,7 +1090,7 @@ def opt_table_outline(
 
 def opt_table_font(
     self: GTSelf,
-    font: str | list[str] | None = None,
+    font: str | list[str] | dict[str, str] | GoogleFont | None = None,
     stack: FontStackName | None = None,
     weight: str | int | float | None = None,
     style: str | None = None,
@@ -1077,9 +1110,10 @@ def opt_table_font(
     Parameters
     ----------
     font
-        One or more font names available on the user system. This can be a string or a list of
-        strings. The default value is `None` since you could instead opt to use `stack` to define
-        a list of fonts.
+        One or more font names available on the user's system. This can be provided as a string or
+        a list of strings. Alternatively, you can specify font names using the `google_font()`
+        helper function. The default value is `None` since you could instead opt to use `stack` to
+        define a list of fonts.
     stack
         A name that is representative of a font stack (obtained via internally via the
         `system_fonts()` helper function. If provided, this new stack will replace any defined fonts
@@ -1193,9 +1227,44 @@ def opt_table_font(
 
     if font is not None:
 
-        # If `font` is a string, convert it to a list
-        if isinstance(font, str):
-            font = [font]
+        # If font is a string or GoogleFont object, convert to a list
+        if isinstance(font, (str, GoogleFont)):
+            font: list[str | GoogleFont] = [font]
+
+        if not isinstance(font, Iterable):
+            # We need to raise an exception here. Otherwise, if the provided `font` is not iterable,
+            # the `for item in font` loop will raise a `TypeError` with a message stating that the
+            # object is not iterable.
+            raise TypeError(
+                "`font=` must be a string/GoogleFont object or a list of strings/GoogleFont objects."
+            )
+
+        new_font_list: list[str] = []
+
+        for item in font:
+
+            if isinstance(item, str):
+                # Case where list item is a string; here, it's converted to a list
+                new_font_list.append(item)
+
+            elif isinstance(item, GoogleFont):
+                # Case where the list item is a GoogleFont object
+                new_font_list.append(item.get_font_name())
+
+                # Append the import statement to the `table_additional_css` list
+                existing_additional_css = self._options.table_additional_css.value + [
+                    item.make_import_stmt()
+                ]
+
+                # Add revised CSS list via the `tab_options()` method
+                res = tab_options(res, table_additional_css=existing_additional_css)
+
+            else:
+                raise TypeError(
+                    "`font=` must be a string/GoogleFont object or a list of strings/GoogleFont objects."
+                )
+
+        font: list[str] = new_font_list
 
     else:
         font = []
@@ -1220,7 +1289,7 @@ def opt_table_font(
 
     if weight is not None:
 
-        if isinstance(weight, int) or isinstance(weight, float):
+        if isinstance(weight, (int, float)):
 
             weight = str(round(weight))
 
@@ -1239,7 +1308,9 @@ def opt_table_font(
     return res
 
 
-def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
+def opt_stylize(
+    self: GTSelf, style: int = 1, color: str = "blue", add_row_striping: bool = True
+) -> GTSelf:
     """
     Stylize your table with a colorful look.
 
@@ -1250,7 +1321,9 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     have vertical lines. In addition to choosing a `style` preset, there are six `color` variations
     that each use a range of five color tints. Each of the color tints have been fine-tuned to
     maximize the contrast between text and its background. There are 36 combinations of `style` and
-    `color` to choose from.
+    `color` to choose from. For examples of each style, see the
+    [*Premade Themes*](../get-started/table-theme-premade.qmd) section of the **Get Started**
+    guide.
 
     Parameters
     ----------
@@ -1260,6 +1333,8 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     color
         The color scheme of the table. The default value is `"blue"`. The valid values are `"blue"`,
         `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`.
+    add_row_striping
+        An option to enable row striping in the table body for the style chosen.
 
     Returns
     -------
@@ -1317,14 +1392,11 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
 
     # Omit keys that are not needed for the `tab_options()` method
     # TODO: the omitted keys are for future use when:
-    #  (1) row striping is implemented
-    #  (2) summary rows are implemented
-    #  (3) grand summary rows are implemented
+    #  (1) summary rows are implemented
+    #  (2) grand summary rows are implemented
     omit_keys = {
         "summary_row_background_color",
         "grand_summary_row_background_color",
-        "row_striping_background_color",
-        "table_outline_color",
     }
 
     def dict_omit_keys(dict: dict[str, str], omit_keys: set[str]) -> dict[str, str]:
@@ -1333,6 +1405,28 @@ def opt_stylize(self: GTSelf, style: int = 1, color: str = "blue") -> GTSelf:
     params = dict_omit_keys(dict=params, omit_keys=omit_keys)
 
     mapped_params = StyleMapper(**params).map_all()
+
+    # Add the `add_row_striping` parameter to the `mapped_params` dictionary
+    if add_row_striping:
+        mapped_params["row_striping_include_table_body"] = ["True"]
+
+    if style in [2, 4, 5]:
+        # For styles 2, 4, and 5 we need to set the border colors and widths
+
+        # Use a dictionary comprehension to generate the border parameters
+        directions = ["top", "bottom", "left", "right"]
+        attributes = ["color", "width", "style"]
+
+        border_params: dict[str, str] = {
+            f"table_border_{d}_{a}": (
+                "#D5D5D5" if a == "color" else "3px" if a == "width" else "solid"
+            )
+            for d in directions
+            for a in attributes
+        }
+
+        # Append the border parameters to the `mapped_params` dictionary
+        mapped_params.update(border_params)
 
     # Apply the style parameters to the table using the `tab_options()` method
     res = tab_options(self=self, **mapped_params)
@@ -1352,6 +1446,7 @@ class StyleMapper:
     data_hlines_color: str
     data_vlines_style: str
     data_vlines_color: str
+    row_striping_background_color: str
 
     mappings: ClassVar[dict[str, list[str]]] = {
         "table_hlines_color": ["table_border_top_color", "table_border_bottom_color"],
@@ -1372,6 +1467,7 @@ class StyleMapper:
         "data_hlines_color": ["table_body_hlines_color"],
         "data_vlines_style": ["table_body_vlines_style"],
         "data_vlines_color": ["table_body_vlines_color"],
+        "row_striping_background_color": ["row_striping_background_color"],
     }
 
     def map_entry(self, name: str) -> dict[str, list[str]]:
@@ -1489,7 +1585,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#D5D5D5",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "blue-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1505,7 +1600,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#89D3FE",
         "grand_summary_row_background_color": "#00A1FF",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "cyan-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1521,7 +1615,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#A5FEF2",
         "grand_summary_row_background_color": "#7FE9DB",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "pink-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1537,7 +1630,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFC6E3",
         "grand_summary_row_background_color": "#EF5FA7",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "green-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1553,7 +1645,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#CAFFAF",
         "grand_summary_row_background_color": "#89FD61",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "red-2": {
         "table_hlines_color": "#D5D5D5",
@@ -1569,7 +1660,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFCCC7",
         "grand_summary_row_background_color": "#FF644E",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "gray-3": {
         "table_hlines_color": "#929292",
@@ -1675,7 +1765,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#5F5F5F",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "blue-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1691,7 +1780,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#0076BA",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "cyan-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1707,7 +1795,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#01837B",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "pink-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1723,7 +1810,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#CB2A7B",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "green-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1739,7 +1825,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#038901",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "red-4": {
         "table_hlines_color": "#D5D5D5",
@@ -1755,7 +1840,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#FFFFFF",
         "grand_summary_row_background_color": "#E4220C",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "gray-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1771,7 +1855,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "blue-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1787,7 +1870,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "cyan-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1803,7 +1885,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "pink-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1819,7 +1900,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "green-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1835,7 +1915,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "red-5": {
         "table_hlines_color": "#D5D5D5",
@@ -1851,7 +1930,6 @@ _dict_styles_colors_params = {
         "summary_row_background_color": "#5F5F5F",
         "grand_summary_row_background_color": "#929292",
         "row_striping_background_color": "#F4F4F4",
-        "table_outline_color": "#D5D5D5",
     },
     "gray-6": {
         "table_hlines_color": "#5F5F5F",

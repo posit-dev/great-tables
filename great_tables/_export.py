@@ -97,22 +97,23 @@ def show(
 
     """
 
-    html = self._repr_html_()
-
     if target == "auto":
         target = _infer_render_target()
 
     if target == "notebook":
         from IPython.core.display import display_html
 
+        html = self._repr_html_()
+
         # https://github.com/ipython/ipython/pull/10962
         display_html(  # pyright: ignore[reportUnknownVariableType]
             html, raw=True, metadata={"text/html": {"isolated": True}}
         )
     elif target == "browser":
+        html = self.as_raw_html(make_page=True)
         with tempfile.TemporaryDirectory() as tmp_dir:
             f_path = Path(tmp_dir) / "index.html"
-            f_path.write_text(html)
+            f_path.write_text(html, encoding="utf-8")
 
             # create a server that closes after 1 request ----
             server = _create_temp_file_server(f_path)
@@ -176,15 +177,34 @@ WebDrivers: TypeAlias = Literal[
 DebugDumpOptions: TypeAlias = Literal["zoom", "width_resize", "final_resize"]
 
 
+class _NoOpDriverCtx:
+    """Context manager that no-ops entering a webdriver(options=...) instance."""
+
+    def __init__(self, driver: webdriver.Remote):
+        self.driver = driver
+
+    def __call__(self, options):
+        # no-op what is otherwise instantiating webdriver with options,
+        # since a webdriver instance was already passed on init
+        return self
+
+    def __enter__(self):
+        return self.driver
+
+    def __exit__(self, *args):
+        pass
+
+
 def save(
     self: GT,
-    file: str,
+    file: Path | str,
     selector: str = "table",
     scale: float = 1.0,
     expand: int = 5,
-    web_driver: WebDrivers = "chrome",
+    web_driver: WebDrivers | webdriver.Remote = "chrome",
     window_size: tuple[int, int] = (6000, 6000),
     debug_port: None | int = None,
+    encoding: str = "utf-8",
     _debug_dump: DebugDumpOptions | None = None,
 ) -> None:
     """
@@ -207,14 +227,19 @@ def save(
         (NOT IMPLEMENTED) The number of pixels to expand the screenshot by.  This can be
         increased to capture more of the surrounding area, or decreased to capture less.
     web_driver
-        The webdriver to use when taking the screenshot. By default, uses Google Chrome. Supports
-        `"firefox"` (Mozilla Firefox), `"safari"` (Apple Safari), and `"edge"` (Microsoft Edge).
-        Specified browser must be installed.
+        The webdriver to use when taking the screenshot. Either a driver name, or webdriver
+        instance. By default, uses Google Chrome. Supports `"firefox"` (Mozilla Firefox), `"safari"`
+        (Apple Safari), and `"edge"` (Microsoft Edge).
+
+        Specified browser must be installed. Note that if a webdriver instance is passed, options
+        that require setting up a webdriver, like debug_port, will not be used.
     window_size
         The size of the browser window to use when laying out the table. This shouldn't be necessary
         to capture a table, but may affect the tables appearance.
     debug_port
         Port number to use for debugging. By default no debugging port is opened.
+    encoding
+        The encoding used when writing temporary files.
     _debug_dump
         Whether the saved image should be a big browser window, with key elements outlined. This is
         helpful for debugging this function's resizing, cropping heuristics. This is an internal
@@ -255,18 +280,22 @@ def save(
     if selector != "table":
         raise NotImplementedError("Currently, only selector='table' is supported.")
 
-    # Get the file extension from the file name
-    file_extension = file.split(".")[-1]
+    if isinstance(file, Path):
+        file = str(file)
 
     # If there is no file extension, add the .png extension
-    if len(file_extension) == len(file):
+    if not Path(file).suffix:
         file += ".png"
 
     # Get the HTML content from the displayed output
     html_content = as_raw_html(self)
 
     # Set the webdriver and options based on the chosen browser (`web_driver=` argument)
-    if web_driver == "chrome":
+    if isinstance(web_driver, webdriver.Remote):
+        wdriver = _NoOpDriverCtx(web_driver)
+        wd_options = None
+
+    elif web_driver == "chrome":
         wdriver = webdriver.Chrome
         wd_options = webdriver.ChromeOptions()
     elif web_driver == "safari":
@@ -278,6 +307,8 @@ def save(
     elif web_driver == "edge":
         wdriver = webdriver.Edge
         wd_options = webdriver.EdgeOptions()
+    else:
+        raise ValueError(f"Unsupported web driver: {web_driver}")
 
     # specify headless flag ----
     if web_driver in {"firefox", "edge"}:
@@ -306,11 +337,11 @@ def save(
     ):
 
         # Write the HTML content to the temp file
-        with open(f"{tmp_dir}/table.html", "w") as temp_file:
+        with open(f"{tmp_dir}/table.html", "w", encoding=encoding) as temp_file:
             temp_file.write(html_content)
 
         # Open the HTML file in the headless browser
-        headless_browser.set_window_size(window_size[0], window_size[1])
+        headless_browser.set_window_size(*window_size)
         headless_browser.get("file://" + temp_file.name)
 
         _save_screenshot(headless_browser, scale, file, debug=_debug_dump)
@@ -404,12 +435,7 @@ def _save_screenshot(
         from PIL import Image
 
         # convert to other formats (e.g. pdf, bmp) using PIL
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            fname = f"{tmp_dir}/image.png"
-            el.screenshot(fname)
-
-            with open(fname, "rb") as f:
-                Image.open(fp=BytesIO(f.read())).save(fp=path)
+        Image.open(fp=BytesIO(el.screenshot_as_png)).save(fp=path)
 
 
 def _dump_debug_screenshot(driver, path):
