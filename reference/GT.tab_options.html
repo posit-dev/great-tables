@@ -115,6 +115,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../reference/_styles-quartodoc.css">
 </head>
 
 <body class="nav-fixed">
@@ -335,768 +336,502 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <p>Modify the options available in a table. These options are named by the components, the subcomponents, and the element that can adjusted.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 8%">
-<col style="width: 13%">
-<col style="width: 76%">
-<col style="width: 2%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>container_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the table's container. Can be specified as a single-length character with units of pixels or as a percentage. If provided as a scalar numeric value, it is assumed that the value is given in units of pixels.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>container_height</td>
-<td><code>str</code> | None</td>
-<td>The height of the table's container.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>container_overflow_x</td>
-<td><code>str</code> | None</td>
-<td>An option to enable scrolling in the horizontal direction when the table content overflows the container dimensions. Using <code>True</code> (the default) means that horizontal scrolling is enabled to view the entire table in those directions. With <code>False</code>, the table may be clipped if the table width or height exceeds the <code>container_width</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>container_overflow_y</td>
-<td><code>str</code> | None</td>
-<td>An option to enable scrolling in the vertical direction when the table content overflows. Same rules apply as for <code>container_overflow_x</code>; the dependency here is that of the table height (<code>container_height</code>).</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the table. Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_layout</td>
-<td><code>str</code> | None</td>
-<td>The value for the <code>table-layout</code> CSS style in the HTML output context. By default, this is <code>\"fixed\"</code> but another valid option is <code>\"auto\"</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_margin_left</td>
-<td><code>str</code> | None</td>
-<td>The size of the margins on the left of the table within the container. Can be specified as a single-length value with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels. Using <code>table_margin_left</code> will overwrite any values set by <code>table_align</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_margin_right</td>
-<td><code>str</code> | None</td>
-<td>The size of the margins on the right of the table within the container. Same rules apply as for <code>table_margin_left</code>. Using <code>table_margin_right</code> will overwrite any values set by <code>table_align</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_background_color</td>
-<td><code>str</code> | None</td>
-<td>The background color for the table. A color name or a hexadecimal color code should be provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_additional_css</td>
-<td><code>list</code>[<code>str</code>] | None</td>
-<td>Additional CSS that can be added to the table. This can be used to add any custom CSS that is not covered by the other options.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_font_names</td>
-<td><code>str</code> | <code>list</code>[<code>str</code>] | None</td>
-<td>The names of the fonts used for the table. This should be provided as a list of font names. If the first font isn't available, then the next font is tried (and so on).</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_font_size</td>
-<td><code>str</code> | None</td>
-<td>The font size for the table. Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_font_weight</td>
-<td><code>str</code> | <code>int</code> | <code>float</code> | None</td>
-<td>The font weight of the table. Can be a text-based keyword such as <code>\"normal\"</code>, <code>\"bold\"</code>, <code>\"lighter\"</code>, <code>\"bolder\"</code>, or, a numeric value between <code>1</code> and <code>1000</code>, inclusive. Note that only variable fonts may support the numeric mapping of weight.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_font_style</td>
-<td><code>str</code> | None</td>
-<td>The font style for the table. Can be one of either <code>\"normal\"</code>, <code>\"italic\"</code>, or <code>\"oblique\"</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_font_color</td>
-<td><code>str</code> | None</td>
-<td>The text color used throughout the table. A color name or a hexadecimal color code should be provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_font_color_light</td>
-<td><code>str</code> | None</td>
-<td>The text color used throughout the table when the background color is dark. A color name or a hexadecimal color code should be provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_border_top_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the table's absolute top border. Can be one of either <code>\"solid\"</code>, <code>\"dotted\"</code>, <code>\"dashed\"</code>, <code>\"double\"</code>, <code>\"groove\"</code>, <code>\"ridge\"</code>, <code>\"inset\"</code>, or <code>\"outset\"</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_border_top_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the table's absolute top border. Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_border_top_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the table's absolute top border. A color name or a hexadecimal color code should be provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_border_bottom_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the table's absolute bottom border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_border_bottom_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the table's absolute bottom border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_border_bottom_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the table's absolute bottom border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_border_left_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the table's absolute left border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_border_left_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the table's absolute left border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_border_left_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the table's absolute left border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_border_right_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the table's absolute right border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_border_right_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the table's absolute right border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_border_right_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the table's absolute right border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>heading_background_color</td>
-<td><code>str</code> | None</td>
-<td>The background color for the heading. A color name or a hexadecimal color code should be provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>heading_align</td>
-<td><code>str</code> | None</td>
-<td>Controls the horizontal alignment of the heading title and subtitle. We can either use <code>\"center\"</code>, <code>\"left\"</code>, or <code>\"right\"</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>heading_title_font_size</td>
-<td><code>str</code> | None</td>
-<td>The font size for the heading title element.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>heading_title_font_weight</td>
-<td><code>str</code> | <code>int</code> | <code>float</code> | None</td>
-<td>The font weight of the heading title.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>heading_subtitle_font_size</td>
-<td><code>str</code> | None</td>
-<td>The font size for the heading subtitle element.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>heading_subtitle_font_weight</td>
-<td><code>str</code> | <code>int</code> | <code>float</code> | None</td>
-<td>The font weight of the heading subtitle.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>heading_padding</td>
-<td><code>str</code> | None</td>
-<td>The amount of vertical padding to incorporate in the <code>heading</code> (title and subtitle). Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>heading_padding_horizontal</td>
-<td><code>str</code> | None</td>
-<td>The amount of horizontal padding to incorporate in the <code>heading</code> (title and subtitle). Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>heading_border_bottom_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the header's bottom border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>heading_border_bottom_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the header's bottom border. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>heading_border_bottom_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the header's bottom border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>heading_border_lr_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the left and right borders of the <code>heading</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>heading_border_lr_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the left and right borders of the <code>heading</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>heading_border_lr_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the left and right borders of the <code>heading</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>column_labels_background_color</td>
-<td><code>str</code> | None</td>
-<td>The background color for the column labels. A color name or a hexadecimal color code should be provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>column_labels_font_size</td>
-<td><code>str</code> | None</td>
-<td>The font size to use for all column labels.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>column_labels_font_weight</td>
-<td><code>str</code> | <code>int</code> | <code>float</code> | None</td>
-<td>The font weight of the table's column labels.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>column_labels_text_transform</td>
-<td><code>str</code> | None</td>
-<td>The text transformation for the column labels. Either of the <code>\"uppercase\"</code>, <code>\"lowercase\"</code>, or <code>\"capitalize\"</code> keywords can be used.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>column_labels_padding</td>
-<td><code>str</code> | None</td>
-<td>The amount of vertical padding to incorporate in the <code>column_labels</code> (this includes the column spanners).</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>column_labels_padding_horizontal</td>
-<td><code>str</code> | None</td>
-<td>The amount of horizontal padding to incorporate in the <code>column_labels</code> (this includes the column spanners).</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>column_labels_vlines_style</td>
-<td><code>str</code> | None</td>
-<td>The style of all vertical lines ('vlines') of the <code>column_labels</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>column_labels_vlines_width</td>
-<td><code>str</code> | None</td>
-<td>The width of all vertical lines ('vlines') of the <code>column_labels</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>column_labels_vlines_color</td>
-<td><code>str</code> | None</td>
-<td>The color of all vertical lines ('vlines') of the <code>column_labels</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>column_labels_border_top_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the top border of the <code>column_labels</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>column_labels_border_top_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the top border of the <code>column_labels</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>column_labels_border_top_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the top border of the <code>column_labels</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>column_labels_border_bottom_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the bottom border of the <code>column_labels</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>column_labels_border_bottom_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the bottom border of the <code>column_labels</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>column_labels_border_bottom_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the bottom border of the <code>column_labels</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>column_labels_border_lr_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the left and right borders of the <code>column_labels</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>column_labels_border_lr_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the left and right borders of the <code>column_labels</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>column_labels_border_lr_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the left and right borders of the <code>column_labels</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>column_labels_hidden</td>
-<td><code>bool</code> | None</td>
-<td>An option to hide the column labels. If providing <code>True</code> then the entire <code>column_labels</code> location won't be seen and the table header (if present) will collapse downward.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>row_group_background_color</td>
-<td><code>str</code> | None</td>
-<td>The background color for the row group labels. A color name or a hexadecimal color code should be provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>row_group_font_weight</td>
-<td><code>str</code> | <code>int</code> | <code>float</code> | None</td>
-<td>The font weight for all row group labels present in the table.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>row_group_font_size</td>
-<td><code>str</code> | None</td>
-<td>The font size to use for all row group labels.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>row_group_padding</td>
-<td><code>str</code> | None</td>
-<td>The amount of vertical padding to incorporate in the row group labels.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>row_group_border_top_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the top border of the <code>row_group</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>row_group_border_top_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the top border of the <code>row_group</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>row_group_border_top_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the top border of the <code>row_group</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>row_group_border_bottom_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the bottom border of the <code>row_group</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>row_group_border_bottom_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the bottom border of the <code>row_group</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>row_group_border_bottom_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the bottom border of the <code>row_group</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>row_group_border_left_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the left border of the <code>row_group</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>row_group_border_left_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the left border of the <code>row_group</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>row_group_border_left_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the left border of the <code>row_group</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>row_group_border_right_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the right border of the <code>row_group</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>row_group_border_right_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the right border of the <code>row_group</code> location. If the <code>width</code> of this border is</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>row_group_border_right_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the right border of the <code>row_group</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>row_group_as_column</td>
-<td><code>bool</code> | None</td>
-<td>An option to render the row group labels as a column. If <code>True</code>, then the row group labels will be rendered as a column to the left of the table body. If <code>False</code>, then the row group labels will be rendered as a separate row above the grouping of rows.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_body_hlines_style</td>
-<td><code>str</code> | None</td>
-<td>The style of all horizontal lines ('hlines') in the <code>table_body</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_body_hlines_width</td>
-<td><code>str</code> | None</td>
-<td>The width of all horizontal lines ('hlines') in the <code>table_body</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_body_hlines_color</td>
-<td><code>str</code> | None</td>
-<td>The color of all horizontal lines ('hlines') in the <code>table_body</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_body_vlines_style</td>
-<td><code>str</code> | None</td>
-<td>The style of all vertical lines ('vlines') in the <code>table_body</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_body_vlines_width</td>
-<td><code>str</code> | None</td>
-<td>The width of all vertical lines ('vlines') in the <code>table_body</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_body_vlines_color</td>
-<td><code>str</code> | None</td>
-<td>The color of all vertical lines ('vlines') in the <code>table_body</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_body_border_top_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the top border of the <code>table_body</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_body_border_top_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the top border of the <code>table_body</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_body_border_top_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the top border of the <code>table_body</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_body_border_bottom_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the bottom border of the <code>table_body</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>table_body_border_bottom_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the bottom border of the <code>table_body</code> location. If the <code>width</code> of this border</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>table_body_border_bottom_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the bottom border of the <code>table_body</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>stub_background_color</td>
-<td><code>str</code> | None</td>
-<td>The background color for the stub. A color name or a hexadecimal color code should be provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>stub_font_size</td>
-<td><code>str</code> | None</td>
-<td>The font size to use for all row labels present in the table stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>stub_font_weight</td>
-<td><code>str</code> | <code>int</code> | <code>float</code> | None</td>
-<td>The font weight for all row labels present in the table stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>stub_text_transform</td>
-<td><code>str</code> | None</td>
-<td>The text transformation for the row labels present in the table stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>stub_border_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the vertical border of the table stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>stub_border_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the vertical border of the table stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>stub_border_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the vertical border of the table stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>stub_row_group_font_size</td>
-<td><code>str</code> | None</td>
-<td>The font size for the row group column in the stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>stub_row_group_font_weight</td>
-<td><code>str</code> | <code>int</code> | <code>float</code> | None</td>
-<td>The font weight for the row group column in the stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>stub_row_group_text_transform</td>
-<td><code>str</code> | None</td>
-<td>The text transformation for the row group column in the stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>stub_row_group_border_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the vertical border of the row group column in the stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>stub_row_group_border_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the vertical border of the row group column in the stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>stub_row_group_border_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the vertical border of the row group column in the stub.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>data_row_padding</td>
-<td><code>str</code> | None</td>
-<td>The amount of vertical padding to incorporate in the body/stub rows.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>data_row_padding_horizontal</td>
-<td><code>str</code> | None</td>
-<td>The amount of horizontal padding to incorporate in the body/stub rows.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>source_notes_background_color</td>
-<td><code>str</code> | None</td>
-<td>The background color for the source notes. A color name or a hexadecimal color code should be provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>source_notes_font_size</td>
-<td><code>str</code> | None</td>
-<td>The font size to use for all source note text.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>source_notes_padding</td>
-<td><code>str</code> | None</td>
-<td>The amount of vertical padding to incorporate in the source notes.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>source_notes_padding_horizontal</td>
-<td><code>str</code> | None</td>
-<td>The amount of horizontal padding to incorporate in the source notes.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>source_notes_multiline</td>
-<td><code>bool</code> | None</td>
-<td>An option to either put source notes in separate lines (the default, or <code>True</code>) or render them as a continuous line of text with <code>source_notes_sep</code> providing the separator (by default <code>\" \"</code>) between notes.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>source_notes_sep</td>
-<td><code>str</code> | None</td>
-<td>The separating characters between adjacent source notes when rendered as a continuous line of text (when <code>source_notes_multiline</code> is <code>False</code>). The default value is a single space character (<code>\" \"</code>).</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>source_notes_border_bottom_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the bottom border of the <code>source_notes</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>source_notes_border_bottom_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the bottom border of the <code>source_notes</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>source_notes_border_bottom_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the bottom border of the <code>source_notes</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>source_notes_border_lr_style</td>
-<td><code>str</code> | None</td>
-<td>The style of the left and right borders of the <code>source_notes</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>source_notes_border_lr_width</td>
-<td><code>str</code> | None</td>
-<td>The width of the left and right borders of the <code>source_notes</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>source_notes_border_lr_color</td>
-<td><code>str</code> | None</td>
-<td>The color of the left and right borders of the <code>source_notes</code> location.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>row_striping_background_color</td>
-<td><code>str</code> | None</td>
-<td>The background color for striped table body rows. A color name or a hexadecimal color code should be provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>row_striping_include_stub</td>
-<td><code>bool</code> | None</td>
-<td>An option for whether to include the stub when striping rows.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>row_striping_include_table_body</td>
-<td><code>bool</code> | None</td>
-<td>An option for whether to include the table body when striping rows.</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>container_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the table's container. Can be specified as a single-length character with units of pixels or as a percentage. If provided as a scalar numeric value, it is assumed that the value is given in units of pixels.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>container_height</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The height of the table's container.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>container_overflow_x</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An option to enable scrolling in the horizontal direction when the table content overflows the container dimensions. Using <code>True</code> (the default) means that horizontal scrolling is enabled to view the entire table in those directions. With <code>False</code>, the table may be clipped if the table width or height exceeds the <code>container_width</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>container_overflow_y</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An option to enable scrolling in the vertical direction when the table content overflows. Same rules apply as for <code>container_overflow_x</code>; the dependency here is that of the table height (<code>container_height</code>).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the table. Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_layout</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The value for the <code>table-layout</code> CSS style in the HTML output context. By default, this is <code>\"fixed\"</code> but another valid option is <code>\"auto\"</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_margin_left</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The size of the margins on the left of the table within the container. Can be specified as a single-length value with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels. Using <code>table_margin_left</code> will overwrite any values set by <code>table_align</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_margin_right</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The size of the margins on the right of the table within the container. Same rules apply as for <code>table_margin_left</code>. Using <code>table_margin_right</code> will overwrite any values set by <code>table_align</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_background_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The background color for the table. A color name or a hexadecimal color code should be provided.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_additional_css</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>list</code>[<code>str</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Additional CSS that can be added to the table. This can be used to add any custom CSS that is not covered by the other options.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_font_names</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>list</code>[<code>str</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The names of the fonts used for the table. This should be provided as a list of font names. If the first font isn't available, then the next font is tried (and so on).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_font_size</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font size for the table. Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_font_weight</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>int</code> | <code>float</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font weight of the table. Can be a text-based keyword such as <code>\"normal\"</code>, <code>\"bold\"</code>, <code>\"lighter\"</code>, <code>\"bolder\"</code>, or, a numeric value between <code>1</code> and <code>1000</code>, inclusive. Note that only variable fonts may support the numeric mapping of weight.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_font_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font style for the table. Can be one of either <code>\"normal\"</code>, <code>\"italic\"</code>, or <code>\"oblique\"</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_font_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The text color used throughout the table. A color name or a hexadecimal color code should be provided.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_font_color_light</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The text color used throughout the table when the background color is dark. A color name or a hexadecimal color code should be provided.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_top_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the table's absolute top border. Can be one of either <code>\"solid\"</code>, <code>\"dotted\"</code>, <code>\"dashed\"</code>, <code>\"double\"</code>, <code>\"groove\"</code>, <code>\"ridge\"</code>, <code>\"inset\"</code>, or <code>\"outset\"</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_top_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the table's absolute top border. Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_top_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the table's absolute top border. A color name or a hexadecimal color code should be provided.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_bottom_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the table's absolute bottom border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_bottom_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the table's absolute bottom border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_bottom_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the table's absolute bottom border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_left_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the table's absolute left border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_left_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the table's absolute left border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_left_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the table's absolute left border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_right_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the table's absolute right border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_right_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the table's absolute right border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_border_right_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the table's absolute right border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_background_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The background color for the heading. A color name or a hexadecimal color code should be provided.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_align</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Controls the horizontal alignment of the heading title and subtitle. We can either use <code>\"center\"</code>, <code>\"left\"</code>, or <code>\"right\"</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_title_font_size</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font size for the heading title element.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_title_font_weight</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>int</code> | <code>float</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font weight of the heading title.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_subtitle_font_size</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font size for the heading subtitle element.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_subtitle_font_weight</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>int</code> | <code>float</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font weight of the heading subtitle.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_padding</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The amount of vertical padding to incorporate in the <code>heading</code> (title and subtitle). Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_padding_horizontal</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The amount of horizontal padding to incorporate in the <code>heading</code> (title and subtitle). Can be specified as a string with units of pixels or as a percentage. If provided as a numeric value, it is assumed that the value is given in units of pixels.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_border_bottom_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the header's bottom border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_border_bottom_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the header's bottom border. If the <code>width</code> of this border is larger, then it will be the visible border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_border_bottom_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the header's bottom border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_border_lr_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the left and right borders of the <code>heading</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_border_lr_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the left and right borders of the <code>heading</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>heading_border_lr_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the left and right borders of the <code>heading</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_background_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The background color for the column labels. A color name or a hexadecimal color code should be provided.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_font_size</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font size to use for all column labels.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_font_weight</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>int</code> | <code>float</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font weight of the table's column labels.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_text_transform</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The text transformation for the column labels. Either of the <code>\"uppercase\"</code>, <code>\"lowercase\"</code>, or <code>\"capitalize\"</code> keywords can be used.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_padding</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The amount of vertical padding to incorporate in the <code>column_labels</code> (this includes the column spanners).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_padding_horizontal</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The amount of horizontal padding to incorporate in the <code>column_labels</code> (this includes the column spanners).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_vlines_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of all vertical lines ('vlines') of the <code>column_labels</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_vlines_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of all vertical lines ('vlines') of the <code>column_labels</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_vlines_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of all vertical lines ('vlines') of the <code>column_labels</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_border_top_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the top border of the <code>column_labels</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_border_top_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the top border of the <code>column_labels</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_border_top_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the top border of the <code>column_labels</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_border_bottom_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the bottom border of the <code>column_labels</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_border_bottom_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the bottom border of the <code>column_labels</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_border_bottom_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the bottom border of the <code>column_labels</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_border_lr_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the left and right borders of the <code>column_labels</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_border_lr_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the left and right borders of the <code>column_labels</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_border_lr_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the left and right borders of the <code>column_labels</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>column_labels_hidden</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An option to hide the column labels. If providing <code>True</code> then the entire <code>column_labels</code> location won't be seen and the table header (if present) will collapse downward.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_background_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The background color for the row group labels. A color name or a hexadecimal color code should be provided.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_font_weight</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>int</code> | <code>float</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font weight for all row group labels present in the table.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_font_size</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font size to use for all row group labels.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_padding</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The amount of vertical padding to incorporate in the row group labels.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_top_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the top border of the <code>row_group</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_top_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the top border of the <code>row_group</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_top_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the top border of the <code>row_group</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_bottom_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the bottom border of the <code>row_group</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_bottom_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the bottom border of the <code>row_group</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_bottom_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the bottom border of the <code>row_group</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_left_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the left border of the <code>row_group</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_left_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the left border of the <code>row_group</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_left_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the left border of the <code>row_group</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_right_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the right border of the <code>row_group</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_right_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the right border of the <code>row_group</code> location. If the <code>width</code> of this border is</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_border_right_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the right border of the <code>row_group</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_group_as_column</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An option to render the row group labels as a column. If <code>True</code>, then the row group labels will be rendered as a column to the left of the table body. If <code>False</code>, then the row group labels will be rendered as a separate row above the grouping of rows.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_hlines_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of all horizontal lines ('hlines') in the <code>table_body</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_hlines_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of all horizontal lines ('hlines') in the <code>table_body</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_hlines_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of all horizontal lines ('hlines') in the <code>table_body</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_vlines_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of all vertical lines ('vlines') in the <code>table_body</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_vlines_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of all vertical lines ('vlines') in the <code>table_body</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_vlines_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of all vertical lines ('vlines') in the <code>table_body</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_border_top_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the top border of the <code>table_body</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_border_top_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the top border of the <code>table_body</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_border_top_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the top border of the <code>table_body</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_border_bottom_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the bottom border of the <code>table_body</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_border_bottom_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the bottom border of the <code>table_body</code> location. If the <code>width</code> of this border</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>table_body_border_bottom_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the bottom border of the <code>table_body</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_background_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The background color for the stub. A color name or a hexadecimal color code should be provided.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_font_size</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font size to use for all row labels present in the table stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_font_weight</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>int</code> | <code>float</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font weight for all row labels present in the table stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_text_transform</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The text transformation for the row labels present in the table stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_border_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the vertical border of the table stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_border_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the vertical border of the table stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_border_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the vertical border of the table stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_row_group_font_size</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font size for the row group column in the stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_row_group_font_weight</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>int</code> | <code>float</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font weight for the row group column in the stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_row_group_text_transform</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The text transformation for the row group column in the stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_row_group_border_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the vertical border of the row group column in the stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_row_group_border_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the vertical border of the row group column in the stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>stub_row_group_border_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the vertical border of the row group column in the stub.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>data_row_padding</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The amount of vertical padding to incorporate in the body/stub rows.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>data_row_padding_horizontal</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The amount of horizontal padding to incorporate in the body/stub rows.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_background_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The background color for the source notes. A color name or a hexadecimal color code should be provided.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_font_size</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The font size to use for all source note text.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_padding</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The amount of vertical padding to incorporate in the source notes.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_padding_horizontal</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The amount of horizontal padding to incorporate in the source notes.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_multiline</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An option to either put source notes in separate lines (the default, or <code>True</code>) or render them as a continuous line of text with <code>source_notes_sep</code> providing the separator (by default <code>\" \"</code>) between notes.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_sep</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The separating characters between adjacent source notes when rendered as a continuous line of text (when <code>source_notes_multiline</code> is <code>False</code>). The default value is a single space character (<code>\" \"</code>).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_border_bottom_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the bottom border of the <code>source_notes</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_border_bottom_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the bottom border of the <code>source_notes</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_border_bottom_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the bottom border of the <code>source_notes</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_border_lr_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The style of the left and right borders of the <code>source_notes</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_border_lr_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The width of the left and right borders of the <code>source_notes</code> location. If the <code>width</code> of this border is larger, then it will be the visible border.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>source_notes_border_lr_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The color of the left and right borders of the <code>source_notes</code> location.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_striping_background_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The background color for striped table body rows. A color name or a hexadecimal color code should be provided.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_striping_include_stub</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An option for whether to include the stub when striping rows.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>row_striping_include_table_body</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An option for whether to include the table body when striping rows.</p>
+</dd>
+</dl>
 </section>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
-<td>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../reference/GT.html#great_tables.GT">GT</a></span></code></dt>
+<dd>
+<p>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</p>
+</dd>
+</dl>
 </section>
 <section id="examples" class="level2 doc-section doc-section-examples">
 <h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>Using select columns from the <code>exibble</code> dataset, let’s create a new table with a number of table components added. We can use this object going forward to demonstrate some of the features available in the <code>tab_options()</code> method.</p>
-<div id="9a3679c7" class="cell" data-execution_count="1">
+<div id="85b19ca0" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble, md</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>gt_tbl <span class="op">=</span> (</span>
@@ -1116,52 +851,52 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>gt_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="dlgusimtnk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="yqyzkevxrb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#dlgusimtnk table {
+#yqyzkevxrb table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#dlgusimtnk thead, tbody, tfoot, tr, td, th { border-style: none; }
+#yqyzkevxrb thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#dlgusimtnk p { margin: 0; padding: 0; }
- #dlgusimtnk .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #dlgusimtnk .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #dlgusimtnk .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #dlgusimtnk .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #dlgusimtnk .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dlgusimtnk .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dlgusimtnk .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dlgusimtnk .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #dlgusimtnk .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #dlgusimtnk .gt_column_spanner_outer:first-child { padding-left: 0; }
- #dlgusimtnk .gt_column_spanner_outer:last-child { padding-right: 0; }
- #dlgusimtnk .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #dlgusimtnk .gt_spanner_row { border-bottom-style: hidden; }
- #dlgusimtnk .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #dlgusimtnk .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #dlgusimtnk .gt_from_md> :first-child { margin-top: 0; }
- #dlgusimtnk .gt_from_md> :last-child { margin-bottom: 0; }
- #dlgusimtnk .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #dlgusimtnk .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #dlgusimtnk .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #dlgusimtnk .gt_row_group_first td { border-top-width: 2px; }
- #dlgusimtnk .gt_row_group_first th { border-top-width: 2px; }
- #dlgusimtnk .gt_striped { background-color: rgba(128,128,128,0.05); }
- #dlgusimtnk .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dlgusimtnk .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dlgusimtnk .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #dlgusimtnk .gt_left { text-align: left; }
- #dlgusimtnk .gt_center { text-align: center; }
- #dlgusimtnk .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #dlgusimtnk .gt_font_normal { font-weight: normal; }
- #dlgusimtnk .gt_font_bold { font-weight: bold; }
- #dlgusimtnk .gt_font_italic { font-style: italic; }
- #dlgusimtnk .gt_super { font-size: 65%; }
- #dlgusimtnk .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #dlgusimtnk .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#yqyzkevxrb p { margin: 0; padding: 0; }
+ #yqyzkevxrb .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #yqyzkevxrb .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #yqyzkevxrb .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #yqyzkevxrb .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #yqyzkevxrb .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #yqyzkevxrb .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #yqyzkevxrb .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #yqyzkevxrb .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #yqyzkevxrb .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #yqyzkevxrb .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #yqyzkevxrb .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #yqyzkevxrb .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #yqyzkevxrb .gt_spanner_row { border-bottom-style: hidden; }
+ #yqyzkevxrb .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #yqyzkevxrb .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #yqyzkevxrb .gt_from_md> :first-child { margin-top: 0; }
+ #yqyzkevxrb .gt_from_md> :last-child { margin-bottom: 0; }
+ #yqyzkevxrb .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #yqyzkevxrb .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #yqyzkevxrb .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #yqyzkevxrb .gt_row_group_first td { border-top-width: 2px; }
+ #yqyzkevxrb .gt_row_group_first th { border-top-width: 2px; }
+ #yqyzkevxrb .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #yqyzkevxrb .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #yqyzkevxrb .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #yqyzkevxrb .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #yqyzkevxrb .gt_left { text-align: left; }
+ #yqyzkevxrb .gt_center { text-align: center; }
+ #yqyzkevxrb .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #yqyzkevxrb .gt_font_normal { font-weight: normal; }
+ #yqyzkevxrb .gt_font_bold { font-weight: bold; }
+ #yqyzkevxrb .gt_font_italic { font-style: italic; }
+ #yqyzkevxrb .gt_super { font-size: 65%; }
+ #yqyzkevxrb .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #yqyzkevxrb .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1251,55 +986,55 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </div>
 </div>
 <p>We can modify the table width to be set as <code>"100%</code>“. In effect, this spans the table to entirely fill the content width area. This is done with the <code>table_width</code> option.</p>
-<div id="48612b02" class="cell" data-execution_count="2">
+<div id="c016bff4" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gt_tbl.tab_options(table_width<span class="op">=</span><span class="st">"100%"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-<div id="rblpteomhb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ogcvaypagd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#rblpteomhb table {
+#ogcvaypagd table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#rblpteomhb thead, tbody, tfoot, tr, td, th { border-style: none; }
+#ogcvaypagd thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#rblpteomhb p { margin: 0; padding: 0; }
- #rblpteomhb .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: 100%; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #rblpteomhb .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #rblpteomhb .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #rblpteomhb .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #rblpteomhb .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #rblpteomhb .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #rblpteomhb .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #rblpteomhb .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #rblpteomhb .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #rblpteomhb .gt_column_spanner_outer:first-child { padding-left: 0; }
- #rblpteomhb .gt_column_spanner_outer:last-child { padding-right: 0; }
- #rblpteomhb .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #rblpteomhb .gt_spanner_row { border-bottom-style: hidden; }
- #rblpteomhb .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #rblpteomhb .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #rblpteomhb .gt_from_md> :first-child { margin-top: 0; }
- #rblpteomhb .gt_from_md> :last-child { margin-bottom: 0; }
- #rblpteomhb .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #rblpteomhb .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #rblpteomhb .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #rblpteomhb .gt_row_group_first td { border-top-width: 2px; }
- #rblpteomhb .gt_row_group_first th { border-top-width: 2px; }
- #rblpteomhb .gt_striped { background-color: rgba(128,128,128,0.05); }
- #rblpteomhb .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #rblpteomhb .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #rblpteomhb .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #rblpteomhb .gt_left { text-align: left; }
- #rblpteomhb .gt_center { text-align: center; }
- #rblpteomhb .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #rblpteomhb .gt_font_normal { font-weight: normal; }
- #rblpteomhb .gt_font_bold { font-weight: bold; }
- #rblpteomhb .gt_font_italic { font-style: italic; }
- #rblpteomhb .gt_super { font-size: 65%; }
- #rblpteomhb .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #rblpteomhb .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#ogcvaypagd p { margin: 0; padding: 0; }
+ #ogcvaypagd .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: 100%; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #ogcvaypagd .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #ogcvaypagd .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #ogcvaypagd .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #ogcvaypagd .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ogcvaypagd .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ogcvaypagd .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ogcvaypagd .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #ogcvaypagd .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #ogcvaypagd .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #ogcvaypagd .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #ogcvaypagd .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #ogcvaypagd .gt_spanner_row { border-bottom-style: hidden; }
+ #ogcvaypagd .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #ogcvaypagd .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #ogcvaypagd .gt_from_md> :first-child { margin-top: 0; }
+ #ogcvaypagd .gt_from_md> :last-child { margin-bottom: 0; }
+ #ogcvaypagd .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #ogcvaypagd .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #ogcvaypagd .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #ogcvaypagd .gt_row_group_first td { border-top-width: 2px; }
+ #ogcvaypagd .gt_row_group_first th { border-top-width: 2px; }
+ #ogcvaypagd .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #ogcvaypagd .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ogcvaypagd .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #ogcvaypagd .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #ogcvaypagd .gt_left { text-align: left; }
+ #ogcvaypagd .gt_center { text-align: center; }
+ #ogcvaypagd .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #ogcvaypagd .gt_font_normal { font-weight: normal; }
+ #ogcvaypagd .gt_font_bold { font-weight: bold; }
+ #ogcvaypagd .gt_font_italic { font-style: italic; }
+ #ogcvaypagd .gt_super { font-size: 65%; }
+ #ogcvaypagd .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #ogcvaypagd .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1389,55 +1124,55 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </div>
 </div>
 <p>With the <code>table_background_color</code> option, we can modify the table’s background color. Here, we want that to be <code>"lightcyan"</code>.</p>
-<div id="d64f41dd" class="cell" data-execution_count="3">
+<div id="74ec7f07" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>gt_tbl.tab_options(table_background_color<span class="op">=</span><span class="st">"lightcyan"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<div id="llmryipmpa" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="emlzbeltpe" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#llmryipmpa table {
+#emlzbeltpe table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#llmryipmpa thead, tbody, tfoot, tr, td, th { border-style: none; }
+#emlzbeltpe thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#llmryipmpa p { margin: 0; padding: 0; }
- #llmryipmpa .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: lightcyan; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #llmryipmpa .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #llmryipmpa .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: lightcyan; border-bottom-width: 0; }
- #llmryipmpa .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: lightcyan; border-top-width: 0; }
- #llmryipmpa .gt_heading { background-color: lightcyan; text-align: center; border-bottom-color: lightcyan; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #llmryipmpa .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #llmryipmpa .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #llmryipmpa .gt_col_heading { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #llmryipmpa .gt_column_spanner_outer { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #llmryipmpa .gt_column_spanner_outer:first-child { padding-left: 0; }
- #llmryipmpa .gt_column_spanner_outer:last-child { padding-right: 0; }
- #llmryipmpa .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #llmryipmpa .gt_spanner_row { border-bottom-style: hidden; }
- #llmryipmpa .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #llmryipmpa .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #llmryipmpa .gt_from_md> :first-child { margin-top: 0; }
- #llmryipmpa .gt_from_md> :last-child { margin-bottom: 0; }
- #llmryipmpa .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #llmryipmpa .gt_stub { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #llmryipmpa .gt_stub_row_group { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #llmryipmpa .gt_row_group_first td { border-top-width: 2px; }
- #llmryipmpa .gt_row_group_first th { border-top-width: 2px; }
- #llmryipmpa .gt_striped { background-color: rgba(128,128,128,0.05); }
- #llmryipmpa .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #llmryipmpa .gt_sourcenotes { color: #333333; background-color: lightcyan; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #llmryipmpa .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #llmryipmpa .gt_left { text-align: left; }
- #llmryipmpa .gt_center { text-align: center; }
- #llmryipmpa .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #llmryipmpa .gt_font_normal { font-weight: normal; }
- #llmryipmpa .gt_font_bold { font-weight: bold; }
- #llmryipmpa .gt_font_italic { font-style: italic; }
- #llmryipmpa .gt_super { font-size: 65%; }
- #llmryipmpa .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #llmryipmpa .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#emlzbeltpe p { margin: 0; padding: 0; }
+ #emlzbeltpe .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: lightcyan; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #emlzbeltpe .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #emlzbeltpe .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: lightcyan; border-bottom-width: 0; }
+ #emlzbeltpe .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: lightcyan; border-top-width: 0; }
+ #emlzbeltpe .gt_heading { background-color: lightcyan; text-align: center; border-bottom-color: lightcyan; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #emlzbeltpe .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #emlzbeltpe .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #emlzbeltpe .gt_col_heading { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #emlzbeltpe .gt_column_spanner_outer { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #emlzbeltpe .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #emlzbeltpe .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #emlzbeltpe .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #emlzbeltpe .gt_spanner_row { border-bottom-style: hidden; }
+ #emlzbeltpe .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #emlzbeltpe .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #emlzbeltpe .gt_from_md> :first-child { margin-top: 0; }
+ #emlzbeltpe .gt_from_md> :last-child { margin-bottom: 0; }
+ #emlzbeltpe .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #emlzbeltpe .gt_stub { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #emlzbeltpe .gt_stub_row_group { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #emlzbeltpe .gt_row_group_first td { border-top-width: 2px; }
+ #emlzbeltpe .gt_row_group_first th { border-top-width: 2px; }
+ #emlzbeltpe .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #emlzbeltpe .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #emlzbeltpe .gt_sourcenotes { color: #333333; background-color: lightcyan; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #emlzbeltpe .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #emlzbeltpe .gt_left { text-align: left; }
+ #emlzbeltpe .gt_center { text-align: center; }
+ #emlzbeltpe .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #emlzbeltpe .gt_font_normal { font-weight: normal; }
+ #emlzbeltpe .gt_font_bold { font-weight: bold; }
+ #emlzbeltpe .gt_font_italic { font-style: italic; }
+ #emlzbeltpe .gt_super { font-size: 65%; }
+ #emlzbeltpe .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #emlzbeltpe .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1527,55 +1262,55 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </div>
 </div>
 <p>The data rows of a table typically take up the most physical space but we have some control over the extent of that. With the <code>data_row_padding</code> option, it’s possible to modify the top and bottom padding of data rows. We’ll do just that in the following example, reducing the padding to a value of <code>"3px"</code>.</p>
-<div id="1ec029c8" class="cell" data-execution_count="4">
+<div id="02bd5bdc" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gt_tbl.tab_options(data_row_padding<span class="op">=</span><span class="st">"3px"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<div id="jlkxmngjzb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ujpunzxypz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#jlkxmngjzb table {
+#ujpunzxypz table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#jlkxmngjzb thead, tbody, tfoot, tr, td, th { border-style: none; }
+#ujpunzxypz thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#jlkxmngjzb p { margin: 0; padding: 0; }
- #jlkxmngjzb .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #jlkxmngjzb .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #jlkxmngjzb .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #jlkxmngjzb .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #jlkxmngjzb .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #jlkxmngjzb .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #jlkxmngjzb .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #jlkxmngjzb .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #jlkxmngjzb .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #jlkxmngjzb .gt_column_spanner_outer:first-child { padding-left: 0; }
- #jlkxmngjzb .gt_column_spanner_outer:last-child { padding-right: 0; }
- #jlkxmngjzb .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #jlkxmngjzb .gt_spanner_row { border-bottom-style: hidden; }
- #jlkxmngjzb .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #jlkxmngjzb .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #jlkxmngjzb .gt_from_md> :first-child { margin-top: 0; }
- #jlkxmngjzb .gt_from_md> :last-child { margin-bottom: 0; }
- #jlkxmngjzb .gt_row { padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #jlkxmngjzb .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #jlkxmngjzb .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #jlkxmngjzb .gt_row_group_first td { border-top-width: 2px; }
- #jlkxmngjzb .gt_row_group_first th { border-top-width: 2px; }
- #jlkxmngjzb .gt_striped { background-color: rgba(128,128,128,0.05); }
- #jlkxmngjzb .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #jlkxmngjzb .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #jlkxmngjzb .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #jlkxmngjzb .gt_left { text-align: left; }
- #jlkxmngjzb .gt_center { text-align: center; }
- #jlkxmngjzb .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #jlkxmngjzb .gt_font_normal { font-weight: normal; }
- #jlkxmngjzb .gt_font_bold { font-weight: bold; }
- #jlkxmngjzb .gt_font_italic { font-style: italic; }
- #jlkxmngjzb .gt_super { font-size: 65%; }
- #jlkxmngjzb .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #jlkxmngjzb .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#ujpunzxypz p { margin: 0; padding: 0; }
+ #ujpunzxypz .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #ujpunzxypz .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #ujpunzxypz .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #ujpunzxypz .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #ujpunzxypz .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ujpunzxypz .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ujpunzxypz .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ujpunzxypz .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #ujpunzxypz .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #ujpunzxypz .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #ujpunzxypz .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #ujpunzxypz .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #ujpunzxypz .gt_spanner_row { border-bottom-style: hidden; }
+ #ujpunzxypz .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #ujpunzxypz .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #ujpunzxypz .gt_from_md> :first-child { margin-top: 0; }
+ #ujpunzxypz .gt_from_md> :last-child { margin-bottom: 0; }
+ #ujpunzxypz .gt_row { padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #ujpunzxypz .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #ujpunzxypz .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #ujpunzxypz .gt_row_group_first td { border-top-width: 2px; }
+ #ujpunzxypz .gt_row_group_first th { border-top-width: 2px; }
+ #ujpunzxypz .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #ujpunzxypz .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ujpunzxypz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #ujpunzxypz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #ujpunzxypz .gt_left { text-align: left; }
+ #ujpunzxypz .gt_center { text-align: center; }
+ #ujpunzxypz .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #ujpunzxypz .gt_font_normal { font-weight: normal; }
+ #ujpunzxypz .gt_font_bold { font-weight: bold; }
+ #ujpunzxypz .gt_font_italic { font-style: italic; }
+ #ujpunzxypz .gt_super { font-size: 65%; }
+ #ujpunzxypz .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #ujpunzxypz .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1665,55 +1400,55 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </div>
 </div>
 <p>The size of the title and the subtitle text in the header of the table can be altered with the <code>heading_title_font_size</code> and <code>heading_subtitle_font_size</code> options. Here, we’ll use the <code>"small"</code> and <code>"x-small"</code> keyword values.</p>
-<div id="ba9c62a5" class="cell" data-execution_count="5">
+<div id="468d4267" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>gt_tbl.tab_options(heading_title_font_size<span class="op">=</span><span class="st">"small"</span>, heading_subtitle_font_size<span class="op">=</span><span class="st">"x-small"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
-<div id="dcdbomgcwl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="psyqrgdoxr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#dcdbomgcwl table {
+#psyqrgdoxr table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#dcdbomgcwl thead, tbody, tfoot, tr, td, th { border-style: none; }
+#psyqrgdoxr thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#dcdbomgcwl p { margin: 0; padding: 0; }
- #dcdbomgcwl .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #dcdbomgcwl .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #dcdbomgcwl .gt_title { color: #333333; font-size: small; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #dcdbomgcwl .gt_subtitle { color: #333333; font-size: x-small; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #dcdbomgcwl .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dcdbomgcwl .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dcdbomgcwl .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dcdbomgcwl .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #dcdbomgcwl .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #dcdbomgcwl .gt_column_spanner_outer:first-child { padding-left: 0; }
- #dcdbomgcwl .gt_column_spanner_outer:last-child { padding-right: 0; }
- #dcdbomgcwl .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #dcdbomgcwl .gt_spanner_row { border-bottom-style: hidden; }
- #dcdbomgcwl .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #dcdbomgcwl .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #dcdbomgcwl .gt_from_md> :first-child { margin-top: 0; }
- #dcdbomgcwl .gt_from_md> :last-child { margin-bottom: 0; }
- #dcdbomgcwl .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #dcdbomgcwl .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #dcdbomgcwl .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #dcdbomgcwl .gt_row_group_first td { border-top-width: 2px; }
- #dcdbomgcwl .gt_row_group_first th { border-top-width: 2px; }
- #dcdbomgcwl .gt_striped { background-color: rgba(128,128,128,0.05); }
- #dcdbomgcwl .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dcdbomgcwl .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dcdbomgcwl .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #dcdbomgcwl .gt_left { text-align: left; }
- #dcdbomgcwl .gt_center { text-align: center; }
- #dcdbomgcwl .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #dcdbomgcwl .gt_font_normal { font-weight: normal; }
- #dcdbomgcwl .gt_font_bold { font-weight: bold; }
- #dcdbomgcwl .gt_font_italic { font-style: italic; }
- #dcdbomgcwl .gt_super { font-size: 65%; }
- #dcdbomgcwl .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #dcdbomgcwl .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#psyqrgdoxr p { margin: 0; padding: 0; }
+ #psyqrgdoxr .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #psyqrgdoxr .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #psyqrgdoxr .gt_title { color: #333333; font-size: small; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #psyqrgdoxr .gt_subtitle { color: #333333; font-size: x-small; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #psyqrgdoxr .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #psyqrgdoxr .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #psyqrgdoxr .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #psyqrgdoxr .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #psyqrgdoxr .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #psyqrgdoxr .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #psyqrgdoxr .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #psyqrgdoxr .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #psyqrgdoxr .gt_spanner_row { border-bottom-style: hidden; }
+ #psyqrgdoxr .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #psyqrgdoxr .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #psyqrgdoxr .gt_from_md> :first-child { margin-top: 0; }
+ #psyqrgdoxr .gt_from_md> :last-child { margin-bottom: 0; }
+ #psyqrgdoxr .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #psyqrgdoxr .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #psyqrgdoxr .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #psyqrgdoxr .gt_row_group_first td { border-top-width: 2px; }
+ #psyqrgdoxr .gt_row_group_first th { border-top-width: 2px; }
+ #psyqrgdoxr .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #psyqrgdoxr .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #psyqrgdoxr .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #psyqrgdoxr .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #psyqrgdoxr .gt_left { text-align: left; }
+ #psyqrgdoxr .gt_center { text-align: center; }
+ #psyqrgdoxr .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #psyqrgdoxr .gt_font_normal { font-weight: normal; }
+ #psyqrgdoxr .gt_font_bold { font-weight: bold; }
+ #psyqrgdoxr .gt_font_italic { font-style: italic; }
+ #psyqrgdoxr .gt_super { font-size: 65%; }
+ #psyqrgdoxr .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #psyqrgdoxr .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">

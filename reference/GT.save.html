@@ -112,6 +112,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../reference/_styles-quartodoc.css">
 </head>
 
 <body class="nav-fixed">
@@ -208,102 +209,53 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <p>The output file is created by taking a screenshot of the table using a headless browser.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 2%">
-<col style="width: 22%">
-<col style="width: 72%">
-<col style="width: 2%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>file</td>
-<td><code>Path</code> | <code>str</code></td>
-<td>The name of the file to save the image to. Accepts names ending with .png, .bmp, and other image extensions. Also accepts the extension .pdf.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>selector</td>
-<td><code>str</code></td>
-<td>(NOT IMPLEMENTED) The HTML element name used to select table. Defaults to the whole table.</td>
-<td><code>'table'</code></td>
-</tr>
-<tr class="odd">
-<td>scale</td>
-<td><code>float</code></td>
-<td>The scaling factor that will be used when generating the image. Lower values decrease resolution. A scale of 2 is equivalent to doubling the width of the table in pixels. Note that higher resolution results in larger file sizes.</td>
-<td><code>1.0</code></td>
-</tr>
-<tr class="even">
-<td>expand</td>
-<td><code>int</code></td>
-<td>(NOT IMPLEMENTED) The number of pixels to expand the screenshot by. This can be increased to capture more of the surrounding area, or decreased to capture less.</td>
-<td><code>5</code></td>
-</tr>
-<tr class="odd">
-<td>web_driver</td>
-<td><code>WebDrivers</code> | <code>webdriver</code>.<code>Remote</code></td>
-<td>The webdriver to use when taking the screenshot. Either a driver name, or webdriver instance. By default, uses Google Chrome. Supports <code>\"firefox\"</code> (Mozilla Firefox), <code>\"safari\"</code> (Apple Safari), and <code>\"edge\"</code> (Microsoft Edge). Specified browser must be installed. Note that if a webdriver instance is passed, options that require setting up a webdriver, like debug_port, will not be used.</td>
-<td><code>'chrome'</code></td>
-</tr>
-<tr class="even">
-<td>window_size</td>
-<td><code>tuple</code>[<code>int</code>, <code>int</code>]</td>
-<td>The size of the browser window to use when laying out the table. This shouldn't be necessary to capture a table, but may affect the tables appearance.</td>
-<td><code>(6000, 6000)</code></td>
-</tr>
-<tr class="odd">
-<td>debug_port</td>
-<td>None | <code>int</code></td>
-<td>Port number to use for debugging. By default no debugging port is opened.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>encoding</td>
-<td><code>str</code></td>
-<td>The encoding used when writing temporary files.</td>
-<td><code>'utf-8'</code></td>
-</tr>
-<tr class="odd">
-<td>_debug_dump</td>
-<td><code>DebugDumpOptions</code> | None</td>
-<td>Whether the saved image should be a big browser window, with key elements outlined. This is helpful for debugging this function's resizing, cropping heuristics. This is an internal parameter and subject to change.</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>file</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>Path</code> | <code>str</code></span></code></dt>
+<dd>
+<p>The name of the file to save the image to. Accepts names ending with .png, .bmp, and other image extensions. Also accepts the extension .pdf.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>selector</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'table'</span></code></dt>
+<dd>
+<p>(NOT IMPLEMENTED) The HTML element name used to select table. Defaults to the whole table.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>scale</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>float</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">1.0</span></code></dt>
+<dd>
+<p>The scaling factor that will be used when generating the image. Lower values decrease resolution. A scale of 2 is equivalent to doubling the width of the table in pixels. Note that higher resolution results in larger file sizes.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>expand</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">5</span></code></dt>
+<dd>
+<p>(NOT IMPLEMENTED) The number of pixels to expand the screenshot by. This can be increased to capture more of the surrounding area, or decreased to capture less.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>web_driver</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>WebDrivers</code> | <code>webdriver</code>.<code>Remote</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'chrome'</span></code></dt>
+<dd>
+<p>The webdriver to use when taking the screenshot. Either a driver name, or webdriver instance. By default, uses Google Chrome. Supports <code>\"firefox\"</code> (Mozilla Firefox), <code>\"safari\"</code> (Apple Safari), and <code>\"edge\"</code> (Microsoft Edge). Specified browser must be installed. Note that if a webdriver instance is passed, options that require setting up a webdriver, like debug_port, will not be used.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>window_size</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>tuple</code>[<code>int</code>, <code>int</code>]</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">(6000, 6000)</span></code></dt>
+<dd>
+<p>The size of the browser window to use when laying out the table. This shouldn't be necessary to capture a table, but may affect the tables appearance.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>debug_port</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">None | <code>int</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Port number to use for debugging. By default no debugging port is opened.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>encoding</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'utf-8'</span></code></dt>
+<dd>
+<p>The encoding used when writing temporary files.</p>
+</dd>
+<dt><code><span class="parameter-name">**_debug_dump**</span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>DebugDumpOptions</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Whether the saved image should be a big browser window, with key elements outlined. This is helpful for debugging this function's resizing, cropping heuristics. This is an internal parameter and subject to change.</p>
+</dd>
+</dl>
 </section>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 85%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td>None</td>
-<td>This function does not return anything; it simply saves the image to the specified file path.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">None</span></code></dt>
+<dd>
+<p>This function does not return anything; it simply saves the image to the specified file path.</p>
+</dd>
+</dl>
 </section>
 <section id="details" class="level2 doc-section doc-section-details">
 <h2 class="doc-section doc-section-details anchored" data-anchor-id="details">Details</h2>

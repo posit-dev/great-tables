@@ -112,6 +112,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../reference/_styles-quartodoc.css">
 </head>
 
 <body class="nav-fixed">
@@ -197,48 +198,24 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <p>Format input values to time values using one of 5 preset time styles. Input can be in the form of <code>time</code> values, or strings in the ISO 8601 forms of <code>HH:MM:SS</code> or <code>YYYY-MM-DD HH:MM:SS</code>.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 3%">
-<col style="width: 15%">
-<col style="width: 77%">
-<col style="width: 3%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>x</td>
-<td><code>X</code></td>
-<td>A list of values to be formatted.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>time_style</td>
-<td><code>TimeStyle</code></td>
-<td>The time style to use. By default this is the short name <code>\"iso\"</code> which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using <code>info_time_style()</code>.</td>
-<td><code>'iso'</code></td>
-</tr>
-<tr class="odd">
-<td>pattern</td>
-<td><code>str</code></td>
-<td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
-<td><code>'{x}'</code></td>
-</tr>
-<tr class="even">
-<td>locale</td>
-<td><code>str</code> | None</td>
-<td>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>x</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>X</code></span></code></dt>
+<dd>
+<p>A list of values to be formatted.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>time_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>TimeStyle</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'iso'</span></code></dt>
+<dd>
+<p>The time style to use. By default this is the short name <code>\"iso\"</code> which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using <code>info_time_style()</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>pattern</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'{x}'</span></code></dt>
+<dd>
+<p>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>locale</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</p>
+</dd>
+</dl>
 </section>
 <section id="formatting-with-the-time_style-argument" class="level2 doc-section doc-section-formatting-with-the-timestyle-argument">
 <h2 class="doc-section doc-section-formatting-with-the-timestyle-argument anchored" data-anchor-id="formatting-with-the-time_style-argument">Formatting with the <code>time_style</code> argument</h2>
@@ -289,27 +266,12 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </section>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 9%">
-<col style="width: 39%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td><code>list</code>[<code>str</code>]</td>
-<td>A list of formatted values is returned.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>list</code>[<code>str</code>]</span></code></dt>
+<dd>
+<p>A list of formatted values is returned.</p>
+</dd>
+</dl>
 
 
 </section>

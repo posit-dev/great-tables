@@ -115,6 +115,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../reference/_styles-quartodoc.css">
 </head>
 
 <body class="nav-fixed">
@@ -235,121 +236,69 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </ul>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 5%">
-<col style="width: 13%">
-<col style="width: 78%">
-<col style="width: 3%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>columns</td>
-<td><code>SelectExpr</code></td>
-<td>The columns to target. Can either be a single column name or a series of column names provided in a list.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>rows</td>
-<td><code>int</code> | <code>list</code>[<code>int</code>] | None</td>
-<td>In conjunction with <code>columns=</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in targeted columns being formatted. Alternatively, we can supply a list of row indices.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>standard</td>
-<td><code>str</code></td>
-<td>The form of expressing large byte sizes is divided between: (1) decimal units (powers of 1000; e.g., <code>\"kB\"</code> and <code>\"MB\"</code>), and (2) binary units (powers of 1024; e.g., <code>\"KiB\"</code> and <code>\"MiB\"</code>). The default is to use decimal units with the <code>\"decimal\"</code> option. The alternative is to use binary units with the <code>\"binary\"</code> option.</td>
-<td><code>'decimal'</code></td>
-</tr>
-<tr class="even">
-<td>decimals</td>
-<td><code>int</code></td>
-<td>This corresponds to the exact number of decimal places to use. A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and it would result in <code>\"2\"</code>. With <code>4</code> decimal places, the formatted value becomes <code>\"2.3400\"</code>. The trailing zeros can be removed with <code>drop_trailing_zeros=True</code>.</td>
-<td><code>1</code></td>
-</tr>
-<tr class="odd">
-<td>drop_trailing_zeros</td>
-<td><code>bool</code></td>
-<td>A boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).</td>
-<td><code>True</code></td>
-</tr>
-<tr class="even">
-<td>drop_trailing_dec_mark</td>
-<td><code>bool</code></td>
-<td>A boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., <code>23</code> becomes <code>23.</code> if <code>False</code>). By default trailing decimal marks are not shown.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="odd">
-<td>use_seps</td>
-<td><code>bool</code></td>
-<td>The <code>use_seps</code> option allows for the use of digit group separators. The type of digit group separator is set by <code>sep_mark</code> and overridden if a locale ID is provided to <code>locale</code>. This setting is <code>True</code> by default.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="even">
-<td>pattern</td>
-<td><code>str</code></td>
-<td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
-<td><code>'{x}'</code></td>
-</tr>
-<tr class="odd">
-<td>sep_mark</td>
-<td><code>str</code></td>
-<td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=\",\"</code> with a value of <code>1000</code> would result in a formatted value of <code>\"1,000\"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
-<td><code>','</code></td>
-</tr>
-<tr class="even">
-<td>dec_mark</td>
-<td><code>str</code></td>
-<td>The string to be used as the decimal mark. For example, using <code>dec_mark=\",\"</code> with the value <code>0.152</code> would result in a formatted value of <code>\"0,152\"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
-<td><code>'.'</code></td>
-</tr>
-<tr class="odd">
-<td>force_sign</td>
-<td><code>bool</code></td>
-<td>Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign.</td>
-<td><code>False</code></td>
-</tr>
-<tr class="even">
-<td>incl_space</td>
-<td><code>bool</code></td>
-<td>An option for whether to include a space between the value and the currency symbol. The default is to not introduce a space character.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="odd">
-<td>locale</td>
-<td><code>str</code> | None</td>
-<td>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>columns</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>SelectExpr</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The columns to target. Can either be a single column name or a series of column names provided in a list.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>rows</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | <code>list</code>[<code>int</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>In conjunction with <code>columns=</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in targeted columns being formatted. Alternatively, we can supply a list of row indices.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>standard</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'decimal'</span></code></dt>
+<dd>
+<p>The form of expressing large byte sizes is divided between: (1) decimal units (powers of 1000; e.g., <code>\"kB\"</code> and <code>\"MB\"</code>), and (2) binary units (powers of 1024; e.g., <code>\"KiB\"</code> and <code>\"MiB\"</code>). The default is to use decimal units with the <code>\"decimal\"</code> option. The alternative is to use binary units with the <code>\"binary\"</code> option.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>decimals</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">1</span></code></dt>
+<dd>
+<p>This corresponds to the exact number of decimal places to use. A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and it would result in <code>\"2\"</code>. With <code>4</code> decimal places, the formatted value becomes <code>\"2.3400\"</code>. The trailing zeros can be removed with <code>drop_trailing_zeros=True</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>drop_trailing_zeros</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dd>
+<p>A boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>drop_trailing_dec_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dd>
+<p>A boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., <code>23</code> becomes <code>23.</code> if <code>False</code>). By default trailing decimal marks are not shown.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>use_seps</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dd>
+<p>The <code>use_seps</code> option allows for the use of digit group separators. The type of digit group separator is set by <code>sep_mark</code> and overridden if a locale ID is provided to <code>locale</code>. This setting is <code>True</code> by default.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>pattern</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'{x}'</span></code></dt>
+<dd>
+<p>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>sep_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">','</span></code></dt>
+<dd>
+<p>The string to use as a separator between groups of digits. For example, using <code>sep_mark=\",\"</code> with a value of <code>1000</code> would result in a formatted value of <code>\"1,000\"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>dec_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'.'</span></code></dt>
+<dd>
+<p>The string to be used as the decimal mark. For example, using <code>dec_mark=\",\"</code> with the value <code>0.152</code> would result in a formatted value of <code>\"0,152\"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>force_sign</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dd>
+<p>Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>incl_space</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dd>
+<p>An option for whether to include a space between the value and the currency symbol. The default is to not introduce a space character.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>locale</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</p>
+</dd>
+</dl>
 </section>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
-<td>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../reference/GT.html#great_tables.GT">GT</a></span></code></dt>
+<dd>
+<p>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</p>
+</dd>
+</dl>
 </section>
 <section id="adapting-output-to-a-specific-locale" class="level2 doc-section doc-section-adapting-output-to-a-specific-locale">
 <h2 class="doc-section doc-section-adapting-output-to-a-specific-locale anchored" data-anchor-id="adapting-output-to-a-specific-locale">Adapting output to a specific <code>locale</code></h2>
@@ -359,7 +308,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="examples" class="level2 doc-section doc-section-examples">
 <h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>Let’s use a single column from the <code>exibble</code> dataset and create a new table. We’ll format the <code>num</code> column to display as byte sizes in the decimal standard through use of the <code>fmt_bytes()</code> method.</p>
-<div id="6737c4ba" class="cell" data-execution_count="1">
+<div id="6c0661e4" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>(</span>
@@ -367,52 +316,52 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    .fmt_bytes(columns<span class="op">=</span><span class="st">"num"</span>, standard<span class="op">=</span><span class="st">"decimal"</span>)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="utrcvgexjd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="jvauzqsvmk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#utrcvgexjd table {
+#jvauzqsvmk table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#utrcvgexjd thead, tbody, tfoot, tr, td, th { border-style: none; }
+#jvauzqsvmk thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#utrcvgexjd p { margin: 0; padding: 0; }
- #utrcvgexjd .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #utrcvgexjd .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #utrcvgexjd .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #utrcvgexjd .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #utrcvgexjd .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #utrcvgexjd .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #utrcvgexjd .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #utrcvgexjd .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #utrcvgexjd .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #utrcvgexjd .gt_column_spanner_outer:first-child { padding-left: 0; }
- #utrcvgexjd .gt_column_spanner_outer:last-child { padding-right: 0; }
- #utrcvgexjd .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #utrcvgexjd .gt_spanner_row { border-bottom-style: hidden; }
- #utrcvgexjd .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #utrcvgexjd .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #utrcvgexjd .gt_from_md> :first-child { margin-top: 0; }
- #utrcvgexjd .gt_from_md> :last-child { margin-bottom: 0; }
- #utrcvgexjd .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #utrcvgexjd .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #utrcvgexjd .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #utrcvgexjd .gt_row_group_first td { border-top-width: 2px; }
- #utrcvgexjd .gt_row_group_first th { border-top-width: 2px; }
- #utrcvgexjd .gt_striped { background-color: rgba(128,128,128,0.05); }
- #utrcvgexjd .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #utrcvgexjd .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #utrcvgexjd .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #utrcvgexjd .gt_left { text-align: left; }
- #utrcvgexjd .gt_center { text-align: center; }
- #utrcvgexjd .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #utrcvgexjd .gt_font_normal { font-weight: normal; }
- #utrcvgexjd .gt_font_bold { font-weight: bold; }
- #utrcvgexjd .gt_font_italic { font-style: italic; }
- #utrcvgexjd .gt_super { font-size: 65%; }
- #utrcvgexjd .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #utrcvgexjd .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#jvauzqsvmk p { margin: 0; padding: 0; }
+ #jvauzqsvmk .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #jvauzqsvmk .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #jvauzqsvmk .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #jvauzqsvmk .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #jvauzqsvmk .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #jvauzqsvmk .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #jvauzqsvmk .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #jvauzqsvmk .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #jvauzqsvmk .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #jvauzqsvmk .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #jvauzqsvmk .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #jvauzqsvmk .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #jvauzqsvmk .gt_spanner_row { border-bottom-style: hidden; }
+ #jvauzqsvmk .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #jvauzqsvmk .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #jvauzqsvmk .gt_from_md> :first-child { margin-top: 0; }
+ #jvauzqsvmk .gt_from_md> :last-child { margin-bottom: 0; }
+ #jvauzqsvmk .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #jvauzqsvmk .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #jvauzqsvmk .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #jvauzqsvmk .gt_row_group_first td { border-top-width: 2px; }
+ #jvauzqsvmk .gt_row_group_first th { border-top-width: 2px; }
+ #jvauzqsvmk .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #jvauzqsvmk .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #jvauzqsvmk .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #jvauzqsvmk .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #jvauzqsvmk .gt_left { text-align: left; }
+ #jvauzqsvmk .gt_center { text-align: center; }
+ #jvauzqsvmk .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #jvauzqsvmk .gt_font_normal { font-weight: normal; }
+ #jvauzqsvmk .gt_font_bold { font-weight: bold; }
+ #jvauzqsvmk .gt_font_italic { font-style: italic; }
+ #jvauzqsvmk .gt_super { font-size: 65%; }
+ #jvauzqsvmk .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #jvauzqsvmk .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">

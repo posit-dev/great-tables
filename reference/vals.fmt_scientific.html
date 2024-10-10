@@ -112,6 +112,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../reference/_styles-quartodoc.css">
 </head>
 
 <body class="nav-fixed">
@@ -217,126 +218,69 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </ul>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 5%">
-<col style="width: 7%">
-<col style="width: 84%">
-<col style="width: 2%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>x</td>
-<td><code>X</code></td>
-<td>A list of values to be formatted.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>decimals</td>
-<td><code>int</code></td>
-<td>The <code>decimals</code> values corresponds to the exact number of decimal places to use. A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and it would result in <code>\"2\"</code>. With <code>4</code> decimal places, the formatted value becomes <code>\"2.3400\"</code>. The trailing zeros can be removed with <code>drop_trailing_zeros=True</code>.</td>
-<td><code>2</code></td>
-</tr>
-<tr class="odd">
-<td>n_sigfig</td>
-<td><code>int</code> | None</td>
-<td>A option to format numbers to <em>n</em> significant figures. By default, this is <code>None</code> and thus number values will be formatted according to the number of decimal places set via <code>decimals</code>. If opting to format according to the rules of significant figures, <code>n_sigfig</code> must be a number greater than or equal to <code>1</code>. Any values passed to the <code>decimals</code> and <code>drop_trailing_zeros</code> arguments will be ignored.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>drop_trailing_zeros</td>
-<td><code>bool</code></td>
-<td>A boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).</td>
-<td><code>False</code></td>
-</tr>
-<tr class="odd">
-<td>drop_trailing_dec_mark</td>
-<td><code>bool</code></td>
-<td>A boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., <code>23</code> becomes <code>23.</code> if <code>False</code>). By default trailing decimal marks are not shown.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="even">
-<td>scale_by</td>
-<td><code>float</code></td>
-<td>All numeric values will be multiplied by the <code>scale_by</code> value before undergoing formatting. Since the <code>default</code> value is <code>1</code>, no values will be changed unless a different multiplier value is supplied.</td>
-<td><code>1</code></td>
-</tr>
-<tr class="odd">
-<td>exp_style</td>
-<td><code>str</code></td>
-<td>Style of formatting to use for the scientific notation formatting. By default this is <code>\"x10n\"</code> but other options include using a single letter (e.g., <code>\"e\"</code>, <code>\"E\"</code>, etc.), a letter followed by a <code>\"1\"</code> to signal a minimum digit width of one, or <code>\"low-ten\"</code> for using a stylized <code>\"10\"</code> marker.</td>
-<td><code>'x10n'</code></td>
-</tr>
-<tr class="even">
-<td>pattern</td>
-<td><code>str</code></td>
-<td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
-<td><code>'{x}'</code></td>
-</tr>
-<tr class="odd">
-<td>sep_mark</td>
-<td><code>str</code></td>
-<td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=\",\"</code> with a value of <code>1000</code> would result in a formatted value of <code>\"1,000\"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
-<td><code>','</code></td>
-</tr>
-<tr class="even">
-<td>dec_mark</td>
-<td><code>str</code></td>
-<td>The string to be used as the decimal mark. For example, using <code>dec_mark=\",\"</code> with the value <code>0.152</code> would result in a formatted value of <code>\"0,152\"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
-<td><code>'.'</code></td>
-</tr>
-<tr class="odd">
-<td>force_sign_m</td>
-<td><code>bool</code></td>
-<td>Should the plus sign be shown for positive values of the mantissa (first component)? This would effectively show a sign for all values except zero on the first numeric component of the notation. If so, use <code>True</code> (the default for this is <code>False</code>), where only negative numbers will display a sign.</td>
-<td><code>False</code></td>
-</tr>
-<tr class="even">
-<td>force_sign_n</td>
-<td><code>bool</code></td>
-<td>Should the plus sign be shown for positive values of the exponent (second component)? This would effectively show a sign for all values except zero on the second numeric component of the notation. If so, use <code>True</code> (the default for this is <code>False</code>), where only negative numbers will display a sign.</td>
-<td><code>False</code></td>
-</tr>
-<tr class="odd">
-<td>locale</td>
-<td><code>str</code> | None</td>
-<td>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>x</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>X</code></span></code></dt>
+<dd>
+<p>A list of values to be formatted.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>decimals</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">2</span></code></dt>
+<dd>
+<p>The <code>decimals</code> values corresponds to the exact number of decimal places to use. A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and it would result in <code>\"2\"</code>. With <code>4</code> decimal places, the formatted value becomes <code>\"2.3400\"</code>. The trailing zeros can be removed with <code>drop_trailing_zeros=True</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>n_sigfig</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>A option to format numbers to <em>n</em> significant figures. By default, this is <code>None</code> and thus number values will be formatted according to the number of decimal places set via <code>decimals</code>. If opting to format according to the rules of significant figures, <code>n_sigfig</code> must be a number greater than or equal to <code>1</code>. Any values passed to the <code>decimals</code> and <code>drop_trailing_zeros</code> arguments will be ignored.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>drop_trailing_zeros</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dd>
+<p>A boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>drop_trailing_dec_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dd>
+<p>A boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., <code>23</code> becomes <code>23.</code> if <code>False</code>). By default trailing decimal marks are not shown.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>scale_by</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>float</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">1</span></code></dt>
+<dd>
+<p>All numeric values will be multiplied by the <code>scale_by</code> value before undergoing formatting. Since the <code>default</code> value is <code>1</code>, no values will be changed unless a different multiplier value is supplied.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>exp_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'x10n'</span></code></dt>
+<dd>
+<p>Style of formatting to use for the scientific notation formatting. By default this is <code>\"x10n\"</code> but other options include using a single letter (e.g., <code>\"e\"</code>, <code>\"E\"</code>, etc.), a letter followed by a <code>\"1\"</code> to signal a minimum digit width of one, or <code>\"low-ten\"</code> for using a stylized <code>\"10\"</code> marker.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>pattern</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'{x}'</span></code></dt>
+<dd>
+<p>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>sep_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">','</span></code></dt>
+<dd>
+<p>The string to use as a separator between groups of digits. For example, using <code>sep_mark=\",\"</code> with a value of <code>1000</code> would result in a formatted value of <code>\"1,000\"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>dec_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'.'</span></code></dt>
+<dd>
+<p>The string to be used as the decimal mark. For example, using <code>dec_mark=\",\"</code> with the value <code>0.152</code> would result in a formatted value of <code>\"0,152\"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>force_sign_m</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dd>
+<p>Should the plus sign be shown for positive values of the mantissa (first component)? This would effectively show a sign for all values except zero on the first numeric component of the notation. If so, use <code>True</code> (the default for this is <code>False</code>), where only negative numbers will display a sign.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>force_sign_n</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dd>
+<p>Should the plus sign be shown for positive values of the exponent (second component)? This would effectively show a sign for all values except zero on the second numeric component of the notation. If so, use <code>True</code> (the default for this is <code>False</code>), where only negative numbers will display a sign.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>locale</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</p>
+</dd>
+</dl>
 </section>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 9%">
-<col style="width: 39%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td><code>list</code>[<code>str</code>]</td>
-<td>A list of formatted values is returned.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>list</code>[<code>str</code>]</span></code></dt>
+<dd>
+<p>A list of formatted values is returned.</p>
+</dd>
+</dl>
 
 
 </section>

@@ -1,0 +1,22 @@
+/*
+This file generated automatically by quartodoc version 0.8.0.
+Modifications may be overwritten by quartodoc build. If you want to
+customize styles, create a new .css file to avoid losing changes.
+*/
+
+
+/* styles for parameter tables, etc.. ----
+*/
+
+.doc-section dt code {
+    background: none;
+}
+
+.doc-section dt {
+    /* background-color: lightyellow; */
+    display: block;
+}
+
+.doc-section dl dd {
+    margin-left: 3rem;
+}

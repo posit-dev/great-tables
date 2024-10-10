@@ -112,6 +112,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../reference/_styles-quartodoc.css">
 </head>
 
 <body class="nav-fixed">
@@ -198,67 +199,33 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <p>The <code>styles.borders()</code> class is to be used with the <code>tab_style()</code> method, which itself allows for the setting of custom styles to one or more cells. The <code>sides</code> argument is where we define which borders should be modified (e.g., <code>"left"</code>, <code>"right"</code>, etc.). With that selection, the <code>color</code>, <code>style</code>, and <code>weight</code> of the selected borders can then be modified.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 1%">
-<col style="width: 53%">
-<col style="width: 41%">
-<col style="width: 2%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>sides</td>
-<td><code>Literal</code>['all', 'top', 'bottom', 'left', 'right'] | <code>list</code>[<code>Literal</code>['all', 'top', 'bottom', 'left', 'right']] | <code>ColumnExpr</code></td>
-<td>The border sides to be modified. Options include <code>\"left\"</code>, <code>\"right\"</code>, <code>\"top\"</code>, and <code>\"bottom\"</code>. For all borders surrounding the selected cells, we can use the <code>\"all\"</code> option.</td>
-<td><code>'all'</code></td>
-</tr>
-<tr class="even">
-<td>color</td>
-<td><code>str</code> | <code>ColumnExpr</code></td>
-<td>The border <code>color</code> can be defined with any valid CSS color value, such as a hex code, a named color, or an RGB value. The default <code>color</code> value is <code>\"#000000\"</code> (black).</td>
-<td><code>'#000000'</code></td>
-</tr>
-<tr class="odd">
-<td>style</td>
-<td><code>str</code> | <code>ColumnExpr</code></td>
-<td>The border <code>style</code> can be one of either <code>\"solid\"</code> (the default), <code>\"dashed\"</code>, <code>\"dotted\"</code>, <code>\"hidden\"</code>, or <code>\"double\"</code>.</td>
-<td><code>'solid'</code></td>
-</tr>
-<tr class="even">
-<td>weight</td>
-<td><code>str</code> | <code>ColumnExpr</code></td>
-<td>The default value for <code>weight</code> is <code>\"1px\"</code> and higher values will become more visually prominent.</td>
-<td><code>'1px'</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>sides</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>Literal</code>['all', 'top', 'bottom', 'left', 'right'] | <code>list</code>[<code>Literal</code>['all', 'top', 'bottom', 'left', 'right']] | <code>ColumnExpr</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'all'</span></code></dt>
+<dd>
+<p>The border sides to be modified. Options include <code>\"left\"</code>, <code>\"right\"</code>, <code>\"top\"</code>, and <code>\"bottom\"</code>. For all borders surrounding the selected cells, we can use the <code>\"all\"</code> option.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>ColumnExpr</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'#000000'</span></code></dt>
+<dd>
+<p>The border <code>color</code> can be defined with any valid CSS color value, such as a hex code, a named color, or an RGB value. The default <code>color</code> value is <code>\"#000000\"</code> (black).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>ColumnExpr</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'solid'</span></code></dt>
+<dd>
+<p>The border <code>style</code> can be one of either <code>\"solid\"</code> (the default), <code>\"dashed\"</code>, <code>\"dotted\"</code>, <code>\"hidden\"</code>, or <code>\"double\"</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>weight</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>ColumnExpr</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'1px'</span></code></dt>
+<dd>
+<p>The default value for <code>weight</code> is <code>\"1px\"</code> and higher values will become more visually prominent.</p>
+</dd>
+</dl>
 </section>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td><a href="../reference/style.borders.html#great_tables.style.borders">CellStyleBorders</a></td>
-<td>A CellStyleBorders object, which is used for a <code>styles</code> argument if specifying cell borders.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../reference/style.borders.html#great_tables.style.borders">CellStyleBorders</a></span></code></dt>
+<dd>
+<p>A CellStyleBorders object, which is used for a <code>styles</code> argument if specifying cell borders.</p>
+</dd>
+</dl>
 </section>
 <section id="examples" class="level2 doc-section doc-section-examples">
 <h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>

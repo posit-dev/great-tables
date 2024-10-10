@@ -112,6 +112,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../reference/_styles-quartodoc.css">
 </head>
 
 <body class="nav-fixed">
@@ -213,96 +214,49 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </ul>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 3%">
-<col style="width: 12%">
-<col style="width: 79%">
-<col style="width: 3%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>x</td>
-<td><code>X</code></td>
-<td>A list of values to be formatted.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>use_seps</td>
-<td><code>bool</code></td>
-<td>The <code>use_seps</code> option allows for the use of digit group separators. The type of digit group separator is set by <code>sep_mark</code> and overridden if a locale ID is provided to <code>locale</code>. This setting is <code>True</code> by default.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="odd">
-<td>scale_by</td>
-<td><code>float</code></td>
-<td>All numeric values will be multiplied by the <code>scale_by</code> value before undergoing formatting. Since the <code>default</code> value is <code>1</code>, no values will be changed unless a different multiplier value is supplied.</td>
-<td><code>1</code></td>
-</tr>
-<tr class="even">
-<td>compact</td>
-<td><code>bool</code></td>
-<td>A boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., <code>1230</code> becomes <code>1K</code>, and <code>1230000</code> becomes <code>1M</code>). The <code>compact</code> option is <code>False</code> by default.</td>
-<td><code>False</code></td>
-</tr>
-<tr class="odd">
-<td>pattern</td>
-<td><code>str</code></td>
-<td>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</td>
-<td><code>'{x}'</code></td>
-</tr>
-<tr class="even">
-<td>sep_mark</td>
-<td><code>str</code></td>
-<td>The string to use as a separator between groups of digits. For example, using <code>sep_mark=\",\"</code> with a value of <code>1000</code> would result in a formatted value of <code>\"1,000\"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</td>
-<td><code>','</code></td>
-</tr>
-<tr class="odd">
-<td>force_sign</td>
-<td><code>bool</code></td>
-<td>Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign.</td>
-<td><code>False</code></td>
-</tr>
-<tr class="even">
-<td>locale</td>
-<td><code>str</code> | None</td>
-<td>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>x</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>X</code></span></code></dt>
+<dd>
+<p>A list of values to be formatted.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>use_seps</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dd>
+<p>The <code>use_seps</code> option allows for the use of digit group separators. The type of digit group separator is set by <code>sep_mark</code> and overridden if a locale ID is provided to <code>locale</code>. This setting is <code>True</code> by default.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>scale_by</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>float</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">1</span></code></dt>
+<dd>
+<p>All numeric values will be multiplied by the <code>scale_by</code> value before undergoing formatting. Since the <code>default</code> value is <code>1</code>, no values will be changed unless a different multiplier value is supplied.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>compact</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dd>
+<p>A boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., <code>1230</code> becomes <code>1K</code>, and <code>1230000</code> becomes <code>1M</code>). The <code>compact</code> option is <code>False</code> by default.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>pattern</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'{x}'</span></code></dt>
+<dd>
+<p>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>sep_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">','</span></code></dt>
+<dd>
+<p>The string to use as a separator between groups of digits. For example, using <code>sep_mark=\",\"</code> with a value of <code>1000</code> would result in a formatted value of <code>\"1,000\"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>force_sign</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dd>
+<p>Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use <code>True</code> for this option. The default is <code>False</code>, where only negative numbers will display a minus sign.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>locale</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</p>
+</dd>
+</dl>
 </section>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 9%">
-<col style="width: 39%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td><code>list</code>[<code>str</code>]</td>
-<td>A list of formatted values is returned.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>list</code>[<code>str</code>]</span></code></dt>
+<dd>
+<p>A list of formatted values is returned.</p>
+</dd>
+</dl>
 
 
 </section>
