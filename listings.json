@@ -2,6 +2,7 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/introduction-0.13.0/index.html",
       "/blog/introduction-0.12.0/index.html",
       "/blog/tables-for-scientific-publishing/index.html",
       "/blog/pycon-2024-great-tables-are-possible/index.html",
