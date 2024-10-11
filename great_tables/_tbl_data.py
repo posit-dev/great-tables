@@ -246,23 +246,16 @@ def _set_cell(data: DataFrameLike, row: int, column: str, value: Any):
 
 
 @_set_cell.register(PdDataFrame)
-def _(data, row: int, column: str, value: Any) -> PdDataFrame:
+def _(data, row: int, column: str, value: Any) -> None:
     # TODO: This assumes column names are unique
     # if this is violated, get_loc will return a mask
-    data_new = data.copy(deep=False)  # make a shallow copy and only update the specific column.
-    data_new[column] = data_new[column].copy()
-    data_new.at[row, column] = value
-    return data_new
+    col_indx = data.columns.get_loc(column)
+    data.iloc[row, col_indx] = value
 
 
 @_set_cell.register(PlDataFrame)
-def _(data, row: int, column: str, value: Any) -> PlDataFrame:
-    # While using scatter is considered an antipattern,
-    # it is easier to read than a when.then.otherwise expression,
-    # and it is generally better performing.
-    col_series_modified = data[column].scatter(row, value)
-    data_new = data.with_columns(col_series_modified)
-    return data_new
+def _(data, row: int, column: str, value: Any) -> None:
+    data[row, column] = value
 
 
 @_set_cell.register(PyArrowTable)
@@ -273,8 +266,8 @@ def _(data: PyArrowTable, row: int, column: str, value: Any) -> PyArrowTable:
     col = data.column(column)
     pylist = col.to_pylist()
     pylist[row] = value
-    data_new = data.set_column(colindex, column, pa.array(pylist))
-    return data_new
+    data = data.set_column(colindex, column, pa.array(pylist))
+    return data
 
 
 # _get_column_dtype ----

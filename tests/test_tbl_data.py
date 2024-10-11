@@ -78,8 +78,11 @@ def test_set_cell(df: DataFrameLike):
     else:
         expected = df.__class__(expected_data)
 
-    df = _set_cell(df, 1, "col2", "x")
-    assert_frame_equal(df, expected)
+    new_df = _set_cell(df, 1, "col2", "x")
+    if new_df is None:
+        # Some implementations do in-place modifications
+        new_df = df
+    assert_frame_equal(new_df, expected)
 
 
 def test_reorder(df: DataFrameLike):

@@ -174,7 +174,11 @@ class Body:
                 # TODO: I think that this is very inefficient with polars, so
                 # we could either accumulate results and set them per column, or
                 # could always use a pandas DataFrame inside Body?
-                self.body = _set_cell(self.body, row, col, result)
+                new_body = _set_cell(self.body, row, col, result)
+                if new_body is not None:
+                    # Some backends do not support inplace operations, but return a new dataframe
+                    # TODO: Consolidate the behaviour of _set_cell
+                    self.body = new_body
 
         return self
 
