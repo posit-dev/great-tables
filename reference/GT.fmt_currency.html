@@ -251,15 +251,15 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>currency</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The currency to use for the numeric value. This input can be supplied as a 3-letter currency code (e.g., <code>\"USD\"</code> for U.S. Dollars, <code>\"EUR\"</code> for the Euro currency).</p>
+<p>The currency to use for the numeric value. This input can be supplied as a 3-letter currency code (e.g., <code>"USD"</code> for U.S. Dollars, <code>"EUR"</code> for the Euro currency).</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>use_subunits</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
-<p>An option for whether the subunits portion of a currency value should be displayed. For example, with an input value of <code>273.81</code>, the default formatting will produce <code>\"$273.81\"</code>. Removing the subunits (with <code>use_subunits = False</code>) will give us <code>\"$273\"</code>.</p>
+<p>An option for whether the subunits portion of a currency value should be displayed. For example, with an input value of <code>273.81</code>, the default formatting will produce <code>"$273.81"</code>. Removing the subunits (with <code>use_subunits = False</code>) will give us <code>"$273"</code>.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>decimals</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The <code>decimals</code> values corresponds to the exact number of decimal places to use. This value is optional as a currency has an intrinsic number of decimal places (i.e., the subunits). A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and if the currency used is <code>\"USD\"</code> it would result in <code>\"$2\"</code>. With <code>4</code> decimal places, the formatted value becomes <code>\"$2.3400\"</code>.</p>
+<p>The <code>decimals</code> values corresponds to the exact number of decimal places to use. This value is optional as a currency has an intrinsic number of decimal places (i.e., the subunits). A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and if the currency used is <code>"USD"</code> it would result in <code>"$2"</code>. With <code>4</code> decimal places, the formatted value becomes <code>"$2.3400"</code>.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>drop_trailing_dec_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
@@ -279,11 +279,11 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>sep_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">','</span></code></dt>
 <dd>
-<p>The string to use as a separator between groups of digits. For example, using <code>sep_mark=\",\"</code> with a value of <code>1000</code> would result in a formatted value of <code>\"1,000\"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
+<p>The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>dec_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'.'</span></code></dt>
 <dd>
-<p>The string to be used as the decimal mark. For example, using <code>dec_mark=\",\"</code> with the value <code>0.152</code> would result in a formatted value of <code>\"0,152\"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
+<p>The string to be used as the decimal mark. For example, using <code>dec_mark=","</code> with the value <code>0.152</code> would result in a formatted value of <code>"0,152"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>force_sign</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
 <dd>
@@ -291,7 +291,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>placement</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'left'</span></code></dt>
 <dd>
-<p>The placement of the currency symbol. This can be either be <code>\"left\"</code> (as in <code>\"$450\"</code>) or <code>\"right\"</code> (which yields <code>\"450$\"</code>).</p>
+<p>The placement of the currency symbol. This can be either be <code>"left"</code> (as in <code>"$450"</code>) or <code>"right"</code> (which yields <code>"450$"</code>).</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>incl_space</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
 <dd>
@@ -299,7 +299,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>locale</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</p>
+<p>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</p>
 </dd>
 </dl>
 </section>
@@ -320,7 +320,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="examples" class="level2 doc-section doc-section-examples">
 <h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>Let’s use the <code>exibble</code> dataset to create a table. With the <code>fmt_currency()</code> method, we’ll format the <code>currency</code> column to display monetary values.</p>
-<div id="1c899172" class="cell" data-execution_count="1">
+<div id="7599dc9e" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>(</span>
@@ -332,52 +332,52 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="adwpttmkdd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="iyalvjcdit" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#adwpttmkdd table {
+#iyalvjcdit table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#adwpttmkdd thead, tbody, tfoot, tr, td, th { border-style: none; }
+#iyalvjcdit thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#adwpttmkdd p { margin: 0; padding: 0; }
- #adwpttmkdd .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #adwpttmkdd .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #adwpttmkdd .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #adwpttmkdd .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #adwpttmkdd .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #adwpttmkdd .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #adwpttmkdd .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #adwpttmkdd .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #adwpttmkdd .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #adwpttmkdd .gt_column_spanner_outer:first-child { padding-left: 0; }
- #adwpttmkdd .gt_column_spanner_outer:last-child { padding-right: 0; }
- #adwpttmkdd .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #adwpttmkdd .gt_spanner_row { border-bottom-style: hidden; }
- #adwpttmkdd .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #adwpttmkdd .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #adwpttmkdd .gt_from_md> :first-child { margin-top: 0; }
- #adwpttmkdd .gt_from_md> :last-child { margin-bottom: 0; }
- #adwpttmkdd .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #adwpttmkdd .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #adwpttmkdd .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #adwpttmkdd .gt_row_group_first td { border-top-width: 2px; }
- #adwpttmkdd .gt_row_group_first th { border-top-width: 2px; }
- #adwpttmkdd .gt_striped { background-color: rgba(128,128,128,0.05); }
- #adwpttmkdd .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #adwpttmkdd .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #adwpttmkdd .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #adwpttmkdd .gt_left { text-align: left; }
- #adwpttmkdd .gt_center { text-align: center; }
- #adwpttmkdd .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #adwpttmkdd .gt_font_normal { font-weight: normal; }
- #adwpttmkdd .gt_font_bold { font-weight: bold; }
- #adwpttmkdd .gt_font_italic { font-style: italic; }
- #adwpttmkdd .gt_super { font-size: 65%; }
- #adwpttmkdd .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #adwpttmkdd .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#iyalvjcdit p { margin: 0; padding: 0; }
+ #iyalvjcdit .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #iyalvjcdit .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #iyalvjcdit .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #iyalvjcdit .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #iyalvjcdit .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #iyalvjcdit .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #iyalvjcdit .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #iyalvjcdit .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #iyalvjcdit .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #iyalvjcdit .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #iyalvjcdit .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #iyalvjcdit .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #iyalvjcdit .gt_spanner_row { border-bottom-style: hidden; }
+ #iyalvjcdit .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #iyalvjcdit .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #iyalvjcdit .gt_from_md> :first-child { margin-top: 0; }
+ #iyalvjcdit .gt_from_md> :last-child { margin-bottom: 0; }
+ #iyalvjcdit .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #iyalvjcdit .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #iyalvjcdit .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #iyalvjcdit .gt_row_group_first td { border-top-width: 2px; }
+ #iyalvjcdit .gt_row_group_first th { border-top-width: 2px; }
+ #iyalvjcdit .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #iyalvjcdit .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #iyalvjcdit .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #iyalvjcdit .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #iyalvjcdit .gt_left { text-align: left; }
+ #iyalvjcdit .gt_center { text-align: center; }
+ #iyalvjcdit .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #iyalvjcdit .gt_font_normal { font-weight: normal; }
+ #iyalvjcdit .gt_font_bold { font-weight: bold; }
+ #iyalvjcdit .gt_font_italic { font-style: italic; }
+ #iyalvjcdit .gt_super { font-size: 65%; }
+ #iyalvjcdit .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #iyalvjcdit .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">

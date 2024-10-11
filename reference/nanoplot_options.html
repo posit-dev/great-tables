@@ -235,71 +235,71 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>data_point_stroke_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>list</code>[<code>str</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The default stroke color of the data points is <code>\"#FFFFFF\"</code> (<code>\"white\"</code>). This works well when there is a visible data line combined with data points with a darker fill color. The stroke color can be modified with <code>data_point_stroke_color=</code> for all data points by supplying a single color value. With a list of colors, each data point's stroke color can be changed (ensure that the list length matches the number of data points).</p>
+<p>The default stroke color of the data points is <code>"#FFFFFF"</code> (<code>"white"</code>). This works well when there is a visible data line combined with data points with a darker fill color. The stroke color can be modified with <code>data_point_stroke_color=</code> for all data points by supplying a single color value. With a list of colors, each data point’s stroke color can be changed (ensure that the list length matches the number of data points).</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_point_stroke_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | <code>list</code>[<code>int</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The width of the outside stroke for the data points can be modified with the <code>data_point_stroke_width=</code> option. By default, a value of <code>4</code> (as in '4px') is used.</p>
+<p>The width of the outside stroke for the data points can be modified with the <code>data_point_stroke_width=</code> option. By default, a value of <code>4</code> (as in ‘4px’) is used.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_point_fill_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>list</code>[<code>str</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>By default, all data points have a fill color of <code>\"#FF0000\"</code> (<code>\"red\"</code>). This can be changed for all data points by providing a different color to <code>data_point_fill_color=</code>. And, a list of different colors can be supplied so long as the length is equal to the number of data points; the fill color values will be applied in order of left to right.</p>
+<p>By default, all data points have a fill color of <code>"#FF0000"</code> (<code>"red"</code>). This can be changed for all data points by providing a different color to <code>data_point_fill_color=</code>. And, a list of different colors can be supplied so long as the length is equal to the number of data points; the fill color values will be applied in order of left to right.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_line_type</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>This can accept either <code>\"curved\"</code> or <code>\"straight\"</code>. Curved lines are recommended when the nanoplot has less than 30 points and data points are evenly spaced. In most other cases, straight lines might present better.</p>
+<p>This can accept either <code>"curved"</code> or <code>"straight"</code>. Curved lines are recommended when the nanoplot has less than 30 points and data points are evenly spaced. In most other cases, straight lines might present better.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_line_stroke_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The color of the data line can be modified from its default <code>\"#4682B4\"</code> (<code>\"steelblue\"</code>) color by supplying a color to the <code>data_line_stroke_color=</code> option.</p>
+<p>The color of the data line can be modified from its default <code>"#4682B4"</code> (<code>"steelblue"</code>) color by supplying a color to the <code>data_line_stroke_color=</code> option.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_line_stroke_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The width of the connecting data line can be modified with <code>data_line_stroke_width=</code>. By default, a value of <code>4</code> (as in '4px') is used.</p>
+<p>The width of the connecting data line can be modified with <code>data_line_stroke_width=</code>. By default, a value of <code>4</code> (as in ‘4px’) is used.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_area_fill_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The fill color for the area that bounds the data points in line plot. The default is <code>\"#FF0000\"</code> (<code>\"red\"</code>) but can be changed by providing a color value to <code>data_area_fill_color=</code>.</p>
+<p>The fill color for the area that bounds the data points in line plot. The default is <code>"#FF0000"</code> (<code>"red"</code>) but can be changed by providing a color value to <code>data_area_fill_color=</code>.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_bar_stroke_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>list</code>[<code>str</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The color of the stroke used for the data bars can be modified from its default <code>\"#3290CC\"</code> color by supplying a color to <code>data_bar_stroke_color=</code>.</p>
+<p>The color of the stroke used for the data bars can be modified from its default <code>"#3290CC"</code> color by supplying a color to <code>data_bar_stroke_color=</code>.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_bar_stroke_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | <code>list</code>[<code>int</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The width of the stroke used for the data bars can be modified with the <code>data_bar_stroke_width=</code> option. By default, a value of <code>4</code> (as in '4px') is used.</p>
+<p>The width of the stroke used for the data bars can be modified with the <code>data_bar_stroke_width=</code> option. By default, a value of <code>4</code> (as in ‘4px’) is used.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_bar_fill_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>list</code>[<code>str</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>By default, all data bars have a fill color of <code>\"#3FB5FF\"</code>. This can be changed for all data bars by providing a different color to <code>data_bar_fill_color=</code>. And, a list of different colors can be supplied so long as the length is equal to the number of data bars; the fill color values will be applied in order of left to right.</p>
+<p>By default, all data bars have a fill color of <code>"#3FB5FF"</code>. This can be changed for all data bars by providing a different color to <code>data_bar_fill_color=</code>. And, a list of different colors can be supplied so long as the length is equal to the number of data bars; the fill color values will be applied in order of left to right.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_bar_negative_stroke_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The color of the stroke used for the data bars that have negative values. The default color is <code>\"#CC3243\"</code> but this can be changed by supplying a color value to the <code>data_bar_negative_stroke_color=</code> option.</p>
+<p>The color of the stroke used for the data bars that have negative values. The default color is <code>"#CC3243"</code> but this can be changed by supplying a color value to the <code>data_bar_negative_stroke_color=</code> option.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_bar_negative_stroke_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The width of the stroke used for negative value data bars. This has the same default as <code>data_bar_stroke_width=</code> with a value of <code>4</code> (as in '4px'). This can be changed by giving a numeric value to the <code>data_bar_negative_stroke_width=</code> option.</p>
+<p>The width of the stroke used for negative value data bars. This has the same default as <code>data_bar_stroke_width=</code> with a value of <code>4</code> (as in ‘4px’). This can be changed by giving a numeric value to the <code>data_bar_negative_stroke_width=</code> option.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>data_bar_negative_fill_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>By default, all negative data bars have a fill color of <code>\"#D75A68\"</code>. This can however be changed by providing a color value to <code>data_bar_negative_fill_color=</code>.</p>
+<p>By default, all negative data bars have a fill color of <code>"#D75A68"</code>. This can however be changed by providing a color value to <code>data_bar_negative_fill_color=</code>.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>reference_line_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The reference line will have a color of <code>\"#75A8B0\"</code> if it is set to appear. This color can be changed by providing a single color value to <code>reference_line_color=</code>.</p>
+<p>The reference line will have a color of <code>"#75A8B0"</code> if it is set to appear. This color can be changed by providing a single color value to <code>reference_line_color=</code>.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>reference_area_fill_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>If a reference area has been defined and is visible it has by default a fill color of <code>\"#A6E6F2\"</code>. This can be modified by declaring a color value in the <code>reference_area_fill_color=</code> option.</p>
+<p>If a reference area has been defined and is visible it has by default a fill color of <code>"#A6E6F2"</code>. This can be modified by declaring a color value in the <code>reference_area_fill_color=</code> option.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>vertical_guide_stroke_color</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>Vertical guides appear when hovering in the vicinity of data points. Their default color is <code>\"#911EB4\"</code> (a strong magenta color) and a fill opacity value of <code>0.4</code> is automatically applied to this. However, the base color can be changed with the <code>vertical_guide_stroke_color=</code> option.</p>
+<p>Vertical guides appear when hovering in the vicinity of data points. Their default color is <code>"#911EB4"</code> (a strong magenta color) and a fill opacity value of <code>0.4</code> is automatically applied to this. However, the base color can be changed with the <code>vertical_guide_stroke_color=</code> option.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>vertical_guide_stroke_width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The vertical guide's stroke width, by default, is relatively large at <code>12</code> (this is '12px'). This is modifiable by setting a different value with <code>vertical_guide_stroke_width=</code>.</p>
+<p>The vertical guide’s stroke width, by default, is relatively large at <code>12</code> (this is ‘12px’). This is modifiable by setting a different value with <code>vertical_guide_stroke_width=</code>.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>show_data_points</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
@@ -347,7 +347,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>currency</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>If the values are to be displayed as currency values, supply either: (1) a 3-letter currency code (e.g., <code>\"USD\"</code> for U.S. Dollars, <code>\"EUR\"</code> for the Euro currency), or (2) a common currency name (e.g., <code>\"dollar\"</code>, <code>\"pound\"</code>, <code>\"yen\"</code>, etc.).</p>
+<p>If the values are to be displayed as currency values, supply either: (1) a 3-letter currency code (e.g., <code>"USD"</code> for U.S. Dollars, <code>"EUR"</code> for the Euro currency), or (2) a common currency name (e.g., <code>"dollar"</code>, <code>"pound"</code>, <code>"yen"</code>, etc.).</p>
 </dd>
 </dl>
 </section>

@@ -228,15 +228,15 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>currency</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The currency to use for the numeric value. This input can be supplied as a 3-letter currency code (e.g., <code>\"USD\"</code> for U.S. Dollars, <code>\"EUR\"</code> for the Euro currency).</p>
+<p>The currency to use for the numeric value. This input can be supplied as a 3-letter currency code (e.g., <code>"USD"</code> for U.S. Dollars, <code>"EUR"</code> for the Euro currency).</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>use_subunits</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
-<p>An option for whether the subunits portion of a currency value should be displayed. For example, with an input value of <code>273.81</code>, the default formatting will produce <code>\"$273.81\"</code>. Removing the subunits (with <code>use_subunits = False</code>) will give us <code>\"$273\"</code>.</p>
+<p>An option for whether the subunits portion of a currency value should be displayed. For example, with an input value of <code>273.81</code>, the default formatting will produce <code>"$273.81"</code>. Removing the subunits (with <code>use_subunits = False</code>) will give us <code>"$273"</code>.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>decimals</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>The <code>decimals</code> values corresponds to the exact number of decimal places to use. This value is optional as a currency has an intrinsic number of decimal places (i.e., the subunits). A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and if the currency used is <code>\"USD\"</code> it would result in <code>\"$2\"</code>. With <code>4</code> decimal places, the formatted value becomes <code>\"$2.3400\"</code>.</p>
+<p>The <code>decimals</code> values corresponds to the exact number of decimal places to use. This value is optional as a currency has an intrinsic number of decimal places (i.e., the subunits). A value such as <code>2.34</code> can, for example, be formatted with <code>0</code> decimal places and if the currency used is <code>"USD"</code> it would result in <code>"$2"</code>. With <code>4</code> decimal places, the formatted value becomes <code>"$2.3400"</code>.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>drop_trailing_dec_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
@@ -256,11 +256,11 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>sep_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">','</span></code></dt>
 <dd>
-<p>The string to use as a separator between groups of digits. For example, using <code>sep_mark=\",\"</code> with a value of <code>1000</code> would result in a formatted value of <code>\"1,000\"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
+<p>The string to use as a separator between groups of digits. For example, using <code>sep_mark=","</code> with a value of <code>1000</code> would result in a formatted value of <code>"1,000"</code>. This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>dec_mark</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'.'</span></code></dt>
 <dd>
-<p>The string to be used as the decimal mark. For example, using <code>dec_mark=\",\"</code> with the value <code>0.152</code> would result in a formatted value of <code>\"0,152\"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
+<p>The string to be used as the decimal mark. For example, using <code>dec_mark=","</code> with the value <code>0.152</code> would result in a formatted value of <code>"0,152"</code>). This argument is ignored if a <code>locale</code> is supplied (i.e., is not <code>None</code>).</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>force_sign</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
 <dd>
@@ -268,7 +268,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>placement</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'left'</span></code></dt>
 <dd>
-<p>The placement of the currency symbol. This can be either be <code>\"left\"</code> (as in <code>\"$450\"</code>) or <code>\"right\"</code> (which yields <code>\"450$\"</code>).</p>
+<p>The placement of the currency symbol. This can be either be <code>"left"</code> (as in <code>"$450"</code>) or <code>"right"</code> (which yields <code>"450$"</code>).</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>incl_space</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
 <dd>
@@ -276,7 +276,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>locale</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>An optional locale identifier that can be used for formatting values according the locale's rules. Examples include <code>\"en\"</code> for English (United States) and <code>\"fr\"</code> for French (France).</p>
+<p>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</p>
 </dd>
 </dl>
 </section>
