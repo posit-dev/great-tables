@@ -516,7 +516,6 @@ class GT(
         else:
 
             finalized_table = f"""{wrap_start_statement}
-{wrap_start_statement}
 {caption_component}
 {heading_component}
 {table_width_statement}
