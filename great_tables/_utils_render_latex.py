@@ -717,8 +717,21 @@ def create_body_component_l(data: GTData, width_dict: WidthDict) -> str:
 
 def create_footer_component_l(data: GTData) -> str:
 
-    # TODO: implement all logic
-    return ""
+    # Get all source notes as a list
+    source_notes_list = data._source_notes
+
+    if len(source_notes_list) == 0:
+        return ""
+
+    # Create a formatted source notes string
+    source_notes = "\\\\\n".join(source_notes_list) + "\\\\"
+
+    # Create the footer block
+    footer_block = f"""\\begin{{minipage}}{{\\linewidth}}
+{source_notes}
+\\end{{minipage}}"""
+
+    return footer_block
 
 
 def create_table_end_l(data: GTData) -> str:
