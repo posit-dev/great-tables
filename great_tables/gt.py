@@ -495,8 +495,7 @@ class GT(
         wrap_start_statement = create_wrap_start_l(data=self)
         wrap_end_statement = create_wrap_end_l(data=self)
 
-        # latex_use_longtable = self._options.latex_use_longtable.value
-        latex_use_longtable = True
+        latex_use_longtable = self._options.latex_use_longtable.value
 
         # Compose the LaTeX table
         if latex_use_longtable:
