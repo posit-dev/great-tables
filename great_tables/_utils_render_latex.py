@@ -831,6 +831,6 @@ def create_wrap_end_l(data: GTData) -> str:
 
     latex_use_longtable = data._options.latex_use_longtable.value
 
-    wrap_end = "\\endgroup\n" if latex_use_longtable else "\\end{table}\n"
+    wrap_end = "\\endgroup" if latex_use_longtable else "\\end{table}"
 
     return wrap_end
