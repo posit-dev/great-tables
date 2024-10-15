@@ -467,7 +467,8 @@ class GT(
         table_start = create_table_start_l(data=self, width_dict=width_dict)
 
         # Create the caption component
-        caption_component = create_caption_component_l(data=self)
+        # TODO: first need to implement the `.tab_caption()` method
+        # caption_component = create_caption_component_l(data=self)
 
         # Create the heading component
         heading_component = create_heading_component_l(data=self)
