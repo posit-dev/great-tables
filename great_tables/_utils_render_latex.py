@@ -242,7 +242,7 @@ def calculate_multicolumn_width_text_l(
 
 def latex_heading_row(content: list[str]) -> str:
 
-    return "".join([" & ".join(content) + " \\\\ \n", "\\midrule\\addlinespace[2.5pt]\n"])
+    return "".join([" & ".join(content) + " \\\\ \n", "\\midrule\\addlinespace[2.5pt]"])
 
 
 def consolidate_cell_styles_l(styles_df: Any):
