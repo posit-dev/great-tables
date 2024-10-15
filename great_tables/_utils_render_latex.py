@@ -739,7 +739,7 @@ def create_table_end_l(data: GTData) -> str:
     latex_use_longtable = data._options.latex_use_longtable.value
 
     table_end = "\\bottomrule\n" + (
-        "\\end{longtable}\n" if latex_use_longtable else "\\end{tabular*}\n"
+        "\\end{longtable}" if latex_use_longtable else "\\end{tabular*}"
     )
 
     return table_end
