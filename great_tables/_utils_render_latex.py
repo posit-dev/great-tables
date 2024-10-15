@@ -651,8 +651,68 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
 
 def create_body_component_l(data: GTData, width_dict: WidthDict) -> str:
 
-    # TODO: implement all logic
-    return ""
+    _str_orig_data = cast_frame_to_string(data._tbl_data)
+    tbl_data = replace_null_frame(data._body.body, _str_orig_data)
+
+    #
+    # TODO: summary information is not yet implemented
+    # summaries_present = _summary_exists(data=data)
+    # list_of_summaries = _summary_get(data=data)
+    #
+
+    # TODO: implement grouping and stub logic
+
+    # Get list representation of stub layout
+    stub_layout = data._stub._get_stub_layout(options=data._options)
+
+    # Get the default column vars
+    column_vars = data._boxhead._get_default_columns()
+
+    # Determine if there is a stub column in `stub_layout` and whether we
+    # have a two-column stub (with the group label on the left side)
+    has_stub_column = "rowname" in stub_layout
+    has_two_col_stub = "group_label" in stub_layout
+
+    # Get the total number of columns in the table (this includes columns in the stub)
+    n_cols = data._boxhead._get_effective_number_of_columns(stub=data._stub, options=data._options)
+
+    # Get the styles for the body cells
+    styles_cells = [x for x in data._styles if _is_loc(x.locname, loc.LocBody)]
+
+    current_group_id = str(0)
+
+    body_rows = []
+
+    # iterate over rows (ordered by groupings)
+    prev_group_info = None
+
+    ordered_index: list[tuple[int, GroupRowInfo]] = data._stub.group_indices_map()
+
+    for i, group_info in ordered_index:
+
+        body_cells: list[str] = []
+
+        # Create a body row
+        for colinfo in column_vars:
+            cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
+            cell_str: str = str(cell_content)
+
+            body_cells.append(cell_str)
+
+        prev_group_info = group_info
+
+        # When joining the body cells together, we need to ensure that each item is separated by
+        # an ampersand and that the row is terminated with a double backslash
+        body_cells = " & ".join(body_cells) + " \\\\"
+
+        body_rows.append("".join(body_cells))
+
+    # When joining all the body rows together, we need to ensure that each row is separated by
+    # newline except for the last
+
+    all_body_rows = "\n".join(body_rows)
+
+    return all_body_rows
 
 
 def create_footer_component_l(data: GTData) -> str:
