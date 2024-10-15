@@ -3,8 +3,10 @@ from __future__ import annotations
 import re
 
 from ._gt_data import GTData
+from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from .quarto import check_quarto
 from great_tables._spanners import spanners_print_matrix
+from great_tables._utils import heading_has_subtitle, heading_has_title
 from great_tables._utils_render_html import _get_spanners_matrix_height
 
 from typing import TypedDict, List
