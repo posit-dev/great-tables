@@ -822,9 +822,9 @@ def create_wrap_start_l(data: GTData) -> str:
     latex_use_longtable = data._options.latex_use_longtable.value
 
     if latex_use_longtable:
-        return "\\begingroup\n"
+        return "\\begingroup"
     else:
-        return f"\\begin{{table}}{tbl_pos}\n"
+        return f"\\begin{{table}}{tbl_pos}"
 
 
 def create_wrap_end_l(data: GTData) -> str:
