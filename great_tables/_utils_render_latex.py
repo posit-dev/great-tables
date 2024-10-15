@@ -408,8 +408,40 @@ def create_caption_component_l(data: GTData) -> str:
 
 def create_heading_component_l(data: GTData) -> str:
 
-    # TODO: implement all logic
-    return ""
+    title = data._heading.title
+    subtitle = data._heading.subtitle
+
+    # Is the longtable environment being used?
+    latex_use_longtable = data._options.latex_use_longtable.value
+
+    line_continuation = "\\\\"
+
+    has_title = heading_has_title(title)
+
+    # If there is no title, then return an empty string
+    if not has_title:
+        return ""
+
+    title_row = f"{{\\large {title}}}"
+
+    has_subtitle = heading_has_subtitle(subtitle)
+
+    if has_subtitle:
+
+        subtitle_row = f"{{\\small {subtitle}}}"
+
+        header_component = f"""\\caption*{{
+{title_row} \\\\
+{subtitle_row}
+}} {line_continuation if latex_use_longtable else ""}"""
+
+    else:
+
+        header_component = f"""\\caption*{{
+{title_row}
+}} {line_continuation if latex_use_longtable else ""}"""
+
+    return header_component
 
 
 def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
