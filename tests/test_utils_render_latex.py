@@ -140,9 +140,9 @@ def test_create_fontsize_statement_l_settings():
 @mock.patch.dict(os.environ, {"QUARTO_BIN_PATH": "1"}, clear=True)
 def test_create_wrap_start_quarto(gt_tbl: GT):
 
-    assert create_wrap_start_l(gt_tbl) == "\\begin{table}\n"
+    assert create_wrap_start_l(gt_tbl) == "\\begin{table}"
 
 
 def test_create_wrap_start_simple_tbl(gt_tbl: GT):
 
-    assert create_wrap_start_l(gt_tbl) == "\\begin{table}[!t]\n"
+    assert create_wrap_start_l(gt_tbl) == "\\begin{table}[!t]"
