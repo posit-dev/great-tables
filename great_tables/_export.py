@@ -448,7 +448,12 @@ def _dump_debug_screenshot(driver, path):
 
 
 def write_html(
-    gt: GT, filename: str | Path, encoding: str = "utf-8", newline: str | None = None
+    gt: GT,
+    filename: str | Path,
+    encoding: str = "utf-8",
+    newline: str | None = None,
+    make_page: bool = False,
+    all_important: bool = False,
 ) -> None:
     """
     Write the table to an HTML file.
@@ -473,22 +478,9 @@ def write_html(
     """
     import os
 
-    _html = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-    {}
-</body>
-</html>
-""".format(
-        gt.as_raw_html()
-    )
+    html_content = as_raw_html(gt, make_page=make_page, all_important=all_important)
 
     newline = newline if newline is not None else os.linesep
 
     with open(filename, "w", encoding=encoding, newline=newline) as f:
-        f.write(_html)
+        f.write(html_content)
