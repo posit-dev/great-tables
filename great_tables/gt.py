@@ -504,7 +504,6 @@ class GT(
 {table_width_statement}
 {fontsize_statement}
 {table_start}
-{caption_component}
 {heading_component}
 {columns_component}
 {body_component}
@@ -516,7 +515,6 @@ class GT(
         else:
 
             finalized_table = f"""{wrap_start_statement}
-{caption_component}
 {heading_component}
 {table_width_statement}
 {fontsize_statement}
