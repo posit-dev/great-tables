@@ -441,6 +441,25 @@ class GT(
     # =============================================================================
     def _render_as_latex(self) -> str:
 
+        # Get list representation of stub layout
+        stub_layout = self._stub._get_stub_layout(options=self._options)
+
+        # Throw exception if a stub is present in the table
+        if "rowname" in stub_layout or "group_label" in stub_layout:
+
+            raise NotImplementedError(
+                "The table stub (row names and/or row groups) are not yet supported in LaTeX output."
+            )
+
+        # Determine if row groups are used
+        has_groups = len(self._stub.group_ids) > 0
+
+        # Throw exception if row groups are used in LaTeX output (extra case where row
+        # groups are used but not in the stub)
+        if has_groups:
+
+            raise NotImplementedError("Row groups are not yet supported in LaTeX output.")
+
         # Create a df containing width types for each column
         width_dict = create_width_dict_l(data=self)
 
