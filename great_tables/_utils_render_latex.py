@@ -403,7 +403,7 @@ def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
 def create_caption_component_l(data: GTData) -> str:
 
     # TODO: implement all logic
-    return ""
+    pass
 
 
 def create_heading_component_l(data: GTData) -> str:
