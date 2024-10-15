@@ -393,7 +393,7 @@ def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
             "\\begin{longtable}{" if latex_use_longtable else hdr_tabular,
             extra_sep,
             "".join(col_defs),
-            "}\n",
+            "}",
         ]
     )
 
