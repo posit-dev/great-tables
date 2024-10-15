@@ -270,7 +270,7 @@ def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
     width_dict_visible_idx = [i for i, v in enumerate(width_dict["type"]) if v in types]
 
     # Filter the `width_dict` dict entries based on the indices in `width_dict_visible_idx`
-    width_dict_visible = {k: [v[i] for i in width_dict_visible_idx] for k, v in width_dict.items()}
+    width_dict_visible = {k: [width_dict[k][i] for i in width_dict_visible_idx] for k in width_dict}
 
     # Ensure that the `width_dict_visible` entries are sorted such that the
     # `"row_group"` entry is first (only if it's located in the stub), then `"stub"`,
