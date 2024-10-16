@@ -519,45 +519,9 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
 
         for i in range(len(spanners)):
 
-            spanners_i = spanners[i]
-            spanner_ids_i = spanner_ids[i,]
-
             # TODO: implement logic for calculating the `begins` and `ends` lists
-            begins = [1]
-            ends = [2]
-
-            cmidrule = "\\cmidrule(lr){{{}}}-{{{}}}".format(begins, ends)
 
             # TODO: implement logic for determining whether a spanner is a single spanner
-            is_spanner_na = False
-
-            is_spanner_single = spanners_rle["lengths"] == 1
-
-            # TODO: implement logic for calculating this
-            # firsts = utils::head(cumsum(c(1L, spanners_rle$lengths)), -1L)
-            # lasts = cumsum(spanners_rle$lengths)
-            firsts = [1, 2, 3]
-            firsts = [4, 5, 6]
-
-            span_widths = calculate_multicolumn_width_text_l(
-                begins=firsts, ends=lasts, width_dict=width_dict
-            )
-
-            tex_widths = (
-                "c" if span_widths == "" else f">{{\\centering\\arraybackslash}}m{{{span_widths}}}"
-            )
-
-            multicol = (
-                ""
-                if is_spanner_na
-                else (
-                    spanners_rle["labels"]
-                    if is_spanner_single
-                    else "\\multicolumn{{{}}}{{{}}}{{{}}}".format(
-                        spanners_rle["lengths"], tex_widths, spanners_rle["labels"]
-                    )
-                )
-            )
 
             # If there is a stub we need to tweak the spanners row with a blank
             # multicolumn statement that's the same width as that in the columns
@@ -565,28 +529,29 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
             # appear here
             if len(stub_layout) > 1:
 
-                tex_stub_width = calculate_multicolumn_width_text_l(
-                    begins=1, ends=2, width_dict=width_dict
-                )
+                pass
 
-                if tex_stub_width == "":
+                # tex_stub_width = calculate_multicolumn_width_text_l()
 
-                    mc_stub = "l"
+                # if tex_stub_width == "":
 
-                else:
-                    mc_stub = ">{\\raggedright\\arraybackslash}m{{{}}}".format(tex_stub_width)
+                #    mc_stub = "l"
 
-                multicol = [
-                    "\\multicolumn{{{}}}{{{}}}{{}}".format(len(stub_layout), mc_stub),
-                    *multicol[len(stub_layout) :],
-                ]
+                # else:
+                #    mc_stub = ">{\\raggedright\\arraybackslash}m{{{}}}".format(tex_stub_width)
 
-        multicol = " & ".join(multicol) + " \\\\ \n"
-        cmidrule = " ".join(cmidrule) + "\n"
+                # multicol = [
+                #    "\\multicolumn{{{}}}{{{}}}{{}}".format(len(stub_layout), mc_stub),
+                #    *multicol[len(stub_layout) :],
+                # ]
 
-        col_spanners_i = multicol + cmidrule
+        # multicol = " & ".join(multicol) + " \\\\ \n"
+        # cmidrule = " ".join(cmidrule) + "\n"
 
-        table_col_spanners += [col_spanners_i]
+        # col_spanners_i = multicol + cmidrule
+
+        # table_col_spanners += [col_spanners_i]
+        table_col_spanners = ""
 
     else:
 
