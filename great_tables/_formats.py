@@ -2705,6 +2705,16 @@ def _context_percent_mark(context: str) -> str:
     return mark
 
 
+def _context_dollar_mark(context: str) -> str:
+
+    if context == "latex":
+        mark = "\\$"
+    else:
+        mark = "%"
+
+    return mark
+
+
 def _replace_minus(string: str, minus_mark: str) -> str:
     """
     Replaces all occurrences of the minus sign '-' in the given string with the specified minus mark.
