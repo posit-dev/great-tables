@@ -850,6 +850,8 @@ class UnitStr:
 
         return built_units
 
+    # TODO: add `to_latex` method
+
     def _repr_html_(self):
         return self.to_html()
 
