@@ -1,5 +1,5 @@
 ---
-title: Targeted styles
+title: Styling the whole table
 jupyter: python3
 ---
 
@@ -7,7 +7,7 @@ In [Styling the Table Body](./basic-styling), we discussed styling table data wi
 In this article we'll cover how the same method can be used to style many other parts of the table, like the header, specific spanner labels, the footer, and more.
 
 :::{.callout-warning}
-This feature is currently a work in progress, and not yet released. Great Tables must be installed from github in order to try it.
+This feature is new, and this page of documentation is still in development.
 :::
 
 

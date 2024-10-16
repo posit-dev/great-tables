@@ -34,24 +34,31 @@ website:
             - get-started/basic-header.qmd
             - get-started/basic-stub.qmd
             - get-started/basic-column-labels.qmd
-        - section: Format and Style
+        - section: Format
           contents:
             - get-started/basic-formatting.qmd
+            - get-started/nanoplots.qmd
+        - section: Style
+          contents:
             - get-started/basic-styling.qmd
+            - get-started/targeted-styles.qmd
             - get-started/colorizing-with-data.qmd
+        - section: Theming
+          contents:
             - get-started/table-theme-options.qmd
             - get-started/table-theme-premade.qmd
-        - section: Extra Topics
+        - section: Selecting table parts
           contents:
             - get-started/column-selection.qmd
             - get-started/row-selection.qmd
-            - get-started/nanoplots.qmd
-            - get-started/targeted-styles.qmd
+            - get-started/loc-selection.qmd
 
 format:
   html:
     theme: cosmo
-    css: styles.css
+    css:
+      - styles.css
+      - reference/_styles-quartodoc.css
     toc: true
     page-layout: full
 
@@ -73,8 +80,12 @@ quartodoc:
   dir: reference
   title: API Reference
   style: pkgdown
+  css: reference/_styles-quartodoc.css
   dynamic: true
   render_interlinks: true
+  renderer:
+    style: markdown
+    table_style: description-list
   sections:
     - title: Table Creation
       desc: >
@@ -148,7 +159,18 @@ quartodoc:
         [`tab_style()`](`great_tables.GT.tab_style`) method). The styling classes allow for the
         specification of the styling properties to be applied to the targeted locations.
       contents:
+        - loc.header
+        - loc.title
+        - loc.subtitle
+        - loc.stubhead
+        - loc.column_header
+        - loc.spanner_labels
+        - loc.column_labels
+        - loc.stub
+        - loc.row_groups
         - loc.body
+        - loc.footer
+        - loc.source_notes
         - style.fill
         - style.text
         - style.borders
