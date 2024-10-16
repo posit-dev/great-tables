@@ -335,7 +335,7 @@ def fmt_number(
 
         # Implement minus sign replacement for `x_formatted`
         if is_negative:
-            minus_mark = _context_minus_mark()
+            minus_mark = _context_minus_mark(context="html")
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
         # Use a supplied pattern specification to decorate the formatted value
@@ -344,7 +344,71 @@ def fmt_number(
 
         return x_formatted
 
-    return fmt(self, fns=fmt_number_fn, columns=columns, rows=rows)
+    # Generate a function that will operate on single `x` values in the table body
+    def fmt_number_fn_latex(
+        x: float | None,
+        decimals: int = decimals,
+        n_sigfig: int | None = n_sigfig,
+        drop_trailing_zeros: bool = drop_trailing_zeros,
+        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
+        use_seps: bool = use_seps,
+        scale_by: float = scale_by,
+        compact: bool = compact,
+        sep_mark: str = sep_mark,
+        dec_mark: str = dec_mark,
+        force_sign: bool = force_sign,
+    ):
+        if is_na(self._tbl_data, x):
+            return x
+
+        # Scale `x` value by a defined `scale_by` value
+        x = x * scale_by
+
+        # Determine whether the value is positive
+        is_negative = _has_negative_value(value=x)
+
+        if compact:
+            x_formatted = _format_number_compactly(
+                value=x,
+                decimals=decimals,
+                n_sigfig=n_sigfig,
+                drop_trailing_zeros=drop_trailing_zeros,
+                drop_trailing_dec_mark=drop_trailing_dec_mark,
+                use_seps=use_seps,
+                sep_mark=sep_mark,
+                dec_mark=dec_mark,
+                force_sign=force_sign,
+            )
+        else:
+            x_formatted = _value_to_decimal_notation(
+                value=x,
+                decimals=decimals,
+                n_sigfig=n_sigfig,
+                drop_trailing_zeros=drop_trailing_zeros,
+                drop_trailing_dec_mark=drop_trailing_dec_mark,
+                use_seps=use_seps,
+                sep_mark=sep_mark,
+                dec_mark=dec_mark,
+                force_sign=force_sign,
+            )
+
+        # Implement minus sign replacement for `x_formatted`
+        if is_negative:
+            minus_mark = _context_minus_mark(context="latex")
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    return fmt(
+        self,
+        fns=FormatFns(html=fmt_number_fn, latex=fmt_number_fn_latex, default=fmt_number_fn),
+        columns=columns,
+        rows=rows,
+    )
 
 
 def fmt_integer(
@@ -501,7 +565,7 @@ def fmt_integer(
 
         # Implement minus sign replacement for `x_formatted`
         if is_negative:
-            minus_mark = _context_minus_mark()
+            minus_mark = _context_minus_mark(context="html")
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
         # Use a supplied pattern specification to decorate the formatted value
@@ -687,7 +751,7 @@ def fmt_scientific(
         # Determine whether the value is positive
         is_positive = _has_positive_value(value=x)
 
-        minus_mark = _context_minus_mark()
+        minus_mark = _context_minus_mark(context="html")
 
         x_sci_notn = _value_to_scientific_notation(
             value=x,
@@ -975,7 +1039,7 @@ def fmt_percent(
 
         # Implement minus sign replacement for `x_formatted`
         if is_negative:
-            minus_mark = _context_minus_mark()
+            minus_mark = _context_minus_mark(context="html")
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
         # Use a supplied pattern specification to decorate the formatted value
@@ -984,7 +1048,81 @@ def fmt_percent(
 
         return x_formatted
 
-    return fmt(self, fns=fmt_percent_fn, columns=columns, rows=rows)
+    def fmt_percent_fn_latex(
+        x: float,
+        decimals: int = decimals,
+        drop_trailing_zeros: bool = drop_trailing_zeros,
+        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
+        use_seps: bool = use_seps,
+        scale_by: float = scale_by,
+        sep_mark: str = sep_mark,
+        dec_mark: str = dec_mark,
+        force_sign: bool = force_sign,
+        placement: str = placement,
+        incl_space: bool = incl_space,
+    ):
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if is_na(self._tbl_data, x):
+            return x
+
+        # Scale `x` value by a defined `scale_by` value
+        x = x * scale_by
+
+        # Determine properties of the value
+        is_negative = _has_negative_value(value=x)
+        is_positive = _has_positive_value(value=x)
+
+        x_formatted = _value_to_decimal_notation(
+            value=x,
+            decimals=decimals,
+            n_sigfig=None,
+            drop_trailing_zeros=drop_trailing_zeros,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
+            force_sign=force_sign,
+        )
+
+        # Get the context-specific percent mark
+        percent_mark = _context_percent_mark(context="latex")
+
+        # Create a percent pattern for affixing the percent sign
+        space_character = " " if incl_space else ""
+        percent_pattern = (
+            f"{{x}}{space_character}{percent_mark}"
+            if placement == "right"
+            else f"{percent_mark}{space_character}{{x}}"
+        )
+
+        if is_negative and placement == "left":
+            x_formatted = x_formatted.replace("-", "")
+            x_formatted = percent_pattern.replace("{x}", x_formatted)
+            x_formatted = "-" + x_formatted
+        elif is_positive and force_sign and placement == "left":
+            x_formatted = x_formatted.replace("+", "")
+            x_formatted = percent_pattern.replace("{x}", x_formatted)
+            x_formatted = "+" + x_formatted
+        else:
+            x_formatted = percent_pattern.replace("{x}", x_formatted)
+
+        # Implement minus sign replacement for `x_formatted`
+        if is_negative:
+            minus_mark = _context_minus_mark(context="latex")
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    return fmt(
+        self,
+        fns=FormatFns(html=fmt_percent_fn, latex=fmt_percent_fn_latex, default=fmt_percent_fn),
+        columns=columns,
+        rows=rows,
+    )
 
 
 def fmt_currency(
@@ -1214,7 +1352,7 @@ def fmt_currency(
 
         # Implement minus sign replacement for `x_formatted`
         if is_negative:
-            minus_mark = _context_minus_mark()
+            minus_mark = _context_minus_mark(context="html")
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
         # Use a supplied pattern specification to decorate the formatted value
@@ -1223,7 +1361,86 @@ def fmt_currency(
 
         return x_formatted
 
-    return fmt(self, fns=fmt_currency_fn, columns=columns, rows=rows)
+    def fmt_currency_fn_latex(
+        x: float,
+        currency: str = currency_resolved,
+        decimals: int = decimals,
+        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
+        use_seps: bool = use_seps,
+        scale_by: float = scale_by,
+        sep_mark: str = sep_mark,
+        dec_mark: str = dec_mark,
+        force_sign: bool = force_sign,
+        placement: str = placement,
+        incl_space: bool = incl_space,
+    ):
+        # If the `x` value is a Pandas 'NA', then return the same value
+        if is_na(self._tbl_data, x):
+            return x
+
+        # Scale `x` value by a defined `scale_by` value
+        x = x * scale_by
+
+        # Determine properties of the value
+        is_negative = _has_negative_value(value=x)
+        is_positive = _has_positive_value(value=x)
+
+        # Get the currency symbol on the basis of a valid currency code
+        currency_symbol = _get_currency_str(currency=currency)
+
+        if currency_symbol == "$":
+            currency_symbol = _context_dollar_mark(context="latex")
+
+        # Format the value to decimal notation; this is done before the currency symbol is
+        # affixed to the value
+        x_formatted = _value_to_decimal_notation(
+            value=x,
+            decimals=decimals,
+            n_sigfig=None,
+            drop_trailing_zeros=False,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
+            force_sign=force_sign,
+        )
+
+        # Create a currency pattern for affixing the currency symbol
+        space_character = " " if incl_space else ""
+        currency_pattern = (
+            f"{{x}}{space_character}{currency_symbol}"
+            if placement == "right"
+            else f"{currency_symbol}{space_character}{{x}}"
+        )
+
+        if is_negative and placement == "left":
+            x_formatted = x_formatted.replace("-", "")
+            x_formatted = currency_pattern.replace("{x}", x_formatted)
+            x_formatted = "-" + x_formatted
+        elif is_positive and force_sign and placement == "left":
+            x_formatted = x_formatted.replace("+", "")
+            x_formatted = currency_pattern.replace("{x}", x_formatted)
+            x_formatted = "+" + x_formatted
+        else:
+            x_formatted = currency_pattern.replace("{x}", x_formatted)
+
+        # Implement minus sign replacement for `x_formatted`
+        if is_negative:
+            minus_mark = _context_minus_mark(context="latex")
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
+
+        return x_formatted
+
+    return fmt(
+        self,
+        fns=FormatFns(html=fmt_currency_fn, latex=fmt_currency_fn_latex, default=fmt_currency_fn),
+        columns=columns,
+        rows=rows,
+    )
 
 
 def fmt_roman(
@@ -1558,7 +1775,7 @@ def fmt_bytes(
 
         # Implement minus sign replacement for `x_formatted`
         if is_negative:
-            minus_mark = _context_minus_mark()
+            minus_mark = _context_minus_mark(context="html")
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
         # Use a supplied pattern specification to decorate the formatted value
