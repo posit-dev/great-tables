@@ -8,7 +8,7 @@ format: pdf
 
 import polars as pl
 from great_tables import GT, style, loc
-from great_tables.data import gtcars
+from great_tables.data import gtcars, islands
 ```
 
 ```{python}
@@ -40,4 +40,19 @@ print(
 )
 ```
 
+
+```{python}
+# | output: asis
+# | echo: false
+
+print(
+    (
+    GT(islands.head(2))
+    .tab_header(
+        title="Large Landmasses of the *World*",
+        subtitle="The top **ten** largest are presented"
+    )
+    ).as_latex()
+)
+```
 
