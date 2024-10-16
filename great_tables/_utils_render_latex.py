@@ -459,31 +459,18 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
     headings_vars = data._boxhead._get_default_columns()
     headings_labels = data._boxhead._get_default_column_labels()
 
-    # TODO: implement all logic for styling cells in the headings
-    # for i, label in enumerate(headings_labels):
-    #     styles_heading_i = consolidate_cell_styles_l(
-    #         styles_tbl[
-    #             (styles_tbl["locname"] == "columns_columns") &
-    #             (styles_tbl["colname"] == label)
-    #         ]
-    #     )
-    #
-    #     headings_labels[i] = apply_cell_styles_l(headings_labels[i], styles_heading_i)
+    # TODO: implement all logic for styling cells in the column headings
 
     # If there is a stub then modify the `headings_vars` and `headings_labels`
     if len(stub_layout) > 0:
 
         stubh = data._stubhead
 
-        styles_stubhead = consolidate_cell_styles_l(styles_tbl[styles_tbl["locname"] == "stubhead"])
+        styles_stubhead = consolidate_cell_styles_l(...)
 
         headings_vars = ["::stub"] + headings_vars
 
-        stub_label = (
-            apply_cell_styles_l(stubh.label, styles_stubhead)
-            if stubh.label and len(stubh.label) > 0
-            else ""
-        )
+        # TODO: implement logic for obtaining a styled `stub_label`
 
         if len(stub_layout) > 1:
 
@@ -538,49 +525,21 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
         # Prepend the stub layout to the spanners matrix if it exists
         if len(stub_layout) > 0:
 
-            stub_matrix = matrix(nrow=nrow(spanners), ncol=len(stub_layout))
-
-            spanners = cbind(stub_matrix, spanners)
-            spanner_ids = cbind(stub_matrix, spanner_ids)
+            # TODO: implement logic for this
+            pass
 
         for i in range(len(spanners)):
 
             spanners_i = spanners[i]
             spanner_ids_i = spanner_ids[i,]
 
-            from itertools import groupby
-
-            from typing import Iterable, Tuple
-
-            def rle(iterable: Iterable[str]) -> List[Tuple[str, int]]:
-                return [(key, sum(1 for _ in group)) for key, group in groupby(iterable)]
-
-            # spanners_rle = rle(spanner_ids_i)
-
-            # def cumsum(lst: List[int]) -> List[int]:
-            #    result = []
-            #    total = 0
-            #    for num in lst:
-            #        total += num
-            #        result.append(total)
-            #    return result
-
-            # We need a parallel vector of spanner labels and this could
-            # be part of the `spanners_rle` list
-            # spanners_rle['labels'] = spanners_i[cumsum(spanners_rle['lengths'])]
-
-            # spanners_rle = apply_spanner_styles_l(spanners_rle, styles_tbl)
-
             # TODO: implement logic for calculating the `begins` and `ends` lists
-            # begins = (cumsum(utils::head(c(0, spanners_rle$lengths), -1)) + 1)[!is.na(spanners_rle$values)]
-            # ends = cumsum(spanners_rle$lengths)[!is.na(spanners_rle$values)]
             begins = [1]
             ends = [2]
 
             cmidrule = "\\cmidrule(lr){{{}}}-{{{}}}".format(begins, ends)
 
-            # TODO: implement logic for calculating this
-            # is_spanner_na = is.na(spanners_rle$values)
+            # TODO: implement logic for determining whether a spanner is a single spanner
             is_spanner_na = False
 
             is_spanner_single = spanners_rle["lengths"] == 1
