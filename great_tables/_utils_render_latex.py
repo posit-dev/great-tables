@@ -604,7 +604,7 @@ def create_body_component_l(data: GTData, width_dict: WidthDict) -> str:
 
         # Create a body row
         for colinfo in column_vars:
-            cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
+            cell_content = _get_cell(tbl_data, i, colinfo.var)
             cell_str: str = str(cell_content)
 
             body_cells.append(cell_str)
