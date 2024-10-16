@@ -2683,8 +2683,6 @@ def _context_exp_str(exp_style: str) -> str:
     return exp_str
 
 
-def _context_minus_mark() -> str:
-    return "\u2212"
 def _context_minus_mark(context: str) -> str:
 
     if context == "html":
