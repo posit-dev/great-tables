@@ -469,6 +469,11 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
     headings_vars = data._boxhead._get_default_columns()
     headings_labels = data._boxhead._get_default_column_labels()
 
+    # Ensure that the heading labels are escaped
+    # TODO: move this into the build phase through `process_text()`
+    # TODO: handle None values with `escape_latex()`
+    headings_labels = [escape_latex(x) for x in headings_labels]
+
     # TODO: implement all logic for styling cells in the column headings
 
     # If there is a stub then modify the `headings_vars` and `headings_labels`
