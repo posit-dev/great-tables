@@ -114,6 +114,16 @@ def convert_to_pt(x: str) -> float:
     return px_value * 3 / 4
 
 
+def escape_latex(text: str) -> str:
+
+    # Replace characters in a string that's to be used in a LaTeX context
+
+    latex_escape_regex = "[\\\\&%$#_{}~^]"
+    text = re.sub(latex_escape_regex, lambda match: "\\" + match.group(), text)
+
+    return text
+
+
 # TODO: for now this is a fairly faithful translation of the R code, but a finalized
 # implementation should not return a DataFrame but rather an Info object that holds the
 # column widths and other information
