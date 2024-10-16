@@ -1,0 +1,43 @@
+---
+format: pdf
+---
+
+```{python}
+#| label: setup
+#| include: false
+
+import polars as pl
+from great_tables import GT, style, loc
+from great_tables.data import gtcars
+```
+
+```{python}
+# | output: asis
+# | echo: false
+
+gtcars_pl = (
+    pl.from_pandas(gtcars)
+    .select(["mfr", "model", "hp", "trq", "mpg_c", "msrp"])
+    .with_columns(trq=pl.col("trq") * -1)
+)
+
+print(
+    (
+        GT(
+            gtcars_pl.head(8),
+            # rowname_col="model",
+            # groupname_col="mfr",
+        )
+        .tab_header(title="The title", subtitle="The subtitle")
+        .tab_source_note(source_note="A table note.")
+        .tab_source_note(source_note="A second table note.")
+        .fmt_scientific(columns="trq", decimals=3)
+        .fmt_integer(columns="mpg_c")
+        .fmt_currency(columns="msrp")
+        .fmt_percent(columns="hp", decimals=2, scale_values=False)
+        .tab_options(table_width="500pt", latex_use_longtable=False, table_font_size="12px")
+    ).as_latex()
+)
+```
+
+
