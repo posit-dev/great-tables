@@ -18,7 +18,7 @@ website:
       - href: blog/index.qmd
         text: Blog
       - text: LaTeX Examples
-        file: latex_examples/index.qmd
+        file: a-latex_examples/index.qmd
     right:
       - icon: github
         href: https://github.com/posit-dev/great-tables
