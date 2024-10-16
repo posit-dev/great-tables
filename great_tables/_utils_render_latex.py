@@ -220,34 +220,8 @@ def create_singlecolumn_width_text_l(pt: float, lw: float) -> str:
     return out_txt
 
 
-def calculate_multicolumn_width_text_l(
-    begins: list[str], ends: list[str], width_dict: WidthDict
-) -> str:
-
-    out_text = [""] * len(begins)
-
-    for i in range(len(begins)):
-
-        ind = range(begins[i], ends[i])
-
-        # If any of the combined columns has an unspecified width, it can't be determined
-        # so it is left blank
-        if any(width_dict["unspec"][i] > 0):
-
-            continue
-
-        pt_total = sum(width_dict["pt"][ind])
-        lw_total = sum(width_dict["lw"][ind])
-
-        if pt_total <= 0 & lw_total <= 0:
-
-            continue
-
-        else:
-
-            out_text[i] = create_singlecolumn_width_text_l(pt=pt_total, lw=lw_total)
-
-    return out_text
+def calculate_multicolumn_width_text_l(begins: list[str], ends: list[str], width_dict: WidthDict):
+    pass
 
 
 def latex_heading_row(content: list[str]) -> str:
