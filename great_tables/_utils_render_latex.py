@@ -461,31 +461,31 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
 
         # TODO: implement logic for obtaining a styled `stub_label`
 
-        if len(stub_layout) > 1:
-
-            # If stub_layout == 1, multicolumn is not needed and `stub_label` is already defined
-            stub_dict = {k: v for k, v in width_dict.items() if v["type"] in ["stub", "row_group"]}
-
-            # If there are any unspecified column widths, we need to use width_txt = "c"
-            if any(stub_dict["unspec"]):
-
-                width_txt = "c"
-
-            else:
-
-                width_txt = ">{\\centering\\arraybackslash}m{{{}}}".format(
-                    create_singlecolumn_width_text_l(
-                        pt=sum(stub_dict["pt"]) if isinstance(stub_dict["pt"], list) else 0,
-                        lw=sum(stub_dict["lw"]) if isinstance(stub_dict["lw"], list) else 0,
-                    )
-                    or ""
-                )
-
-            stub_label = "\\multicolumn{{{}}}{{{}}}{{{}}}".format(
-                len(stub_layout), width_txt, stub_label
-            )
-
-        headings_labels = [stub_label] + headings_labels
+        # if len(stub_layout) > 1:
+        #
+        #    # If stub_layout == 1, multicolumn is not needed and `stub_label` is already defined
+        #    stub_dict = {k: v for k, v in width_dict.items() if v["type"] in ["stub", "row_group"]}
+        #
+        #    # If there are any unspecified column widths, we need to use width_txt = "c"
+        #    if any(stub_dict["unspec"]):
+        #
+        #        width_txt = "c"
+        #
+        #    else:
+        #
+        #        width_txt = ">{\\centering\\arraybackslash}m{{{}}}".format(
+        #            create_singlecolumn_width_text_l(
+        #                pt=sum(stub_dict["pt"]) if isinstance(stub_dict["pt"], list) else 0,
+        #                lw=sum(stub_dict["lw"]) if isinstance(stub_dict["lw"], list) else 0,
+        #            )
+        #            or ""
+        #        )
+        #
+        #    stub_label = "\\multicolumn{{{}}}{{{}}}{{{}}}".format(
+        #        len(stub_layout), width_txt, stub_label
+        #    )
+        #
+        # headings_labels = [stub_label] + headings_labels
 
     table_col_headings = "".join(latex_heading_row(content=headings_labels))
 
