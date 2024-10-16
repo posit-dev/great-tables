@@ -2925,7 +2925,7 @@ def _context_dollar_mark(context: str) -> str:
     if context == "latex":
         mark = "\\$"
     else:
-        mark = "%"
+        mark = "$"
 
     return mark
 
