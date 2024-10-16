@@ -624,9 +624,6 @@ def create_body_component_l(data: GTData, width_dict: WidthDict) -> str:
     # Get the total number of columns in the table (this includes columns in the stub)
     n_cols = data._boxhead._get_effective_number_of_columns(stub=data._stub, options=data._options)
 
-    # Get the styles for the body cells
-    styles_cells = [x for x in data._styles if _is_loc(x.locname, loc.LocBody)]
-
     current_group_id = str(0)
 
     body_rows = []
