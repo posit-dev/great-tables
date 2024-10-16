@@ -250,6 +250,12 @@ def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
     if "group_label" in stub_layout:
         types.append("row_group")
 
+    # Get the `tbl_width` value from `width_dict` as a local variable
+    table_width = width_dict.get("tbl_width", None)
+
+    # Remove the `tbl_width` key from `width_dict` without using `pop()`
+    width_dict = WidthDict({k: v for k, v in width_dict.items() if k != "tbl_width"})
+
     # Get indices of the types in `types` that are in the `type` key of `width_dict`
     width_dict_visible_idx = [i for i, v in enumerate(width_dict["type"]) if v in types]
 
