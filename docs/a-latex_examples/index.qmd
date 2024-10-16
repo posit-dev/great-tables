@@ -7,8 +7,8 @@ format: pdf
 #| include: false
 
 import polars as pl
-from great_tables import GT, style, loc
-from great_tables.data import gtcars, islands
+from great_tables import GT
+from great_tables.data import gtcars, islands, airquality
 ```
 
 ```{python}
@@ -45,14 +45,40 @@ print(
 # | output: asis
 # | echo: false
 
+islands_mini = islands.head(10)
+
 print(
     (
-    GT(islands.head(2))
+    GT(islands_mini)
     .tab_header(
-        title="Large Landmasses of the *World*",
-        subtitle="The top **ten** largest are presented"
+        title="Large Landmasses of the World",
+        subtitle="The top ten largest are presented"
     )
+    .tab_source_note(
+        source_note="Source: The World Almanac and Book of Facts, 1975, page 406."
+    )
+    .tab_source_note(
+        source_note="Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley."
+    )
+    #.tab_stubhead(label="landmass")
     ).as_latex()
 )
 ```
 
+
+```{python}
+# | output: asis
+# | echo: false
+
+airquality_mini = airquality.head(10).assign(Year = 1973)
+
+print(
+    (
+    GT(airquality_mini)
+    .tab_header(
+        title="New York Air Quality Measurements",
+        subtitle="Daily measurements in New York City (May 1-10, 1973)"
+    )
+    ).as_latex()
+)
+```
