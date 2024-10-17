@@ -215,6 +215,25 @@ def test_create_columns_component_l_adjacent_spanners_hiding():
     )
 
 
+def test_create_columns_component_l_many_spanners():
+
+    gt_tbl = (
+        GT(exibble)
+        .tab_spanner(label="Spanner 1", columns=["num", "char"])
+        .tab_spanner(label="Spanner 2", columns=["date", "time"])
+        .tab_spanner(label="Spanner 3", columns=["currency", "row"])
+        .tab_spanner(label="Spanner Above 1", columns=["char", "fctr"])
+        .tab_spanner(label="Spanner Above 2", columns=["time", "datetime"])
+    )
+
+    width_dict = create_width_dict_l(gt_tbl)
+
+    assert (
+        create_columns_component_l(data=gt_tbl, width_dict=width_dict)
+        == "\\toprule\n & \\multicolumn{2}{c}{Spanner Above 1} &  & \\multicolumn{2}{c}{Spanner Above 2} &  \\\\ \n\\cmidrule(lr){2-3} \\cmidrule(lr){5-6}\n\\multicolumn{2}{c}{Spanner 1} &  & \\multicolumn{2}{c}{Spanner 2} &  & \\multicolumn{2}{c}{Spanner 3} &  \\\\ \n\\cmidrule(lr){1-2} \\cmidrule(lr){4-5} \\cmidrule(lr){7-8}\nnum & char & fctr & date & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
+    )
+
+
 @mock.patch.dict(os.environ, {"QUARTO_BIN_PATH": "1"}, clear=True)
 def test_create_wrap_start_quarto(gt_tbl: GT):
 
