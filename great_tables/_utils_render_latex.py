@@ -556,6 +556,7 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
 
             spanner_labs = []
             spanner_lines = []
+            span_accumlator = 0
 
             for j, _ in enumerate(level_i_spanners):
 
@@ -563,7 +564,7 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
 
                     # Get the number of columns to span nothing
                     span = group_spans[j][0]
-                    spanner_labs.append(" & " * span)
+                    spanner_labs.append("" * span)
 
                 elif level_i_spanners[j] is not None:
 
@@ -578,14 +579,20 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
                     spanner_labs.append(multicolumn_stmt)
 
                     # Get cmidrule statement for spanner, it uses 1-based indexing
-                    # and the span is the number of columns to span
-                    begin = j + 1
-                    end = j + span
-                    cmidrule = f" \\cmidrule(lr){{{begin}-{end}}}"
+                    # and the span is the number of columns to span; we use the `span_accumlator`
+                    # across iterations to adjust the starting index (j) to adjust for previous
+                    # multicolumn spanning values
+
+                    begin = j + span_accumlator + 1
+                    end = j + span_accumlator + span
+
+                    cmidrule = f"\\cmidrule(lr){{{begin}-{end}}}"
+
+                    span_accumlator += span - 1
 
                     spanner_lines.append(cmidrule)
 
-            spanner_labs_row = "".join(spanner_labs) + " \\\\ \n"
+            spanner_labs_row = " & ".join(spanner_labs) + " \\\\ \n"
             spanner_lines_row = " ".join(spanner_lines) + "\n"
 
             col_spanners_i = spanner_labs_row + spanner_lines_row
