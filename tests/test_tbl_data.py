@@ -21,6 +21,7 @@ from great_tables._tbl_data import (
     is_series,
     reorder,
     to_frame,
+    to_list,
     validate_frame,
     copy_frame,
 )
@@ -296,6 +297,12 @@ def test_is_series(ser: SeriesLike):
 
 def test_is_series_false():
     assert not is_series(1)
+
+
+def test_to_list(ser: SeriesLike):
+    pylist = to_list(ser)
+    assert len(pylist) == 3
+    assert pylist[:2] == [1.0, 2.0]
 
 
 def test_cast_frame_to_string_polars_list_col():
