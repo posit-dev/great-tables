@@ -18,30 +18,38 @@ from great_tables.data import gtcars, islands, airquality
 gtcars_pl = (
     pl.from_pandas(gtcars)
     .select(["mfr", "model", "hp", "trq", "mpg_c", "msrp"])
-    .with_columns(trq=pl.col("trq") * -1)
 )
 
-print(
-    (
-        GT(
-            gtcars_pl.head(8),
-            # rowname_col="model",
-            # groupname_col="mfr",
-        )
-        .tab_header(title="The title", subtitle="The subtitle")
-        .tab_spanner(
-            label="Make and Model",
-            columns=["mfr", "model"]
-        )
-        .tab_source_note(source_note="A table note.")
-        .tab_source_note(source_note="A second table note.")
-        .fmt_scientific(columns="trq", decimals=3)
-        .fmt_integer(columns="mpg_c")
-        .fmt_currency(columns="msrp")
-        .fmt_percent(columns="hp", decimals=2, scale_values=False)
-        .tab_options(table_width="500pt", latex_use_longtable=False, table_font_size="12px")
-    ).as_latex()
-)
+print((
+    GT(
+        gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+        #rowname_col="model",
+        #groupname_col="mfr",
+    )
+    .tab_header(
+        title="Some Cars from the gtcars Dataset",
+        subtitle="Five Cars are shown here"
+    )
+    .tab_spanner(
+        label="Make and Model",
+        columns=["mfr", "model"]
+    )
+    .tab_spanner(
+        label="Performance",
+        columns=["hp", "trq", "msrp"]
+    )
+    .tab_spanner(
+        label="Everything but the cost",
+        columns=["mfr", "model", "hp", "trq"]
+    )
+    .fmt_integer(columns=["hp", "trq"])
+    .fmt_currency(columns="msrp")
+    .tab_source_note("Cars are all 2015 models.")
+    .tab_source_note("Horsepower and Torque values are estimates.")
+    .tab_options(
+        table_width="600pt",
+    )
+).as_latex())
 ```
 
 
