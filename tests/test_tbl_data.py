@@ -22,6 +22,7 @@ from great_tables._tbl_data import (
     reorder,
     to_frame,
     validate_frame,
+    copy_frame,
 )
 
 params_frames = [
@@ -106,6 +107,21 @@ def test_eval_select_with_list(df: DataFrameLike, expr):
     assert sel == [("col2", 1), ("col1", 0)]
 
 
+def test_eval_select_with_callable(df: DataFrameLike):
+    def expr(col):
+        return col == "col2"
+
+    if isinstance(df, pl.DataFrame):
+        # Polars does not support callable expressions
+        with pytest.raises(TypeError) as exc_info:
+            eval_select(df, expr)
+        assert "Unsupported selection expr type:" in str(exc_info.value.args[0])
+        return
+
+    sel = eval_select(df, expr)
+    assert sel == [("col2", 1)]
+
+
 @pytest.mark.parametrize(
     "expr",
     [
@@ -159,7 +175,7 @@ def test_eval_selector_polars_list_raises():
     assert "entry 1 is type: <class 'float'>" in str(exc_info.value.args[0])
 
 
-@pytest.mark.parametrize("Frame", [pd.DataFrame, pl.DataFrame])
+@pytest.mark.parametrize("Frame", [pd.DataFrame, pl.DataFrame, pa.table])
 def test_group_splits_pd(Frame):
     df = Frame({"g": ["b", "a", "b", "c"]})
 
@@ -293,3 +309,9 @@ def test_cast_frame_to_string_polars_list_col():
 def test_frame_rendering(df: DataFrameLike, snapshot):
     gt = GT(df).fmt_number(columns="col3", decimals=0).fmt_currency(columns="col1")
     assert create_body_component_h(gt._build_data("html")) == snapshot
+
+
+def test_copy_frame(df: DataFrameLike):
+    copy_df = copy_frame(df)
+    assert id(copy_df) != id(df)
+    assert_frame_equal(copy_df, df)

@@ -234,7 +234,7 @@ def _(data: Any, row: int, col: str) -> Any:
 
 @_get_cell.register(PyArrowTable)
 def _(data: PyArrowTable, row: int, column: str) -> Any:
-    return data.column(column).take([row]).to_pylist()[0]
+    return data.column(column)[row].as_py()
 
 
 # _set_cell ----
@@ -345,12 +345,12 @@ def _(data: PyArrowTable, group_key: str) -> dict[Any, list[int]]:
     import pyarrow.compute as pc
 
     group_col = data.column(group_key)
-    encoded = group_col.dictionary_encode()
+    encoded = group_col.dictionary_encode().combine_chunks()
 
     d = {}
-    for idx, group_key in enumerate(encoded.values):
-        mask = pc.equal(group_col, idx)
-        d[group_key.to_py()] = pc.indices_nonzero(mask).to_pylist()
+    for idx, group_key in enumerate(encoded.dictionary):
+        mask = pc.equal(encoded.indices, idx)
+        d[group_key.as_py()] = pc.indices_nonzero(mask).to_pylist()
     return d
 
 
