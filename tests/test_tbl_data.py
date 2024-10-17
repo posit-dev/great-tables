@@ -34,6 +34,7 @@ params_series = [
     pytest.param(pd.Series, id="pandas"),
     pytest.param(pl.Series, id="polars"),
     pytest.param(pa.array, id="arrow"),
+    pytest.param(lambda a: pa.chunked_array([a]), id="arrow-chunked"),
 ]
 
 
@@ -283,7 +284,7 @@ def test_to_frame(ser: SeriesLike):
         assert_frame_equal(df, pl.DataFrame({"x": [1.0, 2.0, None]}))
     elif isinstance(ser, pd.Series):
         assert_frame_equal(df, pd.DataFrame({"x": [1.0, 2.0, None]}))
-    elif isinstance(ser, pa.Array):
+    elif isinstance(ser, (pa.Array, pa.ChunkedArray)):
         assert_frame_equal(df, pa.table({"x": [1.0, 2.0, None]}))
     else:
         raise AssertionError(f"Unexpected series type: {type(ser)}")
