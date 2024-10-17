@@ -18,13 +18,25 @@ from great_tables._utils_render_latex import (
     create_fontsize_statement_l,
     escape_latex,
     create_heading_component_l,
+    create_body_component_l,
     create_columns_component_l,
+    create_wrap_end_l,
 )
 
 
 @pytest.fixture
 def gt_tbl():
     return GT(pd.DataFrame({"x": [1, 2], "y": [4, 5]}))
+
+
+@pytest.fixture
+def gt_tbl_dec():
+    return GT(pd.DataFrame({"x": [1.52, 2.23], "y": [4.75, 5.23]}))
+
+
+@pytest.fixture
+def gt_tbl_sci():
+    return GT(pd.DataFrame({"x": [465633.46, -0.00000000345], "y": [4.509, 176.23]}))
 
 
 def test_is_css_length_string():
@@ -234,12 +246,62 @@ def test_create_columns_component_l_many_spanners():
     )
 
 
+def test_create_body_component_l_simple(gt_tbl: GT):
+
+    width_dict = create_width_dict_l(gt_tbl)
+
+    assert create_body_component_l(data=gt_tbl, width_dict=width_dict) == "1 & 4 \\\\\n2 & 5 \\\\"
+
+
+def test_create_body_component_l_fmt_number(gt_tbl: GT):
+
+    gt_tbl_built = gt_tbl.fmt_number(columns="x", rows=0, decimals=3, scale_by=-1)._build_data(
+        context="latex"
+    )
+
+    assert (
+        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        == "-1.000 & 4 \\\\\n2 & 5 \\\\"
+    )
+
+
+def test_create_body_component_l_fmt_integer(gt_tbl_dec: GT):
+
+    gt_tbl_built = gt_tbl_dec.fmt_integer(columns="x", rows=0, scale_by=-1)._build_data(
+        context="latex"
+    )
+
+    assert (
+        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        == "-2 & 4.75 \\\\\n2.23 & 5.23 \\\\"
+    )
+
+
+def test_create_body_component_l_fmt_scientific(gt_tbl_sci: GT):
+
+    gt_tbl_built = gt_tbl_sci.fmt_scientific(columns="x")._build_data(context="latex")
+
+    assert (
+        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        == "4.66 $\\times$ 10\\textsuperscript{5} & 4.509 \\\\\n-3.45 $\\times$ 10\\textsuperscript{-9} & 176.23 \\\\"
+    )
+
+
+def test_create_wrap_start(gt_tbl: GT):
+
+    assert create_wrap_start_l(gt_tbl) == "\\begin{table}[!t]"
+    assert create_wrap_start_l(gt_tbl.tab_options(latex_tbl_pos="!b")) == "\\begin{table}[!b]"
+    assert create_wrap_start_l(gt_tbl.tab_options(latex_use_longtable=True)) == "\\begingroup"
+
+
 @mock.patch.dict(os.environ, {"QUARTO_BIN_PATH": "1"}, clear=True)
 def test_create_wrap_start_quarto(gt_tbl: GT):
 
     assert create_wrap_start_l(gt_tbl) == "\\begin{table}"
+    assert create_wrap_start_l(gt_tbl.tab_options(latex_use_longtable=True)) == "\\begingroup"
 
 
-def test_create_wrap_start_simple_tbl(gt_tbl: GT):
+def test_create_wrap_end_l(gt_tbl: GT):
 
-    assert create_wrap_start_l(gt_tbl) == "\\begin{table}[!t]"
+    assert create_wrap_end_l(gt_tbl) == "\\end{table}"
+    assert create_wrap_end_l(gt_tbl.tab_options(latex_use_longtable=True)) == "\\endgroup"
