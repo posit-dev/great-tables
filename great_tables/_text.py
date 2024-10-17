@@ -30,8 +30,7 @@ def _md_latex(x: str) -> str:
 
     # TODO: Implement commonmark to LaTeX conversion (through a different library as
     # commonmark-py does not support it)
-
-    return x
+    raise NotImplementedError("Markdown to LaTeX conversion is not supported yet")
 
 
 def _process_text(x: str | Text | None, context: str = "html") -> str:
