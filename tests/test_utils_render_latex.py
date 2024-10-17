@@ -18,6 +18,7 @@ from great_tables._utils_render_latex import (
     create_fontsize_statement_l,
     escape_latex,
     create_heading_component_l,
+    create_columns_component_l,
 )
 
 
@@ -157,6 +158,60 @@ def test_create_heading_component_l():
     assert (
         create_heading_component_l(gt_tbl_title_subtitle)
         == "\\caption*{\n{\\large Title} \\\\\n{\\small Subtitle}\n} "
+    )
+
+
+def test_create_columns_component_l_simple():
+
+    gt_tbl = GT(exibble)
+
+    width_dict = create_width_dict_l(gt_tbl)
+
+    assert (
+        create_columns_component_l(data=gt_tbl, width_dict=width_dict)
+        == "\\toprule\nnum & char & fctr & date & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
+    )
+
+
+def test_create_columns_component_l_simple_hidden_cols():
+
+    gt_tbl = GT(exibble).cols_hide(columns=["char", "date"])
+
+    width_dict = create_width_dict_l(gt_tbl)
+
+    assert (
+        create_columns_component_l(data=gt_tbl, width_dict=width_dict)
+        == "\\toprule\nnum & fctr & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
+    )
+
+
+def test_create_columns_component_l_one_spanner():
+
+    gt_tbl = GT(exibble).tab_spanner(label="Spanner", columns=["num", "char"])
+
+    width_dict = create_width_dict_l(gt_tbl)
+
+    assert (
+        create_columns_component_l(data=gt_tbl, width_dict=width_dict)
+        == "\\toprule\n\\multicolumn{2}{c}{Spanner} &  \\\\ \n\\cmidrule(lr){1-2}\nnum & char & fctr & date & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
+    )
+
+
+def test_create_columns_component_l_adjacent_spanners_hiding():
+
+    gt_tbl = (
+        GT(exibble)
+        .tab_spanner(label="Spanner 1", columns=["num", "char"])
+        .tab_spanner(label="Spanner 2", columns=["date", "time"])
+        .tab_spanner(label="Spanner 3", columns=["currency", "row"])
+        .cols_hide(columns="row")
+    )
+
+    width_dict = create_width_dict_l(gt_tbl)
+
+    assert (
+        create_columns_component_l(data=gt_tbl, width_dict=width_dict)
+        == "\\toprule\n\\multicolumn{2}{c}{Spanner 1} &  & \\multicolumn{2}{c}{Spanner 2} &  & \\multicolumn{1}{c}{Spanner 3} &  \\\\ \n\\cmidrule(lr){1-2} \\cmidrule(lr){4-5} \\cmidrule(lr){7-7}\nnum & char & fctr & date & time & datetime & currency & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
     )
 
 
