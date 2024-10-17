@@ -107,10 +107,12 @@ docs/source/generated/
 docs/source/reference/
 
 # Playground Scripts and temporary outputs
+.DS_Store
 playground*.py
 playground*.qmd
 playground.html
 playground_files
 manual-testing.py
 manual-testing.ipynb
-.DS_Store
+latex_testing.qmd
+latex_testing.pdf

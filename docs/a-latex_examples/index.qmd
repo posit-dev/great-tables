@@ -1,0 +1,96 @@
+---
+format: pdf
+---
+
+```{python}
+#| label: setup
+#| include: false
+
+import polars as pl
+from great_tables import GT
+from great_tables.data import gtcars, islands, airquality
+```
+
+```{python}
+# | output: asis
+# | echo: false
+
+gtcars_pl = (
+    pl.from_pandas(gtcars)
+    .select(["mfr", "model", "hp", "trq", "mpg_c", "msrp"])
+)
+
+print((
+    GT(
+        gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+        #rowname_col="model",
+        #groupname_col="mfr",
+    )
+    .tab_header(
+        title="Some Cars from the gtcars Dataset",
+        subtitle="Five Cars are shown here"
+    )
+    .tab_spanner(
+        label="Make and Model",
+        columns=["mfr", "model"]
+    )
+    .tab_spanner(
+        label="Performance",
+        columns=["hp", "trq", "msrp"]
+    )
+    .tab_spanner(
+        label="Everything but the cost",
+        columns=["mfr", "model", "hp", "trq"]
+    )
+    .fmt_integer(columns=["hp", "trq"])
+    .fmt_currency(columns="msrp")
+    .tab_source_note("Cars are all 2015 models.")
+    .tab_source_note("Horsepower and Torque values are estimates.")
+    .tab_options(
+        table_width="600pt",
+    )
+).as_latex())
+```
+
+
+```{python}
+# | output: asis
+# | echo: false
+
+islands_mini = islands.head(10)
+
+print(
+    (
+    GT(islands_mini)
+    .tab_header(
+        title="Large Landmasses of the World",
+        subtitle="The top ten largest are presented"
+    )
+    .tab_source_note(
+        source_note="Source: The World Almanac and Book of Facts, 1975, page 406."
+    )
+    .tab_source_note(
+        source_note="Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley."
+    )
+    #.tab_stubhead(label="landmass")
+    ).as_latex()
+)
+```
+
+
+```{python}
+# | output: asis
+# | echo: false
+
+airquality_mini = airquality.head(10).assign(Year = 1973)
+
+print(
+    (
+    GT(airquality_mini)
+    .tab_header(
+        title="New York Air Quality Measurements",
+        subtitle="Daily measurements in New York City (May 1-10, 1973)"
+    )
+    ).as_latex()
+)
+```
