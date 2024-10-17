@@ -33,10 +33,6 @@ print(
             label="Make and Model",
             columns=["mfr", "model"]
         )
-        .tab_spanner(
-            label="Performance Characteristics",
-            columns=["hp", "trq"]
-        )
         .tab_source_note(source_note="A table note.")
         .tab_source_note(source_note="A second table note.")
         .fmt_scientific(columns="trq", decimals=3)
