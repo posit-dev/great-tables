@@ -563,7 +563,7 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
 
                     # Get the number of columns to span nothing
                     span = group_spans[j][0]
-                    spanner_labs.append(f" & " * span)
+                    spanner_labs.append(" & " * span)
 
                 elif level_i_spanners[j] is not None:
 
