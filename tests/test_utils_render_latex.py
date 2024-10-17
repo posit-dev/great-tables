@@ -17,6 +17,7 @@ from great_tables._utils_render_latex import (
     create_wrap_start_l,
     create_fontsize_statement_l,
     escape_latex,
+    create_heading_component_l,
 )
 
 
@@ -143,6 +144,20 @@ def test_create_fontsize_statement_l_settings():
     gt_tbl = GT(exibble).tab_options(table_font_size="18.5px")
 
     assert create_fontsize_statement_l(gt_tbl) == "\\fontsize{13.9pt}{16.6pt}\\selectfont\n"
+
+
+def test_create_heading_component_l():
+
+    gt_tbl_no_heading = GT(exibble)
+    gt_tbl_title = GT(exibble).tab_header(title="Title")
+    gt_tbl_title_subtitle = GT(exibble).tab_header(title="Title", subtitle="Subtitle")
+
+    assert create_heading_component_l(gt_tbl_no_heading) == ""
+    assert create_heading_component_l(gt_tbl_title) == "\\caption*{\n{\\large Title}\n} "
+    assert (
+        create_heading_component_l(gt_tbl_title_subtitle)
+        == "\\caption*{\n{\\large Title} \\\\\n{\\small Subtitle}\n} "
+    )
 
 
 @mock.patch.dict(os.environ, {"QUARTO_BIN_PATH": "1"}, clear=True)
