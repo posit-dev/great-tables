@@ -127,9 +127,6 @@ def escape_latex(text: str) -> str:
     return text
 
 
-# TODO: for now this is a fairly faithful translation of the R code, but a finalized
-# implementation should not return a DataFrame but rather an Info object that holds the
-# column widths and other information
 def create_width_dict_l(data: GTData) -> WidthDict:
 
     boxhead = data._boxhead
@@ -454,9 +451,8 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
     headings_vars = data._boxhead._get_default_columns()
     headings_labels = data._boxhead._get_default_column_labels()
 
-    # Ensure that the heading labels are escaped
-    # TODO: move this into the build phase through `process_text()`
-    # TODO: handle None values with `escape_latex()`
+    # Ensure that the heading labels are escaped for LaTeX
+    # TODO: use `_process_text()` instead of `escape_latex()`
     headings_labels = [escape_latex(x) for x in headings_labels]
 
     # TODO: implement all logic for styling cells in the column headings
@@ -464,9 +460,9 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
     # If there is a stub then modify the `headings_vars` and `headings_labels`
     if len(stub_layout) > 0:
 
-        stubh = data._stubhead
+        # stubh = data._stubhead
 
-        styles_stubhead = consolidate_cell_styles_l(...)
+        # styles_stubhead = consolidate_cell_styles_l(...)
 
         headings_vars = ["::stub"] + headings_vars
 
@@ -514,6 +510,9 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
             omit_columns_row=True,
         )
 
+        # TODO: ensure that spanner IDs are not included in the output (spanner
+        # labels should be used instead)
+
         spanner_ids, spanner_col_names = spanners_print_matrix(
             spanners=data._spanners,
             boxhead=boxhead,
@@ -523,6 +522,7 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
         )
 
         # Prepend the stub layout to the spanners matrix if it exists
+        # TODO: this might be after preparing the spanners statement
         if len(stub_layout) > 0:
 
             # TODO: implement logic for this
@@ -597,8 +597,6 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
 
             col_spanners_i = spanner_labs_row + spanner_lines_row
 
-            # TODO: implement logic for determining whether a spanner is a single spanner
-
             # If there is a stub we need to tweak the spanners row with a blank
             # multicolumn statement that's the same width as that in the columns
             # row; this is to prevent the automatic vertical line that would otherwise
@@ -639,13 +637,7 @@ def create_body_component_l(data: GTData, width_dict: WidthDict) -> str:
     _str_orig_data = cast_frame_to_string(data._tbl_data)
     tbl_data = replace_null_frame(data._body.body, _str_orig_data)
 
-    #
-    # TODO: summary information is not yet implemented
-    # summaries_present = _summary_exists(data=data)
-    # list_of_summaries = _summary_get(data=data)
-    #
-
-    # TODO: implement grouping and stub logic
+    # TODO: implement row groups and stub logic
 
     # Get list representation of stub layout
     stub_layout = data._stub._get_stub_layout(options=data._options)
