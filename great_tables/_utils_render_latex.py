@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+from itertools import chain
+
 import re
 
 from ._gt_data import GTData, GroupRowInfo
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from .quarto import check_quarto
 from great_tables._spanners import spanners_print_matrix
-from great_tables._utils import heading_has_subtitle, heading_has_title
+from great_tables._utils import heading_has_subtitle, heading_has_title, seq_groups
 from great_tables._utils_render_html import _get_spanners_matrix_height
+from great_tables._text import _process_text
 
 from typing import TypedDict, List
 
@@ -266,11 +269,13 @@ def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
     # `"row_group"` entry is first (only if it's located in the stub), then `"stub"`,
     # and then everything else
     if "stub" in width_dict_visible["type"]:
+
         stub_idx = width_dict_visible["type"].index("stub")
         othr_idx = [i for i in range(len(width_dict_visible["type"])) if i != stub_idx]
         width_dict_visible["type"] = ["row_group", "stub"] + width_dict_visible["type"][othr_idx]
 
     if "row_group" in width_dict_visible["type"]:
+
         row_group_idx = width_dict_visible["type"].index("row_group")
         othr_idx = [i for i in range(len(width_dict_visible["type"])) if i != row_group_idx]
         width_dict_visible["type"] = ["row_group"] + width_dict_visible["type"][othr_idx]
@@ -509,7 +514,7 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
             omit_columns_row=True,
         )
 
-        spanner_ids, _ = spanners_print_matrix(
+        spanner_ids, spanner_col_names = spanners_print_matrix(
             spanners=data._spanners,
             boxhead=boxhead,
             include_hidden=False,
@@ -525,7 +530,65 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
 
         for i in range(len(spanners)):
 
-            # TODO: implement logic for calculating the `begins` and `ends` lists
+            spanners_row = spanners[i]
+
+            for k, v in spanners_row.items():
+                if v is None:
+                    spanners_row[k] = ""
+
+            spanner_ids_index = spanners_row.values()
+            spanners_rle = seq_groups(seq=spanner_ids_index)
+
+            group_spans = [[x[1]] + [0] * (x[1] - 1) for x in spanners_rle]
+            colspans = list(chain(*group_spans))
+            level_i_spanners = []
+
+            for colspan, span_label in zip(colspans, spanners_row.values()):
+                if colspan > 0:
+
+                    if span_label:
+                        span = _process_text(span_label)
+
+                    else:
+                        span = None
+
+                    level_i_spanners.append(span)
+
+            spanner_labs = []
+            spanner_lines = []
+
+            for j, _ in enumerate(level_i_spanners):
+
+                if level_i_spanners[j] is None:
+
+                    # Get the number of columns to span nothing
+                    span = group_spans[j][0]
+                    spanner_labs.append(f" & " * span)
+
+                elif level_i_spanners[j] is not None:
+
+                    # Get the number of columns to span the spanner
+                    span = group_spans[j][0]
+
+                    # TODO: Get alignment for spanner, for now it's center (`c`)
+
+                    # Get multicolumn statement for spanner
+                    multicolumn_stmt = f"\\multicolumn{{{span}}}{{c}}{{{level_i_spanners[j]}}}"
+
+                    spanner_labs.append(multicolumn_stmt)
+
+                    # Get cmidrule statement for spanner, it uses 1-based indexing
+                    # and the span is the number of columns to span
+                    begin = j + 1
+                    end = j + span
+                    cmidrule = f" \\cmidrule(lr){{{begin}-{end}}}"
+
+                    spanner_lines.append(cmidrule)
+
+            spanner_labs_row = "".join(spanner_labs) + " \\\\ \n"
+            spanner_lines_row = " ".join(spanner_lines) + "\n"
+
+            col_spanners_i = spanner_labs_row + spanner_lines_row
 
             # TODO: implement logic for determining whether a spanner is a single spanner
 
@@ -551,19 +614,15 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
                 #    *multicol[len(stub_layout) :],
                 # ]
 
-        # multicol = " & ".join(multicol) + " \\\\ \n"
-        # cmidrule = " ".join(cmidrule) + "\n"
+            table_col_spanners.append(col_spanners_i)
 
-        # col_spanners_i = multicol + cmidrule
-
-        # table_col_spanners += [col_spanners_i]
-        table_col_spanners = ""
+        table_col_spanners = "".join(table_col_spanners)
 
     else:
 
         table_col_spanners = ""
 
-    columns_component = "\\toprule\n" + "".join(table_col_spanners) + table_col_headings
+    columns_component = "\\toprule\n" + table_col_spanners + table_col_headings
 
     return columns_component
 
