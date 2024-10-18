@@ -94,3 +94,30 @@ print(
     ).as_latex()
 )
 ```
+
+
+```{python}
+# | output: asis
+# | echo: false
+
+constants_mini = (
+    pl.from_pandas(constants)
+    .filter(pl.col("name").str.contains("molar")).sort("value")
+    .with_columns(
+        name=pl.col("name")
+        .str.to_titlecase()
+        .str.replace("Kpa", "kpa")
+        .str.replace("Of", "of")
+    )
+)
+
+print((
+    GT(constants_mini)
+    .cols_hide(columns=["uncert", "sf_value", "sf_uncert", "units"])
+    #.fmt_units(columns="units")
+    .fmt_scientific(columns="value", decimals=3)
+    .tab_header(title="Physical Constants Having a Molar Basis")
+    .tab_options(column_labels_hidden=True)
+    .as_latex()
+))
+```
