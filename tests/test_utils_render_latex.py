@@ -361,6 +361,30 @@ def test_create_body_component_l_fmt_currency(gt_tbl_dec: GT):
     )
 
 
+def test_create_body_component_l_fmt_date(gt_tbl_dttm: GT):
+
+    gt_tbl_built = gt_tbl_dttm.fmt_date(
+        columns="date", date_style="wday_month_day_year"
+    )._build_data(context="latex")
+
+    assert (
+        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        == "Saturday, August 12, 2023 & 09:21:23 & 2023-08-12 09:21:23 \\\\\nTuesday, November 17, 2020 & 22:45:02 & 2020-11-17 22:45:02 \\\\"
+    )
+
+
+def test_create_body_component_l_fmt_time(gt_tbl_dttm: GT):
+
+    gt_tbl_built = gt_tbl_dttm.fmt_time(columns="time", time_style="h_m_s_p")._build_data(
+        context="latex"
+    )
+
+    assert (
+        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        == "2023-08-12 & 9:21:23 AM & 2023-08-12 09:21:23 \\\\\n2020-11-17 & 10:45:02 PM & 2020-11-17 22:45:02 \\\\"
+    )
+
+
 def test_create_wrap_start(gt_tbl: GT):
 
     assert create_wrap_start_l(gt_tbl) == "\\begin{table}[!t]"
