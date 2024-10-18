@@ -7,7 +7,7 @@ import json
 import re
 from collections.abc import Generator
 from types import ModuleType
-from typing import Any, Iterable
+from typing import Any, Iterable, Callable
 
 from ._tbl_data import PdDataFrame
 
@@ -237,3 +237,17 @@ def seq_groups(seq: Iterable[str]) -> Generator[tuple[str, int], None, None]:
 
 def is_equal(x: Any, y: Any) -> bool:
     return x is not None and x == y
+
+
+def process_string(string: str, pattern: str, func: Callable[[str], str]) -> str:
+
+    # Split the string by the pattern
+    split_result = re.split(pattern, string)
+
+    # Apply the function to elements that do not match the pattern
+    processed_list = [func(part) if not re.match(pattern, part) else part for part in split_result]
+
+    # Recombine the list elements to obtain a selectively processed string
+    combined_str = "".join(processed_list)
+
+    return combined_str
