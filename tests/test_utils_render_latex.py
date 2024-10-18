@@ -385,6 +385,18 @@ def test_create_body_component_l_fmt_time(gt_tbl_dttm: GT):
     )
 
 
+def test_create_body_component_l_fmt_datetime(gt_tbl_dttm: GT):
+
+    gt_tbl_built = gt_tbl_dttm.fmt_datetime(
+        columns="dttm", date_style="wday_month_day_year", time_style="h_m_s_p"
+    )._build_data(context="latex")
+
+    assert (
+        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        == "2023-08-12 & 09:21:23 & Saturday, August 12, 2023 9:21:23 AM \\\\\n2020-11-17 & 22:45:02 & Tuesday, November 17, 2020 10:45:02 PM \\\\"
+    )
+
+
 def test_create_wrap_start(gt_tbl: GT):
 
     assert create_wrap_start_l(gt_tbl) == "\\begin{table}[!t]"
