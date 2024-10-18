@@ -46,6 +46,19 @@ def gt_tbl_pct():
     return GT(pd.DataFrame({"x": [0.53, 0.0674], "y": [0.17, 0.32]}))
 
 
+@pytest.fixture
+def gt_tbl_dttm():
+    return GT(
+        pd.DataFrame(
+            {
+                "date": ["2023-08-12", "2020-11-17"],
+                "time": ["09:21:23", "22:45:02"],
+                "dttm": ["2023-08-12 09:21:23", "2020-11-17 22:45:02"],
+            }
+        )
+    )
+
+
 def test_is_css_length_string():
 
     assert is_css_length_string("12.5pt")
