@@ -12,7 +12,7 @@ from great_tables._utils import heading_has_subtitle, heading_has_title, seq_gro
 from great_tables._utils_render_html import _get_spanners_matrix_height
 from great_tables._text import _process_text
 
-from typing import TypedDict, List
+from typing import TypedDict, List, Callable
 
 
 LENGTH_TRANSLATIONS_TO_PX = {
@@ -125,6 +125,28 @@ def escape_latex(text: str) -> str:
     text = re.sub(latex_escape_regex, lambda match: "\\" + match.group(), text)
 
     return text
+
+
+# TODO: consider moving this to _utils.py
+def process_string(string: str, pattern: str, func: Callable[[str], str]) -> str:
+
+    # Split the string by the pattern
+    split_result = re.split(pattern, string)
+
+    # Apply the function to elements that do not match the pattern
+    processed_list = [func(part) if not re.match(pattern, part) else part for part in split_result]
+
+    # Recombine the list elements to obtain a selectively processed string
+    combined_str = "".join(processed_list)
+
+    return combined_str
+
+
+def escape_pattern_str_latex(pattern_str: str) -> str:
+
+    pattern = r"(\{[x0-9]+\})"
+
+    return process_string(pattern_str, pattern, escape_latex)
 
 
 def create_width_dict_l(data: GTData) -> WidthDict:
