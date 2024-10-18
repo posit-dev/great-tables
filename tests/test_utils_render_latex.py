@@ -39,6 +39,11 @@ def gt_tbl_sci():
     return GT(pd.DataFrame({"x": [465633.46, -0.00000000345], "y": [4.509, 176.23]}))
 
 
+@pytest.fixture
+def gt_tbl_pct():
+    return GT(pd.DataFrame({"x": [0.53, 0.0674], "y": [0.17, 0.32]}))
+
+
 def test_is_css_length_string():
 
     assert is_css_length_string("12.5pt")
@@ -284,6 +289,26 @@ def test_create_body_component_l_fmt_scientific(gt_tbl_sci: GT):
     assert (
         create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
         == "4.66 $\\times$ 10\\textsuperscript{5} & 4.509 \\\\\n-3.45 $\\times$ 10\\textsuperscript{-9} & 176.23 \\\\"
+    )
+
+
+def test_create_body_component_l_fmt_percent(gt_tbl_pct: GT):
+
+    gt_tbl_built = gt_tbl_pct.fmt_percent(columns="x")._build_data(context="latex")
+
+    assert (
+        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        == "53.00\\% & 0.17 \\\\\n6.74\\% & 0.32 \\\\"
+    )
+
+
+def test_create_body_component_l_fmt_currency(gt_tbl_dec: GT):
+
+    gt_tbl_built = gt_tbl_dec.fmt_currency(columns="x")._build_data(context="latex")
+
+    assert (
+        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        == "\\$1.52 & 4.75 \\\\\n\\$2.23 & 5.23 \\\\"
     )
 
 
