@@ -155,6 +155,7 @@ def test_escape_pattern_str_latex():
 
     assert escape_pattern_str_latex("{x}") == "{x}"
     assert escape_pattern_str_latex("a $_{1} %ab {2}") == "a \\$\\_{1} \\%ab {2}"
+    assert escape_pattern_str_latex("a{b}c") == "a\\{b\\}c"
 
 
 def test_create_fontsize_statement_l():
