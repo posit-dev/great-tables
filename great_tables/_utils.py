@@ -240,6 +240,21 @@ def is_equal(x: Any, y: Any) -> bool:
 
 
 def process_string(string: str, pattern: str, func: Callable[[str], str]) -> str:
+    """
+    Process a string selectively based on a pattern.
+
+    This function splits a string based on a pattern and applies a function to elements that do not
+    match the pattern. The processed elements are then recombined to obtain a selectively processed
+    string.
+
+    Args:
+        string (str): The string to process.
+        pattern (str): The pattern to split the string by.
+        func (Callable[[str], str]): The function applied to elements that do not match the pattern.
+
+    Returns:
+        str: The selectively processed string.
+    """
 
     # Split the string by the pattern
     split_result = re.split(pattern, string)
