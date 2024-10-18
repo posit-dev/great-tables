@@ -1455,7 +1455,6 @@ def fmt_currency(
     )
 
 
-# Generate a function that will operate on single `x` values in the table body
 def fmt_currency_context(
     x: float | None,
     data: GTData,
@@ -1602,50 +1601,85 @@ def fmt_roman(
     # Check that the `case` value is valid and only consists of the string 'upper' or 'lower'
     _validate_case(case=case)
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_roman_fn(
-        x: float,
-        case: str = case,
-    ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    # TODO: fix type errors for members of `FormatFns`
+    return fmt(
+        self,
+        fns=FormatFns(
+            html=partial(
+                fmt_roman_context,
+                data=self,
+                case=case,
+                pattern=pattern,
+                context="html",
+            ),
+            latex=partial(
+                fmt_roman_context,
+                data=self,
+                case=case,
+                pattern=pattern,
+                context="latex",
+            ),
+            default=partial(
+                fmt_roman_context,
+                data=self,
+                case=case,
+                pattern=pattern,
+                context="html",
+            ),
+        ),
+        columns=columns,
+        rows=rows,
+    )
 
-        # Get the absolute value of `x` so that negative values are handled
-        x = abs(x)
 
-        # Round x to 0 digits with the R-H-U method of rounding (for reproducibility purposes)
-        x = _round_rhu(x, 0)
+def fmt_roman_context(
+    x: float,
+    data: GTData,
+    case: str,
+    pattern: str,
+    context: str,
+):
+    if is_na(data._tbl_data, x):
+        return x
 
-        # Determine if `x` is in the range of 1 to 3899 and if it is zero
-        x_is_in_range = x > 0 and x < 3900
-        x_is_zero = x == 0
+    # Get the absolute value of `x` so that negative values are handled
+    x = abs(x)
 
-        if not x_is_in_range and not x_is_zero:
-            # We cannot format a 'large' integer to roman numerals, so we return a string
-            # that indicates this
-            return "ex terminis"
-        elif x_is_zero:
-            # Zero is a special case and is handled separately with the character 'N'
-            # which stands for 'nulla' (i.e., 'nothing')
-            x_formatted = "N"
-        else:
-            # All other values are formatted with the `_as_roman()` utility function
-            x_formatted = _as_roman(x)
+    # Round x to 0 digits with the R-H-U method of rounding (for reproducibility purposes)
+    x = _round_rhu(x, 0)
 
-        # Transform the case of the formatted value
-        if case == "upper":
-            pass
-        else:
-            x_formatted = x_formatted.lower()
+    # Determine if `x` is in the range of 1 to 3899 and if it is zero
+    x_is_in_range = x > 0 and x < 3900
+    x_is_zero = x == 0
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    if not x_is_in_range and not x_is_zero:
+        # We cannot format a 'large' integer to roman numerals, so we return a string
+        # that indicates this
+        return "ex terminis"
+    elif x_is_zero:
+        # Zero is a special case and is handled separately with the character 'N'
+        # which stands for 'nulla' (i.e., 'nothing')
+        x_formatted = "N"
+    else:
+        # All other values are formatted with the `_as_roman()` utility function
+        x_formatted = _as_roman(x)
 
-        return x_formatted
+    # Transform the case of the formatted value
+    if case == "upper":
+        pass
+    else:
+        x_formatted = x_formatted.lower()
 
-    return fmt(self, fns=fmt_roman_fn, columns=columns, rows=rows)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def fmt_bytes(
@@ -1798,88 +1832,153 @@ def fmt_bytes(
         base = 1024
         byte_units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_bytes_fn(
-        x: float,
-        base: int = base,
-        byte_units: list[str] = byte_units,
-        decimals: int = decimals,
-        n_sigfig: int | None = n_sigfig,
-        drop_trailing_zeros: bool = drop_trailing_zeros,
-        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
-        use_seps: bool = use_seps,
-        sep_mark: str = sep_mark,
-        dec_mark: str = dec_mark,
-        force_sign: bool = force_sign,
-        incl_space: bool = incl_space,
-    ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    # TODO: fix type errors for members of `FormatFns`
+    return fmt(
+        self,
+        fns=FormatFns(
+            html=partial(
+                fmt_bytes_context,
+                data=self,
+                base=base,
+                byte_units=byte_units,
+                decimals=decimals,
+                n_sigfig=n_sigfig,
+                drop_trailing_zeros=drop_trailing_zeros,
+                drop_trailing_dec_mark=drop_trailing_dec_mark,
+                use_seps=use_seps,
+                sep_mark=sep_mark,
+                dec_mark=dec_mark,
+                force_sign=force_sign,
+                incl_space=incl_space,
+                pattern=pattern,
+                context="html",
+            ),
+            latex=partial(
+                fmt_bytes_context,
+                data=self,
+                base=base,
+                byte_units=byte_units,
+                decimals=decimals,
+                n_sigfig=n_sigfig,
+                drop_trailing_zeros=drop_trailing_zeros,
+                drop_trailing_dec_mark=drop_trailing_dec_mark,
+                use_seps=use_seps,
+                sep_mark=sep_mark,
+                dec_mark=dec_mark,
+                force_sign=force_sign,
+                incl_space=incl_space,
+                pattern=pattern,
+                context="latex",
+            ),
+            default=partial(
+                fmt_bytes_context,
+                data=self,
+                base=base,
+                byte_units=byte_units,
+                decimals=decimals,
+                n_sigfig=n_sigfig,
+                drop_trailing_zeros=drop_trailing_zeros,
+                drop_trailing_dec_mark=drop_trailing_dec_mark,
+                use_seps=use_seps,
+                sep_mark=sep_mark,
+                dec_mark=dec_mark,
+                force_sign=force_sign,
+                incl_space=incl_space,
+                pattern=pattern,
+                context="html",
+            ),
+        ),
+        columns=columns,
+        rows=rows,
+    )
 
-        # Truncate all byte values by casting to an integer; this is done because bytes
-        # are always whole numbers
-        x = int(x)
 
-        # Determine properties of the value
-        is_negative = _has_negative_value(value=x)
+def fmt_bytes_context(
+    x: float,
+    data: GTData,
+    base: int,
+    byte_units: list[str],
+    decimals: int,
+    n_sigfig: int | None,
+    drop_trailing_zeros: bool,
+    drop_trailing_dec_mark: bool,
+    use_seps: bool,
+    sep_mark: str,
+    dec_mark: str,
+    force_sign: bool,
+    incl_space: bool,
+    pattern: str,
+    context: str,
+):
+    if is_na(data._tbl_data, x):
+        return x
 
-        # Determine the power index for the value
-        if x == 0:
-            # If the value is zero, then the power index is 1; otherwise, we'd get
-            # an error when trying to calculate the log of zero
-            num_power_idx = 1
-        else:
-            # Otherwise, we can calculate the power index by taking the log of the value
-            # and dividing by the log of the base; we add 1 to the result to account for
-            # the fact that the power index is 1-based (i.e., the first element in the
-            # `byte_units` list is at index 0) --- the final statement ensures that the
-            # power index is always at least 1
-            num_power_idx = math.floor(math.log(abs(x), base)) + 1
-            num_power_idx = max(1, min(len(byte_units), num_power_idx))
+    # Truncate all byte values by casting to an integer; this is done because bytes
+    # are always whole numbers
+    x = int(x)
 
-        # The `units_str` is obtained by indexing the `byte_units` list with the `num_power_idx`
-        # value; this is the string that will be affixed to the formatted value
-        units_str = byte_units[num_power_idx - 1]
+    # Determine properties of the value
+    is_negative = _has_negative_value(value=x)
 
-        # Scale `x` value by a defined `base` value, this is done by dividing by the
-        # `base` value raised to the power index minus 1 (we subtract 1 because the
-        # power index is 1-based)
-        x = x / base ** (num_power_idx - 1)
+    # Determine the power index for the value
+    if x == 0:
+        # If the value is zero, then the power index is 1; otherwise, we'd get
+        # an error when trying to calculate the log of zero
+        num_power_idx = 1
+    else:
+        # Otherwise, we can calculate the power index by taking the log of the value
+        # and dividing by the log of the base; we add 1 to the result to account for
+        # the fact that the power index is 1-based (i.e., the first element in the
+        # `byte_units` list is at index 0) --- the final statement ensures that the
+        # power index is always at least 1
+        num_power_idx = math.floor(math.log(abs(x), base)) + 1
+        num_power_idx = max(1, min(len(byte_units), num_power_idx))
 
-        # Format the value to decimal notation; this is done before the `byte_units` text
-        # is affixed to the value
-        x_formatted = _value_to_decimal_notation(
-            value=x,
-            decimals=decimals,
-            n_sigfig=n_sigfig,
-            drop_trailing_zeros=drop_trailing_zeros,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=use_seps,
-            sep_mark=sep_mark,
-            dec_mark=dec_mark,
-            force_sign=force_sign,
-        )
+    # The `units_str` is obtained by indexing the `byte_units` list with the `num_power_idx`
+    # value; this is the string that will be affixed to the formatted value
+    units_str = byte_units[num_power_idx - 1]
 
-        # Create a `bytes_pattern` object for affixing the `units_str`, which is the
-        # string that represents the byte units
-        space_character = " " if incl_space else ""
-        bytes_pattern = f"{{x}}{space_character}{units_str}"
+    # Scale `x` value by a defined `base` value, this is done by dividing by the
+    # `base` value raised to the power index minus 1 (we subtract 1 because the
+    # power index is 1-based)
+    x = x / base ** (num_power_idx - 1)
 
-        x_formatted = bytes_pattern.replace("{x}", x_formatted)
+    # Format the value to decimal notation; this is done before the `byte_units` text
+    # is affixed to the value
+    x_formatted = _value_to_decimal_notation(
+        value=x,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+    )
 
-        # Implement minus sign replacement for `x_formatted`
-        if is_negative:
-            minus_mark = _context_minus_mark(context="html")
-            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+    # Create a `bytes_pattern` object for affixing the `units_str`, which is the
+    # string that represents the byte units
+    space_character = " " if incl_space else ""
+    bytes_pattern = f"{{x}}{space_character}{units_str}"
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = bytes_pattern.replace("{x}", x_formatted)
 
-        return x_formatted
+    # Implement minus sign replacement for `x_formatted`
+    if is_negative:
+        minus_mark = _context_minus_mark(context="html")
+        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
-    return fmt(self, fns=fmt_bytes_fn, columns=columns, rows=rows)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def fmt_date(
@@ -1989,40 +2088,79 @@ def fmt_date(
     # Get the date format string based on the `date_style` value
     date_format_str = _get_date_format(date_style=date_style)
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_date_fn(
-        x: Any, date_format_str: str = date_format_str, locale: str | None = locale
-    ) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    return fmt(
+        self,
+        fns=FormatFns(
+            html=partial(
+                fmt_date_context,
+                data=self,
+                date_format_str=date_format_str,
+                pattern=pattern,
+                locale=locale,
+                context="html",
+            ),
+            latex=partial(
+                fmt_date_context,
+                data=self,
+                date_format_str=date_format_str,
+                pattern=pattern,
+                locale=locale,
+                context="latex",
+            ),
+            default=partial(
+                fmt_date_context,
+                data=self,
+                date_format_str=date_format_str,
+                pattern=pattern,
+                locale=locale,
+                context="html",
+            ),
+        ),
+        columns=columns,
+        rows=rows,
+    )
 
-        # If `x` is a string, we assume it is an ISO date string and convert it to a date object
-        if isinstance(x, str):
 
-            # Convert the ISO date string to a date object
-            x = _iso_str_to_date(x)
+def fmt_date_context(
+    x: Any,
+    data: GTData,
+    date_format_str: str,
+    pattern: str,
+    locale: str | None,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
 
-        else:
-            # Stop if `x` is not a valid date object
-            _validate_date_obj(x=x)
+    # If `x` is a string, we assume it is an ISO date string and convert it to a date object
+    if isinstance(x, str):
 
-        # Fix up the locale for `format_date()` by replacing any hyphens with underscores
-        if locale is None:
-            locale = "en_US"
-        else:
-            locale = _str_replace(locale, "-", "_")
+        # Convert the ISO date string to a date object
+        x = _iso_str_to_date(x)
 
-        # Format the date object to a string using Babel's `format_date()` function
-        x_formatted = format_date(x, format=date_format_str, locale=locale)
+    else:
+        # Stop if `x` is not a valid date object
+        _validate_date_obj(x=x)
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Fix up the locale for `format_date()` by replacing any hyphens with underscores
+    if locale is None:
+        locale = "en_US"
+    else:
+        locale = _str_replace(locale, "-", "_")
 
-        return x_formatted
+    # Format the date object to a string using Babel's `format_date()` function
+    x_formatted = format_date(x, format=date_format_str, locale=locale)
 
-    return fmt(self, fns=fmt_date_fn, columns=columns, rows=rows)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def fmt_time(
@@ -2120,40 +2258,79 @@ def fmt_time(
     # Get the time format string based on the `time_style` value
     time_format_str = _get_time_format(time_style=time_style)
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_time_fn(
-        x: Any, time_format_str: str = time_format_str, locale: str | None = locale
-    ) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    return fmt(
+        self,
+        fns=FormatFns(
+            html=partial(
+                fmt_time_context,
+                data=self,
+                time_format_str=time_format_str,
+                pattern=pattern,
+                locale=locale,
+                context="html",
+            ),
+            latex=partial(
+                fmt_time_context,
+                data=self,
+                time_format_str=time_format_str,
+                pattern=pattern,
+                locale=locale,
+                context="latex",
+            ),
+            default=partial(
+                fmt_time_context,
+                data=self,
+                time_format_str=time_format_str,
+                pattern=pattern,
+                locale=locale,
+                context="html",
+            ),
+        ),
+        columns=columns,
+        rows=rows,
+    )
 
-        # If `x` is a string, assume it is an ISO time string and convert it to a time object
-        if isinstance(x, str):
 
-            # Convert the ISO time string to a time object
-            x = _iso_str_to_time(x)
+def fmt_time_context(
+    x: Any,
+    data: GTData,
+    time_format_str: str,
+    pattern: str,
+    locale: str | None,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
 
-        else:
-            # Stop if `x` is not a valid time object
-            _validate_time_obj(x=x)
+    # If `x` is a string, assume it is an ISO time string and convert it to a time object
+    if isinstance(x, str):
 
-        # Fix up the locale for `format_time()` by replacing any hyphens with underscores
-        if locale is None:
-            locale = "en_US"
-        else:
-            locale = _str_replace(locale, "-", "_")
+        # Convert the ISO time string to a time object
+        x = _iso_str_to_time(x)
 
-        # Format the time object to a string using Babel's `format_time()` function
-        x_formatted = format_time(x, format=time_format_str, locale=locale)
+    else:
+        # Stop if `x` is not a valid time object
+        _validate_time_obj(x=x)
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Fix up the locale for `format_time()` by replacing any hyphens with underscores
+    if locale is None:
+        locale = "en_US"
+    else:
+        locale = _str_replace(locale, "-", "_")
 
-        return x_formatted
+    # Format the time object to a string using Babel's `format_time()` function
+    x_formatted = format_time(x, format=time_format_str, locale=locale)
 
-    return fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def fmt_datetime(
@@ -2270,48 +2447,90 @@ def fmt_datetime(
     # Get the time format string based on the `time_style` value
     time_format_str = _get_time_format(time_style=time_style)
 
-    # Generate a function that will operate on single `x` values in the table body using both
-    # the date and time format strings
-    def fmt_datetime_fn(
-        x: Any,
-        date_format_str: str = date_format_str,
-        time_format_str: str = time_format_str,
-        sep: str = sep,
-        locale: str | None = locale,
-    ) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    return fmt(
+        self,
+        fns=FormatFns(
+            html=partial(
+                fmt_datetime_context,
+                data=self,
+                date_format_str=date_format_str,
+                time_format_str=time_format_str,
+                sep=sep,
+                pattern=pattern,
+                locale=locale,
+                context="html",
+            ),
+            latex=partial(
+                fmt_datetime_context,
+                data=self,
+                date_format_str=date_format_str,
+                time_format_str=time_format_str,
+                sep=sep,
+                pattern=pattern,
+                locale=locale,
+                context="latex",
+            ),
+            default=partial(
+                fmt_datetime_context,
+                data=self,
+                date_format_str=date_format_str,
+                time_format_str=time_format_str,
+                sep=sep,
+                pattern=pattern,
+                locale=locale,
+                context="html",
+            ),
+        ),
+        columns=columns,
+        rows=rows,
+    )
 
-        # From the date and time format strings, create a datetime format string
-        datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
 
-        # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
-        if isinstance(x, str):
+def fmt_datetime_context(
+    x: Any,
+    data: GTData,
+    date_format_str: str,
+    time_format_str: str,
+    sep: str,
+    pattern: str,
+    locale: str | None,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
 
-            # Convert the ISO datetime string to a datetime object
-            x = _iso_str_to_datetime(x)
+    # From the date and time format strings, create a datetime format string
+    datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
 
-        else:
-            # Stop if `x` is not a valid datetime object
-            _validate_datetime_obj(x=x)
+    # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
+    if isinstance(x, str):
 
-        # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
-        if locale is None:
-            locale = "en_US"
-        else:
-            locale = _str_replace(locale, "-", "_")
+        # Convert the ISO datetime string to a datetime object
+        x = _iso_str_to_datetime(x)
 
-        # Format the datetime object to a string using Babel's `format_datetime()` function
-        x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
+    else:
+        # Stop if `x` is not a valid datetime object
+        _validate_datetime_obj(x=x)
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
+    if locale is None:
+        locale = "en_US"
+    else:
+        locale = _str_replace(locale, "-", "_")
 
-        return x_formatted
+    # Format the datetime object to a string using Babel's `format_datetime()` function
+    x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
 
-    return fmt(self, fns=fmt_datetime_fn, columns=columns, rows=rows)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def fmt_markdown(
