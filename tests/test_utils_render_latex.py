@@ -20,6 +20,7 @@ from great_tables._utils_render_latex import (
     create_heading_component_l,
     create_body_component_l,
     create_columns_component_l,
+    create_footer_component_l,
     create_wrap_end_l,
     escape_pattern_str_latex,
 )
@@ -276,6 +277,33 @@ def test_create_body_component_l_fmt_number(gt_tbl: GT):
         create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
         == "-1.000 & 4 \\\\\n2 & 5 \\\\"
     )
+
+
+def test_create_footer_component_one_note(gt_tbl: GT):
+
+    gt_tbl_new = gt_tbl.tab_source_note(source_note="Source Note.")
+
+    assert (
+        create_footer_component_l(gt_tbl_new)
+        == "\\begin{minipage}{\\linewidth}\nSource Note.\\\\\n\\end{minipage}"
+    )
+
+
+def test_create_footer_component_two_notes(gt_tbl: GT):
+
+    gt_tbl_new = gt_tbl.tab_source_note(source_note="Source Note 1.").tab_source_note(
+        source_note="Source Note 2."
+    )
+
+    assert (
+        create_footer_component_l(gt_tbl_new)
+        == "\\begin{minipage}{\\linewidth}\nSource Note 1.\\\\\nSource Note 2.\\\\\n\\end{minipage}"
+    )
+
+
+def test_create_footer_component_no_notes(gt_tbl: GT):
+
+    assert create_footer_component_l(gt_tbl) == ""
 
 
 def test_create_body_component_l_fmt_integer(gt_tbl_dec: GT):
