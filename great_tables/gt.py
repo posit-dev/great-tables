@@ -313,11 +313,20 @@ class GT(
         new_body.render_formats(self._tbl_data, self._substitutions, context)
         return self._replace(_body=new_body)
 
+    def _migrate_unformatted_to_output(self, context: str) -> Self:
+        new_body = self._body.copy()
+
+        new_body.migrate_unformatted_to_output(self._tbl_data, self._formats, context)
+
+        return self._replace(_body=new_body)
+
     def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         built = self._render_formats(context)
-        # built._body = _migrate_unformatted_to_output(body)
+
+        if context == "latex":
+            built = built._migrate_unformatted_to_output(context=context)
 
         # built._perform_col_merge()
         final_body = body_reassemble(built._body, built._stub, built._boxhead)
