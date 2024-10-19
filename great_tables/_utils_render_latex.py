@@ -10,7 +10,7 @@ from .quarto import check_quarto
 from great_tables._spanners import spanners_print_matrix
 from great_tables._utils import heading_has_subtitle, heading_has_title, seq_groups, process_string
 from great_tables._utils_render_html import _get_spanners_matrix_height
-from great_tables._text import _process_text
+from great_tables._text import _process_text, _latex_escape
 
 from typing import TypedDict, List
 
@@ -117,21 +117,11 @@ def convert_to_pt(x: str) -> float:
     return px_value * 3 / 4
 
 
-def escape_latex(text: str) -> str:
-
-    # Replace characters in a string that's to be used in a LaTeX context
-
-    latex_escape_regex = "[\\\\&%$#_{}~^]"
-    text = re.sub(latex_escape_regex, lambda match: "\\" + match.group(), text)
-
-    return text
-
-
 def escape_pattern_str_latex(pattern_str: str) -> str:
 
     pattern = r"(\{[x0-9]+\})"
 
-    return process_string(pattern_str, pattern, escape_latex)
+    return process_string(pattern_str, pattern, _latex_escape)
 
 
 def create_width_dict_l(data: GTData) -> WidthDict:
@@ -514,8 +504,7 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
     headings_labels = data._boxhead._get_default_column_labels()
 
     # Ensure that the heading labels are escaped for LaTeX
-    # TODO: use `_process_text()` instead of `escape_latex()`
-    headings_labels = [escape_latex(x) for x in headings_labels]
+    headings_labels = [_process_text(x, context="latex") for x in headings_labels]
 
     # TODO: implement all logic for styling cells in the column headings
 
