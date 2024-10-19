@@ -24,6 +24,7 @@ from ._tbl_data import (
     to_list,
     validate_frame,
 )
+from ._text import _process_text
 from ._utils import _str_detect, OrderedSet
 
 if TYPE_CHECKING:
