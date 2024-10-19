@@ -503,7 +503,7 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
     headings_vars = data._boxhead._get_default_columns()
     headings_labels = data._boxhead._get_default_column_labels()
 
-    # Ensure that the heading labels are escaped for LaTeX
+    # Ensure that the heading labels are processed for LaTeX
     headings_labels = [_process_text(x, context="latex") for x in headings_labels]
 
     # TODO: implement all logic for styling cells in the column headings
@@ -783,7 +783,7 @@ def create_footer_component_l(data: GTData) -> str:
     if len(source_notes) == 0:
         return ""
 
-    # Ensure that the heading labels are escaped for LaTeX
+    # Ensure that the source notes are processed for LaTeX
     source_notes = [_process_text(x, context="latex") for x in source_notes]
 
     # Create a formatted source notes string
