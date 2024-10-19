@@ -598,7 +598,7 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
                 if colspan > 0:
 
                     if span_label:
-                        span = _process_text(span_label)
+                        span = _process_text(span_label, context="latex")
 
                     else:
                         span = None
