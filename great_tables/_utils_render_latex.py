@@ -778,13 +778,16 @@ def create_footer_component_l(data: GTData) -> str:
     """
 
     # Get all source notes as a list
-    source_notes_list = data._source_notes
+    source_notes = data._source_notes
 
-    if len(source_notes_list) == 0:
+    if len(source_notes) == 0:
         return ""
 
+    # Ensure that the heading labels are escaped for LaTeX
+    source_notes = [_process_text(x, context="latex") for x in source_notes]
+
     # Create a formatted source notes string
-    source_notes = "\\\\\n".join(source_notes_list) + "\\\\"
+    source_notes = "\\\\\n".join(source_notes) + "\\\\"
 
     # Create the footer block
     footer_block = f"""\\begin{{minipage}}{{\\linewidth}}
