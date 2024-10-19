@@ -182,6 +182,47 @@ class Body:
 
         return self
 
+    def migrate_unformatted_to_output(
+        self, data_tbl: TblData, formats: list[FormatInfo], context: Any
+    ):
+
+        all_formatted_cells = []
+
+        for fmt in formats:
+            eval_func = getattr(fmt.func, context, fmt.func.default)
+            if eval_func is None:
+                raise Exception("Internal Error")
+
+            # Accumulate all formatted cells in the table
+            all_formatted_cells.append(fmt.cells.resolve())
+
+        # Deduplicate the list of formatted cells
+        all_formatted_cells = list(
+            set([item for sublist in all_formatted_cells for item in sublist])
+        )
+
+        # Get all visible cells in the table
+        all_visible_cells = _get_visible_cells(data=data_tbl)
+
+        # Get the difference between the visible cells and the formatted cells
+        all_unformatted_cells = list(set(all_visible_cells) - set(all_formatted_cells))
+
+        # TODO: this currently will only be used for LaTeX (HTML escaping will be performed
+        # in the future)
+        if context == "latex":
+
+            for col, row in all_unformatted_cells:
+
+                # Get the cell value and cast as string
+                cell_value = _get_cell(data_tbl, row, col)
+                cell_value_str = str(cell_value)
+
+                result = _process_text(cell_value_str, context="latex")
+
+                _set_cell(self.body, row, col, result)
+
+        return self
+
     def copy(self):
         return self.__class__(copy_data(self.body))
 
