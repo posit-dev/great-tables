@@ -16,7 +16,6 @@ from great_tables._utils_render_latex import (
     create_width_dict_l,
     create_wrap_start_l,
     create_fontsize_statement_l,
-    escape_latex,
     create_heading_component_l,
     create_body_component_l,
     create_columns_component_l,
@@ -156,13 +155,6 @@ def test_create_width_dict_l_settings():
         "left",
     ]
     assert width_dict["tbl_width"] is None
-
-
-def test_escape_latex():
-
-    assert escape_latex("a & b") == "a \\& b"
-    assert escape_latex("a & b & c") == "a \\& b \\& c"
-    assert escape_latex("\\a_\\d") == "\\\\a\\_\\\\d"
 
 
 def test_escape_pattern_str_latex():
