@@ -62,7 +62,7 @@ def _process_text(x: str | Text | None, context: str = "html") -> str:
         elif isinstance(x, Html):
             return x.text
         elif isinstance(x, str):
-            return x
+            return _latex_escape(x)
         elif isinstance(x, Text):
             return x.text
         elif isinstance(x, UnitStr):
