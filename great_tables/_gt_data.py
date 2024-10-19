@@ -49,6 +49,11 @@ def _prep_gt(data, rowname_col, groupname_col, auto_align) -> Tuple[Stub, Boxhea
     return stub, boxhead
 
 
+# Get a list of tuples for all visible cells in the table
+def _get_visible_cells(data: TblData) -> list[tuple[str, int]]:
+    return [(col, row) for col in get_column_names(data) for row in range(n_rows(data))]
+
+
 @dataclass(frozen=True)
 class GTData:
     _tbl_data: TblData
