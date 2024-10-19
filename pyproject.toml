@@ -56,6 +56,9 @@ all = [
 extra = [
     "selenium>=4.18.1",
     "Pillow>=10.2.0",
+    "weasyprint",
+    "pdfplumber",
+    "pypdf"
 ]
 
 dev = [

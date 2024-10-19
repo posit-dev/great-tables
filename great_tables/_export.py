@@ -8,7 +8,7 @@ import webbrowser
 from functools import partial
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, Tuple
 from typing_extensions import TypeAlias
 
 from ._utils import _try_import
@@ -445,3 +445,98 @@ def _dump_debug_screenshot(driver, path):
         "document.getElementsByTagName('table')[0].style.border = '3px solid green'; "
     )
     driver.save_screenshot(path)
+
+
+def save_pdf(
+    self: GT,
+    file: Path | str,
+    selector: str = "table",
+    scale: float = 1.0,
+    expand: float = 5.0,
+    page_size: Tuple | str = ("100cm", "100cm"),
+):
+    """
+    Produce vector PDF of the table.
+
+    The table's HTML representation is rendered directly to PDF.
+
+    Parameters
+    ----------
+    file
+        The name of the file to save the image to. Accepts names ending with .pdf.
+    selector
+        (NOT IMPLEMENTED) The HTML element name used to select table. Defaults to the whole table.
+    scale
+        The scaling factor that will be used when generating the image.  Lower values decrease
+        resolution. A scale of 2 is equivalent to doubling the width of the table in pixels.
+    expand
+        Length in points (1/72 inch, 0.35mm) to expand the rendering by. This can be
+        increased to capture more of the surrounding area, or decreased to capture less.
+    page_size
+        The size of the page to use when laying out the table. This shouldn't be necessary
+        to capture a table, but may affect the tables appearance. Can either be a tuple
+        (width, height) of pixels or strings of CSS lengths, or a string (such as "A4" or
+        "21cm 29.7cm") used to set the `size` descriptor of the `@page` rule.
+        Note that the resulting PDF's width will be at least the minimum width of the table,
+        even if a smaller page width is specified. If the page height is smaller than the table
+        height, the table will be split into multiple pages.
+
+    Details
+    -------
+    We create the output file based on the HTML version of the table.
+
+    This process is facilitated by two libraries:
+
+    - `weasyprint`, which renders the HTML to PDF
+    - `pdfplumber`, which allows to find the area on the page occupied by the table
+    - `pypdf`, which is used to crop the page to only include the table element.
+
+    Both of these packages needs to be installed before attempting to save any table to PDF.
+
+    A pip-based reinstallation of **Great Tables** through the following command will install these
+    required packages:
+
+    ```bash
+    pip install great_tables[extra]
+    ```
+
+    """
+    for pkg in "weasyprint", "pdfplumber", "pypdf":
+        _try_import(name=pkg, pip_install_line=f"pip install {pkg}")
+    from io import BytesIO, StringIO
+    import math
+    import pdfplumber
+    import pypdf
+    import weasyprint
+
+    if not isinstance(page_size, str):
+        page_size = " ".join(map(str, page_size))
+    page_css = f"@page {{ size: {page_size}; margin: 0 }}"
+
+    html = weasyprint.HTML(file_obj=StringIO(self.as_raw_html()))
+    css = StringIO(page_css)
+    pdf = html.write_pdf(zoom=scale, stylesheets=[css])
+
+    boxes = []
+    with pdfplumber.open(BytesIO(pdf)) as pp:
+        for pg in pp.pages:
+            x0 = math.inf
+            x1 = -math.inf
+            top = math.inf
+            bottom = -math.inf
+            for lst in pg.objects.values():
+                for item in lst:
+                    x0 = min(x0, item["x0"])
+                    x1 = max(x1, item["x1"])
+                    top = min(top, item["top"])
+                    bottom = max(bottom, item["bottom"])
+            t = pg.mediabox[-1]
+            boxes.append((x0, x1, t - top, t - bottom))
+
+    with pypdf.PdfReader(BytesIO(pdf)) as rdr, pypdf.PdfWriter(file) as wtr:
+        for pg, b in zip(rdr.pages, boxes):
+            pg.mediabox.left = b[0] - expand
+            pg.mediabox.right = b[1] + expand
+            pg.mediabox.top = b[2] + expand
+            pg.mediabox.bottom = b[3] - expand
+            wtr.add_page(pg)
