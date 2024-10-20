@@ -485,7 +485,7 @@ def save_pdf(
     -------
     We create the output file based on the HTML version of the table.
 
-    This process is facilitated by two libraries:
+    This process is facilitated by three libraries:
 
     - `weasyprint`, which renders the HTML to PDF
     - `pdfplumber`, which allows to find the area on the page occupied by the table
@@ -501,13 +501,12 @@ def save_pdf(
     ```
 
     """
-    for pkg in "weasyprint", "pdfplumber", "pypdf":
-        _try_import(name=pkg, pip_install_line=f"pip install {pkg}")
     from io import BytesIO, StringIO
     import math
-    import pdfplumber
-    import pypdf
-    import weasyprint
+
+    weasyprint = _try_import(name="weasyprint", pip_install_line="pip install weasyprint")
+    pdfplumber = _try_import(name="pdfplumber", pip_install_line="pip install pdfplumber")
+    pypdf = _try_import(name="pypdf", pip_install_line="pip install pypdf")
 
     if not isinstance(page_size, str):
         page_size = " ".join(map(str, page_size))
