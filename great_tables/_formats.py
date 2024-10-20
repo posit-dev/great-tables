@@ -27,9 +27,8 @@ from ._tbl_data import (
     to_list,
     _get_column_dtype,
 )
-from ._text import _md_html
+from ._text import _md_html, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace
-from ._utils_render_latex import escape_pattern_str_latex
 from ._utils_nanoplots import _generate_nanoplot
 
 

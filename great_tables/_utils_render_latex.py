@@ -8,9 +8,9 @@ from ._gt_data import GTData, GroupRowInfo
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from .quarto import check_quarto
 from great_tables._spanners import spanners_print_matrix
-from great_tables._utils import heading_has_subtitle, heading_has_title, seq_groups, process_string
+from great_tables._utils import heading_has_subtitle, heading_has_title, seq_groups
 from great_tables._utils_render_html import _get_spanners_matrix_height
-from great_tables._text import _process_text, _latex_escape
+from great_tables._text import _process_text
 
 from typing import TypedDict, List
 
@@ -115,13 +115,6 @@ def convert_to_pt(x: str) -> float:
     px_value = convert_to_px(x)
 
     return px_value * 3 / 4
-
-
-def escape_pattern_str_latex(pattern_str: str) -> str:
-
-    pattern = r"(\{[x0-9]+\})"
-
-    return process_string(pattern_str, pattern, _latex_escape)
 
 
 def create_width_dict_l(data: GTData) -> WidthDict:

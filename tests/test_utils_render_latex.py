@@ -21,7 +21,6 @@ from great_tables._utils_render_latex import (
     create_columns_component_l,
     create_footer_component_l,
     create_wrap_end_l,
-    escape_pattern_str_latex,
 )
 
 
@@ -155,13 +154,6 @@ def test_create_width_dict_l_settings():
         "left",
     ]
     assert width_dict["tbl_width"] is None
-
-
-def test_escape_pattern_str_latex():
-
-    assert escape_pattern_str_latex("{x}") == "{x}"
-    assert escape_pattern_str_latex("a $_{1} %ab {2}") == "a \\$\\_{1} \\%ab {2}"
-    assert escape_pattern_str_latex("a{b}c") == "a\\{b\\}c"
 
 
 def test_create_fontsize_statement_l():
