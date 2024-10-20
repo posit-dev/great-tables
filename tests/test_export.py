@@ -53,6 +53,49 @@ def test_save_non_png(gt_tbl: GT, tmp_path):
     gt_tbl.save(file=str(f_path))
 
 
+@pytest.mark.extra
+def test_save_pdf(gt_tbl: GT, tmp_path):
+    import pypdf
+
+    # test `expand` parameter
+    f_path_e0 = tmp_path / "test_image_expand0.pdf"
+    gt_tbl.save_pdf(f_path_e0, expand=0)
+    assert f_path_e0.exists
+
+    f_path_e5 = tmp_path / "test_image_expand5.pdf"
+    gt_tbl.save_pdf(f_path_e5, expand=5)
+    assert f_path_e5.exists
+
+    with pypdf.PdfReader(f_path_e0) as p0, pypdf.PdfReader(f_path_e5) as p5:
+        mb0 = p0.pages[0].mediabox
+        mb5 = p5.pages[0].mediabox
+        assert mb0.left == pytest.approx(mb5.left + 5.0)
+        assert mb0.bottom == pytest.approx(mb5.bottom + 5.0)
+        assert mb0.width == pytest.approx(mb5.width - 10.0)
+        assert mb0.height == pytest.approx(mb5.height - 10.0)
+
+    # test `page_size` parameter
+    for i, sz in enumerate([("100cm", "10cm"), "100cm 10cm"]):
+        f_path_sz = tmp_path / f"test_image_sz{i}.pdf"
+        gt_tbl.save_pdf(f_path_sz, page_size=sz, expand=0)
+        assert f_path_sz.exists
+        with pypdf.PdfReader(f_path_sz) as p:
+            assert len(p.pages) == 2
+            for pg in p.pages:
+                assert pg.mediabox.height <= 10 / 2.54 * 72  # ≤ 10cm
+
+    # test `scale` parameter
+    for sc in 1.5, 0.5:
+        f_path_sc = tmp_path / f"test_image_x{int(sc*10):02}.pdf"
+        gt_tbl.save_pdf(f_path_sc, expand=0, scale=sc)
+        assert f_path_sc.exists
+
+        with pypdf.PdfReader(f_path_sc) as rdr:
+            mb = rdr.pages[0].mediabox
+            assert mb0.width == pytest.approx(mb.width / sc)
+            assert mb0.height == pytest.approx(mb.height / sc)
+
+
 def test_save_custom_webdriver(gt_tbl: GT, tmp_path):
     from selenium import webdriver
 
