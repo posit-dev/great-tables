@@ -66,13 +66,13 @@ print(
         title="Large Landmasses of the World",
         subtitle="The top ten largest are presented"
     )
+    .fmt_integer(columns="size")
     .tab_source_note(
         source_note="Source: The World Almanac and Book of Facts, 1975, page 406."
     )
     .tab_source_note(
         source_note="Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley."
     )
-    #.tab_stubhead(label="landmass")
     ).as_latex()
 )
 ```
