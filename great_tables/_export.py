@@ -188,7 +188,7 @@ def as_latex(self: GT) -> str:
     """
     built_table = self._build_data(context="latex")
 
-    latex_table = _render_as_latex(self=built_table)
+    latex_table = _render_as_latex(data=built_table)
 
     return latex_table
 
