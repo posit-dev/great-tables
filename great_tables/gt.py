@@ -71,7 +71,7 @@ from great_tables._utils_render_html import (
     create_heading_component_h,
     create_source_notes_component_h,
 )
-from great_tables._utils_render_latex import _render_as_latex
+
 
 __all__ = ["GT"]
 
