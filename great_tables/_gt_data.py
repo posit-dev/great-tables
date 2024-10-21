@@ -24,6 +24,7 @@ from ._tbl_data import (
     to_list,
     validate_frame,
 )
+from ._text import _process_text
 from ._utils import _str_detect, OrderedSet
 
 if TYPE_CHECKING:
@@ -47,6 +48,11 @@ def _prep_gt(data, rowname_col, groupname_col, auto_align) -> Tuple[Stub, Boxhea
     )
 
     return stub, boxhead
+
+
+# Get a list of tuples for all visible cells in the table
+def _get_visible_cells(data: TblData) -> list[tuple[str, int]]:
+    return [(col, row) for col in get_column_names(data) for row in range(n_rows(data))]
 
 
 @dataclass(frozen=True)
@@ -173,6 +179,50 @@ class Body:
                 # TODO: I think that this is very inefficient with polars, so
                 # we could either accumulate results and set them per column, or
                 # could always use a pandas DataFrame inside Body?
+                _set_cell(self.body, row, col, result)
+
+        return self
+
+    def migrate_unformatted_to_output(
+        self, data_tbl: TblData, formats: list[FormatInfo], context: Any
+    ):
+        """
+        Escape unformatted cells so they are safe for a specific output context.
+        """
+
+        all_formatted_cells = []
+
+        for fmt in formats:
+            eval_func = getattr(fmt.func, context, fmt.func.default)
+            if eval_func is None:
+                raise Exception("Internal Error")
+
+            # Accumulate all formatted cells in the table
+            all_formatted_cells.append(fmt.cells.resolve())
+
+        # Deduplicate the list of formatted cells
+        all_formatted_cells = list(
+            set([item for sublist in all_formatted_cells for item in sublist])
+        )
+
+        # Get all visible cells in the table
+        all_visible_cells = _get_visible_cells(data=data_tbl)
+
+        # Get the difference between the visible cells and the formatted cells
+        all_unformatted_cells = list(set(all_visible_cells) - set(all_formatted_cells))
+
+        # TODO: this currently will only be used for LaTeX (HTML escaping will be performed
+        # in the future)
+        if context == "latex":
+
+            for col, row in all_unformatted_cells:
+
+                # Get the cell value and cast as string
+                cell_value = _get_cell(data_tbl, row, col)
+                cell_value_str = str(cell_value)
+
+                result = _process_text(cell_value_str, context=context)
+
                 _set_cell(self.body, row, col, result)
 
         return self
@@ -1185,6 +1235,8 @@ class Options:
     # page_footer_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
     quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
     quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
+    latex_use_longtable: OptionsInfo = OptionsInfo(False, "latex", "boolean", False)
+    latex_tbl_pos: OptionsInfo = OptionsInfo(False, "latex", "value", "!t")
 
     def _get_all_options_keys(self) -> list[str | None]:
         return [x.parameter for x in self._options.values()]
