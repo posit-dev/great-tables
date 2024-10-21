@@ -21,6 +21,7 @@ from great_tables._utils_render_latex import (
     create_columns_component_l,
     create_footer_component_l,
     create_wrap_end_l,
+    derive_table_width_statement_l,
 )
 
 
@@ -187,6 +188,23 @@ def test_create_fontsize_statement_l_unknown_unit(gt_tbl: GT):
     gt_tbl_new = gt_tbl.tab_options(table_font_size="1span")
 
     assert create_fontsize_statement_l(gt_tbl_new) == ""
+
+
+def test_derive_table_width_statement_l_px_lt(gt_tbl: GT):
+
+    gt_tbl_new = gt_tbl.tab_options(table_width="500px", latex_use_longtable=True)
+
+    assert (
+        derive_table_width_statement_l(gt_tbl_new)
+        == "\\setlength\\LTleft{\\dimexpr(0.5\\linewidth - 187.5pt)}\n\\setlength\\LTright{\\dimexpr(0.5\\linewidth - 187.5pt)}"
+    )
+
+
+def test_derive_table_width_statement_l_px_no_lt(gt_tbl: GT):
+
+    gt_tbl_new = gt_tbl.tab_options(table_width="500px", latex_use_longtable=False)
+
+    assert derive_table_width_statement_l(gt_tbl_new) == ""
 
 
 def test_create_fontsize_statement_l_settings():
