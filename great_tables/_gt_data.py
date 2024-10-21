@@ -186,6 +186,9 @@ class Body:
     def migrate_unformatted_to_output(
         self, data_tbl: TblData, formats: list[FormatInfo], context: Any
     ):
+        """
+        Escape unformatted cells so they are safe for a specific output context.
+        """
 
         all_formatted_cells = []
 
