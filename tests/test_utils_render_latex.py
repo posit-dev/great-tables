@@ -162,6 +162,13 @@ def test_create_fontsize_statement_l(gt_tbl: GT):
     assert create_fontsize_statement_l(gt_tbl) == "\\fontsize{12.0pt}{14.4pt}\\selectfont\n"
 
 
+def test_create_fontsize_statement_l_pt(gt_tbl: GT):
+
+    gt_tbl_new = gt_tbl.tab_options(table_font_size="18.2pt")
+
+    assert create_fontsize_statement_l(gt_tbl_new) == "\\fontsize{18.2pt}{21.8pt}\\selectfont\n"
+
+
 def test_create_fontsize_statement_l_px(gt_tbl: GT):
 
     gt_tbl_new = gt_tbl.tab_options(table_font_size="11px")
