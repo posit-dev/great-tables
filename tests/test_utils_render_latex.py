@@ -207,6 +207,16 @@ def test_derive_table_width_statement_l_px_lt(gt_tbl: GT):
     )
 
 
+def test_derive_table_width_statement_l_pct_lt(gt_tbl: GT):
+
+    gt_tbl_new = gt_tbl.tab_options(table_width="45%", latex_use_longtable=True)
+
+    assert (
+        derive_table_width_statement_l(gt_tbl_new)
+        == "\\setlength\\LTleft{0.275\\linewidth}\n\\setlength\\LTright{0.275\\linewidth}"
+    )
+
+
 def test_derive_table_width_statement_l_px_no_lt(gt_tbl: GT):
 
     gt_tbl_new = gt_tbl.tab_options(table_width="500px", latex_use_longtable=False)
