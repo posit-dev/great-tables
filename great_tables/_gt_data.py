@@ -221,7 +221,7 @@ class Body:
                 cell_value = _get_cell(data_tbl, row, col)
                 cell_value_str = str(cell_value)
 
-                result = _process_text(cell_value_str, context="latex")
+                result = _process_text(cell_value_str, context=context)
 
                 _set_cell(self.body, row, col, result)
 
