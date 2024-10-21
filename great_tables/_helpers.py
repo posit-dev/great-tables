@@ -850,7 +850,6 @@ class UnitStr:
 
         return built_units
 
-    # TODO: add `to_latex` method
     def to_latex(self) -> str:
 
         raise NotImplementedError("LaTeX conversion of units is not yet supported.")
