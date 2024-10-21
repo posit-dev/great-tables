@@ -505,41 +505,42 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
     # TODO: implement all logic for styling cells in the column headings
 
     # If there is a stub then modify the `headings_vars` and `headings_labels`
-    if len(stub_layout) > 0:
+    # TODO: implement logic for this
+    # if len(stub_layout) > 0:
 
-        # stubh = data._stubhead
+    # stubh = data._stubhead
 
-        # styles_stubhead = consolidate_cell_styles_l(...)
+    # styles_stubhead = consolidate_cell_styles_l(...)
 
-        headings_vars = ["::stub"] + headings_vars
+    # headings_vars = ["::stub"] + headings_vars
 
-        # TODO: implement logic for obtaining a styled `stub_label`
+    # TODO: implement logic for obtaining a styled `stub_label`
 
-        # if len(stub_layout) > 1:
-        #
-        #    # If stub_layout == 1, multicolumn is not needed and `stub_label` is already defined
-        #    stub_dict = {k: v for k, v in width_dict.items() if v["type"] in ["stub", "row_group"]}
-        #
-        #    # If there are any unspecified column widths, we need to use width_txt = "c"
-        #    if any(stub_dict["unspec"]):
-        #
-        #        width_txt = "c"
-        #
-        #    else:
-        #
-        #        width_txt = ">{\\centering\\arraybackslash}m{{{}}}".format(
-        #            create_singlecolumn_width_text_l(
-        #                pt=sum(stub_dict["pt"]) if isinstance(stub_dict["pt"], list) else 0,
-        #                lw=sum(stub_dict["lw"]) if isinstance(stub_dict["lw"], list) else 0,
-        #            )
-        #            or ""
-        #        )
-        #
-        #    stub_label = "\\multicolumn{{{}}}{{{}}}{{{}}}".format(
-        #        len(stub_layout), width_txt, stub_label
-        #    )
-        #
-        # headings_labels = [stub_label] + headings_labels
+    # if len(stub_layout) > 1:
+    #
+    #    # If stub_layout == 1, multicolumn is not needed and `stub_label` is already defined
+    #    stub_dict = {k: v for k, v in width_dict.items() if v["type"] in ["stub", "row_group"]}
+    #
+    #    # If there are any unspecified column widths, we need to use width_txt = "c"
+    #    if any(stub_dict["unspec"]):
+    #
+    #        width_txt = "c"
+    #
+    #    else:
+    #
+    #        width_txt = ">{\\centering\\arraybackslash}m{{{}}}".format(
+    #            create_singlecolumn_width_text_l(
+    #                pt=sum(stub_dict["pt"]) if isinstance(stub_dict["pt"], list) else 0,
+    #                lw=sum(stub_dict["lw"]) if isinstance(stub_dict["lw"], list) else 0,
+    #            )
+    #            or ""
+    #        )
+    #
+    #    stub_label = "\\multicolumn{{{}}}{{{}}}{{{}}}".format(
+    #        len(stub_layout), width_txt, stub_label
+    #    )
+    #
+    # headings_labels = [stub_label] + headings_labels
 
     table_col_headings = "".join(latex_heading_row(content=headings_labels))
 
@@ -647,24 +648,24 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
             # If there is a stub we need to tweak the spanners row with a blank
             # multicolumn statement that's the same width as that in the columns
             # row; this is to prevent the automatic vertical line that would otherwise
-            # appear here
-            if len(stub_layout) > 1:
-
-                pass
-
-                # tex_stub_width = calculate_multicolumn_width_text_l()
-
-                # if tex_stub_width == "":
-
-                #    mc_stub = "l"
-
-                # else:
-                #    mc_stub = ">{\\raggedright\\arraybackslash}m{{{}}}".format(tex_stub_width)
-
-                # multicol = [
-                #    "\\multicolumn{{{}}}{{{}}}{{}}".format(len(stub_layout), mc_stub),
-                #    *multicol[len(stub_layout) :],
-                # ]
+            # appear hered
+            #
+            # TODO: implement logic for this
+            # if len(stub_layout) > 1:
+            #
+            #   tex_stub_width = calculate_multicolumn_width_text_l()
+            #
+            #   if tex_stub_width == "":
+            #
+            #       mc_stub = "l"
+            #
+            #   else:
+            #       mc_stub = ">{\\raggedright\\arraybackslash}m{{{}}}".format(tex_stub_width)
+            #
+            #   multicol = [
+            #       "\\multicolumn{{{}}}{{{}}}{{}}".format(len(stub_layout), mc_stub),
+            #       *multicol[len(stub_layout) :],
+            #   ]
 
             table_col_spanners.append(col_spanners_i)
 
