@@ -3,7 +3,7 @@ from __future__ import annotations
 import html
 import re
 from dataclasses import dataclass
-from typing import Literal, Union, Callable
+from typing import Callable
 
 import commonmark
 
@@ -12,13 +12,33 @@ import commonmark
 class Text:
     text: str
 
+    def to_html(self) -> str:
+        return self.text
 
+    def to_latex(self) -> str:
+        return self.text
+
+
+@dataclass
 class Md(Text):
     """Markdown text"""
 
+    def to_html(self) -> str:
+        return _md_html(self.text)
 
+    def to_latex(self) -> str:
+        return _md_latex(self.text)
+
+
+@dataclass
 class Html(Text):
     """HTML text"""
+
+    def to_html(self) -> str:
+        return self.text
+
+    def to_latex(self) -> str:
+        return self.text
 
 
 def _md_html(x: str) -> str:
@@ -40,39 +60,17 @@ def _process_text(x: str | Text | None, context: str = "html") -> str:
     if x is None:
         return ""
 
-    if context == "html":
+    escape_fn = _html_escape if context == "html" else _latex_escape
 
-        if isinstance(x, Md):
-            return _md_html(x.text)
-        elif isinstance(x, Html):
-            return x.text
-        elif isinstance(x, str):
-            return _html_escape(x)
-        elif isinstance(x, Text):
-            return x.text
-        elif isinstance(x, UnitStr):
-            return x.to_html()
-        else:
-            raise TypeError(f"Invalid type: {type(x)}")
+    if isinstance(x, str):
 
-    elif context == "latex":
+        return escape_fn(x)
 
-        if isinstance(x, Md):
-            return _md_latex(x.text)
-        elif isinstance(x, Html):
-            return x.text
-        elif isinstance(x, str):
-            return _latex_escape(x)
-        elif isinstance(x, Text):
-            return x.text
-        elif isinstance(x, UnitStr):
-            # TODO: this is currently not implemented
-            return x.to_latex()
-        else:
-            raise TypeError(f"Invalid type: {type(x)}")
+    elif isinstance(x, (Md, Text, Html, UnitStr)):
 
-    else:
-        raise ValueError(f"Invalid context: {context}")
+        return x.to_html() if context == "html" else x.to_latex()
+
+    raise TypeError(f"Invalid type: {type(x)}")
 
 
 def _process_text_id(x: str | Text | None) -> str:
