@@ -21,6 +21,7 @@ from great_tables._utils_render_latex import (
     create_columns_component_l,
     create_footer_component_l,
     create_wrap_end_l,
+    create_table_end_l,
     derive_table_width_statement_l,
 )
 
@@ -460,3 +461,12 @@ def test_create_wrap_end_l(gt_tbl: GT):
 
     assert create_wrap_end_l(gt_tbl) == "\\end{table}"
     assert create_wrap_end_l(gt_tbl.tab_options(latex_use_longtable=True)) == "\\endgroup"
+
+
+def test_create_table_end_l(gt_tbl: GT):
+
+    assert create_table_end_l(gt_tbl) == "\\bottomrule\n\\end{tabular*}"
+    assert (
+        create_table_end_l(gt_tbl.tab_options(latex_use_longtable=True))
+        == "\\bottomrule\n\\end{longtable}"
+    )
