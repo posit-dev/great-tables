@@ -440,13 +440,17 @@ def create_heading_component_l(data: GTData) -> str:
     if not has_title:
         return ""
 
-    title_row = f"{{\\large {title}}}"
+    title_str = _process_text(title, context="latex")
+
+    title_row = f"{{\\large {title_str}}}"
 
     has_subtitle = heading_has_subtitle(subtitle)
 
     if has_subtitle:
 
-        subtitle_row = f"{{\\small {subtitle}}}"
+        subtitle_str = _process_text(subtitle, context="latex")
+
+        subtitle_row = f"{{\\small {subtitle_str}}}"
 
         header_component = f"""\\caption*{{
 {title_row} \\\\
