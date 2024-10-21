@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING, Literal
 from typing_extensions import TypeAlias
 
 from ._utils import _try_import
+from ._utils_render_latex import _render_as_latex
+
 
 if TYPE_CHECKING:
     # Note that as_raw_html uses methods on the GT class, not just data
@@ -185,7 +187,7 @@ def as_latex(self: GT) -> str:
     """
     built_table = self._build_data(context="latex")
 
-    latex_table = built_table._render_as_latex()
+    latex_table = _render_as_latex(self=built_table)
 
     return latex_table
 

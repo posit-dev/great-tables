@@ -906,3 +906,96 @@ def create_wrap_end_l(data: GTData) -> str:
     wrap_end = "\\endgroup" if latex_use_longtable else "\\end{table}"
 
     return wrap_end
+
+
+# =============================================================================
+# LaTeX Rendering
+# =============================================================================
+def _render_as_latex(self) -> str:
+
+    # Get list representation of stub layout
+    stub_layout = self._stub._get_stub_layout(options=self._options)
+
+    # Throw exception if a stub is present in the table
+    if "rowname" in stub_layout or "group_label" in stub_layout:
+
+        raise NotImplementedError(
+            "The table stub (row names and/or row groups) are not yet supported in LaTeX output."
+        )
+
+    # Determine if row groups are used
+    has_groups = len(self._stub.group_ids) > 0
+
+    # Throw exception if row groups are used in LaTeX output (extra case where row
+    # groups are used but not in the stub)
+    if has_groups:
+
+        raise NotImplementedError("Row groups are not yet supported in LaTeX output.")
+
+    # Create a df containing width types for each column
+    width_dict = create_width_dict_l(data=self)
+
+    # Create a LaTeX fragment for the start of the table
+    table_start = create_table_start_l(data=self, width_dict=width_dict)
+
+    # Create the caption component
+    # TODO: first need to implement the `.tab_caption()` method
+    # caption_component = create_caption_component_l(data=self)
+
+    # Create the heading component
+    heading_component = create_heading_component_l(data=self)
+
+    # Create the columns component
+    columns_component = create_columns_component_l(data=self, width_dict=width_dict)
+
+    # Create the body component
+    body_component = create_body_component_l(data=self, width_dict=width_dict)
+
+    # Create the footnotes component
+    footer_component = create_footer_component_l(data=self)
+
+    # Create a LaTeX fragment for the ending tabular statement
+    table_end = create_table_end_l(data=self)
+
+    # Create a LaTeX fragment for the table width statement
+    table_width_statement = derive_table_width_statement_l(data=self)
+
+    # Allow user to set a font-size
+    fontsize_statement = create_fontsize_statement_l(data=self)
+
+    # Create wrapping environment
+    wrap_start_statement = create_wrap_start_l(data=self)
+    wrap_end_statement = create_wrap_end_l(data=self)
+
+    latex_use_longtable = self._options.latex_use_longtable.value
+
+    # Compose the LaTeX table
+    if latex_use_longtable:
+
+        finalized_table = f"""{wrap_start_statement}
+{table_width_statement}
+{fontsize_statement}
+{table_start}
+{heading_component}
+{columns_component}
+{body_component}
+{table_end}
+{footer_component}
+{wrap_end_statement}
+"""
+
+    else:
+
+        finalized_table = f"""{wrap_start_statement}
+{heading_component}
+{table_width_statement}
+{fontsize_statement}
+{table_start}
+{columns_component}
+{body_component}
+{table_end}
+{footer_component}
+{wrap_end_statement}
+"""
+
+    return finalized_table
