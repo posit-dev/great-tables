@@ -3,7 +3,7 @@ from __future__ import annotations
 import html
 import re
 from dataclasses import dataclass
-from typing import Literal, Union
+from typing import Literal, Union, Callable
 
 import commonmark
 
