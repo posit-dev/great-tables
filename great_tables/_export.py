@@ -172,7 +172,9 @@ def as_latex(self: GT) -> str:
     """
     Output a GT object as LaTeX
 
-    Get the LaTeX content from a GT object as a string.
+    The `as_latex()` method outputs a GT object as a LaTeX fragment. This method is useful for when
+    you need to include a table as part of a LaTeX document. The LaTeX fragment contains the table
+    as a string.
 
     Parameters
     ----------
@@ -182,8 +184,7 @@ def as_latex(self: GT) -> str:
     Returns
     -------
     str
-        An LaTeX fragment containing a table.
-
+        A LaTeX fragment containing a table.
     """
     built_table = self._build_data(context="latex")
 
