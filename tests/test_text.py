@@ -1,4 +1,4 @@
-from __future__ import annotations
+import pytest
 
 from great_tables._text import (
     Text,
@@ -56,3 +56,16 @@ def test_process_text_latex():
     assert _process_text(Text("\\_\\$"), context="latex") == "\\_\\$"
     assert _process_text(Html("**a** & <b>"), context="latex") == "**a** & <b>"
     assert _process_text(None, context="latex") == ""
+
+    with pytest.raises(NotImplementedError) as exc_info:
+        _process_text(Md("**a** & <b>"), context="latex")
+
+    assert "Markdown to LaTeX conversion is not supported yet" in exc_info.value.args[0]
+
+
+def test_process_text_raises():
+
+    with pytest.raises(TypeError) as exc_info:
+        _process_text(1, context="html")
+
+    assert "Invalid type: <class 'int'>" in exc_info.value.args[0]
