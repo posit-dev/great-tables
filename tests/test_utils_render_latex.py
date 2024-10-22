@@ -24,6 +24,7 @@ from great_tables._utils_render_latex import (
     create_wrap_end_l,
     create_table_end_l,
     derive_table_width_statement_l,
+    _render_as_latex,
 )
 
 
@@ -473,9 +474,9 @@ def test_create_table_end_l(gt_tbl: GT):
     )
 
 
-def snap_latex_table(snapshot):
+def test_snap_render_as_latex(snapshot):
 
-    latex_str = (
+    gt_tbl = (
         GT(
             gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
         )
@@ -486,7 +487,8 @@ def snap_latex_table(snapshot):
         .tab_source_note("Note 1")
         .tab_source_note("Note 2")
         .tab_options(table_width="600px", latex_use_longtable=True, table_font_size="12px")
-        .as_latex()
     )
+
+    latex_str = _render_as_latex(gt_tbl._build_data(context="latex"))
 
     assert snapshot == latex_str
