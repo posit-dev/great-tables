@@ -489,6 +489,6 @@ def test_snap_render_as_latex(snapshot):
         .tab_options(table_width="600px", latex_use_longtable=True, table_font_size="12px")
     )
 
-    latex_str = _render_as_latex(gt_tbl._build_data(context="latex"))
+    latex_str = _render_as_latex(data=gt_tbl._build_data(context="latex"))
 
     assert snapshot == latex_str
