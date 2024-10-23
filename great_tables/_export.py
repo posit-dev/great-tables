@@ -191,6 +191,8 @@ def as_latex(self: GT) -> str:
     functionality that is supported in HTML output tables is not currently supported in LaTeX
     output tables:
 
+    - the rendering of the stub and row group labels (via the `=rowname_col` and `=groupname_col`
+      args in the `GT()` class)
     - the use of the `md()` helper function to signal conversion of Markdown text
     - units notation within the `cols_labels()` and `tab_spanner()` methods
     - the `fmt_markdown()`, `fmt_units()`, `fmt_image()`, and `fmt_nanoplot()` methods
@@ -198,7 +200,7 @@ def as_latex(self: GT) -> str:
       adding fill colors to cells
 
     As development continues, we will work to expand the capabilities of the `as_latex()` method to
-    reduce these limitations and morely clearly document what is and is not supported.
+    reduce these limitations and more clearly document what is and is not supported.
 
     Examples
     --------
