@@ -470,6 +470,16 @@ def test_create_body_component_l_fmt_currency(gt_tbl_dec: GT):
     )
 
 
+def test_create_body_component_l_fmt_bytes(gt_tbl_sci: GT):
+
+    gt_tbl_built = gt_tbl_sci.fmt_bytes(columns="x", pattern="{x} _")._build_data(context="latex")
+
+    assert (
+        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        == "465.6 kB \\_ & 4.509 \\\\\n0 B \\_ & 176.23 \\\\"
+    )
+
+
 def test_create_body_component_l_fmt_date(gt_tbl_dttm: GT):
 
     gt_tbl_built = gt_tbl_dttm.fmt_date(
