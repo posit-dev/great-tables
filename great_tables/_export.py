@@ -196,6 +196,7 @@ def as_latex(self: GT) -> str:
     - the use of the `md()` helper function to signal conversion of Markdown text
     - units notation within the `cols_labels()` and `tab_spanner()` methods
     - the `fmt_markdown()`, `fmt_units()`, `fmt_image()`, and `fmt_nanoplot()` methods
+    - the `sub_missing()` and `sub_zero()` methods
     - most options in the `tab_options()` method, particularly those that are specific to styling
       text, borders, or adding fill colors to cells
 
