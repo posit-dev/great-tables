@@ -176,15 +176,66 @@ def as_latex(self: GT) -> str:
     you need to include a table as part of a LaTeX document. The LaTeX fragment contains the table
     as a string.
 
-    Parameters
-    ----------
-    gt
-        A GT object.
+    :::{.callout-warning}
+    `as_latex()` is still experimental.
+    :::
 
     Returns
     -------
     str
-        A LaTeX fragment containing a table.
+        A LaTeX fragment that contains the table.
+
+    Limitations
+    -----------
+    The `as_latex()` method is still experimental and has some limitations. The following
+    functionality that is supported in HTML output tables is not currently supported in LaTeX
+    output tables:
+
+    - the use of the `md()` helper function to signal conversion of Markdown text
+    - units notation within the `cols_labels()` and `tab_spanner()` methods
+    - the `fmt_markdown()`, `fmt_units()`, `fmt_image()`, and `fmt_nanoplot()` methods
+    - most options in the `tab_options()` method that are specific to styling text, borders, or
+      adding fill colors to cells
+
+    As development continues, we will work to expand the capabilities of the `as_latex()` method to
+    reduce these limitations and morely clearly document what is and is not supported.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset to create a new table.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import gtcars
+    import polars as pl
+
+    gtcars_mini = (
+        pl.from_pandas(gtcars)
+        .select(["mfr", "model", "msrp"])
+        .head(5)
+    )
+
+    gt_tbl = (
+        GT(gtcars_mini)
+        .tab_header(
+            title="Data Listing from the gtcars Dataset",
+            subtitle="Only five rows from the dataset are shown here."
+        )
+        .fmt_currency(columns="msrp")
+    )
+
+    gt_tbl
+    ```
+
+    Now we can return the table as string of LaTeX code with inlined CSS styles using the
+    `as_latex()` method.
+
+    ```{python}
+    gt_tbl.as_latex()
+    ```
+
+    The LaTeX string contains the code just for the table (it's not a complete LaTeX document).
+    This output can be useful for embedding a GT table in an existing LaTeX document.
     """
     built_table = self._build_data(context="latex")
 
