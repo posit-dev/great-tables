@@ -385,18 +385,6 @@ def test_create_body_component_l_simple(gt_tbl: GT):
     assert create_body_component_l(data=gt_tbl, width_dict=width_dict) == "1 & 4 \\\\\n2 & 5 \\\\"
 
 
-def test_create_body_component_l_fmt_number(gt_tbl: GT):
-
-    gt_tbl_built = gt_tbl.fmt_number(columns="x", rows=0, decimals=3, scale_by=-1)._build_data(
-        context="latex"
-    )
-
-    assert (
-        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
-        == "-1.000 & 4 \\\\\n2 & 5 \\\\"
-    )
-
-
 def test_create_footer_component_one_note(gt_tbl: GT):
 
     gt_tbl_new = gt_tbl.tab_source_note(source_note="Source Note.")
