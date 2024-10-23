@@ -113,7 +113,7 @@ def show(
             html, raw=True, metadata={"text/html": {"isolated": True}}
         )
     elif target == "browser":
-        html = self.as_raw_html(make_page=True)
+        html = self.as_raw_html(inline_css=False, make_page=True)
         with tempfile.TemporaryDirectory() as tmp_dir:
             f_path = Path(tmp_dir) / "index.html"
             f_path.write_text(html, encoding="utf-8")
