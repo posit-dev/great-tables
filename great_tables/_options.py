@@ -164,6 +164,8 @@ def tab_options(
     row_striping_background_color: str | None = None,
     row_striping_include_stub: bool | None = None,
     row_striping_include_table_body: bool | None = None,
+    latex_use_longtable: bool | None = None,
+    latex_tbl_pos: str | None = None,
 ) -> GTSelf:
     """
     Modify the table output options.
@@ -473,6 +475,13 @@ def tab_options(
         An option for whether to include the stub when striping rows.
     row_striping_include_table_body
         An option for whether to include the table body when striping rows.
+    latex_use_longtable
+        An option to use the `longtable` environment in LaTeX output. This is useful for tables that
+        span multiple pages.
+    latex_tbl_pos
+        The position of the table in the LaTeX output. The default value is `"!t"` which means that
+        the table is placed at the top of the page. Other valid values are `"!b"` (bottom of the
+        page), `"!h"` (here), `"!p"` (on a separate page), and `"!H"` (exactly here).
 
     Returns
     -------

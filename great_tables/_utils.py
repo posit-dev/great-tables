@@ -7,7 +7,7 @@ import json
 import re
 from collections.abc import Generator
 from types import ModuleType
-from typing import Any, Iterable
+from typing import Any, Iterable, Callable
 
 from ._tbl_data import PdDataFrame
 

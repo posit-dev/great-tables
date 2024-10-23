@@ -17,6 +17,8 @@ website:
         text: Reference
       - href: blog/index.qmd
         text: Blog
+      - text: LaTeX Examples
+        file: a-latex_examples/index.qmd
     right:
       - icon: github
         href: https://github.com/posit-dev/great-tables
@@ -214,6 +216,7 @@ quartodoc:
         - GT.save
         - GT.show
         - GT.as_raw_html
+        - GT.as_latex
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of
