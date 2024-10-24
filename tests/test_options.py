@@ -370,7 +370,7 @@ def test_opt_table_font_google_font():
 
     gt_tbl = GT(exibble).opt_table_font(font=google_font(name="IBM Plex Mono"))
 
-    rendered_html = gt_tbl.as_raw_html()
+    rendered_html = gt_tbl.as_raw_html(inline_css=False)
 
     assert rendered_html.find(
         "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap');"
