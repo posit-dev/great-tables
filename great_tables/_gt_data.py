@@ -8,6 +8,7 @@ from enum import Enum, auto
 from typing import Any, Callable, Literal, Tuple, TypeVar, Union, overload, TYPE_CHECKING
 
 from typing_extensions import Self, TypeAlias
+from functools import partial
 
 # TODO: move this class somewhere else (even gt_data could work)
 from ._options import tab_options
@@ -902,10 +903,10 @@ FormatFn = Callable[[Any], "str | FormatterSkipElement"]
 
 
 class FormatFns:
-    html: FormatFn | None
-    latex: FormatFn | None
-    rtf: FormatFn | None
-    default: FormatFn | None
+    html: FormatFn | partial[FormatFn] | None
+    latex: FormatFn | partial[FormatFn] | None
+    rtf: FormatFn | partial[FormatFn] | None
+    default: FormatFn | partial[FormatFn] | None
 
     def __init__(self, **kwargs: FormatFn):
         for format in ["html", "latex", "rtf", "default"]:
