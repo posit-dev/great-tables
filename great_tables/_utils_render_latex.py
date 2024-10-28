@@ -426,13 +426,6 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
             omit_columns_row=True,
         )
 
-        # Prepend the stub layout to the spanners matrix if it exists
-        # TODO: this might be after preparing the spanners statement
-        if len(stub_layout) > 0:
-
-            # TODO: implement logic for this
-            pass
-
         for i in range(len(spanners)):
 
             spanners_row = spanners[i]
