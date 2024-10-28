@@ -66,6 +66,7 @@ def test_is_css_length_string():
     assert is_css_length_string("12.5pt")
     assert is_css_length_string("12.5px")
     assert is_css_length_string("12.5")
+    assert is_css_length_string("12.5units")
 
 
 def test_is_number_without_units():
@@ -83,6 +84,7 @@ def test_css_length_has_supported_units():
     assert css_length_has_supported_units("12.5px", no_units_valid=False)
     assert not css_length_has_supported_units("12.5", no_units_valid=False)
     assert not css_length_has_supported_units("12.8units")
+    assert not css_length_has_supported_units("units12.8")
 
 
 def test_get_units_from_length_string():
