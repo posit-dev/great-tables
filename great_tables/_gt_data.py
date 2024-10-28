@@ -903,10 +903,10 @@ FormatFn = Callable[[Any], "str | FormatterSkipElement"]
 
 
 class FormatFns:
-    html: FormatFn | partial[FormatFn] | None
-    latex: FormatFn | partial[FormatFn] | None
-    rtf: FormatFn | partial[FormatFn] | None
-    default: FormatFn | partial[FormatFn] | None
+    html: FormatFn | None
+    latex: FormatFn | None
+    rtf: FormatFn | None
+    default: FormatFn | None
 
     def __init__(self, **kwargs: FormatFn):
         for format in ["html", "latex", "rtf", "default"]:

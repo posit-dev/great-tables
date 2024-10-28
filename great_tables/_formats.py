@@ -302,16 +302,7 @@ def fmt_number(
         pattern=pattern,
     )
 
-    return fmt(
-        self,
-        fns=FormatFns(
-            html=partial(pf_format, context="html"),
-            latex=partial(pf_format, context="latex"),
-            default=partial(pf_format, context="html"),
-        ),
-        columns=columns,
-        rows=rows,
-    )
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
 
 def fmt_number_context(
@@ -503,16 +494,7 @@ def fmt_integer(
         pattern=pattern,
     )
 
-    return fmt(
-        self,
-        fns=FormatFns(
-            html=partial(pf_format, context="html"),
-            latex=partial(pf_format, context="latex"),
-            default=partial(pf_format, context="html"),
-        ),
-        columns=columns,
-        rows=rows,
-    )
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
 
 def fmt_integer_context(
@@ -744,16 +726,7 @@ def fmt_scientific(
         pattern=pattern,
     )
 
-    return fmt(
-        self,
-        fns=FormatFns(
-            html=partial(pf_format, context="html"),
-            latex=partial(pf_format, context="latex"),
-            default=partial(pf_format, context="html"),
-        ),
-        columns=columns,
-        rows=rows,
-    )
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
 
 # Generate a function that will operate on single `x` values in the table body
@@ -1033,16 +1006,7 @@ def fmt_percent(
         pattern=pattern,
     )
 
-    return fmt(
-        self,
-        fns=FormatFns(
-            html=partial(pf_format, context="html"),
-            latex=partial(pf_format, context="latex"),
-            default=partial(pf_format, context="html"),
-        ),
-        columns=columns,
-        rows=rows,
-    )
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
 
 def fmt_percent_context(
@@ -1302,16 +1266,7 @@ def fmt_currency(
         pattern=pattern,
     )
 
-    return fmt(
-        self,
-        fns=FormatFns(
-            html=partial(pf_format, context="html"),
-            latex=partial(pf_format, context="latex"),
-            default=partial(pf_format, context="html"),
-        ),
-        columns=columns,
-        rows=rows,
-    )
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
 
 def fmt_currency_context(
@@ -1467,16 +1422,7 @@ def fmt_roman(
         pattern=pattern,
     )
 
-    return fmt(
-        self,
-        fns=FormatFns(
-            html=partial(pf_format, context="html"),
-            latex=partial(pf_format, context="latex"),
-            default=partial(pf_format, context="html"),
-        ),
-        columns=columns,
-        rows=rows,
-    )
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
 
 def fmt_roman_context(
@@ -1696,16 +1642,7 @@ def fmt_bytes(
         pattern=pattern,
     )
 
-    return fmt(
-        self,
-        fns=FormatFns(
-            html=partial(pf_format, context="html"),
-            latex=partial(pf_format, context="latex"),
-            default=partial(pf_format, context="html"),
-        ),
-        columns=columns,
-        rows=rows,
-    )
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
 
 def fmt_bytes_context(
@@ -1911,16 +1848,7 @@ def fmt_date(
         locale=locale,
     )
 
-    return fmt(
-        self,
-        fns=FormatFns(
-            html=partial(pf_format, context="html"),
-            latex=partial(pf_format, context="latex"),
-            default=partial(pf_format, context="html"),
-        ),
-        columns=columns,
-        rows=rows,
-    )
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
 
 def fmt_date_context(
@@ -2068,16 +1996,7 @@ def fmt_time(
         locale=locale,
     )
 
-    return fmt(
-        self,
-        fns=FormatFns(
-            html=partial(pf_format, context="html"),
-            latex=partial(pf_format, context="latex"),
-            default=partial(pf_format, context="html"),
-        ),
-        columns=columns,
-        rows=rows,
-    )
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
 
 def fmt_time_context(
@@ -2246,16 +2165,7 @@ def fmt_datetime(
         locale=locale,
     )
 
-    return fmt(
-        self,
-        fns=FormatFns(
-            html=partial(pf_format, context="html"),
-            latex=partial(pf_format, context="latex"),
-            default=partial(pf_format, context="html"),
-        ),
-        columns=columns,
-        rows=rows,
-    )
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
 
 def fmt_datetime_context(
@@ -4401,3 +4311,21 @@ def _process_time_stream(data_vals: str) -> list[float]:
     time_stream_vals = [float(val) for val in time_stream]
 
     return time_stream_vals
+
+
+def fmt_by_context(
+    self: GTSelf,
+    pf_format: Callable[[Any, str], str],
+    columns: SelectExpr,
+    rows: int | list[int] | None,
+) -> GTSelf:
+    return fmt(
+        self,
+        fns=FormatFns(
+            html=partial(pf_format, context="html"),  # type: ignore
+            latex=partial(pf_format, context="latex"),  # type: ignore
+            default=partial(pf_format, context="html"),  # type: ignore
+        ),
+        columns=columns,
+        rows=rows,
+    )
