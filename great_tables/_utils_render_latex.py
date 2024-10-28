@@ -123,9 +123,6 @@ def create_width_dict_l(data: GTData) -> WidthDict:
     # Get the table width value
     tbl_width = data._options.table_width.value
 
-    # Get list representation of stub layout
-    stub_layout = data._stub._get_stub_layout(options=data._options)
-
     n = len(boxhead)
 
     width_dict: WidthDict = {
