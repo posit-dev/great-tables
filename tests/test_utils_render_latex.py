@@ -23,6 +23,7 @@ from great_tables._utils_render_latex import (
     create_footer_component_l,
     create_wrap_end_l,
     create_table_end_l,
+    create_table_start_l,
     derive_table_width_statement_l,
     _render_as_latex,
 )
@@ -550,12 +551,38 @@ def test_create_wrap_end_l(gt_tbl: GT):
     assert create_wrap_end_l(gt_tbl.tab_options(latex_use_longtable=True)) == "\\endgroup"
 
 
-def test_create_table_end_l(gt_tbl: GT):
+def test_create_table_end_l_longtable(gt_tbl: GT):
 
     assert create_table_end_l(gt_tbl) == "\\bottomrule\n\\end{tabular*}"
     assert (
         create_table_end_l(gt_tbl.tab_options(latex_use_longtable=True))
         == "\\bottomrule\n\\end{longtable}"
+    )
+
+
+def test_create_table_start_l_longtable(gt_tbl: GT):
+
+    gt_tbl_no_source_notes = gt_tbl.tab_options(latex_use_longtable=True)._build_data(
+        context="latex"
+    )
+    gt_tbl_source_notes = (
+        gt_tbl.tab_options(latex_use_longtable=True)
+        .tab_source_note(source_note="Note")
+        ._build_data(context="latex")
+    )
+
+    assert (
+        create_table_start_l(
+            data=gt_tbl_no_source_notes, width_dict=create_width_dict_l(gt_tbl_no_source_notes)
+        )
+        == "\\begin{longtable}{rr}"
+    )
+
+    assert (
+        create_table_start_l(
+            data=gt_tbl_source_notes, width_dict=create_width_dict_l(gt_tbl_source_notes)
+        )
+        == "\\setlength{\\LTpost}{0mm}\n\\begin{longtable}{rr}"
     )
 
 
