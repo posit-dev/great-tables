@@ -5,7 +5,7 @@ from itertools import chain
 import re
 from ._gt_data import GTData, GroupRowInfo
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
-from .quarto import check_quarto
+from .quarto import is_quarto_render
 from great_tables._spanners import spanners_print_matrix
 from great_tables._utils import heading_has_subtitle, heading_has_title, seq_groups
 from great_tables._utils_render_html import _get_spanners_matrix_height
@@ -888,7 +888,7 @@ def create_fontsize_statement_l(data: GTData) -> str:
 
 def create_wrap_start_l(data: GTData) -> str:
 
-    if check_quarto():
+    if is_quarto_render():
         tbl_pos = ""
 
     else:
