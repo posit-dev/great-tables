@@ -383,12 +383,6 @@ def create_columns_component_l(data: GTData, width_dict: WidthDict) -> str:
         The LaTeX code for the columns component of the table.
     """
 
-    # Get list representation of stub layout
-    stub_layout = data._stub._get_stub_layout(options=data._options)
-
-    # Get the style information
-    styles_info = data._styles
-
     # Determine the finalized number of spanner rows
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
 
