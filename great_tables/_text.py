@@ -102,8 +102,8 @@ def process_string(string: str, pattern: str, func: Callable[[str], str]) -> str
 
     This function splits a string based on a regex pattern to a list of strings, and invokes the
     supplied function (in `func=`) to those list elements that *do not* match the pattern (i.e.,
-    the matched components are untouched). The processed list is then recombined and returned as a
-    string.
+    the matched components are untouched). Finally, the processed list of text fragments is then
+    joined back into a single string.
 
     Parameters
     ----------
