@@ -526,32 +526,14 @@ def create_body_component_l(data: GTData, width_dict: WidthDict) -> str:
     _str_orig_data = cast_frame_to_string(data._tbl_data)
     tbl_data = replace_null_frame(data._body.body, _str_orig_data)
 
-    # TODO: implement row groups and stub logic
-
-    # Get list representation of stub layout
-    stub_layout = data._stub._get_stub_layout(options=data._options)
-
     # Get the default column vars
     column_vars = data._boxhead._get_default_columns()
 
-    # Determine if there is a stub column in `stub_layout` and whether we
-    # have a two-column stub (with the group label on the left side)
-    has_stub_column = "rowname" in stub_layout
-    has_two_col_stub = "group_label" in stub_layout
-
-    # Get the total number of columns in the table (this includes columns in the stub)
-    n_cols = data._boxhead._get_effective_number_of_columns(stub=data._stub, options=data._options)
-
-    current_group_id = str(0)
-
     body_rows = []
-
-    # iterate over rows (ordered by groupings)
-    prev_group_info = None
 
     ordered_index: list[tuple[int, GroupRowInfo]] = data._stub.group_indices_map()
 
-    for i, group_info in ordered_index:
+    for i, _ in ordered_index:
 
         body_cells: list[str] = []
 
@@ -561,8 +543,6 @@ def create_body_component_l(data: GTData, width_dict: WidthDict) -> str:
             cell_str: str = str(cell_content)
 
             body_cells.append(cell_str)
-
-        prev_group_info = group_info
 
         # When joining the body cells together, we need to ensure that each item is separated by
         # an ampersand and that the row is terminated with a double backslash
