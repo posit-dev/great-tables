@@ -9,7 +9,9 @@ from collections.abc import Generator
 from types import ModuleType
 from typing import Any, Iterable
 
-from ._tbl_data import PdDataFrame
+
+from ._tbl_data import PdDataFrame, _set_cell, _get_cell, get_column_names, n_rows
+from ._text import _process_text
 
 
 def _try_import(name: str, pip_install_line: str | None = None) -> ModuleType:
@@ -237,3 +239,53 @@ def seq_groups(seq: Iterable[str]) -> Generator[tuple[str, int], None, None]:
 
 def is_equal(x: Any, y: Any) -> bool:
     return x is not None and x == y
+
+
+# TODO: type annotations for `data`, `data_tbl`, `formats`, and the return value are not included
+# yet since that would result in a circular import. This will be fixed in the future (when HTML
+# escaping is implemented).
+def _migrate_unformatted_to_output(data, data_tbl, formats, context: str):
+    """
+    Escape unformatted cells so they are safe for a specific output context.
+    """
+
+    all_formatted_cells = []
+
+    for fmt in formats:
+        eval_func = getattr(fmt.func, context, fmt.func.default)
+        if eval_func is None:
+            raise Exception("Internal Error")
+
+        # Accumulate all formatted cells in the table
+        all_formatted_cells.append(fmt.cells.resolve())
+
+    # Deduplicate the list of formatted cells
+    all_formatted_cells = list(set([item for sublist in all_formatted_cells for item in sublist]))
+
+    # Get all visible cells in the table
+    all_visible_cells = _get_visible_cells(data=data_tbl)
+
+    # Get the difference between the visible cells and the formatted cells
+    all_unformatted_cells = list(set(all_visible_cells) - set(all_formatted_cells))
+
+    # TODO: this currently will only be used for LaTeX (HTML escaping will be performed
+    # in the future)
+    if context == "latex":
+
+        for col, row in all_unformatted_cells:
+
+            # Get the cell value and cast as string
+            cell_value = _get_cell(data_tbl, row, col)
+            cell_value_str = str(cell_value)
+
+            result = _process_text(cell_value_str, context=context)
+
+            _set_cell(data._body.body, row, col, result)
+
+    return data
+
+
+# Get a list of tuples for all visible cells in the table
+# TODO: define the type of `data` as `TblData` when doing so won't result in a circular import
+def _get_visible_cells(data) -> list[tuple[str, int]]:
+    return [(col, row) for col in get_column_names(data) for row in range(n_rows(data))]
