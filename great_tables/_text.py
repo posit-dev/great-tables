@@ -98,19 +98,26 @@ def escape_pattern_str_latex(pattern_str: str) -> str:
 
 def process_string(string: str, pattern: str, func: Callable[[str], str]) -> str:
     """
-    Process a string selectively based on a pattern.
+    Apply a function to segments of a string that are unmatched by a regex pattern.
 
-    This function splits a string based on a pattern and applies a function to elements that do not
-    match the pattern. The processed elements are then recombined to obtain a selectively processed
+    This function splits a string based on a regex pattern to a list of strings, and invokes the
+    supplied function (in `func=`) to those list elements that *do not* match the pattern (i.e.,
+    the matched components are untouched). The processed list is then recombined and returned as a
     string.
 
-    Args:
-        string (str): The string to process.
-        pattern (str): The pattern to split the string by.
-        func (Callable[[str], str]): The function applied to elements that do not match the pattern.
+    Parameters
+    ----------
+    string
+        The string to process.
+    pattern
+        The regex pattern used for splitting the input string.
+    func
+        The function applied to elements that do not match the pattern.
 
-    Returns:
-        str: The selectively processed string.
+    Returns
+    -------
+    str
+        A processed string.
     """
 
     # Split the string by the pattern
