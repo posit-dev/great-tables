@@ -206,7 +206,8 @@ def save(
     debug_port: None | int = None,
     encoding: str = "utf-8",
     _debug_dump: DebugDumpOptions | None = None,
-) -> None:
+    **params,
+) -> GTSelf:
     """
     Produce a high-resolution image file or PDF of the table.
 
@@ -239,17 +240,25 @@ def save(
     debug_port
         Port number to use for debugging. By default no debugging port is opened.
     encoding
-        The encoding used when writing temporary files.
+        The character encoding used for the HTML content.
     _debug_dump
         Whether the saved image should be a big browser window, with key elements outlined. This is
         helpful for debugging this function's resizing, cropping heuristics. This is an internal
         parameter and subject to change.
+    **params
+        Additional parameters supported by
+        [Image.save()](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.save)
+        in Pillow. For instance, when saving the table as a
+        [PNG](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#png), you can
+        adjust the `compress_level` to balance between speed and compression. The `compress_level`
+        ranges from 0 to 9, where 1 offers the best speed, 9 offers maximum compression, and 0
+        applies no compression. The default value is 6.
 
     Returns
     -------
-    None
-        This function does not return anything; it simply saves the image to the specified file
-        path.
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Details
     -------
@@ -271,6 +280,7 @@ def save(
     ```
 
     """
+    import base64
 
     # Import the required packages
     _try_import(name="selenium", pip_install_line="pip install selenium")
@@ -280,12 +290,8 @@ def save(
     if selector != "table":
         raise NotImplementedError("Currently, only selector='table' is supported.")
 
-    if isinstance(file, Path):
-        file = str(file)
-
     # If there is no file extension, add the .png extension
-    if not Path(file).suffix:
-        file += ".png"
+    file = str(Path(file).with_suffix(".png"))
 
     # Get the HTML content from the displayed output
     html_content = as_raw_html(self)
@@ -331,20 +337,12 @@ def save(
             debug_port = None
 
     # run browser ----
-    with (
-        tempfile.TemporaryDirectory() as tmp_dir,
-        wdriver(options=wd_options) as headless_browser,
-    ):
-
-        # Write the HTML content to the temp file
-        with open(f"{tmp_dir}/table.html", "w", encoding=encoding) as temp_file:
-            temp_file.write(html_content)
-
-        # Open the HTML file in the headless browser
+    with wdriver(options=wd_options) as headless_browser:
         headless_browser.set_window_size(*window_size)
-        headless_browser.get("file://" + temp_file.name)
+        encoded = base64.b64encode(html_content.encode(encoding=encoding)).decode(encoding=encoding)
+        headless_browser.get(f"data:text/html;base64,{encoded}")
 
-        _save_screenshot(headless_browser, scale, file, debug=_debug_dump)
+        _save_screenshot(headless_browser, scale, file, debug=_debug_dump, **params)
 
         if debug_port:
             input(
@@ -354,12 +352,16 @@ def save(
                 "Press enter to continue."
             )
 
+    return self
+
 
 def _save_screenshot(
-    driver: webdriver.Chrome, scale, path: str, debug: DebugDumpOptions | None
+    driver: webdriver.Chrome, scale: float, path: str, debug: DebugDumpOptions | None, **params
 ) -> None:
     from io import BytesIO
     from selenium.webdriver.common.by import By
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.support.ui import WebDriverWait
 
     # Based on: https://stackoverflow.com/a/52572919/
     # In some headless browsers, element position and width do not always reflect
@@ -372,7 +374,6 @@ def _save_screenshot(
     #
     # I can't say for sure whether the final sleep is needed. Only that it seems like
     # on CI with firefox sometimes the final screencapture is wider than necessary.
-
     original_size = driver.get_window_size()
 
     # set table zoom ----
@@ -423,19 +424,13 @@ def _save_screenshot(
     if debug == "final_resize":
         return _dump_debug_screenshot(driver, path)
 
-    el = driver.find_element(by=By.TAG_NAME, value="body")
+    el = WebDriverWait(driver, 1).until(EC.visibility_of_element_located((By.TAG_NAME, "body")))
 
-    time.sleep(0.05)
+    _try_import(name="PIL", pip_install_line="pip install pillow")
 
-    if path.endswith(".png"):
-        el.screenshot(path)
-    else:
-        _try_import(name="PIL", pip_install_line="pip install pillow")
+    from PIL import Image
 
-        from PIL import Image
-
-        # convert to other formats (e.g. pdf, bmp) using PIL
-        Image.open(fp=BytesIO(el.screenshot_as_png)).save(fp=path)
+    Image.open(fp=BytesIO(el.screenshot_as_png)).save(fp=path, **params)
 
 
 def _dump_debug_screenshot(driver, path):
