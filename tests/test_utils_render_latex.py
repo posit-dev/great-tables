@@ -559,7 +559,7 @@ def test_create_table_end_l(gt_tbl: GT):
     )
 
 
-def test_snap_render_as_latex(snapshot):
+def test_snap_render_as_latex_longtable(snapshot):
 
     gt_tbl = (
         GT(
@@ -572,6 +572,26 @@ def test_snap_render_as_latex(snapshot):
         .tab_source_note("Note 1")
         .tab_source_note("Note 2")
         .tab_options(table_width="600px", latex_use_longtable=True, table_font_size="12px")
+    )
+
+    latex_str = _render_as_latex(data=gt_tbl._build_data(context="latex"))
+
+    assert snapshot == latex_str
+
+
+def test_snap_render_as_latex_floating_table(snapshot):
+
+    gt_tbl = (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+        )
+        .tab_header(title="The _title_", subtitle="The subtitle")
+        .tab_spanner(label="Make _and_ Model", columns=["mfr", "model"])
+        .tab_spanner(label="Performance", columns=["hp", "trq"])
+        .fmt_currency(columns="msrp")
+        .tab_source_note("Note 1")
+        .tab_source_note("Note 2")
+        .tab_options(table_width="600px", latex_use_longtable=False, table_font_size="12px")
     )
 
     latex_str = _render_as_latex(data=gt_tbl._build_data(context="latex"))
