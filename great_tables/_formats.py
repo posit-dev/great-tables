@@ -286,58 +286,28 @@ def fmt_number(
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
-    # TODO: fix type errors for members of `FormatFns`
+    pf_format = partial(
+        fmt_number_context,
+        data=self,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        scale_by=scale_by,
+        compact=compact,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+        pattern=pattern,
+    )
+
     return fmt(
         self,
         fns=FormatFns(
-            html=partial(
-                fmt_number_context,
-                data=self,
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                compact=compact,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                pattern=pattern,
-                context="html",
-            ),
-            latex=partial(
-                fmt_number_context,
-                data=self,
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                compact=compact,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                pattern=pattern,
-                context="latex",
-            ),
-            default=partial(
-                fmt_number_context,
-                data=self,
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                compact=compact,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                pattern=pattern,
-                context="html",
-            ),
+            html=partial(pf_format, context="html"),
+            latex=partial(pf_format, context="latex"),
+            default=partial(pf_format, context="html"),
         ),
         columns=columns,
         rows=rows,
@@ -359,7 +329,7 @@ def fmt_number_context(
     force_sign: bool,
     pattern: str,
     context: str,
-):
+) -> str:
     if is_na(data._tbl_data, x):
         return x
 
@@ -522,43 +492,23 @@ def fmt_integer(
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
 
-    # TODO: fix type errors for members of `FormatFns`
+    pf_format = partial(
+        fmt_integer_context,
+        data=self,
+        use_seps=use_seps,
+        scale_by=scale_by,
+        compact=compact,
+        sep_mark=sep_mark,
+        force_sign=force_sign,
+        pattern=pattern,
+    )
+
     return fmt(
         self,
         fns=FormatFns(
-            html=partial(
-                fmt_integer_context,
-                data=self,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                compact=compact,
-                sep_mark=sep_mark,
-                force_sign=force_sign,
-                pattern=pattern,
-                context="html",
-            ),
-            latex=partial(
-                fmt_integer_context,
-                data=self,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                compact=compact,
-                sep_mark=sep_mark,
-                force_sign=force_sign,
-                pattern=pattern,
-                context="latex",
-            ),
-            default=partial(
-                fmt_integer_context,
-                data=self,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                compact=compact,
-                sep_mark=sep_mark,
-                force_sign=force_sign,
-                pattern=pattern,
-                context="html",
-            ),
+            html=partial(pf_format, context="html"),
+            latex=partial(pf_format, context="latex"),
+            default=partial(pf_format, context="html"),
         ),
         columns=columns,
         rows=rows,
@@ -575,7 +525,7 @@ def fmt_integer_context(
     force_sign: bool,
     pattern: str,
     context: str,
-):
+) -> str:
     if is_na(data._tbl_data, x):
         return x
 
@@ -778,58 +728,28 @@ def fmt_scientific(
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
-    # TODO: fix type errors for members of `FormatFns`
+    pf_format = partial(
+        fmt_scientific_context,
+        data=self,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        scale_by=scale_by,
+        exp_style=exp_style,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign_m=force_sign_m,
+        force_sign_n=force_sign_n,
+        pattern=pattern,
+    )
+
     return fmt(
         self,
         fns=FormatFns(
-            html=partial(
-                fmt_scientific_context,
-                data=self,
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                scale_by=scale_by,
-                exp_style=exp_style,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign_m=force_sign_m,
-                force_sign_n=force_sign_n,
-                pattern=pattern,
-                context="html",
-            ),
-            latex=partial(
-                fmt_scientific_context,
-                data=self,
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                scale_by=scale_by,
-                exp_style=exp_style,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign_m=force_sign_m,
-                force_sign_n=force_sign_n,
-                pattern=pattern,
-                context="latex",
-            ),
-            default=partial(
-                fmt_scientific_context,
-                data=self,
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                scale_by=scale_by,
-                exp_style=exp_style,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign_m=force_sign_m,
-                force_sign_n=force_sign_n,
-                pattern=pattern,
-                context="html",
-            ),
+            html=partial(pf_format, context="html"),
+            latex=partial(pf_format, context="latex"),
+            default=partial(pf_format, context="html"),
         ),
         columns=columns,
         rows=rows,
@@ -852,7 +772,7 @@ def fmt_scientific_context(
     force_sign_n: bool,
     pattern: str,
     context: str,
-):
+) -> str:
     if is_na(data._tbl_data, x):
         return x
 
@@ -1097,58 +1017,28 @@ def fmt_percent(
     else:
         scale_by = 1.0
 
-    # TODO: fix type errors for members of `FormatFns`
+    pf_format = partial(
+        fmt_percent_context,
+        data=self,
+        decimals=decimals,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        scale_by=scale_by,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+        placement=placement,
+        incl_space=incl_space,
+        pattern=pattern,
+    )
+
     return fmt(
         self,
         fns=FormatFns(
-            html=partial(
-                fmt_percent_context,
-                data=self,
-                decimals=decimals,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                placement=placement,
-                incl_space=incl_space,
-                pattern=pattern,
-                context="html",
-            ),
-            latex=partial(
-                fmt_percent_context,
-                data=self,
-                decimals=decimals,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                placement=placement,
-                incl_space=incl_space,
-                pattern=pattern,
-                context="latex",
-            ),
-            default=partial(
-                fmt_percent_context,
-                data=self,
-                decimals=decimals,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                placement=placement,
-                incl_space=incl_space,
-                pattern=pattern,
-                context="html",
-            ),
+            html=partial(pf_format, context="html"),
+            latex=partial(pf_format, context="latex"),
+            default=partial(pf_format, context="html"),
         ),
         columns=columns,
         rows=rows,
@@ -1170,7 +1060,7 @@ def fmt_percent_context(
     incl_space: bool,
     pattern: str,
     context: str,
-):
+) -> str:
     if is_na(data._tbl_data, x):
         return x
 
@@ -1396,58 +1286,28 @@ def fmt_currency(
         currency=currency_resolved, decimals=decimals, use_subunits=use_subunits
     )
 
-    # TODO: fix type errors for members of `FormatFns`
+    pf_format = partial(
+        fmt_currency_context,
+        data=self,
+        currency=currency_resolved,
+        decimals=decimals,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        scale_by=scale_by,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+        placement=placement,
+        incl_space=incl_space,
+        pattern=pattern,
+    )
+
     return fmt(
         self,
         fns=FormatFns(
-            html=partial(
-                fmt_currency_context,
-                data=self,
-                currency=currency_resolved,
-                decimals=decimals,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                placement=placement,
-                incl_space=incl_space,
-                pattern=pattern,
-                context="html",
-            ),
-            latex=partial(
-                fmt_currency_context,
-                data=self,
-                currency=currency_resolved,
-                decimals=decimals,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                placement=placement,
-                incl_space=incl_space,
-                pattern=pattern,
-                context="latex",
-            ),
-            default=partial(
-                fmt_currency_context,
-                data=self,
-                currency=currency_resolved,
-                decimals=decimals,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                scale_by=scale_by,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                placement=placement,
-                incl_space=incl_space,
-                pattern=pattern,
-                context="html",
-            ),
+            html=partial(pf_format, context="html"),
+            latex=partial(pf_format, context="latex"),
+            default=partial(pf_format, context="html"),
         ),
         columns=columns,
         rows=rows,
@@ -1469,7 +1329,7 @@ def fmt_currency_context(
     incl_space: bool,
     pattern: str,
     context: str,
-):
+) -> str:
     if is_na(data._tbl_data, x):
         return x
 
@@ -1600,31 +1460,19 @@ def fmt_roman(
     # Check that the `case` value is valid and only consists of the string 'upper' or 'lower'
     _validate_case(case=case)
 
-    # TODO: fix type errors for members of `FormatFns`
+    pf_format = partial(
+        fmt_roman_context,
+        data=self,
+        case=case,
+        pattern=pattern,
+    )
+
     return fmt(
         self,
         fns=FormatFns(
-            html=partial(
-                fmt_roman_context,
-                data=self,
-                case=case,
-                pattern=pattern,
-                context="html",
-            ),
-            latex=partial(
-                fmt_roman_context,
-                data=self,
-                case=case,
-                pattern=pattern,
-                context="latex",
-            ),
-            default=partial(
-                fmt_roman_context,
-                data=self,
-                case=case,
-                pattern=pattern,
-                context="html",
-            ),
+            html=partial(pf_format, context="html"),
+            latex=partial(pf_format, context="latex"),
+            default=partial(pf_format, context="html"),
         ),
         columns=columns,
         rows=rows,
@@ -1637,7 +1485,7 @@ def fmt_roman_context(
     case: str,
     pattern: str,
     context: str,
-):
+) -> str:
     if is_na(data._tbl_data, x):
         return x
 
@@ -1831,61 +1679,29 @@ def fmt_bytes(
         base = 1024
         byte_units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
 
-    # TODO: fix type errors for members of `FormatFns`
+    pf_format = partial(
+        fmt_bytes_context,
+        data=self,
+        base=base,
+        byte_units=byte_units,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+        incl_space=incl_space,
+        pattern=pattern,
+    )
+
     return fmt(
         self,
         fns=FormatFns(
-            html=partial(
-                fmt_bytes_context,
-                data=self,
-                base=base,
-                byte_units=byte_units,
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                incl_space=incl_space,
-                pattern=pattern,
-                context="html",
-            ),
-            latex=partial(
-                fmt_bytes_context,
-                data=self,
-                base=base,
-                byte_units=byte_units,
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                incl_space=incl_space,
-                pattern=pattern,
-                context="latex",
-            ),
-            default=partial(
-                fmt_bytes_context,
-                data=self,
-                base=base,
-                byte_units=byte_units,
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-                incl_space=incl_space,
-                pattern=pattern,
-                context="html",
-            ),
+            html=partial(pf_format, context="html"),
+            latex=partial(pf_format, context="latex"),
+            default=partial(pf_format, context="html"),
         ),
         columns=columns,
         rows=rows,
@@ -1908,7 +1724,7 @@ def fmt_bytes_context(
     incl_space: bool,
     pattern: str,
     context: str,
-):
+) -> str:
     if is_na(data._tbl_data, x):
         return x
 
@@ -2087,33 +1903,20 @@ def fmt_date(
     # Get the date format string based on the `date_style` value
     date_format_str = _get_date_format(date_style=date_style)
 
+    pf_format = partial(
+        fmt_date_context,
+        data=self,
+        date_format_str=date_format_str,
+        pattern=pattern,
+        locale=locale,
+    )
+
     return fmt(
         self,
         fns=FormatFns(
-            html=partial(
-                fmt_date_context,
-                data=self,
-                date_format_str=date_format_str,
-                pattern=pattern,
-                locale=locale,
-                context="html",
-            ),
-            latex=partial(
-                fmt_date_context,
-                data=self,
-                date_format_str=date_format_str,
-                pattern=pattern,
-                locale=locale,
-                context="latex",
-            ),
-            default=partial(
-                fmt_date_context,
-                data=self,
-                date_format_str=date_format_str,
-                pattern=pattern,
-                locale=locale,
-                context="html",
-            ),
+            html=partial(pf_format, context="html"),
+            latex=partial(pf_format, context="latex"),
+            default=partial(pf_format, context="html"),
         ),
         columns=columns,
         rows=rows,
@@ -2257,33 +2060,20 @@ def fmt_time(
     # Get the time format string based on the `time_style` value
     time_format_str = _get_time_format(time_style=time_style)
 
+    pf_format = partial(
+        fmt_time_context,
+        data=self,
+        time_format_str=time_format_str,
+        pattern=pattern,
+        locale=locale,
+    )
+
     return fmt(
         self,
         fns=FormatFns(
-            html=partial(
-                fmt_time_context,
-                data=self,
-                time_format_str=time_format_str,
-                pattern=pattern,
-                locale=locale,
-                context="html",
-            ),
-            latex=partial(
-                fmt_time_context,
-                data=self,
-                time_format_str=time_format_str,
-                pattern=pattern,
-                locale=locale,
-                context="latex",
-            ),
-            default=partial(
-                fmt_time_context,
-                data=self,
-                time_format_str=time_format_str,
-                pattern=pattern,
-                locale=locale,
-                context="html",
-            ),
+            html=partial(pf_format, context="html"),
+            latex=partial(pf_format, context="latex"),
+            default=partial(pf_format, context="html"),
         ),
         columns=columns,
         rows=rows,
@@ -2446,39 +2236,22 @@ def fmt_datetime(
     # Get the time format string based on the `time_style` value
     time_format_str = _get_time_format(time_style=time_style)
 
+    pf_format = partial(
+        fmt_datetime_context,
+        data=self,
+        date_format_str=date_format_str,
+        time_format_str=time_format_str,
+        sep=sep,
+        pattern=pattern,
+        locale=locale,
+    )
+
     return fmt(
         self,
         fns=FormatFns(
-            html=partial(
-                fmt_datetime_context,
-                data=self,
-                date_format_str=date_format_str,
-                time_format_str=time_format_str,
-                sep=sep,
-                pattern=pattern,
-                locale=locale,
-                context="html",
-            ),
-            latex=partial(
-                fmt_datetime_context,
-                data=self,
-                date_format_str=date_format_str,
-                time_format_str=time_format_str,
-                sep=sep,
-                pattern=pattern,
-                locale=locale,
-                context="latex",
-            ),
-            default=partial(
-                fmt_datetime_context,
-                data=self,
-                date_format_str=date_format_str,
-                time_format_str=time_format_str,
-                sep=sep,
-                pattern=pattern,
-                locale=locale,
-                context="html",
-            ),
+            html=partial(pf_format, context="html"),
+            latex=partial(pf_format, context="latex"),
+            default=partial(pf_format, context="html"),
         ),
         columns=columns,
         rows=rows,
