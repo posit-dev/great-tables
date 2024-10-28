@@ -312,10 +312,8 @@ def test_create_columns_component_l_simple():
 
     gt_tbl = GT(exibble)
 
-    width_dict = create_width_dict_l(gt_tbl)
-
     assert (
-        create_columns_component_l(data=gt_tbl, width_dict=width_dict)
+        create_columns_component_l(data=gt_tbl)
         == "\\toprule\nnum & char & fctr & date & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
     )
 
@@ -324,10 +322,8 @@ def test_create_columns_component_l_simple_hidden_cols():
 
     gt_tbl = GT(exibble).cols_hide(columns=["char", "date"])
 
-    width_dict = create_width_dict_l(gt_tbl)
-
     assert (
-        create_columns_component_l(data=gt_tbl, width_dict=width_dict)
+        create_columns_component_l(data=gt_tbl)
         == "\\toprule\nnum & fctr & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
     )
 
@@ -336,10 +332,8 @@ def test_create_columns_component_l_one_spanner():
 
     gt_tbl = GT(exibble).tab_spanner(label="Spanner", columns=["num", "char"])
 
-    width_dict = create_width_dict_l(gt_tbl)
-
     assert (
-        create_columns_component_l(data=gt_tbl, width_dict=width_dict)
+        create_columns_component_l(data=gt_tbl)
         == "\\toprule\n\\multicolumn{2}{c}{Spanner} &  \\\\ \n\\cmidrule(lr){1-2}\nnum & char & fctr & date & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
     )
 
@@ -354,10 +348,8 @@ def test_create_columns_component_l_adjacent_spanners_hiding():
         .cols_hide(columns="row")
     )
 
-    width_dict = create_width_dict_l(gt_tbl)
-
     assert (
-        create_columns_component_l(data=gt_tbl, width_dict=width_dict)
+        create_columns_component_l(data=gt_tbl)
         == "\\toprule\n\\multicolumn{2}{c}{Spanner 1} &  & \\multicolumn{2}{c}{Spanner 2} &  & \\multicolumn{1}{c}{Spanner 3} &  \\\\ \n\\cmidrule(lr){1-2} \\cmidrule(lr){4-5} \\cmidrule(lr){7-7}\nnum & char & fctr & date & time & datetime & currency & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
     )
 
@@ -373,19 +365,15 @@ def test_create_columns_component_l_many_spanners():
         .tab_spanner(label="Spanner Above 2", columns=["time", "datetime"])
     )
 
-    width_dict = create_width_dict_l(gt_tbl)
-
     assert (
-        create_columns_component_l(data=gt_tbl, width_dict=width_dict)
+        create_columns_component_l(data=gt_tbl)
         == "\\toprule\n & \\multicolumn{2}{c}{Spanner Above 1} &  & \\multicolumn{2}{c}{Spanner Above 2} &  \\\\ \n\\cmidrule(lr){2-3} \\cmidrule(lr){5-6}\n\\multicolumn{2}{c}{Spanner 1} &  & \\multicolumn{2}{c}{Spanner 2} &  & \\multicolumn{2}{c}{Spanner 3} &  \\\\ \n\\cmidrule(lr){1-2} \\cmidrule(lr){4-5} \\cmidrule(lr){7-8}\nnum & char & fctr & date & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
     )
 
 
 def test_create_body_component_l_simple(gt_tbl: GT):
 
-    width_dict = create_width_dict_l(gt_tbl)
-
-    assert create_body_component_l(data=gt_tbl, width_dict=width_dict) == "1 & 4 \\\\\n2 & 5 \\\\"
+    assert create_body_component_l(data=gt_tbl) == "1 & 4 \\\\\n2 & 5 \\\\"
 
 
 def test_create_footer_component_one_note(gt_tbl: GT):
@@ -421,10 +409,7 @@ def test_create_body_component_l_fmt_number(gt_tbl_dec: GT):
         columns="x", rows=0, scale_by=-1, decimals=3, pattern="{x} _"
     )._build_data(context="latex")
 
-    assert (
-        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
-        == "-1.520 \\_ & 4.75 \\\\\n2.23 & 5.23 \\\\"
-    )
+    assert create_body_component_l(data=gt_tbl_built) == "-1.520 \\_ & 4.75 \\\\\n2.23 & 5.23 \\\\"
 
 
 def test_create_body_component_l_fmt_integer(gt_tbl_dec: GT):
@@ -433,10 +418,7 @@ def test_create_body_component_l_fmt_integer(gt_tbl_dec: GT):
         columns="x", rows=0, scale_by=-1, pattern="{x} _"
     )._build_data(context="latex")
 
-    assert (
-        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
-        == "-2 \\_ & 4.75 \\\\\n2.23 & 5.23 \\\\"
-    )
+    assert create_body_component_l(data=gt_tbl_built) == "-2 \\_ & 4.75 \\\\\n2.23 & 5.23 \\\\"
 
 
 def test_create_body_component_l_fmt_scientific(gt_tbl_sci: GT):
@@ -446,7 +428,7 @@ def test_create_body_component_l_fmt_scientific(gt_tbl_sci: GT):
     )
 
     assert (
-        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        create_body_component_l(data=gt_tbl_built)
         == "4.66 $\\times$ 10\\textsuperscript{5} \\_ & 4.509 \\\\\n-3.45 $\\times$ 10\\textsuperscript{-9} \\_ & 176.23 \\\\"
     )
 
@@ -456,7 +438,7 @@ def test_create_body_component_l_fmt_percent(gt_tbl_pct: GT):
     gt_tbl_built = gt_tbl_pct.fmt_percent(columns="x", pattern="{x} _")._build_data(context="latex")
 
     assert (
-        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        create_body_component_l(data=gt_tbl_built)
         == "53.00\\% \\_ & 0.17 \\\\\n6.74\\% \\_ & 0.32 \\\\"
     )
 
@@ -468,7 +450,7 @@ def test_create_body_component_l_fmt_currency(gt_tbl_dec: GT):
     )
 
     assert (
-        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        create_body_component_l(data=gt_tbl_built)
         == "\\$1.52 \\_ & 4.75 \\\\\n\\$2.23 \\_ & 5.23 \\\\"
     )
 
@@ -478,7 +460,7 @@ def test_create_body_component_l_fmt_bytes(gt_tbl_sci: GT):
     gt_tbl_built = gt_tbl_sci.fmt_bytes(columns="x", pattern="{x} _")._build_data(context="latex")
 
     assert (
-        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        create_body_component_l(data=gt_tbl_built)
         == "465.6 kB \\_ & 4.509 \\\\\n0 B \\_ & 176.23 \\\\"
     )
 
@@ -490,7 +472,7 @@ def test_create_body_component_l_fmt_date(gt_tbl_dttm: GT):
     )._build_data(context="latex")
 
     assert (
-        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        create_body_component_l(data=gt_tbl_built)
         == "Saturday, August 12, 2023 \\_ & 09:21:23 & 2023-08-12 09:21:23 \\\\\nTuesday, November 17, 2020 \\_ & 22:45:02 & 2020-11-17 22:45:02 \\\\"
     )
 
@@ -502,7 +484,7 @@ def test_create_body_component_l_fmt_time(gt_tbl_dttm: GT):
     )._build_data(context="latex")
 
     assert (
-        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        create_body_component_l(data=gt_tbl_built)
         == "2023-08-12 & 9:21:23 AM \\_ & 2023-08-12 09:21:23 \\\\\n2020-11-17 & 10:45:02 PM \\_ & 2020-11-17 22:45:02 \\\\"
     )
 
@@ -514,7 +496,7 @@ def test_create_body_component_l_fmt_datetime(gt_tbl_dttm: GT):
     )._build_data(context="latex")
 
     assert (
-        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
+        create_body_component_l(data=gt_tbl_built)
         == "2023-08-12 & 09:21:23 & Saturday, August 12, 2023 9:21:23 AM \\_ \\\\\n2020-11-17 & 22:45:02 & Tuesday, November 17, 2020 10:45:02 PM \\_ \\\\"
     )
 
@@ -525,10 +507,7 @@ def test_create_body_component_l_fmt_roman(gt_tbl_dec: GT):
         context="latex"
     )
 
-    assert (
-        create_body_component_l(data=gt_tbl_built, width_dict=create_width_dict_l(gt_tbl_built))
-        == "II \\_ & 4.75 \\\\\n2.23 & 5.23 \\\\"
-    )
+    assert create_body_component_l(data=gt_tbl_built) == "II \\_ & 4.75 \\\\\n2.23 & 5.23 \\\\"
 
 
 def test_create_wrap_start(gt_tbl: GT):
