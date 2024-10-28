@@ -577,3 +577,22 @@ def test_snap_render_as_latex(snapshot):
     latex_str = _render_as_latex(data=gt_tbl._build_data(context="latex"))
 
     assert snapshot == latex_str
+
+
+def test_render_as_latex_stub_raises():
+    gt_tbl = GT(exibble, rowname_col="row")
+    with pytest.raises(NotImplementedError) as exc_info:
+        _render_as_latex(data=gt_tbl._build_data(context="latex"))
+
+    assert (
+        "The table stub (row names and/or row groups) are not yet supported in LaTeX output."
+        in exc_info.value.args[0]
+    )
+
+
+def test_render_as_latex_rowgroup_raises():
+    gt_tbl = GT(exibble, groupname_col="group")
+    with pytest.raises(NotImplementedError) as exc_info:
+        _render_as_latex(data=gt_tbl._build_data(context="latex"))
+
+    assert "Row groups are not yet supported in LaTeX output." in exc_info.value.args[0]
