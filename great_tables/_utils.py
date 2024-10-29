@@ -13,6 +13,12 @@ from typing import Any, Iterable
 from ._tbl_data import PdDataFrame, _set_cell, _get_cell, get_column_names, n_rows
 from ._text import _process_text
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from great_tables._tbl_data import TblData
+    from great_tables._gt_data import FormatInfo, GTData
+
 
 def _try_import(name: str, pip_install_line: str | None = None) -> ModuleType:
     try:
@@ -244,7 +250,9 @@ def is_equal(x: Any, y: Any) -> bool:
 # TODO: type annotations for `data`, `data_tbl`, `formats`, and the return value are not included
 # yet since that would result in a circular import. This will be fixed in the future (when HTML
 # escaping is implemented).
-def _migrate_unformatted_to_output(data, data_tbl, formats, context: str):
+def _migrate_unformatted_to_output(
+    data: GTData, data_tbl: TblData, formats: list[FormatInfo], context: str
+) -> GTData:
     """
     Escape unformatted cells so they are safe for a specific output context.
     """
