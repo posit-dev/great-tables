@@ -249,6 +249,11 @@ def _migrate_unformatted_to_output(data, data_tbl, formats, context: str):
     Escape unformatted cells so they are safe for a specific output context.
     """
 
+    # TODO: This function will eventually be applied to all context types but for now
+    # it's just used for LaTeX output
+    if context != "latex":
+        return data
+
     all_formatted_cells = []
 
     for fmt in formats:
@@ -270,17 +275,16 @@ def _migrate_unformatted_to_output(data, data_tbl, formats, context: str):
 
     # TODO: this currently will only be used for LaTeX (HTML escaping will be performed
     # in the future)
-    if context == "latex":
 
-        for col, row in all_unformatted_cells:
+    for col, row in all_unformatted_cells:
 
-            # Get the cell value and cast as string
-            cell_value = _get_cell(data_tbl, row, col)
-            cell_value_str = str(cell_value)
+        # Get the cell value and cast as string
+        cell_value = _get_cell(data_tbl, row, col)
+        cell_value_str = str(cell_value)
 
-            result = _process_text(cell_value_str, context=context)
+        result = _process_text(cell_value_str, context=context)
 
-            _set_cell(data._body.body, row, col, result)
+        _set_cell(data._body.body, row, col, result)
 
     return data
 
