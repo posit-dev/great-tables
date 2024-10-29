@@ -1187,8 +1187,6 @@ class Options:
     # page_footer_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
     quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
     quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
-    latex_use_longtable: OptionsInfo = OptionsInfo(False, "latex", "boolean", False)
-    latex_tbl_pos: OptionsInfo = OptionsInfo(False, "latex", "value", "!t")
 
     def _get_all_options_keys(self) -> list[str | None]:
         return [x.parameter for x in self._options.values()]

@@ -262,29 +262,29 @@ def test_create_fontsize_statement_l_unknown_unit(gt_tbl: GT):
 
 def test_derive_table_width_statement_l_px_lt(gt_tbl: GT):
 
-    gt_tbl_new = gt_tbl.tab_options(table_width="500px", latex_use_longtable=True)
+    gt_tbl_new = gt_tbl.tab_options(table_width="500px")
 
     assert (
-        derive_table_width_statement_l(gt_tbl_new)
+        derive_table_width_statement_l(gt_tbl_new, use_longtable=True)
         == "\\setlength\\LTleft{\\dimexpr(0.5\\linewidth - 187.5pt)}\n\\setlength\\LTright{\\dimexpr(0.5\\linewidth - 187.5pt)}"
     )
 
 
 def test_derive_table_width_statement_l_pct_lt(gt_tbl: GT):
 
-    gt_tbl_new = gt_tbl.tab_options(table_width="45%", latex_use_longtable=True)
+    gt_tbl_new = gt_tbl.tab_options(table_width="45%")
 
     assert (
-        derive_table_width_statement_l(gt_tbl_new)
+        derive_table_width_statement_l(gt_tbl_new, use_longtable=True)
         == "\\setlength\\LTleft{0.275\\linewidth}\n\\setlength\\LTright{0.275\\linewidth}"
     )
 
 
 def test_derive_table_width_statement_l_px_no_lt(gt_tbl: GT):
 
-    gt_tbl_new = gt_tbl.tab_options(table_width="500px", latex_use_longtable=False)
+    gt_tbl_new = gt_tbl.tab_options(table_width="500px")
 
-    assert derive_table_width_statement_l(gt_tbl_new) == ""
+    assert derive_table_width_statement_l(gt_tbl_new, use_longtable=False) == ""
 
 
 def test_create_fontsize_statement_l_settings():
@@ -300,10 +300,13 @@ def test_create_heading_component_l():
     gt_tbl_title = GT(exibble).tab_header(title="Title")
     gt_tbl_title_subtitle = GT(exibble).tab_header(title="Title", subtitle="Subtitle")
 
-    assert create_heading_component_l(gt_tbl_no_heading) == ""
-    assert create_heading_component_l(gt_tbl_title) == "\\caption*{\n{\\large Title}\n} "
+    assert create_heading_component_l(gt_tbl_no_heading, use_longtable=False) == ""
     assert (
-        create_heading_component_l(gt_tbl_title_subtitle)
+        create_heading_component_l(gt_tbl_title, use_longtable=False)
+        == "\\caption*{\n{\\large Title}\n} "
+    )
+    assert (
+        create_heading_component_l(gt_tbl_title_subtitle, use_longtable=False)
         == "\\caption*{\n{\\large Title} \\\\\n{\\small Subtitle}\n} "
     )
 
@@ -510,56 +513,51 @@ def test_create_body_component_l_fmt_roman(gt_tbl_dec: GT):
     assert create_body_component_l(data=gt_tbl_built) == "II \\_ & 4.75 \\\\\n2.23 & 5.23 \\\\"
 
 
-def test_create_wrap_start(gt_tbl: GT):
+def test_create_wrap_start():
 
-    assert create_wrap_start_l(gt_tbl) == "\\begin{table}[!t]"
-    assert create_wrap_start_l(gt_tbl.tab_options(latex_tbl_pos="!b")) == "\\begin{table}[!b]"
-    assert create_wrap_start_l(gt_tbl.tab_options(latex_use_longtable=True)) == "\\begingroup"
+    assert create_wrap_start_l(use_longtable=False, tbl_pos=None) == "\\begin{table}[!t]"
+    assert create_wrap_start_l(use_longtable=False, tbl_pos="!b") == "\\begin{table}[!b]"
+    assert create_wrap_start_l(use_longtable=True, tbl_pos=None) == "\\begingroup"
 
 
 @mock.patch.dict(os.environ, {"QUARTO_BIN_PATH": "1"}, clear=True)
-def test_create_wrap_start_quarto(gt_tbl: GT):
+def test_create_wrap_start_quarto():
 
-    assert create_wrap_start_l(gt_tbl) == "\\begin{table}"
-    assert create_wrap_start_l(gt_tbl.tab_options(latex_use_longtable=True)) == "\\begingroup"
-
-
-def test_create_wrap_end_l(gt_tbl: GT):
-
-    assert create_wrap_end_l(gt_tbl) == "\\end{table}"
-    assert create_wrap_end_l(gt_tbl.tab_options(latex_use_longtable=True)) == "\\endgroup"
+    assert create_wrap_start_l(use_longtable=False, tbl_pos="!t") == "\\begin{table}"
+    assert create_wrap_start_l(use_longtable=True, tbl_pos="!t") == "\\begingroup"
 
 
-def test_create_table_end_l_longtable(gt_tbl: GT):
+def test_create_wrap_end_l():
 
-    assert create_table_end_l(gt_tbl) == "\\bottomrule\n\\end{tabular*}"
-    assert (
-        create_table_end_l(gt_tbl.tab_options(latex_use_longtable=True))
-        == "\\bottomrule\n\\end{longtable}"
-    )
+    assert create_wrap_end_l(use_longtable=False) == "\\end{table}"
+    assert create_wrap_end_l(use_longtable=True) == "\\endgroup"
+
+
+def test_create_table_end_l_longtable():
+
+    assert create_table_end_l(use_longtable=False) == "\\bottomrule\n\\end{tabular*}"
+    assert create_table_end_l(use_longtable=True) == "\\bottomrule\n\\end{longtable}"
 
 
 def test_create_table_start_l_longtable(gt_tbl: GT):
 
-    gt_tbl_no_source_notes = gt_tbl.tab_options(latex_use_longtable=True)._build_data(
-        context="latex"
-    )
-    gt_tbl_source_notes = (
-        gt_tbl.tab_options(latex_use_longtable=True)
-        .tab_source_note(source_note="Note")
-        ._build_data(context="latex")
-    )
+    gt_tbl_no_source_notes = gt_tbl._build_data(context="latex")
+    gt_tbl_source_notes = gt_tbl.tab_source_note(source_note="Note")._build_data(context="latex")
 
     assert (
         create_table_start_l(
-            data=gt_tbl_no_source_notes, width_dict=create_width_dict_l(gt_tbl_no_source_notes)
+            data=gt_tbl_no_source_notes,
+            width_dict=create_width_dict_l(gt_tbl_no_source_notes),
+            use_longtable=True,
         )
         == "\\begin{longtable}{rr}"
     )
 
     assert (
         create_table_start_l(
-            data=gt_tbl_source_notes, width_dict=create_width_dict_l(gt_tbl_source_notes)
+            data=gt_tbl_source_notes,
+            width_dict=create_width_dict_l(gt_tbl_source_notes),
+            use_longtable=True,
         )
         == "\\setlength{\\LTpost}{0mm}\n\\begin{longtable}{rr}"
     )
@@ -577,10 +575,12 @@ def test_snap_render_as_latex_longtable(snapshot):
         .fmt_currency(columns="msrp")
         .tab_source_note("Note 1")
         .tab_source_note("Note 2")
-        .tab_options(table_width="600px", latex_use_longtable=True, table_font_size="12px")
+        .tab_options(table_width="600px", table_font_size="12px")
     )
 
-    latex_str = _render_as_latex(data=gt_tbl._build_data(context="latex"))
+    latex_str = _render_as_latex(
+        data=gt_tbl._build_data(context="latex"), use_longtable=True, tbl_pos=None
+    )
 
     assert snapshot == latex_str
 
@@ -597,10 +597,12 @@ def test_snap_render_as_latex_floating_table(snapshot):
         .fmt_currency(columns="msrp")
         .tab_source_note("Note 1")
         .tab_source_note("Note 2")
-        .tab_options(table_width="600px", latex_use_longtable=False, table_font_size="12px")
+        .tab_options(table_width="600px", table_font_size="12px")
     )
 
-    latex_str = _render_as_latex(data=gt_tbl._build_data(context="latex"))
+    latex_str = _render_as_latex(
+        data=gt_tbl._build_data(context="latex"), use_longtable=False, tbl_pos=None
+    )
 
     assert snapshot == latex_str
 

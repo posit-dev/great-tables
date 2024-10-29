@@ -111,9 +111,9 @@ def test_snap_as_latex(snapshot):
         .fmt_currency(columns="msrp")
         .tab_source_note("Note 1")
         .tab_source_note("Note 2")
-        .tab_options(table_width="600px", latex_use_longtable=True, table_font_size="12px")
+        .tab_options(table_width="600px", table_font_size="12px")
     )
 
-    latex_str_as_latex = gt_tbl.as_latex()
+    latex_str_as_latex = gt_tbl.as_latex(use_longtable=True)
 
     assert snapshot == latex_str_as_latex

@@ -195,7 +195,7 @@ def latex_heading_row(content: list[str]) -> str:
     return "".join([" & ".join(content) + " \\\\ \n", "\\midrule\\addlinespace[2.5pt]"])
 
 
-def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
+def create_table_start_l(data: GTData, width_dict: WidthDict, use_longtable: bool) -> str:
     """
     Create the table start component for LaTeX output.
 
@@ -215,9 +215,6 @@ def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
     str
         The LaTeX code that signifies the start of the table.
     """
-
-    # Is the longtable environment being used?
-    latex_use_longtable = data._options.latex_use_longtable.value
 
     # Extract only visible columns of `colwidth_df` based on stub_layout
     types = ["default"]
@@ -263,7 +260,7 @@ def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
     # determine string for table width if using tabular* environment
     hdr_tabular = ""
 
-    if not latex_use_longtable:
+    if not use_longtable:
 
         # we need to use the extracolsep here for tabular* regardless of width
         extra_sep = "@{\\extracolsep{\\fill}}"
@@ -289,8 +286,8 @@ def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
     # alignments and vertical lines for any stub columns
     table_start = "".join(
         [
-            longtable_post_length if latex_use_longtable else "",
-            "\\begin{longtable}{" if latex_use_longtable else hdr_tabular,
+            longtable_post_length if use_longtable else "",
+            "\\begin{longtable}{" if use_longtable else hdr_tabular,
             extra_sep,
             "".join(col_defs),
             "}",
@@ -300,7 +297,7 @@ def create_table_start_l(data: GTData, width_dict: WidthDict) -> str:
     return table_start
 
 
-def create_heading_component_l(data: GTData) -> str:
+def create_heading_component_l(data: GTData, use_longtable: bool) -> str:
     """
     Create the heading component for LaTeX output.
 
@@ -321,9 +318,6 @@ def create_heading_component_l(data: GTData) -> str:
 
     title = data._heading.title
     subtitle = data._heading.subtitle
-
-    # Is the longtable environment being used?
-    latex_use_longtable = data._options.latex_use_longtable.value
 
     line_continuation = "\\\\"
 
@@ -348,13 +342,13 @@ def create_heading_component_l(data: GTData) -> str:
         header_component = f"""\\caption*{{
 {title_row} \\\\
 {subtitle_row}
-}} {line_continuation if latex_use_longtable else ""}"""
+}} {line_continuation if use_longtable else ""}"""
 
     else:
 
         header_component = f"""\\caption*{{
 {title_row}
-}} {line_continuation if latex_use_longtable else ""}"""
+}} {line_continuation if use_longtable else ""}"""
 
     return header_component
 
@@ -587,7 +581,7 @@ def create_footer_component_l(data: GTData) -> str:
     return footer_block
 
 
-def create_table_end_l(data: GTData) -> str:
+def create_table_end_l(use_longtable: bool) -> str:
     """
     Create the table end component for LaTeX output.
 
@@ -605,21 +599,15 @@ def create_table_end_l(data: GTData) -> str:
         The LaTeX code that signifies the end of the table.
     """
 
-    latex_use_longtable = data._options.latex_use_longtable.value
-
-    table_end = "\\bottomrule\n" + (
-        "\\end{longtable}" if latex_use_longtable else "\\end{tabular*}"
-    )
+    table_end = "\\bottomrule\n" + ("\\end{longtable}" if use_longtable else "\\end{tabular*}")
 
     return table_end
 
 
-def derive_table_width_statement_l(data: GTData) -> str:
+def derive_table_width_statement_l(data: GTData, use_longtable: bool) -> str:
 
     # Get the table width value
     tbl_width = data._options.table_width.value
-
-    use_longtable = data._options.latex_use_longtable.value
 
     # Initialize the statement variables LTleft and LTright
     sides = ["LTleft", "LTright"]
@@ -679,33 +667,31 @@ def create_fontsize_statement_l(data: GTData) -> str:
     return fs_statement
 
 
-def create_wrap_start_l(data: GTData) -> str:
+def create_wrap_start_l(use_longtable: bool, tbl_pos: str | None) -> str:
 
     if is_quarto_render():
         tbl_pos = ""
 
     else:
-        latex_tbl_pos_val = data._options.latex_tbl_pos.value
-        tbl_pos = f"[{latex_tbl_pos_val}]"
+        if tbl_pos is None:
+            tbl_pos = "!t"
 
-    latex_use_longtable = data._options.latex_use_longtable.value
+        tbl_pos = f"[{tbl_pos}]"
 
-    if latex_use_longtable:
+    if use_longtable:
         return "\\begingroup"
     else:
         return f"\\begin{{table}}{tbl_pos}"
 
 
-def create_wrap_end_l(data: GTData) -> str:
+def create_wrap_end_l(use_longtable: bool) -> str:
 
-    latex_use_longtable = data._options.latex_use_longtable.value
-
-    wrap_end = "\\endgroup" if latex_use_longtable else "\\end{table}"
+    wrap_end = "\\endgroup" if use_longtable else "\\end{table}"
 
     return wrap_end
 
 
-def _render_as_latex(data: GTData) -> str:
+def _render_as_latex(data: GTData, use_longtable: bool = False, tbl_pos: str | None = None) -> str:
 
     # Get list representation of stub layout
     stub_layout = data._stub._get_stub_layout(options=data._options)
@@ -730,10 +716,12 @@ def _render_as_latex(data: GTData) -> str:
     width_dict = create_width_dict_l(data=data)
 
     # Create a LaTeX fragment for the start of the table
-    table_start = create_table_start_l(data=data, width_dict=width_dict)
+    table_start = create_table_start_l(
+        data=data, width_dict=width_dict, use_longtable=use_longtable
+    )
 
     # Create the heading component
-    heading_component = create_heading_component_l(data=data)
+    heading_component = create_heading_component_l(data=data, use_longtable=use_longtable)
 
     # Create the columns component
     columns_component = create_columns_component_l(data=data)
@@ -745,22 +733,20 @@ def _render_as_latex(data: GTData) -> str:
     footer_component = create_footer_component_l(data=data)
 
     # Create a LaTeX fragment for the ending tabular statement
-    table_end = create_table_end_l(data=data)
+    table_end = create_table_end_l(use_longtable=use_longtable)
 
     # Create a LaTeX fragment for the table width statement
-    table_width_statement = derive_table_width_statement_l(data=data)
+    table_width_statement = derive_table_width_statement_l(data=data, use_longtable=use_longtable)
 
     # Allow user to set a font-size
     fontsize_statement = create_fontsize_statement_l(data=data)
 
     # Create wrapping environment
-    wrap_start_statement = create_wrap_start_l(data=data)
-    wrap_end_statement = create_wrap_end_l(data=data)
-
-    latex_use_longtable = data._options.latex_use_longtable.value
+    wrap_start_statement = create_wrap_start_l(use_longtable=use_longtable, tbl_pos=tbl_pos)
+    wrap_end_statement = create_wrap_end_l(use_longtable=use_longtable)
 
     # Compose the LaTeX table
-    if latex_use_longtable:
+    if use_longtable:
 
         finalized_table = f"""{wrap_start_statement}
 {table_width_statement}

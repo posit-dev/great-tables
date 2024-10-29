@@ -168,7 +168,7 @@ def as_raw_html(
     return html_table
 
 
-def as_latex(self: GT) -> str:
+def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) -> str:
     """
     Output a GT object as LaTeX
 
@@ -179,6 +179,20 @@ def as_latex(self: GT) -> str:
     :::{.callout-warning}
     `as_latex()` is still experimental.
     :::
+
+    Parameters
+    ----------
+
+    use_longtable
+        An option to use the `longtable` environment in LaTeX output. This is useful for tables that
+        span multiple pages and don't require precise positioning.
+    tbl_pos
+        The position of the table in the LaTeX output when `use_longtable=False`. Valid values for
+        positioning include `"!t"` (top of page), `"!b"` (bottom of the page), `"!h"` (here),
+        `"!p"` (on a separate page), and `"!H"` (exactly here). If a value is not provided then the
+        table will be placed at the top of the page; if in the Quarto render then the table
+        positioning option will be ignored in favor of any setting within the Quarto rendering
+        environment.
 
     Returns
     -------
@@ -242,7 +256,7 @@ def as_latex(self: GT) -> str:
     """
     built_table = self._build_data(context="latex")
 
-    latex_table = _render_as_latex(data=built_table)
+    latex_table = _render_as_latex(data=built_table, use_longtable=use_longtable, tbl_pos=tbl_pos)
 
     return latex_table
 
