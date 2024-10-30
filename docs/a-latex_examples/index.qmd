@@ -8,7 +8,7 @@ format: pdf
 
 import polars as pl
 from great_tables import GT
-from great_tables.data import gtcars, islands, airquality, constants
+from great_tables.data import gtcars, islands, airquality, constants, exibble
 ```
 
 ```{python}
@@ -20,11 +20,9 @@ gtcars_pl = (
     .select(["mfr", "model", "hp", "trq", "mpg_c", "msrp"])
 )
 
-print((
+print(
     GT(
         gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
-        #rowname_col="model",
-        #groupname_col="mfr",
     )
     .tab_header(
         title="Some Cars from the gtcars Dataset",
@@ -32,7 +30,8 @@ print((
     )
     .tab_spanner(
         label="Make and Model",
-        columns=["mfr", "model"]
+        columns=["mfr", "model"],
+        id="make_model"
     )
     .tab_spanner(
         label="Performance",
@@ -46,10 +45,9 @@ print((
     .fmt_currency(columns="msrp")
     .tab_source_note("Cars are all 2015 models.")
     .tab_source_note("Horsepower and Torque values are estimates.")
-    .tab_options(
-        table_width="600pt",
-    )
-).as_latex())
+    .tab_options(table_width="600pt")
+    .as_latex()
+)
 ```
 
 
@@ -111,13 +109,32 @@ constants_mini = (
     )
 )
 
-print((
+print(
     GT(constants_mini)
     .cols_hide(columns=["uncert", "sf_value", "sf_uncert", "units"])
-    #.fmt_units(columns="units")
     .fmt_scientific(columns="value", decimals=3)
     .tab_header(title="Physical Constants Having a Molar Basis")
     .tab_options(column_labels_hidden=True)
     .as_latex()
-))
+)
 ```
+
+
+```{python}
+# | output: asis
+# | echo: false
+
+exibble_mini = (
+    pl.from_pandas(exibble)
+    .select(["num", "date", "time", "currency"])
+    .head(5)
+    .with_columns(time = pl.concat_str("[" + pl.col("time") + "]"))
+)
+
+print(
+    GT(exibble_mini)
+    .fmt_currency(columns="currency", rows=[2, 3, 4], pattern="_{x}_")
+    .as_latex()
+)
+```
+
