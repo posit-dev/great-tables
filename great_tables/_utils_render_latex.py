@@ -24,48 +24,6 @@ LENGTH_TRANSLATIONS_TO_PX = {
 }
 
 
-@dataclass
-class TblWidthLatex:
-    tbl_width: str
-
-    def to_tbl_width_str(
-        self, unspec_list: list[int], pt_list: list[float], lw_list: list[float]
-    ) -> str | None:
-
-        tbl_width = self.tbl_width
-
-        if tbl_width == "auto":
-
-            if any(x > 0 for x in unspec_list):
-
-                # If any of the column widths are unspecified, a table width can't be inferred
-                tbl_width = None
-
-            else:
-                pt_total = sum(pt_list)
-                lw_total = sum(lw_list)
-
-                if pt_total <= 0:
-                    tbl_width = f"{lw_total}\\linewidth"
-                elif lw_total <= 0:
-                    tbl_width = f"{pt_total}pt"
-                else:
-                    tbl_width = f"{pt_total}pt+{lw_total}\\linewidth"
-
-        elif tbl_width.endswith("%"):
-
-            lw_multiple = float(tbl_width.strip("%")) / 100
-            tbl_width = f"{lw_multiple}\\linewidth"
-
-        else:
-
-            tbl_width_pt = convert_to_pt(tbl_width)
-
-            tbl_width = f"{tbl_width_pt}pt"
-
-        return tbl_width
-
-
 def is_css_length_string(x: str) -> bool:
 
     # This checks if there is a number followed by an optional string (only of letters)
