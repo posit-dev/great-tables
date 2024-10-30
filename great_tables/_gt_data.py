@@ -25,11 +25,11 @@ from ._tbl_data import (
     to_list,
     validate_frame,
 )
-from ._text import _process_text
+from ._text import BaseText
 from ._utils import _str_detect, OrderedSet
 
 if TYPE_CHECKING:
-    from ._helpers import Md, Html, UnitStr, Text
+    from ._helpers import Md, Html, UnitStr
     from ._locations import Loc
 
 T = TypeVar("T")
@@ -405,7 +405,7 @@ class Boxhead(_Sequence[ColInfo]):
         return [x.column_label for x in self._d]
 
     # Set column label
-    def _set_column_labels(self, col_labels: dict[str, str | UnitStr | Text]) -> Self:
+    def _set_column_labels(self, col_labels: dict[str, str | UnitStr | BaseText]) -> Self:
         out_cols: list[ColInfo] = []
         for x in self._d:
             new_label = col_labels.get(x.var, None)

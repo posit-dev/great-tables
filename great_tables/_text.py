@@ -9,7 +9,7 @@ import commonmark
 
 
 @dataclass
-class Text:
+class BaseText:
     text: str
 
     def to_html(self) -> str:
@@ -20,7 +20,14 @@ class Text:
 
 
 @dataclass
-class Md(Text):
+class Text(BaseText):
+    """As-is text"""
+
+    pass
+
+
+@dataclass
+class Md(BaseText):
     """Markdown text"""
 
     def to_html(self) -> str:
@@ -31,7 +38,7 @@ class Md(Text):
 
 
 @dataclass
-class Html(Text):
+class Html(BaseText):
     """HTML text"""
 
     def to_html(self) -> str:
@@ -53,7 +60,7 @@ def _md_latex(x: str) -> str:
     raise NotImplementedError("Markdown to LaTeX conversion is not supported yet")
 
 
-def _process_text(x: str | Text | None, context: str = "html") -> str:
+def _process_text(x: str | BaseText | None, context: str = "html") -> str:
 
     from great_tables._helpers import UnitStr
 
@@ -66,14 +73,14 @@ def _process_text(x: str | Text | None, context: str = "html") -> str:
 
         return escape_fn(x)
 
-    elif isinstance(x, (Md, Text, Html, UnitStr)):
+    elif isinstance(x, (BaseText, UnitStr)):
 
         return x.to_html() if context == "html" else x.to_latex()
 
     raise TypeError(f"Invalid type: {type(x)}")
 
 
-def _process_text_id(x: str | Text | None) -> str:
+def _process_text_id(x: str | BaseText | None) -> str:
     return _process_text(x)
 
 
@@ -103,7 +110,7 @@ def process_string(string: str, pattern: str, func: Callable[[str], str]) -> str
     This function splits a string based on a regex pattern to a list of strings, and invokes the
     supplied function (in `func=`) to those list elements that *do not* match the pattern (i.e.,
     the matched components are untouched). Finally, the processed list of text fragments is then
-    joined back into a single string.
+    joined back into a single .
 
     Parameters
     ----------
