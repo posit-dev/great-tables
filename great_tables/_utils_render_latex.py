@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from itertools import chain
 
+from dataclasses import dataclass
+
 import re
 from ._gt_data import GTData, GroupRowInfo, ColInfoTypeEnum, ColumnAlignment
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
@@ -31,6 +33,48 @@ class WidthDict(TypedDict):
     pt: List[float]
     column_align: List[ColumnAlignment]
     tbl_width: str | None
+
+
+@dataclass
+class TblWidthLatex:
+    tbl_width: str
+
+    def to_tbl_width_str(
+        self, unspec_list: list[int], pt_list: list[float], lw_list: list[float]
+    ) -> str | None:
+
+        tbl_width = self.tbl_width
+
+        if tbl_width == "auto":
+
+            if any(x > 0 for x in unspec_list):
+
+                # If any of the column widths are unspecified, a table width can't be inferred
+                tbl_width = None
+
+            else:
+                pt_total = sum(pt_list)
+                lw_total = sum(lw_list)
+
+                if pt_total <= 0:
+                    tbl_width = f"{lw_total}\\linewidth"
+                elif lw_total <= 0:
+                    tbl_width = f"{pt_total}pt"
+                else:
+                    tbl_width = f"{pt_total}pt+{lw_total}\\linewidth"
+
+        elif tbl_width.endswith("%"):
+
+            lw_multiple = float(tbl_width.strip("%")) / 100
+            tbl_width = f"{lw_multiple}\\linewidth"
+
+        else:
+
+            tbl_width_pt = convert_to_pt(tbl_width)
+
+            tbl_width = f"{tbl_width_pt}pt"
+
+        return tbl_width
 
 
 def is_css_length_string(x: str) -> bool:
@@ -158,34 +202,13 @@ def create_width_dict_l(data: GTData) -> WidthDict:
             else:
                 width_dict["pt"][i] = (pct / 100) * convert_to_pt(tbl_width)
 
-    if tbl_width == "auto":
+    tbl_width_str = TblWidthLatex(tbl_width=tbl_width).to_tbl_width_str(
+        unspec_list=width_dict["unspec"],
+        pt_list=width_dict["pt"],
+        lw_list=width_dict["lw"],
+    )
 
-        if any(x > 0 for x in width_dict["unspec"]):
-
-            # If any of the column widths are unspecified, a table width can't be inferred
-            width_dict["tbl_width"] = None
-
-        else:
-            pt_total = sum(width_dict["pt"])
-            lw_total = sum(width_dict["lw"])
-
-            if pt_total <= 0:
-                width_dict["tbl_width"] = f"{lw_total}\\linewidth"
-            elif lw_total <= 0:
-                width_dict["tbl_width"] = f"{pt_total}pt"
-            else:
-                width_dict["tbl_width"] = f"{pt_total}pt+{lw_total}\\linewidth"
-
-    elif tbl_width.endswith("%"):
-
-        lw_multiple = float(tbl_width.strip("%")) / 100
-        width_dict["tbl_width"] = f"{lw_multiple}\\linewidth"
-
-    else:
-
-        tbl_width_pt = convert_to_pt(tbl_width)
-
-        width_dict["tbl_width"] = f"{tbl_width_pt}pt"
+    width_dict["tbl_width"] = tbl_width_str
 
     return width_dict
 
