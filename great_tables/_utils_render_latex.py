@@ -2,10 +2,8 @@ from __future__ import annotations
 
 from itertools import chain
 
-from dataclasses import dataclass
-
 import re
-from ._gt_data import GTData, GroupRowInfo, ColInfoTypeEnum, ColumnAlignment
+from ._gt_data import GTData, GroupRowInfo
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from .quarto import is_quarto_render
 from great_tables._spanners import spanners_print_matrix
