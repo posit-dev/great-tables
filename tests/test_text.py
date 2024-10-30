@@ -73,6 +73,6 @@ def test_process_text_latex():
 def test_process_text_raises():
 
     with pytest.raises(TypeError) as exc_info:
-        _process_text(1, context="html")
+        _process_text(1, context="html")  # type: ignore
 
     assert "Invalid type: <class 'int'>" in exc_info.value.args[0]
