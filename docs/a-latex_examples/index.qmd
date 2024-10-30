@@ -128,12 +128,15 @@ exibble_mini = (
     pl.from_pandas(exibble)
     .select(["num", "date", "time", "currency"])
     .head(5)
-    .with_columns(time = pl.concat_str("[" + pl.col("time") + "]"))
+    .with_columns(time=pl.concat_str("[" + pl.col("time") + "]"))
+    .with_columns(num=pl.col(num) * 1000)
 )
 
 print(
     GT(exibble_mini)
+    .fmt_bytes(columns="num", standard="binary")
     .fmt_currency(columns="currency", rows=[2, 3, 4], pattern="_{x}_")
+    .fmt_date(columns="date", date_style="wday_month_day_year")
     .as_latex()
 )
 ```
