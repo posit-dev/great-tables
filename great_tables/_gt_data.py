@@ -764,7 +764,7 @@ class GroupRows(_Sequence[GroupRowInfo]):
 class SpannerInfo:
     spanner_id: str
     spanner_level: int
-    spanner_label: str | Text | UnitStr | None = None
+    spanner_label: str | BaseText | UnitStr | None = None
     spanner_units: str | None = None
     spanner_pattern: str | None = None
     vars: list[str] = field(default_factory=list)
