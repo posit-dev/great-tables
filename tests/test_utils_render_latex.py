@@ -459,6 +459,45 @@ def test_create_table_start_l_longtable(gt_tbl: GT):
     )
 
 
+def test_create_table_start_l_float_tbl_pct(gt_tbl: GT):
+
+    gt_tbl_new = gt_tbl.tab_options(table_width="50%")
+
+    assert (
+        create_table_start_l(
+            data=gt_tbl_new,
+            use_longtable=False,
+        )
+        == "\\begin{tabular*}{0.5\\linewidth}{@{\\extracolsep{\\fill}}rr}"
+    )
+
+
+def test_create_table_start_l_float_tbl_px(gt_tbl: GT):
+
+    gt_tbl_new = gt_tbl.tab_options(table_width="500px")
+
+    assert (
+        create_table_start_l(
+            data=gt_tbl_new,
+            use_longtable=False,
+        )
+        == "\\begin{tabular*}{375.0pt}{@{\\extracolsep{\\fill}}rr}"
+    )
+
+
+def test_create_table_start_l_float_tbl_auto(gt_tbl: GT):
+
+    gt_tbl_new = gt_tbl.tab_options(table_width="auto")
+
+    assert (
+        create_table_start_l(
+            data=gt_tbl_new,
+            use_longtable=False,
+        )
+        == "\\begin{tabular*}{\\linewidth}{@{\\extracolsep{\\fill}}rr}"
+    )
+
+
 def test_snap_render_as_latex_longtable(snapshot):
 
     gt_tbl = (
