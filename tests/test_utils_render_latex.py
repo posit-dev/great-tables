@@ -14,7 +14,6 @@ from great_tables._utils_render_latex import (
     get_units_from_length_string,
     convert_to_px,
     convert_to_pt,
-    create_width_dict_l,
     create_wrap_start_l,
     create_fontsize_statement_l,
     create_heading_component_l,
@@ -117,107 +116,6 @@ def test_convert_to_px():
 def test_convert_to_pt():
 
     assert convert_to_pt("16px") == 12.0
-
-
-def test_create_width_dict_l_simple():
-
-    gt_tbl = GT(exibble)
-
-    width_dict = create_width_dict_l(gt_tbl)
-
-    assert width_dict["type"] == ["default"] * 9
-    assert width_dict["unspec"] == [1] * 9
-    assert width_dict["lw"] == [0] * 9
-    assert width_dict["pt"] == [0] * 9
-    assert width_dict["column_align"] == [
-        "right",
-        "left",
-        "left",
-        "right",
-        "right",
-        "right",
-        "right",
-        "left",
-        "left",
-    ]
-    assert width_dict["tbl_width"] is None
-
-
-def test_create_width_dict_l_settings_px():
-
-    gt_tbl = (
-        GT(exibble)
-        .cols_align(align="left", columns="num")
-        .cols_hide(columns="char")
-        .cols_width(cases={"fctr": "150px", "time": "200px"})
-    )
-
-    width_dict = create_width_dict_l(gt_tbl)
-
-    assert width_dict["type"] == ["default"] + ["hidden"] + ["default"] * 7
-    assert width_dict["unspec"] == [1, 1, 0, 1, 0, 1, 1, 1, 1]
-    assert width_dict["lw"] == [0] * 9
-    assert width_dict["pt"] == [0] * 9
-    assert width_dict["column_align"] == [
-        "left",
-        "left",
-        "left",
-        "right",
-        "right",
-        "right",
-        "right",
-        "left",
-        "left",
-    ]
-    assert width_dict["tbl_width"] is None
-
-
-def test_create_width_dict_l_settings_pct_some():
-
-    gt_tbl = (
-        GT(exibble)
-        .cols_align(align="left", columns="num")
-        .cols_hide(columns="char")
-        .cols_width(cases={"fctr": "15%", "time": "12%"})
-    )
-
-    width_dict = create_width_dict_l(gt_tbl)
-
-    assert width_dict["type"] == ["default"] + ["hidden"] + ["default"] * 7
-    assert width_dict["unspec"] == [1, 1, 0, 1, 0, 1, 1, 1, 1]
-    assert width_dict["lw"] == [0, 0, 0.15, 0, 0.12, 0, 0, 0, 0]
-    assert width_dict["pt"] == [0] * 9
-    assert width_dict["column_align"] == [
-        "left",
-        "left",
-        "left",
-        "right",
-        "right",
-        "right",
-        "right",
-        "left",
-        "left",
-    ]
-    assert width_dict["tbl_width"] is None
-
-
-def test_create_width_dict_l_settings_pct_all():
-
-    gt_tbl = (
-        GT(exibble[["num", "fctr", "time"]])
-        .cols_align(align="left", columns="num")
-        .cols_width(cases={"num": "25%", "fctr": "25%", "time": "20%"})
-        .tab_options(table_width="auto")
-    )
-
-    width_dict = create_width_dict_l(gt_tbl)
-
-    assert width_dict["type"] == ["default"] * 3
-    assert width_dict["unspec"] == [0, 0, 0]
-    assert width_dict["lw"] == [0.25, 0.25, 0.2]
-    assert width_dict["pt"] == [0, 0, 0]
-    assert width_dict["column_align"] == ["left", "left", "right"]
-    assert width_dict["tbl_width"] == "0.7\\linewidth"
 
 
 def test_create_fontsize_statement_l(gt_tbl: GT):
@@ -547,7 +445,6 @@ def test_create_table_start_l_longtable(gt_tbl: GT):
     assert (
         create_table_start_l(
             data=gt_tbl_no_source_notes,
-            width_dict=create_width_dict_l(gt_tbl_no_source_notes),
             use_longtable=True,
         )
         == "\\begin{longtable}{rr}"
@@ -556,7 +453,6 @@ def test_create_table_start_l_longtable(gt_tbl: GT):
     assert (
         create_table_start_l(
             data=gt_tbl_source_notes,
-            width_dict=create_width_dict_l(gt_tbl_source_notes),
             use_longtable=True,
         )
         == "\\setlength{\\LTpost}{0mm}\n\\begin{longtable}{rr}"
