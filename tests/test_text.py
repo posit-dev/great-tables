@@ -1,6 +1,7 @@
 import pytest
 
 from great_tables._text import (
+    BaseText,
     Text,
     Md,
     Html,
@@ -8,6 +9,12 @@ from great_tables._text import (
     escape_pattern_str_latex,
     _process_text,
 )
+
+
+def test_base_text_class():
+
+    assert BaseText("Some Text").to_html() == "Some Text"
+    assert BaseText("Some Text").to_latex() == "Some Text"
 
 
 def test_text_class():
