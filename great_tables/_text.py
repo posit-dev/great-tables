@@ -10,6 +10,8 @@ import commonmark
 
 @dataclass
 class BaseText:
+    """Base class for text elements"""
+
     text: str
 
     def to_html(self) -> str:
