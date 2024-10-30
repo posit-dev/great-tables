@@ -3,7 +3,7 @@ from __future__ import annotations
 from itertools import chain
 
 import re
-from ._gt_data import GTData, GroupRowInfo
+from ._gt_data import GTData, GroupRowInfo, ColInfoTypeEnum, ColumnAlignment
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from .quarto import is_quarto_render
 from great_tables._spanners import spanners_print_matrix
@@ -25,11 +25,11 @@ LENGTH_TRANSLATIONS_TO_PX = {
 
 
 class WidthDict(TypedDict):
-    type: List[str]
+    type: List[ColInfoTypeEnum]
     unspec: List[int]
     lw: List[float]
     pt: List[float]
-    column_align: List[str]
+    column_align: List[ColumnAlignment]
     tbl_width: str | None
 
 
