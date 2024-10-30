@@ -150,7 +150,7 @@ def cols_label(
 
         else:
             raise ValueError(
-                "Column labels must be strings or Text objects. Use `md()` or `html()` for formatting."
+                "Column labels must be strings or BaseText objects. Use `md()` or `html()` for formatting."
             )
 
     boxhead = self._boxhead._set_column_labels(new_kwargs)
