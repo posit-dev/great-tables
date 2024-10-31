@@ -129,7 +129,7 @@ exibble_mini = (
     .select(["num", "date", "time", "currency"])
     .head(5)
     .with_columns(time=pl.concat_str("[" + pl.col("time") + "]"))
-    .with_columns(num=pl.col(num) * 1000)
+    .with_columns(num=pl.col("num") * 1000)
 )
 
 print(
