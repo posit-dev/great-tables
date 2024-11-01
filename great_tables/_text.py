@@ -8,9 +8,19 @@ from typing import Callable
 import commonmark
 
 
-@dataclass
 class BaseText:
-    """Base class for text elements"""
+    """Abstract base class for text elements"""
+
+    def to_html(self) -> str:
+        raise NotImplementedError("Method not implemented")
+
+    def to_latex(self) -> str:
+        raise NotImplementedError("Method not implemented")
+
+
+@dataclass
+class Text(BaseText):
+    """As-is text"""
 
     text: str
 
@@ -21,15 +31,7 @@ class BaseText:
         return self.text
 
 
-@dataclass
-class Text(BaseText):
-    """As-is text"""
-
-    pass
-
-
-@dataclass
-class Md(BaseText):
+class Md(Text):
     """Markdown text"""
 
     def to_html(self) -> str:
@@ -39,8 +41,7 @@ class Md(BaseText):
         return _md_latex(self.text)
 
 
-@dataclass
-class Html(BaseText):
+class Html(Text):
     """HTML text"""
 
     def to_html(self) -> str:
@@ -64,8 +65,6 @@ def _md_latex(x: str) -> str:
 
 def _process_text(x: str | BaseText | None, context: str = "html") -> str:
 
-    from great_tables._helpers import UnitStr
-
     if x is None:
         return ""
 
@@ -75,7 +74,7 @@ def _process_text(x: str | BaseText | None, context: str = "html") -> str:
 
         return escape_fn(x)
 
-    elif isinstance(x, (BaseText, UnitStr)):
+    elif isinstance(x, BaseText):
 
         return x.to_html() if context == "html" else x.to_latex()
 

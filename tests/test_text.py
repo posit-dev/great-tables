@@ -13,8 +13,11 @@ from great_tables._text import (
 
 def test_base_text_class():
 
-    assert BaseText("Some Text").to_html() == "Some Text"
-    assert BaseText("Some Text").to_latex() == "Some Text"
+    with pytest.raises(NotImplementedError):
+        BaseText().to_html()
+
+    with pytest.raises(NotImplementedError):
+        BaseText().to_latex()
 
 
 def test_text_class():
