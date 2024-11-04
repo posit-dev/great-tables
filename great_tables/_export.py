@@ -244,8 +244,7 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
     gt_tbl
     ```
 
-    Now we can return the table as string of LaTeX code with inlined CSS styles using the
-    `as_latex()` method.
+    Now we can return the table as string of LaTeX code using the `as_latex()` method.
 
     ```{python}
     gt_tbl.as_latex()
