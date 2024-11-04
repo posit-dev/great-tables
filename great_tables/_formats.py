@@ -3710,7 +3710,12 @@ def fmt_image(
         height = "2em"
 
     formatter = FmtImage(self._tbl_data, height, width, sep, str(path), file_pattern, encode)
-    return fmt(self, fns=formatter.to_html, columns=columns, rows=rows)
+    return fmt(
+        self,
+        fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
+        columns=columns,
+        rows=rows,
+    )
 
 
 @dataclass
@@ -3775,6 +3780,10 @@ class FmtImage:
         span = self.SPAN_TEMPLATE.format(img_tags)
 
         return span
+
+    def to_latex(self):
+
+        raise NotImplementedError("fmt_image() does not currently support LaTeX output.")
 
     @staticmethod
     def _apply_pattern(file_pattern: str, files: list[str]) -> list[str]:
