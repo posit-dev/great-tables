@@ -3718,10 +3718,6 @@ def fmt_image(
     )
 
 
-def fmt_image_not_implemented():
-    raise NotImplementedError("fmt_image() is not currently implemented.")
-
-
 @dataclass
 class FmtImage:
     dispatch_on: DataFrameLike | Agnostic = Agnostic()
