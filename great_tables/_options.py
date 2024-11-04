@@ -474,6 +474,7 @@ def tab_options(
     row_striping_include_table_body
         An option for whether to include the table body when striping rows.
 
+
     Returns
     -------
     GT

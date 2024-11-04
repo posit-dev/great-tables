@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING, Literal
 from typing_extensions import TypeAlias
 
 from ._utils import _try_import
+from ._utils_render_latex import _render_as_latex
+
 
 if TYPE_CHECKING:
     # Note that as_raw_html uses methods on the GT class, not just data
@@ -164,6 +166,98 @@ def as_raw_html(
     )
 
     return html_table
+
+
+def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) -> str:
+    """
+    Output a GT object as LaTeX
+
+    The `as_latex()` method outputs a GT object as a LaTeX fragment. This method is useful for when
+    you need to include a table as part of a LaTeX document. The LaTeX fragment contains the table
+    as a string.
+
+    :::{.callout-warning}
+    `as_latex()` is still experimental.
+    :::
+
+    Parameters
+    ----------
+
+    use_longtable
+        An option to use the `longtable` environment in LaTeX output. This is useful for tables that
+        span multiple pages and don't require precise positioning.
+    tbl_pos
+        The position of the table in the LaTeX output when `use_longtable=False`. Valid values for
+        positioning include `"!t"` (top of page), `"!b"` (bottom of the page), `"!h"` (here),
+        `"!p"` (on a separate page), and `"!H"` (exactly here). If a value is not provided then the
+        table will be placed at the top of the page; if in the Quarto render then the table
+        positioning option will be ignored in favor of any setting within the Quarto rendering
+        environment.
+
+    Returns
+    -------
+    str
+        A LaTeX fragment that contains the table.
+
+    Limitations
+    -----------
+    The `as_latex()` method is still experimental and has some limitations. The following
+    functionality that is supported in HTML output tables is not currently supported in LaTeX
+    output tables:
+
+    - the rendering of the stub and row group labels (via the `=rowname_col` and `=groupname_col`
+      args in the `GT()` class)
+    - the use of the `md()` helper function to signal conversion of Markdown text
+    - units notation within the `cols_labels()` and `tab_spanner()` methods
+    - the `fmt_markdown()`, `fmt_units()`, `fmt_image()`, and `fmt_nanoplot()` methods
+    - the `sub_missing()` and `sub_zero()` methods
+    - most options in the `tab_options()` method, particularly those that are specific to styling
+      text, borders, or adding fill colors to cells
+
+    As development continues, we will work to expand the capabilities of the `as_latex()` method to
+    reduce these limitations and more clearly document what is and is not supported.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset to create a new table.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import gtcars
+    import polars as pl
+
+    gtcars_mini = (
+        pl.from_pandas(gtcars)
+        .select(["mfr", "model", "msrp"])
+        .head(5)
+    )
+
+    gt_tbl = (
+        GT(gtcars_mini)
+        .tab_header(
+            title="Data Listing from the gtcars Dataset",
+            subtitle="Only five rows from the dataset are shown here."
+        )
+        .fmt_currency(columns="msrp")
+    )
+
+    gt_tbl
+    ```
+
+    Now we can return the table as string of LaTeX code using the `as_latex()` method.
+
+    ```{python}
+    gt_tbl.as_latex()
+    ```
+
+    The LaTeX string contains the code just for the table (it's not a complete LaTeX document).
+    This output can be useful for embedding a GT table in an existing LaTeX document.
+    """
+    built_table = self._build_data(context="latex")
+
+    latex_table = _render_as_latex(data=built_table, use_longtable=use_longtable, tbl_pos=tbl_pos)
+
+    return latex_table
 
 
 # Create a list of all selenium webdrivers

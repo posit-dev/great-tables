@@ -214,6 +214,7 @@ quartodoc:
         - GT.save
         - GT.show
         - GT.as_raw_html
+        - GT.as_latex
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of

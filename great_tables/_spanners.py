@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
-from ._text import Text
+from ._text import BaseText
 from ._utils import OrderedSet, _assert_list_is_subset
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ SpannerMatrix = "list[dict[str, str | None]]"
 
 def tab_spanner(
     self: GTSelf,
-    label: str | Text,
+    label: str | BaseText,
     columns: SelectExpr = None,
     spanners: str | list[str] | None = None,
     level: int | None = None,
@@ -132,7 +132,7 @@ def tab_spanner(
     if id is None:
         # The label may contain HTML or Markdown, so we need to extract
         # it from the Text object
-        if isinstance(label, Text):
+        if isinstance(label, BaseText):
             id = label.text
         else:
             id = label
@@ -197,7 +197,7 @@ def tab_spanner(
         else:
             new_label = unitstr
 
-    elif isinstance(label, Text):
+    elif isinstance(label, BaseText):
         new_label = label
 
     else:

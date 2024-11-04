@@ -10,7 +10,7 @@ from great_tables._gt_data import GTData
 from great_tables._body import body_reassemble
 from great_tables._boxhead import cols_align, cols_label
 from great_tables._data_color import data_color
-from great_tables._export import as_raw_html, save, show
+from great_tables._export import as_raw_html, as_latex, save, show
 from great_tables._formats import (
     fmt,
     fmt_bytes,
@@ -63,6 +63,7 @@ from great_tables._stubhead import tab_stubhead
 from great_tables._substitution import sub_missing, sub_zero
 from great_tables._tab_create_modify import tab_style
 from great_tables._tbl_data import _get_cell, n_rows
+from great_tables._utils import _migrate_unformatted_to_output
 from great_tables._utils_render_html import (
     _get_table_defs,
     create_body_component_h,
@@ -71,6 +72,7 @@ from great_tables._utils_render_html import (
     create_heading_component_h,
     create_source_notes_component_h,
 )
+
 
 __all__ = ["GT"]
 
@@ -270,6 +272,7 @@ class GT(
     save = save
     show = show
     as_raw_html = as_raw_html
+    as_latex = as_latex
 
     # -----
 
@@ -302,7 +305,11 @@ class GT(
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         built = self._render_formats(context)
-        # built._body = _migrate_unformatted_to_output(body)
+
+        if context == "latex":
+            built = _migrate_unformatted_to_output(
+                data=built, data_tbl=self._tbl_data, formats=self._formats, context=context
+            )
 
         # built._perform_col_merge()
         final_body = body_reassemble(built._body, built._stub, built._boxhead)
