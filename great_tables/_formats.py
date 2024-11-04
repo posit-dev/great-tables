@@ -4122,6 +4122,7 @@ def fmt_nanoplot(
     # the date and time format strings
     def fmt_nanoplot_fn(
         x: Any,
+        context: str,
         plot_type: PlotType = plot_type,
         plot_height: str = plot_height,
         missing_vals: MissingVals = missing_vals,
@@ -4130,6 +4131,10 @@ def fmt_nanoplot(
         all_single_y_vals: list[int | float] | None = all_single_y_vals,
         options_plots: dict[str, Any] = options_plots,
     ) -> str:
+
+        if context == "latex":
+            raise NotImplementedError("fmt_nanoplot() is not supported in LaTeX.")
+
         # If the `x` value is a Pandas 'NA', then return the same value
         # We have to pass in a dataframe to this function. Everything action that
         # requires a dataframe import should go through _tbl_data.
@@ -4177,7 +4182,7 @@ def fmt_nanoplot(
 
         return nanoplot
 
-    return fmt(self, fns=fmt_nanoplot_fn, columns=columns, rows=rows)
+    return fmt_by_context(self, pf_format=fmt_nanoplot_fn, columns=columns, rows=rows)
 
 
 def _generate_data_vals(
@@ -4315,7 +4320,7 @@ def _process_time_stream(data_vals: str) -> list[float]:
 
 def fmt_by_context(
     self: GTSelf,
-    pf_format: Callable[[Any, str], str],
+    pf_format: Callable[[Any], str],
     columns: SelectExpr,
     rows: int | list[int] | None,
 ) -> GTSelf:

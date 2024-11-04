@@ -48,7 +48,7 @@ class Html(Text):
         return self.text
 
     def to_latex(self) -> str:
-        return self.text
+        return _latex_escape(self.text)
 
 
 def _md_html(x: str) -> str:

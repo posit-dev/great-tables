@@ -64,7 +64,7 @@ def test_process_text_latex():
 
     assert _process_text("a & _b_", context="latex") == "a \\& \\_b\\_"
     assert _process_text(Text("\\_\\$"), context="latex") == "\\_\\$"
-    assert _process_text(Html("**a** & <b>"), context="latex") == "**a** & <b>"
+    assert _process_text(Html("**a** & <b>"), context="latex") == "**a** \\& <b>"
     assert _process_text(None, context="latex") == ""
 
     with pytest.raises(NotImplementedError) as exc_info:

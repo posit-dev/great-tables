@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from itertools import chain
+import warnings
 
 import re
 from ._gt_data import GTData, GroupRowInfo
@@ -20,6 +21,11 @@ LENGTH_TRANSLATIONS_TO_PX = {
     "emu": 1 / 9525,
     "em": 16.0,
 }
+
+
+def _not_implemented(msg: str) -> None:
+
+    warnings.warn(msg)
 
 
 def is_css_length_string(x: str) -> bool:
@@ -590,6 +596,10 @@ def create_wrap_end_l(use_longtable: bool) -> str:
 
 
 def _render_as_latex(data: GTData, use_longtable: bool = False, tbl_pos: str | None = None) -> str:
+
+    # Check for styles (not yet supported so warn user)
+    if data._styles:
+        _not_implemented("Styles are not yet supported in LaTeX output.")
 
     # Get list representation of stub layout
     stub_layout = data._stub._get_stub_layout(options=data._options)
