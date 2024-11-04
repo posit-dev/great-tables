@@ -2295,7 +2295,7 @@ def fmt_markdown_context(
 ) -> str:
 
     if context == "latex":
-        raise NotImplementedError("fmt_nanoplot() is not supported in LaTeX.")
+        raise NotImplementedError("fmt_markdown() is not supported in LaTeX.")
 
     if is_na(data._tbl_data, x):
         return x
