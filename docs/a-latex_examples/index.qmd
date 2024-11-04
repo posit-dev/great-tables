@@ -323,7 +323,7 @@ print(
 from great_tables import GT, md, html, system_fonts
 import pandas as pd
 
-power_cie_prepared_tbl = pd.read_csv("docs/examples/_data/power_cie_prepared_tbl.csv")
+power_cie_prepared_tbl = pd.read_csv("../examples/_data/power_cie_prepared_tbl.csv")
 
 
 # Create a Great Tables object
@@ -448,7 +448,7 @@ import polars as pl
 import polars.selectors as cs
 from great_tables import GT, loc, style
 
-coffee_sales = pl.DataFrame.deserialize("docs/examples/_data/coffee-sales.json", format="json")
+coffee_sales = pl.DataFrame.deserialize("../examples/_data/coffee-sales.json", format="json")
 
 sel_rev = cs.starts_with("revenue")
 sel_prof = cs.starts_with("profit")
