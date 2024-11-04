@@ -3718,6 +3718,10 @@ def fmt_image(
     )
 
 
+def fmt_image_not_implemented():
+    raise NotImplementedError("fmt_image() is not currently implemented.")
+
+
 @dataclass
 class FmtImage:
     dispatch_on: DataFrameLike | Agnostic = Agnostic()
@@ -3781,9 +3785,14 @@ class FmtImage:
 
         return span
 
-    def to_latex(self):
+    def to_latex(self, val: Any):
 
-        raise NotImplementedError("fmt_image() does not currently support LaTeX output.")
+        from ._gt_data import FormatterSkipElement
+        from warnings import warn
+
+        warn("fmt_image() is not currently implemented in LaTeX output.")
+
+        return FormatterSkipElement()
 
     @staticmethod
     def _apply_pattern(file_pattern: str, files: list[str]) -> list[str]:

@@ -48,6 +48,13 @@ class Html(Text):
         return self.text
 
     def to_latex(self) -> str:
+
+        from ._utils_render_latex import _not_implemented
+
+        _not_implemented(
+            "Using the `html()` helper function won't convert HTML to LaTeX. Escaping HTML string instead."
+        )
+
         return _latex_escape(self.text)
 
 

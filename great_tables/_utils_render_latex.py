@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 from itertools import chain
+from typing import TYPE_CHECKING
 import warnings
 
 import re
-from ._gt_data import GTData, GroupRowInfo
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from .quarto import is_quarto_render
-from great_tables._spanners import spanners_print_matrix
-from great_tables._utils import heading_has_subtitle, heading_has_title, seq_groups
-from great_tables._utils_render_html import _get_spanners_matrix_height
-from great_tables._text import _process_text
+from ._spanners import spanners_print_matrix
+from ._utils import heading_has_subtitle, heading_has_title, seq_groups
+from ._utils_render_html import _get_spanners_matrix_height
+from ._text import _process_text
+
+if TYPE_CHECKING:
+    from ._gt_data import GTData, GroupRowInfo
 
 
 LENGTH_TRANSLATIONS_TO_PX = {
