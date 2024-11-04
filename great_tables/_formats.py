@@ -2280,19 +2280,31 @@ def fmt_markdown(
     single string value (or a list of them).
     """
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_markdown_fn(x: Any) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    pf_format = partial(
+        fmt_markdown_context,
+        data=self,
+    )
 
-        x_str: str = str(x)
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
-        x_formatted = _md_html(x_str)
 
-        return x_formatted
+def fmt_markdown_context(
+    x: Any,
+    data: GTData,
+    context: str,
+) -> str:
 
-    return fmt(self, fns=fmt_markdown_fn, columns=columns, rows=rows)
+    if context == "latex":
+        raise NotImplementedError("fmt_nanoplot() is not supported in LaTeX.")
+
+    if is_na(data._tbl_data, x):
+        return x
+
+    x_str: str = str(x)
+
+    x_formatted = _md_html(x_str)
+
+    return x_formatted
 
 
 def fmt_units(
