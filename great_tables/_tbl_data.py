@@ -4,7 +4,6 @@ import warnings
 import re
 
 from functools import singledispatch
-from importlib_metadata import version
 from typing import TYPE_CHECKING, Any, Callable, Optional, Tuple, Union
 
 from typing_extensions import TypeAlias
@@ -324,16 +323,12 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
     # TODO: how to annotate type of a polars selector?
     # Seems to be polars.selectors._selector_proxy_.
     from ._utils import OrderedSet
+    import polars as pl
     import polars.selectors as cs
 
     from polars import Expr
 
-    pl_version = None
-    try:
-        pl_version = _re_version(version("polars"))
-    except ModuleNotFoundError:
-        pl_version = _re_version(version("polars-u64-idx"))
-
+    pl_version = _re_version(pl.__version__)
     expand_opts = {"strict": False} if pl_version >= (0, 20, 30) else {}
 
     # just in case _selector_proxy_ gets renamed or something
