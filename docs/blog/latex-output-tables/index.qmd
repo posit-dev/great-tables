@@ -58,7 +58,7 @@ gt_tbl = (
 print(gt_tbl.as_latex())
 ```
 
-The table example shows how some of Great Tables' structural components are represented in LaTeX. We can add a title to the table with `tab_header()` and it will be placed in a caption (where the title and subtitle will be sized appropriately). Spanners, which are something of a pain to manually author, work well here, and we can use an unlimited number of spanner levels. Number formatting is handled correctly here with `fmt_integer()` and `fmt_currency()`. Finally, source notes are placed below the table in a minipage environment.
+The table example shows how some of Great Tables' structural components are represented in LaTeX. We can add a title to the table with `tab_header()` and it will be placed in a caption (where the title and subtitle will be sized appropriately). Spanners, which are something of a pain to manually author, work well here, and we can use an unlimited number of spanner levels. Number formatting is handled correctly here with `fmt_integer()` and `fmt_currency()` (notice that `$` is escaped as `\$`). Finally, source notes are placed below the table in a minipage environment.
 
 A frequent bugbear with any programmatic generation of LaTeX tables is LaTeX escaping. Not escaping correctly often leads to LaTeX rendering errors and this can break an entire publishing workflow. Thankfully, Great Tables will automatically and correctly escape characters in LaTeX and this will happen with:
 
@@ -66,7 +66,7 @@ A frequent bugbear with any programmatic generation of LaTeX tables is LaTeX esc
 - any *new* text added to the table (e.g., titles, source notes, new column labels, etc.)
 - any formatting performed via the `fmt_*()` methods
 
-We wanted to get off to a good start on this and a big part of this involves LaTeX output that is well-tested and consistently error-free when processed by a LaTeX engine.
+We wanted to get off to a good start on this and a big chunk of the work involves LaTeX output that is well-tested and consistently error-free when processed by a LaTeX engine.
 
 ## Using LaTeX output from Great Tables in Quarto
 
