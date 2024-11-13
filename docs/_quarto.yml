@@ -56,7 +56,9 @@ website:
 format:
   html:
     theme: cosmo
-    css: styles.css
+    css:
+      - styles.css
+      - reference/_styles-quartodoc.css
     toc: true
     page-layout: full
 
@@ -78,8 +80,12 @@ quartodoc:
   dir: reference
   title: API Reference
   style: pkgdown
+  css: reference/_styles-quartodoc.css
   dynamic: true
   render_interlinks: true
+  renderer:
+    style: markdown
+    table_style: description-list
   sections:
     - title: Table Creation
       desc: >
@@ -208,6 +214,7 @@ quartodoc:
         - GT.save
         - GT.show
         - GT.write_html
+        - GT.as_latex
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of
@@ -223,6 +230,7 @@ quartodoc:
         - vals.fmt_date
         - vals.fmt_time
         - vals.fmt_markdown
+        - vals.fmt_image
     - title: Built in datasets
       desc: >
         The **Great Tables** package is equipped with sixteen datasets that come in all shapes and

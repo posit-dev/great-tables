@@ -7,7 +7,7 @@ from typing import Any, Callable, Literal
 
 from typing_extensions import TypeAlias, Self
 
-from ._text import Text, Md, Html
+from ._text import Md, Html, BaseText
 
 import re
 from dataclasses import dataclass
@@ -832,7 +832,7 @@ class UnitDefinition:
         return units_str
 
 
-class UnitStr:
+class UnitStr(BaseText):
     def __init__(self, units_str: list[str | UnitDefinitionList]):
         self.units_str = units_str
 
@@ -849,6 +849,10 @@ class UnitStr:
         )
 
         return built_units
+
+    def to_latex(self) -> str:
+
+        raise NotImplementedError("LaTeX conversion of units is not yet supported.")
 
     def _repr_html_(self):
         return self.to_html()

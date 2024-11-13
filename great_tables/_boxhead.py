@@ -5,14 +5,14 @@ from typing import TYPE_CHECKING
 from ._locations import resolve_cols_c
 from ._utils import _assert_list_is_subset
 from ._tbl_data import SelectExpr
-from ._text import Text
+from ._text import BaseText
 
 if TYPE_CHECKING:
     from ._types import GTSelf
 
 
 def cols_label(
-    self: GTSelf, cases: dict[str, str | Text] | None = None, **kwargs: str | Text
+    self: GTSelf, cases: dict[str, str | BaseText] | None = None, **kwargs: str | BaseText
 ) -> GTSelf:
     """
     Relabel one or more columns.
@@ -132,7 +132,7 @@ def cols_label(
     _assert_list_is_subset(mod_columns, set_list=column_names)
 
     # Handle units syntax in labels (e.g., "Density ({{ppl / mi^2}})")
-    new_kwargs: dict[str, UnitStr | str | Text] = {}
+    new_kwargs: dict[str, UnitStr | str | BaseText] = {}
 
     for k, v in new_cases.items():
 
@@ -145,12 +145,12 @@ def cols_label(
             else:
                 new_kwargs[k] = unitstr_v
 
-        elif isinstance(v, Text):
+        elif isinstance(v, BaseText):
             new_kwargs[k] = v
 
         else:
             raise ValueError(
-                "Column labels must be strings or Text objects. Use `md()` or `html()` for formatting."
+                "Column labels must be strings or BaseText objects. Use `md()` or `html()` for formatting."
             )
 
     boxhead = self._boxhead._set_column_labels(new_kwargs)

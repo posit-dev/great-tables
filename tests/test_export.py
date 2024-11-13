@@ -5,7 +5,9 @@ import tempfile
 import time
 
 from great_tables import GT, exibble, md
+from great_tables.data import gtcars
 from great_tables._export import as_raw_html, _infer_render_target, _create_temp_file_server
+
 from pathlib import Path
 
 from IPython.terminal.interactiveshell import TerminalInteractiveShell, InteractiveShell
@@ -98,6 +100,7 @@ def test_create_temp_file_server():
         thread.join()
 
 
+
 def test_write_html_default(gt_tbl):
     assert as_raw_html(gt_tbl) == gt_tbl.write_html()
 
@@ -113,3 +116,23 @@ def test_write_html(gt_tbl):
         s_file = str(Path(tmp_dir, "table2.html"))
         gt_tbl.write_html(s_file)
         assert Path(s_file).exists()
+
+def test_snap_as_latex(snapshot):
+
+    gt_tbl = (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+        )
+        .tab_header(title="The _title_", subtitle="The subtitle")
+        .tab_spanner(label="Make _and_ Model", columns=["mfr", "model"])
+        .tab_spanner(label="Performance", columns=["hp", "trq"])
+        .fmt_currency(columns="msrp")
+        .tab_source_note("Note 1")
+        .tab_source_note("Note 2")
+        .tab_options(table_width="600px", table_font_size="12px")
+    )
+
+    latex_str_as_latex = gt_tbl.as_latex(use_longtable=True)
+
+    assert snapshot == latex_str_as_latex
+

@@ -381,6 +381,14 @@ def test_unit_str_unmatched_brackets():
     assert res[2] == ""
 
 
+def test_define_units_latex_raises():
+
+    with pytest.raises(NotImplementedError) as exc_info:
+        UnitStr.from_str("a b").to_latex()
+
+    assert "LaTeX conversion of units is not yet supported." in exc_info.value.args[0]
+
+
 @pytest.mark.parametrize(
     "value, scale, expected", [("0.5px", 0.5, 0), ["1px", 1, 1], ["2.1px", 2.1, 4]]
 )
