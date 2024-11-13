@@ -16,7 +16,9 @@ In this post, we will provide examples of generating LaTeX outputs of tables usi
 
 ## Generating a LaTeX table with Great Tables
 
-When making a LaTeX output table with Great Tables, the code shouldn't be that much different from a table meant for HTML output. While HTML tables are rendered automatically in notebooks (as GT objects come with an HTML representation), getting the table as LaTeX requires the use of the new `as_latex()` method. Here is an example where a basic table is generated, and the LaTeX table code is returned and printed.
+Use the `GT.as_latex()` method to generate LaTeX table code. This code includes important structural pieces like titles, spanners, and value formatting.
+
+For example, here's a simple table output as LaTeX code:
 
 ```python
 from great_tables import GT
