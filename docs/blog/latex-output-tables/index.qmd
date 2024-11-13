@@ -2,7 +2,7 @@
 title: Great Tables and LaTeX Output
 html-table-processing: none
 author: Rich Iannone
-date: 2024-11-15
+date: 2024-11-13
 jupyter: python3
 format:
   html:
