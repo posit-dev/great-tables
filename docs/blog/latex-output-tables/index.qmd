@@ -18,7 +18,7 @@ In this post, we will provide examples of generating LaTeX outputs of tables usi
 
 When making a LaTeX output table with Great Tables, the code shouldn't be that much different from a table meant for HTML output. While HTML tables are rendered automatically in notebooks (as GT objects come with an HTML representation), getting the table as LaTeX requires the use of the new `as_latex()` method. Here is an example where a basic table is generated, and the LaTeX table code is returned and printed.
 
-```{python}
+```python
 from great_tables import GT
 from great_tables.data import gtcars
 import polars as pl
@@ -56,6 +56,37 @@ gt_tbl = (
 )
 
 print(gt_tbl.as_latex())
+```
+
+```bash {code-line-numbers="true"}
+\begin{table}
+\caption*{
+{\large Some Cars from the gtcars Dataset} \\
+{\small Five Cars are shown here}
+}
+
+\fontsize{12.0pt}{14.4pt}\selectfont
+
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}llrrr}
+\toprule
+\multicolumn{4}{c}{Everything but the cost} &  \\
+\cmidrule(lr){1-4}
+\multicolumn{2}{c}{Make and Model} & \multicolumn{3}{c}{Performance} \\
+\cmidrule(lr){1-2} \cmidrule(lr){3-5}
+mfr & model & hp & trq & msrp \\
+\midrule\addlinespace[2.5pt]
+Ford & GT & 647 & 550 & \$447,000.00 \\
+Ferrari & 458 Speciale & 597 & 398 & \$291,744.00 \\
+Ferrari & 458 Spider & 562 & 398 & \$263,553.00 \\
+Ferrari & 458 Italia & 562 & 398 & \$233,509.00 \\
+Ferrari & 488 GTB & 661 & 561 & \$245,400.00 \\
+\bottomrule
+\end{tabular*}
+\begin{minipage}{\linewidth}
+Cars are all 2015 models.\\
+Horsepower and Torque values are estimates.\\
+\end{minipage}
+\end{table}
 ```
 
 The table example shows how some of Great Tables' structural components are represented in LaTeX. We can add a title to the table with `tab_header()` and it will be placed in a caption (where the title and subtitle will be sized appropriately). Spanners, which are something of a pain to manually author, work well here, and we can use an unlimited number of spanner levels. Number formatting is handled correctly here with `fmt_integer()` and `fmt_currency()` (notice that `$` is escaped as `\$`). Finally, source notes are placed below the table in a minipage environment.
