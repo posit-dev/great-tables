@@ -1,5 +1,5 @@
 ---
-title: Great Tables and LaTeX Output
+title: 'Great Tables: Generating LaTeX Output for PDF'
 html-table-processing: none
 author: Rich Iannone
 date: 2024-11-13
