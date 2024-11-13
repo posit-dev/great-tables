@@ -10,15 +10,17 @@ format:
     code-summary: "Show the Code"
 ---
 
-We've been doing quite a bit of work on getting **Great Tables** to produce LaTeX output tables. For those publishing workflows involving LaTeX documents, it's useful to have a reproducible solution for generating data tables as native LaTeX tables.
+We've been doing quite a bit of work on getting **Great Tables** to produce LaTeX output tables and `v0.14.0` introduces the `as_latex()` method to write tables as LaTeX code. For those publishing workflows involving LaTeX documents, it's useful to have a reproducible solution for generating data tables as native LaTeX tables.
 
-In this post, we will provide examples of generating LaTeX outputs of tables using the `as_latex()` method, which is new in Great Tables `v0.14.0`. We'll go over some LaTeX workflows in Quarto and the current options for Great Tables within that publishing system. Then, we will address some of the caveats and current limitations for exporting tables to LaTeX while providing an outlook on how those will be addressed in the future.
+In this post, we will go over the following:
+
+- generating LaTeX table code: how we handle the different parts of a table
+- rendering to PDF with Quarto: integrating LaTeX table code into PDFs
+- current limitations and roadmap: what has been implemented, and what is left
 
 ## Generating a LaTeX table with Great Tables
 
-Use the `GT.as_latex()` method to generate LaTeX table code. This code includes important structural pieces like titles, spanners, and value formatting.
-
-For example, here's a simple table output as LaTeX code:
+We can use the `GT.as_latex()` method to generate LaTeX table code. This code includes important structural pieces like titles, spanners, and value formatting. For example, here's a simple table output as LaTeX code:
 
 ```python
 from great_tables import GT
