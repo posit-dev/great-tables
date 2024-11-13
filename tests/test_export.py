@@ -100,7 +100,6 @@ def test_create_temp_file_server():
         thread.join()
 
 
-
 def test_write_html_default(gt_tbl):
     assert as_raw_html(gt_tbl) == gt_tbl.write_html()
 
@@ -116,6 +115,7 @@ def test_write_html(gt_tbl):
         s_file = str(Path(tmp_dir, "table2.html"))
         gt_tbl.write_html(s_file)
         assert Path(s_file).exists()
+
 
 def test_snap_as_latex(snapshot):
 
@@ -135,4 +135,3 @@ def test_snap_as_latex(snapshot):
     latex_str_as_latex = gt_tbl.as_latex(use_longtable=True)
 
     assert snapshot == latex_str_as_latex
-
