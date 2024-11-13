@@ -5,7 +5,7 @@ import tempfile
 import time
 
 from great_tables import GT, exibble, md
-from great_tables._export import _infer_render_target, _create_temp_file_server
+from great_tables._export import as_raw_html, _infer_render_target, _create_temp_file_server
 from pathlib import Path
 
 from IPython.terminal.interactiveshell import TerminalInteractiveShell, InteractiveShell
@@ -96,6 +96,10 @@ def test_create_temp_file_server():
         r.content.decode() == "abc"
 
         thread.join()
+
+
+def test_write_html_default(gt_tbl):
+    assert as_raw_html(gt_tbl) == gt_tbl.write_html()
 
 
 def test_write_html(gt_tbl):

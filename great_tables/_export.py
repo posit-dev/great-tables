@@ -449,12 +449,12 @@ def _dump_debug_screenshot(driver, path):
 
 def write_html(
     gt: GT,
-    filename: str | Path,
+    filename: str | Path | None = None,
     encoding: str = "utf-8",
     newline: str | None = None,
     make_page: bool = False,
     all_important: bool = False,
-) -> None:
+) -> str | None:
     """
     Write the table to an HTML file.
 
@@ -467,6 +467,7 @@ def write_html(
         A GT object.
     filename
         The name of the file to save the HTML. Can be a string or a `pathlib.Path` object.
+        If set to None (default), the output is returned as a string instead.
     encoding
         The encoding used when writing the file. Defaults to 'utf-8'.
     newline
@@ -476,9 +477,12 @@ def write_html(
     None
         This function does not return a value; it writes the HTML to the specified file path.
     """
-    import os
-
     html_content = as_raw_html(gt, make_page=make_page, all_important=all_important)
+
+    if filename is None:
+        return html_content
+
+    import os
 
     newline = newline if newline is not None else os.linesep
 
