@@ -561,15 +561,16 @@ def write_html(
         A GT object.
     filename
         The name of the file to save the HTML. Can be a string or a `pathlib.Path` object.
-        If set to None (default), the output is returned as a string instead.
+        If set to `None` (default), the output is returned as a string instead.
     encoding
         The encoding used when writing the file. Defaults to 'utf-8'.
     newline
         The newline character to use when writing the file. Defaults to `os.linesep`.
     Returns
     -------
-    None
-        This function does not return a value; it writes the HTML to the specified file path.
+    str | None
+        If `filename` is `None` (default), returns the HTML output as a string. Otherwise, writes
+        the HTML to the specified file path and returns `None`.
     """
     html_content = as_raw_html(gt, make_page=make_page, all_important=all_important)
 
