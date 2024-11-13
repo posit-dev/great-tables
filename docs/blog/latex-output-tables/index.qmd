@@ -192,18 +192,55 @@ print(gt_tbl.as_latex())
 
 ## Current limitations of LaTeX table output
 
-The `as_latex()` method is still experimental and has some limitations. The following functionality that is supported in HTML output tables is not currently supported in LaTeX output tables:
+The `as_latex()` method is still experimental and has some limitations. The following table lists the work epics that have been done and those planned:
 
-- the rendering of the stub and row group labels (via the =rowname_col and =groupname_col args in the GT() class)
-- the use of the `md()` helper function to signal conversion of Markdown text
-- units notation within the `cols_labels()` and `tab_spanner()` methods
-- the `fmt_markdown()`, `fmt_units()`, `fmt_image()`, and `fmt_nanoplot()` methods
-- the `sub_missing()` and `sub_zero()` methods
-- most options in the `tab_options()` method, particularly those that are specific to styling text, borders, or adding fill colors to cells
+```{python}
+# | echo: false
 
-Some of these limitations are short-term, notably the ones dealing with the use of the table stub and row groups. We plan to address this soon but having those structural components in a table now will raise an error when using `.as_latex()`.
+from great_tables import GT, md, loc, style, google_font
+from great_tables.data import gtcars
+import polars as pl
 
-Currently, we don't see a solution for Markdown-to-LaTeX conversion. We depend on the `commonmark` library to perform Markdown-to-HTML transformation but the library doesn't support LaTeX output.
+data_dict = {
+    "epic": [
+        "LaTeX escaping",
+        "Formatting for LaTeX output",
+        "LaTeX table code generation",
+        "Rendering of stub and row labels",
+        "Conversion of Markdown text to LaTeX",
+        "Implementation of Units Notation in LaTeX",
+        "Allow `fmt_markdown()`, `fmt_units()`, `fmt_image()`, and `fmt_nanoplot()` in LaTeX output",
+        "Enable use of the `sub_missing()` and `sub_zero()` methods",
+        "Document usage of options in `tab_options()` in LaTeX output context",
+    ],
+    "status": ["DONE", "DONE", "DONE", "TODO", "TODO", "TODO", "TODO", "TODO", "TODO"],
+}
+
+df = pl.DataFrame(data_dict)
+
+(
+    GT(df)
+    .fmt_markdown(columns="epic")
+    .opt_table_font(font=google_font(name="Atkinson Hyperlegible"))
+    .opt_all_caps()
+    .tab_options(table_width="450px")
+    .tab_style(
+        style=style.fill(color="palegreen"),
+        locations=loc.body(columns="status", rows=pl.col("status") == "DONE"),
+    )
+    .tab_style(
+        style=[style.fill(color="tomato"), style.text(color="white")],
+        locations=loc.body(columns="status", rows=pl.col("status") == "TODO"),
+    )
+    .tab_options(column_labels_font_size="18px")
+    .cols_align(align="center", columns="status")
+    .opt_stylize(color="cyan", style=6)
+)
+```
+
+Some of these TODOs are short-term, notably the ones dealing with the use of the table stub and row groups. We plan to address this soon but having those structural components in a table currently will raise an error when using `.as_latex()`.
+
+We don't yet see an obvious solution for Markdown-to-LaTeX conversion. We depend on the `commonmark` library to perform Markdown-to-HTML transformation but the library doesn't support LaTeX output.
 
 Styling a LaTeX table is currently not possible. Having a `tab_style()` statement in your GT code and subsequently using `.as_latex()` won't raise an error, but it will warn and essentially no-op. Many of the options available in `tab_options()` are those that perform styling
 
