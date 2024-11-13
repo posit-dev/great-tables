@@ -10,7 +10,7 @@ format:
     code-summary: "Show the Code"
 ---
 
-We've been doing quite a bit of work on getting **Great Tables** to produce LaTeX output tables and `v0.14.0` introduces the `as_latex()` method to write tables as LaTeX code. For those publishing workflows involving LaTeX documents, it's useful to have a reproducible solution for generating data tables as native LaTeX tables.
+We've been doing quite a bit of work on getting **Great Tables** to produce LaTeX table code and `v0.14.0` introduces the `as_latex()` method to make this possible. For those publishing workflows involving LaTeX documents, it's useful to have a reproducible solution for generating data tables as native LaTeX tables.
 
 In this post, we will go over the following:
 
@@ -92,6 +92,8 @@ Horsepower and Torque values are estimates.\\
 \end{minipage}
 \end{table}
 ```
+
+
 
 The table example shows how some of Great Tables' structural components are represented in LaTeX. We can add a title to the table with `tab_header()` and it will be placed in a caption (where the title and subtitle will be sized appropriately). Spanners, which are something of a pain to manually author, work well here, and we can use an unlimited number of spanner levels. Number formatting is handled correctly here with `fmt_integer()` and `fmt_currency()` (notice that `$` is escaped as `\$`). Finally, source notes are placed below the table in a minipage environment.
 
