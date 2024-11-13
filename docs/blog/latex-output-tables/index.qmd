@@ -99,7 +99,9 @@ A frequent issue with any programmatic generation of LaTeX table code is LaTeX e
 
 ## Using LaTeX output from Great Tables in Quarto
 
-Aside from printing out the LaTeX table code, there is support for using Great Tables in Quarto when the output type is `"pdf"`. To make the gtcars example work in that environment, three things need to be done:
+Producing LaTeX table code is especially handy when using Quarto to generate PDF documents.
+
+For example, the quarto document below generates a PDF from Great Tables.
 
 1. ensure that the output type for the document is `"pdf"`
 2. set all code cells with GT tables to output `asis` (alternatively, this can be done in the document front matter)
