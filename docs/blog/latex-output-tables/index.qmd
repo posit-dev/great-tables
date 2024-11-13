@@ -93,7 +93,11 @@ Horsepower and Torque values are estimates.\\
 \end{table}
 ```
 
-The table example shows how some of Great Tables' structural components are represented in LaTeX. We can add a title to the table with `tab_header()` and it will be placed in a caption (where the title and subtitle will be sized appropriately). Spanners, which are something of a pain to manually author, work well here, and we can use an unlimited number of spanner levels. Number formatting is handled correctly here with `fmt_integer()` and `fmt_currency()` (notice that `$` is escaped as `\$`). Finally, source notes are placed below the table in a minipage environment.
+The returned LaTeX table code shows how some of Great Tables' structural components are represented in LaTeX. Note these three important pieces of LaTeX code:
+
+- `\caption*{` produces our title and subtitle
+- the `\multicolumn{` statements produce spanners (i.e., labels on top of multiple column labels)
+- the values in the data are escaped, using `\` (e.g., `\$` represents a literal dollar sign)
 
 A frequent issue with any programmatic generation of LaTeX table code is LaTeX escaping. Not doing so can lead to LaTeX rendering errors, potentially breaking an entire publishing workflow. Great Tables will automatically escape characters in LaTeX, limiting such errors.
 
