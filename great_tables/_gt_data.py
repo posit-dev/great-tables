@@ -432,6 +432,16 @@ class Boxhead(_Sequence[ColInfo]):
     def _get_column_widths(self) -> list[str | None]:
         return [x.column_width for x in self._d if x.type == ColInfoTypeEnum.default]
 
+    # Get a column width for a specific var value
+    def _get_column_width_by_var(self, var: str) -> str | None:
+
+        column_width = [x.column_width for x in self._d if x.var == var]
+
+        # Convert the single column width value in the list to a string
+        column_width = str(column_width[0])
+
+        return column_width
+
     # Get a list of visible columns
     def _get_default_columns(self) -> list[ColInfo]:
         default_columns = [x for x in self._d if x.type == ColInfoTypeEnum.default]
