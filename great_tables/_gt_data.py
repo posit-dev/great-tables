@@ -428,9 +428,9 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self.__class__(out_cols)
 
-    # Get a list of column widths
+    # Get a list of visible column widths
     def _get_column_widths(self) -> list[str | None]:
-        return [x.column_width for x in self._d]
+        return [x.column_width for x in self._d if x.type == ColInfoTypeEnum.default]
 
     # Get a list of visible columns
     def _get_default_columns(self) -> list[ColInfo]:
