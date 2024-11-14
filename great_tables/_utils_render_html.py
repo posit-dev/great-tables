@@ -719,8 +719,16 @@ def _get_table_defs(data: GTData) -> dict[str, Any]:
 
     # Get all the widths for the columns as a list where None values mean that the width is
     # not set for that column
-    # TODO: ensure that the stub column (if present) is included and set first in the list
     widths = data._boxhead._get_column_widths()
+
+    # Get the stub column variable
+    stub_var = data._boxhead._get_stub_column()
+
+    # If there is a stub column, then get the width for that column and insert it at the beginning
+    if stub_var is not None:
+
+        stub_width = data._boxhead._get_column_width_by_var(var=stub_var.var)
+        widths.insert(0, stub_width)
 
     # If all of the widths are defined as px values for all columns, then ensure that the width
     # values are strictly respected as absolute width values (even if table width already set)
