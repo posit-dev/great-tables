@@ -396,6 +396,47 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self[new_order]
 
+    # Get a mutated version of the Boxhead that:
+    # - removes hidden columns
+    # - places the stub column in the correct position
+    # - places the row group column in the correct position (if option is set for that)
+    def final_columns(self, options: Options) -> Self:
+
+        # Remove hidden columns from the boxhead
+        visible_columns = [x for x in self._d if x.visible]
+
+        # If there is a row group column, place it at the start of the boxhead
+        stub_column = [x for x in self._d if x.type == ColInfoTypeEnum.stub]
+
+        if len(stub_column) != 0:
+            # Get index of stub column and use that to move it to the start of the boxhead list
+            stub_index = self._d.index(stub_column[0])
+            visible_columns = [self._d[stub_index]] + [
+                x for x in visible_columns if x.var != stub_column[0].var
+            ]
+
+        # If there is a group column, this may be placed at the start of the boxhead or
+        # removed from the boxhead depending on the option value of `row_group_as_column`
+        row_group_column = [x for x in self._d if x.type == ColInfoTypeEnum.row_group]
+
+        if len(row_group_column) != 0:
+
+            # Determine whether row group labels should be placed in a column in the stub
+            row_group_as_column = options.row_group_as_column.value
+
+            if row_group_as_column:
+                # Get index of row group column and use that to move it to the start of the
+                # boxhead list
+                row_group_index = self._d.index(row_group_column[0])
+                visible_columns = [self._d[row_group_index]] + [
+                    x for x in visible_columns if x.var != row_group_column[0].var
+                ]
+            else:
+                # Remove the row group column from the boxhead
+                visible_columns = [x for x in visible_columns if x.var != row_group_column[0].var]
+
+        return self.__class__(visible_columns)
+
     # Get a list of columns
     def _get_columns(self) -> list[str]:
         return [x.var for x in self._d]
