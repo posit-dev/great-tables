@@ -396,7 +396,7 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self[new_order]
 
-    def final_columns(self, options: Options) -> list[str]:
+    def final_columns(self, options: Options) -> list[ColInfo]:
         row_group_column = (
             self._get_row_group_column() if options.row_group_as_column.value else None
         )
@@ -404,7 +404,7 @@ class Boxhead(_Sequence[ColInfo]):
         default_columns = self._get_default_columns()
         combined = [row_group_column] + [stub_column] + default_columns
 
-        return [x.var for x in combined if x is not None]
+        return [x for x in combined if x is not None]
 
     # Get a list of columns
     def _get_columns(self) -> list[str]:

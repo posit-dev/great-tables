@@ -37,7 +37,8 @@ def test_final_columns_stub_move_to_begining():
     gt = GT(df, rowname_col="y")
 
     options = gt._options
-    all_columns = gt._boxhead.final_columns(options=options)
+    final_columns = gt._boxhead.final_columns(options=options)
+    all_columns = [col.var for col in final_columns]
 
     assert all_columns == ["y", "w", "x", "z"]
 
@@ -47,7 +48,8 @@ def test_final_columns_hidden_columns_removed():
     gt = GT(df).cols_hide(columns=["w", "y"])
 
     options = gt._options
-    all_columns = gt._boxhead.final_columns(options=options)
+    final_columns = gt._boxhead.final_columns(options=options)
+    all_columns = [col.var for col in final_columns]
 
     assert all_columns == ["x", "z"]
 
@@ -58,14 +60,16 @@ def test_final_columns_row_and_group_cols_handled():
     gt_1 = GT(df, rowname_col="y", groupname_col="x").tab_options(row_group_as_column=True)
 
     options = gt_1._options
-    all_columns = gt_1._boxhead.final_columns(options=options)
+    final_columns = gt_1._boxhead.final_columns(options=options)
+    all_columns = [col.var for col in final_columns]
 
     assert all_columns == ["x", "y", "w", "z"]
 
     gt_2 = GT(df, rowname_col="y", groupname_col="x").tab_options(row_group_as_column=False)
 
     options = gt_2._options
-    all_columns = gt_2._boxhead.final_columns(options=options)
+    final_columns = gt_2._boxhead.final_columns(options=options)
+    all_columns = [col.var for col in final_columns]
 
     assert all_columns == ["y", "w", "z"]
 
@@ -80,7 +84,8 @@ def test_final_columns_hidden_and_row_group_cols_handled():
     )
 
     options = gt_1._options
-    all_columns = gt_1._boxhead.final_columns(options=options)
+    final_columns = gt_1._boxhead.final_columns(options=options)
+    all_columns = [col.var for col in final_columns]
 
     assert all_columns == ["x", "y", "z"]
 
@@ -91,6 +96,7 @@ def test_final_columns_hidden_and_row_group_cols_handled():
     )
 
     options = gt_2._options
-    all_columns = gt_2._boxhead.final_columns(options=options)
+    final_columns = gt_2._boxhead.final_columns(options=options)
+    all_columns = [col.var for col in final_columns]
 
     assert all_columns == ["y", "z"]

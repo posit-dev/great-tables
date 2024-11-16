@@ -721,11 +721,7 @@ def _get_table_defs(data: GTData) -> dict[str, Any]:
     final_columns = data._boxhead.final_columns(options=data._options)
 
     # Get the widths of the columns
-    widths = []
-    for column in final_columns:
-        col_idx = [i for i, x in enumerate(data._boxhead) if x.var == column][0]
-        width = data._boxhead[col_idx].column_width
-        widths.append(width)
+    widths = [col.column_width for col in final_columns]
 
     # If all of the widths are defined as px values for all columns, then ensure that the width
     # values are strictly respected as absolute width values (even if table width already set)
