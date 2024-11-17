@@ -4,7 +4,7 @@ from typing import Any, Callable
 
 import numpy as np
 from great_tables._tbl_data import Agnostic, is_na
-from great_tables._utils import _match_arg
+from great_tables._utils import _match_arg, _flatten_list
 
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
 
@@ -102,7 +102,7 @@ def _normalize_option_list(option_list: Any | list[Any], num_y_vals: int) -> lis
     return option_list
 
 
-def calc_ref_value(val_or_calc: "int | float | str", data) -> int | float:
+def calc_ref_value(val_or_calc: int | float | str, data) -> int | float | str:
     if _val_is_numeric(val_or_calc):
         return val_or_calc
     elif _val_is_str(val_or_calc) and val_or_calc in REFERENCE_LINE_KEYWORDS:
@@ -341,20 +341,6 @@ def _gt_q3(x: list[int | float]) -> float:
     Calculate the third quartile of a list of values.
     """
     return _gt_quantile(x, 0.75)
-
-
-def _flatten_list(x: list[Any]) -> list[int] | list[float] | list[int | float]:
-    """
-    Flatten a list of values.
-    """
-
-    flat_list = []
-    for element in x:
-        if isinstance(element, list):
-            flat_list.extend(_flatten_list(element))
-        else:
-            flat_list.append(element)
-    return flat_list
 
 
 def _get_extreme_value(
