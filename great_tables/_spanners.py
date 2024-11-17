@@ -6,15 +6,16 @@ from typing import TYPE_CHECKING
 from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
-from ._text import BaseText
+from ._text import BaseText, Text
 from ._utils import OrderedSet, _assert_list_is_subset
+from typing_extensions import TypeAlias
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
     from ._types import GTSelf
 
 
-SpannerMatrix = "list[dict[str, str | None]]"
+SpannerMatrix: TypeAlias = list[dict[str, "str | None"]]
 
 
 def tab_spanner(
@@ -132,7 +133,7 @@ def tab_spanner(
     if id is None:
         # The label may contain HTML or Markdown, so we need to extract
         # it from the Text object
-        if isinstance(label, BaseText):
+        if isinstance(label, Text):
             id = label.text
         else:
             id = label
