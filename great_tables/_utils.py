@@ -7,11 +7,11 @@ import json
 import re
 from collections.abc import Generator
 from types import ModuleType
-from typing import Any, Iterable
+from typing import Any, Iterator, Iterable
 
 
 from ._tbl_data import PdDataFrame, _set_cell, _get_cell, get_column_names, n_rows
-from ._text import _process_text
+from ._text import _process_text, BaseText
 
 from typing import TYPE_CHECKING
 
@@ -33,11 +33,11 @@ def _try_import(name: str, pip_install_line: str | None = None) -> ModuleType:
             raise ImportError(f"Module {name} not found.")
 
 
-def heading_has_title(title: str | None) -> bool:
+def heading_has_title(title: str | BaseText | None) -> bool:
     return title is not None
 
 
-def heading_has_subtitle(subtitle: str | None) -> bool:
+def heading_has_subtitle(subtitle: str | BaseText | None) -> bool:
     return subtitle is not None
 
 
@@ -91,39 +91,39 @@ def _str_scalar_to_list(x: str) -> list[str]:
     return [x]
 
 
-class OrderedSet(Set):
-    def __init__(self, d: Iterable = ()):
+class OrderedSet(Set[Any]):
+    def __init__(self, d: Iterable[Any] = ()) -> None:
         self._d = self._create(d)
 
-    def _create(self, d: Iterable):
+    def _create(self, d: Iterable[Any]) -> dict[Any, bool]:
         return {k: True for k in d}
 
-    def as_set(self):
+    def as_set(self) -> set[Any]:
         return set(self._d)
 
-    def as_list(self):
+    def as_list(self) -> list[Any]:
         return list(self._d)
 
-    def as_dict(self):
+    def as_dict(self) -> dict[Any, bool]:
         return dict(self._d)
 
-    def __contains__(self, k):
+    def __contains__(self, k: Any) -> bool:
         return k in self._d
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
         return iter(self._d)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._d)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         cls_name = type(self).__name__
         lst = self.as_list()
         return f"{cls_name}({lst!r})"
 
 
 def _as_css_font_family_attr(fonts: list[str], value_only: bool = False) -> str:
-    fonts_w_spaces = list(map(lambda x: f"'{x}'" if " " in x else x, fonts))
+    fonts_w_spaces: list[str] = list(map(lambda x: f"'{x}'" if " " in x else x, fonts))
 
     fonts_str = ", ".join(fonts_w_spaces)
 
@@ -212,7 +212,7 @@ def pairwise(iterable: Iterable[Any]) -> Generator[tuple[Any, Any], None, None]:
         a = b
 
 
-def seq_groups(seq: Iterable[str]) -> Generator[tuple[str, int], None, None]:
+def seq_groups(seq: Iterable[Any]) -> Generator[tuple[Any, int], None, None]:
     iterator = iter(seq)
 
     # TODO: 0-length sequence
@@ -247,6 +247,20 @@ def is_equal(x: Any, y: Any) -> bool:
     return x is not None and x == y
 
 
+def _flatten_list(x: Any) -> list[Any]:
+    """
+    Flatten a list of values.
+    """
+
+    flat_list: list[Any] = []
+    for element in x:
+        if isinstance(element, list):
+            flat_list.extend(_flatten_list(element))
+        else:
+            flat_list.append(element)
+    return flat_list
+
+
 # TODO: type annotations for `data`, `data_tbl`, `formats`, and the return value are not included
 # yet since that would result in a circular import. This will be fixed in the future (when HTML
 # escaping is implemented).
@@ -262,7 +276,7 @@ def _migrate_unformatted_to_output(
     if context != "latex":
         return data
 
-    all_formatted_cells = []
+    all_formatted_cells: list[list[tuple[str, int]]] = []
 
     for fmt in formats:
         eval_func = getattr(fmt.func, context, fmt.func.default)
@@ -273,13 +287,13 @@ def _migrate_unformatted_to_output(
         all_formatted_cells.append(fmt.cells.resolve())
 
     # Deduplicate the list of formatted cells
-    all_formatted_cells = list(set([item for sublist in all_formatted_cells for item in sublist]))
+    deduplicate_formatted_cells = list(set(_flatten_list(all_formatted_cells)))
 
     # Get all visible cells in the table
     all_visible_cells = _get_visible_cells(data=data_tbl)
 
     # Get the difference between the visible cells and the formatted cells
-    all_unformatted_cells = list(set(all_visible_cells) - set(all_formatted_cells))
+    all_unformatted_cells = list(set(all_visible_cells) - set(deduplicate_formatted_cells))
 
     # TODO: this currently will only be used for LaTeX (HTML escaping will be performed
     # in the future)
@@ -298,6 +312,6 @@ def _migrate_unformatted_to_output(
 
 
 # Get a list of tuples for all visible cells in the table
-# TODO: define the type of `data` as `TblData` when doing so won't result in a circular import
-def _get_visible_cells(data) -> list[tuple[str, int]]:
+# Define the type of `data` as `TblData` when doing so won't result in a circular import
+def _get_visible_cells(data: TblData) -> list[tuple[str, int]]:
     return [(col, row) for col in get_column_names(data) for row in range(n_rows(data))]
