@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
-
+from typing import Any, TYPE_CHECKING
 from typing_extensions import Self
 
 from great_tables._gt_data import GTData
@@ -73,6 +72,9 @@ from great_tables._utils_render_html import (
     create_source_notes_component_h,
 )
 
+
+if TYPE_CHECKING:
+    from ._helpers import BaseText
 
 __all__ = ["GT"]
 
@@ -312,7 +314,7 @@ class GT(
             )
 
         # built._perform_col_merge()
-        final_body = body_reassemble(built._body, built._stub, built._boxhead)
+        final_body = body_reassemble(built._body)
 
         # Reordering of the metadata elements of the table
 
@@ -439,7 +441,7 @@ class GT(
 # =============================================================================
 
 
-def _get_column_labels(gt: GT, context: str) -> list[str]:
+def _get_column_labels(gt: GT, context: str) -> list[str | BaseText | None]:
     gt_built = gt._build_data(context=context)
     column_labels = [x.column_label for x in gt_built._boxhead]
     return column_labels
