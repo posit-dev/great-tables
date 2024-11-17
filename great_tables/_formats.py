@@ -3033,7 +3033,7 @@ def _get_locales_list() -> list[str]:
     # Get the 'locales' dataset and obtain from that a list of locales
     # TODO: remove pandas
     locales = _get_locales_data()
-    locale_list = [entry["locale"] for entry in locales]
+    locale_list: list[str] = [entry["locale"] for entry in locales]
 
     # Ensure that `locale_list` is of the type 'str'
     # TODO: we control this data and should enforce this in the data schema
@@ -4106,7 +4106,7 @@ def fmt_nanoplot(
     # For autoscale, we need to get the minimum and maximum from all values for the y-axis
     if autoscale:
 
-        from great_tables._utils_nanoplots import _flatten_list
+        from great_tables._utils import _flatten_list
 
         # TODO: if a column of delimiter separated strings is passed. E.g. "1 2 3 4". Does this mean
         # that autoscale does not work? In this case, is col_i_y_vals_raw a string that gets processed?
