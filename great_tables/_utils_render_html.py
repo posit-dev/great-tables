@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from itertools import chain, groupby
-from math import isnan
+from itertools import chain
 from typing import Any, cast
 
 from great_tables._spanners import spanners_print_matrix
 from htmltools import HTML, TagList, css, tags
 
 from ._gt_data import GTData, Styles, GroupRowInfo
-from ._tbl_data import _get_cell, cast_frame_to_string, n_rows, replace_null_frame
+from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 from . import _locations as loc
@@ -21,7 +20,7 @@ def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
     return isinstance(loc, cls)
 
 
-def _flatten_styles(styles: Styles, wrap: bool = False) -> str:
+def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     # flatten all StyleInfo.styles lists
     style_entries = list(chain(*[x.styles for x in styles]))
     rendered_styles = [el._to_html_style() for el in style_entries]
