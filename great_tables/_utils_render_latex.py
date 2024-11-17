@@ -282,7 +282,6 @@ def create_columns_component_l(data: GTData) -> str:
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
 
     # Get the column headings
-    headings_vars = data._boxhead._get_default_columns()
     headings_labels = data._boxhead._get_default_column_labels()
 
     # Ensure that the heading labels are processed for LaTeX
@@ -307,13 +306,13 @@ def create_columns_component_l(data: GTData) -> str:
         # TODO: ensure that spanner IDs are not included in the output (spanner
         # labels should be used instead)
 
-        spanner_ids, spanner_col_names = spanners_print_matrix(
-            spanners=data._spanners,
-            boxhead=boxhead,
-            include_hidden=False,
-            ids=True,
-            omit_columns_row=True,
-        )
+        # spanner_ids, spanner_col_names = spanners_print_matrix(
+        #     spanners=data._spanners,
+        #     boxhead=boxhead,
+        #     include_hidden=False,
+        #     ids=True,
+        #     omit_columns_row=True,
+        # )
 
         for i in range(len(spanners)):
 
@@ -423,7 +422,7 @@ def create_body_component_l(data: GTData) -> str:
 
     body_rows = []
 
-    ordered_index: list[tuple[int, GroupRowInfo]] = data._stub.group_indices_map()
+    ordered_index: list[tuple[int, GroupRowInfo | None]] = data._stub.group_indices_map()
 
     for i, _ in ordered_index:
 
