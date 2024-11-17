@@ -8,8 +8,9 @@ import webbrowser
 from functools import partial
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
+from types import TracebackType
 from typing import TYPE_CHECKING, Literal
-from typing_extensions import TypeAlias
+from typing_extensions import TypeAlias, Self
 
 from ._utils import _try_import
 from ._utils_render_latex import _render_as_latex
@@ -27,9 +28,6 @@ if TYPE_CHECKING:
 class PatchedHTTPRequestHandler(SimpleHTTPRequestHandler):
     """Patched handler, which does not log requests to stderr"""
 
-    def log_request(self, *args, **kwargs):
-        pass
-
 
 class MISSING:
     """Represent a missing argument (where None has a special meaning)."""
@@ -44,10 +42,13 @@ def _create_temp_file_server(fname: Path) -> HTTPServer:
     return server
 
 
-def _infer_render_target(ipy: InteractiveShell | None | MISSING = MISSING) -> str:
+def _infer_render_target(
+    ipy: InteractiveShell | None | type = MISSING,
+) -> Literal["auto", "notebook", "browser"]:
     # adapted from py-htmltools
     # Note that `ipy` arguments are possible return values of IPython.get_ipython()
     # They are manually passed in from unit tests to validate this function.
+    target: Literal["auto", "notebook", "browser"]
     try:
         import IPython  # pyright: ignore[reportUnknownVariableType]
         from IPython.terminal.interactiveshell import TerminalInteractiveShell
@@ -277,15 +278,20 @@ class _NoOpDriverCtx:
     def __init__(self, driver: webdriver.Remote):
         self.driver = driver
 
-    def __call__(self, options):
+    def __call__(self, options) -> Self:
         # no-op what is otherwise instantiating webdriver with options,
         # since a webdriver instance was already passed on init
         return self
 
-    def __enter__(self):
+    def __enter__(self) -> webdriver.Remote:
         return self.driver
 
-    def __exit__(self, *args):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> bool | None:
         pass
 
 
@@ -388,7 +394,6 @@ def save(
     if isinstance(web_driver, webdriver.Remote):
         wdriver = _NoOpDriverCtx(web_driver)
         wd_options = None
-
     elif web_driver == "chrome":
         wdriver = webdriver.Chrome
         wd_options = webdriver.ChromeOptions()
