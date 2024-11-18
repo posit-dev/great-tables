@@ -12,31 +12,6 @@ WebDrivers: TypeAlias = Literal[
 ]
 
 
-class _NoOpDriverCtx:
-    """Context manager that no-ops entering a webdriver(options=...) instance."""
-
-    def __init__(self, driver: webdriver.Remote):
-        self.driver = driver
-
-    def __call__(self, options) -> Self:
-        # no-op what is otherwise instantiating webdriver with options,
-        # since a webdriver instance was already passed on init
-        return self
-
-    def __enter__(self) -> webdriver.Remote:
-        return self.driver
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_value: BaseException | None,
-        traceback: TracebackType | None,
-    ) -> bool | None:
-        pass
-
-    def quit(self): ...
-
-
 class _BaseWebDriver:
 
     def __init__(self):
@@ -101,17 +76,16 @@ class _EdgeWebDriver(_BaseWebDriver):
         self.wd_options.add_argument("--headless")
 
 
-class _NoOpWebDriver(_BaseWebDriver):
-    def __init__(self, debug_port: int | None = None):
-        self.debug_port = debug_port
-        self.wd_options = None
-        super().__init__()
-        self.driver = _NoOpDriverCtx(self.wd_options)
+def no_op_callable(web_driver: webdriver.Remote):
+    def wrapper(*args, **kwargs):
+        return web_driver
+
+    return wrapper
 
 
 def _get_web_driver(web_driver: WebDrivers | webdriver.Remote):
     if isinstance(web_driver, webdriver.Remote):
-        return _NoOpWebDriver
+        return no_op_callable(web_driver)
     elif web_driver == "chrome":
         return _ChromeWebDriver
     elif web_driver == "safari":
