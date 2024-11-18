@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from types import TracebackType
 from typing import Literal
-from typing_extensions import TypeAlias, Self
+from typing_extensions import TypeAlias
 from selenium import webdriver
 
 # Create a list of all selenium webdrivers
