@@ -47,7 +47,7 @@ class _ChromeWebDriver(_BaseWebDriver):
 
 
 class _SafariWebDriver(_BaseWebDriver):
-    cls_driver = webdriver.Chrome
+    cls_driver = webdriver.Safari
     cls_wd_options = webdriver.SafariOptions
 
 
