@@ -177,24 +177,6 @@ WebDrivers: TypeAlias = Literal[
 DebugDumpOptions: TypeAlias = Literal["zoom", "width_resize", "final_resize"]
 
 
-class _NoOpDriverCtx:
-    """Context manager that no-ops entering a webdriver(options=...) instance."""
-
-    def __init__(self, driver: webdriver.Remote):
-        self.driver = driver
-
-    def __call__(self, options):
-        # no-op what is otherwise instantiating webdriver with options,
-        # since a webdriver instance was already passed on init
-        return self
-
-    def __enter__(self):
-        return self.driver
-
-    def __exit__(self, *args):
-        pass
-
-
 def save(
     self: GT,
     file: Path | str,
@@ -285,7 +267,7 @@ def save(
     # Import the required packages
     _try_import(name="selenium", pip_install_line="pip install selenium")
 
-    from selenium import webdriver
+    from ._utils_selenium import _get_web_driver
 
     if selector != "table":
         raise NotImplementedError("Currently, only selector='table' is supported.")
@@ -296,61 +278,27 @@ def save(
     # Get the HTML content from the displayed output
     html_content = as_raw_html(self)
 
-    # Set the webdriver and options based on the chosen browser (`web_driver=` argument)
-    if isinstance(web_driver, webdriver.Remote):
-        wdriver = _NoOpDriverCtx(web_driver)
-        wd_options = None
-
-    elif web_driver == "chrome":
-        wdriver = webdriver.Chrome
-        wd_options = webdriver.ChromeOptions()
-    elif web_driver == "safari":
-        wdriver = webdriver.Safari
-        wd_options = webdriver.SafariOptions()
-    elif web_driver == "firefox":
-        wdriver = webdriver.Firefox
-        wd_options = webdriver.FirefoxOptions()
-    elif web_driver == "edge":
-        wdriver = webdriver.Edge
-        wd_options = webdriver.EdgeOptions()
-    else:
-        raise ValueError(f"Unsupported web driver: {web_driver}")
-
-    # specify headless flag ----
-    if web_driver in {"firefox", "edge"}:
-        wd_options.add_argument("--headless")
-    elif web_driver == "chrome":
-        # Operate all webdrivers in headless mode
-        wd_options.add_argument("--headless=new")
-    else:
-        # note that safari currently doesn't support headless browsing
-        pass
-
-    if debug_port:
-        if web_driver == "chrome":
-            wd_options.add_argument(f"--remote-debugging-port={debug_port}")
-        elif web_driver == "firefox":
-            # TODO: not sure how to connect to this session on firefox?
-            wd_options.add_argument(f"--start-debugger-server {debug_port}")
-        else:
-            warnings.warn("debug_port argument only supported on chrome and firefox")
-            debug_port = None
+    wdriver = _get_web_driver(web_driver)
 
     # run browser ----
-    with wdriver(options=wd_options) as headless_browser:
+    with wdriver(debug_port=debug_port) as headless_browser:
         headless_browser.set_window_size(*window_size)
         encoded = base64.b64encode(html_content.encode(encoding=encoding)).decode(encoding=encoding)
         headless_browser.get(f"data:text/html;base64,{encoded}")
 
         _save_screenshot(headless_browser, scale, file, debug=_debug_dump, **params)
 
-        if debug_port:
-            input(
-                f"Currently debugging on port {debug_port}.\n\n"
-                "If you are using Chrome, enter chrome://inspect to preview the headless browser."
-                "Other browsers may have different ways to preview headless browser sessions.\n\n"
-                "Press enter to continue."
-            )
+    if debug_port and web_driver not in {"chrome", "firefox"}:
+        warnings.warn("debug_port argument only supported on chrome and firefox")
+        debug_port = None
+
+    if debug_port:
+        input(
+            f"Currently debugging on port {debug_port}.\n\n"
+            "If you are using Chrome, enter chrome://inspect to preview the headless browser."
+            "Other browsers may have different ways to preview headless browser sessions.\n\n"
+            "Press enter to continue."
+        )
 
     return self
 
