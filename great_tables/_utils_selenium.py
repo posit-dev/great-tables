@@ -34,6 +34,8 @@ class _NoOpDriverCtx:
     ) -> bool | None:
         pass
 
+    def quit(self): ...
+
 
 class _BaseWebDriver:
 
