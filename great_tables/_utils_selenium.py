@@ -16,8 +16,11 @@ WebDrivers: TypeAlias = Literal[
 
 class _BaseWebDriver:
 
-    def __init__(self):
+    def __init__(self, debug_port: bool):
+        self.debug_port = debug_port
+        self.wd_options = self.cls_wd_options()
         self.add_arguments()
+        self.driver = self.cls_driver(self.wd_options)
 
     def add_arguments(self): ...
 
@@ -34,11 +37,8 @@ class _BaseWebDriver:
 
 
 class _ChromeWebDriver(_BaseWebDriver):
-    def __init__(self, debug_port: int | None = None):
-        self.debug_port = debug_port
-        self.wd_options = webdriver.ChromeOptions()
-        super().__init__()
-        self.driver = webdriver.Chrome(self.wd_options)
+    cls_driver = webdriver.Chrome
+    cls_wd_options = webdriver.ChromeOptions
 
     def add_arguments(self):
         self.wd_options.add_argument("--headless=new")
@@ -47,19 +47,13 @@ class _ChromeWebDriver(_BaseWebDriver):
 
 
 class _SafariWebDriver(_BaseWebDriver):
-    def __init__(self, debug_port: int | None = None):
-        self.debug_port = debug_port
-        self.wd_options = webdriver.SafariOptions()
-        super().__init__()
-        self.driver = webdriver.Safari(self.wd_options)
+    cls_driver = webdriver.Chrome
+    cls_wd_options = webdriver.SafariOptions
 
 
 class _FirefoxWebDriver(_BaseWebDriver):
-    def __init__(self, debug_port: int | None = None):
-        self.debug_port = debug_port
-        self.wd_options = webdriver.FirefoxOptions()
-        super().__init__()
-        self.driver = webdriver.Firefox(self.wd_options)
+    cls_driver = webdriver.Firefox
+    cls_wd_options = webdriver.FirefoxOptions
 
     def add_arguments(self):
         self.wd_options.add_argument("--headless")
@@ -68,11 +62,8 @@ class _FirefoxWebDriver(_BaseWebDriver):
 
 
 class _EdgeWebDriver(_BaseWebDriver):
-    def __init__(self, debug_port: int | None = None):
-        self.debug_port = debug_port
-        self.wd_options = webdriver.EdgeOptions()
-        super().__init__()
-        self.driver = webdriver.Edge(self.wd_options)
+    cls_driver = webdriver.Edge
+    cls_wd_options = webdriver.EdgeOptions
 
     def add_arguments(self):
         self.wd_options.add_argument("--headless")
