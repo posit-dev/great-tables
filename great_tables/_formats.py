@@ -3004,6 +3004,19 @@ def _replace_minus(string: str, minus_mark: str) -> str:
     return _str_replace(string, "-", minus_mark)
 
 
+def _remove_minus(string: str) -> str:
+    """
+    Removes all occurrences of the minus sign '-' in the given string.
+
+    Args:
+        string (str): The input string.
+
+    Returns:
+        str: The modified string with the minus sign removed.
+    """
+    return _str_replace(string, "-", "")
+
+
 T_dict = TypeVar("T_dict", bound=TypedDict)
 
 
