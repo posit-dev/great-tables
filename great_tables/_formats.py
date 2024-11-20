@@ -389,6 +389,7 @@ def fmt_integer(
     rows: int | list[int] | None = None,
     use_seps: bool = True,
     scale_by: float = 1,
+    accounting: bool = False,
     compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
@@ -429,6 +430,9 @@ def fmt_integer(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    accounting
+        An option to use accounting style for values. Normally, negative values will be shown with a
+        minus sign but using accounting style will instead put any negative values in parentheses.
     compact
         A boolean value that allows for compact formatting of numeric values. Values will be scaled
         and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
@@ -499,6 +503,7 @@ def fmt_integer(
         data=self,
         use_seps=use_seps,
         scale_by=scale_by,
+        accounting=accounting,
         compact=compact,
         sep_mark=sep_mark,
         force_sign=force_sign,
@@ -513,6 +518,7 @@ def fmt_integer_context(
     data: GTData,
     use_seps: bool,
     scale_by: float,
+    accounting: bool,
     compact: bool,
     sep_mark: str,
     force_sign: bool,
@@ -554,10 +560,15 @@ def fmt_integer_context(
             force_sign=force_sign,
         )
 
-    # Implement minus sign replacement for `x_formatted`
+    # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-        minus_mark = _context_minus_mark(context=context)
-        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
+        else:
+            minus_mark = _context_minus_mark(context=context)
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
