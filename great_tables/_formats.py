@@ -4045,7 +4045,6 @@ class FmtIcon:
     stroke_alpha: float | None = None
     fill_color: str | dict[str, str] | None = None
     fill_alpha: float | None = None
-    vertical_adj: str | None = None
     margin_left: str | None = None
     margin_right: str | None = None
 
