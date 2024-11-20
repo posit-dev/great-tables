@@ -3841,7 +3841,7 @@ def fmt_icon(
     stroke_color: str | None = None,
     stroke_width: str | int | None = None,
     stroke_alpha: float | None = None,
-    fill_color: str | None = None,
+    fill_color: str | dict[str, str] | None = None,
     fill_alpha: float | None = None,
     vertical_adj: str | None = None,
     margin_left: str | None = None,
@@ -4011,7 +4011,7 @@ class FmtIcon:
     stroke_color: str | None = None
     stroke_width: str | int | float | None = None
     stroke_alpha: float | None = None
-    fill_color: str | None = None
+    fill_color: str | dict[str, str] | None = None
     fill_alpha: float | None = None
     vertical_adj: str | None = None
     margin_left: str | None = None
@@ -4045,13 +4045,22 @@ class FmtIcon:
 
         for icon in icon_list:
 
+            if isinstance(self.fill_color, dict):
+
+                if icon in self.fill_color:
+                    fill_color = self.fill_color[icon]
+                else:
+                    fill_color = None
+            else:
+                fill_color = self.fill_color
+
             icon_svg = faicons.icon_svg(
                 icon,
                 height=height,
                 stroke=self.stroke_color,
                 stroke_width=stroke_width,
                 stroke_opacity=str(self.stroke_alpha),
-                fill=self.fill_color,
+                fill=fill_color,
                 fill_opacity=str(self.fill_alpha),
                 margin_left=self.margin_left,
                 margin_right=self.margin_right,
