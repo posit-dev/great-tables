@@ -3907,6 +3907,79 @@ def fmt_icon(
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
 
+    Examples
+    --------
+    For this first example of generating icons with `fmt_icon()`, let's make a simple DataFrame that
+    has two columns of Font Awesome icon names. We separate multiple icons per cell with commas. By
+    default, the icons are 1 em in height; we're going to make the icons slightly larger here (so we
+    can see the fine details of them) by setting height = "4em".
+
+    ```{python}
+    import pandas as pd
+    from great_tables import GT
+
+    animals_foods_df = pd.DataFrame(
+        {
+            "animals": ["hippo", "fish,spider", "mosquito,locust,frog", "dog,cat", "kiwi-bird"],
+            "foods": ["bowl-rice", "egg,pizza-slice", "burger,lemon,cheese", "carrot,hotdog", "bacon"],
+        }
+    )
+
+    (
+        GT(animals_foods_df)
+        .fmt_icon(
+            columns=["animals", "foods"],
+            height="4em"
+        )
+        .cols_align(
+            align="center",
+            columns=["animals", "foods"]
+        )
+    )
+    ```
+
+    Let's take a few rows from the towny dataset and make it so the `csd_type` column contains
+    *Font Awesome* icon names (we want only the `"city"` and `"house-chimney"` icons here). After
+    using `fmt_icon()` to format the `csd_type` column, we get icons that are representative of the
+    two categories of municipality for this subset of data.
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT
+    from great_tables.data import towny
+
+
+    # Assuming `towny` is a Polars DataFrame
+    towny_mini = (
+        pl.from_pandas(towny)
+        .select(["name", "csd_type", "population_2021"])
+        .filter(pl.col("csd_type").is_in(["city", "town"]))
+        .group_by("csd_type", maintain_order=True)
+        .agg([
+            pl.col("name").sort_by("population_2021", descending=True).head(5),
+            pl.col("population_2021").sort(descending=True).head(5)
+        ])
+        .sort("csd_type")
+        .explode(["name", "population_2021"])
+        .with_columns(
+            csd_type = pl.when(pl.col("csd_type") == "town")
+            .then(pl.lit("house-chimney"))
+            .otherwise(pl.lit("city"))
+        )
+    )
+
+    (
+        GT(towny_mini)
+        .fmt_integer(columns="population_2021")
+        .fmt_icon(columns="csd_type")
+        .cols_label(
+            csd_type="",
+            name="City/Town",
+            population_2021="Population"
+        )
+    )
+    ```
+    """
 
     formatter = FmtIcon(
         self._tbl_data,
