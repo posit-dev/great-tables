@@ -13,6 +13,8 @@ import babel
 from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
 
+import faicons
+
 from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
 from ._helpers import px
 from ._locale import _get_currencies_data, _get_default_locales_data, _get_locales_data
