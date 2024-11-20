@@ -3979,6 +3979,42 @@ def fmt_icon(
         )
     )
     ```
+
+    A fairly common thing to do with icons in tables is to indicate whether a quantity is either
+    higher or lower than another. Up and down arrow symbols can serve as good visual indicators for
+    this purpose. We can make use of the `"up-arrow"` and `"down-arrow"` icons here. As those
+    strings are available in the `dir` column of the table derived from the `sp500` dataset,
+    `fmt_icon()` can be used. We set the `fill_color` argument with a dictionary that indicates
+    which color should be used for each icon.
+
+    ```{python}
+    from great_tables.data import sp500
+
+    sp500_mini = (
+        pl.from_pandas(sp500)
+        .head(10)
+        .select(["date", "open", "close"])
+        .sort("date", descending=False)
+        .with_columns(
+            dir = pl.when(pl.col("close") >= pl.col("open")).then(
+                pl.lit("arrow-up")).otherwise(pl.lit("arrow-down"))
+        )
+    )
+
+    (
+        GT(sp500_mini, rowname_col="date")
+        .fmt_icon(
+            columns="dir",
+            fill_color={"arrow-up": "green", "arrow-down": "red"}
+        )
+        .cols_label(
+            open="Opening Value",
+            close="Closing Value",
+            dir=""
+        )
+        .opt_stylize(style=1, color="gray")
+    )
+    ```
     """
 
     formatter = FmtIcon(
