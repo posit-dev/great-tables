@@ -3843,7 +3843,6 @@ def fmt_icon(
     stroke_alpha: float | None = None,
     fill_color: str | dict[str, str] | None = None,
     fill_alpha: float | None = None,
-    vertical_adj: str | None = None,
     margin_left: str | None = None,
     margin_right: str | None = None,
 ) -> GTSelf:
@@ -3890,8 +3889,6 @@ def fmt_icon(
     fill_alpha
         The level of transparency for the icon fill can be controlled with a decimal value between
         `0` and `1`.
-    vertical_adj
-        The vertical alignment of the icon. By default, a length of `"-0.125em"` is used.
     margin_left
         The length value for the margin that's to the left of the icon. By default, `"auto"` is
         used for this but if space is needed on the left-hand side then a length of `"0.2em"` is
@@ -4026,7 +4023,6 @@ def fmt_icon(
         stroke_alpha=stroke_alpha,
         fill_color=fill_color,
         fill_alpha=fill_alpha,
-        vertical_adj=vertical_adj,
         margin_left=margin_left,
         margin_right=margin_right,
     )
