@@ -3847,6 +3847,66 @@ def fmt_icon(
     margin_left: str | None = None,
     margin_right: str | None = None,
 ) -> GTSelf:
+    """Use icons within a table's body cells.
+
+    We can draw from a library of thousands of icons and selectively insert them into a table. The
+    `fmt_icon()` method makes this possible by mapping input cell labels to an icon name. We are
+    exclusively using Font Awesome icons here so the reference is the short icon name. Multiple
+    icons can be included per cell by separating icon names with commas (e.g., "hard-drive,clock").
+    The `sep=` argument allows for a common separator to be applied between icons.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    height
+        The absolute height of the icon in the table cell. By default, this is set to "1em".
+    sep
+        In the output of icons within a body cell, `sep=` provides the separator between each icon.
+    stroke_color
+        The icon stroke is essentially the outline of the icon. The color of the stroke can be
+        modified by applying a single color here. If not provided then the default value of
+        `"currentColor"` is applied so that the stroke color matches that of the parent HTML
+        element's color attribute.
+    stroke_width
+        The `stroke_width=` option allows for setting the color of the icon outline stroke. By
+        default, the stroke width is very small at "1px" so a size adjustment here can sometimes be
+        useful. If an integer value is provided then it is assumed to be in pixels.
+    stroke_alpha
+        The level of transparency for the icon stroke can be controlled with a decimal value between
+        `0` and `1`.
+    fill_color
+        The fill color of the icon can be set with `fill_color=`; providing a single color here will
+        change the color of the fill but not of the icon's 'stroke' or outline (use `stroke_color=`
+        to modify that). A dictionary comprising the icon names with corresponding fill colors can
+        alternatively be used here (e.g., `{"circle-check" = "green", "circle-xmark" = "red"}`. If
+        nothing is provided then the default value of `"currentColor"` is applied so that the fill
+        matches the color of the parent HTML element's color attribute.
+    fill_alpha
+        The level of transparency for the icon fill can be controlled with a decimal value between
+        `0` and `1`.
+    vertical_adj
+        The vertical alignment of the icon. By default, a length of `"-0.125em"` is used.
+    margin_left
+        The length value for the margin that's to the left of the icon. By default, `"auto"` is
+        used for this but if space is needed on the left-hand side then a length of `"0.2em"` is
+        recommended as a starting point.
+    margin_right
+        The length value for the margin right of the icon. By default, `"auto"` is used but if
+        space is needed on the right-hand side then a length of `"0.2em"` is recommended as a
+        starting point.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
 
     formatter = FmtIcon(
         self._tbl_data,
