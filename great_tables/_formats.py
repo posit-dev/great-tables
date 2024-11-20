@@ -3832,6 +3832,115 @@ class FmtImage:
         return f'<img src="{uri}" style="{style_string}">'
 
 
+def fmt_icon(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    height: str | None = None,
+    sep: str = " ",
+    stroke_color: str | None = None,
+    stroke_width: str | int | None = None,
+    stroke_alpha: float | None = None,
+    fill_color: str | None = None,
+    fill_alpha: float | None = None,
+    vertical_adj: str | None = None,
+    margin_left: str | None = None,
+    margin_right: str | None = None,
+) -> GTSelf:
+
+    formatter = FmtIcon(
+        self._tbl_data,
+        height=height,
+        sep=sep,
+        stroke_color=stroke_color,
+        stroke_width=stroke_width,
+        stroke_alpha=stroke_alpha,
+        fill_color=fill_color,
+        fill_alpha=fill_alpha,
+        vertical_adj=vertical_adj,
+        margin_left=margin_left,
+        margin_right=margin_right,
+    )
+
+    return fmt(
+        self,
+        fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
+        columns=columns,
+        rows=rows,
+    )
+
+
+@dataclass
+class FmtIcon:
+    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    height: str | None = None
+    sep: str = " "
+    stroke_color: str | None = None
+    stroke_width: str | int | float | None = None
+    stroke_alpha: float | None = None
+    fill_color: str | None = None
+    fill_alpha: float | None = None
+    vertical_adj: str | None = None
+    margin_left: str | None = None
+    margin_right: str | None = None
+
+    SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
+
+    def to_html(self, val: Any):
+
+        if is_na(self.dispatch_on, val):
+            return val
+
+        if "," in val:
+            icon_list = re.split(r",\s*", val)
+        else:
+            icon_list = [val]
+
+        if self.height is None:
+            height = "1em"
+        else:
+            height = self.height
+
+        if self.stroke_width is None:
+            stroke_width = "1px"
+        elif isinstance(self.stroke_width, (int, float)):
+            stroke_width = f"{str(self.stroke_width)}px"
+        else:
+            stroke_width = self.stroke_width
+
+        out: list[str] = []
+
+        for icon in icon_list:
+
+            icon_svg = faicons.icon_svg(
+                icon,
+                height=height,
+                stroke=self.stroke_color,
+                stroke_width=stroke_width,
+                stroke_opacity=str(self.stroke_alpha),
+                fill=self.fill_color,
+                fill_opacity=str(self.fill_alpha),
+                margin_left=self.margin_left,
+                margin_right=self.margin_right,
+            )
+
+            out.append(str(icon_svg))
+
+        img_tags = self.sep.join(out)
+        span = self.SPAN_TEMPLATE.format(img_tags)
+
+        return span
+
+    def to_latex(self, val: Any):
+
+        from ._gt_data import FormatterSkipElement
+        from warnings import warn
+
+        warn("fmt_icon() is not currently implemented in LaTeX output.")
+
+        return FormatterSkipElement()
+
+
 def fmt_nanoplot(
     self: GTSelf,
     columns: str | None = None,
