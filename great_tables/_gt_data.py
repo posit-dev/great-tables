@@ -242,6 +242,16 @@ class ColInfo:
 
 
 class Boxhead(_Sequence[ColInfo]):
+    """Map columns of the input table to their final rendered placement in the boxhead.
+
+    The boxhead is the part of the table that contains the column labels and the stub head. This
+    class is responsible for the following:
+
+    - rendered boxhead: column order, labels, alignment, and visibility
+    - rendered body: alignment of data values for each column
+    - rendered stub: this class records which input column is used for the stub
+    """
+
     _d: list[ColInfo]
 
     def __new__(
@@ -396,6 +406,20 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self[new_order]
 
+    def final_columns(self, options: Options) -> list[ColInfo]:
+
+        row_group_info = self._get_row_group_column()
+        row_group_column = (
+            [row_group_info] if row_group_info and options.row_group_as_column.value else []
+        )
+
+        stub_info = self._get_stub_column()
+        stub_column = [stub_info] if stub_info else []
+
+        default_columns = self._get_default_columns()
+
+        return [*row_group_column, *stub_column, *default_columns]
+
     # Get a list of columns
     def _get_columns(self) -> list[str]:
         return [x.var for x in self._d]
@@ -428,7 +452,7 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self.__class__(out_cols)
 
-    # Get a list of column widths
+    # Get a list of all column widths
     def _get_column_widths(self) -> list[str | None]:
         return [x.column_width for x in self._d]
 
