@@ -397,14 +397,18 @@ class Boxhead(_Sequence[ColInfo]):
         return self[new_order]
 
     def final_columns(self, options: Options) -> list[ColInfo]:
-        row_group_column = (
-            self._get_row_group_column() if options.row_group_as_column.value else None
-        )
-        stub_column = self._get_stub_column()
-        default_columns = self._get_default_columns()
-        combined = [row_group_column] + [stub_column] + default_columns
 
-        return [x for x in combined if x is not None]
+        row_group_info = self._get_row_group_column()
+        row_group_column = (
+            [row_group_info] if row_group_info and options.row_group_as_column.value else []
+        )
+
+        stub_info = self._get_stub_column()
+        stub_column = [stub_info] if stub_info else []
+
+        default_columns = self._get_default_columns()
+
+        return [*row_group_column, *stub_column, *default_columns]
 
     # Get a list of columns
     def _get_columns(self) -> list[str]:
