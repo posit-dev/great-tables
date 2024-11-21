@@ -242,6 +242,16 @@ class ColInfo:
 
 
 class Boxhead(_Sequence[ColInfo]):
+    """Map columns of the input table to their final rendered placement in the boxhead.
+
+    The boxhead is the part of the table that contains the column labels and the stub head. This
+    class is responsible for the following:
+
+    - rendered boxhead: column order, labels, alignment, and visibility
+    - rendered body: alignment of data values for each column
+    - rendered stub: this class records which input column is used for the stub
+    """
+
     _d: list[ColInfo]
 
     def __new__(
