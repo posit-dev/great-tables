@@ -4,31 +4,27 @@ import tempfile
 import time
 import warnings
 import webbrowser
-
 from functools import partial
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
+
 from typing_extensions import TypeAlias
 
 from ._utils import _try_import
 from ._utils_render_latex import _render_as_latex
 
-
 if TYPE_CHECKING:
     # Note that as_raw_html uses methods on the GT class, not just data
-    from .gt import GT
-    from ._types import GTSelf
-
-    from selenium import webdriver
     from IPython.core.interactiveshell import InteractiveShell
+    from selenium import webdriver
+
+    from ._types import GTSelf
+    from .gt import GT
 
 
 class PatchedHTTPRequestHandler(SimpleHTTPRequestHandler):
     """Patched handler, which does not log requests to stderr"""
-
-    def log_request(self, *args, **kwargs):
-        pass
 
 
 class MISSING:
@@ -44,10 +40,13 @@ def _create_temp_file_server(fname: Path) -> HTTPServer:
     return server
 
 
-def _infer_render_target(ipy: InteractiveShell | None | MISSING = MISSING) -> str:
+def _infer_render_target(
+    ipy: InteractiveShell | None | type = MISSING,
+) -> Literal["auto", "notebook", "browser"]:
     # adapted from py-htmltools
     # Note that `ipy` arguments are possible return values of IPython.get_ipython()
     # They are manually passed in from unit tests to validate this function.
+    target: Literal["auto", "notebook", "browser"]
     try:
         import IPython  # pyright: ignore[reportUnknownVariableType]
         from IPython.terminal.interactiveshell import TerminalInteractiveShell
@@ -392,6 +391,7 @@ def _save_screenshot(
     driver: webdriver.Chrome, scale: float, path: str, debug: DebugDumpOptions | None
 ) -> None:
     from io import BytesIO
+
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.webdriver.support.ui import WebDriverWait

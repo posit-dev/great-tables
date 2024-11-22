@@ -4,7 +4,7 @@ import warnings
 import re
 
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union
 
 from typing_extensions import TypeAlias
 
@@ -101,7 +101,7 @@ def _raise_pandas_required(msg: Any):
     raise ImportError(msg)
 
 
-def _re_version(raw_version: str) -> Tuple[int, int, int]:
+def _re_version(raw_version: str) -> tuple[int, int, int]:
     """Return a semver-like version string as a 3-tuple of integers.
 
     Note two important caveats: (1) separators like dev are dropped (e.g. "3.2.1dev3" -> (3, 2, 1)),
@@ -280,11 +280,13 @@ def _(data: PlDataFrame, group_key: str) -> dict[Any, list[int]]:
 # eval_select ----
 
 SelectExpr: TypeAlias = Union[
+    str,
+    list[str],
+    int,
+    list[int],
     list["str | int"],
     PlSelectExpr,
     list[PlSelectExpr],
-    str,
-    int,
     Callable[[str], bool],
     None,
 ]
@@ -515,7 +517,7 @@ def _(ser: PlSeries) -> list[Any]:
 
 @singledispatch
 def is_series(ser: Any) -> bool:
-    False
+    return False
 
 
 @is_series.register

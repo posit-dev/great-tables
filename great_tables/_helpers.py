@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-
 import random
+import re
 import string
+from dataclasses import dataclass
 from typing import Any, Callable, Literal
 
-from typing_extensions import TypeAlias, Self
-
-from ._text import Md, Html, BaseText
-
-import re
-from dataclasses import dataclass
+from typing_extensions import Self, TypeAlias
 
 from great_tables._text import _md_html
+
+from ._text import BaseText, Html, Md
 
 FontStackName: TypeAlias = Literal[
     "system-ui",
@@ -594,7 +592,6 @@ def _get_font_stack(name: FontStackName = "system-ui", add_emoji: bool = True) -
 
 
 def _generate_tokens_list(units_notation: str) -> list[str]:
-
     # Remove any surrounding double braces before splitting the string into a list of tokens
     tokens_list = re.split(r"\s+", re.sub(r"^\{\{\s*|\s*\}\}$", "", units_notation))
 
@@ -626,7 +623,6 @@ class UnitDefinition:
 
     @classmethod
     def from_token(cls, token: str) -> UnitDefinition:
-
         unit_subscript = None
         sub_super_overstrike = False
         chemical_formula = False
@@ -635,7 +631,6 @@ class UnitDefinition:
         # Case: Chemical formula
         #   * e.g. "%C6H12O6%", where the '%' characters are used to denote a chemical formula
         if re.match(r"^%.*%$", token) and len(token) > 2:
-
             chemical_formula = True
 
             # Extract the formula w/o the surrounding `%` signs
@@ -644,7 +639,6 @@ class UnitDefinition:
         # Case: Subscript and exponent present inside square brackets, so overstriking required
         #   * e.g., 'm_[0^3]'
         elif re.search(r".+?\[_.+?\^.+?\]", token):
-
             sub_super_overstrike = True
 
             # Extract the unit w/o subscript from the string
@@ -662,7 +656,6 @@ class UnitDefinition:
         # Case: Subscript and exponent present (overstriking is *not* required here)
         #   * e.g., 'm_2^3'
         elif re.search(r".+?_.+?\^.+?", token):
-
             # Extract the unit w/o subscript from the string
             unit = re.sub(r"^(.+?)_.+?\^.+?$", r"\1", token)
 
@@ -681,7 +674,6 @@ class UnitDefinition:
         #     in the string)
         #   * e.g., 'm^2'
         elif re.search(r"\^", token):
-
             # Extract the unit w/o exponent from the string
             unit = re.sub(r"^(.+?)\^.+?$", r"\1", token)
 
@@ -693,7 +685,6 @@ class UnitDefinition:
         #     anywhere in the string)
         #   * e.g., 'm_2'
         elif re.search(r"_", token):
-
             # Extract the unit w/o subscript from the string
             unit = re.sub(r"^(.+?)_.+?$", r"\1", token)
 
@@ -792,7 +783,6 @@ class UnitDefinition:
             and units_object.unit_subscript is not None
             and units_object.exponent is not None
         ):
-
             units_str += _units_html_sub_super(
                 content_sub=_md_html(
                     _escape_html_tags(
@@ -814,7 +804,6 @@ class UnitDefinition:
         # and place all numbers (which are recognized now to be part of the chemical formula)
         # into spans that are styled to be subscripts:
         elif units_object.chemical_formula:
-
             units_str = re.sub(
                 "(\\d+)",
                 '<span style="white-space:nowrap;"><sub style="line-height:0;">\\1</sub></span>',
@@ -822,7 +811,6 @@ class UnitDefinition:
             )
 
         else:
-
             if unit_subscript is not None:
                 units_str += unit_subscript
 
@@ -840,7 +828,6 @@ class UnitStr(BaseText):
         return f"{type(self).__name__}({self.units_str})"
 
     def to_html(self) -> str:
-
         built_units = "".join(
             [
                 unit_def.to_html() if isinstance(unit_def, UnitDefinitionList) else unit_def
@@ -851,7 +838,6 @@ class UnitStr(BaseText):
         return built_units
 
     def to_latex(self) -> str:
-
         raise NotImplementedError("LaTeX conversion of units is not yet supported.")
 
     def _repr_html_(self):
@@ -862,7 +848,6 @@ class UnitStr(BaseText):
 
     @classmethod
     def from_str(cls, string: str) -> Self:
-
         # "energy ({{J m^-1}})"
         # UnitStr(["energy (", define_units("J m^-1"), ")"])
 
@@ -878,7 +863,6 @@ class UnitStr(BaseText):
         token_parts: list[str | UnitDefinitionList] = []
 
         for part in re.split(r"(\{\{.*?\}\})", string):
-
             m = re.match(r"\{\{(.*?)\}\}", part)
 
             if m:
@@ -908,7 +892,6 @@ class UnitDefinitionList:
         units_str = ""
 
         for unit_add in built_units:
-
             if re.search("\\($|\\[$", units_str) or re.search("^\\)|^\\]", unit_add):
                 spacer = ""
             else:
@@ -950,7 +933,6 @@ def _units_html_sub_super(content_sub: str, content_sup: str) -> str:
 
 
 def _replace_units_symbol(text: str, detect: str, pattern: str, replace: str) -> str:
-
     if re.search(detect, text):
         text = re.sub(pattern, replace, text)
 
@@ -958,7 +940,6 @@ def _replace_units_symbol(text: str, detect: str, pattern: str, replace: str) ->
 
 
 def _units_symbol_replacements(text: str) -> str:
-
     # Replace certain units symbols with HTML entities; these are cases where the parsed
     # text should be at the beginning of a string (or should be the entire string)
     text = _replace_units_symbol(text, "^-", "^-", "&minus;")
@@ -976,7 +957,6 @@ def _units_symbol_replacements(text: str) -> str:
 
 
 def _escape_html_tags(text: str) -> str:
-
     # Replace the '<' and '>' characters with their HTML entity equivalents
     text = text.replace("<", "&lt;")
     text = text.replace(">", "&gt;")
@@ -1003,7 +983,6 @@ UNITS_SYMBOLS_HTML = {
     ":micro:": "&micro;",
     ":ohm:": "&#8486;",
     ":angstrom:": "&#8491;",
-    ":times:": "&times;",
     ":plusminus:": "&plusmn;",
     ":permil:": "&permil;",
     ":permille:": "&permil;",
@@ -1155,7 +1134,6 @@ def define_units(units_notation: str) -> UnitDefinitionList:
 # dataclass and then pair on a post_init hook).
 # Check that certain values are either a list or a single value
 def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any) -> list[Any] | None:
-
     if nano_opt is None:
         return None
 
