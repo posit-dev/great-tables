@@ -15,6 +15,7 @@ from great_tables._spanners import (
     spanners_print_matrix,
     tab_spanner,
 )
+from great_tables._utils_render_html import _get_table_defs
 
 
 @pytest.fixture
@@ -241,6 +242,63 @@ def test_cols_width_fully_set_pct_2():
     assert gt_tbl._boxhead[0].column_width == "10%"
     assert gt_tbl._boxhead[1].column_width == "10%"
     assert gt_tbl._boxhead[2].column_width == "40%"
+
+
+def test_cols_width_html_colgroup():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df).cols_width({"a": "10px", "b": "20px", "c": "30px"})
+
+    tbl_built = gt_tbl._build_data(context="html")
+    table_defs = _get_table_defs(tbl_built)
+
+    assert (
+        str(table_defs["table_colgroups"])
+        == '<colgroup>\n  <col style="width:10px;"/>\n  <col style="width:20px;"/>\n  <col style="width:30px;"/>\n</colgroup>'
+    )
+
+
+def test_cols_width_html_colgroup_hidden():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df).cols_width({"a": "10px", "b": "20px", "c": "30px"}).cols_hide(columns="b")
+
+    tbl_built = gt_tbl._build_data(context="html")
+    table_defs = _get_table_defs(tbl_built)
+
+    assert (
+        str(table_defs["table_colgroups"])
+        == '<colgroup>\n  <col style="width:10px;"/>\n  <col style="width:30px;"/>\n</colgroup>'
+    )
+
+
+def test_cols_width_html_colgroup_stub():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df, rowname_col="b").cols_width({"a": "10px", "b": "20px", "c": "30px"})
+
+    tbl_built = gt_tbl._build_data(context="html")
+    table_defs = _get_table_defs(tbl_built)
+
+    assert (
+        str(table_defs["table_colgroups"])
+        == '<colgroup>\n  <col style="width:20px;"/>\n  <col style="width:10px;"/>\n  <col style="width:30px;"/>\n</colgroup>'
+    )
+
+
+def test_cols_width_html_colgroup_complex():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8], "e": [9, 10]})
+    gt_tbl = (
+        GT(df, rowname_col="c")
+        .cols_move_to_start(columns="d")
+        .cols_hide(columns="a")
+        .cols_width({"a": "10px", "b": "20px", "c": "30px", "d": "40px", "e": "50px"})
+    )
+
+    tbl_built = gt_tbl._build_data(context="html")
+    table_defs = _get_table_defs(tbl_built)
+
+    assert (
+        str(table_defs["table_colgroups"])
+        == '<colgroup>\n  <col style="width:30px;"/>\n  <col style="width:40px;"/>\n  <col style="width:20px;"/>\n  <col style="width:50px;"/>\n</colgroup>'
+    )
 
 
 @pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "a"), (pl.DataFrame, cs.starts_with("a"))])
