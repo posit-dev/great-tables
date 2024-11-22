@@ -188,7 +188,6 @@ def save(
     debug_port: None | int = None,
     encoding: str = "utf-8",
     _debug_dump: DebugDumpOptions | None = None,
-    **params,
 ) -> GTSelf:
     """
     Produce a high-resolution image file or PDF of the table.
@@ -227,14 +226,6 @@ def save(
         Whether the saved image should be a big browser window, with key elements outlined. This is
         helpful for debugging this function's resizing, cropping heuristics. This is an internal
         parameter and subject to change.
-    **params
-        Additional parameters supported by
-        [Image.save()](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.save)
-        in Pillow. For instance, when saving the table as a
-        [PNG](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#png), you can
-        adjust the `compress_level` to balance between speed and compression. The `compress_level`
-        ranges from 0 to 9, where 1 offers the best speed, 9 offers maximum compression, and 0
-        applies no compression. The default value is 6.
 
     Returns
     -------
@@ -286,7 +277,7 @@ def save(
         encoded = base64.b64encode(html_content.encode(encoding=encoding)).decode(encoding=encoding)
         headless_browser.get(f"data:text/html;base64,{encoded}")
 
-        _save_screenshot(headless_browser, scale, file, debug=_debug_dump, **params)
+        _save_screenshot(headless_browser, scale, file, debug=_debug_dump)
 
     if debug_port and web_driver not in {"chrome", "firefox"}:
         warnings.warn("debug_port argument only supported on chrome and firefox")
@@ -304,7 +295,7 @@ def save(
 
 
 def _save_screenshot(
-    driver: webdriver.Chrome, scale: float, path: str, debug: DebugDumpOptions | None, **params
+    driver: webdriver.Chrome, scale: float, path: str, debug: DebugDumpOptions | None
 ) -> None:
     from io import BytesIO
     from selenium.webdriver.common.by import By
@@ -378,7 +369,7 @@ def _save_screenshot(
 
     from PIL import Image
 
-    Image.open(fp=BytesIO(el.screenshot_as_png)).save(fp=path, **params)
+    Image.open(fp=BytesIO(el.screenshot_as_png)).save(fp=path)
 
 
 def _dump_debug_screenshot(driver, path):
