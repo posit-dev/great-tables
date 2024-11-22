@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import importlib
 import itertools
-import json
 import re
 from collections.abc import Generator, Set
 from types import ModuleType
 from typing import TYPE_CHECKING, Any, Iterable, Iterator
 
-from ._tbl_data import PdDataFrame, _get_cell, _set_cell, get_column_names, n_rows
+from ._tbl_data import _get_cell, _set_cell, get_column_names, n_rows
 from ._text import BaseText, _process_text
 
 if TYPE_CHECKING:
