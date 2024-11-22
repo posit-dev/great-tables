@@ -915,7 +915,6 @@ class FormatFns:
 
 
 class CellSubset:
-
     def resolve(self) -> list[tuple[str, int]]:
         raise NotImplementedError("Not implemented")
 

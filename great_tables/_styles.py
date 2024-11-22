@@ -228,7 +228,6 @@ class CellStyleText(CellStyle):
     ) = None
 
     def _to_html_style(self) -> str:
-
         rendered = ""
 
         if self.color:

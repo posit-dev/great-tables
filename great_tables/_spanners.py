@@ -190,7 +190,6 @@ def tab_spanner(
 
     # Handle units syntax in the label (e.g., "Density ({{ppl / mi^2}})")
     if isinstance(label, str):
-
         unitstr = UnitStr.from_str(label)
 
         if len(unitstr.units_str) == 1 and isinstance(unitstr.units_str[0], str):

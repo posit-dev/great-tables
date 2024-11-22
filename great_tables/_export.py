@@ -434,7 +434,6 @@ def save(
         tempfile.TemporaryDirectory() as tmp_dir,
         wdriver(options=wd_options) as headless_browser,
     ):
-
         # Write the HTML content to the temp file
         with open(f"{tmp_dir}/table.html", "w", encoding=encoding) as temp_file:
             temp_file.write(html_content)

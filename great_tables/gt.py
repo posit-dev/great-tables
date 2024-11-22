@@ -348,7 +348,6 @@ class GT(
         make_page: bool = False,
         all_important: bool = False,
     ) -> str:
-
         heading_component = create_heading_component_h(data=self)
         column_labels_component = create_columns_component_h(data=self)
         body_component = create_body_component_h(data=self)
@@ -416,7 +415,6 @@ class GT(
         """
 
         if make_page:
-
             # Create an HTML page and place the table within it
             finalized_table = f"""<!DOCTYPE html>
 <html lang="en">

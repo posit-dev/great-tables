@@ -48,7 +48,6 @@ class Html(Text):
         return self.text
 
     def to_latex(self) -> str:
-
         from ._utils_render_latex import _not_implemented
 
         _not_implemented(
@@ -64,25 +63,21 @@ def _md_html(x: str) -> str:
 
 
 def _md_latex(x: str) -> str:
-
     # TODO: Implement commonmark to LaTeX conversion (through a different library as
     # commonmark-py does not support it)
     raise NotImplementedError("Markdown to LaTeX conversion is not supported yet")
 
 
 def _process_text(x: str | BaseText | None, context: str = "html") -> str:
-
     if x is None:
         return ""
 
     escape_fn = _html_escape if context == "html" else _latex_escape
 
     if isinstance(x, str):
-
         return escape_fn(x)
 
     elif isinstance(x, BaseText):
-
         return x.to_html() if context == "html" else x.to_latex()
 
     raise TypeError(f"Invalid type: {type(x)}")
@@ -97,7 +92,6 @@ def _html_escape(x: str) -> str:
 
 
 def _latex_escape(text: str) -> str:
-
     latex_escape_regex = "[\\\\&%$#_{}~^]"
     text = re.sub(latex_escape_regex, lambda match: "\\" + match.group(), text)
 
@@ -105,7 +99,6 @@ def _latex_escape(text: str) -> str:
 
 
 def escape_pattern_str_latex(pattern_str: str) -> str:
-
     pattern = r"(\{[x0-9]+\})"
 
     return process_string(pattern_str, pattern, _latex_escape)

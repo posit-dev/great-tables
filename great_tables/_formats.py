@@ -362,7 +362,6 @@ def fmt_number_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -550,7 +549,6 @@ def fmt_integer_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -832,7 +830,6 @@ def fmt_scientific_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -1076,7 +1073,6 @@ def fmt_percent_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -1341,7 +1337,6 @@ def fmt_currency_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -1465,7 +1460,6 @@ def fmt_roman_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -1723,7 +1717,6 @@ def fmt_bytes_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -1864,7 +1857,6 @@ def fmt_date_context(
 
     # If `x` is a string, we assume it is an ISO date string and convert it to a date object
     if isinstance(x, str):
-
         # Convert the ISO date string to a date object
         x = _iso_str_to_date(x)
 
@@ -1883,7 +1875,6 @@ def fmt_date_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -2012,7 +2003,6 @@ def fmt_time_context(
 
     # If `x` is a string, assume it is an ISO time string and convert it to a time object
     if isinstance(x, str):
-
         # Convert the ISO time string to a time object
         x = _iso_str_to_time(x)
 
@@ -2031,7 +2021,6 @@ def fmt_time_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -2186,7 +2175,6 @@ def fmt_datetime_context(
 
     # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
     if isinstance(x, str):
-
         # Convert the ISO datetime string to a datetime object
         x = _iso_str_to_datetime(x)
 
@@ -2205,7 +2193,6 @@ def fmt_datetime_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -2293,7 +2280,6 @@ def fmt_markdown_context(
     data: GTData,
     context: str,
 ) -> str:
-
     if context == "latex":
         raise NotImplementedError("fmt_markdown() is not supported in LaTeX.")
 
@@ -2888,13 +2874,12 @@ def _has_sci_order_zero(value: int | float) -> bool:
 
 
 def _context_exp_marks(context: str) -> list[str]:
-
     if context == "html":
-        marks = [" \u00D7 10<sup style='font-size: 65%;'>", "</sup>"]
+        marks = [" \u00d7 10<sup style='font-size: 65%;'>", "</sup>"]
     elif context == "latex":
         marks = [" $\\times$ 10\\textsuperscript{", "}"]
     else:
-        marks = [" \u00D7 10^", ""]
+        marks = [" \u00d7 10^", ""]
 
     return marks
 
@@ -2917,7 +2902,6 @@ def _context_exp_str(exp_style: str) -> str:
 
 
 def _context_minus_mark(context: str) -> str:
-
     if context == "html":
         mark = "\u2212"
     else:
@@ -2927,7 +2911,6 @@ def _context_minus_mark(context: str) -> str:
 
 
 def _context_percent_mark(context: str) -> str:
-
     if context == "latex":
         mark = "\\%"
     else:
@@ -2937,7 +2920,6 @@ def _context_percent_mark(context: str) -> str:
 
 
 def _context_dollar_mark(context: str) -> str:
-
     if context == "latex":
         mark = "\\$"
     else:
@@ -3782,7 +3764,6 @@ class FmtImage:
         return span
 
     def to_latex(self, val: Any):
-
         from ._gt_data import FormatterSkipElement
         from warnings import warn
 
@@ -4086,7 +4067,6 @@ def fmt_nanoplot(
     # If a bar plot is requested and the data consists of single y values, then we need to
     # obtain a list of all single y values in the targeted column (from `columns`)
     if plot_type in ["line", "bar"] and scalar_vals:
-
         # Check each cell in the column and get each of them that contains a scalar value
         # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
         all_single_y_vals = to_list(data_tbl[columns])
@@ -4105,7 +4085,6 @@ def fmt_nanoplot(
 
     # For autoscale, we need to get the minimum and maximum from all values for the y-axis
     if autoscale:
-
         from great_tables._utils import _flatten_list
 
         # TODO: if a column of delimiter separated strings is passed. E.g. "1 2 3 4". Does this mean
@@ -4119,7 +4098,6 @@ def fmt_nanoplot(
             # TODO: this dictionary handling seems redundant with _generate_data_vals dict handling?
             # Can this if-clause be removed?
             if isinstance(data_vals_i, dict):
-
                 if len(data_vals_i) == 1:
                     # If there is only one key in the dictionary, then we can assume that the
                     # dictionary deals with y-values only
@@ -4134,7 +4112,6 @@ def fmt_nanoplot(
 
             # If not a list, then convert to a list
             if not isinstance(data_vals_i, list):
-
                 data_vals_i = [data_vals_i]
 
             all_y_vals.extend(data_vals_i)
@@ -4157,7 +4134,6 @@ def fmt_nanoplot(
         all_single_y_vals: list[int | float] | None = all_single_y_vals,
         options_plots: dict[str, Any] = options_plots,
     ) -> str:
-
         if context == "latex":
             raise NotImplementedError("fmt_nanoplot() is not supported in LaTeX.")
 
@@ -4173,7 +4149,6 @@ def fmt_nanoplot(
         # TODO: where are tuples coming from? Need example / tests that induce tuples
         # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
         if isinstance(x, tuple):
-
             x_vals, y_vals = x
 
             # Ensure that both objects are lists
@@ -4228,7 +4203,6 @@ def _generate_data_vals(
         data_vals = to_list(data_vals)
 
     if isinstance(data_vals, list):
-
         # If the list contains string values, determine whether they are date values
         if all(isinstance(val, str) for val in data_vals):
             if not is_x_axis:
@@ -4252,7 +4226,6 @@ def _generate_data_vals(
         return data_vals
 
     elif isinstance(data_vals, str):
-
         # If the cell value is a string, assume it is a value stream and convert to a list
 
         # Detect whether there are time values or numeric values in the string
@@ -4262,7 +4235,6 @@ def _generate_data_vals(
             data_vals = _process_number_stream(data_vals)
 
     elif isinstance(data_vals, dict):
-
         # If the cell value is a dictionary, assume it contains data values
         # This is possibly for x and for y
 
@@ -4271,17 +4243,14 @@ def _generate_data_vals(
 
         # If the dictionary contains only one key, then assume that the values are for y
         if num_keys == 1:
-
             data_vals = list(data_vals.values())[0]
 
             # The data values can be anything, so recursively call this function to process them
             data_vals = _generate_data_vals(data_vals=data_vals)
 
         if num_keys >= 2:
-
             # For two or more keys, we need to see if the 'x' and 'y' keys are present
             if "x" in data_vals and "y" in data_vals:
-
                 x_vals: Any = data_vals["x"]
                 y_vals: Any = data_vals["y"]
 

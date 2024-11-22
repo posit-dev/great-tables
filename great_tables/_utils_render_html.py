@@ -3,14 +3,14 @@ from __future__ import annotations
 from itertools import chain
 from typing import Any, cast
 
-from great_tables._spanners import spanners_print_matrix
 from htmltools import HTML, TagList, css, tags
 
-from ._gt_data import GTData, Styles, GroupRowInfo
+from . import _locations as loc
+from ._gt_data import GroupRowInfo, GTData, Styles
+from ._spanners import spanners_print_matrix
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
-from . import _locations as loc
 
 
 def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
@@ -457,7 +457,6 @@ def create_body_component_h(data: GTData) -> str:
     ordered_index: list[tuple[int, GroupRowInfo]] = data._stub.group_indices_map()
 
     for i, group_info in ordered_index:
-
         # For table striping we want to add a striping CSS class to the even-numbered
         # rows in the rendered table; to target these rows, determine if `i` in the current
         # row render is an odd number
@@ -510,7 +509,6 @@ def create_body_component_h(data: GTData) -> str:
             _body_styles = [x for x in styles_cells if x.rownum == i and x.colname == colinfo.var]
 
             if is_stub_cell:
-
                 el_name = "th"
 
                 classes = ["gt_row", "gt_left", "gt_stub"]
@@ -521,7 +519,6 @@ def create_body_component_h(data: GTData) -> str:
                     classes.append("gt_striped")
 
             else:
-
                 el_name = "td"
 
                 classes = ["gt_row", f"gt_{cell_alignment}"]

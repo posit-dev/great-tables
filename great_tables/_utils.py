@@ -1,23 +1,19 @@
 from __future__ import annotations
 
-from collections.abc import Set
 import importlib
 import itertools
 import json
 import re
-from collections.abc import Generator
+from collections.abc import Generator, Set
 from types import ModuleType
-from typing import Any, Iterator, Iterable
+from typing import TYPE_CHECKING, Any, Iterable, Iterator
 
-
-from ._tbl_data import PdDataFrame, _set_cell, _get_cell, get_column_names, n_rows
-from ._text import _process_text, BaseText
-
-from typing import TYPE_CHECKING
+from ._tbl_data import PdDataFrame, _get_cell, _set_cell, get_column_names, n_rows
+from ._text import BaseText, _process_text
 
 if TYPE_CHECKING:
-    from great_tables._tbl_data import TblData
     from great_tables._gt_data import FormatInfo, GTData
+    from great_tables._tbl_data import TblData
 
 
 def _try_import(name: str, pip_install_line: str | None = None) -> ModuleType:
@@ -131,34 +127,6 @@ def _as_css_font_family_attr(fonts: list[str], value_only: bool = False) -> str:
         return fonts_str
 
     return f"font-family: {fonts_str};"
-
-
-def _object_as_dict(v: Any) -> Any:
-    try:
-        return v.object_as_dict()
-    except Exception:
-        pass
-    if isinstance(v, PdDataFrame):
-        return v.to_dict()
-    if isinstance(v, (tuple, list)):
-        return list(_object_as_dict(i) for i in v)
-    if isinstance(v, dict):
-        return dict((k, _object_as_dict(val)) for (k, val) in v.items())
-    if type(v) == type(_object_as_dict):  # FIXME figure out how to get "function"
-        return f"<function {v.__name__}>"
-    try:
-        d = vars(v)
-    except TypeError:
-        try:
-            json.dumps(v)
-        except TypeError:
-            return "JSON_UNSERIALIZABLE"
-        return v
-    return dict((k, _object_as_dict(v)) for (k, v) in d.items())
-
-
-def prettify_gt_object(v: Any) -> str:
-    return json.dumps(_object_as_dict(v), indent=2)
 
 
 def _collapse_list_elements(lst: list[Any], separator: str = "") -> str:
@@ -299,7 +267,6 @@ def _migrate_unformatted_to_output(
     # in the future)
 
     for col, row in all_unformatted_cells:
-
         # Get the cell value and cast as string
         cell_value = _get_cell(data_tbl, row, col)
         cell_value_str = str(cell_value)
