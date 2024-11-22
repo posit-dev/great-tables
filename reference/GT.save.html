@@ -240,7 +240,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>encoding</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'utf-8'</span></code></dt>
 <dd>
-<p>The encoding used when writing temporary files.</p>
+<p>The character encoding used for the HTML content.</p>
 </dd>
 <dt><code><span class="parameter-name">**_debug_dump**</span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>DebugDumpOptions</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
@@ -251,9 +251,9 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
 <dl>
-<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">None</span></code></dt>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../reference/GT.html#great_tables.GT">GT</a></span></code></dt>
 <dd>
-<p>This function does not return anything; it simply saves the image to the specified file path.</p>
+<p>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</p>
 </dd>
 </dl>
 </section>
