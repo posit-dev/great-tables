@@ -105,13 +105,9 @@ exclude = ["docs", ".venv", "tests/*"]
 ignore = [
     "E402",    # module level import not at top of file
     "E501",    # line too long (maximum 100 characters)
-    "W503",    # line break before binary operator
     "F811",    # redefinition of unused name
     "E203",    # whitespace before ':'
     "F401",    # 'module' imported but unused
     "F841",    # local variable 'name' is assigned to but never used
     "E702",    # multiple statements on one line (semicolon)
-    "E704",    # multiple statements on one line (def)
 ]
-
-max-line-length = 100
