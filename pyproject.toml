@@ -64,7 +64,7 @@ dev = [
 ]
 
 dev-no-pandas = [
-    "black",
+    "ruff==0.8.0",
     "jupyter",
     "quartodoc>=0.8.1; python_version >= '3.9'",
     "griffe==0.38.1",
@@ -82,7 +82,24 @@ dev-no-pandas = [
 homepage = "https://github.com/posit-dev/great-tables"
 documentation = "https://posit-dev.github.io/great-tables/"
 
-[tool.flake8]
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --cov=great_tables -m 'not no_pandas'"
+asyncio_mode = "strict"
+testpaths = [
+    "tests"
+]
+
+markers = [
+    "extra: marks tests that require extra dependencies to run",
+    "no_pandas: test meant to run without pandas installed",
+]
+
+[tool.ruff]
+line-length = 100
+
+
+[tool.ruff.lint]
 exclude = ["docs", ".venv", "tests/*"]
 
 ignore = [
@@ -98,19 +115,3 @@ ignore = [
 ]
 
 max-line-length = 100
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q --cov=great_tables -m 'not no_pandas'"
-asyncio_mode = "strict"
-testpaths = [
-    "tests"
-]
-
-markers = [
-    "extra: marks tests that require extra dependencies to run",
-    "no_pandas: test meant to run without pandas installed",
-]
-
-[tool.black]
-line-length = 100
