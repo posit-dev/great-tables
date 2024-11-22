@@ -15,7 +15,6 @@ WebDrivers: TypeAlias = Literal[
 
 
 class _BaseWebDriver:
-
     def __init__(self, debug_port: int | None = None):
         self.debug_port = debug_port
         self.wd_options = self.cls_wd_options()
