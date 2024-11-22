@@ -107,7 +107,6 @@ ignore = [
     "E501",    # line too long (maximum 100 characters)
     "F811",    # redefinition of unused name
     "E203",    # whitespace before ':'
-    "F401",    # 'module' imported but unused
     "F841",    # local variable 'name' is assigned to but never used
     "E702",    # multiple statements on one line (semicolon)
 ]
