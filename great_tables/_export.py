@@ -369,6 +369,7 @@ def _save_screenshot(
 
     from PIL import Image
 
+    # convert to other formats (e.g. pdf, bmp) using PIL
     Image.open(fp=BytesIO(el.screenshot_as_png)).save(fp=path)
 
 
