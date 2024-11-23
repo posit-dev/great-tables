@@ -26,7 +26,7 @@ def _val_is_numeric(x: Any) -> bool:
 
     # If a list then signal a failure
     if isinstance(x, list):
-        ValueError("The input cannot be a list. It must be a single value.")
+        raise ValueError("The input cannot be a list. It must be a single value.")
 
     return isinstance(x, (int, float))
 
@@ -38,7 +38,7 @@ def _val_is_str(x: Any) -> bool:
 
     # If a list then signal a failure
     if isinstance(x, list):
-        ValueError("The input cannot be a list. It must be a single value.")
+        raise ValueError("The input cannot be a list. It must be a single value.")
 
     return isinstance(x, (str))
 
