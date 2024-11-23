@@ -28,7 +28,7 @@ from ._tbl_data import (
     _get_column_dtype,
 )
 from ._text import _md_html, escape_pattern_str_latex
-from ._utils import _str_detect, _str_replace
+from ._utils import is_valid_http_schema, _str_detect, _str_replace
 from ._utils_nanoplots import _generate_nanoplot
 
 
@@ -3605,13 +3605,13 @@ def fmt_image(
 
     To more easily insert graphics into body cells, we can use the `fmt_image()` method. This allows
     for one or more images to be placed in the targeted cells. The cells need to contain some
-    reference to an image file, either: (1) complete http/https or local paths to the files; (2) the
-    file names, where a common path can be provided via `path=`; or (3) a fragment of the file name,
-    where the `file_pattern=` argument helps to compose the entire file name and `path=` provides
-    the path information. This should be expressly used on columns that contain *only* references to
-    image files (i.e., no image references as part of a larger block of text). Multiple images can
-    be included per cell by separating image references by commas. The `sep=` argument allows for a
-    common separator to be applied between images.
+    reference to an image file, either: (1) local paths to the files; (2) complete http/https to the
+    files; (3) the file names, where a common path can be provided via `path=`; or (4) a fragment of
+    the file name, where the `file_pattern=` argument helps to compose the entire file name and
+    `path=` provides the path information. This should be expressly used on columns that contain
+    *only* references to image files (i.e., no image references as part of a larger block of text).
+    Multiple images can be included per cell by separating image references by commas. The `sep=`
+    argument allows for a common separator to be applied between images.
 
     Parameters
     ----------
@@ -3691,7 +3691,7 @@ def fmt_image(
     if height is None and width is None:
         height = "2em"
 
-    formatter = FmtImage(self._tbl_data, height, width, sep, str(path), file_pattern, encode)
+    formatter = FmtImage(self._tbl_data, height, width, sep, path, file_pattern, encode)
     return fmt(
         self,
         fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
@@ -3704,9 +3704,9 @@ def fmt_image(
 class FmtImage:
     dispatch_on: DataFrameLike | Agnostic = Agnostic()
     height: str | int | None = None
-    width: str | None = None
+    width: str | int | None = None
     sep: str = " "
-    path: str | None = None
+    path: str | Path | None = None
     file_pattern: str = "{}"
     encode: bool = True
 
@@ -3742,13 +3742,16 @@ class FmtImage:
 
         out: list[str] = []
         for file in full_files:
-            # Case 1: from url
-            if self.path and (self.path.startswith("http://") or self.path.startswith("https://")):
-                norm_path = self.path.rstrip().removesuffix("/")
+            # Case 1: from url via `dispatch_on`
+            if self.path is None and is_valid_http_schema(file):
+                uri = file.rstrip().removesuffix("/")
+            # Case 2: from url via `path`
+            elif self.path is not None and is_valid_http_schema(str(self.path)):
+                norm_path = str(self.path).rstrip().removesuffix("/")
                 uri = f"{norm_path}/{file}"
-            # Case 2:
+            # Case 3:
             else:
-                filename = (Path(self.path or "") / file).expanduser().absolute()
+                filename = str((Path(self.path or "") / file).expanduser().absolute())
 
                 if self.encode:
                     uri = self._get_image_uri(filename)
