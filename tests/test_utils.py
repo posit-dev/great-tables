@@ -1,5 +1,7 @@
 from collections.abc import Generator
+from pathlib import Path
 import pytest
+
 
 from great_tables import GT, exibble
 from great_tables._tbl_data import is_na
@@ -14,6 +16,7 @@ from great_tables._utils import (
     _migrate_unformatted_to_output,
     OrderedSet,
     _str_scalar_to_list,
+    is_valid_http_schema,
     heading_has_subtitle,
     heading_has_title,
     seq_groups,
@@ -215,3 +218,10 @@ def test_migrate_unformatted_to_output_html():
     )
 
     assert is_na(migrated._body.body, migrated._body.body["char"].tolist()).tolist() == [True, True]
+
+
+@pytest.mark.parametrize(
+    "url", ["http://posit.co/", "http://posit.co", "https://posit.co/", "https://posit.co"]
+)
+def test_is_valid_http_schema(url: str):
+    assert is_valid_http_schema(url)
