@@ -11,8 +11,8 @@ from ._tbl_data import _get_cell, _set_cell, get_column_names, n_rows
 from ._text import BaseText, _process_text
 
 if TYPE_CHECKING:
-    from great_tables._gt_data import FormatInfo, GTData
-    from great_tables._tbl_data import TblData
+    from ._gt_data import FormatInfo, GTData
+    from ._tbl_data import TblData
 
 
 def _try_import(name: str, pip_install_line: str | None = None) -> ModuleType:
