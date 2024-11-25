@@ -4041,7 +4041,6 @@ class FmtFlag:
 
         if use_title:
             replacement += f"<title>{flag_title}</title>"
-        replacement += ">"
 
         return re.sub(r"<svg.*?>", replacement, flag_svg)
 
