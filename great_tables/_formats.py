@@ -3883,6 +3883,8 @@ class FmtFlag:
         if is_na(self.dispatch_on, val):
             return val
 
+        val = val.upper()
+
         if "," in val:
             flag_list = re.split(r",\s*", val)
         else:
