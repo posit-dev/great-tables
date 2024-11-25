@@ -1492,6 +1492,122 @@ def test_fmt_image_path_http(url: str):
     assert strip_windows_drive(res) == dst
 
 
+def test_fmt_flag_one_per_cell():
+    df = pd.DataFrame({"x": ["FR", "DE", "GB"]})
+
+    gt = GT(df).fmt_flag(columns="x")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(re.search("^<span style.*?<svg.*?>.*?</svg></span>$", val))
+
+
+def test_fmt_flag_na_values():
+    df = pd.DataFrame({"x": ["FR", pd.NA]})
+
+    gt = GT(df).fmt_flag(columns="x")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert bool(re.search("^<span style.*?<svg.*?>.*?</svg></span>$", column_vals[0]))
+    assert column_vals[1] == "<NA>"
+
+
+def test_fmt_flag_two_per_cell():
+    df = pd.DataFrame({"x": ["FR,DE", "TT,GB"]})
+
+    gt = GT(df).fmt_flag(columns="x")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(
+            re.search(
+                "^<span style.*?<svg.*?>.*?</svg> <svg.*?>.*?</svg></span>$",
+                val,
+            )
+        )
+
+
+def test_fmt_flag_separator():
+    df = pd.DataFrame({"x": ["FR,DE", "TT,GB"]})
+
+    gt = GT(df).fmt_flag(columns="x", sep=" / ")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(
+            re.search(
+                "^<span style.*?<svg.*?>.*?</svg> / <svg.*?>.*?</svg></span>$",
+                val,
+            )
+        )
+
+
+def test_fmt_flag_title():
+    df = pd.DataFrame({"x": ["FIN"]})
+
+    gt_title = GT(df).fmt_flag(columns="x", use_title=True)
+    gt_no_title = GT(df).fmt_flag(columns="x", use_title=False)
+
+    column_vals_title = _get_column_of_values(gt_title, column_name="x", context="html")
+    column_vals_no_title = _get_column_of_values(gt_no_title, column_name="x", context="html")
+
+    assert bool(re.search("<title>.*?</title>", column_vals_title[0]))
+    assert not bool(re.search("<title>.*?</title>", column_vals_no_title[0]))
+
+
+def test_fmt_flag_mixed_case_type():
+    df_1 = pd.DataFrame({"x": ["FR", "DE", "GB", "IT,ES"]})
+    df_2 = pd.DataFrame({"x": ["fr", "DEU", "gbr", "IT,esp"]})
+
+    gt_1 = GT(df_1).fmt_flag(columns="x")
+    gt_2 = GT(df_2).fmt_flag(columns="x")
+
+    column_vals_1 = _get_column_of_values(gt_1, column_name="x", context="html")
+    column_vals_2 = _get_column_of_values(gt_2, column_name="x", context="html")
+
+    assert column_vals_1 == column_vals_2
+
+
+def test_fmt_flag_height():
+    df = pd.DataFrame({"x": ["FR"]})
+
+    gt_px = GT(df).fmt_flag(columns="x", height="20px")
+    gt_num = GT(df).fmt_flag(columns="x", height=20)
+
+    column_vals_px = _get_column_of_values(gt_px, column_name="x", context="html")
+    column_vals_num = _get_column_of_values(gt_num, column_name="x", context="html")
+
+    assert bool(re.search("height:20px", column_vals_px[0]))
+
+    assert column_vals_px == column_vals_num
+
+
+def test_fmt_flag_locale():
+    df = pd.DataFrame({"x": ["FR", "DE", "GB"]})
+
+    gt_default = GT(df).fmt_flag(columns="x")
+    gt_en = GT(df).fmt_flag(columns="x", locale="en")
+    gt_fr = GT(df).fmt_flag(columns="x", locale="fr")
+
+    column_vals_default = _get_column_of_values(gt_default, column_name="x", context="html")
+    column_vals_en = _get_column_of_values(gt_en, column_name="x", context="html")
+    column_vals_fr = _get_column_of_values(gt_fr, column_name="x", context="html")
+
+    assert bool(re.search("<title>France</title>", column_vals_default[0]))
+    assert bool(re.search("<title>Germany</title>", column_vals_default[1]))
+    assert bool(re.search("<title>United Kingdom</title>", column_vals_default[2]))
+
+    assert bool(re.search("<title>France</title>", column_vals_fr[0]))
+    assert bool(re.search("<title>Allemagne</title>", column_vals_fr[1]))
+    assert bool(re.search("<title>Royaume-Uni</title>", column_vals_fr[2]))
+
+    assert column_vals_default == column_vals_en
+
+
 @pytest.mark.parametrize(
     "src,dst",
     [
