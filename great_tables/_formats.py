@@ -3929,8 +3929,6 @@ class FmtFlag:
 
             # Extract the flag SVG data and modify it to include the height, width, and a
             # title based on the localized country name
-            flag_svg = flag_dict["country_flag"]
-
             flag_icon = self._replace_flag_svg(
                 flag_svg=flag_svg, height=height, use_title=self.use_title, flag_title=flag_title
             )
