@@ -3895,11 +3895,39 @@ def fmt_flag(
         .fmt_integer(columns="population")
         .fmt_flag(columns="country_code_2")
         .cols_label(
-            country_code_2 = "",
-            country_name = "Country",
-            population = "Population (2021)"
+            country_code_2="",
+            country_name="Country",
+            population="Population (2021)"
         )
         .cols_move_to_start(columns="country_code_2")
+    )
+    ```
+
+    Here's another example (again using `countrypops`) where we generate a table providing
+    populations every five years for the Benelux countries (`"BEL"`, `"NLD"`, and `"LUX"`). After
+    some filtering and a pivot, the `fmt_flag()` method is used to obtain flag icons from 3-letter
+    country codes present in the `country_code_3` column.
+
+    ```{python}
+    import polars.selectors as cs
+
+    countrypops_mini = (
+        pl.from_pandas(countrypops)
+        .filter(pl.col("country_code_3").is_in(["BEL", "NLD", "LUX"]))
+        .filter((pl.col("year") % 10 == 0) & (pl.col("year") >= 1960))
+        .pivot("year", index = ["country_code_3", "country_name"], values="population")
+    )
+
+    (
+        GT(countrypops_mini)
+        .tab_header(title="Populations of the Benelux Countries")
+        .tab_spanner(label="Year", columns=cs.numeric())
+        .fmt_integer(columns=cs.numeric())
+        .fmt_flag(columns="country_code_3")
+        .cols_label(
+            country_code_3="",
+            country_name="Country"
+        )
     )
     ```
     """
