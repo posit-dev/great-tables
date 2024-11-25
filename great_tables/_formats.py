@@ -3922,8 +3922,10 @@ class FmtFlag:
                 pd_df=_get_country_names_data(), column=lookup_column, filter_expr=flag
             )
 
+            # The SVG data for the flag is stored with the 'country_flag' key; the country name
+            # is located via the locale value
             flag_svg = str(flag_dict["country_flag"])
-            flag_title = str(country_name_dict[locale])
+            flag_title = str(country_name_dict.get(locale, "Unknown"))
 
             # Extract the flag SVG data and modify it to include the height, width, and a
             # title based on the localized country name
