@@ -15,7 +15,13 @@ from typing_extensions import TypeAlias
 
 from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
 from ._helpers import px
-from ._locale import _get_currencies_data, _get_default_locales_data, _get_locales_data
+from ._locale import (
+    _get_country_names_data,
+    _get_currencies_data,
+    _get_default_locales_data,
+    _get_flags_data,
+    _get_locales_data,
+)
 from ._locations import resolve_cols_c, resolve_rows_i
 from ._tbl_data import (
     Agnostic,
@@ -3809,6 +3815,149 @@ class FmtImage:
         )
 
         return f'<img src="{uri}" style="{style_string}">'
+
+
+def fmt_flag(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    height: str | int | None = "1em",
+    sep: str = " ",
+    use_title: bool = True,
+    locale: str | None = None,
+) -> GTSelf:
+    """Generate flag icons for countries from their country codes.
+
+    While it is fairly straightforward to insert images into body cells (using `fmt_image()` is one
+    way to it), there is often the need to incorporate specialized types of graphics within a table.
+    One such group of graphics involves iconography representing different countries, and the
+    `fmt_flag()` method helps with inserting a flag icon (or multiple) in body cells. To make this
+    work seamlessly, the input cells need to contain some reference to a country, and this can be in
+    the form of a 2- or 3-letter ISO 3166-1 country code (e.g., Egypt has the `"EG"` country code).
+    This function will parse the targeted body cells for those codes (and the countrypops dataset
+    contains all of them) and insert the appropriate flag graphics.
+
+    Multiple flags can be included per cell by separating country codes with commas (e.g.,
+    `"GB,TT"`). The `sep=` argument allows for a common separator to be applied between flag icons.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    height
+        The height of the flag icons. The default value is `"1em"`.
+    sep
+        In the output of flag icons within a body cell, `sep=` provides the separator between each
+        flag.
+
+    """
+
+    locale = _resolve_locale(self, locale=locale)
+
+    formatter = FmtFlag(self._tbl_data, height, sep, use_title, locale)
+
+    return fmt(
+        self,
+        fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
+        columns=columns,
+        rows=rows,
+    )
+
+    return self
+
+
+@dataclass
+class FmtFlag:
+    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    height: str | None = None
+    sep: str = " "
+    use_title: bool = True
+    locale: str | None = None
+
+    SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
+
+    def to_html(self, val: Any):
+        if is_na(self.dispatch_on, val):
+            return val
+
+        if "," in val:
+            flag_list = re.split(r",\s*", val)
+        else:
+            flag_list = [val]
+
+        if self.height is None:
+            height = "1em"
+        else:
+            height = self.height
+
+        if self.locale is None:
+            locale = "en"
+        else:
+            locale = self.locale
+
+        out: list[str] = []
+
+        for flag in flag_list:
+            # Get the correct dictionary entries based on the provided 'country_code_2' value
+            flag_dict = _filter_pd_df_to_row(
+                pd_df=_get_flags_data(), column="country_code_2", filter_expr=flag
+            )
+            country_name_dict = _filter_pd_df_to_row(
+                pd_df=_get_country_names_data(), column="country_code_2", filter_expr=flag
+            )
+
+            flag_svg = str(flag_dict["country_flag"])
+            flag_title = str(country_name_dict[locale])
+
+            # Extract the flag SVG data and modify it to include the height, width, and a
+            # title based on the localized country name
+            flag_svg = flag_dict["country_flag"]
+
+            flag_icon = self._replace_flag_svg(
+                flag_svg=flag_svg, height=height, use_title=self.use_title, flag_title=flag_title
+            )
+
+            out.append(str(flag_icon))
+
+        img_tags = self.sep.join(out)
+        span = self.SPAN_TEMPLATE.format(img_tags)
+
+        return span
+
+    def to_latex(self, val: Any):
+        from warnings import warn
+
+        from ._gt_data import FormatterSkipElement
+
+        warn("fmt_flag() is not currently implemented in LaTeX output.")
+
+        return FormatterSkipElement()
+
+    @staticmethod
+    def _replace_flag_svg(flag_svg: str, height: str, use_title: bool, flag_title: str) -> str:
+        replacement = (
+            f'<svg xmlns="http://www.w3.org/2000/svg" '
+            f'aria-hidden="true" role="img" '
+            f'width="512" height="512" '
+            f'viewBox="0 0 512 512" '
+            f'style="vertical-align:-0.125em;'
+            f"image-rendering:optimizeQuality;"
+            f"height:{height};"
+            f"width:{height};"
+            f'"'
+            f">"
+        )
+
+        if use_title:
+            replacement += f"<title>{flag_title}</title>"
+        replacement += ">"
+
+        return re.sub(r"<svg.*?>", replacement, flag_svg)
 
 
 def fmt_nanoplot(
