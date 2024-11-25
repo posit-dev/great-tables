@@ -3906,12 +3906,20 @@ class FmtFlag:
         out: list[str] = []
 
         for flag in flag_list:
+            # If the number of characters in the country code is not 2 or 3, then we raise an error
+            if len(flag) not in [2, 3]:
+                raise ValueError("The country code provided must be either 2 or 3 characters long.")
+
+            # Since we allow 2- or 3- character country codes, create the name of the lookup
+            # column based on the length of the country code
+            lookup_column = "country_code_2" if len(flag) == 2 else "country_code_3"
+
             # Get the correct dictionary entries based on the provided 'country_code_2' value
             flag_dict = _filter_pd_df_to_row(
-                pd_df=_get_flags_data(), column="country_code_2", filter_expr=flag
+                pd_df=_get_flags_data(), column=lookup_column, filter_expr=flag
             )
             country_name_dict = _filter_pd_df_to_row(
-                pd_df=_get_country_names_data(), column="country_code_2", filter_expr=flag
+                pd_df=_get_country_names_data(), column=lookup_column, filter_expr=flag
             )
 
             flag_svg = str(flag_dict["country_flag"])
