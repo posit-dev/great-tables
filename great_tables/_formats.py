@@ -3868,8 +3868,6 @@ def fmt_flag(
         rows=rows,
     )
 
-    return self
-
 
 @dataclass
 class FmtFlag:
