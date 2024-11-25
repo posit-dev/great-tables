@@ -3868,6 +3868,40 @@ def fmt_flag(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `countrypops` dataset to create a new table with flag icons. We will only include
+    a few columns and rows from that table. The `country_code_2` column has 2-letter country codes
+    in the format required for `fmt_flag()` and using that method transforms the codes to circular
+    flag icons.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import countrypops
+    import polars as pl
+
+    countrypops_mini = (
+        pl.from_pandas(countrypops)
+        .filter(pl.col("year") == 2021)
+        .filter(pl.col("country_name").str.starts_with("S"))
+        .sort("country_name")
+        .head(10)
+        .drop(["year", "country_code_3"])
+    )
+
+    (
+        GT(countrypops_mini)
+        .fmt_integer(columns="population")
+        .fmt_flag(columns="country_code_2")
+        .cols_label(
+            country_code_2 = "",
+            country_name = "Country",
+            population = "Population (2021)"
+        )
+        .cols_move_to_start(columns="country_code_2")
+    )
+    ```
     """
 
     locale = _resolve_locale(self, locale=locale)
