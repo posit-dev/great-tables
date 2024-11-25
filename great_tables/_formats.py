@@ -3832,8 +3832,8 @@ def fmt_flag(
     `fmt_flag()` method helps with inserting a flag icon (or multiple) in body cells. To make this
     work seamlessly, the input cells need to contain some reference to a country, and this can be in
     the form of a 2- or 3-letter ISO 3166-1 country code (e.g., Egypt has the `"EG"` country code).
-    This function will parse the targeted body cells for those codes (and the countrypops dataset
-    contains all of them) and insert the appropriate flag graphics.
+    This method will parse the targeted body cells for those codes and insert the appropriate flag
+    graphics.
 
     Multiple flags can be included per cell by separating country codes with commas (e.g.,
     `"GB,TT"`). The `sep=` argument allows for a common separator to be applied between flag icons.
