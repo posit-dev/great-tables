@@ -1586,28 +1586,6 @@ def test_fmt_flag_height():
     assert column_vals_px == column_vals_num
 
 
-def test_fmt_flag_locale():
-    df = pd.DataFrame({"x": ["FR", "DE", "GB"]})
-
-    gt_default = GT(df).fmt_flag(columns="x")
-    gt_en = GT(df).fmt_flag(columns="x", locale="en")
-    gt_fr = GT(df).fmt_flag(columns="x", locale="fr")
-
-    column_vals_default = _get_column_of_values(gt_default, column_name="x", context="html")
-    column_vals_en = _get_column_of_values(gt_en, column_name="x", context="html")
-    column_vals_fr = _get_column_of_values(gt_fr, column_name="x", context="html")
-
-    assert bool(re.search("<title>France</title>", column_vals_default[0]))
-    assert bool(re.search("<title>Germany</title>", column_vals_default[1]))
-    assert bool(re.search("<title>United Kingdom</title>", column_vals_default[2]))
-
-    assert bool(re.search("<title>France</title>", column_vals_fr[0]))
-    assert bool(re.search("<title>Allemagne</title>", column_vals_fr[1]))
-    assert bool(re.search("<title>Royaume-Uni</title>", column_vals_fr[2]))
-
-    assert column_vals_default == column_vals_en
-
-
 @pytest.mark.parametrize(
     "src,dst",
     [

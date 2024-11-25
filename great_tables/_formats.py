@@ -16,7 +16,6 @@ from typing_extensions import TypeAlias
 from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
 from ._helpers import px
 from ._locale import (
-    _get_country_names_data,
     _get_currencies_data,
     _get_default_locales_data,
     _get_flags_data,
@@ -3824,7 +3823,6 @@ def fmt_flag(
     height: str | int | float | None = "1em",
     sep: str = " ",
     use_title: bool = True,
-    locale: str | None = None,
 ) -> GTSelf:
     """Generate flag icons for countries from their country codes.
 
@@ -3858,10 +3856,6 @@ def fmt_flag(
     use_title
         The option to include a title attribute with the country name when hovering over the flag
         icon. The default is `True`.
-    locale
-        An optional locale identifier that can be used for translating country names incorporated as
-        the flag icon title. Examples include `"en"` for English (United States) and `"fr"` for
-        French (France).
 
     Returns
     -------
@@ -3932,9 +3926,7 @@ def fmt_flag(
     ```
     """
 
-    locale = _resolve_locale(self, locale=locale)
-
-    formatter = FmtFlag(self._tbl_data, height=height, sep=sep, use_title=use_title, locale=locale)
+    formatter = FmtFlag(self._tbl_data, height=height, sep=sep, use_title=use_title)
 
     return fmt(
         self,
@@ -3950,7 +3942,6 @@ class FmtFlag:
     height: str | int | float | None = None
     sep: str = " "
     use_title: bool = True
-    locale: str | None = None
 
     SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
 
@@ -3973,11 +3964,6 @@ class FmtFlag:
             if isinstance(height, (int, float)):
                 height = f"{height}px"
 
-        if self.locale is None:
-            locale = "en"
-        else:
-            locale = self.locale
-
         out: list[str] = []
 
         for flag in flag_list:
@@ -3993,17 +3979,13 @@ class FmtFlag:
             flag_dict = _filter_pd_df_to_row(
                 pd_df=_get_flags_data(), column=lookup_column, filter_expr=flag
             )
-            country_name_dict = _filter_pd_df_to_row(
-                pd_df=_get_country_names_data(), column=lookup_column, filter_expr=flag
-            )
 
-            # The SVG data for the flag is stored with the 'country_flag' key; the country name
-            # is located via the locale value
+            # Get the SVG string and country name for the flag
             flag_svg = str(flag_dict["country_flag"])
-            flag_title = str(country_name_dict.get(locale, "Unknown"))
+            flag_title = str(flag_dict["country_name"])
 
             # Extract the flag SVG data and modify it to include the height, width, and a
-            # title based on the localized country name
+            # title based on the country name
             flag_icon = self._replace_flag_svg(
                 flag_svg=flag_svg, height=height, use_title=self.use_title, flag_title=flag_title
             )
