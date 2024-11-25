@@ -3850,11 +3850,24 @@ def fmt_flag(
         formatting. The default is all rows, resulting in all rows in targeted columns being
         formatted. Alternatively, we can supply a list of row indices.
     height
-        The height of the flag icons. The default value is `"1em"`.
+        The height of the flag icons. The default value is `"1em"`. If given as a number, it is
+        assumed to be in pixels.
     sep
-        In the output of flag icons within a body cell, `sep=` provides the separator between each
-        flag.
+        In the output of multiple flag icons within a body cell, `sep=` provides the separator
+        between each of the flag icons.
+    use_title
+        The option to include a title attribute with the country name when hovering over the flag
+        icon. The default is `True`.
+    locale
+        An optional locale identifier that can be used for translating country names incorporated as
+        the flag icon title. Examples include `"en"` for English (United States) and `"fr"` for
+        French (France).
 
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
     """
 
     locale = _resolve_locale(self, locale=locale)
