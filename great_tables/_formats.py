@@ -3872,7 +3872,7 @@ def fmt_flag(
 @dataclass
 class FmtFlag:
     dispatch_on: DataFrameLike | Agnostic = Agnostic()
-    height: str | None = None
+    height: str | int | None = None
     sep: str = " "
     use_title: bool = True
     locale: str | None = None
