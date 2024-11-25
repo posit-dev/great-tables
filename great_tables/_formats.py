@@ -3859,7 +3859,7 @@ def fmt_flag(
 
     locale = _resolve_locale(self, locale=locale)
 
-    formatter = FmtFlag(self._tbl_data, height, sep, use_title, locale)
+    formatter = FmtFlag(self._tbl_data, height=height, sep=sep, use_title=use_title, locale=locale)
 
     return fmt(
         self,
