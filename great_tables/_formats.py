@@ -3821,7 +3821,7 @@ def fmt_flag(
     self: GTSelf,
     columns: SelectExpr = None,
     rows: int | list[int] | None = None,
-    height: str | int | None = "1em",
+    height: str | int | float | None = "1em",
     sep: str = " ",
     use_title: bool = True,
     locale: str | None = None,
@@ -3872,7 +3872,7 @@ def fmt_flag(
 @dataclass
 class FmtFlag:
     dispatch_on: DataFrameLike | Agnostic = Agnostic()
-    height: str | int | None = None
+    height: str | int | float | None = None
     sep: str = " "
     use_title: bool = True
     locale: str | None = None
@@ -3892,6 +3892,9 @@ class FmtFlag:
             height = "1em"
         else:
             height = self.height
+
+            if isinstance(height, (int, float)):
+                height = f"{height}px"
 
         if self.locale is None:
             locale = "en"
