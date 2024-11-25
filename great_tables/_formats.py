@@ -4027,16 +4027,15 @@ class FmtFlag:
     @staticmethod
     def _replace_flag_svg(flag_svg: str, height: str, use_title: bool, flag_title: str) -> str:
         replacement = (
-            f'<svg xmlns="http://www.w3.org/2000/svg" '
-            f'aria-hidden="true" role="img" '
-            f'width="512" height="512" '
-            f'viewBox="0 0 512 512" '
-            f'style="vertical-align:-0.125em;'
-            f"image-rendering:optimizeQuality;"
+            '<svg xmlns="http://www.w3.org/2000/svg" '
+            'aria-hidden="true" role="img" '
+            'width="512" height="512" '
+            'viewBox="0 0 512 512" '
+            'style="vertical-align:-0.125em;'
+            "image-rendering:optimizeQuality;"
             f"height:{height};"
             f"width:{height};"
-            f'"'
-            f">"
+            '">'
         )
 
         if use_title:
