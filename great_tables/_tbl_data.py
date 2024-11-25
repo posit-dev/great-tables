@@ -1,25 +1,22 @@
 from __future__ import annotations
 
-import warnings
 import re
-
+import warnings
 from functools import singledispatch
-from importlib_metadata import version
-from typing import TYPE_CHECKING, Any, Callable, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union
 
 from typing_extensions import TypeAlias
 
 from ._databackend import AbstractBackend
-
 
 # Define databackend types ----
 # These are resolved lazily (e.g. on isinstance checks) when run dynamically,
 # or imported directly during type checking.
 
 if TYPE_CHECKING:
+    import numpy as np
     import pandas as pd
     import polars as pl
-    import numpy as np
     import pyarrow as pa
 
     # the class behind selectors
@@ -119,7 +116,7 @@ def _raise_pandas_required(msg: Any):
     raise ImportError(msg)
 
 
-def _re_version(raw_version: str) -> Tuple[int, int, int]:
+def _re_version(raw_version: str) -> tuple[int, int, int]:
     """Return a semver-like version string as a 3-tuple of integers.
 
     Note two important caveats: (1) separators like dev are dropped (e.g. "3.2.1dev3" -> (3, 2, 1)),
@@ -341,7 +338,6 @@ def _(data: PlDataFrame, group_key: str) -> dict[Any, list[int]]:
 
 @group_splits.register
 def _(data: PyArrowTable, group_key: str) -> dict[Any, list[int]]:
-    import pyarrow as pa
     import pyarrow.compute as pc
 
     group_col = data.column(group_key)
@@ -357,11 +353,13 @@ def _(data: PyArrowTable, group_key: str) -> dict[Any, list[int]]:
 # eval_select ----
 
 SelectExpr: TypeAlias = Union[
+    str,
+    list[str],
+    int,
+    list[int],
     list["str | int"],
     PlSelectExpr,
     list[PlSelectExpr],
-    str,
-    int,
     Callable[[str], bool],
     None,
 ]
@@ -399,17 +397,13 @@ def _(
 def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool = True) -> _NamePos:
     # TODO: how to annotate type of a polars selector?
     # Seems to be polars.selectors._selector_proxy_.
-    from ._utils import OrderedSet
+    import polars as pl
     import polars.selectors as cs
-
     from polars import Expr
 
-    pl_version = None
-    try:
-        pl_version = _re_version(version("polars"))
-    except ModuleNotFoundError:
-        pl_version = _re_version(version("polars-u64-idx"))
+    from ._utils import OrderedSet
 
+    pl_version = _re_version(pl.__version__)
     expand_opts = {"strict": False} if pl_version >= (0, 20, 30) else {}
 
     # just in case _selector_proxy_ gets renamed or something
@@ -466,8 +460,8 @@ def _(
 
 
 def _validate_selector_list(selectors: list, strict=True):
-    from polars.selectors import is_selector
     from polars import Expr
+    from polars.selectors import is_selector
 
     for ii, sel in enumerate(selectors):
         if isinstance(sel, Expr):
@@ -656,7 +650,7 @@ def _(ser: PyArrowChunkedArray) -> list[Any]:
 
 @singledispatch
 def is_series(ser: Any) -> bool:
-    False
+    return False
 
 
 @is_series.register
@@ -752,9 +746,9 @@ def _(df: PdDataFrame, x: Any) -> bool:
 @is_na.register(Agnostic)
 @is_na.register
 def _(df: PlDataFrame, x: Any) -> bool:
-    import polars as pl
-
     from math import isnan
+
+    import polars as pl
 
     return isinstance(x, (pl.Null, type(None))) or (isinstance(x, float) and isnan(x))
 

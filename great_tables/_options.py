@@ -474,6 +474,7 @@ def tab_options(
     row_striping_include_table_body
         An option for whether to include the table body when striping rows.
 
+
     Returns
     -------
     GT
@@ -1226,7 +1227,6 @@ def opt_table_font(
     res = self
 
     if font is not None:
-
         # If font is a string or GoogleFont object, convert to a list
         if isinstance(font, (str, GoogleFont)):
             font: list[str | GoogleFont] = [font]
@@ -1242,7 +1242,6 @@ def opt_table_font(
         new_font_list: list[str] = []
 
         for item in font:
-
             if isinstance(item, str):
                 # Case where list item is a string; here, it's converted to a list
                 new_font_list.append(item)
@@ -1270,7 +1269,6 @@ def opt_table_font(
         font = []
 
     if stack is not None:
-
         # Case where value is given to `stack=` and this is a keyword that returns a
         # list of fonts (i.e., the font stack); in this case we combine with `font=` values
         # (if provided) and we *always* replace the existing fonts (`add=` is ignored)
@@ -1288,9 +1286,7 @@ def opt_table_font(
     res = tab_options(res, table_font_names=combined_fonts)
 
     if weight is not None:
-
         if isinstance(weight, (int, float)):
-
             weight = str(round(weight))
 
         elif not isinstance(weight, str):
@@ -1302,7 +1298,6 @@ def opt_table_font(
         res = tab_options(res, column_labels_font_weight=weight)
 
     if style is not None:
-
         res = tab_options(res, table_font_style=style)
 
     return res

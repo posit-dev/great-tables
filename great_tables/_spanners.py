@@ -6,20 +6,21 @@ from typing import TYPE_CHECKING
 from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
-from ._text import Text
+from ._text import BaseText, Text
 from ._utils import OrderedSet, _assert_list_is_subset
+from typing_extensions import TypeAlias
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
     from ._types import GTSelf
 
 
-SpannerMatrix = "list[dict[str, str | None]]"
+SpannerMatrix: TypeAlias = list[dict[str, "str | None"]]
 
 
 def tab_spanner(
     self: GTSelf,
-    label: str | Text,
+    label: str | BaseText,
     columns: SelectExpr = None,
     spanners: str | list[str] | None = None,
     level: int | None = None,
@@ -189,7 +190,6 @@ def tab_spanner(
 
     # Handle units syntax in the label (e.g., "Density ({{ppl / mi^2}})")
     if isinstance(label, str):
-
         unitstr = UnitStr.from_str(label)
 
         if len(unitstr.units_str) == 1 and isinstance(unitstr.units_str[0], str):
@@ -197,7 +197,7 @@ def tab_spanner(
         else:
             new_label = unitstr
 
-    elif isinstance(label, Text):
+    elif isinstance(label, BaseText):
         new_label = label
 
     else:

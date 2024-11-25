@@ -1,0 +1,98 @@
+# serializer version: 1
+# name: test_snap_render_as_latex
+  '''
+  \begingroup
+  \setlength\LTleft{\dimexpr(0.5\linewidth - 225pt)}
+  \setlength\LTright{\dimexpr(0.5\linewidth - 225pt)}
+  \fontsize{9.0pt}{10.8pt}\selectfont
+  
+  \setlength{\LTpost}{0mm}
+  \begin{longtable}{@{\extracolsep{\fill}}llrrr}
+  \caption*{
+  {\large The \_title\_} \\
+  {\small The subtitle}
+  } \\
+  \toprule
+  \multicolumn{2}{c}{Make \_and\_ Model} & \multicolumn{2}{c}{Performance} &  \\ 
+  \cmidrule(lr){1-2} \cmidrule(lr){3-4}
+  mfr & model & hp & trq & msrp \\ 
+  \midrule\addlinespace[2.5pt]
+  Ford & GT & 647.0 & 550.0 & \$447,000.00 \\
+  Ferrari & 458 Speciale & 597.0 & 398.0 & \$291,744.00 \\
+  Ferrari & 458 Spider & 562.0 & 398.0 & \$263,553.00 \\
+  Ferrari & 458 Italia & 562.0 & 398.0 & \$233,509.00 \\
+  Ferrari & 488 GTB & 661.0 & 561.0 & \$245,400.00 \\
+  \bottomrule
+  \end{longtable}
+  \begin{minipage}{\linewidth}
+  Note 1\\
+  Note 2\\
+  \end{minipage}
+  \endgroup
+  
+  '''
+# ---
+# name: test_snap_render_as_latex_floating_table
+  '''
+  \begin{table}[!t]
+  \caption*{
+  {\large The \_title\_} \\
+  {\small The subtitle}
+  } 
+  
+  \fontsize{9.0pt}{10.8pt}\selectfont
+  
+  \begin{tabular*}{450.0pt}{@{\extracolsep{\fill}}llrrr}
+  \toprule
+  \multicolumn{2}{c}{Make \_and\_ Model} & \multicolumn{2}{c}{Performance} &  \\ 
+  \cmidrule(lr){1-2} \cmidrule(lr){3-4}
+  mfr & model & hp & trq & msrp \\ 
+  \midrule\addlinespace[2.5pt]
+  Ford & GT & 647.0 & 550.0 & \$447,000.00 \\
+  Ferrari & 458 Speciale & 597.0 & 398.0 & \$291,744.00 \\
+  Ferrari & 458 Spider & 562.0 & 398.0 & \$263,553.00 \\
+  Ferrari & 458 Italia & 562.0 & 398.0 & \$233,509.00 \\
+  Ferrari & 488 GTB & 661.0 & 561.0 & \$245,400.00 \\
+  \bottomrule
+  \end{tabular*}
+  \begin{minipage}{\linewidth}
+  Note 1\\
+  Note 2\\
+  \end{minipage}
+  \end{table}
+  
+  '''
+# ---
+# name: test_snap_render_as_latex_longtable
+  '''
+  \begingroup
+  \setlength\LTleft{\dimexpr(0.5\linewidth - 225pt)}
+  \setlength\LTright{\dimexpr(0.5\linewidth - 225pt)}
+  \fontsize{9.0pt}{10.8pt}\selectfont
+  
+  \setlength{\LTpost}{0mm}
+  \begin{longtable}{@{\extracolsep{\fill}}llrrr}
+  \caption*{
+  {\large The \_title\_} \\
+  {\small The subtitle}
+  } \\
+  \toprule
+  \multicolumn{2}{c}{Make \_and\_ Model} & \multicolumn{2}{c}{Performance} &  \\ 
+  \cmidrule(lr){1-2} \cmidrule(lr){3-4}
+  mfr & model & hp & trq & msrp \\ 
+  \midrule\addlinespace[2.5pt]
+  Ford & GT & 647.0 & 550.0 & \$447,000.00 \\
+  Ferrari & 458 Speciale & 597.0 & 398.0 & \$291,744.00 \\
+  Ferrari & 458 Spider & 562.0 & 398.0 & \$263,553.00 \\
+  Ferrari & 458 Italia & 562.0 & 398.0 & \$233,509.00 \\
+  Ferrari & 488 GTB & 661.0 & 561.0 & \$245,400.00 \\
+  \bottomrule
+  \end{longtable}
+  \begin{minipage}{\linewidth}
+  Note 1\\
+  Note 2\\
+  \end{minipage}
+  \endgroup
+  
+  '''
+# ---

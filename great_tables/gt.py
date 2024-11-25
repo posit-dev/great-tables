@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
-
+from typing import Any, TYPE_CHECKING
 from typing_extensions import Self
 
 from great_tables._gt_data import GTData
@@ -10,7 +9,7 @@ from great_tables._gt_data import GTData
 from great_tables._body import body_reassemble
 from great_tables._boxhead import cols_align, cols_label
 from great_tables._data_color import data_color
-from great_tables._export import as_raw_html, save, show
+from great_tables._export import as_raw_html, as_latex, save, show
 from great_tables._formats import (
     fmt,
     fmt_bytes,
@@ -63,6 +62,7 @@ from great_tables._stubhead import tab_stubhead
 from great_tables._substitution import sub_missing, sub_zero
 from great_tables._tab_create_modify import tab_style
 from great_tables._tbl_data import _get_cell, n_rows
+from great_tables._utils import _migrate_unformatted_to_output
 from great_tables._utils_render_html import (
     _get_table_defs,
     create_body_component_h,
@@ -71,6 +71,10 @@ from great_tables._utils_render_html import (
     create_heading_component_h,
     create_source_notes_component_h,
 )
+
+
+if TYPE_CHECKING:
+    from ._helpers import BaseText
 
 __all__ = ["GT"]
 
@@ -270,6 +274,7 @@ class GT(
     save = save
     show = show
     as_raw_html = as_raw_html
+    as_latex = as_latex
 
     # -----
 
@@ -302,10 +307,14 @@ class GT(
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         built = self._render_formats(context)
-        # built._body = _migrate_unformatted_to_output(body)
+
+        if context == "latex":
+            built = _migrate_unformatted_to_output(
+                data=built, data_tbl=self._tbl_data, formats=self._formats, context=context
+            )
 
         # built._perform_col_merge()
-        final_body = body_reassemble(built._body, built._stub, built._boxhead)
+        final_body = body_reassemble(built._body)
 
         # Reordering of the metadata elements of the table
 
@@ -339,7 +348,6 @@ class GT(
         make_page: bool = False,
         all_important: bool = False,
     ) -> str:
-
         heading_component = create_heading_component_h(data=self)
         column_labels_component = create_columns_component_h(data=self)
         body_component = create_body_component_h(data=self)
@@ -407,7 +415,6 @@ class GT(
         """
 
         if make_page:
-
             # Create an HTML page and place the table within it
             finalized_table = f"""<!DOCTYPE html>
 <html lang="en">
@@ -432,7 +439,7 @@ class GT(
 # =============================================================================
 
 
-def _get_column_labels(gt: GT, context: str) -> list[str]:
+def _get_column_labels(gt: GT, context: str) -> list[str | BaseText | None]:
     gt_built = gt._build_data(context=context)
     column_labels = [x.column_label for x in gt_built._boxhead]
     return column_labels

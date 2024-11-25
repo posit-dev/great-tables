@@ -4,29 +4,27 @@ import tempfile
 import time
 import warnings
 import webbrowser
-
 from functools import partial
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
+
 from typing_extensions import TypeAlias
 
 from ._utils import _try_import
+from ._utils_render_latex import _render_as_latex
 
 if TYPE_CHECKING:
     # Note that as_raw_html uses methods on the GT class, not just data
-    from .gt import GT
-    from ._types import GTSelf
-
-    from selenium import webdriver
     from IPython.core.interactiveshell import InteractiveShell
+    from selenium import webdriver
+
+    from ._types import GTSelf
+    from .gt import GT
 
 
 class PatchedHTTPRequestHandler(SimpleHTTPRequestHandler):
     """Patched handler, which does not log requests to stderr"""
-
-    def log_request(self, *args, **kwargs):
-        pass
 
 
 class MISSING:
@@ -42,10 +40,13 @@ def _create_temp_file_server(fname: Path) -> HTTPServer:
     return server
 
 
-def _infer_render_target(ipy: InteractiveShell | None | MISSING = MISSING) -> str:
+def _infer_render_target(
+    ipy: InteractiveShell | None | type = MISSING,
+) -> Literal["auto", "notebook", "browser"]:
     # adapted from py-htmltools
     # Note that `ipy` arguments are possible return values of IPython.get_ipython()
     # They are manually passed in from unit tests to validate this function.
+    target: Literal["auto", "notebook", "browser"]
     try:
         import IPython  # pyright: ignore[reportUnknownVariableType]
         from IPython.terminal.interactiveshell import TerminalInteractiveShell
@@ -166,6 +167,98 @@ def as_raw_html(
     return html_table
 
 
+def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) -> str:
+    """
+    Output a GT object as LaTeX
+
+    The `as_latex()` method outputs a GT object as a LaTeX fragment. This method is useful for when
+    you need to include a table as part of a LaTeX document. The LaTeX fragment contains the table
+    as a string.
+
+    :::{.callout-warning}
+    `as_latex()` is still experimental.
+    :::
+
+    Parameters
+    ----------
+
+    use_longtable
+        An option to use the `longtable` environment in LaTeX output. This is useful for tables that
+        span multiple pages and don't require precise positioning.
+    tbl_pos
+        The position of the table in the LaTeX output when `use_longtable=False`. Valid values for
+        positioning include `"!t"` (top of page), `"!b"` (bottom of the page), `"!h"` (here),
+        `"!p"` (on a separate page), and `"!H"` (exactly here). If a value is not provided then the
+        table will be placed at the top of the page; if in the Quarto render then the table
+        positioning option will be ignored in favor of any setting within the Quarto rendering
+        environment.
+
+    Returns
+    -------
+    str
+        A LaTeX fragment that contains the table.
+
+    Limitations
+    -----------
+    The `as_latex()` method is still experimental and has some limitations. The following
+    functionality that is supported in HTML output tables is not currently supported in LaTeX
+    output tables:
+
+    - the rendering of the stub and row group labels (via the `=rowname_col` and `=groupname_col`
+      args in the `GT()` class)
+    - the use of the `md()` helper function to signal conversion of Markdown text
+    - units notation within the `cols_labels()` and `tab_spanner()` methods
+    - the `fmt_markdown()`, `fmt_units()`, `fmt_image()`, and `fmt_nanoplot()` methods
+    - the `sub_missing()` and `sub_zero()` methods
+    - most options in the `tab_options()` method, particularly those that are specific to styling
+      text, borders, or adding fill colors to cells
+
+    As development continues, we will work to expand the capabilities of the `as_latex()` method to
+    reduce these limitations and more clearly document what is and is not supported.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset to create a new table.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import gtcars
+    import polars as pl
+
+    gtcars_mini = (
+        pl.from_pandas(gtcars)
+        .select(["mfr", "model", "msrp"])
+        .head(5)
+    )
+
+    gt_tbl = (
+        GT(gtcars_mini)
+        .tab_header(
+            title="Data Listing from the gtcars Dataset",
+            subtitle="Only five rows from the dataset are shown here."
+        )
+        .fmt_currency(columns="msrp")
+    )
+
+    gt_tbl
+    ```
+
+    Now we can return the table as string of LaTeX code using the `as_latex()` method.
+
+    ```{python}
+    gt_tbl.as_latex()
+    ```
+
+    The LaTeX string contains the code just for the table (it's not a complete LaTeX document).
+    This output can be useful for embedding a GT table in an existing LaTeX document.
+    """
+    built_table = self._build_data(context="latex")
+
+    latex_table = _render_as_latex(data=built_table, use_longtable=use_longtable, tbl_pos=tbl_pos)
+
+    return latex_table
+
+
 # Create a list of all selenium webdrivers
 WebDrivers: TypeAlias = Literal[
     "chrome",
@@ -175,24 +268,6 @@ WebDrivers: TypeAlias = Literal[
 ]
 
 DebugDumpOptions: TypeAlias = Literal["zoom", "width_resize", "final_resize"]
-
-
-class _NoOpDriverCtx:
-    """Context manager that no-ops entering a webdriver(options=...) instance."""
-
-    def __init__(self, driver: webdriver.Remote):
-        self.driver = driver
-
-    def __call__(self, options):
-        # no-op what is otherwise instantiating webdriver with options,
-        # since a webdriver instance was already passed on init
-        return self
-
-    def __enter__(self):
-        return self.driver
-
-    def __exit__(self, *args):
-        pass
 
 
 def save(
@@ -206,7 +281,7 @@ def save(
     debug_port: None | int = None,
     encoding: str = "utf-8",
     _debug_dump: DebugDumpOptions | None = None,
-) -> None:
+) -> GTSelf:
     """
     Produce a high-resolution image file or PDF of the table.
 
@@ -239,7 +314,7 @@ def save(
     debug_port
         Port number to use for debugging. By default no debugging port is opened.
     encoding
-        The encoding used when writing temporary files.
+        The character encoding used for the HTML content.
     _debug_dump
         Whether the saved image should be a big browser window, with key elements outlined. This is
         helpful for debugging this function's resizing, cropping heuristics. This is an internal
@@ -247,9 +322,9 @@ def save(
 
     Returns
     -------
-    None
-        This function does not return anything; it simply saves the image to the specified file
-        path.
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Details
     -------
@@ -271,95 +346,55 @@ def save(
     ```
 
     """
+    import base64
 
     # Import the required packages
     _try_import(name="selenium", pip_install_line="pip install selenium")
 
-    from selenium import webdriver
+    from ._utils_selenium import _get_web_driver
 
     if selector != "table":
         raise NotImplementedError("Currently, only selector='table' is supported.")
 
-    if isinstance(file, Path):
-        file = str(file)
-
     # If there is no file extension, add the .png extension
-    if not Path(file).suffix:
-        file += ".png"
+    file = str(Path(file).with_suffix(".png"))
 
     # Get the HTML content from the displayed output
     html_content = as_raw_html(self)
 
-    # Set the webdriver and options based on the chosen browser (`web_driver=` argument)
-    if isinstance(web_driver, webdriver.Remote):
-        wdriver = _NoOpDriverCtx(web_driver)
-        wd_options = None
-
-    elif web_driver == "chrome":
-        wdriver = webdriver.Chrome
-        wd_options = webdriver.ChromeOptions()
-    elif web_driver == "safari":
-        wdriver = webdriver.Safari
-        wd_options = webdriver.SafariOptions()
-    elif web_driver == "firefox":
-        wdriver = webdriver.Firefox
-        wd_options = webdriver.FirefoxOptions()
-    elif web_driver == "edge":
-        wdriver = webdriver.Edge
-        wd_options = webdriver.EdgeOptions()
-    else:
-        raise ValueError(f"Unsupported web driver: {web_driver}")
-
-    # specify headless flag ----
-    if web_driver in {"firefox", "edge"}:
-        wd_options.add_argument("--headless")
-    elif web_driver == "chrome":
-        # Operate all webdrivers in headless mode
-        wd_options.add_argument("--headless=new")
-    else:
-        # note that safari currently doesn't support headless browsing
-        pass
-
-    if debug_port:
-        if web_driver == "chrome":
-            wd_options.add_argument(f"--remote-debugging-port={debug_port}")
-        elif web_driver == "firefox":
-            # TODO: not sure how to connect to this session on firefox?
-            wd_options.add_argument(f"--start-debugger-server {debug_port}")
-        else:
-            warnings.warn("debug_port argument only supported on chrome and firefox")
-            debug_port = None
+    wdriver = _get_web_driver(web_driver)
 
     # run browser ----
-    with (
-        tempfile.TemporaryDirectory() as tmp_dir,
-        wdriver(options=wd_options) as headless_browser,
-    ):
-
-        # Write the HTML content to the temp file
-        with open(f"{tmp_dir}/table.html", "w", encoding=encoding) as temp_file:
-            temp_file.write(html_content)
-
-        # Open the HTML file in the headless browser
+    with wdriver(debug_port=debug_port) as headless_browser:
         headless_browser.set_window_size(*window_size)
-        headless_browser.get("file://" + temp_file.name)
+        encoded = base64.b64encode(html_content.encode(encoding=encoding)).decode(encoding=encoding)
+        headless_browser.get(f"data:text/html;base64,{encoded}")
 
         _save_screenshot(headless_browser, scale, file, debug=_debug_dump)
 
-        if debug_port:
-            input(
-                f"Currently debugging on port {debug_port}.\n\n"
-                "If you are using Chrome, enter chrome://inspect to preview the headless browser."
-                "Other browsers may have different ways to preview headless browser sessions.\n\n"
-                "Press enter to continue."
-            )
+    if debug_port and web_driver not in {"chrome", "firefox"}:
+        warnings.warn("debug_port argument only supported on chrome and firefox")
+        debug_port = None
+
+    if debug_port:
+        input(
+            f"Currently debugging on port {debug_port}.\n\n"
+            "If you are using Chrome, enter chrome://inspect to preview the headless browser."
+            "Other browsers may have different ways to preview headless browser sessions.\n\n"
+            "Press enter to continue."
+        )
+
+    return self
 
 
 def _save_screenshot(
-    driver: webdriver.Chrome, scale, path: str, debug: DebugDumpOptions | None
+    driver: webdriver.Chrome, scale: float, path: str, debug: DebugDumpOptions | None
 ) -> None:
     from io import BytesIO
+
     from selenium.webdriver.common.by import By
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.support.ui import WebDriverWait
 
     # Based on: https://stackoverflow.com/a/52572919/
     # In some headless browsers, element position and width do not always reflect
@@ -372,7 +407,6 @@ def _save_screenshot(
     #
     # I can't say for sure whether the final sleep is needed. Only that it seems like
     # on CI with firefox sometimes the final screencapture is wider than necessary.
-
     original_size = driver.get_window_size()
 
     # set table zoom ----
@@ -423,19 +457,14 @@ def _save_screenshot(
     if debug == "final_resize":
         return _dump_debug_screenshot(driver, path)
 
-    el = driver.find_element(by=By.TAG_NAME, value="body")
+    el = WebDriverWait(driver, 1).until(EC.visibility_of_element_located((By.TAG_NAME, "body")))
 
-    time.sleep(0.05)
+    _try_import(name="PIL", pip_install_line="pip install pillow")
 
-    if path.endswith(".png"):
-        el.screenshot(path)
-    else:
-        _try_import(name="PIL", pip_install_line="pip install pillow")
+    from PIL import Image
 
-        from PIL import Image
-
-        # convert to other formats (e.g. pdf, bmp) using PIL
-        Image.open(fp=BytesIO(el.screenshot_as_png)).save(fp=path)
+    # convert to other formats (e.g. pdf, bmp) using PIL
+    Image.open(fp=BytesIO(el.screenshot_as_png)).save(fp=path)
 
 
 def _dump_debug_screenshot(driver, path):
