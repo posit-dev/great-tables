@@ -22,15 +22,14 @@ from ._tbl_data import (
     DataFrameLike,
     PlExpr,
     SelectExpr,
+    _get_column_dtype,
     is_na,
     is_series,
     to_list,
-    _get_column_dtype,
 )
 from ._text import _md_html, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace
 from ._utils_nanoplots import _generate_nanoplot
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -3764,8 +3763,9 @@ class FmtImage:
         return span
 
     def to_latex(self, val: Any):
-        from ._gt_data import FormatterSkipElement
         from warnings import warn
+
+        from ._gt_data import FormatterSkipElement
 
         warn("fmt_image() is not currently implemented in LaTeX output.")
 
