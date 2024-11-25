@@ -228,7 +228,6 @@ class CellStyleText(CellStyle):
     ) = None
 
     def _to_html_style(self) -> str:
-
         rendered = ""
 
         if self.color:
@@ -336,7 +335,6 @@ class CellStyleBorders(CellStyle):
     sides: (
         Literal["all", "top", "bottom", "left", "right"]
         | list[Literal["all", "top", "bottom", "left", "right"]]
-        | ColumnExpr
     ) = "all"
     color: str | ColumnExpr = "#000000"
     style: str | ColumnExpr = "solid"

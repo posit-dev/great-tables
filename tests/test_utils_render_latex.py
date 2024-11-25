@@ -62,7 +62,6 @@ def gt_tbl_dttm():
 
 
 def test_is_css_length_string():
-
     assert is_css_length_string("12.5pt")
     assert is_css_length_string("12.5px")
     assert is_css_length_string("12.5")
@@ -70,13 +69,11 @@ def test_is_css_length_string():
 
 
 def test_is_number_without_units():
-
     assert is_number_without_units("12.5")
     assert not is_number_without_units("12.5pt")
 
 
 def test_css_length_has_supported_units():
-
     assert css_length_has_supported_units("12.5pt")
     assert css_length_has_supported_units("12.5px")
     assert css_length_has_supported_units("12.5")
@@ -88,19 +85,16 @@ def test_css_length_has_supported_units():
 
 
 def test_get_units_from_length_string():
-
     assert get_units_from_length_string("12.5pt") == "pt"
     assert get_units_from_length_string("") == "px"
 
 
 def test_get_px_conversion_val():
-
     assert get_px_conversion(length="2343.23pt") == 4 / 3
     assert get_px_conversion(length="43.2px") == 1.0
 
 
 def test_get_px_conversion_val_raises():
-
     with pytest.raises(ValueError) as exc_info:
         get_px_conversion(length="12.8bolts")
 
@@ -108,58 +102,49 @@ def test_get_px_conversion_val_raises():
 
 
 def test_convert_to_px():
-
     assert convert_to_px("12.5pt") == 17.0
     assert convert_to_px("12.5px") == 12.5
 
 
 def test_convert_to_pt():
-
     assert convert_to_pt("16px") == 12.0
 
 
 def test_create_fontsize_statement_l(gt_tbl: GT):
-
     assert create_fontsize_statement_l(gt_tbl) == "\\fontsize{12.0pt}{14.4pt}\\selectfont\n"
 
 
 def test_create_fontsize_statement_l_pt(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_options(table_font_size="18.2pt")
 
     assert create_fontsize_statement_l(gt_tbl_new) == "\\fontsize{18.2pt}{21.8pt}\\selectfont\n"
 
 
 def test_create_fontsize_statement_l_px(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_options(table_font_size="11px")
 
     assert create_fontsize_statement_l(gt_tbl_new) == "\\fontsize{8.2pt}{9.9pt}\\selectfont\n"
 
 
 def test_create_fontsize_statement_l_pct(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_options(table_font_size="50%")
 
     assert create_fontsize_statement_l(gt_tbl_new) == "\\fontsize{6.0pt}{7.2pt}\\selectfont\n"
 
 
 def test_create_fontsize_statement_l_cm(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_options(table_font_size="0.6cm")
 
     assert create_fontsize_statement_l(gt_tbl_new) == "\\fontsize{17.2pt}{20.7pt}\\selectfont\n"
 
 
 def test_create_fontsize_statement_l_unknown_unit(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_options(table_font_size="1span")
 
     assert create_fontsize_statement_l(gt_tbl_new) == ""
 
 
 def test_derive_table_width_statement_l_px_lt(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_options(table_width="500px")
 
     assert (
@@ -169,7 +154,6 @@ def test_derive_table_width_statement_l_px_lt(gt_tbl: GT):
 
 
 def test_derive_table_width_statement_l_pct_lt(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_options(table_width="45%")
 
     assert (
@@ -179,21 +163,18 @@ def test_derive_table_width_statement_l_pct_lt(gt_tbl: GT):
 
 
 def test_derive_table_width_statement_l_px_no_lt(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_options(table_width="500px")
 
     assert derive_table_width_statement_l(gt_tbl_new, use_longtable=False) == ""
 
 
 def test_create_fontsize_statement_l_settings():
-
     gt_tbl = GT(exibble).tab_options(table_font_size="18.5px")
 
     assert create_fontsize_statement_l(gt_tbl) == "\\fontsize{13.9pt}{16.6pt}\\selectfont\n"
 
 
 def test_create_heading_component_l():
-
     gt_tbl_no_heading = GT(exibble)
     gt_tbl_title = GT(exibble).tab_header(title="Title")
     gt_tbl_title_subtitle = GT(exibble).tab_header(title="Title", subtitle="Subtitle")
@@ -210,7 +191,6 @@ def test_create_heading_component_l():
 
 
 def test_create_columns_component_l_simple():
-
     gt_tbl = GT(exibble)
 
     assert (
@@ -220,7 +200,6 @@ def test_create_columns_component_l_simple():
 
 
 def test_create_columns_component_l_simple_hidden_cols():
-
     gt_tbl = GT(exibble).cols_hide(columns=["char", "date"])
 
     assert (
@@ -230,7 +209,6 @@ def test_create_columns_component_l_simple_hidden_cols():
 
 
 def test_create_columns_component_l_one_spanner():
-
     gt_tbl = GT(exibble).tab_spanner(label="Spanner", columns=["num", "char"])
 
     assert (
@@ -240,7 +218,6 @@ def test_create_columns_component_l_one_spanner():
 
 
 def test_create_columns_component_l_adjacent_spanners_hiding():
-
     gt_tbl = (
         GT(exibble)
         .tab_spanner(label="Spanner 1", columns=["num", "char"])
@@ -256,7 +233,6 @@ def test_create_columns_component_l_adjacent_spanners_hiding():
 
 
 def test_create_columns_component_l_many_spanners():
-
     gt_tbl = (
         GT(exibble)
         .tab_spanner(label="Spanner 1", columns=["num", "char"])
@@ -273,12 +249,10 @@ def test_create_columns_component_l_many_spanners():
 
 
 def test_create_body_component_l_simple(gt_tbl: GT):
-
     assert create_body_component_l(data=gt_tbl) == "1 & 4 \\\\\n2 & 5 \\\\"
 
 
 def test_create_footer_component_one_note(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_source_note(source_note="Source Note.")
 
     assert (
@@ -288,7 +262,6 @@ def test_create_footer_component_one_note(gt_tbl: GT):
 
 
 def test_create_footer_component_two_notes(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_source_note(source_note="Source Note 1.").tab_source_note(
         source_note="Source Note 2."
     )
@@ -300,12 +273,10 @@ def test_create_footer_component_two_notes(gt_tbl: GT):
 
 
 def test_create_footer_component_no_notes(gt_tbl: GT):
-
     assert create_footer_component_l(gt_tbl) == ""
 
 
 def test_create_body_component_l_fmt_number(gt_tbl_dec: GT):
-
     gt_tbl_built = gt_tbl_dec.fmt_number(
         columns="x", rows=0, scale_by=-1, decimals=3, pattern="{x} _"
     )._build_data(context="latex")
@@ -314,7 +285,6 @@ def test_create_body_component_l_fmt_number(gt_tbl_dec: GT):
 
 
 def test_create_body_component_l_fmt_integer(gt_tbl_dec: GT):
-
     gt_tbl_built = gt_tbl_dec.fmt_integer(
         columns="x", rows=0, scale_by=-1, pattern="{x} _"
     )._build_data(context="latex")
@@ -323,7 +293,6 @@ def test_create_body_component_l_fmt_integer(gt_tbl_dec: GT):
 
 
 def test_create_body_component_l_fmt_scientific(gt_tbl_sci: GT):
-
     gt_tbl_built = gt_tbl_sci.fmt_scientific(columns="x", pattern="{x} _")._build_data(
         context="latex"
     )
@@ -335,7 +304,6 @@ def test_create_body_component_l_fmt_scientific(gt_tbl_sci: GT):
 
 
 def test_create_body_component_l_fmt_percent(gt_tbl_pct: GT):
-
     gt_tbl_built = gt_tbl_pct.fmt_percent(columns="x", pattern="{x} _")._build_data(context="latex")
 
     assert (
@@ -345,7 +313,6 @@ def test_create_body_component_l_fmt_percent(gt_tbl_pct: GT):
 
 
 def test_create_body_component_l_fmt_currency(gt_tbl_dec: GT):
-
     gt_tbl_built = gt_tbl_dec.fmt_currency(columns="x", pattern="{x} _")._build_data(
         context="latex"
     )
@@ -357,7 +324,6 @@ def test_create_body_component_l_fmt_currency(gt_tbl_dec: GT):
 
 
 def test_create_body_component_l_fmt_bytes(gt_tbl_sci: GT):
-
     gt_tbl_built = gt_tbl_sci.fmt_bytes(columns="x", pattern="{x} _")._build_data(context="latex")
 
     assert (
@@ -367,7 +333,6 @@ def test_create_body_component_l_fmt_bytes(gt_tbl_sci: GT):
 
 
 def test_create_body_component_l_fmt_date(gt_tbl_dttm: GT):
-
     gt_tbl_built = gt_tbl_dttm.fmt_date(
         columns="date", date_style="wday_month_day_year", pattern="{x} _"
     )._build_data(context="latex")
@@ -379,7 +344,6 @@ def test_create_body_component_l_fmt_date(gt_tbl_dttm: GT):
 
 
 def test_create_body_component_l_fmt_time(gt_tbl_dttm: GT):
-
     gt_tbl_built = gt_tbl_dttm.fmt_time(
         columns="time", time_style="h_m_s_p", pattern="{x} _"
     )._build_data(context="latex")
@@ -391,7 +355,6 @@ def test_create_body_component_l_fmt_time(gt_tbl_dttm: GT):
 
 
 def test_create_body_component_l_fmt_datetime(gt_tbl_dttm: GT):
-
     gt_tbl_built = gt_tbl_dttm.fmt_datetime(
         columns="dttm", date_style="wday_month_day_year", time_style="h_m_s_p", pattern="{x} _"
     )._build_data(context="latex")
@@ -403,7 +366,6 @@ def test_create_body_component_l_fmt_datetime(gt_tbl_dttm: GT):
 
 
 def test_create_body_component_l_fmt_roman(gt_tbl_dec: GT):
-
     gt_tbl_built = gt_tbl_dec.fmt_roman(columns="x", rows=0, pattern="{x} _")._build_data(
         context="latex"
     )
@@ -412,7 +374,6 @@ def test_create_body_component_l_fmt_roman(gt_tbl_dec: GT):
 
 
 def test_create_wrap_start():
-
     assert create_wrap_start_l(use_longtable=False, tbl_pos=None) == "\\begin{table}[!t]"
     assert create_wrap_start_l(use_longtable=False, tbl_pos="!b") == "\\begin{table}[!b]"
     assert create_wrap_start_l(use_longtable=True, tbl_pos=None) == "\\begingroup"
@@ -420,25 +381,21 @@ def test_create_wrap_start():
 
 @mock.patch.dict(os.environ, {"QUARTO_BIN_PATH": "1"}, clear=True)
 def test_create_wrap_start_quarto():
-
     assert create_wrap_start_l(use_longtable=False, tbl_pos="!t") == "\\begin{table}"
     assert create_wrap_start_l(use_longtable=True, tbl_pos="!t") == "\\begingroup"
 
 
 def test_create_wrap_end_l():
-
     assert create_wrap_end_l(use_longtable=False) == "\\end{table}"
     assert create_wrap_end_l(use_longtable=True) == "\\endgroup"
 
 
 def test_create_table_end_l_longtable():
-
     assert create_table_end_l(use_longtable=False) == "\\bottomrule\n\\end{tabular*}"
     assert create_table_end_l(use_longtable=True) == "\\bottomrule\n\\end{longtable}"
 
 
 def test_create_table_start_l_longtable(gt_tbl: GT):
-
     gt_tbl_no_source_notes = gt_tbl._build_data(context="latex")
     gt_tbl_source_notes = gt_tbl.tab_source_note(source_note="Note")._build_data(context="latex")
 
@@ -460,7 +417,6 @@ def test_create_table_start_l_longtable(gt_tbl: GT):
 
 
 def test_create_table_start_l_float_tbl_pct(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_options(table_width="50%")
 
     assert (
@@ -473,7 +429,6 @@ def test_create_table_start_l_float_tbl_pct(gt_tbl: GT):
 
 
 def test_create_table_start_l_float_tbl_px(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_options(table_width="500px")
 
     assert (
@@ -486,7 +441,6 @@ def test_create_table_start_l_float_tbl_px(gt_tbl: GT):
 
 
 def test_create_table_start_l_float_tbl_auto(gt_tbl: GT):
-
     gt_tbl_new = gt_tbl.tab_options(table_width="auto")
 
     assert (
@@ -499,7 +453,6 @@ def test_create_table_start_l_float_tbl_auto(gt_tbl: GT):
 
 
 def test_snap_render_as_latex_longtable(snapshot):
-
     gt_tbl = (
         GT(
             gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
@@ -521,7 +474,6 @@ def test_snap_render_as_latex_longtable(snapshot):
 
 
 def test_snap_render_as_latex_floating_table(snapshot):
-
     gt_tbl = (
         GT(
             gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
