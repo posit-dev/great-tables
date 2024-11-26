@@ -1493,7 +1493,6 @@ def test_fmt_image_path_http(url: str):
 
 
 def test_fmt_icon_one_per_cell():
-
     df = pd.DataFrame({"x": ["hippo", "burger", "pizza-slice"]})
 
     gt = GT(df).fmt_icon(columns="x")
@@ -1505,7 +1504,6 @@ def test_fmt_icon_one_per_cell():
 
 
 def test_fmt_icon_two_per_cell():
-
     df = pd.DataFrame({"x": ["hippo,burger", "pizza-slice,fish"]})
 
     gt = GT(df).fmt_icon(columns="x")
@@ -1522,7 +1520,6 @@ def test_fmt_icon_two_per_cell():
 
 
 def test_fmt_icon_single_color():
-
     df = pd.DataFrame({"x": ["hippo"]})
 
     gt = GT(df).fmt_icon(columns="x", fill_color="red")
@@ -1531,7 +1528,6 @@ def test_fmt_icon_single_color():
 
 
 def test_fmt_icon_two_colors():
-
     df = pd.DataFrame({"x": ["dog,hippo"]})
 
     gt = GT(df).fmt_icon(columns="x", fill_color={"dog": "red", "hippo": "blue"})
@@ -1541,7 +1537,6 @@ def test_fmt_icon_two_colors():
 
 
 def test_fmt_icon_multiple_attrs():
-
     df = pd.DataFrame({"x": ["hippo"]})
 
     gt = GT(df).fmt_icon(

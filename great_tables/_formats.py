@@ -10,10 +10,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, TypedDict, TypeVar, cast
 
 import babel
+import faicons
 from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
-
-import faicons
 
 from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
 from ._helpers import px
@@ -24,15 +23,14 @@ from ._tbl_data import (
     DataFrameLike,
     PlExpr,
     SelectExpr,
+    _get_column_dtype,
     is_na,
     is_series,
     to_list,
-    _get_column_dtype,
 )
 from ._text import _md_html, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace
 from ._utils_nanoplots import _generate_nanoplot
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -3766,8 +3764,9 @@ class FmtImage:
         return span
 
     def to_latex(self, val: Any):
-        from ._gt_data import FormatterSkipElement
         from warnings import warn
+
+        from ._gt_data import FormatterSkipElement
 
         warn("fmt_image() is not currently implemented in LaTeX output.")
 
@@ -4033,7 +4032,6 @@ class FmtIcon:
     SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
 
     def to_html(self, val: Any):
-
         if is_na(self.dispatch_on, val):
             return val
 
@@ -4057,9 +4055,7 @@ class FmtIcon:
         out: list[str] = []
 
         for icon in icon_list:
-
             if isinstance(self.fill_color, dict):
-
                 if icon in self.fill_color:
                     fill_color = self.fill_color[icon]
                 else:
@@ -4087,9 +4083,9 @@ class FmtIcon:
         return span
 
     def to_latex(self, val: Any):
+        from warnings import warn
 
         from ._gt_data import FormatterSkipElement
-        from warnings import warn
 
         warn("fmt_icon() is not currently implemented in LaTeX output.")
 
