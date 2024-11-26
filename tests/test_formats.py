@@ -69,7 +69,6 @@ def test_format_snap(snapshot):
 
 
 def test_format_accounting_snap(snapshot):
-
     df = pl.DataFrame(
         {
             "number": [-1.2, 23.6],
