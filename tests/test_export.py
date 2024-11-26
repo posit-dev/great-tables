@@ -41,7 +41,6 @@ def test_html_string_generated(gt_tbl: GT, snapshot: str):
 @pytest.mark.skipif(sys.platform == "win32", reason="chrome might not be installed.")
 @pytest.mark.extra
 def test_save_image_file(gt_tbl: GT, tmp_path):
-
     f_path = tmp_path / "test_image.png"
     gt_tbl.save(file=str(f_path))
 
@@ -100,7 +99,6 @@ def test_create_temp_file_server():
 
 
 def test_snap_as_latex(snapshot):
-
     gt_tbl = (
         GT(
             gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),

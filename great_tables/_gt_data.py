@@ -5,13 +5,11 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
-from typing import Any, Callable, Literal, Tuple, TypeVar, Union, overload, TYPE_CHECKING
+from typing import Any, Callable, TypeVar, overload, TYPE_CHECKING, Literal
 
-from typing_extensions import Self, TypeAlias
-from functools import partial
+from typing_extensions import Self, TypeAlias, Union
 
 # TODO: move this class somewhere else (even gt_data could work)
-from ._options import tab_options
 from ._styles import CellStyle
 from ._tbl_data import (
     DataFrameLike,
@@ -21,6 +19,7 @@ from ._tbl_data import (
     copy_data,
     create_empty_frame,
     get_column_names,
+    _get_column_dtype,
     n_rows,
     to_list,
     validate_frame,
@@ -29,7 +28,7 @@ from ._text import BaseText
 from ._utils import _str_detect, OrderedSet
 
 if TYPE_CHECKING:
-    from ._helpers import Md, Html, UnitStr
+    from ._helpers import UnitStr
     from ._locations import Loc
 
 T = TypeVar("T")
@@ -38,7 +37,9 @@ T = TypeVar("T")
 # GT Data ----
 
 
-def _prep_gt(data, rowname_col, groupname_col, auto_align) -> Tuple[Stub, Boxhead, GroupRows]:
+def _prep_gt(
+    data, rowname_col: str | None, groupname_col: str | None, auto_align: bool
+) -> tuple[Stub, Boxhead]:
     # this function is similar to Stub._set_cols, except it differs in two ways.
     #   * it supports auto-alignment (an expensive operation)
     #   * it assumes its run on data initialization, whereas _set_cols may be run after
@@ -126,12 +127,12 @@ class _Sequence(Sequence[T]):
     def __getitem__(self, ii: int) -> T: ...
 
     @overload
-    def __getitem__(self, ii: slice) -> Self[T]: ...
+    def __getitem__(self, ii: slice) -> Self: ...
 
     @overload
-    def __getitem__(self, ii: list[int]) -> Self[T]: ...
+    def __getitem__(self, ii: list[int]) -> Self: ...
 
-    def __getitem__(self, ii: int | slice | list[int]) -> T | Self[T]:
+    def __getitem__(self, ii: int | slice | list[int]) -> T | Self:
         if isinstance(ii, slice):
             return self.__class__(self._d[ii])
         elif isinstance(ii, list):
@@ -139,10 +140,10 @@ class _Sequence(Sequence[T]):
 
         return self._d[ii]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._d)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{type(self).__name__}({self._d.__repr__()})"
 
     def __eq__(self, other: Any) -> bool:
@@ -175,11 +176,15 @@ class Body:
                 # TODO: I think that this is very inefficient with polars, so
                 # we could either accumulate results and set them per column, or
                 # could always use a pandas DataFrame inside Body?
-                _set_cell(self.body, row, col, result)
+                new_body = _set_cell(self.body, row, col, result)
+                if new_body is not None:
+                    # Some backends do not support inplace operations, but return a new dataframe
+                    # TODO: Consolidate the behaviour of _set_cell
+                    self.body = new_body
 
         return self
 
-    def copy(self):
+    def copy(self) -> Self:
         return self.__class__(copy_data(self.body))
 
     @classmethod
@@ -190,13 +195,7 @@ class Body:
 
 
 # Boxhead ----
-
-
-class ColumnAlignment(Enum):
-    left = auto()
-    center = auto()
-    right = auto()
-    justify = auto()
+ColumnAlignment: TypeAlias = Literal["left", "center", "right", "justify"]
 
 
 class ColInfoTypeEnum(Enum):
@@ -211,7 +210,7 @@ class ColInfo:
     # TODO: Make var readonly
     var: str
     type: ColInfoTypeEnum = ColInfoTypeEnum.default
-    column_label: str | Md | Html | UnitStr | None = None
+    column_label: str | BaseText | None = None
     column_align: ColumnAlignment | None = None
     column_width: str | None = None
 
@@ -242,6 +241,16 @@ class ColInfo:
 
 
 class Boxhead(_Sequence[ColInfo]):
+    """Map columns of the input table to their final rendered placement in the boxhead.
+
+    The boxhead is the part of the table that contains the column labels and the stub head. This
+    class is responsible for the following:
+
+    - rendered boxhead: column order, labels, alignment, and visibility
+    - rendered body: alignment of data values for each column
+    - rendered stub: this class records which input column is used for the stub
+    """
+
     _d: list[ColInfo]
 
     def __new__(
@@ -250,7 +259,7 @@ class Boxhead(_Sequence[ColInfo]):
         auto_align: bool = True,
         rowname_col: str | None = None,
         groupname_col: str | None = None,
-    ):
+    ) -> Self:
         obj = super().__new__(cls)
 
         if isinstance(data, list):
@@ -267,10 +276,16 @@ class Boxhead(_Sequence[ColInfo]):
 
         return obj
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        data: TblData | list[ColInfo],
+        auto_align: bool = True,
+        rowname_col: str | None = None,
+        groupname_col: str | None = None,
+    ):
         pass
 
-    def set_stub_cols(self, rowname_col: str | None, groupname_col: str | None):
+    def set_stub_cols(self, rowname_col: str | None, groupname_col: str | None) -> Self:
         # Note that None unsets a column
         # TODO: validate that rowname_col is in the boxhead
         if rowname_col is not None and rowname_col == groupname_col:
@@ -296,7 +311,7 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self.__class__(new_cols)
 
-    def set_cols_hidden(self, colnames: list[str]):
+    def set_cols_hidden(self, colnames: list[str]) -> Self:
         # TODO: validate that colname is in the boxhead
         res: list[ColInfo] = []
         for col in self._d:
@@ -308,7 +323,7 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self.__class__(res)
 
-    def align_from_data(self, data: TblData):
+    def align_from_data(self, data: TblData) -> Self:
         """Updates align attribute in entries based on data types."""
 
         # TODO: validate that data columns and ColInfo list correspond
@@ -325,7 +340,7 @@ class Boxhead(_Sequence[ColInfo]):
         # a Pandas DataFrame or a Polars DataFrame
         col_classes = []
         for col in get_column_names(data):
-            dtype = data[col].dtype
+            dtype = _get_column_dtype(data, col)
 
             if dtype == "object":
                 # Check whether all values in 'object' columns are strings that
@@ -379,8 +394,8 @@ class Boxhead(_Sequence[ColInfo]):
 
         # Set the alignment for each column in the boxhead
         new_cols: list[ColInfo] = []
-        for col, alignment in zip(self._d, align):
-            new_cols.append(replace(col, column_align=alignment))
+        for col_info, alignment in zip(self._d, align):
+            new_cols.append(replace(col_info, column_align=alignment))
 
         return self.__class__(new_cols)
 
@@ -396,16 +411,29 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self[new_order]
 
+    def final_columns(self, options: Options) -> list[ColInfo]:
+        row_group_info = self._get_row_group_column()
+        row_group_column = (
+            [row_group_info] if row_group_info and options.row_group_as_column.value else []
+        )
+
+        stub_info = self._get_stub_column()
+        stub_column = [stub_info] if stub_info else []
+
+        default_columns = self._get_default_columns()
+
+        return [*row_group_column, *stub_column, *default_columns]
+
     # Get a list of columns
     def _get_columns(self) -> list[str]:
         return [x.var for x in self._d]
 
     # Get a list of column labels
-    def _get_column_labels(self) -> list[str | None]:
+    def _get_column_labels(self) -> list[str | BaseText | None]:
         return [x.column_label for x in self._d]
 
     # Set column label
-    def _set_column_labels(self, col_labels: dict[str, str | UnitStr | BaseText]) -> Self:
+    def _set_column_labels(self, col_labels: dict[str, str | BaseText]) -> Self:
         out_cols: list[ColInfo] = []
         for x in self._d:
             new_label = col_labels.get(x.var, None)
@@ -428,7 +456,7 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self.__class__(out_cols)
 
-    # Get a list of column widths
+    # Get a list of all column widths
     def _get_column_widths(self) -> list[str | None]:
         return [x.column_width for x in self._d]
 
@@ -450,7 +478,7 @@ class Boxhead(_Sequence[ColInfo]):
         return column[0]
 
     # Get a list of visible column labels
-    def _get_default_column_labels(self) -> list[str | None]:
+    def _get_default_column_labels(self) -> list[Union[str, BaseText, None]]:
         default_column_labels = [
             x.column_label for x in self._d if x.type == ColInfoTypeEnum.default
         ]
@@ -477,9 +505,7 @@ class Boxhead(_Sequence[ColInfo]):
             raise ValueError(f"The `var` used ({var}) doesn't exist in the boxhead.")
 
         # Convert the single alignment value in the list to a string
-        alignment = str(alignment[0])
-
-        return alignment
+        return str(alignment[0])
 
     # Get the number of columns for the visible (not hidden) data; this
     # excludes the number of columns required for the table stub
@@ -560,7 +586,9 @@ class Stub:
         self.group_rows = group_rows
 
     @classmethod
-    def from_data(cls, data, rowname_col: str | None = None, groupname_col: str | None = None):
+    def from_data(
+        cls, data, rowname_col: str | None = None, groupname_col: str | None = None
+    ) -> Self:
         # Obtain a list of row indices from the data and initialize
         # the `_stub` from that
         row_indices = list(range(n_rows(data)))
@@ -589,7 +617,7 @@ class Stub:
 
     def _set_cols(
         self, data: TblData, boxhead: Boxhead, rowname_col: str | None, groupname_col: str | None
-    ) -> Tuple[Stub, Boxhead]:
+    ) -> tuple[Stub, Boxhead]:
         """Return a new Stub and Boxhead, with updated rowname and groupname columns.
 
         Note that None unsets a column.
@@ -609,7 +637,7 @@ class Stub:
 
         return self.__class__(new_rows, self.group_rows)
 
-    def order_groups(self, group_order: RowGroups):
+    def order_groups(self, group_order: RowGroups) -> Self:
         # TODO: validate
         return self.__class__(self.rows, self.group_rows.reorder(group_order))
 
@@ -743,7 +771,7 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
         return self.__class__(reordered)
 
-    def indices_map(self, n: int) -> list[tuple[int, GroupRowInfo]]:
+    def indices_map(self, n: int) -> list[tuple[int, GroupRowInfo | None]]:
         """Return pairs of row index, group label for all rows in data.
 
         Note that when no groupings exist, n is used to return from range(n).
@@ -770,7 +798,7 @@ class SpannerInfo:
     vars: list[str] = field(default_factory=list)
     built: str | None = None
 
-    def built_label(self) -> str:
+    def built_label(self) -> str | BaseText | UnitStr:
         """Return a list of spanner labels that have been built."""
         label = self.built if self.built is not None else self.spanner_label
         if label is None:
@@ -832,8 +860,8 @@ class Spanners(_Sequence[SpannerInfo]):
 
 @dataclass(frozen=True)
 class Heading:
-    title: str | None = None
-    subtitle: str | None = None
+    title: str | BaseText | None = None
+    subtitle: str | BaseText | None = None
     preheader: str | list[str] | None = None
 
 
@@ -915,7 +943,6 @@ class FormatFns:
 
 
 class CellSubset:
-
     def resolve(self) -> list[tuple[str, int]]:
         raise NotImplementedError("Not implemented")
 

@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from itertools import chain, groupby
-from math import isnan
+from itertools import chain
 from typing import Any, cast
 
-from great_tables._spanners import spanners_print_matrix
 from htmltools import HTML, TagList, css, tags
 
-from ._gt_data import GTData, Styles, GroupRowInfo
-from ._tbl_data import _get_cell, cast_frame_to_string, n_rows, replace_null_frame
+from . import _locations as loc
+from ._gt_data import GroupRowInfo, GTData, Styles
+from ._spanners import spanners_print_matrix
+from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
-from . import _locations as loc
 
 
 def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
@@ -21,7 +20,7 @@ def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
     return isinstance(loc, cls)
 
 
-def _flatten_styles(styles: Styles, wrap: bool = False) -> str:
+def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     # flatten all StyleInfo.styles lists
     style_entries = list(chain(*[x.styles for x in styles]))
     rendered_styles = [el._to_html_style() for el in style_entries]
@@ -458,7 +457,6 @@ def create_body_component_h(data: GTData) -> str:
     ordered_index: list[tuple[int, GroupRowInfo]] = data._stub.group_indices_map()
 
     for i, group_info in ordered_index:
-
         # For table striping we want to add a striping CSS class to the even-numbered
         # rows in the rendered table; to target these rows, determine if `i` in the current
         # row render is an odd number
@@ -511,7 +509,6 @@ def create_body_component_h(data: GTData) -> str:
             _body_styles = [x for x in styles_cells if x.rownum == i and x.colname == colinfo.var]
 
             if is_stub_cell:
-
                 el_name = "th"
 
                 classes = ["gt_row", "gt_left", "gt_stub"]
@@ -522,7 +519,6 @@ def create_body_component_h(data: GTData) -> str:
                     classes.append("gt_striped")
 
             else:
-
                 el_name = "td"
 
                 classes = ["gt_row", f"gt_{cell_alignment}"]
@@ -717,10 +713,11 @@ def _get_table_defs(data: GTData) -> dict[str, Any]:
     # Get the table's width (which or may not have been set)
     table_width = data._options.table_width.value
 
-    # Get all the widths for the columns as a list where None values mean that the width is
-    # not set for that column
-    # TODO: ensure that the stub column is set first in the list
-    widths = data._boxhead._get_column_widths()
+    # Get finalized names of the columns (this includes the stub column)
+    final_columns = data._boxhead.final_columns(options=data._options)
+
+    # Get the widths of the columns
+    widths = [col.column_width for col in final_columns]
 
     # If all of the widths are defined as px values for all columns, then ensure that the width
     # values are strictly respected as absolute width values (even if table width already set)

@@ -419,7 +419,6 @@ def _html_color(colors: list[str], alpha: int | float | None = None) -> list[str
     all_hex_colors = all(_is_hex_col(colors=colors))
 
     if not all_hex_colors:
-
         # Translate named colors to hexadecimal values
         colors = _color_name_to_hex(colors=colors)
 
@@ -509,7 +508,6 @@ def _color_name_to_hex(colors: list[str]) -> list[str]:
     hex_colors: list[str] = []
 
     for color in colors:
-
         if _is_hex_col([color])[0]:
             hex_colors.append(color)
         else:

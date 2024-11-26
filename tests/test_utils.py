@@ -182,7 +182,6 @@ def test_seq_groups_raises():
 
 
 def test_migrate_unformatted_to_output_latex():
-
     gt_tbl = GT(exibble.head(2)).fmt_number(columns="num", decimals=3)
 
     # After rendering the data cells all the unformatted cells will be NA values in the
@@ -201,7 +200,6 @@ def test_migrate_unformatted_to_output_latex():
 
 
 def test_migrate_unformatted_to_output_html():
-
     gt_tbl = GT(exibble.head(2)).fmt_number(columns="num", decimals=3)
 
     # After rendering the data cells all the unformatted cells will be NA values in the

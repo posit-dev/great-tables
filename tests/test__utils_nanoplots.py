@@ -74,7 +74,6 @@ def test_val_is_numeric():
     assert not _val_is_numeric("a")
 
 
-@pytest.mark.xfail
 def test_val_is_numeric_fails_list_input():
     with pytest.raises(ValueError):
         _val_is_numeric([1, 2, 3])
@@ -88,7 +87,6 @@ def test_val_is_str():
     assert not _val_is_str(1)
 
 
-@pytest.mark.xfail
 def test_val_is_str_fails_list_input():
     with pytest.raises(ValueError):
         _val_is_str(["a", "b", "c"])
@@ -124,7 +122,6 @@ def test_is_integerlike():
 
 
 def test_normalize_option_list():
-
     # Test case 1: Normalization with five values
     x = [1, 2, 3, 4, 5]
     expected_output = [1, 2, 3, 4, 5]
@@ -632,7 +629,6 @@ def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: list[tuple[str, 
 
 # Test case 1: Simple line-based nanoplot with no missing values and no additional options
 def test_nanoplot_out_data_lines():
-
     out_data_lines = _generate_nanoplot(**CASES[0])
 
     assert _is_nanoplot_output(out_data_lines)
@@ -716,7 +712,6 @@ def test_nanoplot_out_data_lines():
 
 # Test case 2: Line-based nanoplot w/ reference line (using static numeric value)
 def test_nanoplot_out_with_num_ref_line():
-
     out_with_num_ref_line = _generate_nanoplot(**CASES[1])
 
     assert _is_nanoplot_output(out_with_num_ref_line)
@@ -815,7 +810,6 @@ def test_nanoplot_out_with_num_ref_line():
 
 # Test case 3: Line-based nanoplot w/ reference line (using keyword to generate value)
 def test_nanoplot_out_with_kword_ref_line():
-
     out_with_kword_ref_line = _generate_nanoplot(**CASES[2])
 
     assert _is_nanoplot_output(out_with_kword_ref_line)
@@ -914,7 +908,6 @@ def test_nanoplot_out_with_kword_ref_line():
 
 # Test case 4: Line nanoplot w/ ref area (using numbers to define limits)
 def test_nanoplot_out_with_num_ref_area():
-
     out_with_num_ref_area = _generate_nanoplot(**CASES[3])
 
     assert _is_nanoplot_output(out_with_num_ref_area)
@@ -1009,7 +1002,6 @@ def test_nanoplot_out_with_num_ref_area():
 
 # Test case 5: Line nanoplot w/ ref area (using numbers, descending order, to define limits)
 def test_nanoplot_out_with_num_ref_area_rev():
-
     out_with_num_ref_area_rev = _generate_nanoplot(**CASES[4])
 
     assert _is_nanoplot_output(out_with_num_ref_area_rev)
@@ -1019,7 +1011,6 @@ def test_nanoplot_out_with_num_ref_area_rev():
 
 # Test case 6: Line nanoplot w/ ref area (using two keywords to define limits)
 def test_nanoplot_out_with_kword_ref_area():
-
     out_with_kword_ref_area = _generate_nanoplot(**CASES[5])
 
     assert _is_nanoplot_output(out_with_kword_ref_area)
@@ -1114,7 +1105,6 @@ def test_nanoplot_out_with_kword_ref_area():
 
 # Test case 7: Line nanoplot w/ ref area (using two keywords to define limits; reversed order)
 def test_nanoplot_out_with_kword_ref_area_rev():
-
     out_with_kword_ref_area_rev = _generate_nanoplot(**CASES[6])
 
     assert _is_nanoplot_output(out_with_kword_ref_area_rev)
@@ -1124,7 +1114,6 @@ def test_nanoplot_out_with_kword_ref_area_rev():
 
 # Test case 8: Line nanoplot w/ ref area (using keywords + literal int value to define limits)
 def test_nanoplot_out_with_mixed_ref_area_1():
-
     out_with_mixed_ref_area_1 = _generate_nanoplot(**CASES[7])
 
     assert _is_nanoplot_output(out_with_mixed_ref_area_1)
@@ -1219,7 +1208,6 @@ def test_nanoplot_out_with_mixed_ref_area_1():
 
 # Test case 9: Line nanoplot w/ ref area (using keywords + literal int value to define limits)
 def test_nanoplot_out_with_mixed_ref_area_2():
-
     out_with_mixed_ref_area_2 = _generate_nanoplot(**CASES[8])
 
     assert _is_nanoplot_output(out_with_mixed_ref_area_2)
@@ -1314,7 +1302,6 @@ def test_nanoplot_out_with_mixed_ref_area_2():
 
 # Test case 10: Line nanoplot w/ ref area and ref line
 def test_nanoplot_out_with_ref_line_and_area():
-
     out_with_ref_line_and_area = _generate_nanoplot(**CASES[9])
 
     assert _is_nanoplot_output(out_with_ref_line_and_area)
@@ -1424,7 +1411,6 @@ def test_nanoplot_out_with_ref_line_and_area():
 
 # Test case 11: Simple bar-based nanoplot
 def test_nanoplot_out_data_bars():
-
     out_data_bars = _generate_nanoplot(**CASES[10])
 
     assert _is_nanoplot_output(out_data_bars)
@@ -1471,7 +1457,6 @@ def test_nanoplot_out_data_bars():
 
 # Test case 12: Bar nanoplot with a reference line (static numeric value)
 def test_nanoplot_out_bars_with_num_ref_line():
-
     out_bars_with_num_ref_line = _generate_nanoplot(**CASES[11])
 
     assert _is_nanoplot_output(out_bars_with_num_ref_line)
@@ -1533,7 +1518,6 @@ def test_nanoplot_out_bars_with_num_ref_line():
 
 # Test case 13: Bar nanoplot with a reference line (keyword to generate value)
 def test_nanoplot_out_bars_with_kword_ref_line():
-
     out_bars_with_kword_ref_line = _generate_nanoplot(**CASES[12])
 
     assert _is_nanoplot_output(out_bars_with_kword_ref_line)
@@ -1595,7 +1579,6 @@ def test_nanoplot_out_bars_with_kword_ref_line():
 
 # Test case 14: Bar nanoplot with a reference area (using numbers to define limits)
 def test_nanoplot_out_bars_with_num_ref_area():
-
     out_bars_with_num_ref_area = _generate_nanoplot(**CASES[13])
 
     assert _is_nanoplot_output(out_bars_with_num_ref_area)
@@ -1653,7 +1636,6 @@ def test_nanoplot_out_bars_with_num_ref_area():
 
 # Test case 15: Bar nanoplot with a reference area (using keywords)
 def test_nanoplot_out_bars_with_kword_ref_area():
-
     out_bars_with_kword_ref_area = _generate_nanoplot(**CASES[14])
 
     assert _is_nanoplot_output(out_bars_with_kword_ref_area)
@@ -1711,7 +1693,6 @@ def test_nanoplot_out_bars_with_kword_ref_area():
 
 # Test case 16: Bar nanoplot with a reference area (using keyword + literal int value)
 def test_nanoplot_out_bars_with_mixed_ref_area_1():
-
     out_bars_with_mixed_ref_area_1 = _generate_nanoplot(**CASES[15])
 
     assert _is_nanoplot_output(out_bars_with_mixed_ref_area_1)
@@ -1769,7 +1750,6 @@ def test_nanoplot_out_bars_with_mixed_ref_area_1():
 
 # Test case 17: Bar nanoplot with a reference area (using keyword + literal float value)
 def test_nanoplot_out_bars_with_mixed_ref_area_2():
-
     out_bars_with_mixed_ref_area_2 = _generate_nanoplot(**CASES[16])
 
     assert _is_nanoplot_output(out_bars_with_mixed_ref_area_2)
@@ -1827,7 +1807,6 @@ def test_nanoplot_out_bars_with_mixed_ref_area_2():
 
 # Test case 18: Bar nanoplot with a reference line and area
 def test_nanoplot_out_bars_with_ref_line_and_area():
-
     out_bars_with_ref_line_and_area = _generate_nanoplot(**CASES[17])
 
     assert _is_nanoplot_output(out_bars_with_ref_line_and_area)
@@ -1900,7 +1879,6 @@ def test_nanoplot_out_bars_with_ref_line_and_area():
 
 # Test case 19: Horizontal line-based nanoplot
 def test_nanoplot_out_horizontal_line():
-
     out_horizontal_line = _generate_nanoplot(**CASES[18])
 
     assert _is_nanoplot_output(out_horizontal_line)
@@ -1927,7 +1905,6 @@ def test_nanoplot_out_horizontal_line():
 
 # Test case 20: Horizontal line-based nanoplot with value not in `vals` list
 def test_nanoplot_out_horizontal_line_non_incl():
-
     out_horizontal_line_non_incl = _generate_nanoplot(**CASES[19])
 
     assert _is_nanoplot_output(out_horizontal_line_non_incl)
@@ -1952,7 +1929,6 @@ def test_nanoplot_out_horizontal_line_non_incl():
 
 # Test case 21: Horizontal bar-based nanoplot
 def test_nanoplot_out_horizontal_bar():
-
     out_horizontal_bar = _generate_nanoplot(**CASES[20])
 
     assert _is_nanoplot_output(out_horizontal_bar)
@@ -1969,7 +1945,6 @@ def test_nanoplot_out_horizontal_bar():
 
 # Test case 22: Horizontal bar-based nanoplot with value not in `vals` list
 def test_nanoplot_out_horizontal_bar_non_incl():
-
     out_horizontal_bar_non_incl = _generate_nanoplot(**CASES[21])
 
     assert _is_nanoplot_output(out_horizontal_bar_non_incl)
@@ -1986,14 +1961,12 @@ def test_nanoplot_out_horizontal_bar_non_incl():
 
 # Test case 23: Line-based nanoplot with x-values
 def test_nanoplot_out_data_lines_x_vals():
-
     out_data_lines_x_vals = _generate_nanoplot(**CASES[22])
     assert _is_nanoplot_output(out_data_lines_x_vals)
 
 
 # Test case 24: Line-based nanoplot with no x-values (generates an empty string)
 def test_nanoplot_out_data_lines_x_vals_empty():
-
     out_data_lines_x_vals_empty = _generate_nanoplot(**CASES[23])
     assert out_data_lines_x_vals_empty == ""
 

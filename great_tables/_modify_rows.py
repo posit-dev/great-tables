@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, TypedDict, TypeVar, cast
+from typing import TYPE_CHECKING
 
-from ._gt_data import GTData, Locale, Options, RowGroups, Spanners, Stub, Boxhead, Styles
+from ._gt_data import Locale, RowGroups, Styles
 
 if TYPE_CHECKING:
     from ._types import GTSelf

@@ -124,7 +124,6 @@ def tab_style(
     # 1. transform dictionary to string (with Google Font name)
     # 2. add Google Font import statement via tab_options(table_additional_css)
     if any(isinstance(s, CellStyle) for s in style):
-
         for s in style:
             if (
                 isinstance(s, CellStyle)

@@ -53,7 +53,6 @@ def test_with_groupname_col_undo_spanner_style():
 
 
 def test_with_groupname_col_unset():
-
     gt = GT(
         pd.DataFrame({"g": ["b"], "row": ["one"], "x": [1], "y": [3]}),
         rowname_col="row",
@@ -108,7 +107,6 @@ def test_with_rowname_col_undo_spanner_style():
 
 
 def test_with_rowname_col_unset():
-
     gt = GT(
         pd.DataFrame({"g": ["b"], "row": ["one"], "x": [1], "y": [3]}),
         rowname_col="row",
