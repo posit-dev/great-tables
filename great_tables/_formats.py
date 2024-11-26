@@ -22,15 +22,14 @@ from ._tbl_data import (
     DataFrameLike,
     PlExpr,
     SelectExpr,
+    _get_column_dtype,
     is_na,
     is_series,
     to_list,
-    _get_column_dtype,
 )
 from ._text import _md_html, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace
 from ._utils_nanoplots import _generate_nanoplot
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -213,8 +212,8 @@ def fmt_number(
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
     accounting
-        An option to use accounting style for values. Normally, negative values will be shown with a
-        minus sign but using accounting style will instead put any negative values in parentheses.
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -363,7 +362,6 @@ def fmt_number_context(
 
     # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-
         if accounting:
             x_formatted = f"({_remove_minus(x_formatted)})"
 
@@ -430,8 +428,8 @@ def fmt_integer(
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
     accounting
-        An option to use accounting style for values. Normally, negative values will be shown with a
-        minus sign but using accounting style will instead put any negative values in parentheses.
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     compact
         A boolean value that allows for compact formatting of numeric values. Values will be scaled
         and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
@@ -561,7 +559,6 @@ def fmt_integer_context(
 
     # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-
         if accounting:
             x_formatted = f"({_remove_minus(x_formatted)})"
 
@@ -931,8 +928,8 @@ def fmt_percent(
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
     accounting
-        An option to use accounting style for values. Normally, negative values will be shown with a
-        minus sign but using accounting style will instead put any negative values in parentheses.
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -1096,7 +1093,6 @@ def fmt_percent_context(
 
     # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-
         if accounting:
             x_formatted = f"({_remove_minus(x_formatted)})"
 
@@ -1185,8 +1181,8 @@ def fmt_currency(
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
     accounting
-        An option to use accounting style for values. Normally, negative values will be shown with a
-        minus sign but using accounting style will instead put any negative values in parentheses.
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -1371,7 +1367,6 @@ def fmt_currency_context(
 
     # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-
         if accounting:
             x_formatted = f"({_remove_minus(x_formatted)})"
 
@@ -3821,8 +3816,9 @@ class FmtImage:
         return span
 
     def to_latex(self, val: Any):
-        from ._gt_data import FormatterSkipElement
         from warnings import warn
+
+        from ._gt_data import FormatterSkipElement
 
         warn("fmt_image() is not currently implemented in LaTeX output.")
 
