@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, Union
 
 from typing_extensions import Self, TypeAlias
 
-from ._helpers import px, GoogleFont
+from ._helpers import GoogleFont, px
 from ._tbl_data import PlExpr, TblData, _get_cell, eval_transform
 
 if TYPE_CHECKING:
@@ -228,7 +228,6 @@ class CellStyleText(CellStyle):
     ) = None
 
     def _to_html_style(self) -> str:
-
         rendered = ""
 
         if self.color:
@@ -336,7 +335,6 @@ class CellStyleBorders(CellStyle):
     sides: (
         Literal["all", "top", "bottom", "left", "right"]
         | list[Literal["all", "top", "bottom", "left", "right"]]
-        | ColumnExpr
     ) = "all"
     color: str | ColumnExpr = "#000000"
     style: str | ColumnExpr = "solid"

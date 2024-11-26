@@ -332,7 +332,6 @@ def test_scss_from_opt_table_outline(gt_tbl: GT, snapshot):
 
 
 def test_opt_table_font_add_font():
-
     gt_tbl = GT(exibble).opt_table_font(font="Arial", weight="bold", style="italic")
 
     assert gt_tbl._options.table_font_names.value == ["Arial"] + default_fonts_list
@@ -341,7 +340,6 @@ def test_opt_table_font_add_font():
 
 
 def test_opt_table_font_replace_font():
-
     gt_tbl = GT(exibble).opt_table_font(font="Arial", weight="bold", style="bold", add=False)
 
     assert gt_tbl._options.table_font_names.value == ["Arial"]
@@ -350,7 +348,6 @@ def test_opt_table_font_replace_font():
 
 
 def test_opt_table_font_use_stack():
-
     gt_tbl = GT(exibble).opt_table_font(stack="humanist")
 
     assert gt_tbl._options.table_font_names.value[0] == "Seravek"
@@ -358,7 +355,6 @@ def test_opt_table_font_use_stack():
 
 
 def test_opt_table_font_use_stack_and_system_font():
-
     gt_tbl = GT(exibble).opt_table_font(font="Comic Sans MS", stack="humanist")
 
     assert gt_tbl._options.table_font_names.value[0] == "Comic Sans MS"
@@ -367,7 +363,6 @@ def test_opt_table_font_use_stack_and_system_font():
 
 
 def test_opt_table_font_google_font():
-
     gt_tbl = GT(exibble).opt_table_font(font=google_font(name="IBM Plex Mono"))
 
     rendered_html = gt_tbl.as_raw_html(inline_css=False)
@@ -382,7 +377,6 @@ def test_opt_table_font_google_font():
 
 
 def test_opt_table_font_raises():
-
     # Both `font` and `stack` cannot be `None`
     with pytest.raises(ValueError) as exc_info:
         GT(exibble).opt_table_font(font=None, stack=None)
@@ -412,7 +406,6 @@ def test_opt_table_font_raises_weight():
 
 
 def test_opt_row_striping():
-
     gt_tbl_0 = GT(exibble)
     gt_tbl_1 = GT(exibble).opt_row_striping()
     gt_tbl_2 = GT(exibble).opt_row_striping().opt_row_striping(row_striping=False)
@@ -423,7 +416,6 @@ def test_opt_row_striping():
 
 
 def test_tab_options_striping():
-
     gt_tbl_tab_opts = GT(exibble).tab_options(row_striping_include_table_body=True)
     gt_tbl_opt_stri = GT(exibble).opt_row_striping()
 
@@ -435,7 +427,6 @@ def test_tab_options_striping():
 
 
 def test_tab_options_striping_body_snap(snapshot):
-
     gt_tbl = GT(
         exibble[["row", "group", "char"]].head(4), rowname_col="row", groupname_col="group"
     ).tab_options(
@@ -450,7 +441,6 @@ def test_tab_options_striping_body_snap(snapshot):
 
 
 def test_tab_options_striping_stub_snap(snapshot):
-
     gt_tbl = GT(
         exibble[["row", "group", "char"]].head(4), rowname_col="row", groupname_col="group"
     ).tab_options(
@@ -465,14 +455,12 @@ def test_tab_options_striping_stub_snap(snapshot):
 
 
 def test_opt_stylize_default(snapshot):
-
     gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize()
 
     assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
 
 
 def test_opt_stylize_no_striping(snapshot):
-
     gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize(
         add_row_striping=False
     )
@@ -482,7 +470,6 @@ def test_opt_stylize_no_striping(snapshot):
 
 @pytest.mark.parametrize("style", [1, 2, 3, 4, 5, 6])
 def test_opt_stylize_outline_present(style, snapshot):
-
     gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize(style=style)
 
     css = compile_scss(gt_tbl, id="abc", compress=False)

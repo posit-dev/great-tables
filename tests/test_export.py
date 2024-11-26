@@ -5,6 +5,7 @@ import tempfile
 import time
 
 from great_tables import GT, exibble, md
+from great_tables.data import gtcars
 from great_tables._export import _infer_render_target, _create_temp_file_server
 from pathlib import Path
 
@@ -40,7 +41,6 @@ def test_html_string_generated(gt_tbl: GT, snapshot: str):
 @pytest.mark.skipif(sys.platform == "win32", reason="chrome might not be installed.")
 @pytest.mark.extra
 def test_save_image_file(gt_tbl: GT, tmp_path):
-
     f_path = tmp_path / "test_image.png"
     gt_tbl.save(file=str(f_path))
 
@@ -96,3 +96,22 @@ def test_create_temp_file_server():
         r.content.decode() == "abc"
 
         thread.join()
+
+
+def test_snap_as_latex(snapshot):
+    gt_tbl = (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+        )
+        .tab_header(title="The _title_", subtitle="The subtitle")
+        .tab_spanner(label="Make _and_ Model", columns=["mfr", "model"])
+        .tab_spanner(label="Performance", columns=["hp", "trq"])
+        .fmt_currency(columns="msrp")
+        .tab_source_note("Note 1")
+        .tab_source_note("Note 2")
+        .tab_options(table_width="600px", table_font_size="12px")
+    )
+
+    latex_str_as_latex = gt_tbl.as_latex(use_longtable=True)
+
+    assert snapshot == latex_str_as_latex

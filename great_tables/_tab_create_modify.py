@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ._helpers import GoogleFont
 from ._locations import Loc, PlacementOptions, set_footnote, set_style
 from ._styles import CellStyle
-from ._helpers import GoogleFont
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -124,7 +123,6 @@ def tab_style(
     # 1. transform dictionary to string (with Google Font name)
     # 2. add Google Font import statement via tab_options(table_additional_css)
     if any(isinstance(s, CellStyle) for s in style):
-
         for s in style:
             if (
                 isinstance(s, CellStyle)

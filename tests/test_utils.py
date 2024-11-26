@@ -1,5 +1,8 @@
 from collections.abc import Generator
 import pytest
+
+from great_tables import GT, exibble
+from great_tables._tbl_data import is_na
 from great_tables._utils import (
     _assert_list_is_subset,
     _assert_str_in_set,
@@ -8,6 +11,7 @@ from great_tables._utils import (
     _collapse_list_elements,
     _insert_into_list,
     _match_arg,
+    _migrate_unformatted_to_output,
     OrderedSet,
     _str_scalar_to_list,
     heading_has_subtitle,
@@ -175,3 +179,39 @@ def test_seq_groups_raises():
     with pytest.raises(RuntimeError) as exc_info:
         next(seq_groups([]))
     assert "StopIteration" in str(exc_info.value)
+
+
+def test_migrate_unformatted_to_output_latex():
+    gt_tbl = GT(exibble.head(2)).fmt_number(columns="num", decimals=3)
+
+    # After rendering the data cells all the unformatted cells will be NA values in the
+    # body of the table
+    rendered = gt_tbl._render_formats(context="latex")
+
+    assert is_na(rendered._body.body, rendered._body.body["char"].tolist()).tolist() == [True, True]
+
+    # Migrate unformatted data to their corresponding data cells, the expectation is that
+    # unformatted cells will no longer be NA but have the values from the original data
+    migrated = _migrate_unformatted_to_output(
+        data=rendered, data_tbl=rendered._tbl_data, formats=rendered._formats, context="latex"
+    )
+
+    assert migrated._body.body["char"].tolist() == ["apricot", "banana"]
+
+
+def test_migrate_unformatted_to_output_html():
+    gt_tbl = GT(exibble.head(2)).fmt_number(columns="num", decimals=3)
+
+    # After rendering the data cells all the unformatted cells will be NA values in the
+    # body of the table
+    rendered = gt_tbl._render_formats(context="html")
+
+    assert is_na(rendered._body.body, rendered._body.body["char"].tolist()).tolist() == [True, True]
+
+    # For HTML output, the `_migrate_unformatted_to_output()` has not been implemented yet so
+    # we expect the same output as the input (NA values for unformatted cells)
+    migrated = _migrate_unformatted_to_output(
+        data=rendered, data_tbl=rendered._tbl_data, formats=rendered._formats, context="html"
+    )
+
+    assert is_na(migrated._body.body, migrated._body.body["char"].tolist()).tolist() == [True, True]

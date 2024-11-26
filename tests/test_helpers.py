@@ -134,7 +134,6 @@ def test_get_font_stack_add_emoji_true(font_stack_names):
     ],
 )
 def assert_generate_tokens_list(units: str, x_out: str):
-
     x = _generate_tokens_list(units_notation=units)
     assert x == x_out
 
@@ -338,7 +337,6 @@ def test_unit_str_class_construction():
 
 
 def test_unit_str_from_str_single_unit():
-
     res = UnitStr.from_str("speed {{m s^-1}}").units_str
 
     assert len(res) == 3
@@ -349,7 +347,6 @@ def test_unit_str_from_str_single_unit():
 
 
 def test_unit_str_from_str_two_units():
-
     res = UnitStr.from_str("speed {{m s^-1}} and acceleration {{m s^-2}}").units_str
 
     assert len(res) == 5
@@ -363,7 +360,6 @@ def test_unit_str_from_str_two_units():
 
 
 def test_unit_str_from_without_units():
-
     res = UnitStr.from_str("a b").units_str
 
     assert len(res) == 1
@@ -371,7 +367,6 @@ def test_unit_str_from_without_units():
 
 
 def test_unit_str_unmatched_brackets():
-
     res = UnitStr.from_str("speed {{m s^-1 and acceleration {{m s^-2}}").units_str
 
     assert len(res) == 3
@@ -379,6 +374,13 @@ def test_unit_str_unmatched_brackets():
     assert isinstance(res[1], UnitDefinitionList)
     assert res[1] == define_units(units_notation="m s^-1 and acceleration {{m s^-2")
     assert res[2] == ""
+
+
+def test_define_units_latex_raises():
+    with pytest.raises(NotImplementedError) as exc_info:
+        UnitStr.from_str("a b").to_latex()
+
+    assert "LaTeX conversion of units is not yet supported." in exc_info.value.args[0]
 
 
 @pytest.mark.parametrize(

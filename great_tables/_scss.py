@@ -10,7 +10,7 @@ from importlib_resources import files
 from ._data_color.base import _html_color, _ideal_fgnd_color
 from ._gt_data import GTData
 from ._helpers import pct, px
-from ._utils import _as_css_font_family_attr, OrderedSet
+from ._utils import OrderedSet, _as_css_font_family_attr
 
 DEFAULTS_TABLE_BACKGROUND = (
     "heading_background_color",

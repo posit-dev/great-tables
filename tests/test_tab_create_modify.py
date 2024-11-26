@@ -34,7 +34,6 @@ def test_tab_style_multiple_columns(gt: GT):
 
 
 def test_tab_style_google_font(gt: GT):
-
     new_gt = tab_style(
         gt,
         style=style.text(font=google_font(name="IBM Plex Mono")),
@@ -50,7 +49,6 @@ def test_tab_style_google_font(gt: GT):
 
 
 def test_tab_style_font_local(gt: GT):
-
     new_gt = tab_style(
         gt,
         style=style.text(font="Courier"),
@@ -63,7 +61,6 @@ def test_tab_style_font_local(gt: GT):
 
 
 def test_tab_style_font_from_column():
-
     tbl = pl.DataFrame({"x": [1, 2], "font": ["Helvetica", "Courier"]})
 
     gt_tbl = GT(tbl).tab_style(

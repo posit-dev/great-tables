@@ -214,6 +214,7 @@ quartodoc:
         - GT.save
         - GT.show
         - GT.as_raw_html
+        - GT.as_latex
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of
@@ -229,6 +230,7 @@ quartodoc:
         - vals.fmt_date
         - vals.fmt_time
         - vals.fmt_markdown
+        - vals.fmt_image
     - title: Built in datasets
       desc: >
         The **Great Tables** package is equipped with sixteen datasets that come in all shapes and
