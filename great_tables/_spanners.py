@@ -10,6 +10,7 @@ from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
 from ._text import BaseText, Text
 from ._utils import OrderedSet, _assert_list_is_subset
+from typing_extensions import TypeAlias
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
