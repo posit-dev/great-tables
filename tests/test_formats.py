@@ -1116,7 +1116,6 @@ def test_fmt_currency_case(fmt_currency_kwargs: dict[str, Any], x_out: list[str]
 
 
 def test_fmt_currency_force_sign():
-
     df = pd.DataFrame({"x": [-234.654, -0.0001, 0, 2352.23, 12354.3, 9939293923.23]})
 
     gt = GT(df).fmt_currency(columns="x", force_sign=True)
@@ -1139,35 +1138,30 @@ df_fmt_time = pd.DataFrame({"x": ["10:59:59", "13:23:59", "23:15"]})
 
 
 def test_fmt_time_iso():
-
     gt = GT(df_fmt_time).fmt_time(columns="x", time_style="iso")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["10:59:59", "13:23:59", "23:15:00"]
 
 
 def test_fmt_time_iso_short():
-
     gt = GT(df_fmt_time).fmt_time(columns="x", time_style="iso-short")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["10:59", "13:23", "23:15"]
 
 
 def test_fmt_time_h_m_s_p():
-
     gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_m_s_p")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["10:59:59 AM", "1:23:59 PM", "11:15:00 PM"]
 
 
 def test_fmt_time_h_m_p():
-
     gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_m_p")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["10:59 AM", "1:23 PM", "11:15 PM"]
 
 
 def test_fmt_time_h_p():
-
     gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_p")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["10 AM", "1 PM", "11 PM"]
@@ -1179,7 +1173,6 @@ def test_fmt_time_h_p():
 
 
 def test_fmt_date():
-
     df = pd.DataFrame(
         {
             "x": [
@@ -1209,7 +1202,6 @@ def test_fmt_date():
 
 
 def test_fmt_datetime():
-
     df = pd.DataFrame(
         {
             "x": [
@@ -1240,7 +1232,6 @@ def test_fmt_datetime():
 
 
 def test_fmt_datetime_bad_date_style_raises():
-
     df = pd.DataFrame(
         {
             "x": [
@@ -1310,14 +1301,12 @@ df_fmt_roman = pd.DataFrame({"x": [-1234, 0, 0.4, 0.8, 1, 99, 4500]})
 
 
 def test_fmt_roman_upper():
-
     gt = GT(df_fmt_roman).fmt_roman(columns="x")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["MCCXXXIV", "N", "N", "I", "I", "XCIX", "ex terminis"]
 
 
 def test_fmt_roman_lower():
-
     gt = GT(df_fmt_roman).fmt_roman(columns="x", case="lower")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["mccxxxiv", "n", "n", "i", "i", "xcix", "ex terminis"]
@@ -1657,7 +1646,6 @@ def test_fmt_icon_multiple_attrs():
     ],
 )
 def test_fmt_units(src: str, dst: str):
-
     units_tbl = pl.DataFrame({"units": [src]})
     gt_tbl = GT(units_tbl).fmt_units(columns="units")
 
@@ -1721,7 +1709,6 @@ FMT_NANOPLOT_CASES: list[dict[str, Any]] = [
 
 # Test category 1: Horizontal line-based nanoplot single values
 def test_fmt_nanoplot_single_vals_only_line():
-
     gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
         columns="vals",
         plot_type="line",
@@ -1752,7 +1739,6 @@ def test_fmt_nanoplot_single_vals_only_line():
     # as this previous one (none will error as the non-relevant options are no ops)
 
     for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
-
         gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
             columns="vals",
             plot_type="line",
@@ -1765,7 +1751,6 @@ def test_fmt_nanoplot_single_vals_only_line():
 
 # Test category 2: Horizontal bar-based nanoplot single values
 def test_fmt_nanoplot_single_vals_only_bar():
-
     gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
         columns="vals",
         plot_type="bar",
@@ -1805,7 +1790,6 @@ def test_fmt_nanoplot_single_vals_only_bar():
     # All other test cases for the horizontal bar nanoplot will produce the same output
     # as this previous one (none will error as the non-relevant options are no ops)
     for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
-
         gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
             columns="vals",
             plot_type="bar",
@@ -1818,7 +1802,6 @@ def test_fmt_nanoplot_single_vals_only_bar():
 
 # Test category 3: Line-based nanoplot, multiple values per row
 def test_fmt_nanoplot_multi_vals_line():
-
     # Subcase with default options
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
@@ -1906,7 +1889,6 @@ def test_fmt_nanoplot_multi_vals_line():
 
 # Test category 3: Line-based nanoplot, multiple values per row, use of reference line
 def test_fmt_nanoplot_multi_vals_line_ref_line():
-
     # Subcase with reference line
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
@@ -1932,7 +1914,6 @@ def test_fmt_nanoplot_multi_vals_line_ref_line():
 # Test category 4: Line-based nanoplot, multiple values per row, use of reference
 # line and reference area
 def test_fmt_nanoplot_multi_vals_line_ref_line_ref_area():
-
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
         plot_type="line",
@@ -1967,7 +1948,6 @@ def test_fmt_nanoplot_multi_vals_line_ref_line_ref_area():
 
 # Test category 5: Bar-based nanoplot, multiple values per row
 def test_fmt_nanoplot_multi_vals_bar():
-
     # Subcase with default options
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
@@ -2015,7 +1995,6 @@ def test_fmt_nanoplot_multi_vals_bar():
 
 # Test category 6: Bar-based nanoplot, multiple values per row, use of reference line
 def test_fmt_nanoplot_multi_vals_bar_ref_line():
-
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
         plot_type="bar",
@@ -2039,7 +2018,6 @@ def test_fmt_nanoplot_multi_vals_bar_ref_line():
 
 # Test category 7: Bar-based nanoplot, multiple values per row, reference line and reference area
 def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
-
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
         plot_type="bar",

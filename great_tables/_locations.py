@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import itertools
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, Union
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 from typing_extensions import TypeAlias
 
@@ -851,7 +851,7 @@ def _(loc: LocColumnLabels, data: GTData) -> list[tuple[str, int]]:
 
 
 @resolve.register
-def _(loc: LocRowGroups, data: GTData) -> set[int]:
+def _(loc: LocRowGroups, data: GTData) -> set[str]:
     # TODO: what are the rules for matching row groups?
     # TODO: resolve_rows_i will match a list expr to row names (not group names)
     group_pos = set(name for name, _ in resolve_rows_i(data, loc.rows, row_name_attr="group_id"))
