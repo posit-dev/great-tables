@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
-from typing_extensions import Self
+from typing import TYPE_CHECKING, Any
 
-from great_tables._gt_data import GTData
+from typing_extensions import Self
 
 # Main gt imports ----
 from great_tables._body import body_reassemble
 from great_tables._boxhead import cols_align, cols_label
 from great_tables._data_color import data_color
-from great_tables._export import as_raw_html, as_latex, save, show
+from great_tables._export import as_latex, as_raw_html, save, show
 from great_tables._formats import (
     fmt,
     fmt_bytes,
@@ -27,6 +26,7 @@ from great_tables._formats import (
     fmt_time,
     fmt_units,
 )
+from great_tables._gt_data import GTData
 from great_tables._heading import tab_header
 from great_tables._helpers import random_id
 from great_tables._modify_rows import (
@@ -42,8 +42,8 @@ from great_tables._options import (
     opt_horizontal_padding,
     opt_row_striping,
     opt_stylize,
-    opt_table_outline,
     opt_table_font,
+    opt_table_outline,
     opt_vertical_padding,
     tab_options,
 )
@@ -71,7 +71,6 @@ from great_tables._utils_render_html import (
     create_heading_component_h,
     create_source_notes_component_h,
 )
-
 
 if TYPE_CHECKING:
     from ._helpers import BaseText
