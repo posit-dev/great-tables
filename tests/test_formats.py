@@ -1572,6 +1572,23 @@ def test_fmt_icon_fill_color_dict():
     assert bool(re.search('style="fill:blue;', column_vals[1]))
 
 
+def test_fmt_icon_fill_color_dict_none():
+    df = pd.DataFrame({"x": ["hippo", "fish", "dog"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color={"hippo": "aqua", "fish": "blue"})
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert bool(re.search('style="fill:aqua;', column_vals[0]))
+    assert bool(re.search('style="fill:blue;', column_vals[1]))
+    assert bool(
+        re.search(
+            'style="fill-opacity:None;stroke-width:1px;stroke-opacity:None;height:1em;width:1.12em;position:relative;vertical-align:-0.125em;overflow:visible;">',
+            column_vals[2],
+        )
+    )
+
+
 def test_fmt_icon_multiple_attrs():
     df = pd.DataFrame({"x": ["hippo"]})
 
