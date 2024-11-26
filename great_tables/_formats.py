@@ -3923,38 +3923,27 @@ def fmt_icon(
 
     ```{python}
     import polars as pl
-    from great_tables import GT
     from great_tables.data import towny
 
-
-    # Assuming `towny` is a Polars DataFrame
     towny_mini = (
-        pl.from_pandas(towny)
+        pl.from_pandas(towny.loc[[323, 14, 26, 235]])
         .select(["name", "csd_type", "population_2021"])
-        .filter(pl.col("csd_type").is_in(["city", "town"]))
-        .group_by("csd_type", maintain_order=True)
-        .agg([
-            pl.col("name").sort_by("population_2021", descending=True).head(5),
-            pl.col("population_2021").sort(descending=True).head(5)
-        ])
-        .sort("csd_type")
-        .explode(["name", "population_2021"])
         .with_columns(
-            csd_type = pl.when(pl.col("csd_type") == "town")
-            .then(pl.lit("house-chimney"))
-            .otherwise(pl.lit("city"))
+           csd_type = pl.when(pl.col("csd_type") == "town")
+           .then(pl.lit("house-chimney"))
+           .otherwise(pl.lit("city"))
         )
     )
 
     (
-        GT(towny_mini)
-        .fmt_integer(columns="population_2021")
-        .fmt_icon(columns="csd_type")
-        .cols_label(
-            csd_type="",
-            name="City/Town",
-            population_2021="Population"
-        )
+       GT(towny_mini)
+       .fmt_integer(columns="population_2021")
+       .fmt_icon(columns="csd_type")
+       .cols_label(
+           csd_type="",
+           name="City/Town",
+           population_2021="Population"
+       )
     )
     ```
 
