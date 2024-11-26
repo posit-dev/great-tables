@@ -1536,6 +1536,42 @@ def test_fmt_icon_two_colors():
     assert 'style="fill:blue;' in _get_column_of_values(gt, column_name="x", context="html")[0]
 
 
+def test_fmt_icon_stroke_width():
+    df = pd.DataFrame({"x": ["pizza-slice"]})
+
+    gt_px = GT(df).fmt_icon(columns="x", stroke_width="2px")
+    gt_num = GT(df).fmt_icon(columns="x", stroke_width=2)
+
+    column_vals_px = _get_column_of_values(gt_px, column_name="x", context="html")
+    column_vals_num = _get_column_of_values(gt_num, column_name="x", context="html")
+
+    assert bool(re.search("stroke-width:2px", column_vals_px[0]))
+
+    assert column_vals_px == column_vals_num
+
+
+def test_fmt_icon_fill_color():
+    df = pd.DataFrame({"x": ["hippo", "fish"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color="aqua")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(re.search('style="fill:aqua;', val))
+
+
+def test_fmt_icon_fill_color_dict():
+    df = pd.DataFrame({"x": ["hippo", "fish"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color={"hippo": "aqua", "fish": "blue"})
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert bool(re.search('style="fill:aqua;', column_vals[0]))
+    assert bool(re.search('style="fill:blue;', column_vals[1]))
+
+
 def test_fmt_icon_multiple_attrs():
     df = pd.DataFrame({"x": ["hippo"]})
 
