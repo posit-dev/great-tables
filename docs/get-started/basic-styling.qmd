@@ -86,13 +86,11 @@ In the next few sections, we'll first show how this combines nicely with the [`c
 One common approach is to specify a style from a column, and then hide that column in the final output. For example, we can add a background column to our `airquality` data:
 
 ```{python}
-color_map = {
-    True: "lightyellow",
-    False: "lightblue"
-}
+cond = air_head["Temp"].gt(70)
 
 with_color = air_head.assign(
-    background=(air_head["Temp"] > 70).replace(color_map)
+    background=air_head["Temp"].case_when(caselist=[(cond, "lightyellow"),
+                                                    (~cond, "lightblue")])
 )
 
 with_color
