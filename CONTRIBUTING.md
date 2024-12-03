@@ -37,6 +37,8 @@ Our documentation use `quartodoc` which in turn requires a local install of the 
 
 We also use `ruff` for linting and formatting (this is part of our development dependencies). If using VS Code as your editor, it may be useful to install the `Ruff` extension. This will make it so any commits will pass the `pre-commit` checks.
 
+If you are planning to investigate or submit a PR concerning the generation of table images, you need to install additional dependencies (`selenium`and`Pillow`) and this can be done by using `pip install .[all]`.
+
 ### Building the Documentation Locally
 
 Building the documentation can be done with `make docs-build` from the root of the project folder. Locally building the documentation site is useful when you want to see how your changes will look during iteration. The site will be built in the `docs/_site` folder.
