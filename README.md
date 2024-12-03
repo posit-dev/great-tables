@@ -26,7 +26,7 @@ With **Great Tables** anyone can make wonderful-looking tables in Python. The ph
 <img src="https://posit-dev.github.io/great-tables/assets/the_components_of_a_table.svg" width="800px">
 </div>
 
-It all begins with **table data** in the form of a Pandas or Polars DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a **Quarto** document.
+It all begins with **table data** in the form of a Pandas or Polars DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered to HTML (the default option) or to an image file.
 
 The **Great Tables** package is designed to be both straightforward yet powerful. The emphasis is on simple methods for the everyday display table needs (but power when you need it). Here is a brief example of how to use **Great Tables** to create a table from the included `sp500` dataset:
 
@@ -55,6 +55,8 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 <div align="center">
 <img src="https://posit-dev.github.io/great-tables/assets/gt_sp500_table.svg" width="800px">
 </div>
+
+Typically we use Great Tables in an notebook environment or within a [**Quarto**](https://quarto.org) document. Tables won't print to the console, but using the [`show()` method](https://posit-dev.github.io/great-tables/reference/GT.show.html#great_tables.GT.show) on a table object while in the console will open the HTML table in your default browser.
 
 There are ten datasets provided by **Great Tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `metro`, `constants`, and `illness`.
 
