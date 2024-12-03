@@ -4,7 +4,7 @@ There are many ways to contribute to the ongoing development of the **great_tabl
 
 ## Filing Issues
 
-If you believe you found a bug, minimal reproducible example (MRE) for your posting to the [**great_tables** issue tracker](https://github.com/posit-dev/great-tables/issues). Try not to include anything unnecessary, just the minimal amount of code that constitutes the reproducible bug. We will try to verify the bug by running the code in the MRE provided. The quality of the MRE will reduce the amount of back-and-forth communication in trying to understand how to execute the code on our systems.
+If you believe you found a bug, minimal reproducible example (MRE) for your posting to the [**great_tables** issue tracker](https://github.com/posit-dev/great-tables/issues). Try not to include anything unnecessary, just the minimal amount of code that constitutes the reproducible bug. For useful guidelines on how to create an MRE, take a look at [this guide on Stack Overflow](https://stackoverflow.com/help/minimal-reproducible-example). We will try to verify the bug by running the code in the provided MRE. The quality of the MRE will reduce the amount of back-and-forth communication in trying to understand how to execute the code on our systems.
 
 ## Answering questions
 
