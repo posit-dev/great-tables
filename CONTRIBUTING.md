@@ -18,11 +18,11 @@ Should you consider making a pull request (PR), please file an issue first and e
 
 Once there is consensus that a PR based on the issue would be helpful, adhering to the following process will make things proceed more quickly:
 
-- Create a separate Git branch for each PR.
-- Look at the build status badges before and after making changes; these badges are available in the package [README](https://github.com/posit-dev/great-tables).
-- The **great_tables** package follows the [Style Guide for Python Code](https://peps.python.org/pep-0008/) so please adopt those guidelines in your submitted code as best as possible.
-- Comment your code, particularly in those hard-to-understand areas.
-- We use **pytest** for code coverage; those contributions with test cases included are helpful and easier to accept.
+- Create a separate Git branch for each PR
+- Look at the build status badges before and after making changes; these badges are available in the package [README](https://github.com/posit-dev/great-tables)
+- The **great_tables** package follows the [Style Guide for Python Code](https://peps.python.org/pep-0008/) so please adopt those guidelines in your submitted code as best as possible
+- Comment your code, particularly in those hard-to-understand areas
+- Add test cases that cover the changes made in the PR; having tests for any new codepaths will help guard against regressions
 
 ### Setting Up Your Development Environment
 
