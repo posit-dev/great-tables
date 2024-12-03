@@ -43,7 +43,7 @@ If you are planning to investigate or submit a PR concerning the generation of t
 
 Building the documentation can be done with `make docs-build` from the root of the project folder. Locally building the documentation site is useful when you want to see how your changes will look during iteration. The site will be built in the `docs/_site` folder.
 
-### Running Tests
+### Running Tests Locally
 
 The tests are located in the `tests` folder and we use `pytest` for running them. To run all of the tests, use `make test`. If you want to run a specific test file, you can use `pytest tests/test_file.py`.
 
