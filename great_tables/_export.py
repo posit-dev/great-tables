@@ -474,3 +474,47 @@ def _dump_debug_screenshot(driver, path):
         "document.getElementsByTagName('table')[0].style.border = '3px solid green'; "
     )
     driver.save_screenshot(path)
+
+
+def write_html(
+    gt: GT,
+    filename: str | Path | None = None,
+    encoding: str = "utf-8",
+    newline: str | None = None,
+    make_page: bool = False,
+    all_important: bool = False,
+) -> str | None:
+    """
+    Write the table to an HTML file.
+
+    This helper function saves the output of `GT.as_raw_html()` to an HTML file specified by the
+    user.
+
+    Parameters
+    ----------
+    gt
+        A GT object.
+    filename
+        The name of the file to save the HTML. Can be a string or a `pathlib.Path` object.
+        If set to `None` (default), the output is returned as a string instead.
+    encoding
+        The encoding used when writing the file. Defaults to 'utf-8'.
+    newline
+        The newline character to use when writing the file. Defaults to `os.linesep`.
+    Returns
+    -------
+    str | None
+        If `filename` is `None` (default), returns the HTML output as a string. Otherwise, writes
+        the HTML to the specified file path and returns `None`.
+    """
+    html_content = as_raw_html(gt, make_page=make_page, all_important=all_important)
+
+    if filename is None:
+        return html_content
+
+    import os
+
+    newline = newline if newline is not None else os.linesep
+
+    with open(filename, "w", encoding=encoding, newline=newline) as f:
+        f.write(html_content)
