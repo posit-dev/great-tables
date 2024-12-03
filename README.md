@@ -104,6 +104,20 @@ Please note that the **Great Tables** project is released with a [contributor co
 
 © Posit Software, PBC.
 
+## Citation
+
+If you use **Great Tables** in your research/project/product, we would appreciate a citation to the package. You can cite the package using the following BibTeX entry:
+
+```bibtex
+@software{Iannone_great_tables,
+author = {Iannone, Richard and Chow, Michael},
+license = {MIT},
+title = {{great-tables: Make awesome display tables using Python.}},
+url = {https://github.com/posit-dev/great-tables},
+version = {0.14.0}
+}
+```
+
 ## 🏛️ Governance
 
 This project is primarily maintained by [Rich Iannone](https://twitter.com/riannone) and [Michael Chow](https://twitter.com/chowthedog).
