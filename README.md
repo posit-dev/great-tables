@@ -92,6 +92,12 @@ The **Great Tables** package can be installed from **PyPI** with:
 $ pip install great_tables
 ```
 
+You can also install [Great Tables from Conda-Forge](https://anaconda.org/conda-forge/great_tables) by using:
+
+```bash
+conda install conda-forge::great_tables
+```
+
 If you encounter a bug, have usage questions, or want to share ideas to make this package better, please feel free to file an [issue](https://github.com/posit-dev/great-tables/issues).
 
 ## Code of Conduct
