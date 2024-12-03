@@ -23,3 +23,26 @@ Once there is consensus that a PR based on the issue would be helpful, adhering 
 - The **great_tables** package follows the [Style Guide for Python Code](https://peps.python.org/pep-0008/) so please adopt those guidelines in your submitted code as best as possible.
 - Comment your code, particularly in those hard-to-understand areas.
 - We use **pytest** for code coverage; those contributions with test cases included are helpful and easier to accept.
+
+### Setting Up Your Development Environment
+
+To set up your development environment, you can follow these steps:
+
+- Clone the posit-dev/great-tables repository
+- Create a virtual environment for the folder
+- Install the package in editable mode with `pip install -e .` from the root of the project folder
+- Install the development dependencies with `pip install .[dev]` (have a look at the `pyproject.toml` file for the list of development dependencies)
+
+Our documentation use `quartodoc` which in turn requires a local install of the Quarto CLI. To install Quarto, go to <https://quarto.org/docs/get-started/> to get the latest build for your platform.
+
+We also use `ruff` for linting and formatting (this is part of our development dependencies). If using VS Code as your editor, it may be useful to install the `Ruff` extension. This will make it so any commits will pass the `pre-commit` checks.
+
+### Building the Documentation Locally
+
+Building the documentation can be done with `make docs-build` from the root of the project folder. Locally building the documentation site is useful when you want to see how your changes will look during iteration. The site will be built in the `docs/_site` folder.
+
+### Running Tests
+
+The tests are located in the `tests` folder and we use `pytest` for running them. To run all of the tests, use `make test`. If you want to run a specific test file, you can use `pytest tests/test_file.py`.
+
+If you create new tests involving snapshots, please ensure that the resulting snapshots are relatively small. After adding snapshots, use `make test-update` (this runs `pytest --snapshot-update`). A subsequent use of `make test` should pass without any issues.
