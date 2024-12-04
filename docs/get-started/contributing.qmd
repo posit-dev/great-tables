@@ -1,5 +1,5 @@
 ---
-title: Information and Guidelines for Contributing to **Great Tables**
+title: Contributing Guidelines
 format: html
 ---
 
