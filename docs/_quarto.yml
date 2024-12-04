@@ -52,6 +52,9 @@ website:
             - get-started/column-selection.qmd
             - get-started/row-selection.qmd
             - get-started/loc-selection.qmd
+        - section: Extra
+          contents:
+            - get-started/contributing.qmd
 
 format:
   html:
