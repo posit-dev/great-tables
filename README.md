@@ -9,7 +9,7 @@ _Absolutely Delightful Table-making in Python_
 [![PyPI Downloads](https://img.shields.io/pypi/dm/great-tables)](https://pypistats.org/packages/great-tables)
 [![License](https://img.shields.io/github/license/posit-dev/great-tables)](https://img.shields.io/github/license/posit-dev/great-tables)
 
-[![CI Build](https://github.com/posit-dev/great-tables/workflows/CI%20Tests/badge.svg?branch=main)](https://github.com/posit-dev/great-tables/actions?query=workflow%3A%22CI+Tests%22+branch%3Amain)
+[![CI Build](https://github.com/posit-dev/great-tables/actions/workflows/ci-tests.yaml/badge.svg)](https://github.com/posit-dev/great-tables/actions/workflows/ci-tests.yaml)
 [![Codecov branch](https://img.shields.io/codecov/c/github/posit-dev/great-tables/main.svg)](https://codecov.io/gh/posit-dev/great-tables)
 [![Repo Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Documentation](https://img.shields.io/badge/docs-project_website-blue.svg)](https://posit-dev.github.io/great-tables/)
