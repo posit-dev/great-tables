@@ -85,6 +85,13 @@ class CurrenciesDataDict(TypedDict):
     symbol: object
 
 
+class FlagsDataDict(TypedDict):
+    country_code_2: str
+    country_code_3: str
+    country_name: str
+    country_flag: str
+
+
 # Note that all the functions below cast the result hint of read_csv
 # to a more specific dict type, which contains item info.
 
@@ -104,3 +111,9 @@ def _get_currencies_data() -> list[CurrenciesDataDict]:
     fname = DATA_MOD / "x_currencies.csv"
 
     return cast("list[CurrenciesDataDict]", read_csv(fname))
+
+
+def _get_flags_data() -> list[FlagsDataDict]:
+    fname = DATA_MOD / "x_flags.csv"
+
+    return cast("list[FlagsDataDict]", read_csv(fname))

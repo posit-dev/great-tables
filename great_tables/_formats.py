@@ -15,22 +15,26 @@ from typing_extensions import TypeAlias
 
 from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
 from ._helpers import px
-from ._locale import _get_currencies_data, _get_default_locales_data, _get_locales_data
+from ._locale import (
+    _get_currencies_data,
+    _get_default_locales_data,
+    _get_flags_data,
+    _get_locales_data,
+)
 from ._locations import resolve_cols_c, resolve_rows_i
 from ._tbl_data import (
     Agnostic,
     DataFrameLike,
     PlExpr,
     SelectExpr,
+    _get_column_dtype,
     is_na,
     is_series,
     to_list,
-    _get_column_dtype,
 )
 from ._text import _md_html, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace
 from ._utils_nanoplots import _generate_nanoplot
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -3764,8 +3768,9 @@ class FmtImage:
         return span
 
     def to_latex(self, val: Any):
-        from ._gt_data import FormatterSkipElement
         from warnings import warn
+
+        from ._gt_data import FormatterSkipElement
 
         warn("fmt_image() is not currently implemented in LaTeX output.")
 
@@ -3809,6 +3814,216 @@ class FmtImage:
         )
 
         return f'<img src="{uri}" style="{style_string}">'
+
+
+def fmt_flag(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    height: str | int | float | None = "1em",
+    sep: str = " ",
+    use_title: bool = True,
+) -> GTSelf:
+    """Generate flag icons for countries from their country codes.
+
+    While it is fairly straightforward to insert images into body cells (using `fmt_image()` is one
+    way to it), there is often the need to incorporate specialized types of graphics within a table.
+    One such group of graphics involves iconography representing different countries, and the
+    `fmt_flag()` method helps with inserting a flag icon (or multiple) in body cells. To make this
+    work seamlessly, the input cells need to contain some reference to a country, and this can be in
+    the form of a 2- or 3-letter ISO 3166-1 country code (e.g., Egypt has the `"EG"` country code).
+    This method will parse the targeted body cells for those codes and insert the appropriate flag
+    graphics.
+
+    Multiple flags can be included per cell by separating country codes with commas (e.g.,
+    `"GB,TT"`). The `sep=` argument allows for a common separator to be applied between flag icons.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    height
+        The height of the flag icons. The default value is `"1em"`. If given as a number, it is
+        assumed to be in pixels.
+    sep
+        In the output of multiple flag icons within a body cell, `sep=` provides the separator
+        between each of the flag icons.
+    use_title
+        The option to include a title attribute with the country name when hovering over the flag
+        icon. The default is `True`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `countrypops` dataset to create a new table with flag icons. We will only include
+    a few columns and rows from that table. The `country_code_2` column has 2-letter country codes
+    in the format required for `fmt_flag()` and using that method transforms the codes to circular
+    flag icons.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import countrypops
+    import polars as pl
+
+    countrypops_mini = (
+        pl.from_pandas(countrypops)
+        .filter(pl.col("year") == 2021)
+        .filter(pl.col("country_name").str.starts_with("S"))
+        .sort("country_name")
+        .head(10)
+        .drop(["year", "country_code_3"])
+    )
+
+    (
+        GT(countrypops_mini)
+        .fmt_integer(columns="population")
+        .fmt_flag(columns="country_code_2")
+        .cols_label(
+            country_code_2="",
+            country_name="Country",
+            population="Population (2021)"
+        )
+        .cols_move_to_start(columns="country_code_2")
+    )
+    ```
+
+    Here's another example (again using `countrypops`) where we generate a table providing
+    populations every five years for the Benelux countries (`"BEL"`, `"NLD"`, and `"LUX"`). After
+    some filtering and a pivot, the `fmt_flag()` method is used to obtain flag icons from 3-letter
+    country codes present in the `country_code_3` column.
+
+    ```{python}
+    import polars.selectors as cs
+
+    countrypops_mini = (
+        pl.from_pandas(countrypops)
+        .filter(pl.col("country_code_3").is_in(["BEL", "NLD", "LUX"]))
+        .filter((pl.col("year") % 10 == 0) & (pl.col("year") >= 1960))
+        .pivot("year", index = ["country_code_3", "country_name"], values="population")
+    )
+
+    (
+        GT(countrypops_mini)
+        .tab_header(title="Populations of the Benelux Countries")
+        .tab_spanner(label="Year", columns=cs.numeric())
+        .fmt_integer(columns=cs.numeric())
+        .fmt_flag(columns="country_code_3")
+        .cols_label(
+            country_code_3="",
+            country_name="Country"
+        )
+    )
+    ```
+    """
+
+    formatter = FmtFlag(self._tbl_data, height=height, sep=sep, use_title=use_title)
+
+    return fmt(
+        self,
+        fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
+        columns=columns,
+        rows=rows,
+    )
+
+
+@dataclass
+class FmtFlag:
+    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    height: str | int | float | None = None
+    sep: str = " "
+    use_title: bool = True
+
+    SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
+
+    def to_html(self, val: Any):
+        if is_na(self.dispatch_on, val):
+            return val
+
+        val = val.upper()
+
+        if "," in val:
+            flag_list = re.split(r",\s*", val)
+        else:
+            flag_list = [val]
+
+        if self.height is None:
+            height = "1em"
+        else:
+            height = self.height
+
+            if isinstance(height, (int, float)):
+                height = f"{height}px"
+
+        out: list[str] = []
+
+        for flag in flag_list:
+            # If the number of characters in the country code is not 2 or 3, then we raise an error
+            if len(flag) not in [2, 3]:
+                raise ValueError("The country code provided must be either 2 or 3 characters long.")
+
+            # Since we allow 2- or 3- character country codes, create the name of the lookup
+            # column based on the length of the country code
+            lookup_column = "country_code_2" if len(flag) == 2 else "country_code_3"
+
+            # Get the correct dictionary entries based on the provided 'country_code_2' value
+            flag_dict = _filter_pd_df_to_row(
+                pd_df=_get_flags_data(), column=lookup_column, filter_expr=flag
+            )
+
+            # Get the SVG string and country name for the flag
+            flag_svg = str(flag_dict["country_flag"])
+            flag_title = str(flag_dict["country_name"])
+
+            # Extract the flag SVG data and modify it to include the height, width, and a
+            # title based on the country name
+            flag_icon = self._replace_flag_svg(
+                flag_svg=flag_svg, height=height, use_title=self.use_title, flag_title=flag_title
+            )
+
+            out.append(str(flag_icon))
+
+        img_tags = self.sep.join(out)
+        span = self.SPAN_TEMPLATE.format(img_tags)
+
+        return span
+
+    def to_latex(self, val: Any):
+        from warnings import warn
+
+        from ._gt_data import FormatterSkipElement
+
+        warn("fmt_flag() is not currently implemented in LaTeX output.")
+
+        return FormatterSkipElement()
+
+    @staticmethod
+    def _replace_flag_svg(flag_svg: str, height: str, use_title: bool, flag_title: str) -> str:
+        replacement = (
+            '<svg xmlns="http://www.w3.org/2000/svg" '
+            'aria-hidden="true" role="img" '
+            'width="512" height="512" '
+            'viewBox="0 0 512 512" '
+            'style="vertical-align:-0.125em;'
+            "image-rendering:optimizeQuality;"
+            f"height:{height};"
+            f"width:{height};"
+            '">'
+        )
+
+        if use_title:
+            replacement += f"<title>{flag_title}</title>"
+
+        return re.sub(r"<svg.*?>", replacement, flag_svg)
 
 
 def fmt_nanoplot(
