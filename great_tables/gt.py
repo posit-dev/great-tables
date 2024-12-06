@@ -3,14 +3,14 @@ from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 from typing_extensions import Self
 
-from great_tables._gt_data import GTData
+from ._gt_data import GTData
 
 # Main gt imports ----
-from great_tables._body import body_reassemble
-from great_tables._boxhead import cols_align, cols_label
-from great_tables._data_color import data_color
-from great_tables._export import as_raw_html, as_latex, save, show
-from great_tables._formats import (
+from ._body import body_reassemble
+from ._boxhead import cols_align, cols_label
+from ._data_color import data_color
+from ._export import as_raw_html, as_latex, save, show
+from ._formats import (
     fmt,
     fmt_bytes,
     fmt_currency,
@@ -28,15 +28,15 @@ from great_tables._formats import (
     fmt_time,
     fmt_units,
 )
-from great_tables._heading import tab_header
-from great_tables._helpers import random_id
-from great_tables._modify_rows import (
+from ._heading import tab_header
+from ._helpers import random_id
+from ._modify_rows import (
     row_group_order,
     tab_stub,
     with_id,
     with_locale,
 )
-from great_tables._options import (
+from ._options import (
     opt_align_table_header,
     opt_all_caps,
     opt_footnote_marks,
@@ -48,9 +48,9 @@ from great_tables._options import (
     opt_vertical_padding,
     tab_options,
 )
-from great_tables._render import infer_render_env_defaults
-from great_tables._source_notes import tab_source_note
-from great_tables._spanners import (
+from ._render import infer_render_env_defaults
+from ._source_notes import tab_source_note
+from ._spanners import (
     cols_hide,
     cols_move,
     cols_move_to_end,
@@ -58,13 +58,13 @@ from great_tables._spanners import (
     cols_width,
     tab_spanner,
 )
-from great_tables._stub import reorder_stub_df
-from great_tables._stubhead import tab_stubhead
-from great_tables._substitution import sub_missing, sub_zero
-from great_tables._tab_create_modify import tab_style
-from great_tables._tbl_data import _get_cell, n_rows
-from great_tables._utils import _migrate_unformatted_to_output
-from great_tables._utils_render_html import (
+from ._stub import reorder_stub_df
+from ._stubhead import tab_stubhead
+from ._substitution import sub_missing, sub_zero
+from ._tab_create_modify import tab_style
+from ._tbl_data import _get_cell, n_rows
+from ._utils import _migrate_unformatted_to_output
+from ._utils_render_html import (
     _get_table_defs,
     create_body_component_h,
     create_columns_component_h,

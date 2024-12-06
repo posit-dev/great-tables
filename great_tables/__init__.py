@@ -8,9 +8,7 @@ del _v
 # Main gt imports ----
 
 from .gt import GT
-from . import vals
-from . import loc
-from . import style
+from . import vals, loc, style
 from ._styles import FromColumn as from_column
 from ._helpers import (
     letters,

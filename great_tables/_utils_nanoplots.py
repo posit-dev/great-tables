@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Any, Callable
 
 import numpy as np
-from great_tables._tbl_data import Agnostic, is_na
-from great_tables._utils import _match_arg, _flatten_list
+from ._tbl_data import Agnostic, is_na
+from ._utils import _match_arg, _flatten_list
 
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
 
