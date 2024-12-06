@@ -22,7 +22,7 @@ With **Great Tables** anyone can make wonderful-looking tables in Python. The ph
 
 </div>
 
-It all begins with **table data** in the form of a **Pandas** or **Polars** DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a **Quarto** document.
+It all begins with **table data** in the form of a **Pandas** or **Polars** DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table can be rendered in a browswer, a notebook environment, or inside a **Quarto** document.
 
 The **Great Tables** package is designed to be both straightforward yet powerful. The emphasis is on simple methods for the everyday display table needs (but power when you need it). Here is a brief example of how to use **Great Tables** to create a table from the included `sp500` dataset:
 
