@@ -6,7 +6,6 @@ except ModuleNotFoundError:
         "This will change in the future. Most of great_tables can be used without pandas."
     )
 
-
 from typing import Any
 from pathlib import Path
 from importlib_resources import files
@@ -36,13 +35,15 @@ __all__ = (
 DATA_MOD = files("great_tables.data")
 
 
-class _DataFrameConverter:
-    """ """
-
-    filepath: Path
-    dtype: dict[str, Any]
-    # `dtype` should contain Python types and rely on the hook `_convert_to_*()` to transform
-    # these types into the appropriate formats for different DataFrame implementations.
+class _Dataset:
+    def __init__(self, filepath: Path, dtype: dict[str, Any], doc: str = ""):
+        """
+        `dtype` should contain Python types and rely on the hook `_convert_to_*()` to transform
+        these types into the appropriate formats for different DataFrame implementations.
+        """
+        self.filepath = filepath
+        self.dtype = dtype
+        self.__doc__ = doc
 
     @staticmethod
     def _convert_to_pandas(v: Any) -> str:
@@ -52,13 +53,12 @@ class _DataFrameConverter:
         typs: dict[Any, str] = {int: "Int64", float: "Float64", str: "object"}
         return typs.get(v, "object")
 
-    @classmethod
-    def to_pandas(cls):
+    def to_pandas(self):
         import pandas as pd
 
-        dtype: dict[str, str] = {k: cls._convert_to_pandas(v) for k, v in cls.dtype.items()}
-        df = pd.read_csv(cls.filepath, dtype=dtype)
-        df.__doc__ = cls.__doc__
+        dtype: dict[str, str] = {k: self._convert_to_pandas(v) for k, v in self.dtype.items()}
+        df = pd.read_csv(self.filepath, dtype=dtype)
+        df.__doc__ = self.__doc__
         return df
 
     @staticmethod
@@ -68,23 +68,58 @@ class _DataFrameConverter:
         typs: dict[Any, Any] = {int: pl.Int64, float: pl.Float64, str: pl.String}
         return typs.get(v, pl.String)
 
-    @classmethod
-    def to_polars(cls):
+    def to_polars(self):
         import polars as pl
 
-        schema: dict[str, Any] = {k: cls._convert_to_polars(v) for k, v in cls.dtype.items()}
-        df = pl.read_csv(cls.filepath, schema=schema)
-        df.__doc__ = cls.__doc__
+        schema: dict[str, Any] = {k: self._convert_to_polars(v) for k, v in self.dtype.items()}
+        df = pl.read_csv(self.filepath, schema=schema)
+        df.__doc__ = self.__doc__
         return df
 
     @staticmethod
-    def _convert_to_pyarrow(v: Any): ...
+    def _convert_to_pyarrow(v: Any):
+        import pyarrow as pa
 
-    @classmethod
-    def to_pyarrow(cls): ...
+        typs: dict[Any, Any] = {int: pa.int64(), float: pa.float64(), str: pa.string()}
+        return typs.get(v, pa.string())
+
+    def to_pyarrow(self):
+        import pyarrow.csv as csv
+
+        column_types: dict[str, Any] = {
+            k: self._convert_to_pyarrow(v) for k, v in self.dtype.items()
+        }
+        convert_options = csv.ConvertOptions(column_types=column_types)
+        df = csv.read_csv(self.filepath, convert_options=convert_options)
+        #
+        # df.__doc__ = self.__doc__
+        # AttributeError: 'pyarrow.lib.Table' object attribute '__doc__' is read-only
+        #
+        return df
+
+    def __repr__(self) -> str:
+        import re
+
+        pattern = r"(?:[\da-zA-Z]+[-_])(.+)"
+        dataset_name = re.search(pattern, self.filepath.stem).group(1)
+        #
+        # ex: `01-countrypops` => `countrypops`,
+        #     `x_currencies` => `currencies`,
+        #     `x-airquality` => `airquality`
+        #     `x_currency_symbols` => `currency_symbols`
+        #
+        return f"{dataset_name}({self.dtype})"
 
 
-class Countrypops(_DataFrameConverter):
+Countrypops = _Dataset(
+    DATA_MOD / "01-countrypops.csv",
+    {
+        "country_name": str,
+        "country_code_2": str,
+        "country_code_3": str,
+        "year": int,
+        "population": int,
+    },
     """
     Yearly populations of countries from 1960 to 2022.
 
@@ -118,19 +153,17 @@ class Countrypops(_DataFrameConverter):
     Source
     ------
     <https://data.worldbank.org/indicator/SP.POP.TOTL>
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "01-countrypops.csv"
-    dtype = {
-        "country_name": str,
-        "country_code_2": str,
-        "country_code_3": str,
-        "year": int,
-        "population": int,
-    }
-
-
-class Sza(_DataFrameConverter):
+Sza = _Dataset(
+    DATA_MOD / "02-sza.csv",
+    {
+        "latitude": str,
+        "month": str,
+        "tst": str,
+        "sza": float,
+    },
     """
     Twice hourly solar zenith angles by month & latitude.
 
@@ -175,18 +208,28 @@ class Sza(_DataFrameConverter):
     ------
     Calculated Actinic Fluxes (290 - 700 nm) for Air Pollution Photochemistry Applications (Peterson,
     1976), available at: <https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=9100JA26.txt>.
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "02-sza.csv"
-    dtype = {
-        "latitude": str,
-        "month": str,
-        "tst": str,
-        "sza": float,
-    }
-
-
-class Gtcars(_DataFrameConverter):
+Gtcars = _Dataset(
+    DATA_MOD / "03-gtcars.csv",
+    {
+        "mfr": str,
+        "model": str,
+        "year": float,
+        "trim": str,
+        "bdy_style": str,
+        "hp": float,
+        "hp_rpm": float,
+        "trq": float,
+        "trq_rpm": float,
+        "mpg_c": float,
+        "mpg_h": float,
+        "drivetrain": str,
+        "trsmn": str,
+        "ctry_origin": str,
+        "msrp": float,
+    },
     """
     Deluxe automobiles from the 2014-2017 period.
 
@@ -243,29 +286,21 @@ class Gtcars(_DataFrameConverter):
     $ msrp        <f64> 447000.0, 291744.0, 263553.0
     ```
 
-    """
-
-    filepath = DATA_MOD / "03-gtcars.csv"
-    dtype = {
-        "mfr": str,
-        "model": str,
-        "year": float,
-        "trim": str,
-        "bdy_style": str,
-        "hp": float,
-        "hp_rpm": float,
-        "trq": float,
-        "trq_rpm": float,
-        "mpg_c": float,
-        "mpg_h": float,
-        "drivetrain": str,
-        "trsmn": str,
-        "ctry_origin": str,
-        "msrp": float,
-    }
+    """,
+)
 
 
-class Sp500(_DataFrameConverter):
+Sp500 = _Dataset(
+    DATA_MOD / "04-sp500.csv",
+    {
+        "date": str,
+        "open": float,
+        "high": float,
+        "low": float,
+        "close": float,
+        "volume": float,
+        "adj_close": float,
+    },
     """
     Daily S&P 500 Index data from 1950 to 2015.
 
@@ -297,21 +332,19 @@ class Sp500(_DataFrameConverter):
     $ adj_close <f64> 2043.9399, 2063.3601, 2078.3601
     ```
 
-    """
-
-    filepath = DATA_MOD / "04-sp500.csv"
-    dtype = {
+    """,
+)
+Pizzaplace = _Dataset(
+    DATA_MOD / "05-pizzaplace.csv",
+    {
+        "id": str,
         "date": str,
-        "open": float,
-        "high": float,
-        "low": float,
-        "close": float,
-        "volume": float,
-        "adj_close": float,
-    }
-
-
-class Pizzaplace(_DataFrameConverter):
+        "time": str,
+        "name": str,
+        "size": str,
+        "type": str,
+        "price": float,
+    },
     """
     A year of pizza sales from a pizza place.
 
@@ -426,21 +459,22 @@ class Pizzaplace(_DataFrameConverter):
     $ price <f64> 13.25, 16.0, 16.0
     ```
 
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "05-pizzaplace.csv"
-    dtype = {
-        "id": str,
+Exibble = _Dataset(
+    DATA_MOD / "06-exibble.csv",
+    {
+        "num": float,
+        "char": str,
+        "fctr": str,
         "date": str,
         "time": str,
-        "name": str,
-        "size": str,
-        "type": str,
-        "price": float,
-    }
-
-
-class Exibble(_DataFrameConverter):
+        "datetime": str,
+        "currency": float,
+        "row": str,
+        "group": str,
+    },
     """
     A toy example table for testing with great_tables: exibble.
 
@@ -481,23 +515,38 @@ class Exibble(_DataFrameConverter):
     $ group    <str> 'grp_a', 'grp_a', 'grp_a'
     ```
 
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "06-exibble.csv"
-    dtype = {
-        "num": float,
-        "char": str,
-        "fctr": str,
-        "date": str,
-        "time": str,
-        "datetime": str,
-        "currency": float,
-        "row": str,
-        "group": str,
-    }
-
-
-class Towny(_DataFrameConverter):
+Towny = _Dataset(
+    DATA_MOD / "07-towny.csv",
+    {
+        "name": str,
+        "website": str,
+        "status": str,
+        "csd_type": str,
+        "census_div": str,
+        "latitude": float,
+        "longitude": float,
+        "land_area_km2": float,
+        "population_1996": int,
+        "population_2001": int,
+        "population_2006": int,
+        "population_2011": int,
+        "population_2016": int,
+        "population_2021": int,
+        "density_1996": float,
+        "density_2001": float,
+        "density_2006": float,
+        "density_2011": float,
+        "density_2016": float,
+        "density_2021": float,
+        "pop_change_1996_2001_pct": float,
+        "pop_change_2001_2006_pct": float,
+        "pop_change_2006_2011_pct": float,
+        "pop_change_2011_2016_pct": float,
+        "pop_change_2016_2021_pct": float,
+    },
     """
     Populations of all municipalities in Ontario from 1996 to 2021.
 
@@ -573,39 +622,27 @@ class Towny(_DataFrameConverter):
     $ pop_change_2016_2021_pct <f64> 0.0932, 0.007, 0.0013
     ```
 
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "07-towny.csv"
-    dtype = {
-        "name": str,
-        "website": str,
-        "status": str,
-        "csd_type": str,
-        "census_div": str,
-        "latitude": float,
-        "longitude": float,
-        "land_area_km2": float,
-        "population_1996": int,
-        "population_2001": int,
-        "population_2006": int,
-        "population_2011": int,
-        "population_2016": int,
-        "population_2021": int,
-        "density_1996": float,
-        "density_2001": float,
-        "density_2006": float,
-        "density_2011": float,
-        "density_2016": float,
-        "density_2021": float,
-        "pop_change_1996_2001_pct": float,
-        "pop_change_2001_2006_pct": float,
-        "pop_change_2006_2011_pct": float,
-        "pop_change_2011_2016_pct": float,
-        "pop_change_2016_2021_pct": float,
-    }
-
-
-class Peeps(_DataFrameConverter):
+Peeps = _Dataset(
+    DATA_MOD / "08-peeps.csv",
+    {
+        "name_given": str,
+        "name_family": str,
+        "address": str,
+        "city": str,
+        "state_prov": str,
+        "postcode": str,
+        "country": str,
+        "email_addr": str,
+        "phone_number": str,
+        "country_code": str,
+        "gender": str,
+        "dob": str,
+        "height_cm": int,
+        "weight_kg": float,
+    },
     """
     A table of personal information for people all over the world.
 
@@ -659,28 +696,21 @@ class Peeps(_DataFrameConverter):
     $ weight_kg    <f64> 76.4, 74.9, 61.6
     ```
 
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "08-peeps.csv"
-    dtype = {
-        "name_given": str,
-        "name_family": str,
-        "address": str,
-        "city": str,
-        "state_prov": str,
-        "postcode": str,
-        "country": str,
-        "email_addr": str,
-        "phone_number": str,
-        "country_code": str,
-        "gender": str,
-        "dob": str,
-        "height_cm": int,
-        "weight_kg": float,
-    }
-
-
-class Films(_DataFrameConverter):
+Films = _Dataset(
+    DATA_MOD / "09-films.csv",
+    {
+        "year": int,
+        "title": str,
+        "original_title": str,
+        "director": str,
+        "languages": str,
+        "countries_of_origin": str,
+        "run_time": str,
+        "imdb_url": str,
+    },
     """
     Feature films in competition at the Cannes Film Festival.
 
@@ -726,22 +756,24 @@ class Films(_DataFrameConverter):
                                 'https://www.imdb.com/title/tt0037544/'
     ```
 
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "09-films.csv"
-    dtype = {
-        "year": int,
-        "title": str,
-        "original_title": str,
-        "director": str,
-        "languages": str,
-        "countries_of_origin": str,
-        "run_time": str,
-        "imdb_url": str,
-    }
-
-
-class Metro(_DataFrameConverter):
+Metro = _Dataset(
+    DATA_MOD / "10-metro.csv",
+    {
+        "name": str,
+        "caption": str,
+        "lines": str,
+        "connect_rer": str,
+        "connect_tramway": str,
+        "connect_transilien": str,
+        "connect_other": str,
+        "passengers": int,
+        "latitude": float,
+        "longitude": float,
+        "location": str,
+    },
     """
     The stations of the Paris Metro.
 
@@ -807,25 +839,23 @@ class Metro(_DataFrameConverter):
                             'Saint-Mandé, Vincennes'
     ```
 
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "10-metro.csv"
-    dtype = {
-        "name": str,
-        "caption": str,
-        "lines": str,
-        "connect_rer": str,
-        "connect_tramway": str,
-        "connect_transilien": str,
-        "connect_other": str,
-        "passengers": int,
-        "latitude": float,
-        "longitude": float,
-        "location": str,
-    }
-
-
-class Gibraltar(_DataFrameConverter):
+Gibraltar = _Dataset(
+    DATA_MOD / "11-gibraltar.csv",
+    {
+        "date": str,
+        "time": str,
+        "temp": float,
+        "dew_point": float,
+        "humidity": float,
+        "wind_dir": str,
+        "wind_speed": float,
+        "wind_gust": float,
+        "pressure": float,
+        "condition": str,
+    },
     """
     Weather conditions in Gibraltar, May 2023.
 
@@ -865,24 +895,19 @@ class Gibraltar(_DataFrameConverter):
     $ condition  <str> 'Fair', 'Fair', 'Fair'
     ```
 
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "11-gibraltar.csv"
-    dtype = {
-        "date": str,
-        "time": str,
-        "temp": float,
-        "dew_point": float,
-        "humidity": float,
-        "wind_dir": str,
-        "wind_speed": float,
-        "wind_gust": float,
-        "pressure": float,
-        "condition": str,
-    }
-
-
-class Constants(_DataFrameConverter):
+Constants = _Dataset(
+    DATA_MOD / "12-constants.csv",
+    {
+        "name": str,
+        "value": float,
+        "uncert": float,
+        "sf_value": int,
+        "sf_uncert": int,
+        "units": str,
+    },
     """
     The fundamental physical constants.
 
@@ -921,20 +946,24 @@ class Constants(_DataFrameConverter):
     $ units     <str> None, 'kg', 'J'
     ```
 
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "12-constants.csv"
-    dtype = {
-        "name": str,
-        "value": float,
-        "uncert": float,
-        "sf_value": int,
-        "sf_uncert": int,
+Illness = _Dataset(
+    DATA_MOD / "13-illness.csv",
+    {
+        "test": str,
         "units": str,
-    }
-
-
-class Illness(_DataFrameConverter):
+        "day_3": float,
+        "day_4": float,
+        "day_5": float,
+        "day_6": float,
+        "day_7": float,
+        "day_8": float,
+        "day_9": float,
+        "norm_l": float,
+        "norm_u": float,
+    },
     """
     Lab tests for one suffering from an illness.
 
@@ -1017,25 +1046,53 @@ class Illness(_DataFrameConverter):
     $ norm_u <f64> None, 10.0, 8.0
     ```
 
-    """
-
-    filepath = DATA_MOD / "13-illness.csv"
-    dtype = {
-        "test": str,
-        "units": str,
-        "day_3": float,
-        "day_4": float,
-        "day_5": float,
-        "day_6": float,
-        "day_7": float,
-        "day_8": float,
-        "day_9": float,
-        "norm_l": float,
-        "norm_u": float,
-    }
+    """,
+)
 
 
-class Reactions(_DataFrameConverter):
+Reactions = _Dataset(
+    DATA_MOD / "14-reactions.csv",
+    {
+        "cmpd_name": str,
+        "cmpd_mwt": float,
+        "cmpd_formula": str,
+        "cmpd_type": str,
+        "cmpd_smiles": str,
+        "cmpd_inchi": str,
+        "cmpd_inchikey": str,
+        "OH_k298": float,
+        "OH_uncert": float,
+        "OH_u_fac": float,
+        "OH_A": float,
+        "OH_B": float,
+        "OH_n": float,
+        "OH_t_low": float,
+        "OH_t_high": float,
+        "O3_k298": float,
+        "O3_uncert": float,
+        "O3_u_fac": float,
+        "O3_A": float,
+        "O3_B": float,
+        "O3_n": float,
+        "O3_t_low": float,
+        "O3_t_high": float,
+        "NO3_k298": float,
+        "NO3_uncert": float,
+        "NO3_u_fac": float,
+        "NO3_A": float,
+        "NO3_B": float,
+        "NO3_n": float,
+        "NO3_t_low": float,
+        "NO3_t_high": float,
+        "Cl_k298": float,
+        "Cl_uncert": float,
+        "Cl_u_fac": float,
+        "Cl_A": float,
+        "Cl_B": float,
+        "Cl_n": float,
+        "Cl_t_low": float,
+        "Cl_t_high": float,
+    },
     """
     Reaction rates for gas-phase atmospheric reactions of organic compounds.
 
@@ -1152,53 +1209,23 @@ class Reactions(_DataFrameConverter):
     $ Cl_t_high     <f64> 300.0, 500.0, 950.0
     ```
 
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "14-reactions.csv"
-    dtype = {
+Photolysis = _Dataset(
+    DATA_MOD / "15-photolysis.csv",
+    {
         "cmpd_name": str,
-        "cmpd_mwt": float,
         "cmpd_formula": str,
-        "cmpd_type": str,
-        "cmpd_smiles": str,
-        "cmpd_inchi": str,
-        "cmpd_inchikey": str,
-        "OH_k298": float,
-        "OH_uncert": float,
-        "OH_u_fac": float,
-        "OH_A": float,
-        "OH_B": float,
-        "OH_n": float,
-        "OH_t_low": float,
-        "OH_t_high": float,
-        "O3_k298": float,
-        "O3_uncert": float,
-        "O3_u_fac": float,
-        "O3_A": float,
-        "O3_B": float,
-        "O3_n": float,
-        "O3_t_low": float,
-        "O3_t_high": float,
-        "NO3_k298": float,
-        "NO3_uncert": float,
-        "NO3_u_fac": float,
-        "NO3_A": float,
-        "NO3_B": float,
-        "NO3_n": float,
-        "NO3_t_low": float,
-        "NO3_t_high": float,
-        "Cl_k298": float,
-        "Cl_uncert": float,
-        "Cl_u_fac": float,
-        "Cl_A": float,
-        "Cl_B": float,
-        "Cl_n": float,
-        "Cl_t_low": float,
-        "Cl_t_high": float,
-    }
-
-
-class Photolysis(_DataFrameConverter):
+        "products": str,
+        "type": str,
+        "l": float,
+        "m": float,
+        "n": float,
+        "quantum_yield": float,
+        "wavelength_nm": str,
+        "sigma_298_cm2": str,
+    },
     """
     Data on photolysis rates for gas-phase organic compounds.
 
@@ -1251,24 +1278,42 @@ class Photolysis(_DataFrameConverter):
                         '6.72E-19,5.63E-19,4.75E-19,...'
     ```
 
-    """
+    """,
+)
 
-    filepath = DATA_MOD / "15-photolysis.csv"
-    dtype = {
-        "cmpd_name": str,
-        "cmpd_formula": str,
-        "products": str,
-        "type": str,
-        "l": float,
-        "m": float,
-        "n": float,
-        "quantum_yield": float,
-        "wavelength_nm": str,
-        "sigma_298_cm2": str,
-    }
-
-
-class Nuclides(_DataFrameConverter):
+Nuclides = _Dataset(
+    DATA_MOD / "16-nuclides.csv",
+    {
+        "nuclide": str,
+        "z": int,
+        "n": int,
+        "element": str,
+        "radius": float,
+        "radius_uncert": float,
+        "abundance": float,
+        "abundance_uncert": float,
+        "is_stable": str,
+        "half_life": float,
+        "half_life_uncert": float,
+        "isospin": str,
+        "decay_1": str,
+        "decay_1_pct": float,
+        "decay_1_pct_uncert": float,
+        "decay_2": str,
+        "decay_2_pct": float,
+        "decay_2_pct_uncert": float,
+        "decay_3": str,
+        "decay_3_pct": float,
+        "decay_3_pct_uncert": float,
+        "magnetic_dipole": float,
+        "magnetic_dipole_uncert": float,
+        "electric_quadrupole": float,
+        "electric_quadrupole_uncert": float,
+        "atomic_mass": float,
+        "atomic_mass_uncert": float,
+        "mass_excess": float,
+        "mass_excess_uncert": float,
+    },
     """
     Nuclide data.
 
@@ -1341,40 +1386,8 @@ class Nuclides(_DataFrameConverter):
     $ mass_excess_uncert         <f64> 1.3e-05, 1.5e-05, 8e-05
     ```
 
-    """
-
-    filepath = DATA_MOD / "16-nuclides.csv"
-    dtype = {
-        "nuclide": str,
-        "z": int,
-        "n": int,
-        "element": str,
-        "radius": float,
-        "radius_uncert": float,
-        "abundance": float,
-        "abundance_uncert": float,
-        "is_stable": str,
-        "half_life": float,
-        "half_life_uncert": float,
-        "isospin": str,
-        "decay_1": str,
-        "decay_1_pct": float,
-        "decay_1_pct_uncert": float,
-        "decay_2": str,
-        "decay_2_pct": float,
-        "decay_2_pct_uncert": float,
-        "decay_3": str,
-        "decay_3_pct": float,
-        "decay_3_pct_uncert": float,
-        "magnetic_dipole": float,
-        "magnetic_dipole_uncert": float,
-        "electric_quadrupole": float,
-        "electric_quadrupole_uncert": float,
-        "atomic_mass": float,
-        "atomic_mass_uncert": float,
-        "mass_excess": float,
-        "mass_excess_uncert": float,
-    }
+    """,
+)
 
 
 class Dataset:
@@ -1415,74 +1428,67 @@ nuclides = Dataset.nuclides.to_pandas()
 
 
 # Unadvertised/internal datasets
-class Islands(_DataFrameConverter):
-    filepath = DATA_MOD / "x-islands.csv"
-    dtype = {"name": str, "size": int}
+_islands_fname = DATA_MOD / "x-islands.csv"
+_airquality_fname = DATA_MOD / "x-airquality.csv"
+
+islands: pd.DataFrame = pd.read_csv(_islands_fname)  # type: ignore
+airquality: pd.DataFrame = pd.read_csv(_airquality_fname)  # type: ignore
 
 
-class Airquality(_DataFrameConverter):
-    filepath = DATA_MOD / "x-airquality.csv"
-    dtype = {"Ozone": float, "Solar_R": float, "Wind": float, "Temp": int, "Month": int, "Day": int}
+_x_locales_fname = DATA_MOD / "x_locales.csv"
+_x_locales_dtype = {
+    "country_name": "object",
+    "country_code_2": "object",
+    "country_code_3": "object",
+    "year": "Int64",
+    "population": "Int64",
+    "locale": "object",
+    "lang_name": "object",
+    "lang_desc": "object",
+    "script_name": "object",
+    "script_desc": "object",
+    "territory_name": "object",
+    "territory_desc": "object",
+    "variant_name": "object",
+    "variant_desc": "object",
+    "chr_index": "object",
+    "decimal": "object",
+    "group": "object",
+    "percent_sign": "object",
+    "plus_sign": "object",
+    "minus_sign": "object",
+    "approx_sign": "object",
+    "exp_sign": "object",
+    "sup_exp": "object",
+    "per_mille": "object",
+    "infinity": "object",
+    "nan": "object",
+    "approx_pattern": "object",
+    "at_least_pattern": "object",
+    "at_most_pattern": "object",
+    "range_pattern": "object",
+    "decimal_format": "object",
+    "sci_format": "object",
+    "percent_format": "object",
+    "currency_format": "object",
+    "accounting_format": "object",
+    "default_numbering_system": "object",
+    "minimum_grouping_digits": "Int64",
+    "currency_code": "object",
+    "no_table_data_text": "object",
+    "sort_label_text": "object",
+    "filter_label_text": "object",
+    "search_placeholder_text": "object",
+    "page_next_text": "object",
+    "page_previous_text": "object",
+    "page_numbers_text": "object",
+    "page_info_text": "object",
+    "page_size_options_text": "object",
+    "page_next_label_text": "object",
+    "page_previous_label_text": "object",
+    "page_number_label_text": "object",
+    "page_jump_label_text": "object",
+    "page_size_options_label_text": "object",
+}
 
-
-class __X_locales(_DataFrameConverter):
-    filepath = DATA_MOD / "x_locales.csv"
-    dtype = {
-        "country_name": str,
-        "country_code_2": str,
-        "country_code_3": str,
-        "year": int,
-        "population": int,
-        "locale": str,
-        "lang_name": str,
-        "lang_desc": str,
-        "script_name": str,
-        "script_desc": str,
-        "territory_name": str,
-        "territory_desc": str,
-        "variant_name": str,
-        "variant_desc": str,
-        "chr_index": str,
-        "decimal": str,
-        "group": str,
-        "percent_sign": str,
-        "plus_sign": str,
-        "minus_sign": str,
-        "approx_sign": str,
-        "exp_sign": str,
-        "sup_exp": str,
-        "per_mille": str,
-        "infinity": str,
-        "nan": str,
-        "approx_pattern": str,
-        "at_least_pattern": str,
-        "at_most_pattern": str,
-        "range_pattern": str,
-        "decimal_format": str,
-        "sci_format": str,
-        "percent_format": str,
-        "currency_format": str,
-        "accounting_format": str,
-        "default_numbering_system": str,
-        "minimum_grouping_digits": int,
-        "currency_code": str,
-        "no_table_data_text": str,
-        "sort_label_text": str,
-        "filter_label_text": str,
-        "search_placeholder_text": str,
-        "page_next_text": str,
-        "page_previous_text": str,
-        "page_numbers_text": str,
-        "page_info_text": str,
-        "page_size_options_text": str,
-        "page_next_label_text": str,
-        "page_previous_label_text": str,
-        "page_number_label_text": str,
-        "page_jump_label_text": str,
-        "page_size_options_label_text": str,
-    }
-
-
-islands = Islands.to_pandas()
-airquality = Airquality.to_pandas()
-__x_locales = __X_locales.to_pandas()
+__x_locales: pd.DataFrame = pd.read_csv(_x_locales_fname, dtype=_x_locales_dtype)  # type: ignore
