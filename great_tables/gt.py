@@ -16,6 +16,7 @@ from great_tables._formats import (
     fmt_date,
     fmt_datetime,
     fmt_image,
+    fmt_flag,
     fmt_integer,
     fmt_markdown,
     fmt_nanoplot,
@@ -233,6 +234,7 @@ class GT(
     fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
     fmt_image = fmt_image
+    fmt_flag = fmt_flag
     fmt_units = fmt_units
     fmt_nanoplot = fmt_nanoplot
     data_color = data_color
