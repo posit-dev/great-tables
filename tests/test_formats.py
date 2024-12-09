@@ -73,7 +73,7 @@ def test_format_accounting_snap(snapshot):
         {
             "number": [-1.2, 23.6],
             "percent": [-0.0523, 0.363],
-            "integer": [2323, -23213],
+            "integer": [-23213, 2323],
             "currency": [-24334.23, 7323.253],
         }
     ).with_columns(
