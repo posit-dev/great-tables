@@ -3,10 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from pathlib import Path
 
-from great_tables import GT
-from great_tables.gt import GT, _get_column_of_values
 from typing_extensions import TypeAlias
 
+from .gt import GT, _get_column_of_values
 from ._gt_data import GTData
 from ._tbl_data import SeriesLike, to_frame
 
