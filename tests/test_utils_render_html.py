@@ -237,6 +237,6 @@ def test_loc_kitchen_sink(snapshot):
         .tab_style(style.css("STUBHEAD"), loc.stubhead())
     )
 
-    html = new_gt.as_raw_html()
+    html = new_gt.as_raw_html(inline_css=False)
     cleaned = html[html.index("<table") :]
     assert cleaned == snapshot

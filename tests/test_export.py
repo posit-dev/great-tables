@@ -35,7 +35,7 @@ def gt_tbl():
 
 
 def test_html_string_generated(gt_tbl: GT, snapshot: str):
-    assert snapshot == gt_tbl.as_raw_html()
+    assert snapshot == gt_tbl.as_raw_html(inline_css=False)
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="chrome might not be installed.")

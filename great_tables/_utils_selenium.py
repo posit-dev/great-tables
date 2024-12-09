@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from types import TracebackType
 from typing import Literal
-from typing_extensions import TypeAlias
+
 from selenium import webdriver
+from typing_extensions import TypeAlias
 
 # Create a list of all selenium webdrivers
 WebDrivers: TypeAlias = Literal[
