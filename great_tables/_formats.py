@@ -157,6 +157,7 @@ def fmt_number(
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
+    accounting: bool = False,
     scale_by: float = 1,
     compact: bool = False,
     pattern: str = "{x}",
@@ -215,6 +216,9 @@ def fmt_number(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -298,6 +302,7 @@ def fmt_number(
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
+        accounting=accounting,
         scale_by=scale_by,
         compact=compact,
         sep_mark=sep_mark,
@@ -317,6 +322,7 @@ def fmt_number_context(
     drop_trailing_zeros: bool,
     drop_trailing_dec_mark: bool,
     use_seps: bool,
+    accounting: bool,
     scale_by: float,
     compact: bool,
     sep_mark: str,
@@ -359,10 +365,14 @@ def fmt_number_context(
             force_sign=force_sign,
         )
 
-    # Implement minus sign replacement for `x_formatted`
+    # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-        minus_mark = _context_minus_mark(context=context)
-        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
+        else:
+            minus_mark = _context_minus_mark(context=context)
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
@@ -381,6 +391,7 @@ def fmt_integer(
     rows: int | list[int] | None = None,
     use_seps: bool = True,
     scale_by: float = 1,
+    accounting: bool = False,
     compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
@@ -421,6 +432,9 @@ def fmt_integer(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     compact
         A boolean value that allows for compact formatting of numeric values. Values will be scaled
         and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
@@ -491,6 +505,7 @@ def fmt_integer(
         data=self,
         use_seps=use_seps,
         scale_by=scale_by,
+        accounting=accounting,
         compact=compact,
         sep_mark=sep_mark,
         force_sign=force_sign,
@@ -505,6 +520,7 @@ def fmt_integer_context(
     data: GTData,
     use_seps: bool,
     scale_by: float,
+    accounting: bool,
     compact: bool,
     sep_mark: str,
     force_sign: bool,
@@ -546,10 +562,14 @@ def fmt_integer_context(
             force_sign=force_sign,
         )
 
-    # Implement minus sign replacement for `x_formatted`
+    # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-        minus_mark = _context_minus_mark(context=context)
-        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
+        else:
+            minus_mark = _context_minus_mark(context=context)
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
@@ -852,6 +872,7 @@ def fmt_percent(
     drop_trailing_dec_mark: bool = True,
     scale_values: bool = True,
     use_seps: bool = True,
+    accounting: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -911,6 +932,9 @@ def fmt_percent(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -998,6 +1022,7 @@ def fmt_percent(
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
+        accounting=accounting,
         scale_by=scale_by,
         sep_mark=sep_mark,
         dec_mark=dec_mark,
@@ -1017,6 +1042,7 @@ def fmt_percent_context(
     drop_trailing_zeros: bool,
     drop_trailing_dec_mark: bool,
     use_seps: bool,
+    accounting: bool,
     scale_by: float,
     sep_mark: str,
     dec_mark: str,
@@ -1070,10 +1096,14 @@ def fmt_percent_context(
     else:
         x_formatted = percent_pattern.replace("{x}", x_formatted)
 
-    # Implement minus sign replacement for `x_formatted`
+    # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-        minus_mark = _context_minus_mark(context="html")
-        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
+        else:
+            minus_mark = _context_minus_mark(context=context)
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
@@ -1095,6 +1125,7 @@ def fmt_currency(
     decimals: int | None = None,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
+    accounting: bool = False,
     scale_by: float = 1,
     pattern: str = "{x}",
     sep_mark: str = ",",
@@ -1154,6 +1185,9 @@ def fmt_currency(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -1257,6 +1291,7 @@ def fmt_currency(
         decimals=decimals,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
+        accounting=accounting,
         scale_by=scale_by,
         sep_mark=sep_mark,
         dec_mark=dec_mark,
@@ -1276,6 +1311,7 @@ def fmt_currency_context(
     decimals: int,
     drop_trailing_dec_mark: bool,
     use_seps: bool,
+    accounting: bool,
     scale_by: float,
     sep_mark: str,
     dec_mark: str,
@@ -1334,10 +1370,14 @@ def fmt_currency_context(
     else:
         x_formatted = currency_pattern.replace("{x}", x_formatted)
 
-    # Implement minus sign replacement for `x_formatted`
+    # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-        minus_mark = _context_minus_mark(context=context)
-        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
+        else:
+            minus_mark = _context_minus_mark(context=context)
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
@@ -2944,6 +2984,19 @@ def _replace_minus(string: str, minus_mark: str) -> str:
         str: The modified string with the minus sign replaced.
     """
     return _str_replace(string, "-", minus_mark)
+
+
+def _remove_minus(string: str) -> str:
+    """
+    Removes all occurrences of the minus sign '-' in the given string.
+
+    Args:
+        string (str): The input string.
+
+    Returns:
+        str: The modified string with the minus sign removed.
+    """
+    return _str_replace(string, "-", "")
 
 
 T_dict = TypeVar("T_dict", bound=TypedDict)
