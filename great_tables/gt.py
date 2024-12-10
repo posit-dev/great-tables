@@ -31,12 +31,7 @@ from ._formats import (
 from ._gt_data import GTData
 from ._heading import tab_header
 from ._helpers import random_id
-from ._modify_rows import (
-    row_group_order,
-    tab_stub,
-    with_id,
-    with_locale,
-)
+from ._modify_rows import row_group_order, tab_stub, with_id, with_locale
 from ._options import (
     opt_align_table_header,
     opt_all_caps,
@@ -49,6 +44,7 @@ from ._options import (
     opt_vertical_padding,
     tab_options,
 )
+from ._pipe import pipe
 from ._render import infer_render_env_defaults
 from ._source_notes import tab_source_note
 from ._spanners import (
@@ -278,6 +274,8 @@ class GT(
     show = show
     as_raw_html = as_raw_html
     as_latex = as_latex
+
+    pipe = pipe
 
     # -----
 

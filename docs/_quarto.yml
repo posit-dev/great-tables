@@ -220,6 +220,13 @@ quartodoc:
         - GT.show
         - GT.as_raw_html
         - GT.as_latex
+    - title: Pipeline
+      desc: >
+        Sometimes, you might want to programmatically manipulate the table while still benefiting
+        from the chained API that **Great Tables** offers. `pipe()` is designed to tackle this
+        issue.
+      contents:
+        - GT.pipe
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of
