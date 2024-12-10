@@ -1,23 +1,23 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
-from typing_extensions import Self
+from typing import TYPE_CHECKING, Any
 
-from ._gt_data import GTData
+from typing_extensions import Self
 
 # Main gt imports ----
 from ._body import body_reassemble
 from ._boxhead import cols_align, cols_label
 from ._data_color import data_color
-from ._export import as_raw_html, as_latex, save, show
+from ._export import as_latex, as_raw_html, save, show
 from ._formats import (
     fmt,
     fmt_bytes,
     fmt_currency,
     fmt_date,
     fmt_datetime,
-    fmt_image,
     fmt_flag,
+    fmt_icon,
+    fmt_image,
     fmt_integer,
     fmt_markdown,
     fmt_nanoplot,
@@ -28,6 +28,7 @@ from ._formats import (
     fmt_time,
     fmt_units,
 )
+from ._gt_data import GTData
 from ._heading import tab_header
 from ._helpers import random_id
 from ._modify_rows import (
@@ -43,8 +44,8 @@ from ._options import (
     opt_horizontal_padding,
     opt_row_striping,
     opt_stylize,
-    opt_table_outline,
     opt_table_font,
+    opt_table_outline,
     opt_vertical_padding,
     tab_options,
 )
@@ -72,7 +73,6 @@ from ._utils_render_html import (
     create_heading_component_h,
     create_source_notes_component_h,
 )
-
 
 if TYPE_CHECKING:
     from ._helpers import BaseText
@@ -235,6 +235,7 @@ class GT(
     fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
     fmt_image = fmt_image
+    fmt_icon = fmt_icon
     fmt_flag = fmt_flag
     fmt_units = fmt_units
     fmt_nanoplot = fmt_nanoplot
