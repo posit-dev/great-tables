@@ -112,3 +112,8 @@ ignore = [
     "F841",    # local variable 'name' is assigned to but never used
     "E702",    # multiple statements on one line (semicolon)
 ]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:"
+]
