@@ -1,25 +1,42 @@
+import math
 import pandas as pd
 import polars as pl
+import pyarrow as pa
 import polars.testing
 import pytest
+from great_tables import GT
+from great_tables._utils_render_html import create_body_component_h
 from great_tables._tbl_data import (
     DataFrameLike,
     SeriesLike,
     _get_cell,
     _get_column_dtype,
     _set_cell,
+    _validate_selector_list,
     cast_frame_to_string,
     create_empty_frame,
     eval_select,
     get_column_names,
+    group_splits,
     is_series,
     reorder,
     to_frame,
+    to_list,
     validate_frame,
+    copy_frame,
 )
 
-params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars")]
-params_series = [pytest.param(pd.Series, id="pandas"), pytest.param(pl.Series, id="polars")]
+params_frames = [
+    pytest.param(pd.DataFrame, id="pandas"),
+    pytest.param(pl.DataFrame, id="polars"),
+    pytest.param(pa.table, id="arrow"),
+]
+params_series = [
+    pytest.param(pd.Series, id="pandas"),
+    pytest.param(pl.Series, id="polars"),
+    pytest.param(pa.array, id="arrow"),
+    pytest.param(lambda a: pa.chunked_array([a]), id="arrow-chunked"),
+]
 
 
 @pytest.fixture(params=params_frames, scope="function")
@@ -37,6 +54,8 @@ def assert_frame_equal(src, target):
         pd.testing.assert_frame_equal(src, target)
     elif isinstance(src, pl.DataFrame):
         pl.testing.assert_frame_equal(src, target)
+    elif isinstance(src, pa.Table):
+        assert src.equals(target)
     else:
         raise NotImplementedError(f"Unsupported data type: {type(src)}")
 
@@ -47,7 +66,8 @@ def test_get_column_names(df: DataFrameLike):
 
 
 def test_get_column_dtypes(df: DataFrameLike):
-    assert _get_column_dtype(df, "col1") == df["col1"].dtype
+    col1 = df["col1"]
+    assert _get_column_dtype(df, "col1") == getattr(col1, "dtype", getattr(col1, "type", None))
 
 
 def test_get_cell(df: DataFrameLike):
@@ -55,14 +75,27 @@ def test_get_cell(df: DataFrameLike):
 
 
 def test_set_cell(df: DataFrameLike):
-    expected = df.__class__({"col1": [1, 2, 3], "col2": ["a", "x", "c"], "col3": [4.0, 5.0, 6.0]})
-    _set_cell(df, 1, "col2", "x")
-    assert_frame_equal(df, expected)
+    expected_data = {"col1": [1, 2, 3], "col2": ["a", "x", "c"], "col3": [4.0, 5.0, 6.0]}
+    if isinstance(df, pa.Table):
+        expected = pa.table(expected_data)
+    else:
+        expected = df.__class__(expected_data)
+
+    new_df = _set_cell(df, 1, "col2", "x")
+    if new_df is None:
+        # Some implementations do in-place modifications
+        new_df = df
+    assert_frame_equal(new_df, expected)
 
 
 def test_reorder(df: DataFrameLike):
     res = reorder(df, [0, 2], ["col2"])
-    dst = df.__class__({"col2": ["a", "c"]})
+
+    expected_data = {"col2": ["a", "c"]}
+    if isinstance(df, pa.Table):
+        dst = pa.table(expected_data)
+    else:
+        dst = df.__class__(expected_data)
 
     if isinstance(dst, pd.DataFrame):
         dst.index = pd.Index([0, 2])
@@ -76,11 +109,30 @@ def test_eval_select_with_list(df: DataFrameLike, expr):
     assert sel == [("col2", 1), ("col1", 0)]
 
 
+def test_eval_select_with_callable(df: DataFrameLike):
+    def expr(col):
+        return col == "col2"
+
+    if isinstance(df, pl.DataFrame):
+        # Polars does not support callable expressions
+        with pytest.raises(TypeError) as exc_info:
+            eval_select(df, expr)
+        assert "Unsupported selection expr type:" in str(exc_info.value.args[0])
+        return
+
+    sel = eval_select(df, expr)
+    assert sel == [("col2", 1)]
+
+
 @pytest.mark.parametrize(
     "expr",
     [
         pl.selectors.exclude("col3"),
         pl.selectors.starts_with("col1") | pl.selectors.starts_with("col2"),
+        [pl.col("col1"), pl.col("col2")],
+        [pl.col("col1"), pl.selectors.by_name("col2")],
+        pl.col("col1", "col2"),
+        pl.all().exclude("col3"),
     ],
 )
 def test_eval_select_with_list_pl_selector(expr):
@@ -125,14 +177,64 @@ def test_eval_selector_polars_list_raises():
     assert "entry 1 is type: <class 'float'>" in str(exc_info.value.args[0])
 
 
+@pytest.mark.parametrize("Frame", [pd.DataFrame, pl.DataFrame, pa.table])
+def test_group_splits_pd(Frame):
+    df = Frame({"g": ["b", "a", "b", "c"]})
+
+    splits = group_splits(df, "g")
+    assert set(splits.keys()) == {"a", "b", "c"}
+    assert splits["b"] == [0, 2]
+    assert splits["a"] == [1]
+    assert splits["c"] == [3]
+
+
+def test_group_splits_pd_na():
+    df = pd.DataFrame({"g": ["b", "a", None]})
+
+    splits = group_splits(df, "g")
+    assert len(splits.keys()) == 3
+    nan_key = [k for k in splits if isinstance(k, float) and math.isnan(k)][0]
+
+    assert splits[nan_key] == [2]
+
+
+def test_group_splits_pl_na():
+    df = pl.DataFrame({"g": ["b", "a", None]})
+
+    splits = group_splits(df, "g")
+    assert set(splits.keys()) == {"b", "a", None}
+    assert splits[None] == [2]
+
+
+def test_validate_selector_list_strict_raises():
+    with pytest.raises(TypeError) as exc_info:
+        _validate_selector_list([pl.col("a")])
+
+    msg = "entry 0 is a polars Expr, which is only supported for polars versions >= 0.20.30."
+    assert msg in str(exc_info.value.args[0])
+
+
 def test_create_empty_frame(df: DataFrameLike):
     res = create_empty_frame(df)
     col = [None] * 3
 
     if isinstance(res, pd.DataFrame):
         dst = pd.DataFrame({"col1": col, "col2": col, "col3": col}, dtype="string")
-    else:
+    elif isinstance(res, pl.DataFrame):
         dst = pl.DataFrame({"col1": col, "col2": col, "col3": col}).cast(pl.Utf8)
+    elif isinstance(res, pa.Table):
+        dst = pa.table(
+            {"col1": col, "col2": col, "col3": col},
+            schema=pa.schema(
+                (
+                    pa.field("col1", pa.string()),
+                    pa.field("col2", pa.string()),
+                    pa.field("col3", pa.string()),
+                )
+            ),
+        )
+    else:
+        raise ValueError(f"Unsupported data type: {type(res)}")
 
     assert_frame_equal(res, dst)
 
@@ -183,6 +285,8 @@ def test_to_frame(ser: SeriesLike):
         assert_frame_equal(df, pl.DataFrame({"x": [1.0, 2.0, None]}))
     elif isinstance(ser, pd.Series):
         assert_frame_equal(df, pd.DataFrame({"x": [1.0, 2.0, None]}))
+    elif isinstance(ser, (pa.Array, pa.ChunkedArray)):
+        assert_frame_equal(df, pa.table({"x": [1.0, 2.0, None]}))
     else:
         raise AssertionError(f"Unexpected series type: {type(ser)}")
 
@@ -195,6 +299,12 @@ def test_is_series_false():
     assert not is_series(1)
 
 
+def test_to_list(ser: SeriesLike):
+    pylist = to_list(ser)
+    assert len(pylist) == 3
+    assert pylist[:2] == [1.0, 2.0]
+
+
 def test_cast_frame_to_string_polars_list_col():
     df = pl.DataFrame({"x": [[1, 2], [3]], "y": [1, None], "z": [{"a": 1}, {"a": 2}]})
     new_df = cast_frame_to_string(df)
@@ -202,3 +312,14 @@ def test_cast_frame_to_string_polars_list_col():
     assert new_df["x"].dtype.is_(pl.String)
     assert new_df["y"].dtype.is_(pl.String)
     assert new_df["z"].dtype.is_(pl.String)
+
+
+def test_frame_rendering(df: DataFrameLike, snapshot):
+    gt = GT(df).fmt_number(columns="col3", decimals=0).fmt_currency(columns="col1")
+    assert create_body_component_h(gt._build_data("html")) == snapshot
+
+
+def test_copy_frame(df: DataFrameLike):
+    copy_df = copy_frame(df)
+    assert id(copy_df) != id(df)
+    assert_frame_equal(copy_df, df)

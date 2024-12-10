@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
+from pathlib import Path
 
-from great_tables import GT
-from great_tables.gt import GT, _get_column_of_values
 from typing_extensions import TypeAlias
 
+from .gt import GT, _get_column_of_values
 from ._gt_data import GTData
 from ._tbl_data import SeriesLike, to_frame
 
@@ -54,6 +54,7 @@ def val_fmt_number(
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
+    accounting: bool = False,
     scale_by: float = 1,
     compact: bool = False,
     pattern: str = "{x}",
@@ -107,6 +108,9 @@ def val_fmt_number(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        An option to use accounting style for values. Normally, negative values will be shown with a
+        minus sign but using accounting style will instead put any negative values in parentheses.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -130,8 +134,7 @@ def val_fmt_number(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -151,6 +154,7 @@ def val_fmt_number(
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
+        accounting=accounting,
         scale_by=scale_by,
         compact=compact,
         pattern=pattern,
@@ -168,6 +172,7 @@ def val_fmt_number(
 def val_fmt_integer(
     x: X,
     use_seps: bool = True,
+    accounting: bool = False,
     scale_by: float = 1,
     compact: bool = False,
     pattern: str = "{x}",
@@ -200,6 +205,9 @@ def val_fmt_integer(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        An option to use accounting style for values. Normally, negative values will be shown with a
+        minus sign but using accounting style will instead put any negative values in parentheses.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -219,8 +227,7 @@ def val_fmt_integer(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -236,6 +243,7 @@ def val_fmt_integer(
     gt_obj_fmt = gt_obj.fmt_integer(
         columns="x",
         use_seps=use_seps,
+        accounting=accounting,
         scale_by=scale_by,
         compact=compact,
         pattern=pattern,
@@ -377,6 +385,7 @@ def val_fmt_percent(
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     scale_values: bool = True,
+    accounting: bool = False,
     use_seps: bool = True,
     pattern: str = "{x}",
     sep_mark: str = ",",
@@ -428,6 +437,9 @@ def val_fmt_percent(
         performed since the expectation is that incoming values are usually proportional. Setting to
         `False` signifies that the values are already scaled and require only the percent sign when
         formatted.
+    accounting
+        An option to use accounting style for values. Normally, negative values will be shown with a
+        minus sign but using accounting style will instead put any negative values in parentheses.
     use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
@@ -447,8 +459,7 @@ def val_fmt_percent(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     placement
         This option governs the placement of the percent sign. This can be either be `"right"` (the
         default) or `"left"`.
@@ -473,6 +484,7 @@ def val_fmt_percent(
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         scale_values=scale_values,
+        accounting=accounting,
         use_seps=use_seps,
         pattern=pattern,
         sep_mark=sep_mark,
@@ -494,6 +506,7 @@ def val_fmt_currency(
     use_subunits: bool = True,
     decimals: int | None = None,
     drop_trailing_dec_mark: bool = True,
+    accounting: bool = False,
     use_seps: bool = True,
     scale_by: float = 1,
     pattern: str = "{x}",
@@ -545,6 +558,9 @@ def val_fmt_currency(
         A boolean value that determines whether decimal marks should always appear even if there are
         no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
         default trailing decimal marks are not shown.
+    accounting
+        An option to use accounting style for values. Normally, negative values will be shown with a
+        minus sign but using accounting style will instead put any negative values in parentheses.
     use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
@@ -568,8 +584,7 @@ def val_fmt_currency(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     placement
         The placement of the currency symbol. This can be either be `"left"` (as in `"$450"`) or
         `"right"` (which yields `"450$"`).
@@ -594,6 +609,7 @@ def val_fmt_currency(
         use_subunits=use_subunits,
         decimals=decimals,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
+        accounting=accounting,
         use_seps=use_seps,
         scale_by=scale_by,
         pattern=pattern,
@@ -726,8 +742,7 @@ def val_fmt_bytes(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     incl_space
         An option for whether to include a space between the value and the currency symbol. The
         default is to not introduce a space character.
@@ -931,6 +946,70 @@ def val_fmt_markdown(
 
     gt_obj_fmt = gt_obj.fmt_markdown(
         columns="x",
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+def val_fmt_image(
+    x: X,
+    height: str | int | None = None,
+    width: str | int | None = None,
+    sep: str = " ",
+    path: str | Path | None = None,
+    file_pattern: str = "{}",
+    encode: bool = True,
+) -> list[str]:
+    """Format image paths to generate images in cells.
+
+    To more easily insert graphics into body cells, we can use the `fmt_image()` method. This allows
+    for one or more images to be placed in the targeted cells. The cells need to contain some
+    reference to an image file, either: (1) complete http/https or local paths to the files; (2) the
+    file names, where a common path can be provided via `path=`; or (3) a fragment of the file name,
+    where the `file_pattern=` argument helps to compose the entire file name and `path=` provides
+    the path information. This should be expressly used on columns that contain *only* references to
+    image files (i.e., no image references as part of a larger block of text). Multiple images can
+    be included per cell by separating image references by commas. The `sep=` argument allows for a
+    common separator to be applied between images.
+
+    Parameters
+    ----------
+    x
+        A list of values to be formatted.
+    height
+        The height of the rendered images.
+    width
+        The width of the rendered images.
+    sep
+        In the output of images within a body cell, `sep=` provides the separator between each
+        image.
+    path
+        An optional path to local image files (this is combined with all filenames).
+    file_pattern
+        The pattern to use for mapping input values in the body cells to the names of the graphics
+        files. The string supplied should use `"{}"` in the pattern to map filename fragments to
+        input strings.
+    encode
+        The option to always use Base64 encoding for image paths that are determined to be local. By
+        default, this is `True`.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+    """
+    gt_obj: GTData = _make_one_col_table(vals=x)
+
+    gt_obj_fmt = gt_obj.fmt_image(
+        columns="x",
+        height=height,
+        width=width,
+        sep=sep,
+        path=path,
+        file_pattern=file_pattern,
+        encode=encode,
     )
 
     vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")

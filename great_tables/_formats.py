@@ -1,33 +1,41 @@
 from __future__ import annotations
 
 import math
+import re
+from dataclasses import dataclass
 from datetime import date, datetime, time
 from decimal import Decimal
+from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, TypedDict, TypeVar, cast
 
 import babel
+import faicons
 from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
 
 from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
 from ._helpers import px
-from ._locale import _get_currencies_data, _get_default_locales_data, _get_locales_data
+from ._locale import (
+    _get_currencies_data,
+    _get_default_locales_data,
+    _get_flags_data,
+    _get_locales_data,
+)
 from ._locations import resolve_cols_c, resolve_rows_i
 from ._tbl_data import (
     Agnostic,
     DataFrameLike,
     PlExpr,
     SelectExpr,
+    _get_column_dtype,
     is_na,
     is_series,
     to_list,
-    _get_column_dtype,
 )
-from ._text import _md_html
+from ._text import _md_html, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace
 from ._utils_nanoplots import _generate_nanoplot
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -150,6 +158,7 @@ def fmt_number(
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
+    accounting: bool = False,
     scale_by: float = 1,
     compact: bool = False,
     pattern: str = "{x}",
@@ -208,6 +217,9 @@ def fmt_number(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -231,8 +243,7 @@ def fmt_number(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -278,77 +289,101 @@ def fmt_number(
     Take a look at the functional version of this method:
     [`val_fmt_number()`](`great_tables._formats_vals.val_fmt_number`).
     """
-
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
     locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_number_fn(
-        x: float | None,
-        decimals: int = decimals,
-        n_sigfig: int | None = n_sigfig,
-        drop_trailing_zeros: bool = drop_trailing_zeros,
-        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
-        use_seps: bool = use_seps,
-        scale_by: float = scale_by,
-        compact: bool = compact,
-        sep_mark: str = sep_mark,
-        dec_mark: str = dec_mark,
-        force_sign: bool = force_sign,
-    ):
-        if is_na(self._tbl_data, x):
-            return x
+    pf_format = partial(
+        fmt_number_context,
+        data=self,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        accounting=accounting,
+        scale_by=scale_by,
+        compact=compact,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+        pattern=pattern,
+    )
 
-        # Scale `x` value by a defined `scale_by` value
-        x = x * scale_by
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
-        # Determine whether the value is positive
-        is_negative = _has_negative_value(value=x)
 
-        if compact:
-            x_formatted = _format_number_compactly(
-                value=x,
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-            )
+def fmt_number_context(
+    x: float | None,
+    data: GTData,
+    decimals: int,
+    n_sigfig: int | None,
+    drop_trailing_zeros: bool,
+    drop_trailing_dec_mark: bool,
+    use_seps: bool,
+    accounting: bool,
+    scale_by: float,
+    compact: bool,
+    sep_mark: str,
+    dec_mark: str,
+    force_sign: bool,
+    pattern: str,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
+
+    # Scale `x` value by a defined `scale_by` value
+    x = x * scale_by
+
+    # Determine whether the value is positive
+    is_negative = _has_negative_value(value=x)
+
+    if compact:
+        x_formatted = _format_number_compactly(
+            value=x,
+            decimals=decimals,
+            n_sigfig=n_sigfig,
+            drop_trailing_zeros=drop_trailing_zeros,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
+            force_sign=force_sign,
+        )
+    else:
+        x_formatted = _value_to_decimal_notation(
+            value=x,
+            decimals=decimals,
+            n_sigfig=n_sigfig,
+            drop_trailing_zeros=drop_trailing_zeros,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
+            force_sign=force_sign,
+        )
+
+    # Implement minus sign replacement for `x_formatted` or use accounting style
+    if is_negative:
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
         else:
-            x_formatted = _value_to_decimal_notation(
-                value=x,
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=use_seps,
-                sep_mark=sep_mark,
-                dec_mark=dec_mark,
-                force_sign=force_sign,
-            )
-
-        # Implement minus sign replacement for `x_formatted`
-        if is_negative:
-            minus_mark = _context_minus_mark()
+            minus_mark = _context_minus_mark(context=context)
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
 
-        return x_formatted
+        x_formatted = pattern.replace("{x}", x_formatted)
 
-    return fmt(self, fns=fmt_number_fn, columns=columns, rows=rows)
+    return x_formatted
 
 
 def fmt_integer(
@@ -357,6 +392,7 @@ def fmt_integer(
     rows: int | list[int] | None = None,
     use_seps: bool = True,
     scale_by: float = 1,
+    accounting: bool = False,
     compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
@@ -397,6 +433,9 @@ def fmt_integer(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     compact
         A boolean value that allows for compact formatting of numeric values. Values will be scaled
         and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
@@ -412,8 +451,7 @@ def fmt_integer(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
@@ -458,67 +496,91 @@ def fmt_integer(
     [`val_fmt_integer()`](`great_tables._formats_vals.val_fmt_integer`).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
 
-    # Generate a function that will operate on single `x` values in
-    # the table body
-    def fmt_integer_fn(
-        x: float,
-        scale_by: float = scale_by,
-    ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    pf_format = partial(
+        fmt_integer_context,
+        data=self,
+        use_seps=use_seps,
+        scale_by=scale_by,
+        accounting=accounting,
+        compact=compact,
+        sep_mark=sep_mark,
+        force_sign=force_sign,
+        pattern=pattern,
+    )
 
-        # Scale `x` value by a defined `scale_by` value
-        x = x * scale_by
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
-        # Determine whether the value is positive
-        is_negative = _has_negative_value(value=x)
 
-        if compact:
-            x_formatted = _format_number_compactly(
-                value=x,
-                decimals=0,
-                n_sigfig=None,
-                drop_trailing_zeros=False,
-                drop_trailing_dec_mark=True,
-                use_seps=use_seps,
-                sep_mark=sep_mark,
-                dec_mark="not used",
-                force_sign=force_sign,
-            )
+def fmt_integer_context(
+    x: float | None,
+    data: GTData,
+    use_seps: bool,
+    scale_by: float,
+    accounting: bool,
+    compact: bool,
+    sep_mark: str,
+    force_sign: bool,
+    pattern: str,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
+
+    # Scale `x` value by a defined `scale_by` value
+    x = x * scale_by
+
+    # Determine whether the value is positive
+    is_negative = _has_negative_value(value=x)
+
+    if compact:
+        x_formatted = _format_number_compactly(
+            value=x,
+            decimals=0,
+            n_sigfig=None,
+            drop_trailing_zeros=False,
+            drop_trailing_dec_mark=True,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark="not used",
+            force_sign=force_sign,
+        )
+
+    else:
+        x_formatted = _value_to_decimal_notation(
+            value=x,
+            decimals=0,
+            n_sigfig=None,
+            drop_trailing_zeros=False,
+            drop_trailing_dec_mark=True,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark="not used",
+            force_sign=force_sign,
+        )
+
+    # Implement minus sign replacement for `x_formatted` or use accounting style
+    if is_negative:
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
         else:
-            x_formatted = _value_to_decimal_notation(
-                value=x,
-                decimals=0,
-                n_sigfig=None,
-                drop_trailing_zeros=False,
-                drop_trailing_dec_mark=True,
-                use_seps=use_seps,
-                sep_mark=sep_mark,
-                dec_mark="not used",
-                force_sign=force_sign,
-            )
-
-        # Implement minus sign replacement for `x_formatted`
-        if is_negative:
-            minus_mark = _context_minus_mark()
+            minus_mark = _context_minus_mark(context=context)
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
 
-        return x_formatted
+        x_formatted = pattern.replace("{x}", x_formatted)
 
-    return fmt(self, fns=fmt_integer_fn, columns=columns, rows=rows)
+    return x_formatted
 
 
 def fmt_scientific(
@@ -665,121 +727,141 @@ def fmt_scientific(
     # large exponent values
     use_seps = True
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_scientific_fn(
-        x: float,
-        decimals: int = decimals,
-        n_sigfig: int | None = n_sigfig,
-        drop_trailing_zeros: bool = drop_trailing_zeros,
-        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
-        scale_by: float = scale_by,
-        exp_style: str = exp_style,
-        sep_mark: str = sep_mark,
-        dec_mark: str = dec_mark,
-        force_sign_m: bool = force_sign_m,
-        force_sign_n: bool = force_sign_n,
-    ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    pf_format = partial(
+        fmt_scientific_context,
+        data=self,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        scale_by=scale_by,
+        exp_style=exp_style,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign_m=force_sign_m,
+        force_sign_n=force_sign_n,
+        pattern=pattern,
+    )
 
-        # Scale `x` value by a defined `scale_by` value
-        x = x * scale_by
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
-        # Determine whether the value is positive
-        is_positive = _has_positive_value(value=x)
 
-        minus_mark = _context_minus_mark()
+# Generate a function that will operate on single `x` values in the table body
+def fmt_scientific_context(
+    x: float | None,
+    data: GTData,
+    decimals: int,
+    n_sigfig: int | None,
+    drop_trailing_zeros: bool,
+    drop_trailing_dec_mark: bool,
+    scale_by: float,
+    exp_style: str,
+    sep_mark: str,
+    dec_mark: str,
+    force_sign_m: bool,
+    force_sign_n: bool,
+    pattern: str,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
 
-        x_sci_notn = _value_to_scientific_notation(
-            value=x,
-            decimals=decimals,
-            n_sigfig=n_sigfig,
-            dec_mark=dec_mark,
-        )
+    # Scale `x` value by a defined `scale_by` value
+    x = x * scale_by
 
-        sci_parts = x_sci_notn.split("E")
+    # Determine whether the value is positive
+    is_positive = _has_positive_value(value=x)
 
-        m_part, n_part = sci_parts
+    minus_mark = _context_minus_mark(context=context)
 
-        # Remove trailing zeros and decimal marks from the `m_part`
-        if drop_trailing_zeros:
-            m_part = m_part.rstrip("0")
-        if drop_trailing_dec_mark:
-            m_part = m_part.rstrip(".")
+    x_sci_notn = _value_to_scientific_notation(
+        value=x,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        dec_mark=dec_mark,
+    )
 
-        # Force the positive sign to be present if the `force_sign_m` option is taken
-        if is_positive and force_sign_m:
-            m_part = "+" + m_part
+    sci_parts = x_sci_notn.split("E")
 
-        if exp_style == "x10n":
-            # Define the exponent string based on the `exp_style` that is the default
-            # ('x10n'); this is styled as 'x 10^n' instead of using a fixed symbol like 'E'
+    m_part, n_part = sci_parts
 
-            # Determine which values don't require the (x 10^n) for scientific formatting
-            # since their order would be zero
-            small_pos = _has_sci_order_zero(value=x)
+    # Remove trailing zeros and decimal marks from the `m_part`
+    if drop_trailing_zeros:
+        m_part = m_part.rstrip("0")
+    if drop_trailing_dec_mark:
+        m_part = m_part.rstrip(".")
 
-            # Force the positive sign to be present if the `force_sign_n` option is taken
-            if force_sign_n and not _str_detect(n_part, "-"):
+    # Force the positive sign to be present if the `force_sign_m` option is taken
+    if is_positive and force_sign_m:
+        m_part = "+" + m_part
+
+    if exp_style == "x10n":
+        # Define the exponent string based on the `exp_style` that is the default
+        # ('x10n'); this is styled as 'x 10^n' instead of using a fixed symbol like 'E'
+
+        # Determine which values don't require the (x 10^n) for scientific formatting
+        # since their order would be zero
+        small_pos = _has_sci_order_zero(value=x)
+
+        # Force the positive sign to be present if the `force_sign_n` option is taken
+        if force_sign_n and not _str_detect(n_part, "-"):
+            n_part = "+" + n_part
+
+        # Implement minus sign replacement for `m_part` and `n_part`
+        m_part = _replace_minus(m_part, minus_mark=minus_mark)
+        n_part = _replace_minus(n_part, minus_mark=minus_mark)
+
+        if small_pos:
+            # If the value is small enough to not require the (x 10^n) notation, then
+            # the formatted value is based on only the `m_part`
+            x_formatted = m_part
+        else:
+            # Get the set of exponent marks, which are used to decorate the `n_part`
+            exp_marks = _context_exp_marks(context=context)
+
+            # Create the formatted string based on `exp_marks` and the two `sci_parts`
+            x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
+
+    else:
+        # Define the exponent string based on the `exp_style` that's not the default
+        # value of 'x10n'
+
+        exp_str = _context_exp_str(exp_style=exp_style)
+
+        n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
+
+        # The `n_part` will be extracted here and it must be padded to
+        # the defined minimum number of decimal places
+        if _str_detect(n_part, "-"):
+            n_part = _str_replace(n_part, "-", "")
+            n_part = n_part.ljust(n_min_width, "0")
+            n_part = "-" + n_part
+        else:
+            n_part = n_part.ljust(n_min_width, "0")
+            if force_sign_n:
                 n_part = "+" + n_part
 
-            # Implement minus sign replacement for `m_part` and `n_part`
-            m_part = _replace_minus(m_part, minus_mark=minus_mark)
-            n_part = _replace_minus(n_part, minus_mark=minus_mark)
+        # Implement minus sign replacement for `m_part` and `n_part`
+        m_part = _replace_minus(m_part, minus_mark=minus_mark)
+        n_part = _replace_minus(n_part, minus_mark=minus_mark)
 
-            if small_pos:
-                # If the value is small enough to not require the (x 10^n) notation, then
-                # the formatted value is based on only the `m_part`
-                x_formatted = m_part
-            else:
-                # Get the set of exponent marks, which are used to decorate the `n_part`
-                exp_marks = _context_exp_marks()
+        x_formatted = m_part + exp_str + n_part
 
-                # Create the formatted string based on `exp_marks` and the two `sci_parts`
-                x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
 
-        else:
-            # Define the exponent string based on the `exp_style` that's not the default
-            # value of 'x10n'
+        x_formatted = pattern.replace("{x}", x_formatted)
 
-            exp_str = _context_exp_str(exp_style=exp_style)
-
-            n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
-
-            # The `n_part` will be extracted here and it must be padded to
-            # the defined minimum number of decimal places
-            if _str_detect(n_part, "-"):
-                n_part = _str_replace(n_part, "-", "")
-                n_part = n_part.ljust(n_min_width, "0")
-                n_part = "-" + n_part
-            else:
-                n_part = n_part.ljust(n_min_width, "0")
-                if force_sign_n:
-                    n_part = "+" + n_part
-
-            # Implement minus sign replacement for `m_part` and `n_part`
-            m_part = _replace_minus(m_part, minus_mark=minus_mark)
-            n_part = _replace_minus(n_part, minus_mark=minus_mark)
-
-            x_formatted = m_part + exp_str + n_part
-
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
-
-        return x_formatted
-
-    return fmt(self, fns=fmt_scientific_fn, columns=columns, rows=rows)
+    return x_formatted
 
 
 def fmt_percent(
@@ -791,6 +873,7 @@ def fmt_percent(
     drop_trailing_dec_mark: bool = True,
     scale_values: bool = True,
     use_seps: bool = True,
+    accounting: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -850,6 +933,9 @@ def fmt_percent(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -865,8 +951,7 @@ def fmt_percent(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     placement
         This option governs the placement of the percent sign. This can be either be `"right"` (the
         default) or `"left"`.
@@ -920,10 +1005,7 @@ def fmt_percent(
     single numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -934,72 +1016,105 @@ def fmt_percent(
     else:
         scale_by = 1.0
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_percent_fn(
-        x: float,
-        decimals: int = decimals,
-        drop_trailing_zeros: bool = drop_trailing_zeros,
-        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
-        use_seps: bool = use_seps,
-        scale_by: float = scale_by,
-        sep_mark: str = sep_mark,
-        dec_mark: str = dec_mark,
-        force_sign: bool = force_sign,
-        placement: str = placement,
-        incl_space: bool = incl_space,
-    ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    pf_format = partial(
+        fmt_percent_context,
+        data=self,
+        decimals=decimals,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        accounting=accounting,
+        scale_by=scale_by,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+        placement=placement,
+        incl_space=incl_space,
+        pattern=pattern,
+    )
 
-        # Scale `x` value by a defined `scale_by` value
-        x = x * scale_by
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
-        # Determine properties of the value
-        is_negative = _has_negative_value(value=x)
-        is_positive = _has_positive_value(value=x)
 
-        x_formatted = _value_to_decimal_notation(
-            value=x,
-            decimals=decimals,
-            n_sigfig=None,
-            drop_trailing_zeros=drop_trailing_zeros,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=use_seps,
-            sep_mark=sep_mark,
-            dec_mark=dec_mark,
-            force_sign=force_sign,
-        )
+def fmt_percent_context(
+    x: float | None,
+    data: GTData,
+    decimals: int,
+    drop_trailing_zeros: bool,
+    drop_trailing_dec_mark: bool,
+    use_seps: bool,
+    accounting: bool,
+    scale_by: float,
+    sep_mark: str,
+    dec_mark: str,
+    force_sign: bool,
+    placement: str,
+    incl_space: bool,
+    pattern: str,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
 
-        # Create a percent pattern for affixing the percent sign
-        space_character = " " if incl_space else ""
-        percent_pattern = (
-            f"{{x}}{space_character}%" if placement == "right" else f"%{space_character}{{x}}"
-        )
+    # Scale `x` value by a defined `scale_by` value
+    x = x * scale_by
 
-        if is_negative and placement == "left":
-            x_formatted = x_formatted.replace("-", "")
-            x_formatted = percent_pattern.replace("{x}", x_formatted)
-            x_formatted = "-" + x_formatted
-        elif is_positive and force_sign and placement == "left":
-            x_formatted = x_formatted.replace("+", "")
-            x_formatted = percent_pattern.replace("{x}", x_formatted)
-            x_formatted = "+" + x_formatted
+    # Determine properties of the value
+    is_negative = _has_negative_value(value=x)
+    is_positive = _has_positive_value(value=x)
+
+    x_formatted = _value_to_decimal_notation(
+        value=x,
+        decimals=decimals,
+        n_sigfig=None,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+    )
+
+    # Get the context-specific percent mark
+    percent_mark = _context_percent_mark(context=context)
+
+    # Create a percent pattern for affixing the percent sign
+    space_character = " " if incl_space else ""
+    percent_pattern = (
+        f"{{x}}{space_character}{percent_mark}"
+        if placement == "right"
+        else f"{percent_mark}{space_character}{{x}}"
+    )
+
+    if is_negative and placement == "left":
+        x_formatted = x_formatted.replace("-", "")
+        x_formatted = percent_pattern.replace("{x}", x_formatted)
+        x_formatted = "-" + x_formatted
+    elif is_positive and force_sign and placement == "left":
+        x_formatted = x_formatted.replace("+", "")
+        x_formatted = percent_pattern.replace("{x}", x_formatted)
+        x_formatted = "+" + x_formatted
+    else:
+        x_formatted = percent_pattern.replace("{x}", x_formatted)
+
+    # Implement minus sign replacement for `x_formatted` or use accounting style
+    if is_negative:
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
         else:
-            x_formatted = percent_pattern.replace("{x}", x_formatted)
-
-        # Implement minus sign replacement for `x_formatted`
-        if is_negative:
-            minus_mark = _context_minus_mark()
+            minus_mark = _context_minus_mark(context=context)
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
 
-        return x_formatted
+        x_formatted = pattern.replace("{x}", x_formatted)
 
-    return fmt(self, fns=fmt_percent_fn, columns=columns, rows=rows)
+    return x_formatted
 
 
 def fmt_currency(
@@ -1011,6 +1126,7 @@ def fmt_currency(
     decimals: int | None = None,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
+    accounting: bool = False,
     scale_by: float = 1,
     pattern: str = "{x}",
     sep_mark: str = ",",
@@ -1070,6 +1186,9 @@ def fmt_currency(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -1089,8 +1208,7 @@ def fmt_currency(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     placement
         The placement of the currency symbol. This can be either be `"left"` (as in `"$450"`) or
         `"right"` (which yields `"450$"`).
@@ -1145,10 +1263,7 @@ def fmt_currency(
     single numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -1170,79 +1285,110 @@ def fmt_currency(
         currency=currency_resolved, decimals=decimals, use_subunits=use_subunits
     )
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_currency_fn(
-        x: float,
-        currency: str = currency_resolved,
-        decimals: int = decimals,
-        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
-        use_seps: bool = use_seps,
-        scale_by: float = scale_by,
-        sep_mark: str = sep_mark,
-        dec_mark: str = dec_mark,
-        force_sign: bool = force_sign,
-        placement: str = placement,
-        incl_space: bool = incl_space,
-    ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    pf_format = partial(
+        fmt_currency_context,
+        data=self,
+        currency=currency_resolved,
+        decimals=decimals,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        accounting=accounting,
+        scale_by=scale_by,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+        placement=placement,
+        incl_space=incl_space,
+        pattern=pattern,
+    )
 
-        # Scale `x` value by a defined `scale_by` value
-        x = x * scale_by
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
-        # Determine properties of the value
-        is_negative = _has_negative_value(value=x)
-        is_positive = _has_positive_value(value=x)
 
-        # Get the currency symbol on the basis of a valid currency code
-        currency_symbol = _get_currency_str(currency=currency)
+def fmt_currency_context(
+    x: float | None,
+    data: GTData,
+    currency: str,
+    decimals: int,
+    drop_trailing_dec_mark: bool,
+    use_seps: bool,
+    accounting: bool,
+    scale_by: float,
+    sep_mark: str,
+    dec_mark: str,
+    force_sign: bool,
+    placement: str,
+    incl_space: bool,
+    pattern: str,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
 
-        # Format the value to decimal notation; this is done before the currency symbol is
-        # affixed to the value
-        x_formatted = _value_to_decimal_notation(
-            value=x,
-            decimals=decimals,
-            n_sigfig=None,
-            drop_trailing_zeros=False,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=use_seps,
-            sep_mark=sep_mark,
-            dec_mark=dec_mark,
-            force_sign=force_sign,
-        )
+    # Scale `x` value by a defined `scale_by` value
+    x = x * scale_by
 
-        # Create a currency pattern for affixing the currency symbol
-        space_character = " " if incl_space else ""
-        currency_pattern = (
-            f"{{x}}{space_character}{currency_symbol}"
-            if placement == "right"
-            else f"{currency_symbol}{space_character}{{x}}"
-        )
+    # Determine properties of the value
+    is_negative = _has_negative_value(value=x)
+    is_positive = _has_positive_value(value=x)
 
-        if is_negative and placement == "left":
-            x_formatted = x_formatted.replace("-", "")
-            x_formatted = currency_pattern.replace("{x}", x_formatted)
-            x_formatted = "-" + x_formatted
-        elif is_positive and force_sign and placement == "left":
-            x_formatted = x_formatted.replace("+", "")
-            x_formatted = currency_pattern.replace("{x}", x_formatted)
-            x_formatted = "+" + x_formatted
+    # Get the currency symbol on the basis of a valid currency code
+    currency_symbol = _get_currency_str(currency=currency)
+
+    if currency_symbol == "$":
+        currency_symbol = _context_dollar_mark(context=context)
+
+    # Format the value to decimal notation; this is done before the currency symbol is
+    # affixed to the value
+    x_formatted = _value_to_decimal_notation(
+        value=x,
+        decimals=decimals,
+        n_sigfig=None,
+        drop_trailing_zeros=False,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+    )
+
+    # Create a currency pattern for affixing the currency symbol
+    space_character = " " if incl_space else ""
+    currency_pattern = (
+        f"{{x}}{space_character}{currency_symbol}"
+        if placement == "right"
+        else f"{currency_symbol}{space_character}{{x}}"
+    )
+
+    if is_negative and placement == "left":
+        x_formatted = x_formatted.replace("-", "")
+        x_formatted = currency_pattern.replace("{x}", x_formatted)
+        x_formatted = "-" + x_formatted
+    elif is_positive and force_sign and placement == "left":
+        x_formatted = x_formatted.replace("+", "")
+        x_formatted = currency_pattern.replace("{x}", x_formatted)
+        x_formatted = "+" + x_formatted
+    else:
+        x_formatted = currency_pattern.replace("{x}", x_formatted)
+
+    # Implement minus sign replacement for `x_formatted` or use accounting style
+    if is_negative:
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
         else:
-            x_formatted = currency_pattern.replace("{x}", x_formatted)
-
-        # Implement minus sign replacement for `x_formatted`
-        if is_negative:
-            minus_mark = _context_minus_mark()
+            minus_mark = _context_minus_mark(context=context)
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
 
-        return x_formatted
+        x_formatted = pattern.replace("{x}", x_formatted)
 
-    return fmt(self, fns=fmt_currency_fn, columns=columns, rows=rows)
+    return x_formatted
 
 
 def fmt_roman(
@@ -1309,50 +1455,63 @@ def fmt_roman(
     # Check that the `case` value is valid and only consists of the string 'upper' or 'lower'
     _validate_case(case=case)
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_roman_fn(
-        x: float,
-        case: str = case,
-    ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    pf_format = partial(
+        fmt_roman_context,
+        data=self,
+        case=case,
+        pattern=pattern,
+    )
 
-        # Get the absolute value of `x` so that negative values are handled
-        x = abs(x)
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
-        # Round x to 0 digits with the R-H-U method of rounding (for reproducibility purposes)
-        x = _round_rhu(x, 0)
 
-        # Determine if `x` is in the range of 1 to 3899 and if it is zero
-        x_is_in_range = x > 0 and x < 3900
-        x_is_zero = x == 0
+def fmt_roman_context(
+    x: float,
+    data: GTData,
+    case: str,
+    pattern: str,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
 
-        if not x_is_in_range and not x_is_zero:
-            # We cannot format a 'large' integer to roman numerals, so we return a string
-            # that indicates this
-            return "ex terminis"
-        elif x_is_zero:
-            # Zero is a special case and is handled separately with the character 'N'
-            # which stands for 'nulla' (i.e., 'nothing')
-            x_formatted = "N"
-        else:
-            # All other values are formatted with the `_as_roman()` utility function
-            x_formatted = _as_roman(x)
+    # Get the absolute value of `x` so that negative values are handled
+    x = abs(x)
 
-        # Transform the case of the formatted value
-        if case == "upper":
-            pass
-        else:
-            x_formatted = x_formatted.lower()
+    # Round x to 0 digits with the R-H-U method of rounding (for reproducibility purposes)
+    x = _round_rhu(x, 0)
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Determine if `x` is in the range of 1 to 3899 and if it is zero
+    x_is_in_range = x > 0 and x < 3900
+    x_is_zero = x == 0
 
-        return x_formatted
+    if not x_is_in_range and not x_is_zero:
+        # We cannot format a 'large' integer to roman numerals, so we return a string
+        # that indicates this
+        return "ex terminis"
+    elif x_is_zero:
+        # Zero is a special case and is handled separately with the character 'N'
+        # which stands for 'nulla' (i.e., 'nothing')
+        x_formatted = "N"
+    else:
+        # All other values are formatted with the `_as_roman()` utility function
+        x_formatted = _as_roman(x)
 
-    return fmt(self, fns=fmt_roman_fn, columns=columns, rows=rows)
+    # Transform the case of the formatted value
+    if case == "upper":
+        pass
+    else:
+        x_formatted = x_formatted.lower()
+
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def fmt_bytes(
@@ -1437,8 +1596,7 @@ def fmt_bytes(
     force_sign
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
-        negative numbers will display a minus sign. This option is disregarded when using accounting
-        notation with `accounting = True`.
+        negative numbers will display a minus sign.
     incl_space
         An option for whether to include a space between the value and the currency symbol. The
         default is to not introduce a space character.
@@ -1486,10 +1644,7 @@ def fmt_bytes(
     numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
@@ -1509,88 +1664,111 @@ def fmt_bytes(
         base = 1024
         byte_units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_bytes_fn(
-        x: float,
-        base: int = base,
-        byte_units: list[str] = byte_units,
-        decimals: int = decimals,
-        n_sigfig: int | None = n_sigfig,
-        drop_trailing_zeros: bool = drop_trailing_zeros,
-        drop_trailing_dec_mark: bool = drop_trailing_dec_mark,
-        use_seps: bool = use_seps,
-        sep_mark: str = sep_mark,
-        dec_mark: str = dec_mark,
-        force_sign: bool = force_sign,
-        incl_space: bool = incl_space,
-    ):
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    pf_format = partial(
+        fmt_bytes_context,
+        data=self,
+        base=base,
+        byte_units=byte_units,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+        incl_space=incl_space,
+        pattern=pattern,
+    )
 
-        # Truncate all byte values by casting to an integer; this is done because bytes
-        # are always whole numbers
-        x = int(x)
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
-        # Determine properties of the value
-        is_negative = _has_negative_value(value=x)
 
-        # Determine the power index for the value
-        if x == 0:
-            # If the value is zero, then the power index is 1; otherwise, we'd get
-            # an error when trying to calculate the log of zero
-            num_power_idx = 1
-        else:
-            # Otherwise, we can calculate the power index by taking the log of the value
-            # and dividing by the log of the base; we add 1 to the result to account for
-            # the fact that the power index is 1-based (i.e., the first element in the
-            # `byte_units` list is at index 0) --- the final statement ensures that the
-            # power index is always at least 1
-            num_power_idx = math.floor(math.log(abs(x), base)) + 1
-            num_power_idx = max(1, min(len(byte_units), num_power_idx))
+def fmt_bytes_context(
+    x: float,
+    data: GTData,
+    base: int,
+    byte_units: list[str],
+    decimals: int,
+    n_sigfig: int | None,
+    drop_trailing_zeros: bool,
+    drop_trailing_dec_mark: bool,
+    use_seps: bool,
+    sep_mark: str,
+    dec_mark: str,
+    force_sign: bool,
+    incl_space: bool,
+    pattern: str,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
 
-        # The `units_str` is obtained by indexing the `byte_units` list with the `num_power_idx`
-        # value; this is the string that will be affixed to the formatted value
-        units_str = byte_units[num_power_idx - 1]
+    # Truncate all byte values by casting to an integer; this is done because bytes
+    # are always whole numbers
+    x = int(x)
 
-        # Scale `x` value by a defined `base` value, this is done by dividing by the
-        # `base` value raised to the power index minus 1 (we subtract 1 because the
-        # power index is 1-based)
-        x = x / base ** (num_power_idx - 1)
+    # Determine properties of the value
+    is_negative = _has_negative_value(value=x)
 
-        # Format the value to decimal notation; this is done before the `byte_units` text
-        # is affixed to the value
-        x_formatted = _value_to_decimal_notation(
-            value=x,
-            decimals=decimals,
-            n_sigfig=n_sigfig,
-            drop_trailing_zeros=drop_trailing_zeros,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=use_seps,
-            sep_mark=sep_mark,
-            dec_mark=dec_mark,
-            force_sign=force_sign,
-        )
+    # Determine the power index for the value
+    if x == 0:
+        # If the value is zero, then the power index is 1; otherwise, we'd get
+        # an error when trying to calculate the log of zero
+        num_power_idx = 1
+    else:
+        # Otherwise, we can calculate the power index by taking the log of the value
+        # and dividing by the log of the base; we add 1 to the result to account for
+        # the fact that the power index is 1-based (i.e., the first element in the
+        # `byte_units` list is at index 0) --- the final statement ensures that the
+        # power index is always at least 1
+        num_power_idx = math.floor(math.log(abs(x), base)) + 1
+        num_power_idx = max(1, min(len(byte_units), num_power_idx))
 
-        # Create a `bytes_pattern` object for affixing the `units_str`, which is the
-        # string that represents the byte units
-        space_character = " " if incl_space else ""
-        bytes_pattern = f"{{x}}{space_character}{units_str}"
+    # The `units_str` is obtained by indexing the `byte_units` list with the `num_power_idx`
+    # value; this is the string that will be affixed to the formatted value
+    units_str = byte_units[num_power_idx - 1]
 
-        x_formatted = bytes_pattern.replace("{x}", x_formatted)
+    # Scale `x` value by a defined `base` value, this is done by dividing by the
+    # `base` value raised to the power index minus 1 (we subtract 1 because the
+    # power index is 1-based)
+    x = x / base ** (num_power_idx - 1)
 
-        # Implement minus sign replacement for `x_formatted`
-        if is_negative:
-            minus_mark = _context_minus_mark()
-            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+    # Format the value to decimal notation; this is done before the `byte_units` text
+    # is affixed to the value
+    x_formatted = _value_to_decimal_notation(
+        value=x,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+    )
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Create a `bytes_pattern` object for affixing the `units_str`, which is the
+    # string that represents the byte units
+    space_character = " " if incl_space else ""
+    bytes_pattern = f"{{x}}{space_character}{units_str}"
 
-        return x_formatted
+    x_formatted = bytes_pattern.replace("{x}", x_formatted)
 
-    return fmt(self, fns=fmt_bytes_fn, columns=columns, rows=rows)
+    # Implement minus sign replacement for `x_formatted`
+    if is_negative:
+        minus_mark = _context_minus_mark(context="html")
+        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def fmt_date(
@@ -1695,48 +1873,60 @@ def fmt_date(
     numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Get the date format string based on the `date_style` value
     date_format_str = _get_date_format(date_style=date_style)
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_date_fn(
-        x: Any, date_format_str: str = date_format_str, locale: str | None = locale
-    ) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    pf_format = partial(
+        fmt_date_context,
+        data=self,
+        date_format_str=date_format_str,
+        pattern=pattern,
+        locale=locale,
+    )
 
-        # If `x` is a string, we assume it is an ISO date string and convert it to a date object
-        if isinstance(x, str):
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
-            # Convert the ISO date string to a date object
-            x = _iso_str_to_date(x)
 
-        else:
-            # Stop if `x` is not a valid date object
-            _validate_date_obj(x=x)
+def fmt_date_context(
+    x: Any,
+    data: GTData,
+    date_format_str: str,
+    pattern: str,
+    locale: str | None,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
 
-        # Fix up the locale for `format_date()` by replacing any hyphens with underscores
-        if locale is None:
-            locale = "en_US"
-        else:
-            locale = _str_replace(locale, "-", "_")
+    # If `x` is a string, we assume it is an ISO date string and convert it to a date object
+    if isinstance(x, str):
+        # Convert the ISO date string to a date object
+        x = _iso_str_to_date(x)
 
-        # Format the date object to a string using Babel's `format_date()` function
-        x_formatted = format_date(x, format=date_format_str, locale=locale)
+    else:
+        # Stop if `x` is not a valid date object
+        _validate_date_obj(x=x)
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Fix up the locale for `format_date()` by replacing any hyphens with underscores
+    if locale is None:
+        locale = "en_US"
+    else:
+        locale = _str_replace(locale, "-", "_")
 
-        return x_formatted
+    # Format the date object to a string using Babel's `format_date()` function
+    x_formatted = format_date(x, format=date_format_str, locale=locale)
 
-    return fmt(self, fns=fmt_date_fn, columns=columns, rows=rows)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def fmt_time(
@@ -1829,48 +2019,60 @@ def fmt_time(
     numerical value (or a list of them).
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Get the time format string based on the `time_style` value
     time_format_str = _get_time_format(time_style=time_style)
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_time_fn(
-        x: Any, time_format_str: str = time_format_str, locale: str | None = locale
-    ) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    pf_format = partial(
+        fmt_time_context,
+        data=self,
+        time_format_str=time_format_str,
+        pattern=pattern,
+        locale=locale,
+    )
 
-        # If `x` is a string, assume it is an ISO time string and convert it to a time object
-        if isinstance(x, str):
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
-            # Convert the ISO time string to a time object
-            x = _iso_str_to_time(x)
 
-        else:
-            # Stop if `x` is not a valid time object
-            _validate_time_obj(x=x)
+def fmt_time_context(
+    x: Any,
+    data: GTData,
+    time_format_str: str,
+    pattern: str,
+    locale: str | None,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
 
-        # Fix up the locale for `format_time()` by replacing any hyphens with underscores
-        if locale is None:
-            locale = "en_US"
-        else:
-            locale = _str_replace(locale, "-", "_")
+    # If `x` is a string, assume it is an ISO time string and convert it to a time object
+    if isinstance(x, str):
+        # Convert the ISO time string to a time object
+        x = _iso_str_to_time(x)
 
-        # Format the time object to a string using Babel's `format_time()` function
-        x_formatted = format_time(x, format=time_format_str, locale=locale)
+    else:
+        # Stop if `x` is not a valid time object
+        _validate_time_obj(x=x)
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Fix up the locale for `format_time()` by replacing any hyphens with underscores
+    if locale is None:
+        locale = "en_US"
+    else:
+        locale = _str_replace(locale, "-", "_")
 
-        return x_formatted
+    # Format the time object to a string using Babel's `format_time()` function
+    x_formatted = format_time(x, format=time_format_str, locale=locale)
 
-    return fmt(self, fns=fmt_time_fn, columns=columns, rows=rows)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def fmt_datetime(
@@ -1979,10 +2181,7 @@ def fmt_datetime(
     ```
     """
 
-    # Stop if `locale` does not have a valid value; normalize locale and resolve one
-    # that might be set globally
-    _validate_locale(locale=locale)
-    locale = _normalize_locale(locale=locale)
+    locale = _resolve_locale(self, locale=locale)
 
     # Get the date format string based on the `date_style` value
     date_format_str = _get_date_format(date_style=date_style)
@@ -1990,48 +2189,62 @@ def fmt_datetime(
     # Get the time format string based on the `time_style` value
     time_format_str = _get_time_format(time_style=time_style)
 
-    # Generate a function that will operate on single `x` values in the table body using both
-    # the date and time format strings
-    def fmt_datetime_fn(
-        x: Any,
-        date_format_str: str = date_format_str,
-        time_format_str: str = time_format_str,
-        sep: str = sep,
-        locale: str | None = locale,
-    ) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
-        if is_na(self._tbl_data, x):
-            return x
+    pf_format = partial(
+        fmt_datetime_context,
+        data=self,
+        date_format_str=date_format_str,
+        time_format_str=time_format_str,
+        sep=sep,
+        pattern=pattern,
+        locale=locale,
+    )
 
-        # From the date and time format strings, create a datetime format string
-        datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
-        # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
-        if isinstance(x, str):
 
-            # Convert the ISO datetime string to a datetime object
-            x = _iso_str_to_datetime(x)
+def fmt_datetime_context(
+    x: Any,
+    data: GTData,
+    date_format_str: str,
+    time_format_str: str,
+    sep: str,
+    pattern: str,
+    locale: str | None,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
 
-        else:
-            # Stop if `x` is not a valid datetime object
-            _validate_datetime_obj(x=x)
+    # From the date and time format strings, create a datetime format string
+    datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
 
-        # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
-        if locale is None:
-            locale = "en_US"
-        else:
-            locale = _str_replace(locale, "-", "_")
+    # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
+    if isinstance(x, str):
+        # Convert the ISO datetime string to a datetime object
+        x = _iso_str_to_datetime(x)
 
-        # Format the datetime object to a string using Babel's `format_datetime()` function
-        x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
+    else:
+        # Stop if `x` is not a valid datetime object
+        _validate_datetime_obj(x=x)
 
-        # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+    # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
+    if locale is None:
+        locale = "en_US"
+    else:
+        locale = _str_replace(locale, "-", "_")
 
-        return x_formatted
+    # Format the datetime object to a string using Babel's `format_datetime()` function
+    x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
 
-    return fmt(self, fns=fmt_datetime_fn, columns=columns, rows=rows)
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def fmt_markdown(
@@ -2099,19 +2312,187 @@ def fmt_markdown(
     single string value (or a list of them).
     """
 
-    # Generate a function that will operate on single `x` values in the table body
-    def fmt_markdown_fn(x: Any) -> str:
-        # If the `x` value is a Pandas 'NA', then return the same value
+    pf_format = partial(
+        fmt_markdown_context,
+        data=self,
+    )
+
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
+
+
+def fmt_markdown_context(
+    x: Any,
+    data: GTData,
+    context: str,
+) -> str:
+    if context == "latex":
+        raise NotImplementedError("fmt_markdown() is not supported in LaTeX.")
+
+    if is_na(data._tbl_data, x):
+        return x
+
+    x_str: str = str(x)
+
+    x_formatted = _md_html(x_str)
+
+    return x_formatted
+
+
+def fmt_units(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    pattern: str = "{x}",
+) -> GTSelf:
+    """
+    Format measurement units.
+
+    The `fmt_units()` method lets you better format measurement units in the table body. These must
+    conform to the **Great Tables** *units notation*; as an example of this, `"J Hz^-1 mol^-1"` can
+    be used to generate units for the *molar Planck constant*. The notation here provides several
+    conveniences for defining units, so as long as the values to be formatted conform to this
+    syntax, you'll obtain nicely-formatted inline units. Details pertaining to *units notation* can
+    be found in the section entitled *How to use units notation*.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    How to use units notation
+    -------------------------
+    The **Great Tables** units notation involves a shorthand of writing units that feels familiar
+    and is fine-tuned for the task at hand. Each unit is treated as a separate entity (parentheses
+    and other symbols included) and the addition of subscript text and exponents is flexible and
+    relatively easy to formulate. This is all best shown with examples:
+
+    - `"m/s"` and `"m / s"` both render as `"m/s"`
+    - `"m s^-1"` will appear with the `"-1"` exponent intact
+    - `"m /s"` gives the the same result, as `"/<unit>"` is equivalent to `"<unit>^-1"`
+    - `"E_h"` will render an `"E"` with the `"h"` subscript
+    - `"t_i^2.5"` provides a `t` with an `"i"` subscript and a `"2.5"` exponent
+    - `"m[_0^2]"` will use overstriking to set both scripts vertically
+    - `"g/L %C6H12O6%"` uses a chemical formula (enclosed in a pair of `"%"` characters) as a unit
+    partial, and the formula will render correctly with subscripted numbers
+    - Common units that are difficult to write using ASCII text may be implicitly converted to the
+    correct characters (e.g., the `"u"` in `"ug"`, `"um"`, `"uL"`, and `"umol"` will be converted to
+    the Greek *mu* symbol; `"degC"` and `"degF"` will render a degree sign before the temperature
+    unit)
+    - We can transform shorthand symbol/unit names enclosed in `":"` (e.g., `":angstrom:"`,
+    `":ohm:"`, etc.) into proper symbols
+    - Greek letters can added by enclosing the letter name in `":"`; you can use lowercase letters
+    (e.g., `":beta:"`, `":sigma:"`, etc.) and uppercase letters too (e.g., `":Alpha:"`, `":Zeta:"`,
+    etc.)
+    - The components of a unit (unit name, subscript, and exponent) can be fully or partially
+    italicized/emboldened by surrounding text with `"*"` or `"**"`
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `illness` dataset and create a new table. The `units` column happens to contain
+    string values in *units notation* (e.g., `"x10^9 / L"`). Using the `fmt_units()` method here
+    will improve the formatting of those measurement units.
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import illness
+
+    (
+        GT(illness, rowname_col="test")
+        .fmt_units(columns="units")
+        .fmt_number(columns=lambda x: x.startswith("day"), decimals=2, drop_trailing_zeros=True)
+        .tab_header(title="Laboratory Findings for the YF Patient")
+        .tab_spanner(label="Day", columns=lambda x: x.startswith("day"))
+        .tab_spanner(label="Normal Range", columns=lambda x: x.startswith("norm"))
+        .cols_label(
+          norm_l="Lower",
+          norm_u="Upper",
+          units="Units"
+        )
+        .opt_vertical_padding(scale=0.4)
+        .opt_align_table_header(align="left")
+        .tab_options(heading_padding="10px")
+        .tab_style(
+            locations=loc.body(columns="norm_l"),
+            style=style.borders(sides="left")
+        )
+        .opt_vertical_padding(scale=0.5)
+    )
+    ```
+
+    The `constants` dataset contains values for hundreds of fundamental physical constants. We'll
+    take a subset of values that have some molar basis and generate a new display table from that.
+    Like the `illness` dataset, this one has a `units` column so, again, the `fmt_units()` method
+    will be used to format those units. Here, the preference for typesetting measurement units is to
+    have positive and negative exponents (e.g., not `"<unit_1> / <unit_2>"` but rather
+    `"<unit_1> <unit_2>^-1"`).
+
+    ```{python}
+    from great_tables.data import constants
+    import polars as pl
+    import polars.selectors as cs
+
+    constants_mini = (
+        pl.from_pandas(constants)
+        .filter(pl.col("name").str.contains("molar")).sort("value")
+        .with_columns(
+            name=pl.col("name")
+            .str.to_titlecase()
+            .str.replace("Kpa", "kpa")
+            .str.replace("Of", "of")
+        )
+    )
+
+    (
+        GT(constants_mini)
+        .cols_hide(columns=["uncert", "sf_value", "sf_uncert"])
+        .fmt_units(columns="units")
+        .fmt_scientific(columns="value", decimals=3)
+        .tab_header(title="Physical Constants Having a Molar Basis")
+        .tab_options(column_labels_hidden=True)
+    )
+    ```
+
+    See Also
+    --------
+    The [`define_units()`](`great_tables.define_units`) function can be used as a standalone utility
+    for working with units notation. It can parses strings in *units notation* and can emit
+    formatted units with its `.to_html()` method.
+    """
+
+    def fmt_units_fn(
+        x: str,
+        pattern: str = pattern,
+    ):
+        # If the `x` value is a missing value, then return the same value
         if is_na(self._tbl_data, x):
             return x
 
-        x_str: str = str(x)
+        from great_tables._helpers import define_units
 
-        x_formatted = _md_html(x_str)
+        x_formatted = define_units(x).to_html()
+
+        # Use a supplied pattern specification to decorate the formatted value
+        if pattern != "{x}":
+            x_formatted = pattern.replace("{x}", x_formatted)
 
         return x_formatted
 
-    return fmt(self, fns=fmt_markdown_fn, columns=columns, rows=rows)
+    return fmt(self, fns=fmt_units_fn, columns=columns, rows=rows)
 
 
 def _value_to_decimal_notation(
@@ -2537,8 +2918,15 @@ def _has_sci_order_zero(value: int | float) -> bool:
     return (value >= 1 and value < 10) or (value <= -1 and value > -10) or value == 0
 
 
-def _context_exp_marks() -> list[str]:
-    return [" \u00D7 10<sup style='font-size: 65%;'>", "</sup>"]
+def _context_exp_marks(context: str) -> list[str]:
+    if context == "html":
+        marks = [" \u00d7 10<sup style='font-size: 65%;'>", "</sup>"]
+    elif context == "latex":
+        marks = [" $\\times$ 10\\textsuperscript{", "}"]
+    else:
+        marks = [" \u00d7 10^", ""]
+
+    return marks
 
 
 def _context_exp_str(exp_style: str) -> str:
@@ -2558,8 +2946,31 @@ def _context_exp_str(exp_style: str) -> str:
     return exp_str
 
 
-def _context_minus_mark() -> str:
-    return "\u2212"
+def _context_minus_mark(context: str) -> str:
+    if context == "html":
+        mark = "\u2212"
+    else:
+        mark = "-"
+
+    return mark
+
+
+def _context_percent_mark(context: str) -> str:
+    if context == "latex":
+        mark = "\\%"
+    else:
+        mark = "%"
+
+    return mark
+
+
+def _context_dollar_mark(context: str) -> str:
+    if context == "latex":
+        mark = "\\$"
+    else:
+        mark = "$"
+
+    return mark
 
 
 def _replace_minus(string: str, minus_mark: str) -> str:
@@ -2574,6 +2985,19 @@ def _replace_minus(string: str, minus_mark: str) -> str:
         str: The modified string with the minus sign replaced.
     """
     return _str_replace(string, "-", minus_mark)
+
+
+def _remove_minus(string: str) -> str:
+    """
+    Removes all occurrences of the minus sign '-' in the given string.
+
+    Args:
+        string (str): The input string.
+
+    Returns:
+        str: The modified string with the minus sign removed.
+    """
+    return _str_replace(string, "-", "")
 
 
 T_dict = TypeVar("T_dict", bound=TypedDict)
@@ -2649,7 +3073,7 @@ def _get_locales_list() -> list[str]:
     # Get the 'locales' dataset and obtain from that a list of locales
     # TODO: remove pandas
     locales = _get_locales_data()
-    locale_list = [entry["locale"] for entry in locales]
+    locale_list: list[str] = [entry["locale"] for entry in locales]
 
     # Ensure that `locale_list` is of the type 'str'
     # TODO: we control this data and should enforce this in the data schema
@@ -2745,9 +3169,8 @@ def _resolve_locale(x: GTData, locale: str | None = None) -> str | None:
 
     # TODO: why do both the normalize and validate functions convert
     # underscores to hyphens? Should we remove from validate locale?
-    locale = _normalize_locale(locale=locale)
-
     _validate_locale(locale=locale)
+    locale = _normalize_locale(locale=locale)
 
     return locale
 
@@ -3274,14 +3697,20 @@ def fmt_image(
         The option to always use Base64 encoding for image paths that are determined to be local. By
         default, this is `True`.
 
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
     Examples
     --------
-    Using a small portion of [`metro`] dataset, let's create a **gt** table. We will only include a
-    few columns and rows from that table. The `lines` column has comma-separated listings of numbers
+    Using a small portion of `metro` dataset, let's create a new table. We will only include a few
+    columns and rows from that table. The `lines` column has comma-separated listings of numbers
     corresponding to lines served at each station. We have a directory of SVG graphics for all of
     these lines in the package (the path for the image directory can be accessed via
     `files("great_tables") / "data/metro_images"`, using the `importlib_resources` package). The
-    filenames roughly corresponds to the data in the `lines` column. The `fmt_image()` function can
+    filenames roughly corresponds to the data in the `lines` column. The `fmt_image()` method can
     be used with these inputs since the `path=` and `file_pattern=` arguments allow us to compose
     complete and valid file locations. What you get from this are sequences of images in the table
     cells, taken from the referenced graphics files on disk.
@@ -3321,10 +3750,12 @@ def fmt_image(
         height = "2em"
 
     formatter = FmtImage(self._tbl_data, height, width, sep, str(path), file_pattern, encode)
-    return fmt(self, fns=formatter.to_html, columns=columns, rows=rows)
-
-
-from dataclasses import dataclass
+    return fmt(
+        self,
+        fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
+        columns=columns,
+        rows=rows,
+    )
 
 
 @dataclass
@@ -3340,9 +3771,6 @@ class FmtImage:
     SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
 
     def to_html(self, val: Any):
-        import re
-        from pathlib import Path
-
         # TODO: are we assuming val is a string? (or coercing?)
 
         # otherwise...
@@ -3374,9 +3802,8 @@ class FmtImage:
         for file in full_files:
             # Case 1: from url
             if self.path and (self.path.startswith("http://") or self.path.startswith("https://")):
-                norm_path = re.sub(r"/\s+$", self.path)
+                norm_path = self.path.rstrip().removesuffix("/")
                 uri = f"{norm_path}/{file}"
-
             # Case 2:
             else:
                 filename = (Path(self.path or "") / file).expanduser().absolute()
@@ -3393,6 +3820,15 @@ class FmtImage:
         span = self.SPAN_TEMPLATE.format(img_tags)
 
         return span
+
+    def to_latex(self, val: Any):
+        from warnings import warn
+
+        from ._gt_data import FormatterSkipElement
+
+        warn("fmt_image() is not currently implemented in LaTeX output.")
+
+        return FormatterSkipElement()
 
     @staticmethod
     def _apply_pattern(file_pattern: str, files: list[str]) -> list[str]:
@@ -3411,8 +3847,6 @@ class FmtImage:
 
     @staticmethod
     def _get_mime_type(filename: str) -> str:
-        from pathlib import Path
-
         # note that we strip off the leading "."
         suffix = Path(filename).suffix[1:]
 
@@ -3434,6 +3868,485 @@ class FmtImage:
         )
 
         return f'<img src="{uri}" style="{style_string}">'
+
+
+def fmt_icon(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    height: str | None = None,
+    sep: str = " ",
+    stroke_color: str | None = None,
+    stroke_width: str | int | None = None,
+    stroke_alpha: float | None = None,
+    fill_color: str | dict[str, str] | None = None,
+    fill_alpha: float | None = None,
+    margin_left: str | None = None,
+    margin_right: str | None = None,
+) -> GTSelf:
+    """Use icons within a table's body cells.
+
+    We can draw from a library of thousands of icons and selectively insert them into a table. The
+    `fmt_icon()` method makes this possible by mapping input cell labels to an icon name. We are
+    exclusively using Font Awesome icons here so the reference is the short icon name. Multiple
+    icons can be included per cell by separating icon names with commas (e.g.,
+    `"hard-drive,clock"`). The `sep=` argument allows for a common separator to be applied between
+    icons.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    height
+        The absolute height of the icon in the table cell. By default, this is set to "1em".
+    sep
+        In the output of icons within a body cell, `sep=` provides the separator between each icon.
+    stroke_color
+        The icon stroke is essentially the outline of the icon. The color of the stroke can be
+        modified by applying a single color here. If not provided then the default value of
+        `"currentColor"` is applied so that the stroke color matches that of the parent HTML
+        element's color attribute.
+    stroke_width
+        The `stroke_width=` option allows for setting the color of the icon outline stroke. By
+        default, the stroke width is very small at "1px" so a size adjustment here can sometimes be
+        useful. If an integer value is provided then it is assumed to be in pixels.
+    stroke_alpha
+        The level of transparency for the icon stroke can be controlled with a decimal value between
+        `0` and `1`.
+    fill_color
+        The fill color of the icon can be set with `fill_color=`; providing a single color here will
+        change the color of the fill but not of the icon's 'stroke' or outline (use `stroke_color=`
+        to modify that). A dictionary comprising the icon names with corresponding fill colors can
+        alternatively be used here (e.g., `{"circle-check" = "green", "circle-xmark" = "red"}`. If
+        nothing is provided then the default value of `"currentColor"` is applied so that the fill
+        matches the color of the parent HTML element's color attribute.
+    fill_alpha
+        The level of transparency for the icon fill can be controlled with a decimal value between
+        `0` and `1`.
+    margin_left
+        The length value for the margin that's to the left of the icon. By default, `"auto"` is
+        used for this but if space is needed on the left-hand side then a length of `"0.2em"` is
+        recommended as a starting point.
+    margin_right
+        The length value for the margin right of the icon. By default, `"auto"` is used but if
+        space is needed on the right-hand side then a length of `"0.2em"` is recommended as a
+        starting point.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    For this first example of generating icons with `fmt_icon()`, let's make a simple DataFrame that
+    has two columns of Font Awesome icon names. We separate multiple icons per cell with commas. By
+    default, the icons are 1 em in height; we're going to make the icons slightly larger here (so we
+    can see the fine details of them) by setting height = "4em".
+
+    ```{python}
+    import pandas as pd
+    from great_tables import GT
+
+    animals_foods_df = pd.DataFrame(
+        {
+            "animals": ["hippo", "fish,spider", "mosquito,locust,frog", "dog,cat", "kiwi-bird"],
+            "foods": ["bowl-rice", "egg,pizza-slice", "burger,lemon,cheese", "carrot,hotdog", "bacon"],
+        }
+    )
+
+    (
+        GT(animals_foods_df)
+        .fmt_icon(
+            columns=["animals", "foods"],
+            height="4em"
+        )
+        .cols_align(
+            align="center",
+            columns=["animals", "foods"]
+        )
+    )
+    ```
+
+    Let's take a few rows from the towny dataset and make it so the `csd_type` column contains
+    *Font Awesome* icon names (we want only the `"city"` and `"house-chimney"` icons here). After
+    using `fmt_icon()` to format the `csd_type` column, we get icons that are representative of the
+    two categories of municipality for this subset of data.
+
+    ```{python}
+    import polars as pl
+    from great_tables.data import towny
+
+    towny_mini = (
+        pl.from_pandas(towny.loc[[323, 14, 26, 235]])
+        .select(["name", "csd_type", "population_2021"])
+        .with_columns(
+           csd_type = pl.when(pl.col("csd_type") == "town")
+           .then(pl.lit("house-chimney"))
+           .otherwise(pl.lit("city"))
+        )
+    )
+
+    (
+       GT(towny_mini)
+       .fmt_integer(columns="population_2021")
+       .fmt_icon(columns="csd_type")
+       .cols_label(
+           csd_type="",
+           name="City/Town",
+           population_2021="Population"
+       )
+    )
+    ```
+
+    A fairly common thing to do with icons in tables is to indicate whether a quantity is either
+    higher or lower than another. Up and down arrow symbols can serve as good visual indicators for
+    this purpose. We can make use of the `"up-arrow"` and `"down-arrow"` icons here. As those
+    strings are available in the `dir` column of the table derived from the `sp500` dataset,
+    `fmt_icon()` can be used. We set the `fill_color` argument with a dictionary that indicates
+    which color should be used for each icon.
+
+    ```{python}
+    from great_tables.data import sp500
+
+    sp500_mini = (
+        pl.from_pandas(sp500)
+        .head(10)
+        .select(["date", "open", "close"])
+        .sort("date", descending=False)
+        .with_columns(
+            dir = pl.when(pl.col("close") >= pl.col("open")).then(
+                pl.lit("arrow-up")).otherwise(pl.lit("arrow-down"))
+        )
+    )
+
+    (
+        GT(sp500_mini, rowname_col="date")
+        .fmt_icon(
+            columns="dir",
+            fill_color={"arrow-up": "green", "arrow-down": "red"}
+        )
+        .cols_label(
+            open="Opening Value",
+            close="Closing Value",
+            dir=""
+        )
+        .opt_stylize(style=1, color="gray")
+    )
+    ```
+    """
+
+    formatter = FmtIcon(
+        self._tbl_data,
+        height=height,
+        sep=sep,
+        stroke_color=stroke_color,
+        stroke_width=stroke_width,
+        stroke_alpha=stroke_alpha,
+        fill_color=fill_color,
+        fill_alpha=fill_alpha,
+        margin_left=margin_left,
+        margin_right=margin_right,
+    )
+
+    return fmt(
+        self,
+        fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
+        columns=columns,
+        rows=rows,
+    )
+
+
+@dataclass
+class FmtIcon:
+    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    height: str | None = None
+    sep: str = " "
+    stroke_color: str | None = None
+    stroke_width: str | int | float | None = None
+    stroke_alpha: float | None = None
+    fill_color: str | dict[str, str] | None = None
+    fill_alpha: float | None = None
+    margin_left: str | None = None
+    margin_right: str | None = None
+
+    SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
+
+    def to_html(self, val: Any):
+        if is_na(self.dispatch_on, val):
+            return val
+
+        if "," in val:
+            icon_list = re.split(r",\s*", val)
+        else:
+            icon_list = [val]
+
+        if self.height is None:
+            height = "1em"
+        else:
+            height = self.height
+
+        if self.stroke_width is None:
+            stroke_width = "1px"
+        elif isinstance(self.stroke_width, (int, float)):
+            stroke_width = f"{str(self.stroke_width)}px"
+        else:
+            stroke_width = self.stroke_width
+
+        out: list[str] = []
+
+        for icon in icon_list:
+            if isinstance(self.fill_color, dict):
+                if icon in self.fill_color:
+                    fill_color = self.fill_color[icon]
+                else:
+                    fill_color = None
+            else:
+                fill_color = self.fill_color
+
+            icon_svg = faicons.icon_svg(
+                icon,
+                height=height,
+                stroke=self.stroke_color,
+                stroke_width=stroke_width,
+                stroke_opacity=str(self.stroke_alpha),
+                fill=fill_color,
+                fill_opacity=str(self.fill_alpha),
+                margin_left=self.margin_left,
+                margin_right=self.margin_right,
+            )
+
+            out.append(str(icon_svg))
+
+        img_tags = self.sep.join(out)
+        span = self.SPAN_TEMPLATE.format(img_tags)
+
+        return span
+
+    def to_latex(self, val: Any):
+        from warnings import warn
+
+        from ._gt_data import FormatterSkipElement
+
+        warn("fmt_icon() is not currently implemented in LaTeX output.")
+
+        return FormatterSkipElement()
+
+
+def fmt_flag(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    height: str | int | float | None = "1em",
+    sep: str = " ",
+    use_title: bool = True,
+) -> GTSelf:
+    """Generate flag icons for countries from their country codes.
+
+    While it is fairly straightforward to insert images into body cells (using `fmt_image()` is one
+    way to it), there is often the need to incorporate specialized types of graphics within a table.
+    One such group of graphics involves iconography representing different countries, and the
+    `fmt_flag()` method helps with inserting a flag icon (or multiple) in body cells. To make this
+    work seamlessly, the input cells need to contain some reference to a country, and this can be in
+    the form of a 2- or 3-letter ISO 3166-1 country code (e.g., Egypt has the `"EG"` country code).
+    This method will parse the targeted body cells for those codes and insert the appropriate flag
+    graphics.
+
+    Multiple flags can be included per cell by separating country codes with commas (e.g.,
+    `"GB,TT"`). The `sep=` argument allows for a common separator to be applied between flag icons.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    height
+        The height of the flag icons. The default value is `"1em"`. If given as a number, it is
+        assumed to be in pixels.
+    sep
+        In the output of multiple flag icons within a body cell, `sep=` provides the separator
+        between each of the flag icons.
+    use_title
+        The option to include a title attribute with the country name when hovering over the flag
+        icon. The default is `True`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `countrypops` dataset to create a new table with flag icons. We will only include
+    a few columns and rows from that table. The `country_code_2` column has 2-letter country codes
+    in the format required for `fmt_flag()` and using that method transforms the codes to circular
+    flag icons.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import countrypops
+    import polars as pl
+
+    countrypops_mini = (
+        pl.from_pandas(countrypops)
+        .filter(pl.col("year") == 2021)
+        .filter(pl.col("country_name").str.starts_with("S"))
+        .sort("country_name")
+        .head(10)
+        .drop(["year", "country_code_3"])
+    )
+
+    (
+        GT(countrypops_mini)
+        .fmt_integer(columns="population")
+        .fmt_flag(columns="country_code_2")
+        .cols_label(
+            country_code_2="",
+            country_name="Country",
+            population="Population (2021)"
+        )
+        .cols_move_to_start(columns="country_code_2")
+    )
+    ```
+
+    Here's another example (again using `countrypops`) where we generate a table providing
+    populations every five years for the Benelux countries (`"BEL"`, `"NLD"`, and `"LUX"`). After
+    some filtering and a pivot, the `fmt_flag()` method is used to obtain flag icons from 3-letter
+    country codes present in the `country_code_3` column.
+
+    ```{python}
+    import polars.selectors as cs
+
+    countrypops_mini = (
+        pl.from_pandas(countrypops)
+        .filter(pl.col("country_code_3").is_in(["BEL", "NLD", "LUX"]))
+        .filter((pl.col("year") % 10 == 0) & (pl.col("year") >= 1960))
+        .pivot("year", index = ["country_code_3", "country_name"], values="population")
+    )
+
+    (
+        GT(countrypops_mini)
+        .tab_header(title="Populations of the Benelux Countries")
+        .tab_spanner(label="Year", columns=cs.numeric())
+        .fmt_integer(columns=cs.numeric())
+        .fmt_flag(columns="country_code_3")
+        .cols_label(
+            country_code_3="",
+            country_name="Country"
+        )
+    )
+    ```
+    """
+
+    formatter = FmtFlag(self._tbl_data, height=height, sep=sep, use_title=use_title)
+
+    return fmt(
+        self,
+        fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
+        columns=columns,
+        rows=rows,
+    )
+
+
+@dataclass
+class FmtFlag:
+    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    height: str | int | float | None = None
+    sep: str = " "
+    use_title: bool = True
+
+    SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
+
+    def to_html(self, val: Any):
+        if is_na(self.dispatch_on, val):
+            return val
+
+        val = val.upper()
+
+        if "," in val:
+            flag_list = re.split(r",\s*", val)
+        else:
+            flag_list = [val]
+
+        if self.height is None:
+            height = "1em"
+        else:
+            height = self.height
+
+            if isinstance(height, (int, float)):
+                height = f"{height}px"
+
+        out: list[str] = []
+
+        for flag in flag_list:
+            # If the number of characters in the country code is not 2 or 3, then we raise an error
+            if len(flag) not in [2, 3]:
+                raise ValueError("The country code provided must be either 2 or 3 characters long.")
+
+            # Since we allow 2- or 3- character country codes, create the name of the lookup
+            # column based on the length of the country code
+            lookup_column = "country_code_2" if len(flag) == 2 else "country_code_3"
+
+            # Get the correct dictionary entries based on the provided 'country_code_2' value
+            flag_dict = _filter_pd_df_to_row(
+                pd_df=_get_flags_data(), column=lookup_column, filter_expr=flag
+            )
+
+            # Get the SVG string and country name for the flag
+            flag_svg = str(flag_dict["country_flag"])
+            flag_title = str(flag_dict["country_name"])
+
+            # Extract the flag SVG data and modify it to include the height, width, and a
+            # title based on the country name
+            flag_icon = self._replace_flag_svg(
+                flag_svg=flag_svg, height=height, use_title=self.use_title, flag_title=flag_title
+            )
+
+            out.append(str(flag_icon))
+
+        img_tags = self.sep.join(out)
+        span = self.SPAN_TEMPLATE.format(img_tags)
+
+        return span
+
+    def to_latex(self, val: Any):
+        from warnings import warn
+
+        from ._gt_data import FormatterSkipElement
+
+        warn("fmt_flag() is not currently implemented in LaTeX output.")
+
+        return FormatterSkipElement()
+
+    @staticmethod
+    def _replace_flag_svg(flag_svg: str, height: str, use_title: bool, flag_title: str) -> str:
+        replacement = (
+            '<svg xmlns="http://www.w3.org/2000/svg" '
+            'aria-hidden="true" role="img" '
+            'width="512" height="512" '
+            'viewBox="0 0 512 512" '
+            'style="vertical-align:-0.125em;'
+            "image-rendering:optimizeQuality;"
+            f"height:{height};"
+            f"width:{height};"
+            '">'
+        )
+
+        if use_title:
+            replacement += f"<title>{flag_title}</title>"
+
+        return re.sub(r"<svg.*?>", replacement, flag_svg)
 
 
 def fmt_nanoplot(
@@ -3510,6 +4423,12 @@ def fmt_nanoplot(
     options
         By using the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function here,
         you can alter the layout and styling of the nanoplots in the new column.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
 
     Details
     -------
@@ -3664,6 +4583,12 @@ def fmt_nanoplot(
             f"\n\nReceived: {columns}"
         )
 
+    if plot_type not in ["line", "bar"]:
+        raise NotImplementedError(
+            "Currently, fmt_nanoplot() only support line or bar as plot_type"
+            f"\n\n Received: {plot_type}"
+        )
+
     # main ----
     # Get the internal data table
     data_tbl = self._tbl_data
@@ -3680,7 +4605,6 @@ def fmt_nanoplot(
     # If a bar plot is requested and the data consists of single y values, then we need to
     # obtain a list of all single y values in the targeted column (from `columns`)
     if plot_type in ["line", "bar"] and scalar_vals:
-
         # Check each cell in the column and get each of them that contains a scalar value
         # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
         all_single_y_vals = to_list(data_tbl[columns])
@@ -3699,8 +4623,7 @@ def fmt_nanoplot(
 
     # For autoscale, we need to get the minimum and maximum from all values for the y-axis
     if autoscale:
-
-        from great_tables._utils_nanoplots import _flatten_list
+        from great_tables._utils import _flatten_list
 
         # TODO: if a column of delimiter separated strings is passed. E.g. "1 2 3 4". Does this mean
         # that autoscale does not work? In this case, is col_i_y_vals_raw a string that gets processed?
@@ -3713,7 +4636,6 @@ def fmt_nanoplot(
             # TODO: this dictionary handling seems redundant with _generate_data_vals dict handling?
             # Can this if-clause be removed?
             if isinstance(data_vals_i, dict):
-
                 if len(data_vals_i) == 1:
                     # If there is only one key in the dictionary, then we can assume that the
                     # dictionary deals with y-values only
@@ -3728,7 +4650,6 @@ def fmt_nanoplot(
 
             # If not a list, then convert to a list
             if not isinstance(data_vals_i, list):
-
                 data_vals_i = [data_vals_i]
 
             all_y_vals.extend(data_vals_i)
@@ -3742,6 +4663,7 @@ def fmt_nanoplot(
     # the date and time format strings
     def fmt_nanoplot_fn(
         x: Any,
+        context: str,
         plot_type: PlotType = plot_type,
         plot_height: str = plot_height,
         missing_vals: MissingVals = missing_vals,
@@ -3750,6 +4672,9 @@ def fmt_nanoplot(
         all_single_y_vals: list[int | float] | None = all_single_y_vals,
         options_plots: dict[str, Any] = options_plots,
     ) -> str:
+        if context == "latex":
+            raise NotImplementedError("fmt_nanoplot() is not supported in LaTeX.")
+
         # If the `x` value is a Pandas 'NA', then return the same value
         # We have to pass in a dataframe to this function. Everything action that
         # requires a dataframe import should go through _tbl_data.
@@ -3762,7 +4687,6 @@ def fmt_nanoplot(
         # TODO: where are tuples coming from? Need example / tests that induce tuples
         # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
         if isinstance(x, tuple):
-
             x_vals, y_vals = x
 
             # Ensure that both objects are lists
@@ -3797,7 +4721,7 @@ def fmt_nanoplot(
 
         return nanoplot
 
-    return fmt(self, fns=fmt_nanoplot_fn, columns=columns, rows=rows)
+    return fmt_by_context(self, pf_format=fmt_nanoplot_fn, columns=columns, rows=rows)
 
 
 def _generate_data_vals(
@@ -3813,13 +4737,10 @@ def _generate_data_vals(
         list[Any]: A list of data values.
     """
 
-    import re
-
     if is_series(data_vals):
         data_vals = to_list(data_vals)
 
     if isinstance(data_vals, list):
-
         # If the list contains string values, determine whether they are date values
         if all(isinstance(val, str) for val in data_vals):
             if not is_x_axis:
@@ -3843,7 +4764,6 @@ def _generate_data_vals(
         return data_vals
 
     elif isinstance(data_vals, str):
-
         # If the cell value is a string, assume it is a value stream and convert to a list
 
         # Detect whether there are time values or numeric values in the string
@@ -3853,7 +4773,6 @@ def _generate_data_vals(
             data_vals = _process_number_stream(data_vals)
 
     elif isinstance(data_vals, dict):
-
         # If the cell value is a dictionary, assume it contains data values
         # This is possibly for x and for y
 
@@ -3862,17 +4781,14 @@ def _generate_data_vals(
 
         # If the dictionary contains only one key, then assume that the values are for y
         if num_keys == 1:
-
             data_vals = list(data_vals.values())[0]
 
             # The data values can be anything, so recursively call this function to process them
             data_vals = _generate_data_vals(data_vals=data_vals)
 
         if num_keys >= 2:
-
             # For two or more keys, we need to see if the 'x' and 'y' keys are present
             if "x" in data_vals and "y" in data_vals:
-
                 x_vals: Any = data_vals["x"]
                 y_vals: Any = data_vals["y"]
 
@@ -3907,8 +4823,6 @@ def _process_number_stream(data_vals: str) -> list[float]:
         list[float]: A list of numeric values.
     """
 
-    import re
-
     number_stream = re.sub(r"[;,]", " ", data_vals)
     number_stream = re.sub(r"\\[|\\]", " ", number_stream)
     number_stream = re.sub(r"^\\s+|\\s+$", "", number_stream)
@@ -3917,9 +4831,6 @@ def _process_number_stream(data_vals: str) -> list[float]:
     number_stream = [float(val) for val in number_stream]
 
     return number_stream
-
-
-import re
 
 
 def _process_time_stream(data_vals: str) -> list[float]:
@@ -3938,3 +4849,21 @@ def _process_time_stream(data_vals: str) -> list[float]:
     time_stream_vals = [float(val) for val in time_stream]
 
     return time_stream_vals
+
+
+def fmt_by_context(
+    self: GTSelf,
+    pf_format: Callable[[Any], str],
+    columns: SelectExpr,
+    rows: int | list[int] | None,
+) -> GTSelf:
+    return fmt(
+        self,
+        fns=FormatFns(
+            html=partial(pf_format, context="html"),  # type: ignore
+            latex=partial(pf_format, context="latex"),  # type: ignore
+            default=partial(pf_format, context="html"),  # type: ignore
+        ),
+        columns=columns,
+        rows=rows,
+    )

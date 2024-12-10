@@ -20,7 +20,7 @@ def assert_rendered_source_notes(snapshot, gt):
 
 def assert_rendered_heading(snapshot, gt):
     built = gt._build_data("html")
-    heading = create_heading_component_h(built).make_string()
+    heading = create_heading_component_h(built)
 
     assert snapshot == heading
 
@@ -29,7 +29,7 @@ def assert_rendered_columns(snapshot, gt):
     built = gt._build_data("html")
     columns = create_columns_component_h(built)
 
-    assert snapshot == columns
+    assert snapshot == str(columns)
 
 
 def assert_rendered_body(snapshot, gt):
@@ -191,3 +191,52 @@ def test_multiple_spanners_pads_for_stubhead_label(snapshot):
     )
 
     assert_rendered_columns(snapshot, gt)
+
+
+# Location style rendering -------------------------------------------------------------------------
+# these tests focus on location classes being correctly picked up
+def test_loc_column_labels():
+    gt = GT(pl.DataFrame({"x": [1], "y": [2]}))
+
+    new_gt = gt.tab_style(style.fill("yellow"), loc.column_labels(columns=["x"]))
+    el = create_columns_component_h(new_gt._build_data("html"))
+
+    assert el.name == "tr"
+    assert el.children[0].attrs["style"] == "background-color: yellow;"
+    assert "style" not in el.children[1].attrs
+
+
+def test_loc_kitchen_sink(snapshot):
+    gt = (
+        GT(exibble.loc[[0], ["num", "char", "fctr", "row", "group"]])
+        .tab_header("title", "subtitle")
+        .tab_stub(rowname_col="row", groupname_col="group")
+        .tab_source_note("yo")
+        .tab_spanner("spanner", ["char", "fctr"])
+        .tab_stubhead("stubhead")
+    )
+
+    new_gt = (
+        gt.tab_style(style.css("BODY"), loc.body())
+        # Columns -----------
+        .tab_style(style.css("COLUMN_LABEL"), loc.column_labels(columns="num"))
+        .tab_style(style.css("COLUMN_HEADER"), loc.column_header())
+        .tab_style(style.css("SPANNER_LABEL"), loc.spanner_labels(ids=["spanner"]))
+        # Header -----------
+        .tab_style(style.css("HEADER"), loc.header())
+        .tab_style(style.css("SUBTITLE"), loc.subtitle())
+        .tab_style(style.css("TITLE"), loc.title())
+        # Footer -----------
+        .tab_style(style.css("FOOTER"), loc.footer())
+        .tab_style(style.css("SOURCE_NOTES"), loc.source_notes())
+        # .tab_style(style.css("AAA"), loc.footnotes())
+        # Stub --------------
+        .tab_style(style.css("GROUP_LABEL"), loc.row_groups())
+        .tab_style(style.css("STUB"), loc.stub())
+        .tab_style(style.css("ROW_LABEL"), loc.stub(rows=[0]))
+        .tab_style(style.css("STUBHEAD"), loc.stubhead())
+    )
+
+    html = new_gt.as_raw_html()
+    cleaned = html[html.index("<table") :]
+    assert cleaned == snapshot

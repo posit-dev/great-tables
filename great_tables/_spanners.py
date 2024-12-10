@@ -1,23 +1,26 @@
 from __future__ import annotations
 
 import itertools
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
+from ._text import BaseText, Text
+from ._utils import OrderedSet, _assert_list_is_subset
+from typing_extensions import TypeAlias
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
     from ._types import GTSelf
 
 
-SpannerMatrix = "list[dict[str, str | None]]"
+SpannerMatrix: TypeAlias = list[dict[str, "str | None"]]
 
 
 def tab_spanner(
-    data: GTSelf,
-    label: str,
+    self: GTSelf,
+    label: str | BaseText,
     columns: SelectExpr = None,
     spanners: str | list[str] | None = None,
     level: int | None = None,
@@ -44,7 +47,8 @@ def tab_spanner(
     label
         The text to use for the spanner label. We can optionally use the [`md()`](`great_tables.md`)
         and [`html()`](`great_tables.html`) helper functions to style the text as Markdown or to
-        retain HTML elements in the text.
+        retain HTML elements in the text. Alternatively, units notation can be used (see
+        [`define_units()`](`great_tables.define_units`) for details).
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
@@ -122,13 +126,14 @@ def tab_spanner(
     )
     ```
     """
+    from great_tables._helpers import UnitStr
 
-    crnt_spanner_ids = set([span.spanner_id for span in data._spanners])
+    crnt_spanner_ids = set([span.spanner_id for span in self._spanners])
 
     if id is None:
         # The label may contain HTML or Markdown, so we need to extract
         # it from the Text object
-        if hasattr(label, "text"):
+        if isinstance(label, Text):
             id = label.text
         else:
             id = label
@@ -151,7 +156,7 @@ def tab_spanner(
 
     # select columns ----
 
-    selected_column_names = resolve_cols_c(data=data, expr=columns, null_means="nothing") or []
+    selected_column_names = resolve_cols_c(data=self, expr=columns, null_means="nothing") or []
 
     # select spanner ids ----
     # TODO: this supports tidyselect
@@ -168,21 +173,37 @@ def tab_spanner(
         raise NotImplementedError("columns/spanners must be specified")
 
     # get column names associated with selected spanners ----
-    _vars = [span.vars for span in data._spanners if span.spanner_id in spanner_ids]
-    spanner_column_names = list({k: True for k in itertools.chain(*_vars)})
+    _vars = [span.vars for span in self._spanners if span.spanner_id in spanner_ids]
+    spanner_column_names = OrderedSet(itertools.chain(*_vars)).as_list()
 
-    column_names = list({k: True for k in [*selected_column_names, *spanner_column_names]})
-
+    column_names = OrderedSet([*selected_column_names, *spanner_column_names]).as_list()
     # combine columns names and those from spanners ----
 
     # get spanner level ----
     if level is None:
-        level = data._spanners.next_level(column_names)
+        level = self._spanners.next_level(list(column_names))
 
     # get spanner units and labels ----
     # TODO: grep units from {{.*}}, may need to switch delimiters
     spanner_units = None
     spanner_pattern = None
+
+    # Handle units syntax in the label (e.g., "Density ({{ppl / mi^2}})")
+    if isinstance(label, str):
+        unitstr = UnitStr.from_str(label)
+
+        if len(unitstr.units_str) == 1 and isinstance(unitstr.units_str[0], str):
+            new_label = unitstr.units_str[0]
+        else:
+            new_label = unitstr
+
+    elif isinstance(label, BaseText):
+        new_label = label
+
+    else:
+        raise ValueError(
+            "Spanner labels must be strings or Text objects. Use `md()` or `html()` for formatting."
+        )
 
     new_span = SpannerInfo(
         spanner_id=id,
@@ -190,11 +211,11 @@ def tab_spanner(
         vars=column_names,
         spanner_units=spanner_units,
         spanner_pattern=spanner_pattern,
-        spanner_label=label,
+        spanner_label=new_label,
     )
 
-    spanners = data._spanners.append_entry(new_span)
-    new_data = data._replace(_spanners=spanners)
+    spanners = self._spanners.append_entry(new_span)
+    new_data = self._replace(_spanners=spanners)
 
     if gather and not len(spanner_ids) and level == 0 and column_names:
         return cols_move(new_data, columns=column_names, after=column_names[0])
@@ -202,7 +223,14 @@ def tab_spanner(
     return new_data
 
 
-def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
+def _validate_sel_cols(sel_cols: list[str], col_vars: list[str]) -> None:
+    if not len(sel_cols):
+        raise Exception("No columns selected.")
+    elif not all(col in col_vars for col in sel_cols):
+        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+
+
+def cols_move(self: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
     """Move one or more columns.
 
     On those occasions where you need to move columns this way or that way, we can make use of the
@@ -260,11 +288,11 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
     if isinstance(columns, str):
         columns = [columns]
 
-    sel_cols = resolve_cols_c(data=data, expr=columns)
+    sel_cols = resolve_cols_c(data=self, expr=columns)
 
-    sel_after = resolve_cols_c(data=data, expr=[after])
+    sel_after = resolve_cols_c(data=self, expr=[after])
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in self._boxhead]
 
     if not len(sel_after):
         raise ValueError(f"Column {after} not found in table.")
@@ -273,22 +301,19 @@ def cols_move(data: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
             f"Only 1 value should be supplied to `after`, recieved argument: {sel_after}"
         )
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all([col in vars for col in sel_cols]):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols if col not in sel_after]
-    other_columns = [col for col in vars if col not in moving_columns]
+    other_columns = [col for col in col_vars if col not in moving_columns]
 
     indx = other_columns.index(after)
     final_vars = [*other_columns[: indx + 1], *moving_columns, *other_columns[indx + 1 :]]
 
-    new_boxhead = data._boxhead.reorder(final_vars)
-    return data._replace(_boxhead=new_boxhead)
+    new_boxhead = self._boxhead.reorder(final_vars)
+    return self._replace(_boxhead=new_boxhead)
 
 
-def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
+def cols_move_to_start(self: GTSelf, columns: SelectExpr) -> GTSelf:
     """Move one or more columns to the start.
 
     We can easily move set of columns to the beginning of the column series and we only need to
@@ -344,25 +369,22 @@ def cols_move_to_start(data: GTSelf, columns: SelectExpr) -> GTSelf:
     if isinstance(columns, str):
         columns = [columns]
 
-    sel_cols = resolve_cols_c(data=data, expr=columns)
+    sel_cols = resolve_cols_c(data=self, expr=columns)
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in self._boxhead]
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all([col in vars for col in sel_cols]):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols]
-    other_columns = [col for col in vars if col not in moving_columns]
+    other_columns = [col for col in col_vars if col not in moving_columns]
 
     final_vars = [*moving_columns, *other_columns]
 
-    new_boxhead = data._boxhead.reorder(final_vars)
-    return data._replace(_boxhead=new_boxhead)
+    new_boxhead = self._boxhead.reorder(final_vars)
+    return self._replace(_boxhead=new_boxhead)
 
 
-def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
+def cols_move_to_end(self: GTSelf, columns: SelectExpr) -> GTSelf:
     """Move one or more columns to the end.
 
     We can easily move set of columns to the beginning of the column series and we only need to
@@ -413,25 +435,22 @@ def cols_move_to_end(data: GTSelf, columns: SelectExpr) -> GTSelf:
     if isinstance(columns, str):
         columns = [columns]
 
-    sel_cols = resolve_cols_c(data=data, expr=columns)
+    sel_cols = resolve_cols_c(data=self, expr=columns)
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in self._boxhead]
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all([col in vars for col in sel_cols]):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols]
-    other_columns = [col for col in vars if col not in moving_columns]
+    other_columns = [col for col in col_vars if col not in moving_columns]
 
     final_vars = [*other_columns, *moving_columns]
 
-    new_boxhead = data._boxhead.reorder(final_vars)
-    return data._replace(_boxhead=new_boxhead)
+    new_boxhead = self._boxhead.reorder(final_vars)
+    return self._replace(_boxhead=new_boxhead)
 
 
-def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
+def cols_hide(self: GTSelf, columns: SelectExpr) -> GTSelf:
     """Hide one or more columns.
 
     The `cols_hide()` method allows us to hide one or more columns from appearing in the final
@@ -484,19 +503,16 @@ def cols_hide(data: GTSelf, columns: SelectExpr) -> GTSelf:
     if isinstance(columns, str):
         columns = [columns]
 
-    sel_cols = resolve_cols_c(data=data, expr=columns)
+    sel_cols = resolve_cols_c(data=self, expr=columns)
 
-    vars = [col.var for col in data._boxhead]
+    col_vars = [col.var for col in self._boxhead]
 
-    if not len(sel_cols):
-        raise Exception("No columns selected.")
-    elif not all(col in vars for col in sel_cols):
-        raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+    _validate_sel_cols(sel_cols, col_vars)
 
     # New boxhead with hidden columns
-    new_boxhead = data._boxhead.set_cols_hidden(sel_cols)
+    new_boxhead = self._boxhead.set_cols_hidden(sel_cols)
 
-    return data._replace(_boxhead=new_boxhead)
+    return self._replace(_boxhead=new_boxhead)
 
 
 def spanners_print_matrix(
@@ -565,33 +581,7 @@ def empty_spanner_matrix(
     return [{var: var for var in vars}], vars
 
 
-def seq_groups(seq: list[str]):
-    # TODO: 0-length sequence
-    if len(seq) == 0:
-        raise StopIteration
-    elif len(seq) == 1:
-        yield seq[0], 1
-    else:
-        crnt_ttl = 1
-        for crnt_el, next_el in zip(seq[:-1], seq[1:]):
-            if is_equal(crnt_el, next_el):
-                crnt_ttl += 1
-            else:
-                yield crnt_el, crnt_ttl
-                crnt_ttl = 1
-
-        # final step has same elements, so we need to yield one last time
-        if is_equal(crnt_el, next_el):
-            yield crnt_el, crnt_ttl
-        else:
-            yield next_el, 1
-
-
-def is_equal(x: Any, y: Any) -> bool:
-    return x is not None and x == y
-
-
-def cols_width(data: GTSelf, cases: dict[str, str]) -> GTSelf:
+def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str) -> GTSelf:
     """Set the widths of columns.
 
     Manual specifications of column widths can be performed using the `cols_width()` method. We
@@ -604,6 +594,10 @@ def cols_width(data: GTSelf, cases: dict[str, str]) -> GTSelf:
     cases
         A dictionary where the keys are column names and the values are the widths. Widths can be
         specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`).
+
+    **kwargs
+        Keyword arguments to specify column widths. Each keyword corresponds to a column name, with
+        its value indicating the width in pixels or percentages.
 
     Returns
     -------
@@ -694,10 +688,24 @@ def cols_width(data: GTSelf, cases: dict[str, str]) -> GTSelf:
     column widths based on the content (and you wouldn't get the overflowing behavior seen in the
     previous example).
     """
+    cases = cases if cases is not None else {}
+    new_cases = cases | kwargs
 
-    curr_boxhead = data._boxhead
+    # If nothing is provided, return `data` unchanged
+    if len(new_cases) == 0:
+        return self
 
-    for col, width in cases.items():
+    curr_boxhead = self._boxhead
+
+    # Get the full list of column names for the data
+    column_names = curr_boxhead._get_columns()
+    mod_columns = list(new_cases.keys())
+
+    # Stop function if any of the column names specified are not in `cols_width`
+    # msg: "All column names provided must exist in the input `.data` table."
+    _assert_list_is_subset(mod_columns, set_list=column_names)
+
+    for col, width in new_cases.items():
         curr_boxhead = curr_boxhead._set_column_width(col, width)
 
-    return data._replace(_boxhead=curr_boxhead)
+    return self._replace(_boxhead=curr_boxhead)

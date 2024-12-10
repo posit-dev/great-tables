@@ -1,9 +1,16 @@
+import pytest
+import requests
 import sys
+import tempfile
 import time
+
+from great_tables import GT, exibble, md
+from great_tables.data import gtcars
+from great_tables._export import _infer_render_target, _create_temp_file_server
 from pathlib import Path
 
-import pytest
-from great_tables import GT, exibble, md
+from IPython.terminal.interactiveshell import TerminalInteractiveShell, InteractiveShell
+from ipykernel.zmqshell import ZMQInteractiveShell
 
 
 @pytest.fixture
@@ -34,14 +41,77 @@ def test_html_string_generated(gt_tbl: GT, snapshot: str):
 @pytest.mark.skipif(sys.platform == "win32", reason="chrome might not be installed.")
 @pytest.mark.extra
 def test_save_image_file(gt_tbl: GT, tmp_path):
-
     f_path = tmp_path / "test_image.png"
     gt_tbl.save(file=str(f_path))
 
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert f_path.exists()
 
 
 def test_save_non_png(gt_tbl: GT, tmp_path):
     f_path = tmp_path / "test_image.pdf"
     gt_tbl.save(file=str(f_path))
+
+
+def test_save_custom_webdriver(gt_tbl: GT, tmp_path):
+    from selenium import webdriver
+
+    f_path = tmp_path / "test_image.png"
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless=new")
+    with webdriver.Chrome(options) as wd:
+        gt_tbl.save(file=str(f_path), web_driver=wd)
+
+    time.sleep(0.05)
+    assert f_path.exists()
+
+
+@pytest.mark.parametrize(
+    "src, dst",
+    [
+        (InteractiveShell, "notebook"),
+        (TerminalInteractiveShell, "browser"),
+        (ZMQInteractiveShell, "notebook"),
+        (None, "browser"),
+    ],
+)
+def test_infer_render_target(src, dst):
+    shell = src() if src is not None else src
+    assert _infer_render_target(shell) == dst
+
+
+def test_create_temp_file_server():
+    from threading import Thread
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        p_file = Path(tmp_dir, "index.html")
+        p_file.write_text("abc")
+        server = _create_temp_file_server(p_file)
+        thread = Thread(target=server.handle_request)
+        thread.start()
+
+        time.sleep(0.3)
+        r = requests.get(f"http://127.0.0.1:{server.server_port}/{p_file.name}")
+        r.raise_for_status()
+        r.content.decode() == "abc"
+
+        thread.join()
+
+
+def test_snap_as_latex(snapshot):
+    gt_tbl = (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(5),
+        )
+        .tab_header(title="The _title_", subtitle="The subtitle")
+        .tab_spanner(label="Make _and_ Model", columns=["mfr", "model"])
+        .tab_spanner(label="Performance", columns=["hp", "trq"])
+        .fmt_currency(columns="msrp")
+        .tab_source_note("Note 1")
+        .tab_source_note("Note 2")
+        .tab_options(table_width="600px", table_font_size="12px")
+    )
+
+    latex_str_as_latex = gt_tbl.as_latex(use_longtable=True)
+
+    assert snapshot == latex_str_as_latex

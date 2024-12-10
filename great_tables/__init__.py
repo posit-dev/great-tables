@@ -8,11 +8,21 @@ del _v
 # Main gt imports ----
 
 from .gt import GT
-from . import vals
-from . import loc
-from . import style
+from . import vals, loc, style
 from ._styles import FromColumn as from_column
-from ._helpers import letters, LETTERS, px, pct, md, html, random_id, system_fonts, nanoplot_options
+from ._helpers import (
+    letters,
+    LETTERS,
+    px,
+    pct,
+    md,
+    html,
+    google_font,
+    random_id,
+    system_fonts,
+    define_units,
+    nanoplot_options,
+)
 
 
 __all__ = (
@@ -24,7 +34,9 @@ __all__ = (
     "pct",
     "md",
     "html",
+    "google_font",
     "system_fonts",
+    "define_units",
     "nanoplot_options",
     "random_id",
     "from_column",

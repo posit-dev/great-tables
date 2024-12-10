@@ -1,12 +1,18 @@
 from __future__ import annotations
 
 import importlib
-import json
+import itertools
 import re
+from collections.abc import Generator, Set
 from types import ModuleType
-from typing import Any
+from typing import TYPE_CHECKING, Any, Iterable, Iterator
 
-from ._tbl_data import PdDataFrame
+from ._tbl_data import _get_cell, _set_cell, get_column_names, n_rows
+from ._text import BaseText, _process_text
+
+if TYPE_CHECKING:
+    from ._gt_data import FormatInfo, GTData
+    from ._tbl_data import TblData
 
 
 def _try_import(name: str, pip_install_line: str | None = None) -> ModuleType:
@@ -22,11 +28,11 @@ def _try_import(name: str, pip_install_line: str | None = None) -> ModuleType:
             raise ImportError(f"Module {name} not found.")
 
 
-def heading_has_title(title: str | None) -> bool:
+def heading_has_title(title: str | BaseText | None) -> bool:
     return title is not None
 
 
-def heading_has_subtitle(subtitle: str | None) -> bool:
+def heading_has_subtitle(subtitle: str | BaseText | None) -> bool:
     return subtitle is not None
 
 
@@ -80,14 +86,39 @@ def _str_scalar_to_list(x: str) -> list[str]:
     return [x]
 
 
-def _unique_set(x: list[Any] | None) -> list[Any] | None:
-    if x is None:
-        return None
-    return list({k: True for k in x})
+class OrderedSet(Set[Any]):
+    def __init__(self, d: Iterable[Any] = ()) -> None:
+        self._d = self._create(d)
+
+    def _create(self, d: Iterable[Any]) -> dict[Any, bool]:
+        return {k: True for k in d}
+
+    def as_set(self) -> set[Any]:
+        return set(self._d)
+
+    def as_list(self) -> list[Any]:
+        return list(self._d)
+
+    def as_dict(self) -> dict[Any, bool]:
+        return dict(self._d)
+
+    def __contains__(self, k: Any) -> bool:
+        return k in self._d
+
+    def __iter__(self) -> Iterator[Any]:
+        return iter(self._d)
+
+    def __len__(self) -> int:
+        return len(self._d)
+
+    def __repr__(self) -> str:
+        cls_name = type(self).__name__
+        lst = self.as_list()
+        return f"{cls_name}({lst!r})"
 
 
 def _as_css_font_family_attr(fonts: list[str], value_only: bool = False) -> str:
-    fonts_w_spaces = list(map(lambda x: f"'{x}'" if " " in x else x, fonts))
+    fonts_w_spaces: list[str] = list(map(lambda x: f"'{x}'" if " " in x else x, fonts))
 
     fonts_str = ", ".join(fonts_w_spaces)
 
@@ -95,34 +126,6 @@ def _as_css_font_family_attr(fonts: list[str], value_only: bool = False) -> str:
         return fonts_str
 
     return f"font-family: {fonts_str};"
-
-
-def _object_as_dict(v: Any) -> Any:
-    try:
-        return v.object_as_dict()
-    except Exception:
-        pass
-    if isinstance(v, PdDataFrame):
-        return v.to_dict()
-    if isinstance(v, (tuple, list)):
-        return list(_object_as_dict(i) for i in v)
-    if isinstance(v, dict):
-        return dict((k, _object_as_dict(val)) for (k, val) in v.items())
-    if type(v) == type(_object_as_dict):  # FIXME figure out how to get "function"
-        return f"<function {v.__name__}>"
-    try:
-        d = vars(v)
-    except TypeError:
-        try:
-            json.dumps(v)
-        except TypeError:
-            return "JSON_UNSERIALIZABLE"
-        return v
-    return dict((k, _object_as_dict(v)) for (k, v) in d.items())
-
-
-def prettify_gt_object(v: Any) -> str:
-    return json.dumps(_object_as_dict(v), indent=2)
 
 
 def _collapse_list_elements(lst: list[Any], separator: str = "") -> str:
@@ -160,3 +163,121 @@ def _str_replace(string: str, pattern: str, replace: str) -> str:
 
 def _str_detect(string: str, pattern: str) -> bool:
     return bool(re.match(pattern, string))
+
+
+def pairwise(iterable: Iterable[Any]) -> Generator[tuple[Any, Any], None, None]:
+    """
+    https://docs.python.org/3/library/itertools.html#itertools.pairwise
+    pairwise('ABCDEFG') → AB BC CD DE EF FG
+    """
+    # This function can be replaced by `itertools.pairwise` if we only plan to support
+    # Python 3.10+ in the future.
+    iterator = iter(iterable)
+    a = next(iterator, None)
+    for b in iterator:
+        yield a, b
+        a = b
+
+
+def seq_groups(seq: Iterable[Any]) -> Generator[tuple[Any, int], None, None]:
+    iterator = iter(seq)
+
+    # TODO: 0-length sequence
+    a = next(iterator)  # will raise StopIteration if `seq` is empty
+
+    try:
+        b = next(iterator)
+    except StopIteration:
+        yield a, 1
+        return
+
+    # We can confirm that we have two elements and both are not `None`,
+    # so we can chain them back together as the original seq.
+    seq = itertools.chain([a, b], iterator)
+
+    crnt_ttl = 1
+    for crnt_el, next_el in pairwise(seq):
+        if is_equal(crnt_el, next_el):
+            crnt_ttl += 1
+        else:
+            yield crnt_el, crnt_ttl
+            crnt_ttl = 1
+
+    # final step has same elements, so we need to yield one last time
+    if is_equal(crnt_el, next_el):
+        yield crnt_el, crnt_ttl
+    else:
+        yield next_el, 1
+
+
+def is_equal(x: Any, y: Any) -> bool:
+    return x is not None and x == y
+
+
+def _flatten_list(x: Any) -> list[Any]:
+    """
+    Flatten a list of values.
+    """
+
+    flat_list: list[Any] = []
+    for element in x:
+        if isinstance(element, list):
+            flat_list.extend(_flatten_list(element))
+        else:
+            flat_list.append(element)
+    return flat_list
+
+
+# TODO: type annotations for `data`, `data_tbl`, `formats`, and the return value are not included
+# yet since that would result in a circular import. This will be fixed in the future (when HTML
+# escaping is implemented).
+def _migrate_unformatted_to_output(
+    data: GTData, data_tbl: TblData, formats: list[FormatInfo], context: str
+) -> GTData:
+    """
+    Escape unformatted cells so they are safe for a specific output context.
+    """
+
+    # TODO: This function will eventually be applied to all context types but for now
+    # it's just used for LaTeX output
+    if context != "latex":
+        return data
+
+    all_formatted_cells: list[list[tuple[str, int]]] = []
+
+    for fmt in formats:
+        eval_func = getattr(fmt.func, context, fmt.func.default)
+        if eval_func is None:
+            raise Exception("Internal Error")
+
+        # Accumulate all formatted cells in the table
+        all_formatted_cells.append(fmt.cells.resolve())
+
+    # Deduplicate the list of formatted cells
+    deduplicate_formatted_cells = list(set(_flatten_list(all_formatted_cells)))
+
+    # Get all visible cells in the table
+    all_visible_cells = _get_visible_cells(data=data_tbl)
+
+    # Get the difference between the visible cells and the formatted cells
+    all_unformatted_cells = list(set(all_visible_cells) - set(deduplicate_formatted_cells))
+
+    # TODO: this currently will only be used for LaTeX (HTML escaping will be performed
+    # in the future)
+
+    for col, row in all_unformatted_cells:
+        # Get the cell value and cast as string
+        cell_value = _get_cell(data_tbl, row, col)
+        cell_value_str = str(cell_value)
+
+        result = _process_text(cell_value_str, context=context)
+
+        _set_cell(data._body.body, row, col, result)
+
+    return data
+
+
+# Get a list of tuples for all visible cells in the table
+# Define the type of `data` as `TblData` when doing so won't result in a circular import
+def _get_visible_cells(data: TblData) -> list[tuple[str, int]]:
+    return [(col, row) for col in get_column_names(data) for row in range(n_rows(data))]

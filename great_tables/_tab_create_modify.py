@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from ._locations import Loc, PlacementOptions, set_footnote, set_style
 from ._styles import CellStyle
+from ._helpers import GoogleFont
 
 
 if TYPE_CHECKING:
@@ -118,6 +119,33 @@ def tab_style(
         locations = [locations]
 
     new_data = self
+
+    # Intercept `font` in CellStyleText to capture Google Fonts and:
+    # 1. transform dictionary to string (with Google Font name)
+    # 2. add Google Font import statement via tab_options(table_additional_css)
+    if any(isinstance(s, CellStyle) for s in style):
+        for s in style:
+            if (
+                isinstance(s, CellStyle)
+                and hasattr(s, "font")
+                and s.font is not None
+                and isinstance(s.font, GoogleFont)
+            ):
+                # Obtain font name and import statement as local variables
+                font_name = s.font.get_font_name()
+                font_import_stmt = s.font.make_import_stmt()
+
+                # Replace GoogleFont class with font name
+                s.font = font_name
+
+                # Append the import statement to the `table_additional_css` list
+                existing_additional_css = self._options.table_additional_css.value + [
+                    font_import_stmt
+                ]
+
+                # Add revised CSS list via the `tab_options()` method
+                new_data = new_data.tab_options(table_additional_css=existing_additional_css)
+
     for loc in locations:
         new_data = set_style(loc, new_data, style)
 

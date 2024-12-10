@@ -1,3 +1,5 @@
+# ruff: noqa: F401
+
 from __future__ import annotations
 
 from ._formats_vals import (
@@ -11,4 +13,5 @@ from ._formats_vals import (
     val_fmt_date as fmt_date,
     val_fmt_time as fmt_time,
     val_fmt_markdown as fmt_markdown,
+    val_fmt_image as fmt_image,
 )

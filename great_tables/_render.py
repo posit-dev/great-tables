@@ -9,15 +9,20 @@ IDE_ENV_FLAGS = {
     "databricks": {"make_page": False, "all_important": False},
     "ipython_terminal": {"make_page": False, "all_important": False},
     "vscode": {"make_page": False, "all_important": True},
+    "positron": {"make_page": True, "all_important": True},
 }
 
 
-def infer_render_env() -> Literal["quarto", "databricks", "ipython_terminal", "vscode", "default"]:
+def infer_render_env() -> (
+    Literal["quarto", "databricks", "ipython_terminal", "vscode", "positron", "default"]
+):
     # Check if we are rendering in the Quarto environment
     if "QUARTO_BIN_PATH" in os.environ:
         return "quarto"
     elif "DATABRICKS_RUNTIME_VERSION" in os.environ:
         return "databricks"
+    elif "POSITRON_VERSION" in os.environ:
+        return "positron"
     elif "VSCODE_PID" in os.environ:
         return "vscode"
     else:

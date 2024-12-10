@@ -1,0 +1,131 @@
+---
+title: Styling the whole table
+jupyter: python3
+---
+
+In [Styling the Table Body](./basic-styling), we discussed styling table data with `.tab_style()`.
+In this article we'll cover how the same method can be used to style many other parts of the table, like the header, specific spanner labels, the footer, and more.
+
+:::{.callout-warning}
+This feature is new, and this page of documentation is still in development.
+:::
+
+
+## Kitchen sink
+
+Below is a big example that shows all possible `loc` specifiers being used.
+
+```{python}
+from great_tables import GT, exibble, loc, style
+
+# https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12
+brewer_colors = [
+    "#a6cee3",
+    "#1f78b4",
+    "#b2df8a",
+    "#33a02c",
+    "#fb9a99",
+    "#e31a1c",
+    "#fdbf6f",
+    "#ff7f00",
+    "#cab2d6",
+    "#6a3d9a",
+    "#ffff99",
+    "#b15928",
+]
+
+c = iter(brewer_colors)
+
+gt = (
+    GT(exibble.loc[[0, 1, 4], ["num", "char", "fctr", "row", "group"]])
+    .tab_header("title", "subtitle")
+    .tab_stub(rowname_col="row", groupname_col="group")
+    .tab_source_note("yo")
+    .tab_spanner("spanner", ["char", "fctr"])
+    .tab_stubhead("stubhead")
+)
+
+(
+    gt.tab_style(style.fill(next(c)), loc.body())
+    # Columns -----------
+    # TODO: appears in browser, but not vs code
+    .tab_style(style.fill(next(c)), loc.column_labels(columns="num"))
+    .tab_style(style.fill(next(c)), loc.column_header())
+    .tab_style(style.fill(next(c)), loc.spanner_labels(ids=["spanner"]))
+    # Header -----------
+    .tab_style(style.fill(next(c)), loc.header())
+    .tab_style(style.fill(next(c)), loc.subtitle())
+    .tab_style(style.fill(next(c)), loc.title())
+    # Footer -----------
+    .tab_style(style.borders(weight="3px"), loc.source_notes())
+    .tab_style(style.fill(next(c)), loc.footer())
+    # Stub --------------
+    .tab_style(style.fill(next(c)), loc.row_groups())
+    .tab_style(style.borders(weight="3px"), loc.stub(rows=1))
+    .tab_style(style.fill(next(c)), loc.stub())
+    .tab_style(style.fill(next(c)), loc.stubhead())
+)
+```
+
+## Body
+
+```{python}
+gt.tab_style(style.fill("yellow"), loc.body())
+```
+
+## Column labels
+
+```{python}
+(
+    gt
+    .tab_style(style.fill("yellow"), loc.column_header())
+    .tab_style(style.fill("blue"), loc.column_labels(columns="num"))
+    .tab_style(style.fill("red"), loc.spanner_labels(ids=["spanner"]))
+)
+
+```
+
+
+
+## Header
+
+```{python}
+(
+    gt.tab_style(style.fill("yellow"), loc.header())
+    .tab_style(style.fill("blue"), loc.title())
+    .tab_style(style.fill("red"), loc.subtitle())
+)
+```
+
+## Footer
+
+```{python}
+(
+    gt.tab_style(
+        style.fill("yellow"),
+        loc.source_notes(),
+    ).tab_style(
+        style.borders(weight="3px"),
+        loc.footer(),
+    )
+)
+```
+
+## Stub
+
+```{python}
+(
+    gt.tab_style(style.fill("yellow"), loc.stub())
+    .tab_style(style.fill("blue"), loc.row_groups())
+    .tab_style(
+        style.borders(style="dashed", weight="3px", color="red"),
+        loc.stub(rows=[1]),
+    )
+)
+```
+
+## Stubhead
+
+```{python}
+gt.tab_style(style.fill("yellow"), loc.stubhead())
+```

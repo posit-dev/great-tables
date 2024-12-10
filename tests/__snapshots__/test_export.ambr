@@ -34,6 +34,7 @@
    #test_table .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
    #test_table .gt_row_group_first td { border-top-width: 2px; }
    #test_table .gt_row_group_first th { border-top-width: 2px; }
+   #test_table .gt_striped { background-color: rgba(128,128,128,0.05); }
    #test_table .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
    #test_table .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
    #test_table .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
@@ -49,20 +50,21 @@
    
   </style>
   <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-  <thead class="gt_header">
-    <tr>
-      <th colspan="4" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
+  <thead>
+  
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></td>
     </tr>
-    <tr>
-      <th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</td>
     </tr>
-  </thead>
   <tr class="gt_col_headings">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
     <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
     <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
   </tr>
+  </thead>
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
       <th class="gt_group_heading" colspan="4">grp_a</th>
@@ -131,5 +133,71 @@
   
   </div>
           
+  '''
+# ---
+# name: test_snap_as_latex
+  '''
+  \begingroup
+  \setlength\LTleft{\dimexpr(0.5\linewidth - 225pt)}
+  \setlength\LTright{\dimexpr(0.5\linewidth - 225pt)}
+  \fontsize{9.0pt}{10.8pt}\selectfont
+  
+  \setlength{\LTpost}{0mm}
+  \begin{longtable}{@{\extracolsep{\fill}}llrrr}
+  \caption*{
+  {\large The \_title\_} \\
+  {\small The subtitle}
+  } \\
+  \toprule
+  \multicolumn{2}{c}{Make \_and\_ Model} & \multicolumn{2}{c}{Performance} &  \\ 
+  \cmidrule(lr){1-2} \cmidrule(lr){3-4}
+  mfr & model & hp & trq & msrp \\ 
+  \midrule\addlinespace[2.5pt]
+  Ford & GT & 647.0 & 550.0 & \$447,000.00 \\
+  Ferrari & 458 Speciale & 597.0 & 398.0 & \$291,744.00 \\
+  Ferrari & 458 Spider & 562.0 & 398.0 & \$263,553.00 \\
+  Ferrari & 458 Italia & 562.0 & 398.0 & \$233,509.00 \\
+  Ferrari & 488 GTB & 661.0 & 561.0 & \$245,400.00 \\
+  \bottomrule
+  \end{longtable}
+  \begin{minipage}{\linewidth}
+  Note 1\\
+  Note 2\\
+  \end{minipage}
+  \endgroup
+  
+  '''
+# ---
+# name: test_snap_render_as_latex
+  '''
+  \begingroup
+  \setlength\LTleft{\dimexpr(0.5\linewidth - 225pt)}
+  \setlength\LTright{\dimexpr(0.5\linewidth - 225pt)}
+  \fontsize{9.0pt}{10.8pt}\selectfont
+  
+  \setlength{\LTpost}{0mm}
+  \begin{longtable}{@{\extracolsep{\fill}}llrrr}
+  \caption*{
+  {\large The \_title\_} \\
+  {\small The subtitle}
+  } \\
+  \toprule
+  \multicolumn{2}{c}{Make \_and\_ Model} & \multicolumn{2}{c}{Performance} &  \\ 
+  \cmidrule(lr){1-2} \cmidrule(lr){3-4}
+  mfr & model & hp & trq & msrp \\ 
+  \midrule\addlinespace[2.5pt]
+  Ford & GT & 647.0 & 550.0 & \$447,000.00 \\
+  Ferrari & 458 Speciale & 597.0 & 398.0 & \$291,744.00 \\
+  Ferrari & 458 Spider & 562.0 & 398.0 & \$263,553.00 \\
+  Ferrari & 458 Italia & 562.0 & 398.0 & \$233,509.00 \\
+  Ferrari & 488 GTB & 661.0 & 561.0 & \$245,400.00 \\
+  \bottomrule
+  \end{longtable}
+  \begin{minipage}{\linewidth}
+  Note 1\\
+  Note 2\\
+  \end{minipage}
+  \endgroup
+  
   '''
 # ---

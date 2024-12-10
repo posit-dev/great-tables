@@ -1,23 +1,22 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from typing_extensions import Self
 
-from great_tables._gt_data import GTData
-
 # Main gt imports ----
-from great_tables._body import body_reassemble
-from great_tables._boxhead import cols_align, cols_label
-from great_tables._data_color import data_color
-from great_tables._export import as_raw_html, save
-from great_tables._pipe import pipe
-from great_tables._formats import (
+from ._body import body_reassemble
+from ._boxhead import cols_align, cols_label
+from ._data_color import data_color
+from ._export import as_latex, as_raw_html, save, show
+from ._formats import (
     fmt,
     fmt_bytes,
     fmt_currency,
     fmt_date,
     fmt_datetime,
+    fmt_flag,
+    fmt_icon,
     fmt_image,
     fmt_integer,
     fmt_markdown,
@@ -27,23 +26,28 @@ from great_tables._formats import (
     fmt_roman,
     fmt_scientific,
     fmt_time,
+    fmt_units,
 )
-from great_tables._heading import tab_header
-from great_tables._helpers import random_id
-from great_tables._options import (
+from ._gt_data import GTData
+from ._heading import tab_header
+from ._helpers import random_id
+from ._modify_rows import row_group_order, tab_stub, with_id, with_locale
+from ._options import (
     opt_align_table_header,
     opt_all_caps,
     opt_footnote_marks,
     opt_horizontal_padding,
     opt_row_striping,
     opt_stylize,
+    opt_table_font,
     opt_table_outline,
     opt_vertical_padding,
     tab_options,
 )
-from great_tables._render import infer_render_env_defaults
-from great_tables._source_notes import tab_source_note
-from great_tables._spanners import (
+from ._pipe import pipe
+from ._render import infer_render_env_defaults
+from ._source_notes import tab_source_note
+from ._spanners import (
     cols_hide,
     cols_move,
     cols_move_to_end,
@@ -51,12 +55,13 @@ from great_tables._spanners import (
     cols_width,
     tab_spanner,
 )
-from great_tables._stub import reorder_stub_df
-from great_tables._stubhead import tab_stubhead
-from great_tables._substitution import sub_missing, sub_zero
-from great_tables._tab_create_modify import tab_style
-from great_tables._tbl_data import _get_cell, n_rows
-from great_tables._utils_render_html import (
+from ._stub import reorder_stub_df
+from ._stubhead import tab_stubhead
+from ._substitution import sub_missing, sub_zero
+from ._tab_create_modify import tab_style
+from ._tbl_data import _get_cell, n_rows
+from ._utils import _migrate_unformatted_to_output
+from ._utils_render_html import (
     _get_table_defs,
     create_body_component_h,
     create_columns_component_h,
@@ -64,6 +69,9 @@ from great_tables._utils_render_html import (
     create_heading_component_h,
     create_source_notes_component_h,
 )
+
+if TYPE_CHECKING:
+    from ._helpers import BaseText
 
 __all__ = ["GT"]
 
@@ -223,6 +231,9 @@ class GT(
     fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
     fmt_image = fmt_image
+    fmt_icon = fmt_icon
+    fmt_flag = fmt_flag
+    fmt_units = fmt_units
     fmt_nanoplot = fmt_nanoplot
     data_color = data_color
 
@@ -237,6 +248,7 @@ class GT(
     opt_vertical_padding = opt_vertical_padding
     opt_horizontal_padding = opt_horizontal_padding
     opt_table_outline = opt_table_outline
+    opt_table_font = opt_table_font
 
     cols_align = cols_align
     cols_width = cols_width
@@ -253,8 +265,15 @@ class GT(
     tab_style = tab_style
     tab_options = tab_options
 
+    row_group_order = row_group_order
+    tab_stub = tab_stub
+    with_id = with_id
+    with_locale = with_locale
+
     save = save
+    show = show
     as_raw_html = as_raw_html
+    as_latex = as_latex
 
     pipe = pipe
 
@@ -289,14 +308,18 @@ class GT(
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         built = self._render_formats(context)
-        # built._body = _migrate_unformatted_to_output(body)
+
+        if context == "latex":
+            built = _migrate_unformatted_to_output(
+                data=built, data_tbl=self._tbl_data, formats=self._formats, context=context
+            )
 
         # built._perform_col_merge()
-        final_body = body_reassemble(built._body, built._row_groups, built._stub, built._boxhead)
+        final_body = body_reassemble(built._body)
 
         # Reordering of the metadata elements of the table
 
-        final_stub = reorder_stub_df(built._stub, built._row_groups)
+        final_stub = reorder_stub_df(built._stub)
         # self = self.reorder_footnotes()
         # self = self.reorder_styles()
 
@@ -326,7 +349,6 @@ class GT(
         make_page: bool = False,
         all_important: bool = False,
     ) -> str:
-
         heading_component = create_heading_component_h(data=self)
         column_labels_component = create_columns_component_h(data=self)
         body_component = create_body_component_h(data=self)
@@ -353,8 +375,10 @@ class GT(
             table_tag_open = f'<table style="{table_defs["table_style"]}" class="gt_table" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">'
 
         html_table = f"""{table_tag_open}{table_colgroups}
-{heading_component.make_string()}
+<thead>
+{heading_component}
 {column_labels_component}
+</thead>
 {body_component}
 {source_notes_component}
 {footnotes_component}
@@ -392,7 +416,6 @@ class GT(
         """
 
         if make_page:
-
             # Create an HTML page and place the table within it
             finalized_table = f"""<!DOCTYPE html>
 <html lang="en">
@@ -417,7 +440,7 @@ class GT(
 # =============================================================================
 
 
-def _get_column_labels(gt: GT, context: str) -> list[str]:
+def _get_column_labels(gt: GT, context: str) -> list[str | BaseText | None]:
     gt_built = gt._build_data(context=context)
     column_labels = [x.column_label for x in gt_built._boxhead]
     return column_labels

@@ -1,7 +1,12 @@
+import re
+
 import pandas as pd
 import pytest
-from great_tables import GT, exibble, md
+from great_tables import GT, exibble, md, google_font
 from great_tables._scss import compile_scss
+from great_tables._gt_data import default_fonts_list
+from great_tables._helpers import _intify_scaled_px
+from great_tables._utils_render_html import create_body_component_h
 
 
 def test_options_overwrite():
@@ -324,3 +329,210 @@ def test_scss_from_opt_table_outline(gt_tbl: GT, snapshot):
         assert getattr(gt_tbl_outline._options, f"table_border_{part}_color").value == "blue"
 
     assert snapshot == compile_scss(gt_tbl_outline, id="abc", compress=False)
+
+
+def test_opt_table_font_add_font():
+    gt_tbl = GT(exibble).opt_table_font(font="Arial", weight="bold", style="italic")
+
+    assert gt_tbl._options.table_font_names.value == ["Arial"] + default_fonts_list
+    assert gt_tbl._options.table_font_weight.value == "bold"
+    assert gt_tbl._options.table_font_style.value == "italic"
+
+
+def test_opt_table_font_replace_font():
+    gt_tbl = GT(exibble).opt_table_font(font="Arial", weight="bold", style="bold", add=False)
+
+    assert gt_tbl._options.table_font_names.value == ["Arial"]
+    assert gt_tbl._options.table_font_weight.value == "bold"
+    assert gt_tbl._options.table_font_style.value == "bold"
+
+
+def test_opt_table_font_use_stack():
+    gt_tbl = GT(exibble).opt_table_font(stack="humanist")
+
+    assert gt_tbl._options.table_font_names.value[0] == "Seravek"
+    assert gt_tbl._options.table_font_names.value[-1] == "Noto Color Emoji"
+
+
+def test_opt_table_font_use_stack_and_system_font():
+    gt_tbl = GT(exibble).opt_table_font(font="Comic Sans MS", stack="humanist")
+
+    assert gt_tbl._options.table_font_names.value[0] == "Comic Sans MS"
+    assert gt_tbl._options.table_font_names.value[1] == "Seravek"
+    assert gt_tbl._options.table_font_names.value[-1] == "Noto Color Emoji"
+
+
+def test_opt_table_font_google_font():
+    gt_tbl = GT(exibble).opt_table_font(font=google_font(name="IBM Plex Mono"))
+
+    rendered_html = gt_tbl.as_raw_html()
+
+    assert rendered_html.find(
+        "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap');"
+    )
+
+    assert rendered_html.find(
+        "font-family: 'IBM Plex Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;"
+    )
+
+
+def test_opt_table_font_raises():
+    # Both `font` and `stack` cannot be `None`
+    with pytest.raises(ValueError) as exc_info:
+        GT(exibble).opt_table_font(font=None, stack=None)
+
+    assert "Either `font=` or `stack=` must be provided." in exc_info.value.args[0]
+
+
+@pytest.mark.parametrize("font", [1, [1]])
+def test_opt_table_font_raises_font(font):
+    with pytest.raises(TypeError) as exc_info:
+        GT(exibble).opt_table_font(font=font)
+
+    assert (
+        "`font=` must be a string/GoogleFont object or a list of strings/GoogleFont objects."
+        in exc_info.value.args[0]
+    )
+
+
+def test_opt_table_font_raises_weight():
+    with pytest.raises(TypeError) as exc_info:
+        GT(exibble).opt_table_font(stack="humanist", weight=(1, 2))
+
+    assert (
+        "`weight=` must be a numeric value between 1 and 1000 or a text-based keyword."
+        in exc_info.value.args[0]
+    )
+
+
+def test_opt_row_striping():
+    gt_tbl_0 = GT(exibble)
+    gt_tbl_1 = GT(exibble).opt_row_striping()
+    gt_tbl_2 = GT(exibble).opt_row_striping().opt_row_striping(row_striping=False)
+
+    assert gt_tbl_0._options.row_striping_include_table_body.value == False
+    assert gt_tbl_1._options.row_striping_include_table_body.value == True
+    assert gt_tbl_2._options.row_striping_include_table_body.value == False
+
+
+def test_tab_options_striping():
+    gt_tbl_tab_opts = GT(exibble).tab_options(row_striping_include_table_body=True)
+    gt_tbl_opt_stri = GT(exibble).opt_row_striping()
+
+    assert gt_tbl_tab_opts._options.row_striping_include_table_body.value == True
+    assert gt_tbl_tab_opts._options.row_striping_include_stub.value == False
+
+    assert gt_tbl_opt_stri._options.row_striping_include_table_body.value == True
+    assert gt_tbl_opt_stri._options.row_striping_include_stub.value == False
+
+
+def test_tab_options_striping_body_snap(snapshot):
+    gt_tbl = GT(
+        exibble[["row", "group", "char"]].head(4), rowname_col="row", groupname_col="group"
+    ).tab_options(
+        row_striping_include_table_body=True,
+        row_striping_background_color="lightblue",
+    )
+
+    built = gt_tbl._build_data("html")
+    body = create_body_component_h(built)
+
+    assert snapshot == body
+
+
+def test_tab_options_striping_stub_snap(snapshot):
+    gt_tbl = GT(
+        exibble[["row", "group", "char"]].head(4), rowname_col="row", groupname_col="group"
+    ).tab_options(
+        row_striping_include_stub=True,
+        row_striping_background_color="lightblue",
+    )
+
+    built = gt_tbl._build_data("html")
+    body = create_body_component_h(built)
+
+    assert snapshot == body
+
+
+def test_opt_stylize_default(snapshot):
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize()
+
+    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+
+
+def test_opt_stylize_no_striping(snapshot):
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize(
+        add_row_striping=False
+    )
+
+    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+
+
+@pytest.mark.parametrize("style", [1, 2, 3, 4, 5, 6])
+def test_opt_stylize_outline_present(style, snapshot):
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize(style=style)
+
+    css = compile_scss(gt_tbl, id="abc", compress=False)
+
+    css_gt_table_cls = re.sub(r"^.*?#abc \.gt_table \{\n(.*?)\}.*$", r"\1", css, flags=re.DOTALL)
+
+    css_gt_table_border = re.sub(r".*?width: auto;(.*)", r"\1", css_gt_table_cls, flags=re.DOTALL)
+
+    assert snapshot == css_gt_table_border
+
+
+@pytest.mark.parametrize("align", ["left", "center", "right"])
+def test_opt_align_table_header(gt_tbl: GT, align: list[str]):
+    tbl = gt_tbl.opt_align_table_header(align=align)
+
+    assert tbl._options.heading_align.value == align
+
+
+@pytest.mark.parametrize("scale, expected", [(0.7, "3px"), (1.0, "5px"), (2.1, "10px")])
+def test_opt_vertical_padding(gt_tbl: GT, scale: float, expected: int):
+    """
+    css_length_val_small = "5px"
+    => int(0.7 * 5) = 3
+    => int(1.0 * 5) = 5
+    => int(2.1 * 5) = 10
+    """
+    tbl = gt_tbl.opt_vertical_padding(scale=scale)
+
+    assert tbl._options.heading_padding.value == expected
+    assert tbl._options.column_labels_padding.value == expected
+    assert tbl._options.data_row_padding.value == expected
+    assert tbl._options.row_group_padding.value == expected
+    assert tbl._options.source_notes_padding.value == expected
+
+
+@pytest.mark.parametrize("scale", [-0.2, 3.2])
+def test_opt_vertical_padding_raises(gt_tbl: GT, scale: float):
+    with pytest.raises(ValueError) as exc_info:
+        gt_tbl.opt_vertical_padding(scale=scale)
+
+    assert "`scale` must be a value between `0` and `3`." in exc_info.value.args[0]
+
+
+@pytest.mark.parametrize("scale, expected", [(0.1, "0px"), (1.0, "5px"), (2.2, "11px")])
+def test_opt_horizontal_padding(gt_tbl: GT, scale: float, expected: int):
+    """
+    css_length_val_small = "5px"
+    => int(0.1 * 5) = 0
+    => int(1.0 * 5) = 5
+    => int(2.2 * 5) = 11
+    """
+    tbl = gt_tbl.opt_horizontal_padding(scale=scale)
+
+    assert tbl._options.heading_padding_horizontal.value == expected
+    assert tbl._options.column_labels_padding_horizontal.value == expected
+    assert tbl._options.data_row_padding_horizontal.value == expected
+    assert tbl._options.row_group_padding_horizontal.value == expected
+    assert tbl._options.source_notes_padding_horizontal.value == expected
+
+
+@pytest.mark.parametrize("scale", [-0.2, 3.2])
+def test_opt_horizontal_padding_raises(gt_tbl: GT, scale: float):
+    with pytest.raises(ValueError) as exc_info:
+        gt_tbl.opt_horizontal_padding(scale=scale)
+
+    assert "`scale` must be a value between `0` and `3`." in exc_info.value.args[0]
