@@ -52,6 +52,10 @@ def test_html_string_generated_inline_css(gt_tbl_small: GT, snapshot: str):
     assert snapshot == gt_tbl_small.as_raw_html(inline_css=True)
 
 
+def test_html_string_generated_inline_css_make_page(gt_tbl_small: GT, snapshot: str):
+    assert snapshot == gt_tbl_small.as_raw_html(inline_css=True, make_page=True)
+
+
 @pytest.mark.skipif(sys.platform == "win32", reason="chrome might not be installed.")
 @pytest.mark.extra
 def test_save_image_file(gt_tbl: GT, tmp_path):
