@@ -45,7 +45,7 @@ def gt_tbl_small():
 
 
 def test_html_string_generated(gt_tbl: GT, snapshot: str):
-    assert snapshot == gt_tbl.as_raw_html(inline_css=False)
+    assert snapshot == gt_tbl.as_raw_html()
 
 
 def test_html_string_generated_inline_css(gt_tbl_small: GT, snapshot: str):

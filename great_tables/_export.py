@@ -114,7 +114,7 @@ def show(
             html, raw=True, metadata={"text/html": {"isolated": True}}
         )
     elif target == "browser":
-        html = self.as_raw_html(inline_css=False, make_page=True)
+        html = self.as_raw_html(make_page=True)
         with tempfile.TemporaryDirectory() as tmp_dir:
             f_path = Path(tmp_dir) / "index.html"
             f_path.write_text(html, encoding="utf-8")
@@ -129,7 +129,7 @@ def show(
 
 def as_raw_html(
     self: GT,
-    inline_css: bool = True,
+    inline_css: bool = False,
     make_page: bool = False,
     all_important: bool = False,
 ) -> str:
@@ -195,21 +195,26 @@ def as_raw_html(
     gt_tbl
     ```
 
-    Now we can return the table as an HTML string with inlined CSS styles using the `as_raw_html()`
-    method.
+    Now we can return the table as an HTML string using the `as_raw_html()` method.
 
     ```{python}
     gt_tbl.as_raw_html()
     ```
 
-    The HTML string contains the HTML for the table. It has only the `<table>...</table>` part so
-    it's not a complete HTML document but rather an HTML fragment. While this useful for embedding
-    a table in an existing HTML document, you could also use the `make_page=True` argument to get a
-    complete HTML page with the table embedded in it. And if that's the case you might also want to
-    suppress the inlining of CSS styles by setting `inline_css=False`.
+    The HTML string contains the HTML for the table. It has only the table so it's not a complete
+    HTML document but rather an HTML fragment. While this useful for embedding a table in an
+    existing HTML document, you could also use the `make_page=True` argument to get a complete HTML
+    page with the table contained within.
 
     ```{python}
-    gt_tbl.as_raw_html(inline_css=False, make_page=True)
+    gt_tbl.as_raw_html(make_page=True)
+    ```
+
+    Should you want to include all of the CSS styles as inline styles, you can use `inline_css=True`
+    to get an HTML string with all CSS inlined into the HTML tags.
+
+    ```{python}
+    gt_tbl.as_raw_html(inline_css=True)
     ```
     """
     built_table = self._build_data(context="html")
