@@ -9,8 +9,11 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
+from css_inline import inline, inline_fragment
 from typing_extensions import TypeAlias
 
+from ._helpers import random_id
+from ._scss import compile_scss
 from ._utils import _try_import
 from ._utils_render_latex import _render_as_latex
 
@@ -126,19 +129,29 @@ def show(
 
 def as_raw_html(
     self: GT,
+    inline_css: bool = False,
     make_page: bool = False,
     all_important: bool = False,
 ) -> str:
     """
     Get the HTML content of a GT object.
 
-    Get the HTML content from a GT object as a string. This function is useful for obtaining the
-    HTML content of a GT object for use in other contexts.
+    Get the HTML content from a GT object as a string. By default, the generated HTML will have
+    inlined styles, where CSS styles (that were previously contained in CSS rule sets external to
+    the `<table>` element are included as style attributes in the HTML table's tags. This option is
+    preferable when using the output HTML table in an emailing context.
 
     Parameters
     ----------
     gt
         A GT object.
+    inline_css
+        An option to supply styles to table elements as inlined CSS styles. This is useful when
+        including the table HTML as part of an HTML email message body, since inlined styles are
+        largely supported in email clients over using CSS in a `<style>` block.
+    make_page
+        An option to wrap the table in a complete HTML page. This is useful when you want to display
+        the table in a web browser.
 
     Returns
     -------
@@ -147,24 +160,96 @@ def as_raw_html(
 
     Examples:
     ------
-    Let's use the `row` column of `exibble` dataset to create a table. With the `as_raw_html()`
-    method, we're able to output the HTML content.
+    Let's use a subset of the `gtcars` dataset to create a new table.
 
     ```{python}
-    from great_tables import GT, exibble
+    from great_tables import GT, md, style, loc
+    from great_tables.data import gtcars
+    import polars as pl
 
-    GT(exibble[["row"]]).as_raw_html()
+    gtcars_mini = (
+        pl.from_pandas(gtcars)
+        .select(["mfr", "model", "msrp"])
+        .head(5)
+    )
+
+    gt_tbl = (
+        GT(gtcars_mini)
+        .tab_header(
+            title=md("Data listing from **gtcars**"),
+            subtitle=md("gtcars is an R dataset")
+        )
+        .tab_style(
+            style=style.fill(color="LightCyan"),
+            locations=loc.body(columns="mfr")
+        )
+        .fmt_currency(columns="msrp")
+        .tab_options(
+            heading_background_color="Azure",
+            table_body_hlines_color="Lavender",
+            table_body_hlines_width="2px"
+        )
+        .opt_horizontal_padding(scale=2)
+    )
+
+    gt_tbl
     ```
 
+    Now we can return the table as an HTML string using the `as_raw_html()` method.
+
+    ```{python}
+    gt_tbl.as_raw_html()
+    ```
+
+    The HTML string contains the HTML for the table. It has only the table so it's not a complete
+    HTML document but rather an HTML fragment. While this useful for embedding a table in an
+    existing HTML document, you could also use the `make_page=True` argument to get a complete HTML
+    page with the table contained within.
+
+    ```{python}
+    gt_tbl.as_raw_html(make_page=True)
+    ```
+
+    Should you want to include all of the CSS styles as inline styles, you can use `inline_css=True`
+    to get an HTML string with all CSS inlined into the HTML tags.
+
+    ```{python}
+    gt_tbl.as_raw_html(inline_css=True)
+    ```
     """
     built_table = self._build_data(context="html")
 
-    html_table = built_table._render_as_html(
+    if not inline_css:
+        html_table = built_table._render_as_html(
+            make_page=make_page,
+            all_important=all_important,
+        )
+
+        return html_table
+
+    table_html = built_table._render_as_html(
         make_page=make_page,
         all_important=all_important,
     )
 
-    return html_table
+    if make_page:
+        inlined = inline(html=table_html)
+
+    else:
+        # Obtain the `table_id` value from the Options (might be set, might be None)
+        table_id = self._options.table_id.value
+
+        if table_id is None:
+            id = random_id()
+        else:
+            id = table_id
+
+        # Compile the SCSS as CSS
+        table_css = str(compile_scss(self, id=id, compress=False, all_important=all_important))
+
+        inlined = inline_fragment(html=table_html, css=table_css)
+
+    return inlined
 
 
 def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) -> str:
