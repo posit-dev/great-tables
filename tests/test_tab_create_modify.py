@@ -40,7 +40,7 @@ def test_tab_style_google_font(gt: GT):
         locations=loc.body(columns="x"),
     )
 
-    rendered_html = new_gt.as_raw_html()
+    rendered_html = new_gt.as_raw_html(inline_css=False)
 
     assert rendered_html.find(
         "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap');"
@@ -55,7 +55,7 @@ def test_tab_style_font_local(gt: GT):
         locations=loc.body(columns="x"),
     )
 
-    rendered_html = new_gt.as_raw_html()
+    rendered_html = new_gt.as_raw_html(inline_css=False)
 
     assert rendered_html.find('<td style="font-family: Courier;" class="gt_row gt_right">1</td>')
 
@@ -67,7 +67,7 @@ def test_tab_style_font_from_column():
         style=style.text(font=from_column(column="font")), locations=loc.body(columns="x")
     )
 
-    rendered_html = gt_tbl.as_raw_html()
+    rendered_html = gt_tbl.as_raw_html(inline_css=False)
 
     assert rendered_html.find('<td style="font-family: Helvetica;" class="gt_row gt_right">1</td>')
     assert rendered_html.find('<td style="font-family: Courier;" class="gt_row gt_right">2</td>')

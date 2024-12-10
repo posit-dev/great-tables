@@ -292,6 +292,7 @@ class GT(
         all_important = defaults["all_important"]
 
         rendered = self.as_raw_html(
+            inline_css=False,
             make_page=make_page,
             all_important=all_important,
         )
