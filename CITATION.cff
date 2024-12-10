@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: 'If you wish to cite the "great-tables" package use:'
+type: software
+license: MIT
+title: "great-tables: Make awesome display tables using Python."
+version: 0.14.0
+abstract:
+  Build display tables from tabular data with an easy-to-use set of methods.
+  With its progressive approach, we can construct display tables with a cohesive set
+  of table parts. Table values can be formatted using any of the included formatting
+  functions. Cell styles can be precisely added through a location targeting system. The way
+  in which Great Tables handles things for you means that you don't often have to worry about
+  the fine details.
+authors:
+  - family-names: Iannone
+    given-names: Richard
+    email: rich@posit.co
+    orcid: https://orcid.org/0000-0003-3925-190X
+  - family-names: Michael
+    given-names: Chow
+    email: michael.chow@posit.co
+repository: https://pypi.org/project/great-tables/
+repository-code: https://github.com/posit-dev/great-tables
+url: https://posit-dev.github.io/great-tables/
+contact:
+  - family-names: Iannone
+    given-names: Richard
+    email: rich@posit.co
+    orcid: https://orcid.org/0000-0003-3925-190X
