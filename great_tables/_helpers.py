@@ -8,9 +8,7 @@ from typing import Any, Callable, Literal
 
 from typing_extensions import Self, TypeAlias
 
-from great_tables._text import _md_html
-
-from ._text import BaseText, Html, Md
+from ._text import BaseText, Html, Md, _md_html
 
 FontStackName: TypeAlias = Literal[
     "system-ui",

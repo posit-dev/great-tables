@@ -9,6 +9,8 @@ from htmltools import HTML, Tag, div
 
 from great_tables import GT
 
+from .gt import GT
+
 try:
     from shiny._namespaces import resolve_id
     from shiny.render.transformer import (

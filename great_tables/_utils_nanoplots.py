@@ -4,8 +4,8 @@ from typing import Any, Callable
 
 import numpy as np
 
-from great_tables._tbl_data import Agnostic, is_na
-from great_tables._utils import _flatten_list, _match_arg
+from ._tbl_data import Agnostic, is_na
+from ._utils import _flatten_list, _match_arg
 
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
 

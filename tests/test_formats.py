@@ -68,6 +68,36 @@ def test_format_snap(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
+def test_format_accounting_snap(snapshot):
+    df = pl.DataFrame(
+        {
+            "number": [-1.2, 23.6],
+            "percent": [-0.0523, 0.363],
+            "integer": [-23213, 2323],
+            "currency": [-24334.23, 7323.253],
+        }
+    ).with_columns(
+        number_acc=pl.col("number"),
+        percent_acc=pl.col("percent"),
+        integer_acc=pl.col("integer"),
+        currency_acc=pl.col("currency"),
+    )
+
+    new_gt = (
+        GT(df)
+        .fmt_number(columns="number")
+        .fmt_percent(columns="percent")
+        .fmt_integer(columns="integer")
+        .fmt_currency(columns="currency")
+        .fmt_number(columns="number_acc", accounting=True)
+        .fmt_percent(columns="percent_acc", accounting=True)
+        .fmt_integer(columns="integer_acc", accounting=True)
+        .fmt_currency(columns="currency_acc", accounting=True)
+    )
+
+    assert_repr_html(snapshot, new_gt)
+
+
 def test_format_repr_snap(snapshot):
     new_gt = (
         GT(exibble)
@@ -1490,6 +1520,124 @@ def test_fmt_image_path_http(url: str):
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
     assert strip_windows_drive(res) == dst
+
+
+def test_fmt_icon_one_per_cell():
+    df = pd.DataFrame({"x": ["hippo", "burger", "pizza-slice"]})
+
+    gt = GT(df).fmt_icon(columns="x")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(re.search("^<span style.*?<svg.*?>.*?</svg></span>$", val))
+
+
+def test_fmt_icon_two_per_cell():
+    df = pd.DataFrame({"x": ["hippo,burger", "pizza-slice,fish"]})
+
+    gt = GT(df).fmt_icon(columns="x")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(
+            re.search(
+                "^<span style.*?<svg.*?>.*?</svg> <svg.*?>.*?</svg></span>$",
+                val,
+            )
+        )
+
+
+def test_fmt_icon_single_color():
+    df = pd.DataFrame({"x": ["hippo"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color="red")
+
+    assert 'style="fill:red;' in _get_column_of_values(gt, column_name="x", context="html")[0]
+
+
+def test_fmt_icon_two_colors():
+    df = pd.DataFrame({"x": ["dog,hippo"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color={"dog": "red", "hippo": "blue"})
+
+    assert 'style="fill:red;' in _get_column_of_values(gt, column_name="x", context="html")[0]
+    assert 'style="fill:blue;' in _get_column_of_values(gt, column_name="x", context="html")[0]
+
+
+def test_fmt_icon_stroke_width():
+    df = pd.DataFrame({"x": ["pizza-slice"]})
+
+    gt_px = GT(df).fmt_icon(columns="x", stroke_width="2px")
+    gt_num = GT(df).fmt_icon(columns="x", stroke_width=2)
+
+    column_vals_px = _get_column_of_values(gt_px, column_name="x", context="html")
+    column_vals_num = _get_column_of_values(gt_num, column_name="x", context="html")
+
+    assert bool(re.search("stroke-width:2px", column_vals_px[0]))
+
+    assert column_vals_px == column_vals_num
+
+
+def test_fmt_icon_fill_color():
+    df = pd.DataFrame({"x": ["hippo", "fish"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color="aqua")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(re.search('style="fill:aqua;', val))
+
+
+def test_fmt_icon_fill_color_dict():
+    df = pd.DataFrame({"x": ["hippo", "fish"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color={"hippo": "aqua", "fish": "blue"})
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert bool(re.search('style="fill:aqua;', column_vals[0]))
+    assert bool(re.search('style="fill:blue;', column_vals[1]))
+
+
+def test_fmt_icon_fill_color_dict_none():
+    df = pd.DataFrame({"x": ["hippo", "fish", "dog"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color={"hippo": "aqua", "fish": "blue"})
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert bool(re.search('style="fill:aqua;', column_vals[0]))
+    assert bool(re.search('style="fill:blue;', column_vals[1]))
+    assert bool(
+        re.search(
+            'style="fill-opacity:None;stroke-width:1px;stroke-opacity:None;height:1em;width:1.12em;position:relative;vertical-align:-0.125em;overflow:visible;">',
+            column_vals[2],
+        )
+    )
+
+
+def test_fmt_icon_multiple_attrs():
+    df = pd.DataFrame({"x": ["hippo"]})
+
+    gt = GT(df).fmt_icon(
+        columns="x",
+        height="20px",
+        stroke_color="gray",
+        stroke_width=2,
+        stroke_alpha=0.5,
+        fill_color="red",
+        fill_alpha=0.25,
+        margin_left="3px",
+        margin_right="4px",
+    )
+
+    assert (
+        'style="fill:red;fill-opacity:0.25;stroke:gray;stroke-width:2px;stroke-opacity:0.5;height:20px;width:25.0px;margin-left:3px;margin-right:4px;position:relative;vertical-align:-0.125em;overflow:visible;"'
+        in _get_column_of_values(gt, column_name="x", context="html")[0]
+    )
 
 
 def test_fmt_flag_one_per_cell():

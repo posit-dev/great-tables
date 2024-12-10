@@ -40,6 +40,7 @@ classifiers = [
 dependencies = [
     "commonmark>=0.9.1",
     "css-inline>=0.14.1",
+    "faicons>=0.2.2",
     "htmltools>=0.4.1",
     "importlib-metadata",
     "typing_extensions>=3.10.0.0",
@@ -111,4 +112,9 @@ ignore = [
     "E203",    # whitespace before ':'
     "F841",    # local variable 'name' is assigned to but never used
     "E702",    # multiple statements on one line (semicolon)
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:"
 ]
