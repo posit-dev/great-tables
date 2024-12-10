@@ -281,3 +281,7 @@ def _migrate_unformatted_to_output(
 # Define the type of `data` as `TblData` when doing so won't result in a circular import
 def _get_visible_cells(data: TblData) -> list[tuple[str, int]]:
     return [(col, row) for col in get_column_names(data) for row in range(n_rows(data))]
+
+
+def is_valid_http_schema(url: str) -> bool:
+    return url.startswith("http://") or url.startswith("https://")

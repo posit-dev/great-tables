@@ -1735,6 +1735,20 @@ def test_fmt_flag_height():
 
 
 @pytest.mark.parametrize(
+    "url", ["http://posit.co/", "http://posit.co", "https://posit.co/", "https://posit.co"]
+)
+def test_fmt_image_http(url: str):
+    formatter = FmtImage(encode=False, height=30)
+    res = formatter.to_html(url)
+    dst_img = '<img src="{}" style="height: 30px;vertical-align: middle;">'.format(
+        url.removesuffix("/")
+    )
+    dst = formatter.SPAN_TEMPLATE.format(dst_img)
+
+    assert strip_windows_drive(res) == dst
+
+
+@pytest.mark.parametrize(
     "src,dst",
     [
         # 1. unit with superscript
