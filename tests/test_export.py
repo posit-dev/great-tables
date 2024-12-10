@@ -34,8 +34,22 @@ def gt_tbl():
     return gt_tbl
 
 
+@pytest.fixture
+def gt_tbl_small():
+    gt_tbl_small = GT(
+        exibble[["num", "char"]].head(2),
+        id="test_table_small",
+    ).fmt_number(columns="num")
+
+    return gt_tbl_small
+
+
 def test_html_string_generated(gt_tbl: GT, snapshot: str):
     assert snapshot == gt_tbl.as_raw_html(inline_css=False)
+
+
+def test_html_string_generated_inline_css(gt_tbl_small: GT, snapshot: str):
+    assert snapshot == gt_tbl_small.as_raw_html(inline_css=True)
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="chrome might not be installed.")
