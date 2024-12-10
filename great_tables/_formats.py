@@ -19,6 +19,7 @@ from ._helpers import px
 from ._locale import (
     _get_currencies_data,
     _get_default_locales_data,
+    _get_flags_data,
     _get_locales_data,
 )
 from ._locations import resolve_cols_c, resolve_rows_i
