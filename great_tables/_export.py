@@ -13,6 +13,7 @@ from css_inline import inline, inline_fragment
 from typing_extensions import TypeAlias
 
 from ._helpers import random_id
+from ._scss import compile_scss
 from ._utils import _try_import
 from ._utils_render_latex import _render_as_latex
 
@@ -239,8 +240,6 @@ def as_raw_html(
             id = table_id
 
         # Compile the SCSS as CSS
-        from ._scss import compile_scss
-
         table_css = str(compile_scss(self, id=id, compress=False, all_important=all_important))
 
         inlined = inline_fragment(html=table_html, css=table_css)
