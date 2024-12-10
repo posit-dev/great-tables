@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ._locations import resolve_cols_c
-from ._utils import _assert_list_is_subset
 from ._tbl_data import SelectExpr
 from ._text import BaseText
+from ._utils import _assert_list_is_subset
 
 if TYPE_CHECKING:
     from ._types import GTSelf

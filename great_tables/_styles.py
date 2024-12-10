@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, Union
 
 from typing_extensions import Self, TypeAlias
 
-from ._helpers import px, GoogleFont
+from ._helpers import GoogleFont, px
 from ._tbl_data import PlExpr, TblData, _get_cell, eval_transform
 
 if TYPE_CHECKING:

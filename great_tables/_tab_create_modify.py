@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ._helpers import GoogleFont
 from ._locations import Loc, PlacementOptions, set_footnote, set_style
 from ._styles import CellStyle
-from ._helpers import GoogleFont
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf

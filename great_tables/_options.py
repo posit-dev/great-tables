@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, ClassVar, cast, Iterable
+from typing import TYPE_CHECKING, ClassVar, Iterable, cast
 
 from . import _utils
 from ._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
