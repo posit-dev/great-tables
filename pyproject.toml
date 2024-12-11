@@ -39,6 +39,7 @@ classifiers = [
 ]
 dependencies = [
     "commonmark>=0.9.1",
+    "css-inline>=0.14.1",
     "faicons>=0.2.2",
     "htmltools>=0.4.1",
     "importlib-metadata",
