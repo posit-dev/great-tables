@@ -20,6 +20,11 @@ pip install great_tables
 
 ## A Basic Table using **Great Tables**
 
+::: {.callout-note}
+The example below requires the Pandas library to be installed. But Pandas is not required to
+use Great Tables. You can also use a Polars DataFrame.
+:::
+
 Let’s use a subset of the `islands` dataset available within `great_tables.data`:
 
 ```{python}
