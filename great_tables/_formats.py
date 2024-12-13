@@ -3688,7 +3688,8 @@ def fmt_image(
         In the output of images within a body cell, `sep=` provides the separator between each
         image.
     path
-        An optional path to local image files (this is combined with all filenames).
+        An optional path to local image files or an HTTP/HTTPS URL.
+        This is combined with the filenames to form the complete image paths.
     file_pattern
         The pattern to use for mapping input values in the body cells to the names of the graphics
         files. The string supplied should use `"{}"` in the pattern to map filename fragments to
