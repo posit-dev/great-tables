@@ -166,18 +166,18 @@ def compile_scss(
     gt_styles_default = (files("great_tables") / "css/gt_styles_default.scss").read_text()
 
     if compress:
-        gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, 0, re.MULTILINE)
-        gt_styles_default = re.sub(r"}", "}\n", gt_styles_default, 0, re.MULTILINE)
+        gt_styles_default = re.sub(r"\s+", " ", gt_styles_default, count=0, flags=re.MULTILINE)
+        gt_styles_default = re.sub(r"}", "}\n", gt_styles_default, count=0, flags=re.MULTILINE)
 
     compiled_css = Template(gt_styles_default).substitute(final_params)
 
     if has_id:
-        compiled_css = re.sub(r"\.gt_", f"#{id} .gt_", compiled_css, 0, re.MULTILINE)
-        compiled_css = re.sub(r"thead", f"#{id} thead", compiled_css, 0, re.MULTILINE)
-        compiled_css = re.sub(r"^( p|p) \{", f"#{id} p {{", compiled_css, 0, re.MULTILINE)
+        compiled_css = re.sub(r"\.gt_", f"#{id} .gt_", compiled_css, count=0, flags=re.MULTILINE)
+        compiled_css = re.sub(r"thead", f"#{id} thead", compiled_css, count=0, flags=re.MULTILINE)
+        compiled_css = re.sub(r"^( p|p) \{", f"#{id} p {{", compiled_css, count=0, flags=re.MULTILINE)
 
     if all_important:
-        compiled_css = re.sub(r";", " !important;", compiled_css, 0, re.MULTILINE)
+        compiled_css = re.sub(r";", " !important;", compiled_css, count=0, flags=re.MULTILINE)
 
     finalized_css = f"{gt_table_class_str}\n\n{compiled_css}"
 
