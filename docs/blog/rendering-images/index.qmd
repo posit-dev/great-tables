@@ -10,7 +10,7 @@ format:
     code-summary: "Show the Code"
 ---
 
-Rendering images in Great Tables is straightforward with `GT.fmt_image` and `vals.fmt_image()`.
+Rendering images in Great Tables is straightforward with `GT.fmt_image()` and `vals.fmt_image()`.
 In this post, we'll explore three key topics:
 
 * Four examples demonstrating how to render images within the body using `GT.fmt_image()`.
