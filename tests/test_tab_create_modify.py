@@ -5,6 +5,7 @@ from great_tables import GT, style, loc, google_font, from_column
 from great_tables._locations import LocBody
 from great_tables._styles import CellStyleFill
 from great_tables._tab_create_modify import tab_style
+from polars import selectors as cs
 
 
 @pytest.fixture
@@ -31,6 +32,30 @@ def test_tab_style_multiple_columns(gt: GT):
 
     assert len(new_gt._styles[0].styles) == 1
     assert new_gt._styles[0].styles[0] is style
+
+
+def test_tab_style_mast():
+    gt = GT(pl.DataFrame({"x": [1, 2], "y": [4, 5]}))
+    style = CellStyleFill(color="blue")
+    new_gt = tab_style(gt, style, LocBody(mask=cs.numeric().gt(1.5)))
+
+    assert len(gt._styles) == 0
+    assert len(new_gt._styles) == 3
+
+    xy_0y, xy_1x, xy_1y = new_gt._styles
+
+    assert xy_0y.styles[0] is style
+    assert xy_1x.styles[0] is style
+    assert xy_1y.styles[0] is style
+
+    assert xy_0y.rownum == 0
+    assert xy_0y.colname == "y"
+
+    assert xy_1x.rownum == 1
+    assert xy_1x.colname == "x"
+
+    assert xy_1y.rownum == 1
+    assert xy_1y.colname == "y"
 
 
 def test_tab_style_google_font(gt: GT):
