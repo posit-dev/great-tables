@@ -831,30 +831,33 @@ def resolve_mask_i(
     excl_group: bool = True,
 ) -> list[tuple[int, int, str]]:
     """Return data for creating `CellPos`, based on expr"""
+    import polars as pl
+
     if not isinstance(expr, PlExpr):
         raise ValueError("Only Polars expressions can be passed to the `mask` argument.")
+
+    frame: PlDataFrame = data._tbl_data
+    frame_cols = frame.columns
 
     stub_var = data._boxhead.vars_from_type(ColInfoTypeEnum.stub)
     group_var = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
     cols_excl = [*(stub_var if excl_stub else []), *(group_var if excl_group else [])]
 
-    frame: PlDataFrame = data._tbl_data
-    df = frame.select(expr)
+    masked = frame.select(expr)
+    for col_excl in cols_excl:
+        masked = masked.drop(col_excl, strict=False)
 
-    newer_row_attr, older_row_attr = "with_row_index", "with_row_count"
-    row_number_colname = "__row_number__"
-    row_attr = newer_row_attr if hasattr(df, newer_row_attr) else older_row_attr
+    # Validate that `masked.columns` exist in the `frame_cols`
+    assert set(masked.columns).issubset(set(frame_cols))
 
-    # Add row numbers after `df.select()`, as the `__row_number__` column type is `UInt32`.
-    df_with_row_number = getattr(df, row_attr)(name=row_number_colname)
-
-    select_columns = [col for col in df.columns if col not in cols_excl]
+    # Validate that row lengths are equal
+    assert masked.select(pl.len()).item(0, "len") == frame.select(pl.len()).item(0, "len")
 
     cellpos_data: list[tuple[int, int, str]] = []  # column, row, colname for `CellPos`
-    for row_dict in df_with_row_number.iter_rows(named=True):
-        for col_idx, colname in enumerate(select_columns):
-            if row_dict[colname]:  # select only when `row_dict[colname]` is True
-                row_idx = row_dict[row_number_colname]
+    for row_idx, row_dict in enumerate(masked.iter_rows(named=True)):
+        for colname, value in row_dict.items():
+            if value:  # select only when `value` is True
+                col_idx = frame_cols.index(colname)
                 cellpos_data.append((col_idx, row_idx, colname))
     return cellpos_data
 
