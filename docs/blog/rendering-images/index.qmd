@@ -10,7 +10,7 @@ format:
     code-summary: "Show the Code"
 ---
 
-Rendering images in Great Tables is straightforward with `GT.fmt_image` and `vals.fmt_image()`.
+Rendering images in Great Tables is straightforward with `GT.fmt_image()` and `vals.fmt_image()`.
 In this post, we'll explore three key topics:
 
 * Four examples demonstrating how to render images within the body using `GT.fmt_image()`.
@@ -287,9 +287,9 @@ metro_mini
 ### Single Image
 This example shows how to render a valid URL as an image in the title of the table header:
 ```{python}
-logo_url = "https://posit-dev.github.io/great-tables/assets/GT_logo.svg"
+gt_logo_url = "https://posit-dev.github.io/great-tables/assets/GT_logo.svg"
 
-_gt_logo, *_ = vals.fmt_image(logo_url, height=100)  # <1>
+_gt_logo, *_ = vals.fmt_image(gt_logo_url, height=100)  # <1>
 gt_logo = html(_gt_logo)
 
 (
@@ -307,10 +307,8 @@ item from the list.
 This example demonstrates how to render two valid URLs as images in the title and subtitle of the
 table header:
 ```{python}
-logo_urls = [
-    "https://posit-dev.github.io/great-tables/assets/GT_logo.svg",
-    "https://raw.githubusercontent.com/rstudio/gt/master/images/dataset_metro.svg",
-]
+metro_logo_url = "https://raw.githubusercontent.com/rstudio/gt/master/images/dataset_metro.svg"
+logo_urls = [gt_logo_url, metro_logo_url]
 
 _gt_logo, _metro_logo = vals.fmt_image(logo_urls, height=100)  # <1>
 gt_logo, metro_logo = html(_gt_logo), html(_metro_logo)
@@ -335,8 +333,8 @@ previous table can be created without relying on `vals.fmt_image()` like this:
     GT(metro_mini)
     .fmt_image("lines", path=img_url_paths, file_pattern="metro_{}.svg")
     .tab_header(
-        title=html(f'<img src="{logo_urls[0]}" height="100">'),
-        subtitle=html(f'<img src="{logo_urls[1]}" height="100">'),
+        title=html(f'<img src="{gt_logo_url}" height="100">'),
+        subtitle=html(f'<img src="{metro_logo_url}" height="100">'),
     )
     .cols_align(align="right", columns="lines")
     .opt_stylize(style=4, color="gray")
