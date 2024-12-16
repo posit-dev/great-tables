@@ -34,7 +34,7 @@ def test_tab_style_multiple_columns(gt: GT):
     assert new_gt._styles[0].styles[0] is style
 
 
-def test_tab_style_mast():
+def test_tab_style_loc_body_mask():
     gt = GT(pl.DataFrame({"x": [1, 2], "y": [4, 5]}))
     style = CellStyleFill(color="blue")
     new_gt = tab_style(gt, style, LocBody(mask=cs.numeric().gt(1.5)))
