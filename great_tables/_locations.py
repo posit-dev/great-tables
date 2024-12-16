@@ -539,6 +539,7 @@ class LocBody(Loc):
 
     columns: SelectExpr = None
     rows: RowSelectExpr = None
+    mask: PlExpr | None = None
 
 
 @dataclass
@@ -823,6 +824,41 @@ def resolve_rows_i(
     )
 
 
+def resolve_mask_i(
+    data: GTData | list[str],
+    expr: PlExpr,
+    excl_stub: bool = True,
+    excl_group: bool = True,
+) -> list[tuple[int, int, str]]:
+    """Return data for creating `CellPos`, based on expr"""
+    if not isinstance(expr, PlExpr):
+        raise ValueError("Only Polars expressions can be passed to the `mask` argument.")
+
+    stub_var = data._boxhead.vars_from_type(ColInfoTypeEnum.stub)
+    group_var = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
+    cols_excl = [*(stub_var if excl_stub else []), *(group_var if excl_group else [])]
+
+    frame: PlDataFrame = data._tbl_data
+    df = frame.select(expr)
+
+    newer_row_attr, older_row_attr = "with_row_index", "with_row_count"
+    row_number_colname = "__row_number__"
+    row_attr = newer_row_attr if hasattr(df, newer_row_attr) else older_row_attr
+
+    # Add row numbers after `df.select()`, as the `__row_number__` column type is `UInt32`.
+    df_with_row_number = getattr(df, row_attr)(name=row_number_colname)
+
+    select_columns = [col for col in df.columns if col not in cols_excl]
+
+    cellpos_data: list[tuple[int, int, str]] = []  # column, row, colname for `CellPos`
+    for row_dict in df_with_row_number.iter_rows(named=True):
+        for col_idx, colname in enumerate(select_columns):
+            if row_dict[colname]:  # select only when `row_dict[colname]` is True
+                row_idx = row_dict[row_number_colname]
+                cellpos_data.append((col_idx, row_idx, colname))
+    return cellpos_data
+
+
 # Resolve generic ======================================================================
 
 
@@ -869,14 +905,19 @@ def _(loc: LocStub, data: GTData) -> set[int]:
 @resolve.register
 def _(loc: LocBody, data: GTData) -> list[CellPos]:
     cols = resolve_cols_i(data=data, expr=loc.columns)
-    rows = resolve_rows_i(data=data, expr=loc.rows)
+    if loc.rows is not None and loc.mask is not None:
+        raise ValueError("Cannot specify both `row` and `mask` arguments at the same time.")
 
-    # TODO: dplyr arranges by `Var1`, and does distinct (since you can tidyselect the same
-    # thing multiple times
-    cell_pos = [
-        CellPos(col[1], row[1], colname=col[0]) for col, row in itertools.product(cols, rows)
-    ]
-
+    if loc.mask is None:
+        rows = resolve_rows_i(data=data, expr=loc.rows)
+        # TODO: dplyr arranges by `Var1`, and does distinct (since you can tidyselect the same
+        # thing multiple times
+        cell_pos = [
+            CellPos(col[1], row[1], colname=col[0]) for col, row in itertools.product(cols, rows)
+        ]
+    else:
+        masks = resolve_mask_i(data=data, expr=loc.mask)
+        cell_pos = [CellPos(*mask) for mask in masks]
     return cell_pos
 
 
