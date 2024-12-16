@@ -174,7 +174,9 @@ def compile_scss(
     if has_id:
         compiled_css = re.sub(r"\.gt_", f"#{id} .gt_", compiled_css, count=0, flags=re.MULTILINE)
         compiled_css = re.sub(r"thead", f"#{id} thead", compiled_css, count=0, flags=re.MULTILINE)
-        compiled_css = re.sub(r"^( p|p) \{", f"#{id} p {{", compiled_css, count=0, flags=re.MULTILINE)
+        compiled_css = re.sub(
+            r"^( p|p) \{", f"#{id} p {{", compiled_css, count=0, flags=re.MULTILINE
+        )
 
     if all_important:
         compiled_css = re.sub(r";", " !important;", compiled_css, count=0, flags=re.MULTILINE)
