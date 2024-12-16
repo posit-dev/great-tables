@@ -905,8 +905,10 @@ def _(loc: LocStub, data: GTData) -> set[int]:
 @resolve.register
 def _(loc: LocBody, data: GTData) -> list[CellPos]:
     cols = resolve_cols_i(data=data, expr=loc.columns)
-    if loc.rows is not None and loc.mask is not None:
-        raise ValueError("Cannot specify both `row` and `mask` arguments at the same time.")
+    if (loc.columns is not None or loc.rows is not None) and loc.mask is not None:
+        raise ValueError(
+            "Cannot specify the `mask` argument along with `columns` or `rows` in `loc.body()`."
+        )
 
     if loc.mask is None:
         rows = resolve_rows_i(data=data, expr=loc.rows)
