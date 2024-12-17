@@ -843,15 +843,18 @@ def resolve_mask_i(
     group_var = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
     cols_excl = [*(stub_var if excl_stub else []), *(group_var if excl_group else [])]
 
+    # `df.select()` raises `ColumnNotFoundError` if columns are missing from the original DataFrame.
     masked = frame.select(expr)
     for col_excl in cols_excl:
         masked = masked.drop(col_excl, strict=False)
 
     # Validate that `masked.columns` exist in the `frame_cols`
-    assert set(masked.columns).issubset(set(frame_cols))
+    if not (set(masked.columns).issubset(set(frame_cols))):
+        raise ValueError("The `mask` may reference columns not in the original DataFrame.")
 
     # Validate that row lengths are equal
-    assert masked.select(pl.len()).item(0, "len") == frame.select(pl.len()).item(0, "len")
+    if not (masked.select(pl.len()).item(0, "len") == frame.select(pl.len()).item(0, "len")):
+        raise ValueError("The DataFrame length after applying `mask` differs from the original.")
 
     cellpos_data: list[tuple[int, int, str]] = []  # column, row, colname for `CellPos`
     for row_idx, row_dict in enumerate(masked.iter_rows(named=True)):
