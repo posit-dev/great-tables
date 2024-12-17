@@ -502,6 +502,14 @@ class LocBody(Loc):
     rows
         The rows to target. Can either be a single row name or a series of row names provided in a
         list.
+    mask
+        The cells to target. If the underlying wrapped DataFrame is a Polars DataFrame,
+        you can pass a Polars expression for cell-based selection. This argument must be used
+        exclusively and cannot be combined with the `columns=` or `rows=` arguments.
+
+    :::{.callout-warning}
+    `mask=` is still experimental.
+    :::
 
     Returns
     -------
