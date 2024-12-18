@@ -839,8 +839,6 @@ def resolve_mask_i(
     excl_group: bool = True,
 ) -> list[tuple[int, int, str]]:
     """Return data for creating `CellPos`, based on expr"""
-    import polars as pl
-
     if not isinstance(expr, PlExpr):
         raise ValueError("Only Polars expressions can be passed to the `mask` argument.")
 
@@ -861,7 +859,7 @@ def resolve_mask_i(
         raise ValueError("The `mask` may reference columns not in the original DataFrame.")
 
     # Validate that row lengths are equal
-    if not (masked.select(pl.len()).item(0, "len") == frame.select(pl.len()).item(0, "len")):
+    if masked.height != frame.height:
         raise ValueError("The DataFrame length after applying `mask` differs from the original.")
 
     cellpos_data: list[tuple[int, int, str]] = []  # column, row, colname for `CellPos`
