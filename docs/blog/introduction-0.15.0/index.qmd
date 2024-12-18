@@ -17,7 +17,7 @@ Let's look at each of these in turn!
 
 ### Using `fmt_flag()` to incorporate country flag icons
 
-Sometimes tables contain country-level data and having a quick visual for a country in a row is useful for quickly parsing the table contents. The new `fmt_flag()` method makes this easy to accomplish. You just need to have either [two-letter country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) or [three-letter country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) in a column.
+When tables contain country-level data, having a more visual representation for a country can help the reader more quickly parse the table contents. The new `fmt_flag()` method makes this easy to accomplish. You just need to have either [two-letter country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) or [three-letter country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) in a column.
 
 Here's an example where country flags, shown as simplified circular icons, can be added to a table with `fmt_flag()`:
 
@@ -78,7 +78,7 @@ films_mini = (
 )
 ```
 
-The column `countries_of_origin` has these combined strings for each of the co-production films, where countries are arranged by decreasing level of contribution (e.g., `"FR,AT,RO,DE"` in the second row). The `fmt_flag()` method parses these strings into a sequence of flag icons which are displayed in order provided. Each of the flags is separated by a space character but you can always change that default separator with the `sep=` argument.
+The column `countries_of_origin` has these combined strings for each of the co-production films, where countries are arranged by decreasing level of contribution (e.g., `"FR,AT,RO,DE"` in the second row). The `fmt_flag()` method parses these strings into a sequence of flag icons that are displayed in the order provided. Each of the flags is separated by a space character but you can always change that default separator with the `sep=` argument.
 
 ### Using `fmt_icon()` to include Font Awesome icons
 
@@ -121,13 +121,13 @@ metro_mini = (
 )
 ```
 
-In the code, we added in the icon names `"train"` and `"train-tram"` to the `services` column and there could either be just the train icon or the pair that includes the tramway service. We wanted a little separation between the icons in the latter case, so `sep=" / "` was used to place a slash with spacing between any pair of icons. The icons appear here with a black fill color but that can be changed with the `fill_color=` argument (and there are several other arguments for controlling style attributes).
+In the code, we added in the icon names `"train"` and `"train-tram"` to the `services` column, and there could either be just the train icon or the pair that includes the tramway service. We wanted a little separation between the icons in the latter case, so `sep=" / "` was used to place a slash with spacing between any pair of icons. The icons appear here with a black fill color, but that can be changed with the `fill_color=` argument (and there are several other arguments for controlling style attributes).
 
 For a list of available icons, their names, and what they look like, check out (this listing on the FontAwesome website)[https://fontawesome.com/search?m=free&o=r]. The icons draw from the Font Awesome 'free' set (2000+ icons in total) but are not obtained via the web. Rather, we use the [faicons library](https://pypi.org/project/faicons/) so that this can be done entirely offline (we draw from SVG icons stored within faicons).
 
 ### Accounting notation in select numeric formatting methods
 
-For certain types of tables, it may be preferable to use accounting notation for certain numerical figures. This type of notation renders negative values in parentheses while omitting the minus sign. This is often seen for monetary and percentage figures but it's even sensible for plain numbers in the right context. We've added support for accouting notation in four formatting methods:
+For certain types of tables, it may be preferable to use accounting notation for certain numerical figures. This type of notation renders negative values in parentheses while omitting the minus sign. This is often seen for monetary and percentage figures but it's also sensible for plain numbers in the right context. We've added support for accounting notation in four formatting methods:
 
 - `fmt_number()`
 - `fmt_integer()`
