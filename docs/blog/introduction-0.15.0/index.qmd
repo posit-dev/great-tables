@@ -29,7 +29,7 @@ import polars as pl
 peeps_mini = (
     pl.from_pandas(peeps)
     .filter(pl.col("dob").str.slice(offset=0, length=4) == "1988")
-    .with_columns(name=pl.concat_str(pl.col("name_given") + " " + pl.col("name_family")))
+    .with_columns(name=pl.col("name_given") + " " + pl.col("name_family"))
     .fill_null(value="")
     .select(["country", "name", "address", "city", "state_prov", "postcode"])
 )
@@ -62,9 +62,7 @@ import polars as pl
 films_mini = (
     pl.from_pandas(films)
     .filter(pl.col("director") == "Michael Haneke")
-    .with_columns(
-        title=pl.concat_str(pl.col("title") + " (" + pl.col("year").cast(pl.String) + ")")
-    )
+    .with_columns(title=pl.col("title") + " (" + pl.col("year").cast(pl.String) + ")")
     .select(["title", "run_time", "countries_of_origin"])
 )
 
@@ -90,21 +88,12 @@ from great_tables.data import metro
 import polars as pl
 
 metro_mini = (
-    pl.from_pandas(metro)
-    .tail(10)
+    pl.from_pandas(metro).tail(10)
     .with_columns(
-        lines=pl.lit("train"),
-        connect_tramway = (
+        services = (
             pl.when(pl.col("connect_tramway").is_not_null())
-            .then(pl.lit("train-tram"))
-            .otherwise(pl.col("connect_tramway"))
-        )
-    )
-    .with_columns(
-        services=(
-            pl.concat_str([pl.col("lines"), pl.col("connect_tramway")],
-            separator=",",
-            ignore_nulls=True)
+            .then(pl.lit("train, train-tram"))
+            .otherwise(pl.lit("train"))
         )
     )
     .select(["name", "services", "location"])
