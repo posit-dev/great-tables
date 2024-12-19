@@ -1,5 +1,5 @@
 ---
-title: Contributing to Public Transit Data Analyses and Tooling
+title: Contributing to Public Transit Data Analysis and Tooling
 date: 2024-12-19
 author: Michael Chow
 ---
