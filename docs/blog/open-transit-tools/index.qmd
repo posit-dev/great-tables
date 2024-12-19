@@ -114,4 +114,5 @@ Another is passenger events (e.g. people tapping on or off a bus). This data is 
 
 ## In summary
 
-Analytics in public transit is a really neat, impactful area---with an active community working on open source data standards and tooling. As a data science tool builder on the open source team at Posit, PBC, my mission is to create value and give it away to teams doing code first data science.
+Analytics in public transit is a really neat, impactful area---with an active community working on open source data standards and tooling. As a data science tool builder on the open source team at Posit, PBC, my mission is to create value and give it away to teams using Python or R for code first data science.
+I'd love to support open source work in public transit however is most useful.
