@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Michael Chow">
+<meta name="dcterms.date" content="2024-12-19">
 
-<title>gt.fmt_image – great_tables</title>
+<title>Contributing to Public Transit Data Analysis and Tooling – great_tables</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -57,22 +59,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-c75bcb89907db7808f0349b764a1a524.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c75bcb89907db7808f0349b764a1a524.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -114,8 +116,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
-<link rel="stylesheet" href="../styles.css">
-<link rel="stylesheet" href="../reference/_styles-quartodoc.css">
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../../reference/_styles-quartodoc.css">
 </head>
 
 <body class="nav-fixed">
@@ -125,7 +127,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">great_tables</span>
     </a>
   </div>
@@ -136,19 +138,19 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../get-started/index.html"> 
+    <a class="nav-link" href="../../get-started/index.html"> 
 <span class="menu-text">Get Started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../examples/index.html"> 
+    <a class="nav-link" href="../../examples/index.html"> 
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../reference/index.html"> 
+    <a class="nav-link" href="../../reference/index.html"> 
 <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../blog/index.html"> 
+    <a class="nav-link" href="../../blog/index.html"> 
 <span class="menu-text">Blog</span></a>
   </li>  
 </ul>
@@ -159,7 +161,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="../blog/index.xml"> <i class="bi bi-rss" role="img">
+    <a class="nav-link" href="../../blog/index.xml"> <i class="bi bi-rss" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -179,9 +181,19 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
-  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
-  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#why-focus-on-open-source-in-public-transit" id="toc-why-focus-on-open-source-in-public-transit" class="nav-link active" data-scroll-target="#why-focus-on-open-source-in-public-transit">Why focus on open source in public transit?</a></li>
+  <li><a href="#why-is-this-on-the-great-tables-blog" id="toc-why-is-this-on-the-great-tables-blog" class="nav-link" data-scroll-target="#why-is-this-on-the-great-tables-blog">Why is this on the Great Tables blog?</a>
+  <ul class="collapse">
+  <li><a href="#great-tables-data-paris-metro-lines" id="toc-great-tables-data-paris-metro-lines" class="nav-link" data-scroll-target="#great-tables-data-paris-metro-lines">Great Tables data: Paris metro lines</a></li>
+  <li><a href="#amtrak-interactive-route-table" id="toc-amtrak-interactive-route-table" class="nav-link" data-scroll-target="#amtrak-interactive-route-table">Amtrak interactive route table</a></li>
+  <li><a href="#cal-itp-trips-table" id="toc-cal-itp-trips-table" class="nav-link" data-scroll-target="#cal-itp-trips-table">Cal-ITP trips table</a></li>
+  </ul></li>
+  <li><a href="#what-are-you-hoping-to-contribute" id="toc-what-are-you-hoping-to-contribute" class="nav-link" data-scroll-target="#what-are-you-hoping-to-contribute">What are you hoping to contribute?</a>
+  <ul class="collapse">
+  <li><a href="#workshops" id="toc-workshops" class="nav-link" data-scroll-target="#workshops">Workshops</a></li>
+  <li><a href="#collaboration" id="toc-collaboration" class="nav-link" data-scroll-target="#collaboration">Collaboration</a></li>
+  </ul></li>
+  <li><a href="#in-summary" id="toc-in-summary" class="nav-link" data-scroll-target="#in-summary">In summary</a></li>
   </ul>
 </nav>
     </div>
@@ -190,14 +202,26 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">GT.fmt_image</h1>
+<h1 class="title">Contributing to Public Transit Data Analysis and Tooling</h1>
 </div>
 
 
 
 <div class="quarto-title-meta column-page-left">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Michael Chow </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 19, 2024</p>
+    </div>
+  </div>
   
     
   </div>
@@ -207,133 +231,96 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </header>
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>GT.fmt_image(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    rows<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    width<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    sep<span class="op">=</span><span class="st">' '</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    path<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    file_pattern<span class="op">=</span><span class="st">'</span><span class="sc">{}</span><span class="st">'</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    encode<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Format image paths to generate images in cells.</p>
-<p>To more easily insert graphics into body cells, we can use the <code>fmt_image()</code> method. This allows for one or more images to be placed in the targeted cells. The cells need to contain some reference to an image file, either: (1) local paths to the files; (2) complete http/https to the files; (3) the file names, where a common path can be provided via <code>path=</code>; or (4) a fragment of the file name, where the <code>file_pattern=</code> argument helps to compose the entire file name and <code>path=</code> provides the path information. This should be expressly used on columns that contain <em>only</em> references to image files (i.e., no image references as part of a larger block of text). Multiple images can be included per cell by separating image references by commas. The <code>sep=</code> argument allows for a common separator to be applied between images.</p>
-<section id="parameters" class="level2 doc-section doc-section-parameters">
-<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<dl>
-<dt><code><span class="parameter-name"><strong>columns</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>SelectExpr</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
-<dd>
-<p>The columns to target. Can either be a single column name or a series of column names provided in a list.</p>
-</dd>
-<dt><code><span class="parameter-name"><strong>rows</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | <code>list</code>[<code>int</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
-<dd>
-<p>In conjunction with <code>columns=</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in targeted columns being formatted. Alternatively, we can supply a list of row indices.</p>
-</dd>
-<dt><code><span class="parameter-name"><strong>height</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>int</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
-<dd>
-<p>The height of the rendered images.</p>
-</dd>
-<dt><code><span class="parameter-name"><strong>width</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>int</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
-<dd>
-<p>The width of the rendered images.</p>
-</dd>
-<dt><code><span class="parameter-name"><strong>sep</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">' '</span></code></dt>
-<dd>
-<p>In the output of images within a body cell, <code>sep=</code> provides the separator between each image.</p>
-</dd>
-<dt><code><span class="parameter-name"><strong>path</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>Path</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
-<dd>
-<p>An optional path to local image files or an HTTP/HTTPS URL. This is combined with the filenames to form the complete image paths.</p>
-</dd>
-<dt><code><span class="parameter-name"><strong>file_pattern</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'{}'</span></code></dt>
-<dd>
-<p>The pattern to use for mapping input values in the body cells to the names of the graphics files. The string supplied should use <code>"{}"</code> in the pattern to map filename fragments to input strings.</p>
-</dd>
-<dt><code><span class="parameter-name"><strong>encode</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bool</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
-<dd>
-<p>The option to always use Base64 encoding for image paths that are determined to be local. By default, this is <code>True</code>.</p>
-</dd>
-</dl>
+<p>Hello! Michael Chow here. In 2025, I’ll be focusing on contributing to open source data standards and tooling for public transit. If you work on analytics at a public transit agency, please reach out on <a href="https://www.linkedin.com/in/michael-a-chow/">linkedin</a> or <a href="https://bsky.app/profile/mchow.com">bluesky</a>—I would love to hear about your work, and how I could be useful!</p>
+<p>(I will also be at the TRB Annual Meeting 2025 in Washington D.C.)</p>
+<p>At this point, you might be wondering three things:</p>
+<ul>
+<li>why focus on open source in public transit?</li>
+<li>why is this on the Great Tables blog?</li>
+<li>what are you hoping to contribute?</li>
+</ul>
+<section id="why-focus-on-open-source-in-public-transit" class="level2">
+<h2 class="anchored" data-anchor-id="why-focus-on-open-source-in-public-transit">Why focus on open source in public transit?</h2>
+<p>People doing analytics in public transit are active in developing open data standards (like GTFS, GTFS-RT, and TIDES). These open data sources are complex—they cover schedules that change from week to week, busses moving in realtime, and passenger events. As people like me work more and more on open source tools, we start to lose touch with data analysis in realistic, complex settings. Working on open source transit data is an opportunity for me to ensure my open source tooling work helps people solve real, complex problems.</p>
+<p>An inspiration for this angle is the book <a href="https://r4ds.hadley.nz/">R for Data Science</a>, which uses realistic datasets—like NYC flights data—to teach data analysis using an ecosystem of packages called the Tidyverse. The Tidyverse packages have dozens of example datasets, and I think this focus on working through examples is part of what made their design so great.</p>
+<p>A few years ago, I worked with the Cal-ITP project to build out a warehouse for their GTFS schedule and realtime data. This left a profound impression on me: transit data is perfect for educating on data analyses in R and Python, as well as analytics engineering with tools like dbt or sqlmesh. Many analysts in public transit are querying warehouses, which opens up interesting use-cases with tools like dbplyr (in R) and ibis (in Python).</p>
+<p>(I’m also inspired by tools like <a href="https://github.com/r-transit/tidytransit">tidytransit</a>, and other communities like <a href="https://pharmaverse.org">pharmaverse.org</a>.)</p>
+<p>Here are some relevant talks:</p>
+<ul>
+<li><a href="https://youtu.be/MD5sKupHsTQ">Tidy Transit: Real Life Data Modeling for Public Transportation (Hunter Owens, Cal-ITP)</a></li>
+<li><a href="https://www.youtube.com/live/EYdb1x1cO9U">The Accidental Analytics Engineer (Michael Chow)</a></li>
+</ul>
 </section>
-<section id="returns" class="level2 doc-section doc-section-returns">
-<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
-<dl>
-<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../reference/GT.html#great_tables.GT">GT</a></span></code></dt>
-<dd>
-<p>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</p>
-</dd>
-</dl>
-</section>
-<section id="examples" class="level2 doc-section doc-section-examples">
-<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
-<p>Using a small portion of <code>metro</code> dataset, let’s create a new table. We will only include a few columns and rows from that table. The <code>lines</code> column has comma-separated listings of numbers corresponding to lines served at each station. We have a directory of SVG graphics for all of these lines in the package (the path for the image directory can be accessed via <code>files("great_tables") / "data/metro_images"</code>, using the <code>importlib_resources</code> package). The filenames roughly corresponds to the data in the <code>lines</code> column. The <code>fmt_image()</code> method can be used with these inputs since the <code>path=</code> and <code>file_pattern=</code> arguments allow us to compose complete and valid file locations. What you get from this are sequences of images in the table cells, taken from the referenced graphics files on disk.</p>
-<div id="353a6ae0" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> metro</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib_resources <span class="im">import</span> files</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>img_paths <span class="op">=</span> files(<span class="st">"great_tables"</span>) <span class="op">/</span> <span class="st">"data/metro_images"</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>metro_mini <span class="op">=</span> metro[[<span class="st">"name"</span>, <span class="st">"lines"</span>, <span class="st">"passengers"</span>]].head(<span class="dv">5</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    GT(metro_mini)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    .fmt_image(</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span><span class="st">"lines"</span>,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        path<span class="op">=</span>img_paths,</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        file_pattern<span class="op">=</span><span class="st">"metro_</span><span class="sc">{}</span><span class="st">.svg"</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    .fmt_integer(columns<span class="op">=</span><span class="st">"passengers"</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="why-is-this-on-the-great-tables-blog" class="level2">
+<h2 class="anchored" data-anchor-id="why-is-this-on-the-great-tables-blog">Why is this on the Great Tables blog?</h2>
+<p>It gives me the opportunity to show off a lot of interesting, transit related tables!</p>
+<section id="great-tables-data-paris-metro-lines" class="level3">
+<h3 class="anchored" data-anchor-id="great-tables-data-paris-metro-lines">Great Tables data: Paris metro lines</h3>
+<p>If you’ve seen the Great Tables documentation for <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image"><code>GT.fmt_image()</code></a>, then you’ve basked in this beautiful example from our Paris <a href="../../reference/data.metro.html#great_tables.data.metro"><code>metro</code></a> dataset.</p>
+<div id="36981013" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> metro</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib_resources <span class="im">import</span> files</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>img_paths <span class="op">=</span> files(<span class="st">"great_tables"</span>) <span class="op">/</span> <span class="st">"data/metro_images"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>metro_mini <span class="op">=</span> metro[[<span class="st">"name"</span>, <span class="st">"lines"</span>, <span class="st">"passengers"</span>]].head(<span class="dv">5</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    GT(metro_mini)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    .fmt_image(columns<span class="op">=</span><span class="st">"lines"</span>, path<span class="op">=</span>img_paths, file_pattern<span class="op">=</span><span class="st">"metro_</span><span class="sc">{}</span><span class="st">.svg"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    .fmt_integer(columns<span class="op">=</span><span class="st">"passengers"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="vhioretuem" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="lptcbhodeh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#vhioretuem table {
+#lptcbhodeh table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#vhioretuem thead, tbody, tfoot, tr, td, th { border-style: none; }
+#lptcbhodeh thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#vhioretuem p { margin: 0; padding: 0; }
- #vhioretuem .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #vhioretuem .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #vhioretuem .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #vhioretuem .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #vhioretuem .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #vhioretuem .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #vhioretuem .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #vhioretuem .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #vhioretuem .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #vhioretuem .gt_column_spanner_outer:first-child { padding-left: 0; }
- #vhioretuem .gt_column_spanner_outer:last-child { padding-right: 0; }
- #vhioretuem .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #vhioretuem .gt_spanner_row { border-bottom-style: hidden; }
- #vhioretuem .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #vhioretuem .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #vhioretuem .gt_from_md> :first-child { margin-top: 0; }
- #vhioretuem .gt_from_md> :last-child { margin-bottom: 0; }
- #vhioretuem .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #vhioretuem .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #vhioretuem .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #vhioretuem .gt_row_group_first td { border-top-width: 2px; }
- #vhioretuem .gt_row_group_first th { border-top-width: 2px; }
- #vhioretuem .gt_striped { background-color: rgba(128,128,128,0.05); }
- #vhioretuem .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #vhioretuem .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #vhioretuem .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #vhioretuem .gt_left { text-align: left; }
- #vhioretuem .gt_center { text-align: center; }
- #vhioretuem .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #vhioretuem .gt_font_normal { font-weight: normal; }
- #vhioretuem .gt_font_bold { font-weight: bold; }
- #vhioretuem .gt_font_italic { font-style: italic; }
- #vhioretuem .gt_super { font-size: 65%; }
- #vhioretuem .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #vhioretuem .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#lptcbhodeh p { margin: 0; padding: 0; }
+ #lptcbhodeh .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #lptcbhodeh .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #lptcbhodeh .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #lptcbhodeh .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #lptcbhodeh .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #lptcbhodeh .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #lptcbhodeh .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #lptcbhodeh .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #lptcbhodeh .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #lptcbhodeh .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #lptcbhodeh .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #lptcbhodeh .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #lptcbhodeh .gt_spanner_row { border-bottom-style: hidden; }
+ #lptcbhodeh .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #lptcbhodeh .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #lptcbhodeh .gt_from_md> :first-child { margin-top: 0; }
+ #lptcbhodeh .gt_from_md> :last-child { margin-bottom: 0; }
+ #lptcbhodeh .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #lptcbhodeh .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #lptcbhodeh .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #lptcbhodeh .gt_row_group_first td { border-top-width: 2px; }
+ #lptcbhodeh .gt_row_group_first th { border-top-width: 2px; }
+ #lptcbhodeh .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #lptcbhodeh .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #lptcbhodeh .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #lptcbhodeh .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #lptcbhodeh .gt_left { text-align: left; }
+ #lptcbhodeh .gt_center { text-align: center; }
+ #lptcbhodeh .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #lptcbhodeh .gt_font_normal { font-weight: normal; }
+ #lptcbhodeh .gt_font_bold { font-weight: bold; }
+ #lptcbhodeh .gt_font_italic { font-style: italic; }
+ #lptcbhodeh .gt_super { font-size: 65%; }
+ #lptcbhodeh .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #lptcbhodeh .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -380,6 +367,72 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
         
 </div>
 </div>
+</section>
+<section id="amtrak-interactive-route-table" class="level3">
+<h3 class="anchored" data-anchor-id="amtrak-interactive-route-table">Amtrak interactive route table</h3>
+<p>Our 2022 Annual Posit Table Contest received the most incredible entry—an interactive table of Amtrak routes. The table uses the library reactable in R (which we recently <a href="https://github.com/machow/reactable-py">ported to Python</a>!).</p>
+<p>Here is a link to to <a href="https://joshfangmeier.quarto.pub/table-contest-2022/#sec-table">the interactive Amtrak table by Josh Fangmeier</a>. And I’ll drop a handy screenshot below.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="amtrak-routes.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:85.0%"></p>
+</figure>
+</div>
+<p><br><br></p>
+</section>
+<section id="cal-itp-trips-table" class="level3">
+<h3 class="anchored" data-anchor-id="cal-itp-trips-table">Cal-ITP trips table</h3>
+<p>Our 2024 contest saw a great set of transit tables submitted by Tiffany Ku at CalTrans (<a href="https://forum.posit.co/t/hourly-transit-service-patterns-table-contest/187805">submission</a>, <a href="https://github.com/tiffanychu90/great-tables-contest">github repo</a>). The submission showed service patterns using stop times binned by hour. It produced these for all California operators!</p>
+<p>Here is the reasoning given behind the table:</p>
+<blockquote class="blockquote">
+<p>We can see what service patterns look like across operators by hour of the day. In one table, we can quickly see a summary snapshot of what this service pattern is and see the type of riders the operator typically serves. Here’s the same <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7160583/figure/fig6/">chart</a> made in a <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7160583">paper</a> about for transit in Calgary, Canada.</p>
+</blockquote>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="calitp-service-patterns.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:85.0%"></p>
+</figure>
+</div>
+</section>
+</section>
+<section id="what-are-you-hoping-to-contribute" class="level2">
+<h2 class="anchored" data-anchor-id="what-are-you-hoping-to-contribute">What are you hoping to contribute?</h2>
+<p>I’m hoping to focus on two things:</p>
+<ul>
+<li>Workshops to support R and Python analyst teams (and help me appreciate their needs).</li>
+<li>Collaboration on creating open source tools and guides for analyzing transit data.</li>
+</ul>
+<section id="workshops" class="level3">
+<h3 class="anchored" data-anchor-id="workshops">Workshops</h3>
+<p>Beyond my obvious potential involvement as a table fanatic, I’m really interested in making the daily lives of R and Python users at public transit agencies easier.</p>
+<ul>
+<li><strong>Workshops on R</strong>. Think Tidyverse, Shiny, Quarto, querying warehouses.</li>
+<li><strong>Workshops on Python</strong>. Let’s say Polars, Quarto, publishing notebooks, Great Tables, dashboards.</li>
+<li><strong>Analytics engineering</strong>. How to get analysts to use your data models 😓.</li>
+</ul>
+<p>I’m open to whatever topics seem most useful, even if they aren’t in the list above.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Scheduling a workshop">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Scheduling a workshop
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you’re a public transit agency, reach out on <a href="https://www.linkedin.com/in/michael-a-chow/">linkedin</a> or <a href="https://bsky.app/profile/mchow.com">bluesky</a>, and I will send my calendly for scheduling.</p>
+</div>
+</div>
+</section>
+<section id="collaboration" class="level3">
+<h3 class="anchored" data-anchor-id="collaboration">Collaboration</h3>
+<p>I’m interested in understanding major challenges analytics teams working on public transit face, and the kind of strategic and tooling support they’d most benefit from. If you’re working on analytics in public transit, I would love to hear about what you’re working on, and the tools you use most.</p>
+<p>One topic I’ve discussed with a few agencies is <a href="https://wwww.septa.org/news/ghost-bus-ting/">ghost busses</a>, which is when a bus is scheduled but never shows up. This is an interesting analysis because it combines GTFS schedule data with GTFS-RT realtime bus data.</p>
+<p>Another is passenger events (e.g.&nbsp;people tapping on or off a bus). This data is challenging because different vendors data record and deliver this data in different ways. This can make it hard for analysts across agencies to discuss analyses—every analysis is different in its own way.</p>
+</section>
+</section>
+<section id="in-summary" class="level2">
+<h2 class="anchored" data-anchor-id="in-summary">In summary</h2>
+<p>Analytics in public transit is a really neat, impactful area—with an active community working on open source data standards and tooling. As a data science tool builder on the open source team at Posit, PBC, my mission is to create value and give it away to teams using Python or R for code first data science. I’d love to support open source work in public transit however is most useful.</p>
 
 
 </section>
