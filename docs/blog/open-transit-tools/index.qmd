@@ -16,7 +16,7 @@ At this point, you might be wondering three things:
 
 ## Why focus on open source in public transit?
 
-People doing analytics in public transit are active in developing open data standards (like GTFS, GTFS-RT, and TIDES). These open data sources are complex---they cover schedules that change from week to week, busses moving in realtime, and passenger events. As people like me work more and more on open source tools, we start to lose touch with data analysis in realistic, complex settings. Working on open source transit data is an opportunity for me to ensure my open source tooling work helps people solve real, complex problems.
+People doing analytics in public transit are active in developing open data standards (like GTFS, GTFS-RT, and TIDES). These open data sources are complex---they cover schedules that change from week to week, buses moving in realtime, and passenger events. As people like me work more and more on open source tools, we start to lose touch with data analysis in realistic, complex settings. Working on open source transit data is an opportunity for me to ensure my open source tooling work helps people solve real, complex problems.
 
 An inspiration for this angle is the book [R for Data Science](https://r4ds.hadley.nz/), which uses realistic datasets---like NYC flights data---to teach data analysis using an ecosystem of packages called the Tidyverse.
 The Tidyverse packages have dozens of example datasets, and I think this focus on working through examples is part of what made their design so great.
@@ -107,7 +107,7 @@ If you're a public transit agency, reach out on [linkedin](https://www.linkedin.
 
 I'm interested in understanding major challenges analytics teams working on public transit face, and the kind of strategic and tooling support they'd most benefit from. If you're working on analytics in public transit, I would love to hear about what you're working on, and the tools you use most.
 
-One topic I've discussed with a few agencies is [ghost busses](https://wwww.septa.org/news/ghost-bus-ting/),
+One topic I've discussed with a few agencies is [ghost buses](https://wwww.septa.org/news/ghost-bus-ting/),
 which is when a bus is scheduled but never shows up. This is an interesting analysis because it combines GTFS schedule data with GTFS-RT realtime bus data.
 
 Another is passenger events (e.g. people tapping on or off a bus). This data is challenging because different vendors data record and deliver this data in different ways. This can make it hard for analysts across agencies to discuss analyses---every analysis is different in its own way.
