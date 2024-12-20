@@ -69,7 +69,7 @@ films_mini = (
 (
     GT(films_mini)
     .fmt_flag(columns="countries_of_origin")
-    .tab_header(title="In Competition Films by the Michael Haneke")
+    .tab_header(title="In Competition Films by Michael Haneke")
     .opt_stylize()
     .tab_options(column_labels_hidden=True)
     .opt_table_font(font=google_font("PT Sans"))
@@ -80,7 +80,7 @@ The column `countries_of_origin` has these combined strings for each of the co-p
 
 ### Using `fmt_icon()` to include Font Awesome icons
 
-The new `fmt_icon()` method gives you the ability to easily include FontAwesome icons in a table. It uses a similar input/output scheme as with `fmt_flag()`: provide the *short* icon name (e.g., `"table"`, `"music"`, `"globe"`, etc.) or a comma-separated list of them, and `fmt_icon()` will provide the Font Awesome icon in place. Let's see it in action with an example that uses the `metro` dataset:
+The new `fmt_icon()` method gives you the ability to easily include Font Awesome icons in a table. It uses a similar input/output scheme as with `fmt_flag()`: provide the *short* icon name (e.g., `"table"`, `"music"`, `"globe"`, etc.) or a comma-separated list of them, and `fmt_icon()` will provide the Font Awesome icon in place. Let's see it in action with an example that uses the `metro` dataset:
 
 ```{python}
 from great_tables import GT
@@ -112,11 +112,11 @@ metro_mini = (
 
 In the code, we added in the icon names `"train"` and `"train-tram"` to the `services` column, and there could either be just the train icon or the pair that includes the tramway service. We wanted a little separation between the icons in the latter case, so `sep=" / "` was used to place a slash with spacing between any pair of icons. The icons appear here with a black fill color, but that can be changed with the `fill_color=` argument (and there are several other arguments for controlling style attributes).
 
-For a list of available icons, their names, and what they look like, check out [this listing on the FontAwesome website](https://fontawesome.com/search?m=free&o=r). The icons draw from the Font Awesome 'free' set (2000+ icons in total) but are not obtained via the web. Rather, we use the [faicons library](https://pypi.org/project/faicons/) so that this can be done entirely offline (directly using the SVG icons stored within faicons).
+For a list of available icons, their names, and what they look like, check out [this listing on the Font Awesome website](https://fontawesome.com/search?m=free&o=r). The icons draw from the Font Awesome 'free' set (2000+ icons in total) but are not obtained via the web. Rather, we use the [faicons library](https://pypi.org/project/faicons/) so that this can be done entirely offline (directly using the SVG icons stored within faicons).
 
 ### Accounting notation in select numeric formatting methods
 
-For certain types of tables, it may be preferable to use accounting notation for certain numerical figures. This type of notation renders negative values in parentheses while omitting the minus sign. This is often seen for monetary and percentage figures but it's also sensible for plain numbers in the right context. We've added support for accounting notation in four formatting methods:
+For certain types of tables, it may be preferable to use accounting notation for numerical figures. This type of notation renders negative values in parentheses while omitting the minus sign. This is often seen for monetary and percentage figures but it's also sensible for plain numbers in the right context. We've added support for accounting notation in four formatting methods:
 
 - `fmt_number()`
 - `fmt_integer()`
