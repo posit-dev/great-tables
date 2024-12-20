@@ -2,6 +2,7 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/introduction-0.15.0/index.html",
       "/blog/open-transit-tools/index.html",
       "/blog/rendering-images/index.html",
       "/blog/latex-output-tables/index.html",
