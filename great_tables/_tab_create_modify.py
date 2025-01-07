@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ._helpers import GoogleFont
 from ._locations import Loc, PlacementOptions, set_footnote, set_style
 from ._styles import CellStyle
-from ._helpers import GoogleFont
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -150,6 +149,53 @@ def tab_style(
         new_data = set_style(loc, new_data, style)
 
     return new_data
+
+
+def tab_css(
+    self: GTSelf,
+    css: str | list[str],
+    add: bool = True,
+    append: bool = True,
+    allow_duplicates: bool = False,
+) -> GTSelf:
+    """
+    Add custom CSS rules for the table.
+
+    Parameters
+    ----------
+    css
+        A single CSS rule as a string, or, multiple rules as a list of strings.
+    add
+        If `True`, the CSS rules are added to the existing CSS rules. If `False`, any existing CSS
+        rules defined by `tab_css()` are replaced with the new rules.
+    append
+        If `True`, the CSS rules are appended to the existing CSS rules. If False, the CSS rules are
+        prepended to the existing CSS rules.
+    allow_duplicates
+        If `True`, duplicate CSS rules are allowed. If `False`, duplicate CSS rules are removed.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+    """
+
+    if not isinstance(css, list):
+        css = [css]
+
+    if add:
+        if append:
+            new_css = self._css + css
+        else:
+            new_css = css + self._css
+    else:
+        new_css = css
+
+    if not allow_duplicates:
+        new_css = list(set(new_css))
+
+    return self._replace(_css=new_css)
 
 
 # TODO: note that this function does not yet render, and rendering
