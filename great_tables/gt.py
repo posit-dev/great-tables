@@ -58,7 +58,7 @@ from ._spanners import (
 from ._stub import reorder_stub_df
 from ._stubhead import tab_stubhead
 from ._substitution import sub_missing, sub_zero
-from ._tab_create_modify import tab_style
+from ._tab_create_modify import tab_css, tab_style
 from ._tbl_data import _get_cell, n_rows
 from ._utils import _migrate_unformatted_to_output
 from ._utils_render_html import (
@@ -263,6 +263,7 @@ class GT(
     tab_spanner = tab_spanner
     tab_stubhead = tab_stubhead
     tab_style = tab_style
+    tab_css = tab_css
     tab_options = tab_options
 
     row_group_order = row_group_order
