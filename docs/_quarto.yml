@@ -114,6 +114,7 @@ quartodoc:
         - GT.tab_stubhead
         - GT.tab_source_note
         - GT.tab_style
+        - GT.tab_css
         - GT.tab_options
     - title: Formatting column data
       desc: >
