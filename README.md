@@ -12,11 +12,12 @@ _Absolutely Delightful Table-making in Python_
 [![CI Build](https://github.com/posit-dev/great-tables/actions/workflows/ci-tests.yaml/badge.svg)](https://github.com/posit-dev/great-tables/actions/workflows/ci-tests.yaml)
 [![Codecov branch](https://img.shields.io/codecov/c/github/posit-dev/great-tables/main.svg)](https://codecov.io/gh/posit-dev/great-tables)
 [![Repo Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14618357.svg)](https://doi.org/10.5281/zenodo.14618357)
 [![Documentation](https://img.shields.io/badge/docs-project_website-blue.svg)](https://posit-dev.github.io/great-tables/)
 
 [![Contributors](https://img.shields.io/github/contributors/posit-dev/great-tables)](https://github.com/posit-dev/great-tables/graphs/contributors)
 [![Discord](https://img.shields.io/discord/1086103944280952992?color=%237289da&label=Discord)](https://discord.com/invite/Ux7nrcXHVV)
+[![pyOpenSci Peer-Reviewed](https://pyopensci.org/badges/peer-reviewed.svg)](https://github.com/pyOpenSci/software-review/issues/202)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14618357.svg)](https://doi.org/10.5281/zenodo.14618357)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.1%20adopted-ff69b4.svg)](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html)
 
 </div>
