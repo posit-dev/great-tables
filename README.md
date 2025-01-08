@@ -12,6 +12,7 @@ _Absolutely Delightful Table-making in Python_
 [![CI Build](https://github.com/posit-dev/great-tables/actions/workflows/ci-tests.yaml/badge.svg)](https://github.com/posit-dev/great-tables/actions/workflows/ci-tests.yaml)
 [![Codecov branch](https://img.shields.io/codecov/c/github/posit-dev/great-tables/main.svg)](https://codecov.io/gh/posit-dev/great-tables)
 [![Repo Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14618357.svg)](https://doi.org/10.5281/zenodo.14618357)
 [![Documentation](https://img.shields.io/badge/docs-project_website-blue.svg)](https://posit-dev.github.io/great-tables/)
 
 [![Contributors](https://img.shields.io/github/contributors/posit-dev/great-tables)](https://github.com/posit-dev/great-tables/graphs/contributors)
