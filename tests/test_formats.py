@@ -2236,6 +2236,18 @@ def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
     )
 
 
+def test_fmt_nanoplot_accept_pl_uint():
+    """
+    https://github.com/posit-dev/great-tables/issues/571
+    """
+    single_vals_df = pl.DataFrame({"bars": [1, 2, 3, 5]})
+
+    # Call `as_raw_html()` to trigger `_generate_nanoplot()` and expose the rendering issue.
+    single_vals_df.select("bars").cast(pl.UInt32).style.fmt_nanoplot(
+        columns="bars", plot_type="bar"
+    ).as_raw_html()
+
+
 @pytest.mark.parametrize(
     "plot_type",
     [
