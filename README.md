@@ -16,6 +16,8 @@ _Absolutely Delightful Table-making in Python_
 
 [![Contributors](https://img.shields.io/github/contributors/posit-dev/great-tables)](https://github.com/posit-dev/great-tables/graphs/contributors)
 [![Discord](https://img.shields.io/discord/1086103944280952992?color=%237289da&label=Discord)](https://discord.com/invite/Ux7nrcXHVV)
+[![pyOpenSci Peer-Reviewed](https://pyopensci.org/badges/peer-reviewed.svg)](https://github.com/pyOpenSci/software-review/issues/202)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14618357.svg)](https://doi.org/10.5281/zenodo.14618357)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.1%20adopted-ff69b4.svg)](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html)
 
 </div>
