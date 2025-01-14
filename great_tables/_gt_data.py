@@ -379,7 +379,11 @@ class Boxhead(_Sequence[ColInfo]):
                 align.append("left")
             elif col_class == "string":
                 align.append("left")
-            elif _str_detect(col_class, "int") or _str_detect(col_class, "float"):
+            elif (
+                _str_detect(col_class, "int")
+                or _str_detect(col_class, "uint")
+                or _str_detect(col_class, "float")
+            ):
                 align.append("right")
             elif _str_detect(col_class, "date"):
                 align.append("right")

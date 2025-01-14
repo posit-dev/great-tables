@@ -4601,7 +4601,11 @@ def fmt_nanoplot(
 
     col_class = str(column_d_type).lower()
 
-    if _str_detect(col_class, "int") or _str_detect(col_class, "float"):
+    if (
+        _str_detect(col_class, "int")
+        or _str_detect(col_class, "uint")
+        or _str_detect(col_class, "float")
+    ):
         scalar_vals = True
     else:
         scalar_vals = False
