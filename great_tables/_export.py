@@ -541,7 +541,7 @@ def _dump_debug_screenshot(driver, path):
     driver.save_screenshot(path)
 
 
-def write_html(
+def write_raw_html(
     gt: GT,
     filename: str | Path | None = None,
     encoding: str = "utf-8",

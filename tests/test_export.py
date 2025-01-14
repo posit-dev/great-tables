@@ -100,20 +100,20 @@ def test_create_temp_file_server():
         thread.join()
 
 
-def test_write_html_default(gt_tbl):
-    assert as_raw_html(gt_tbl) == gt_tbl.write_html()
+def test_write_raw_html_default(gt_tbl):
+    assert as_raw_html(gt_tbl) == gt_tbl.write_raw_html()
 
 
-def test_write_html(gt_tbl):
+def test_write_raw_html(gt_tbl):
     with tempfile.TemporaryDirectory() as tmp_dir:
         # pass the filename as a pathlib.Path() object
         p_file = Path(tmp_dir, "table1.html")
-        gt_tbl.write_html(p_file)
+        gt_tbl.write_raw_html(p_file)
         assert p_file.exists()
 
         # Pass the filename as a string
         s_file = str(Path(tmp_dir, "table2.html"))
-        gt_tbl.write_html(s_file)
+        gt_tbl.write_raw_html(s_file)
         assert Path(s_file).exists()
 
 
