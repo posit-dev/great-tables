@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from ._gt_data import RowGroups, Stub
-from .utils_render_common import get_row_reorder_df
+from ._gt_data import Stub
 
 
 def reorder_stub_df(stub_df: Stub) -> Stub:

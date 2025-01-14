@@ -9,13 +9,15 @@ _Absolutely Delightful Table-making in Python_
 [![PyPI Downloads](https://img.shields.io/pypi/dm/great-tables)](https://pypistats.org/packages/great-tables)
 [![License](https://img.shields.io/github/license/posit-dev/great-tables)](https://img.shields.io/github/license/posit-dev/great-tables)
 
-[![CI Build](https://github.com/posit-dev/great-tables/workflows/CI%20Tests/badge.svg?branch=main)](https://github.com/posit-dev/great-tables/actions?query=workflow%3A%22CI+Tests%22+branch%3Amain)
+[![CI Build](https://github.com/posit-dev/great-tables/actions/workflows/ci-tests.yaml/badge.svg)](https://github.com/posit-dev/great-tables/actions/workflows/ci-tests.yaml)
 [![Codecov branch](https://img.shields.io/codecov/c/github/posit-dev/great-tables/main.svg)](https://codecov.io/gh/posit-dev/great-tables)
 [![Repo Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Documentation](https://img.shields.io/badge/docs-project_website-blue.svg)](https://posit-dev.github.io/great-tables/)
 
 [![Contributors](https://img.shields.io/github/contributors/posit-dev/great-tables)](https://github.com/posit-dev/great-tables/graphs/contributors)
 [![Discord](https://img.shields.io/discord/1086103944280952992?color=%237289da&label=Discord)](https://discord.com/invite/Ux7nrcXHVV)
+[![pyOpenSci Peer-Reviewed](https://pyopensci.org/badges/peer-reviewed.svg)](https://github.com/pyOpenSci/software-review/issues/202)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14618357.svg)](https://doi.org/10.5281/zenodo.14618357)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.1%20adopted-ff69b4.svg)](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html)
 
 </div>
@@ -26,7 +28,7 @@ With **Great Tables** anyone can make wonderful-looking tables in Python. The ph
 <img src="https://posit-dev.github.io/great-tables/assets/the_components_of_a_table.svg" width="800px">
 </div>
 
-It all begins with **table data** in the form of a Pandas or Polars DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered by printing it at the console, including it in an notebook environment, or rendering it inside a **Quarto** document.
+It all begins with **table data** in the form of a Pandas or Polars DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered to HTML (the default option) or to an image file.
 
 The **Great Tables** package is designed to be both straightforward yet powerful. The emphasis is on simple methods for the everyday display table needs (but power when you need it). Here is a brief example of how to use **Great Tables** to create a table from the included `sp500` dataset:
 
@@ -56,7 +58,9 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 <img src="https://posit-dev.github.io/great-tables/assets/gt_sp500_table.svg" width="800px">
 </div>
 
-There are ten datasets provided by **Great Tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `metro`, `constants`, and `illness`.
+Typically we use Great Tables in an notebook environment or within a [**Quarto**](https://quarto.org) document. Tables won't print to the console, but using the [`show()` method](https://posit-dev.github.io/great-tables/reference/GT.show.html#great_tables.GT.show) on a table object while in the console will open the HTML table in your default browser.
+
+There are 16 datasets provided by **Great Tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `peeps`, `films`, `metro`, `gibraltar`, `constants`, `illness`, `reactions`, `photolysis`, and `nuclides`.
 
 <div align="center" style="padding-top:20px">
 <img src="https://posit-dev.github.io/great-tables/assets/datasets.png" style="width:100%;">
@@ -92,17 +96,43 @@ The **Great Tables** package can be installed from **PyPI** with:
 $ pip install great_tables
 ```
 
+You can also install [Great Tables from Conda-Forge](https://anaconda.org/conda-forge/great_tables) by using:
+
+```bash
+conda install conda-forge::great_tables
+```
+
 If you encounter a bug, have usage questions, or want to share ideas to make this package better, please feel free to file an [issue](https://github.com/posit-dev/great-tables/issues).
 
 ## Code of Conduct
 
 Please note that the **Great Tables** project is released with a [contributor code of conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).<br>By participating in this project you agree to abide by its terms.
 
+## Contributing to **Great Tables**
+
+There are many ways to contribute to the ongoing development of the **Great Tables** package. Some contributions can be simple (like fixing typos, improving documentation, filing issues for feature requests or problems, etc.) and others might take more time and care (like answering questions and submitting PRs with code changes). Just know that anything you can do to help would be very much appreciated!
+
+Please read over the [contributing guidelines](https://github.com/posit-dev/great-tables/blob/main/CONTRIBUTING.md) for information on how to get started.
+
 ## 📄 License
 
 **Great Tables** is licensed under the MIT license.
 
 © Posit Software, PBC.
+
+## Citation
+
+If you use **Great Tables** in your research/project/product, we would appreciate a citation to the package. You can cite the package using the following BibTeX entry:
+
+```bibtex
+@software{Iannone_great_tables,
+author = {Iannone, Richard and Chow, Michael},
+license = {MIT},
+title = {{great-tables: Make awesome display tables using Python.}},
+url = {https://github.com/posit-dev/great-tables},
+version = {0.14.0}
+}
+```
 
 ## 🏛️ Governance
 

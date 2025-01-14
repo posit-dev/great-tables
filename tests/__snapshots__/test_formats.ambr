@@ -11,6 +11,49 @@
   </tbody>
   '''
 # ---
+# name: test_format_accounting_snap
+  '''
+  class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+  
+  <tr class="gt_col_headings">
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="number">number</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="percent">percent</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="integer">integer</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="number_acc">number_acc</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="percent_acc">percent_acc</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="integer_acc">integer_acc</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency_acc">currency_acc</th>
+  </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_right">−1.20</td>
+      <td class="gt_row gt_right">−5.23%</td>
+      <td class="gt_row gt_right">−23,213</td>
+      <td class="gt_row gt_right">−$24,334.23</td>
+      <td class="gt_row gt_right">(1.20)</td>
+      <td class="gt_row gt_right">(5.23%)</td>
+      <td class="gt_row gt_right">(23,213)</td>
+      <td class="gt_row gt_right">($24,334.23)</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">23.60</td>
+      <td class="gt_row gt_right">36.30%</td>
+      <td class="gt_row gt_right">2,323</td>
+      <td class="gt_row gt_right">$7,323.25</td>
+      <td class="gt_row gt_right">23.60</td>
+      <td class="gt_row gt_right">36.30%</td>
+      <td class="gt_row gt_right">2,323</td>
+      <td class="gt_row gt_right">$7,323.25</td>
+    </tr>
+  </tbody>
+  
+  
+  
+  '''
+# ---
 # name: test_format_repr_snap
   '''
   class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">

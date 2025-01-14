@@ -52,6 +52,9 @@ website:
             - get-started/column-selection.qmd
             - get-started/row-selection.qmd
             - get-started/loc-selection.qmd
+        - section: Extra
+          contents:
+            - get-started/contributing.qmd
 
 format:
   html:
@@ -132,6 +135,8 @@ quartodoc:
         - GT.fmt_markdown
         - GT.fmt_units
         - GT.fmt_image
+        - GT.fmt_icon
+        - GT.fmt_flag
         - GT.fmt_nanoplot
         - GT.fmt
         - GT.data_color
@@ -215,6 +220,13 @@ quartodoc:
         - GT.show
         - GT.write_raw_html
         - GT.as_latex
+    - title: Pipeline
+      desc: >
+        Sometimes, you might want to programmatically manipulate the table while still benefiting
+        from the chained API that **Great Tables** offers. `pipe()` is designed to tackle this
+        issue.
+      contents:
+        - GT.pipe
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of
@@ -235,7 +247,8 @@ quartodoc:
       desc: >
         The **Great Tables** package is equipped with sixteen datasets that come in all shapes and
         sizes. Many examples thoughout the help docs use these datasets to quickly demonstrate the
-        awesome features of the package!
+        awesome features of the package! Please note that using any of these datasets requires the
+        Pandas library to be installed.
       contents:
         - data.countrypops
         - data.sza

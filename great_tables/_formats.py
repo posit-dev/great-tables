@@ -10,27 +10,32 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, TypedDict, TypeVar, cast
 
 import babel
+import faicons
 from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
 
 from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
 from ._helpers import px
-from ._locale import _get_currencies_data, _get_default_locales_data, _get_locales_data
+from ._locale import (
+    _get_currencies_data,
+    _get_default_locales_data,
+    _get_flags_data,
+    _get_locales_data,
+)
 from ._locations import resolve_cols_c, resolve_rows_i
 from ._tbl_data import (
     Agnostic,
     DataFrameLike,
     PlExpr,
     SelectExpr,
+    _get_column_dtype,
     is_na,
     is_series,
     to_list,
-    _get_column_dtype,
 )
 from ._text import _md_html, escape_pattern_str_latex
-from ._utils import _str_detect, _str_replace
+from ._utils import is_valid_http_schema, _str_detect, _str_replace
 from ._utils_nanoplots import _generate_nanoplot
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -153,6 +158,7 @@ def fmt_number(
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
+    accounting: bool = False,
     scale_by: float = 1,
     compact: bool = False,
     pattern: str = "{x}",
@@ -211,6 +217,9 @@ def fmt_number(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -294,6 +303,7 @@ def fmt_number(
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
+        accounting=accounting,
         scale_by=scale_by,
         compact=compact,
         sep_mark=sep_mark,
@@ -313,6 +323,7 @@ def fmt_number_context(
     drop_trailing_zeros: bool,
     drop_trailing_dec_mark: bool,
     use_seps: bool,
+    accounting: bool,
     scale_by: float,
     compact: bool,
     sep_mark: str,
@@ -355,14 +366,17 @@ def fmt_number_context(
             force_sign=force_sign,
         )
 
-    # Implement minus sign replacement for `x_formatted`
+    # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-        minus_mark = _context_minus_mark(context=context)
-        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
+        else:
+            minus_mark = _context_minus_mark(context=context)
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -378,6 +392,7 @@ def fmt_integer(
     rows: int | list[int] | None = None,
     use_seps: bool = True,
     scale_by: float = 1,
+    accounting: bool = False,
     compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
@@ -418,6 +433,9 @@ def fmt_integer(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     compact
         A boolean value that allows for compact formatting of numeric values. Values will be scaled
         and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
@@ -488,6 +506,7 @@ def fmt_integer(
         data=self,
         use_seps=use_seps,
         scale_by=scale_by,
+        accounting=accounting,
         compact=compact,
         sep_mark=sep_mark,
         force_sign=force_sign,
@@ -502,6 +521,7 @@ def fmt_integer_context(
     data: GTData,
     use_seps: bool,
     scale_by: float,
+    accounting: bool,
     compact: bool,
     sep_mark: str,
     force_sign: bool,
@@ -543,14 +563,17 @@ def fmt_integer_context(
             force_sign=force_sign,
         )
 
-    # Implement minus sign replacement for `x_formatted`
+    # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-        minus_mark = _context_minus_mark(context=context)
-        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
+        else:
+            minus_mark = _context_minus_mark(context=context)
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -832,7 +855,6 @@ def fmt_scientific_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -851,6 +873,7 @@ def fmt_percent(
     drop_trailing_dec_mark: bool = True,
     scale_values: bool = True,
     use_seps: bool = True,
+    accounting: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -910,6 +933,9 @@ def fmt_percent(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -997,6 +1023,7 @@ def fmt_percent(
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
+        accounting=accounting,
         scale_by=scale_by,
         sep_mark=sep_mark,
         dec_mark=dec_mark,
@@ -1016,6 +1043,7 @@ def fmt_percent_context(
     drop_trailing_zeros: bool,
     drop_trailing_dec_mark: bool,
     use_seps: bool,
+    accounting: bool,
     scale_by: float,
     sep_mark: str,
     dec_mark: str,
@@ -1069,14 +1097,17 @@ def fmt_percent_context(
     else:
         x_formatted = percent_pattern.replace("{x}", x_formatted)
 
-    # Implement minus sign replacement for `x_formatted`
+    # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-        minus_mark = _context_minus_mark(context="html")
-        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
+        else:
+            minus_mark = _context_minus_mark(context=context)
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -1095,6 +1126,7 @@ def fmt_currency(
     decimals: int | None = None,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
+    accounting: bool = False,
     scale_by: float = 1,
     pattern: str = "{x}",
     sep_mark: str = ",",
@@ -1154,6 +1186,9 @@ def fmt_currency(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        Whether to use accounting style, which wraps negative numbers in parentheses instead of
+        using a minus sign.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -1257,6 +1292,7 @@ def fmt_currency(
         decimals=decimals,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
+        accounting=accounting,
         scale_by=scale_by,
         sep_mark=sep_mark,
         dec_mark=dec_mark,
@@ -1276,6 +1312,7 @@ def fmt_currency_context(
     decimals: int,
     drop_trailing_dec_mark: bool,
     use_seps: bool,
+    accounting: bool,
     scale_by: float,
     sep_mark: str,
     dec_mark: str,
@@ -1334,14 +1371,17 @@ def fmt_currency_context(
     else:
         x_formatted = currency_pattern.replace("{x}", x_formatted)
 
-    # Implement minus sign replacement for `x_formatted`
+    # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
-        minus_mark = _context_minus_mark(context=context)
-        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+        if accounting:
+            x_formatted = f"({_remove_minus(x_formatted)})"
+
+        else:
+            minus_mark = _context_minus_mark(context=context)
+            x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -1465,7 +1505,6 @@ def fmt_roman_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -1723,7 +1762,6 @@ def fmt_bytes_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -1864,7 +1902,6 @@ def fmt_date_context(
 
     # If `x` is a string, we assume it is an ISO date string and convert it to a date object
     if isinstance(x, str):
-
         # Convert the ISO date string to a date object
         x = _iso_str_to_date(x)
 
@@ -1883,7 +1920,6 @@ def fmt_date_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -2012,7 +2048,6 @@ def fmt_time_context(
 
     # If `x` is a string, assume it is an ISO time string and convert it to a time object
     if isinstance(x, str):
-
         # Convert the ISO time string to a time object
         x = _iso_str_to_time(x)
 
@@ -2031,7 +2066,6 @@ def fmt_time_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -2186,7 +2220,6 @@ def fmt_datetime_context(
 
     # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
     if isinstance(x, str):
-
         # Convert the ISO datetime string to a datetime object
         x = _iso_str_to_datetime(x)
 
@@ -2205,7 +2238,6 @@ def fmt_datetime_context(
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
-
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
@@ -2293,7 +2325,6 @@ def fmt_markdown_context(
     data: GTData,
     context: str,
 ) -> str:
-
     if context == "latex":
         raise NotImplementedError("fmt_markdown() is not supported in LaTeX.")
 
@@ -2888,13 +2919,12 @@ def _has_sci_order_zero(value: int | float) -> bool:
 
 
 def _context_exp_marks(context: str) -> list[str]:
-
     if context == "html":
-        marks = [" \u00D7 10<sup style='font-size: 65%;'>", "</sup>"]
+        marks = [" \u00d7 10<sup style='font-size: 65%;'>", "</sup>"]
     elif context == "latex":
         marks = [" $\\times$ 10\\textsuperscript{", "}"]
     else:
-        marks = [" \u00D7 10^", ""]
+        marks = [" \u00d7 10^", ""]
 
     return marks
 
@@ -2917,7 +2947,6 @@ def _context_exp_str(exp_style: str) -> str:
 
 
 def _context_minus_mark(context: str) -> str:
-
     if context == "html":
         mark = "\u2212"
     else:
@@ -2927,7 +2956,6 @@ def _context_minus_mark(context: str) -> str:
 
 
 def _context_percent_mark(context: str) -> str:
-
     if context == "latex":
         mark = "\\%"
     else:
@@ -2937,7 +2965,6 @@ def _context_percent_mark(context: str) -> str:
 
 
 def _context_dollar_mark(context: str) -> str:
-
     if context == "latex":
         mark = "\\$"
     else:
@@ -2958,6 +2985,19 @@ def _replace_minus(string: str, minus_mark: str) -> str:
         str: The modified string with the minus sign replaced.
     """
     return _str_replace(string, "-", minus_mark)
+
+
+def _remove_minus(string: str) -> str:
+    """
+    Removes all occurrences of the minus sign '-' in the given string.
+
+    Args:
+        string (str): The input string.
+
+    Returns:
+        str: The modified string with the minus sign removed.
+    """
+    return _str_replace(string, "-", "")
 
 
 T_dict = TypeVar("T_dict", bound=TypedDict)
@@ -3033,7 +3073,7 @@ def _get_locales_list() -> list[str]:
     # Get the 'locales' dataset and obtain from that a list of locales
     # TODO: remove pandas
     locales = _get_locales_data()
-    locale_list = [entry["locale"] for entry in locales]
+    locale_list: list[str] = [entry["locale"] for entry in locales]
 
     # Ensure that `locale_list` is of the type 'str'
     # TODO: we control this data and should enforce this in the data schema
@@ -3623,13 +3663,13 @@ def fmt_image(
 
     To more easily insert graphics into body cells, we can use the `fmt_image()` method. This allows
     for one or more images to be placed in the targeted cells. The cells need to contain some
-    reference to an image file, either: (1) complete http/https or local paths to the files; (2) the
-    file names, where a common path can be provided via `path=`; or (3) a fragment of the file name,
-    where the `file_pattern=` argument helps to compose the entire file name and `path=` provides
-    the path information. This should be expressly used on columns that contain *only* references to
-    image files (i.e., no image references as part of a larger block of text). Multiple images can
-    be included per cell by separating image references by commas. The `sep=` argument allows for a
-    common separator to be applied between images.
+    reference to an image file, either: (1) local paths to the files; (2) complete http/https to the
+    files; (3) the file names, where a common path can be provided via `path=`; or (4) a fragment of
+    the file name, where the `file_pattern=` argument helps to compose the entire file name and
+    `path=` provides the path information. This should be expressly used on columns that contain
+    *only* references to image files (i.e., no image references as part of a larger block of text).
+    Multiple images can be included per cell by separating image references by commas. The `sep=`
+    argument allows for a common separator to be applied between images.
 
     Parameters
     ----------
@@ -3648,7 +3688,8 @@ def fmt_image(
         In the output of images within a body cell, `sep=` provides the separator between each
         image.
     path
-        An optional path to local image files (this is combined with all filenames).
+        An optional path to local image files or an HTTP/HTTPS URL.
+        This is combined with the filenames to form the complete image paths.
     file_pattern
         The pattern to use for mapping input values in the body cells to the names of the graphics
         files. The string supplied should use `"{}"` in the pattern to map filename fragments to
@@ -3709,7 +3750,7 @@ def fmt_image(
     if height is None and width is None:
         height = "2em"
 
-    formatter = FmtImage(self._tbl_data, height, width, sep, str(path), file_pattern, encode)
+    formatter = FmtImage(self._tbl_data, height, width, sep, path, file_pattern, encode)
     return fmt(
         self,
         fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
@@ -3722,9 +3763,9 @@ def fmt_image(
 class FmtImage:
     dispatch_on: DataFrameLike | Agnostic = Agnostic()
     height: str | int | None = None
-    width: str | None = None
+    width: str | int | None = None
     sep: str = " "
-    path: str | None = None
+    path: str | Path | None = None
     file_pattern: str = "{}"
     encode: bool = True
 
@@ -3760,13 +3801,16 @@ class FmtImage:
 
         out: list[str] = []
         for file in full_files:
-            # Case 1: from url
-            if self.path and (self.path.startswith("http://") or self.path.startswith("https://")):
-                norm_path = self.path.rstrip().removesuffix("/")
+            # Case 1: from url via `dispatch_on`
+            if self.path is None and is_valid_http_schema(file):
+                uri = file.rstrip().removesuffix("/")
+            # Case 2: from url via `path`
+            elif self.path is not None and is_valid_http_schema(str(self.path)):
+                norm_path = str(self.path).rstrip().removesuffix("/")
                 uri = f"{norm_path}/{file}"
-            # Case 2:
+            # Case 3:
             else:
-                filename = (Path(self.path or "") / file).expanduser().absolute()
+                filename = str((Path(self.path or "") / file).expanduser().absolute())
 
                 if self.encode:
                     uri = self._get_image_uri(filename)
@@ -3782,9 +3826,9 @@ class FmtImage:
         return span
 
     def to_latex(self, val: Any):
+        from warnings import warn
 
         from ._gt_data import FormatterSkipElement
-        from warnings import warn
 
         warn("fmt_image() is not currently implemented in LaTeX output.")
 
@@ -3828,6 +3872,485 @@ class FmtImage:
         )
 
         return f'<img src="{uri}" style="{style_string}">'
+
+
+def fmt_icon(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    height: str | None = None,
+    sep: str = " ",
+    stroke_color: str | None = None,
+    stroke_width: str | int | None = None,
+    stroke_alpha: float | None = None,
+    fill_color: str | dict[str, str] | None = None,
+    fill_alpha: float | None = None,
+    margin_left: str | None = None,
+    margin_right: str | None = None,
+) -> GTSelf:
+    """Use icons within a table's body cells.
+
+    We can draw from a library of thousands of icons and selectively insert them into a table. The
+    `fmt_icon()` method makes this possible by mapping input cell labels to an icon name. We are
+    exclusively using Font Awesome icons here so the reference is the short icon name. Multiple
+    icons can be included per cell by separating icon names with commas (e.g.,
+    `"hard-drive,clock"`). The `sep=` argument allows for a common separator to be applied between
+    icons.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    height
+        The absolute height of the icon in the table cell. By default, this is set to "1em".
+    sep
+        In the output of icons within a body cell, `sep=` provides the separator between each icon.
+    stroke_color
+        The icon stroke is essentially the outline of the icon. The color of the stroke can be
+        modified by applying a single color here. If not provided then the default value of
+        `"currentColor"` is applied so that the stroke color matches that of the parent HTML
+        element's color attribute.
+    stroke_width
+        The `stroke_width=` option allows for setting the color of the icon outline stroke. By
+        default, the stroke width is very small at "1px" so a size adjustment here can sometimes be
+        useful. If an integer value is provided then it is assumed to be in pixels.
+    stroke_alpha
+        The level of transparency for the icon stroke can be controlled with a decimal value between
+        `0` and `1`.
+    fill_color
+        The fill color of the icon can be set with `fill_color=`; providing a single color here will
+        change the color of the fill but not of the icon's 'stroke' or outline (use `stroke_color=`
+        to modify that). A dictionary comprising the icon names with corresponding fill colors can
+        alternatively be used here (e.g., `{"circle-check" = "green", "circle-xmark" = "red"}`. If
+        nothing is provided then the default value of `"currentColor"` is applied so that the fill
+        matches the color of the parent HTML element's color attribute.
+    fill_alpha
+        The level of transparency for the icon fill can be controlled with a decimal value between
+        `0` and `1`.
+    margin_left
+        The length value for the margin that's to the left of the icon. By default, `"auto"` is
+        used for this but if space is needed on the left-hand side then a length of `"0.2em"` is
+        recommended as a starting point.
+    margin_right
+        The length value for the margin right of the icon. By default, `"auto"` is used but if
+        space is needed on the right-hand side then a length of `"0.2em"` is recommended as a
+        starting point.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    For this first example of generating icons with `fmt_icon()`, let's make a simple DataFrame that
+    has two columns of Font Awesome icon names. We separate multiple icons per cell with commas. By
+    default, the icons are 1 em in height; we're going to make the icons slightly larger here (so we
+    can see the fine details of them) by setting height = "4em".
+
+    ```{python}
+    import pandas as pd
+    from great_tables import GT
+
+    animals_foods_df = pd.DataFrame(
+        {
+            "animals": ["hippo", "fish,spider", "mosquito,locust,frog", "dog,cat", "kiwi-bird"],
+            "foods": ["bowl-rice", "egg,pizza-slice", "burger,lemon,cheese", "carrot,hotdog", "bacon"],
+        }
+    )
+
+    (
+        GT(animals_foods_df)
+        .fmt_icon(
+            columns=["animals", "foods"],
+            height="4em"
+        )
+        .cols_align(
+            align="center",
+            columns=["animals", "foods"]
+        )
+    )
+    ```
+
+    Let's take a few rows from the towny dataset and make it so the `csd_type` column contains
+    *Font Awesome* icon names (we want only the `"city"` and `"house-chimney"` icons here). After
+    using `fmt_icon()` to format the `csd_type` column, we get icons that are representative of the
+    two categories of municipality for this subset of data.
+
+    ```{python}
+    import polars as pl
+    from great_tables.data import towny
+
+    towny_mini = (
+        pl.from_pandas(towny.loc[[323, 14, 26, 235]])
+        .select(["name", "csd_type", "population_2021"])
+        .with_columns(
+           csd_type = pl.when(pl.col("csd_type") == "town")
+           .then(pl.lit("house-chimney"))
+           .otherwise(pl.lit("city"))
+        )
+    )
+
+    (
+       GT(towny_mini)
+       .fmt_integer(columns="population_2021")
+       .fmt_icon(columns="csd_type")
+       .cols_label(
+           csd_type="",
+           name="City/Town",
+           population_2021="Population"
+       )
+    )
+    ```
+
+    A fairly common thing to do with icons in tables is to indicate whether a quantity is either
+    higher or lower than another. Up and down arrow symbols can serve as good visual indicators for
+    this purpose. We can make use of the `"up-arrow"` and `"down-arrow"` icons here. As those
+    strings are available in the `dir` column of the table derived from the `sp500` dataset,
+    `fmt_icon()` can be used. We set the `fill_color` argument with a dictionary that indicates
+    which color should be used for each icon.
+
+    ```{python}
+    from great_tables.data import sp500
+
+    sp500_mini = (
+        pl.from_pandas(sp500)
+        .head(10)
+        .select(["date", "open", "close"])
+        .sort("date", descending=False)
+        .with_columns(
+            dir = pl.when(pl.col("close") >= pl.col("open")).then(
+                pl.lit("arrow-up")).otherwise(pl.lit("arrow-down"))
+        )
+    )
+
+    (
+        GT(sp500_mini, rowname_col="date")
+        .fmt_icon(
+            columns="dir",
+            fill_color={"arrow-up": "green", "arrow-down": "red"}
+        )
+        .cols_label(
+            open="Opening Value",
+            close="Closing Value",
+            dir=""
+        )
+        .opt_stylize(style=1, color="gray")
+    )
+    ```
+    """
+
+    formatter = FmtIcon(
+        self._tbl_data,
+        height=height,
+        sep=sep,
+        stroke_color=stroke_color,
+        stroke_width=stroke_width,
+        stroke_alpha=stroke_alpha,
+        fill_color=fill_color,
+        fill_alpha=fill_alpha,
+        margin_left=margin_left,
+        margin_right=margin_right,
+    )
+
+    return fmt(
+        self,
+        fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
+        columns=columns,
+        rows=rows,
+    )
+
+
+@dataclass
+class FmtIcon:
+    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    height: str | None = None
+    sep: str = " "
+    stroke_color: str | None = None
+    stroke_width: str | int | float | None = None
+    stroke_alpha: float | None = None
+    fill_color: str | dict[str, str] | None = None
+    fill_alpha: float | None = None
+    margin_left: str | None = None
+    margin_right: str | None = None
+
+    SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
+
+    def to_html(self, val: Any):
+        if is_na(self.dispatch_on, val):
+            return val
+
+        if "," in val:
+            icon_list = re.split(r",\s*", val)
+        else:
+            icon_list = [val]
+
+        if self.height is None:
+            height = "1em"
+        else:
+            height = self.height
+
+        if self.stroke_width is None:
+            stroke_width = "1px"
+        elif isinstance(self.stroke_width, (int, float)):
+            stroke_width = f"{str(self.stroke_width)}px"
+        else:
+            stroke_width = self.stroke_width
+
+        out: list[str] = []
+
+        for icon in icon_list:
+            if isinstance(self.fill_color, dict):
+                if icon in self.fill_color:
+                    fill_color = self.fill_color[icon]
+                else:
+                    fill_color = None
+            else:
+                fill_color = self.fill_color
+
+            icon_svg = faicons.icon_svg(
+                icon,
+                height=height,
+                stroke=self.stroke_color,
+                stroke_width=stroke_width,
+                stroke_opacity=str(self.stroke_alpha),
+                fill=fill_color,
+                fill_opacity=str(self.fill_alpha),
+                margin_left=self.margin_left,
+                margin_right=self.margin_right,
+            )
+
+            out.append(str(icon_svg))
+
+        img_tags = self.sep.join(out)
+        span = self.SPAN_TEMPLATE.format(img_tags)
+
+        return span
+
+    def to_latex(self, val: Any):
+        from warnings import warn
+
+        from ._gt_data import FormatterSkipElement
+
+        warn("fmt_icon() is not currently implemented in LaTeX output.")
+
+        return FormatterSkipElement()
+
+
+def fmt_flag(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    height: str | int | float | None = "1em",
+    sep: str = " ",
+    use_title: bool = True,
+) -> GTSelf:
+    """Generate flag icons for countries from their country codes.
+
+    While it is fairly straightforward to insert images into body cells (using `fmt_image()` is one
+    way to it), there is often the need to incorporate specialized types of graphics within a table.
+    One such group of graphics involves iconography representing different countries, and the
+    `fmt_flag()` method helps with inserting a flag icon (or multiple) in body cells. To make this
+    work seamlessly, the input cells need to contain some reference to a country, and this can be in
+    the form of a 2- or 3-letter ISO 3166-1 country code (e.g., Egypt has the `"EG"` country code).
+    This method will parse the targeted body cells for those codes and insert the appropriate flag
+    graphics.
+
+    Multiple flags can be included per cell by separating country codes with commas (e.g.,
+    `"GB,TT"`). The `sep=` argument allows for a common separator to be applied between flag icons.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    height
+        The height of the flag icons. The default value is `"1em"`. If given as a number, it is
+        assumed to be in pixels.
+    sep
+        In the output of multiple flag icons within a body cell, `sep=` provides the separator
+        between each of the flag icons.
+    use_title
+        The option to include a title attribute with the country name when hovering over the flag
+        icon. The default is `True`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `countrypops` dataset to create a new table with flag icons. We will only include
+    a few columns and rows from that table. The `country_code_2` column has 2-letter country codes
+    in the format required for `fmt_flag()` and using that method transforms the codes to circular
+    flag icons.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import countrypops
+    import polars as pl
+
+    countrypops_mini = (
+        pl.from_pandas(countrypops)
+        .filter(pl.col("year") == 2021)
+        .filter(pl.col("country_name").str.starts_with("S"))
+        .sort("country_name")
+        .head(10)
+        .drop(["year", "country_code_3"])
+    )
+
+    (
+        GT(countrypops_mini)
+        .fmt_integer(columns="population")
+        .fmt_flag(columns="country_code_2")
+        .cols_label(
+            country_code_2="",
+            country_name="Country",
+            population="Population (2021)"
+        )
+        .cols_move_to_start(columns="country_code_2")
+    )
+    ```
+
+    Here's another example (again using `countrypops`) where we generate a table providing
+    populations every five years for the Benelux countries (`"BEL"`, `"NLD"`, and `"LUX"`). After
+    some filtering and a pivot, the `fmt_flag()` method is used to obtain flag icons from 3-letter
+    country codes present in the `country_code_3` column.
+
+    ```{python}
+    import polars.selectors as cs
+
+    countrypops_mini = (
+        pl.from_pandas(countrypops)
+        .filter(pl.col("country_code_3").is_in(["BEL", "NLD", "LUX"]))
+        .filter((pl.col("year") % 10 == 0) & (pl.col("year") >= 1960))
+        .pivot("year", index = ["country_code_3", "country_name"], values="population")
+    )
+
+    (
+        GT(countrypops_mini)
+        .tab_header(title="Populations of the Benelux Countries")
+        .tab_spanner(label="Year", columns=cs.numeric())
+        .fmt_integer(columns=cs.numeric())
+        .fmt_flag(columns="country_code_3")
+        .cols_label(
+            country_code_3="",
+            country_name="Country"
+        )
+    )
+    ```
+    """
+
+    formatter = FmtFlag(self._tbl_data, height=height, sep=sep, use_title=use_title)
+
+    return fmt(
+        self,
+        fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
+        columns=columns,
+        rows=rows,
+    )
+
+
+@dataclass
+class FmtFlag:
+    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    height: str | int | float | None = None
+    sep: str = " "
+    use_title: bool = True
+
+    SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
+
+    def to_html(self, val: Any):
+        if is_na(self.dispatch_on, val):
+            return val
+
+        val = val.upper()
+
+        if "," in val:
+            flag_list = re.split(r",\s*", val)
+        else:
+            flag_list = [val]
+
+        if self.height is None:
+            height = "1em"
+        else:
+            height = self.height
+
+            if isinstance(height, (int, float)):
+                height = f"{height}px"
+
+        out: list[str] = []
+
+        for flag in flag_list:
+            # If the number of characters in the country code is not 2 or 3, then we raise an error
+            if len(flag) not in [2, 3]:
+                raise ValueError("The country code provided must be either 2 or 3 characters long.")
+
+            # Since we allow 2- or 3- character country codes, create the name of the lookup
+            # column based on the length of the country code
+            lookup_column = "country_code_2" if len(flag) == 2 else "country_code_3"
+
+            # Get the correct dictionary entries based on the provided 'country_code_2' value
+            flag_dict = _filter_pd_df_to_row(
+                pd_df=_get_flags_data(), column=lookup_column, filter_expr=flag
+            )
+
+            # Get the SVG string and country name for the flag
+            flag_svg = str(flag_dict["country_flag"])
+            flag_title = str(flag_dict["country_name"])
+
+            # Extract the flag SVG data and modify it to include the height, width, and a
+            # title based on the country name
+            flag_icon = self._replace_flag_svg(
+                flag_svg=flag_svg, height=height, use_title=self.use_title, flag_title=flag_title
+            )
+
+            out.append(str(flag_icon))
+
+        img_tags = self.sep.join(out)
+        span = self.SPAN_TEMPLATE.format(img_tags)
+
+        return span
+
+    def to_latex(self, val: Any):
+        from warnings import warn
+
+        from ._gt_data import FormatterSkipElement
+
+        warn("fmt_flag() is not currently implemented in LaTeX output.")
+
+        return FormatterSkipElement()
+
+    @staticmethod
+    def _replace_flag_svg(flag_svg: str, height: str, use_title: bool, flag_title: str) -> str:
+        replacement = (
+            '<svg xmlns="http://www.w3.org/2000/svg" '
+            'aria-hidden="true" role="img" '
+            'width="512" height="512" '
+            'viewBox="0 0 512 512" '
+            'style="vertical-align:-0.125em;'
+            "image-rendering:optimizeQuality;"
+            f"height:{height};"
+            f"width:{height};"
+            '">'
+        )
+
+        if use_title:
+            replacement += f"<title>{flag_title}</title>"
+
+        return re.sub(r"<svg.*?>", replacement, flag_svg)
 
 
 def fmt_nanoplot(
@@ -4078,7 +4601,11 @@ def fmt_nanoplot(
 
     col_class = str(column_d_type).lower()
 
-    if _str_detect(col_class, "int") or _str_detect(col_class, "float"):
+    if (
+        _str_detect(col_class, "int")
+        or _str_detect(col_class, "uint")
+        or _str_detect(col_class, "float")
+    ):
         scalar_vals = True
     else:
         scalar_vals = False
@@ -4086,7 +4613,6 @@ def fmt_nanoplot(
     # If a bar plot is requested and the data consists of single y values, then we need to
     # obtain a list of all single y values in the targeted column (from `columns`)
     if plot_type in ["line", "bar"] and scalar_vals:
-
         # Check each cell in the column and get each of them that contains a scalar value
         # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
         all_single_y_vals = to_list(data_tbl[columns])
@@ -4105,8 +4631,7 @@ def fmt_nanoplot(
 
     # For autoscale, we need to get the minimum and maximum from all values for the y-axis
     if autoscale:
-
-        from great_tables._utils_nanoplots import _flatten_list
+        from great_tables._utils import _flatten_list
 
         # TODO: if a column of delimiter separated strings is passed. E.g. "1 2 3 4". Does this mean
         # that autoscale does not work? In this case, is col_i_y_vals_raw a string that gets processed?
@@ -4119,7 +4644,6 @@ def fmt_nanoplot(
             # TODO: this dictionary handling seems redundant with _generate_data_vals dict handling?
             # Can this if-clause be removed?
             if isinstance(data_vals_i, dict):
-
                 if len(data_vals_i) == 1:
                     # If there is only one key in the dictionary, then we can assume that the
                     # dictionary deals with y-values only
@@ -4134,7 +4658,6 @@ def fmt_nanoplot(
 
             # If not a list, then convert to a list
             if not isinstance(data_vals_i, list):
-
                 data_vals_i = [data_vals_i]
 
             all_y_vals.extend(data_vals_i)
@@ -4157,7 +4680,6 @@ def fmt_nanoplot(
         all_single_y_vals: list[int | float] | None = all_single_y_vals,
         options_plots: dict[str, Any] = options_plots,
     ) -> str:
-
         if context == "latex":
             raise NotImplementedError("fmt_nanoplot() is not supported in LaTeX.")
 
@@ -4173,7 +4695,6 @@ def fmt_nanoplot(
         # TODO: where are tuples coming from? Need example / tests that induce tuples
         # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
         if isinstance(x, tuple):
-
             x_vals, y_vals = x
 
             # Ensure that both objects are lists
@@ -4228,7 +4749,6 @@ def _generate_data_vals(
         data_vals = to_list(data_vals)
 
     if isinstance(data_vals, list):
-
         # If the list contains string values, determine whether they are date values
         if all(isinstance(val, str) for val in data_vals):
             if not is_x_axis:
@@ -4252,7 +4772,6 @@ def _generate_data_vals(
         return data_vals
 
     elif isinstance(data_vals, str):
-
         # If the cell value is a string, assume it is a value stream and convert to a list
 
         # Detect whether there are time values or numeric values in the string
@@ -4262,7 +4781,6 @@ def _generate_data_vals(
             data_vals = _process_number_stream(data_vals)
 
     elif isinstance(data_vals, dict):
-
         # If the cell value is a dictionary, assume it contains data values
         # This is possibly for x and for y
 
@@ -4271,17 +4789,14 @@ def _generate_data_vals(
 
         # If the dictionary contains only one key, then assume that the values are for y
         if num_keys == 1:
-
             data_vals = list(data_vals.values())[0]
 
             # The data values can be anything, so recursively call this function to process them
             data_vals = _generate_data_vals(data_vals=data_vals)
 
         if num_keys >= 2:
-
             # For two or more keys, we need to see if the 'x' and 'y' keys are present
             if "x" in data_vals and "y" in data_vals:
-
                 x_vals: Any = data_vals["x"]
                 y_vals: Any = data_vals["y"]
 

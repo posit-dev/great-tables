@@ -135,9 +135,7 @@ def cols_label(
     new_kwargs: dict[str, UnitStr | str | BaseText] = {}
 
     for k, v in new_cases.items():
-
         if isinstance(v, str):
-
             unitstr_v = UnitStr.from_str(v)
 
             if len(unitstr_v.units_str) == 1 and isinstance(unitstr_v.units_str[0], str):

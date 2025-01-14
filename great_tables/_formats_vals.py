@@ -3,10 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from pathlib import Path
 
-from great_tables import GT
-from great_tables.gt import GT, _get_column_of_values
 from typing_extensions import TypeAlias
 
+from .gt import GT, _get_column_of_values
 from ._gt_data import GTData
 from ._tbl_data import SeriesLike, to_frame
 
@@ -55,6 +54,7 @@ def val_fmt_number(
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
+    accounting: bool = False,
     scale_by: float = 1,
     compact: bool = False,
     pattern: str = "{x}",
@@ -108,6 +108,9 @@ def val_fmt_number(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        An option to use accounting style for values. Normally, negative values will be shown with a
+        minus sign but using accounting style will instead put any negative values in parentheses.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -151,6 +154,7 @@ def val_fmt_number(
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
+        accounting=accounting,
         scale_by=scale_by,
         compact=compact,
         pattern=pattern,
@@ -168,6 +172,7 @@ def val_fmt_number(
 def val_fmt_integer(
     x: X,
     use_seps: bool = True,
+    accounting: bool = False,
     scale_by: float = 1,
     compact: bool = False,
     pattern: str = "{x}",
@@ -200,6 +205,9 @@ def val_fmt_integer(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    accounting
+        An option to use accounting style for values. Normally, negative values will be shown with a
+        minus sign but using accounting style will instead put any negative values in parentheses.
     scale_by
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -235,6 +243,7 @@ def val_fmt_integer(
     gt_obj_fmt = gt_obj.fmt_integer(
         columns="x",
         use_seps=use_seps,
+        accounting=accounting,
         scale_by=scale_by,
         compact=compact,
         pattern=pattern,
@@ -376,6 +385,7 @@ def val_fmt_percent(
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     scale_values: bool = True,
+    accounting: bool = False,
     use_seps: bool = True,
     pattern: str = "{x}",
     sep_mark: str = ",",
@@ -427,6 +437,9 @@ def val_fmt_percent(
         performed since the expectation is that incoming values are usually proportional. Setting to
         `False` signifies that the values are already scaled and require only the percent sign when
         formatted.
+    accounting
+        An option to use accounting style for values. Normally, negative values will be shown with a
+        minus sign but using accounting style will instead put any negative values in parentheses.
     use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
@@ -471,6 +484,7 @@ def val_fmt_percent(
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         scale_values=scale_values,
+        accounting=accounting,
         use_seps=use_seps,
         pattern=pattern,
         sep_mark=sep_mark,
@@ -492,6 +506,7 @@ def val_fmt_currency(
     use_subunits: bool = True,
     decimals: int | None = None,
     drop_trailing_dec_mark: bool = True,
+    accounting: bool = False,
     use_seps: bool = True,
     scale_by: float = 1,
     pattern: str = "{x}",
@@ -543,6 +558,9 @@ def val_fmt_currency(
         A boolean value that determines whether decimal marks should always appear even if there are
         no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
         default trailing decimal marks are not shown.
+    accounting
+        An option to use accounting style for values. Normally, negative values will be shown with a
+        minus sign but using accounting style will instead put any negative values in parentheses.
     use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
@@ -591,6 +609,7 @@ def val_fmt_currency(
         use_subunits=use_subunits,
         decimals=decimals,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
+        accounting=accounting,
         use_seps=use_seps,
         scale_by=scale_by,
         pattern=pattern,
@@ -967,7 +986,8 @@ def val_fmt_image(
         In the output of images within a body cell, `sep=` provides the separator between each
         image.
     path
-        An optional path to local image files (this is combined with all filenames).
+        An optional path to local image files or an HTTP/HTTPS URL.
+        This is combined with the filenames to form the complete image paths.
     file_pattern
         The pattern to use for mapping input values in the body cells to the names of the graphics
         files. The string supplied should use `"{}"` in the pattern to map filename fragments to
