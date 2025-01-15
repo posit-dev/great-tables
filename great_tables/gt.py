@@ -8,7 +8,7 @@ from typing_extensions import Self
 from ._body import body_reassemble
 from ._boxhead import cols_align, cols_label
 from ._data_color import data_color
-from ._export import as_latex, as_raw_html, save, show
+from ._export import as_latex, as_raw_html, save, show, write_raw_html
 from ._formats import (
     fmt,
     fmt_bytes,
@@ -273,6 +273,7 @@ class GT(
     save = save
     show = show
     as_raw_html = as_raw_html
+    write_raw_html = write_raw_html
     as_latex = as_latex
 
     pipe = pipe

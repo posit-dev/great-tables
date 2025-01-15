@@ -6,7 +6,8 @@ import time
 
 from great_tables import GT, exibble, md
 from great_tables.data import gtcars
-from great_tables._export import _infer_render_target, _create_temp_file_server
+from great_tables._export import as_raw_html, _infer_render_target, _create_temp_file_server
+
 from pathlib import Path
 
 from IPython.terminal.interactiveshell import TerminalInteractiveShell, InteractiveShell
@@ -119,6 +120,24 @@ def test_create_temp_file_server():
         r.content.decode() == "abc"
 
         thread.join()
+
+
+def test_write_raw_html_raises(gt_tbl):
+    with pytest.raises(TypeError):
+        gt_tbl.write_raw_html()  # `filename=` must be specified
+
+
+def test_write_raw_html(gt_tbl):
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        # pass the filename as a pathlib.Path() object
+        p_file = Path(tmp_dir, "table1.html")
+        gt_tbl.write_raw_html(p_file)
+        assert p_file.exists()
+
+        # Pass the filename as a string
+        s_file = str(Path(tmp_dir, "table2.html"))
+        gt_tbl.write_raw_html(s_file)
+        assert Path(s_file).exists()
 
 
 def test_snap_as_latex(snapshot):

@@ -214,11 +214,12 @@ quartodoc:
       desc: >
         There may come a day when you need to export a table to some specific format. A great method
         for that is `save()`, which allows us to save the table as a standalone image file. You can
-        also get the table code as an HTML fragment with the `as_raw_html()` method.
+        also get the table code as an HTML fragment with the `*_raw_html()` methods.
       contents:
         - GT.save
         - GT.show
         - GT.as_raw_html
+        - GT.write_raw_html
         - GT.as_latex
     - title: Pipeline
       desc: >
