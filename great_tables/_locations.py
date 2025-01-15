@@ -832,7 +832,7 @@ def resolve_rows_i(
     )
 
 
-def resolve_mask_i(
+def resolve_mask(
     data: GTData | list[str],
     expr: PlExpr,
     excl_stub: bool = True,
@@ -930,7 +930,7 @@ def _(loc: LocBody, data: GTData) -> list[CellPos]:
             CellPos(col[1], row[1], colname=col[0]) for col, row in itertools.product(cols, rows)
         ]
     else:
-        cellpos_data = resolve_mask_i(data=data, expr=loc.mask)
+        cellpos_data = resolve_mask(data=data, expr=loc.mask)
         cell_pos = [CellPos(*cellpos) for cellpos in cellpos_data]
     return cell_pos
 
