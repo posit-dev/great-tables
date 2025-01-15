@@ -563,12 +563,12 @@ def _dump_debug_screenshot(driver, path):
 
 def write_raw_html(
     gt: GT,
-    filename: str | Path | None = None,
+    filename: str | Path,
     encoding: str = "utf-8",
     newline: str | None = None,
     make_page: bool = False,
     all_important: bool = False,
-) -> str | None:
+) -> None:
     """
     Write the table to an HTML file.
 
@@ -581,7 +581,6 @@ def write_raw_html(
         A GT object.
     filename
         The name of the file to save the HTML. Can be a string or a `pathlib.Path` object.
-        If set to `None` (default), the output is returned as a string instead.
     encoding
         The encoding used when writing the file. Defaults to 'utf-8'.
     newline
@@ -592,12 +591,9 @@ def write_raw_html(
         If `filename` is `None` (default), returns the HTML output as a string. Otherwise, writes
         the HTML to the specified file path and returns `None`.
     """
-    html_content = as_raw_html(gt, make_page=make_page, all_important=all_important)
-
-    if filename is None:
-        return html_content
-
     import os
+
+    html_content = as_raw_html(gt, make_page=make_page, all_important=all_important)
 
     newline = newline if newline is not None else os.linesep
 

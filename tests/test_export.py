@@ -122,8 +122,9 @@ def test_create_temp_file_server():
         thread.join()
 
 
-def test_write_raw_html_default(gt_tbl):
-    assert as_raw_html(gt_tbl) == gt_tbl.write_raw_html()
+def test_write_raw_html_raises(gt_tbl):
+    with pytest.raises(TypeError):
+        gt_tbl.write_raw_html()  # `filename=` must be specified
 
 
 def test_write_raw_html(gt_tbl):
