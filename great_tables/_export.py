@@ -587,9 +587,8 @@ def write_raw_html(
         The newline character to use when writing the file. Defaults to `os.linesep`.
     Returns
     -------
-    str | None
-        If `filename` is `None` (default), returns the HTML output as a string. Otherwise, writes
-        the HTML to the specified file path and returns `None`.
+    None
+        An HTML file is written to the specified path and the method returns `None`.
     """
     import os
 
