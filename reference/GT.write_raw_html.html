@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>vals.fmt_markdown – great_tables</title>
+<title>gt.write_raw_html – great_tables</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -176,7 +176,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.vals.fmt_markdown" id="toc-great_tables.vals.fmt_markdown" class="nav-link active" data-scroll-target="#great_tables.vals.fmt_markdown">vals.fmt_markdown</a>
+  <li><a href="#great_tables.GT.write_raw_html" id="toc-great_tables.GT.write_raw_html" class="nav-link active" data-scroll-target="#great_tables.GT.write_raw_html">GT.write_raw_html</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
@@ -190,26 +190,45 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 
 
-<section id="great_tables.vals.fmt_markdown" class="level1">
-<h1>vals.fmt_markdown</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>vals.fmt_markdown(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Format Markdown text.</p>
-<p>Any Markdown-formatted text can be transformed to HTML when using the <code>fmt_markdown()</code> function.</p>
+<section id="great_tables.GT.write_raw_html" class="level1">
+<h1>GT.write_raw_html</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>GT.write_raw_html(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    gt,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    filename,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    encoding<span class="op">=</span><span class="st">'utf-8'</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    newline<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    make_page<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    all_important<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Write the table to an HTML file.</p>
+<p>This helper function saves the output of <code>GT.as_raw_html()</code> to an HTML file specified by the user.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <dl>
-<dt><code><span class="parameter-name"><strong>x</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>X</code></span></code></dt>
+<dt><code><span class="parameter-name"><strong>gt</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../reference/GT.html#great_tables.GT">GT</a></span></code></dt>
 <dd>
-<p>A list of values to be formatted.</p>
+<p>A GT object.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>filename</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | <code>Path</code></span></code></dt>
+<dd>
+<p>The name of the file to save the HTML. Can be a string or a <code>pathlib.Path</code> object.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>encoding</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'utf-8'</span></code></dt>
+<dd>
+<p>The encoding used when writing the file. Defaults to ‘utf-8’.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>newline</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The newline character to use when writing the file. Defaults to <code>os.linesep</code>.</p>
 </dd>
 </dl>
 </section>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
 <dl>
-<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>list</code>[<code>str</code>]</span></code></dt>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">None</span></code></dt>
 <dd>
-<p>A list of formatted values is returned.</p>
+<p>An HTML file is written to the specified path and the method returns <code>None</code>.</p>
 </dd>
 </dl>
 
