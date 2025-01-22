@@ -502,6 +502,14 @@ class LocBody(Loc):
     rows
         The rows to target. Can either be a single row name or a series of row names provided in a
         list.
+    mask
+        The cells to target. If the underlying wrapped DataFrame is a Polars DataFrame,
+        you can pass a Polars expression for cell-based selection. This argument must be used
+        exclusively and cannot be combined with the `columns=` or `rows=` arguments.
+
+    :::{.callout-warning}
+    `mask=` is still experimental.
+    :::
 
     Returns
     -------
@@ -539,6 +547,7 @@ class LocBody(Loc):
 
     columns: SelectExpr = None
     rows: RowSelectExpr = None
+    mask: PlExpr | None = None
 
 
 @dataclass
@@ -823,6 +832,52 @@ def resolve_rows_i(
     )
 
 
+def resolve_mask(
+    data: GTData | list[str],
+    expr: PlExpr,
+    excl_stub: bool = True,
+    excl_group: bool = True,
+) -> list[tuple[int, int, str]]:
+    """Return data for creating `CellPos`, based on expr"""
+    if not isinstance(expr, PlExpr):
+        raise ValueError("Only Polars expressions can be passed to the `mask` argument.")
+
+    frame: PlDataFrame = data._tbl_data
+    frame_cols = frame.columns
+
+    stub_var = data._boxhead.vars_from_type(ColInfoTypeEnum.stub)
+    group_var = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
+    cols_excl = [*(stub_var if excl_stub else []), *(group_var if excl_group else [])]
+
+    # `df.select()` raises `ColumnNotFoundError` if columns are missing from the original DataFrame.
+    masked = frame.select(expr).drop(cols_excl, strict=False)
+
+    # Validate that `masked.columns` exist in the `frame_cols`
+    missing = set(masked.columns) - set(frame_cols)
+    if missing:
+        raise ValueError(
+            "The `mask` expression produces extra columns, with names not in the original DataFrame."
+            f"\n\nExtra columns: {missing}"
+        )
+
+    # Validate that row lengths are equal
+    if masked.height != frame.height:
+        raise ValueError(
+            "The DataFrame length after applying `mask` differs from the original."
+            "\n\n* Original length: {frame.height}"
+            "\n* Mask length: {masked.height}"
+        )
+
+    cellpos_data: list[tuple[int, int, str]] = []  # column, row, colname for `CellPos`
+    col_idx_map = {colname: frame_cols.index(colname) for colname in frame_cols}
+    for row_idx, row_dict in enumerate(masked.iter_rows(named=True)):
+        for colname, value in row_dict.items():
+            if value:  # select only when `value` is True
+                col_idx = col_idx_map[colname]
+                cellpos_data.append((col_idx, row_idx, colname))
+    return cellpos_data
+
+
 # Resolve generic ======================================================================
 
 
@@ -868,15 +923,22 @@ def _(loc: LocStub, data: GTData) -> set[int]:
 
 @resolve.register
 def _(loc: LocBody, data: GTData) -> list[CellPos]:
-    cols = resolve_cols_i(data=data, expr=loc.columns)
-    rows = resolve_rows_i(data=data, expr=loc.rows)
+    if (loc.columns is not None or loc.rows is not None) and loc.mask is not None:
+        raise ValueError(
+            "Cannot specify the `mask` argument along with `columns` or `rows` in `loc.body()`."
+        )
 
-    # TODO: dplyr arranges by `Var1`, and does distinct (since you can tidyselect the same
-    # thing multiple times
-    cell_pos = [
-        CellPos(col[1], row[1], colname=col[0]) for col, row in itertools.product(cols, rows)
-    ]
-
+    if loc.mask is None:
+        rows = resolve_rows_i(data=data, expr=loc.rows)
+        cols = resolve_cols_i(data=data, expr=loc.columns)
+        # TODO: dplyr arranges by `Var1`, and does distinct (since you can tidyselect the same
+        # thing multiple times
+        cell_pos = [
+            CellPos(col[1], row[1], colname=col[0]) for col, row in itertools.product(cols, rows)
+        ]
+    else:
+        cellpos_data = resolve_mask(data=data, expr=loc.mask)
+        cell_pos = [CellPos(*cellpos) for cellpos in cellpos_data]
     return cell_pos
 
 
