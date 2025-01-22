@@ -130,7 +130,9 @@ def test_tab_style_loc_body_mask_not_polars_expression_raises(gt2: GT):
 def test_tab_style_loc_body_mask_columns_not_inside_raises(gt2: GT):
     style = CellStyleFill(color="blue")
     mask = pl.len()
-    err_msg = "The `mask` may reference columns not in the original DataFrame."
+    err_msg = (
+        "The `mask` expression produces extra columns, with names not in the original DataFrame."
+    )
 
     with pytest.raises(ValueError) as exc_info:
         tab_style(gt2, style, LocBody(mask=mask))
