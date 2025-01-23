@@ -1,0 +1,92 @@
+---
+title: "Style Table Body with `mask=` in `loc.body()`"
+html-table-processing: none
+author: Rich Iannone, Michael Chow and Jerry Wu
+date: 2025-01-23
+freeze: true
+jupyter: python3
+format:
+  html:
+    code-summary: "Show the Code"
+---
+
+In Great Tables `0.16.0`, we introduced the `mask=` parameter in `loc.body()`, enabling users to apply conditional formatting to rows on a per-column basis more efficiently when working with a Polars DataFrame. This post demonstrates three approaches to styling the table body, so you can compare methods and choose the one that best fits your needs:
+
+* **Using a for-loop:** Repeatedly call `GT.tab_style()` for each column.
+* **Utilizing the `locations=` parameter in `GT.tab_style()`:** Pass a list of `loc.body()` objects.
+* **Leveraging the `mask=` parameter in `loc.body()`:** Use Polars expressions for streamlined styling.
+
+Let’s dive in.
+
+### Preparations
+We'll use the built-in dataset `gtcars` to create a Polars DataFrame. Next, we'll select the columns `mfr`, `drivetrain`, `year`, and `hp` to create a small pivoted table named `df_mini`. Finally, we'll pass `df_mini` to the `GT` object to create a table named `gt`, using `drivetrain` as the `rowname_col` and `mfr` as the `groupname_col`, as shown below:
+```{python}
+# | code-fold: true
+import polars as pl
+from great_tables import GT, loc, style
+from great_tables.data import gtcars
+from polars import selectors as cs
+
+year_cols = ["2014.0", "2015.0", "2016.0", "2017.0"]
+df_mini = (
+    pl.from_pandas(gtcars)
+    .filter(pl.col("mfr").is_in(["Ferrari", "Lamborghini", "BMW"]))
+    .sort("drivetrain")
+    .pivot(on="year", index=["mfr", "drivetrain"], values="hp", aggregate_function="mean")
+    .select(["mfr", "drivetrain", *year_cols])
+)
+
+gt = GT(df_mini, rowname_col="drivetrain", groupname_col="mfr")
+gt
+```
+
+The numbers in the cells represent the average horsepower for each combination of `mfr` and `drivetrain` for a specific year.
+
+In the following section, we'll demonstrate three different ways to highlight the cell text in red if the average horsepower exceeds 650.
+
+### Using a for-loop: Repeatedly call `GT.tab_style()` for each column
+The most intuitive way is to call `GT.tab_style()` for each column. Here's how:
+```{python}
+gt1 = gt # <1>
+for col in year_cols:
+    gt1 = gt1.tab_style(
+        style=style.text(color="red"),
+        locations=loc.body(columns=col, rows=pl.col(col).gt(650))
+    )
+gt1
+```
+1. Since we want to keep `gt` intact for later use, we will modify `gt1` in this approach instead.
+
+
+### Utilizing the `locations=` parameter in `GT.tab_style()`: Pass a list of `loc.body()` objects
+A more concise method is to pass a list of `loc.body()` objects to the `locations=` parameter in `GT.tab_style()`, as shown below:
+```{python}
+(
+    gt.tab_style(
+        style=style.text(color="red"),
+        locations=[
+            loc.body(columns=col, rows=pl.col(col).gt(650))
+            for col in year_cols
+        ],
+    )
+)
+```
+
+
+### Leveraging the `mask=` parameter in `loc.body()`: Use Polars expressions for streamlined styling
+The most modern approach is to pass a Polars expression to the `mask=` parameter in `loc.body()`, as shown below:
+```{python}
+(
+    gt.tab_style(
+        style=style.text(color="red"),
+        locations=loc.body(mask=cs.numeric().gt(650))
+    )
+)
+```
+
+In this example, `loc.body()` is smart enough to automatically target the rows where the cell value exceeds 650 for each numerical column. In general, you can think of `mask=` as a syntactic sugar that Great Tables provides to save you from having to manually loop through the columns.
+
+### Wrapping up
+We extend our gratitude to [@igorcalabria](https://github.com/igorcalabria) for suggesting this feature in [#389](https://github.com/posit-dev/great-tables/issues/389) and providing an insightful explanation of its utility. A special thanks to [@henryharbeck](https://github.com/henryharbeck) for providing the second approach.
+
+We hope you enjoy this new functionality as much as we do! Have ideas to make Great Tables even better? Share them with us via [GitHub Issues](https://github.com/posit-dev/great-tables/issues). We're always amazed by the creativity of our users! See you, until the next great table.
