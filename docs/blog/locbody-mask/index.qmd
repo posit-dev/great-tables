@@ -1,7 +1,7 @@
 ---
 title: "Style Table Body with `mask=` in `loc.body()`"
 html-table-processing: none
-author: Rich Iannone, Michael Chow and Jerry Wu
+author: Jerry Wu
 date: 2025-01-24
 freeze: true
 jupyter: python3
@@ -26,7 +26,7 @@ from great_tables import GT, loc, style
 from great_tables.data import gtcars
 from polars import selectors as cs
 
-year_cols = ["2014.0", "2015.0", "2016.0", "2017.0"]
+year_cols = ["2014", "2015", "2016", "2017"]
 df_mini = (
     pl.from_pandas(gtcars)
     .filter(pl.col("mfr").is_in(["Ferrari", "Lamborghini", "BMW"]))
@@ -47,7 +47,7 @@ The `mask=` parameter in `loc.body()` accepts a Polars expression that evaluates
 Here’s how we can use it to achieve the two goals:
 
 * Highlight the cell text in red if the column datatype is numerical and the cell value exceeds 650.
-* Fill the background color as black if the cell value is missing in the last two columns (`2016.0` and `2017.0`).
+* Fill the background color as lightgrey if the cell value is missing in the last two columns (`2016` and `2017`).
 
 ```{python}
 (
@@ -55,7 +55,7 @@ Here’s how we can use it to achieve the two goals:
         style=style.text(color="red"),
         locations=loc.body(mask=cs.numeric().gt(650))
     ).tab_style(
-        style=style.fill(color="black"),
+        style=style.fill(color="lightgrey"),
         locations=loc.body(mask=pl.nth(-2, -1).is_null()),
     )
 )
@@ -85,7 +85,7 @@ A more "old-fashioned" approach involves passing a list of `loc.body()` objects 
         locations=[loc.body(columns=col, rows=pl.col(col).gt(650))
                    for col in year_cols],
     ).tab_style(
-        style=style.fill(color="black"),
+        style=style.fill(color="lightgrey"),
         locations=[loc.body(columns=col, rows=pl.col(col).is_null())
                    for col in year_cols[-2:]],
     )
