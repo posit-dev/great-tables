@@ -100,6 +100,8 @@ This approach, though functional, demands additional effort:
 While effective, it is less efficient and more verbose compared to the first approach.
 
 ### Wrapping up
+With the introduction of the `mask=` parameter in `loc.body()`, users can now style the table body in a more vectorized-like manner, akin to using `df.apply()` in Pandas, enhancing the overall user experience.
+
 We extend our gratitude to [@igorcalabria](https://github.com/igorcalabria) for suggesting this feature in [#389](https://github.com/posit-dev/great-tables/issues/389) and providing an insightful explanation of its utility. A special thanks to [@henryharbeck](https://github.com/henryharbeck) for providing the second approach.
 
 We hope you enjoy this new functionality as much as we do! Have ideas to make Great Tables even better? Share them with us via [GitHub Issues](https://github.com/posit-dev/great-tables/issues). We're always amazed by the creativity of our users! See you, until the next great table.
