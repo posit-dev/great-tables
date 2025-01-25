@@ -32,7 +32,7 @@ _gtcars_fname = DATA_MOD / "03-gtcars.csv"
 _gtcars_dtype = {
     "mfr": "object",
     "model": "object",
-    "year": "float64",
+    "year": "int64",
     "trim": "object",
     "bdy_style": "object",
     "hp": "float64",
