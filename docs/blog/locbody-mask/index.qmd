@@ -18,7 +18,7 @@ In Great Tables `0.16.0`, we introduced the `mask=` parameter in `loc.body()`, e
 Let’s dive in.
 
 ### Preparations
-We'll use the built-in dataset `gtcars` to create a Polars DataFrame. Next, we'll select the columns `mfr`, `drivetrain`, `year`, and `hp` to create a small pivoted table named `df_mini`. Finally, we'll pass `df_mini` to the `GT` object to create a table named `gt`, using `drivetrain` as the `rowname_col` and `mfr` as the `groupname_col`, as shown below:
+We'll use the built-in dataset `gtcars` to create a Polars DataFrame. Next, we'll select the columns `mfr`, `drivetrain`, `year`, and `hp` to create a small pivoted table named `df_mini`. Finally, we'll pass `df_mini` to the `GT` object to create a table named `gt`, using `drivetrain` as the `rowname_col=` and `mfr` as the `groupname_col=`, as shown below:
 ```{python}
 # | code-fold: true
 import polars as pl
