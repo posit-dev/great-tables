@@ -864,8 +864,8 @@ def resolve_mask(
     if masked.height != frame.height:
         raise ValueError(
             "The DataFrame length after applying `mask` differs from the original."
-            "\n\n* Original length: {frame.height}"
-            "\n* Mask length: {masked.height}"
+            f"\n\n* Original length: {frame.height}"
+            f"\n* Mask length: {masked.height}"
         )
 
     cellpos_data: list[tuple[int, int, str]] = []  # column, row, colname for `CellPos`
