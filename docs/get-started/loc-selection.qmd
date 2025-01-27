@@ -84,10 +84,9 @@ For example, `loc.header()` includes both `loc.title()` and `loc.subtitle()`.
 )
 ```
 
-## Body columns and rows
+## Body columns, rows and mask
 
-Use `loc.body()` to style specific cells in the table body.
-
+Use `columns=` and `rows=` in `loc.body()` to style specific cells in the table body.
 ```{python}
 (
     GT(pl_exibble).tab_style(
@@ -96,6 +95,16 @@ Use `loc.body()` to style specific cells in the table body.
             columns=cs.starts_with("cha"),
             rows=pl.col("char").str.contains("a"),
         ),
+    )
+)
+```
+
+Alternatively, use `mask=` in `loc.body()` to apply conditional styling to rows on a per-column basis.
+```{python}
+(
+    GT(pl_exibble).tab_style(
+        style.fill("yellow"),
+        loc.body(mask=cs.string().str.contains("p")),
     )
 )
 ```
