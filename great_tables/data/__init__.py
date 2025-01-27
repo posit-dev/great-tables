@@ -414,7 +414,7 @@ Rows: 47
 Columns: 15
 $ mfr         <str> 'Ford', 'Ferrari', 'Ferrari'
 $ model       <str> 'GT', '458 Speciale', '458 Spider'
-$ year        <f64> 2017.0, 2015.0, 2015.0
+$ year        <i64> 2017, 2015, 2015
 $ trim        <str> 'Base Coupe', 'Base Coupe', 'Base'
 $ bdy_style   <str> 'coupe', 'coupe', 'convertible'
 $ hp          <f64> 647.0, 597.0, 562.0
