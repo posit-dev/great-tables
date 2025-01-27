@@ -10,7 +10,7 @@ format:
     code-summary: "Show the Code"
 ---
 
-In Great Tables `0.16.0`, we introduced the `mask=` parameter in `loc.body()`, enabling users to apply conditional formatting to rows on a per-column basis more efficiently when working with a Polars DataFrame. This post will demonstrate how it works and compare it with the "old-fashioned" approach:
+In Great Tables `0.16.0`, we introduced the `mask=` parameter in `loc.body()`, enabling users to apply conditional styling to rows on a per-column basis more efficiently when working with a Polars DataFrame. This post will demonstrate how it works and compare it with the "old-fashioned" approach:
 
 * **Leveraging the `mask=` parameter in `loc.body()`:** Use Polars expressions for streamlined styling.
 * **Utilizing the `locations=` parameter in `GT.tab_style()`:** Pass a list of `loc.body()` objects.
