@@ -494,6 +494,10 @@ class LocBody(Loc):
     custom styling with the [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a
     `locations=` argument and this class should be used there to perform the targeting.
 
+    :::{.callout-warning}
+    `mask=` is still experimental.
+    :::
+
     Parameters
     ----------
     columns
@@ -506,10 +510,6 @@ class LocBody(Loc):
         The cells to target. If the underlying wrapped DataFrame is a Polars DataFrame,
         you can pass a Polars expression for cell-based selection. This argument must be used
         exclusively and cannot be combined with the `columns=` or `rows=` arguments.
-
-    :::{.callout-warning}
-    `mask=` is still experimental.
-    :::
 
     Returns
     -------
@@ -864,8 +864,8 @@ def resolve_mask(
     if masked.height != frame.height:
         raise ValueError(
             "The DataFrame length after applying `mask` differs from the original."
-            "\n\n* Original length: {frame.height}"
-            "\n* Mask length: {masked.height}"
+            f"\n\n* Original length: {frame.height}"
+            f"\n* Mask length: {masked.height}"
         )
 
     cellpos_data: list[tuple[int, int, str]] = []  # column, row, colname for `CellPos`

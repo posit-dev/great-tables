@@ -103,6 +103,7 @@ jobs:
   release-pypi:
     name: "Release to pypi"
     runs-on: ubuntu-latest
+    environment: deploy-pypi
     needs: [build, test-pandas]
     if: github.event_name == 'release'
     steps:

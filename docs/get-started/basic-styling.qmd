@@ -228,6 +228,17 @@ gt_pl_air.tab_style(
 )
 ```
 
+Lastly, you can use **Polars** selectors or expressions to conditionally select rows on a per-column basis.
+```{python}
+import polars.selectors as cs
+
+gt_pl_air.tab_style(
+    style=style.fill(color="yellow"),
+    locations=loc.body(mask=cs.all().eq(cs.all().max())),
+)
+```
+
+
 ## Learning more
 
 * API Docs:
