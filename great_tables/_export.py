@@ -442,7 +442,8 @@ def save(
         raise NotImplementedError("Currently, only selector='table' is supported.")
 
     # If there is no file extension, add the .png extension
-    file = str(Path(file).with_suffix(".png"))
+    if Path(file).suffix == "":
+        file = str(Path(file).with_suffix(".png"))
 
     # Get the HTML content from the displayed output
     html_content = as_raw_html(self)
