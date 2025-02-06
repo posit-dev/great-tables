@@ -1,17 +1,16 @@
-import pytest
-import requests
 import sys
 import tempfile
 import time
-
-from great_tables import GT, exibble, md
-from great_tables.data import gtcars
-from great_tables._export import as_raw_html, _infer_render_target, _create_temp_file_server
-
 from pathlib import Path
 
-from IPython.terminal.interactiveshell import TerminalInteractiveShell, InteractiveShell
+import pytest
+import requests
 from ipykernel.zmqshell import ZMQInteractiveShell
+from IPython.terminal.interactiveshell import InteractiveShell, TerminalInteractiveShell
+
+from great_tables import GT, exibble, md
+from great_tables._export import _create_temp_file_server, _infer_render_target, as_raw_html
+from great_tables.data import gtcars
 
 
 @pytest.fixture
@@ -75,6 +74,9 @@ def test_save_image_file(gt_tbl: GT, tmp_path):
 def test_save_non_png(gt_tbl: GT, tmp_path):
     f_path = tmp_path / "test_image.pdf"
     gt_tbl.save(file=str(f_path))
+
+    time.sleep(0.05)
+    assert f_path.exists()
 
 
 def test_save_custom_webdriver(gt_tbl: GT, tmp_path):
