@@ -9,13 +9,11 @@ jupyter: python3
 
 The Great Tables package allows you to make tables, and they're really great when part of a report, a book, or a web page. The API is meant to be easy to work with so DataFrames could be made into publication-qualty tables without a lot of hassle. And having nice-looking tables in the mix elevates the quality of the medium you're working in.
 
-To go a bit further, we are working on a new Python package that generates tables (c/o Great Tables) as reporting objects. This package is called [Pointblank](https://github.com/posit-dev/pointblank), its focus is that of data validation, and the reporting tables it can produce informs users on the results of a data validation workflow. In this post we'll highlight the tables it can make and, in doing so, convince you that such outputs can be useful and worth the effort on the part of the maintainer.
+We were inspired by this and decided to explore what it could mean to introduce a package where reporting is largely in the form of beautiful tables. To this end, we started work on a new Python package that generates tables (c/o Great Tables) as reporting objects. This package is called [Pointblank](https://github.com/posit-dev/pointblank), its focus is that of data validation, and the reporting tables it can produce informs users on the results of a data validation workflow. In this post we'll go through how Pointblank:
 
-This article will describe:
-
-- Pointblank enables you to validate many types of DataFrames and SQL databases
-- Easy to understand validation result tables and thorough drilldowns
-- Nice previews of data tables across a range of backends
+- enables you to validate many types of DataFrames and SQL databases
+- provides easy-to-understand validation result tables and thorough drilldowns
+- gives you nice previews of data tables across a range of backends
 
 ### Validating data with Pointblank
 
@@ -52,12 +50,10 @@ The table is chock full of the information you need when doing data validation t
 
 It's a nice table and it scales nicely to the large variety of validation types and options available in the Pointblank library. Viewing this table is a central part of using that library and the great thing about the reporting being a table like this is that it can be shared by placing it in a publication environment of your choosing (for example, it could be put in a Quarto document).
 
-Here is the code that was used to generate the data validation above.
+Here is the code that was used to generate the data validation above:
 
 ```{python}
 #| eval: false
-#| code-fold: true
-#| code-summary: "Show the code"
 
 import pointblank as pb
 
@@ -76,13 +72,13 @@ validation = (
 validation
 ```
 
-Pointblank makes it easy to get started by having a simple entry point and as many validation steps as needed.
+Pointblank makes it easy to get started by giving you a simple entry point (`Validate()`), allowing you to define as many validation steps as needed.
 
 Pointblank enables you to validate many types of DataFrames and SQL databases. Pointblank supports Pandas and Polars through Narwhals, and numerous backends (like DuckDB and MySQL) are also supported though our Ibis integration.
 
 ### Exploring data validation failures
 
-Note that the above validation showed 6 failures in the first step. You might want to know exactly what failed, giving you a chance to fix data quality issues. To data that, you can use the `get_step_report()` method:
+Note that the above validation showed 6 failures in the first step. You might want to know exactly *what* failed, giving you a chance to fix the underlying data quality issues. To do that, you can use the `get_step_report()` method:
 
 ```{python}
 validation.get_step_report(i=1)
@@ -98,7 +94,7 @@ Different types of validation methods will have step report tables that organize
 
 ### Previewing datasets across backends
 
-Because Pointblank supports many backends, with varying ways for displaying the underlying data. Pointblank provides the `preview()` function that provides a beautiful and consistent view any data table. Here is how that looks against a 2,000 row DuckDB table that's included in the package (`game_revenue`):
+Because Pointblank supports many backends, with varying ways for displaying the underlying data, we provide the `preview()` function. With that you can get a beautiful and consistent view of any data table. Here is how it looks against a 2,000 row DuckDB table that's included in the package (`game_revenue`):
 
 ```{python}
 # | code-fold: true
