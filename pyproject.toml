@@ -64,6 +64,9 @@ extra = [
 dev = [
     "great_tables[dev-no-pandas]",
     "pandas",
+]
+
+blog = [
     "pointblank>=0.5.0",
 ]
 
