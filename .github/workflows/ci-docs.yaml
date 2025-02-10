@@ -21,7 +21,8 @@ jobs:
           python-version: "3.10"
       - name: Install dependencies
         run: |
-          python -m pip install ".[all,blog]"
+          python -m pip install ".[all]"
+          python -m pip install pointblank
       - uses: quarto-dev/quarto-actions/setup@v2
         with:
           tinytex: true

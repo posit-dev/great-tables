@@ -66,10 +66,6 @@ dev = [
     "pandas",
 ]
 
-blog = [
-    "pointblank>=0.5.0",
-]
-
 dev-no-pandas = [
     "ruff==0.8.0",
     "jupyter",
