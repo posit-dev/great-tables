@@ -63,7 +63,7 @@ extra = [
 
 dev = [
     "great_tables[dev-no-pandas]",
-    "pandas"
+    "pandas",
 ]
 
 dev-no-pandas = [
