@@ -2,6 +2,7 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/pointblank-intro/index.html",
       "/blog/locbody-mask/index.html",
       "/blog/introduction-0.15.0/index.html",
       "/blog/open-transit-tools/index.html",
