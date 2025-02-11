@@ -7,7 +7,7 @@ freeze: true
 jupyter: python3
 ---
 
-The Great Tables package allows you to make tables, and they're really great when part of a report, a book, or a web page. The API is meant to be easy to work with so DataFrames could be made into publication-qualty tables without a lot of hassle. And having nice-looking tables in the mix elevates the quality of the medium you're working in.
+The Great Tables package allows you to make tables, and they're really great when part of a report, a book, or a web page. The API is meant to be easy to work with so DataFrames could be made into publication-quality tables without a lot of hassle. And having nice-looking tables in the mix elevates the quality of the medium you're working in.
 
 We were inspired by this and decided to explore what it could mean to introduce a package where reporting is largely in the form of beautiful tables. To this end, we started work on a new Python package that generates tables (c/o Great Tables) as reporting objects. This package is called [Pointblank](https://github.com/posit-dev/pointblank), its focus is that of data validation, and the reporting tables it can produce informs users on the results of a data validation workflow. In this post we'll go through how Pointblank:
 
