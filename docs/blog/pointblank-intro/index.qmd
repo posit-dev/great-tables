@@ -2,7 +2,7 @@
 title: "How We Used Great Tables to Supercharge Reporting in Pointblank"
 html-table-processing: none
 author: Rich Iannone
-date: 2025-02-03
+date: 2025-02-11
 freeze: true
 jupyter: python3
 ---
@@ -17,7 +17,9 @@ We were inspired by this and decided to explore what it could mean to introduce 
 
 ### Validating data with Pointblank
 
-Just like Great Tables, Pointblank's primary input is a table and the goal of that library is to perform checks of the tabular data. Other libraries in this domain include [Great Expectations](https://github.com/great-expectations/great_expectations), [pandera](https://github.com/unionai-oss/pandera), and [Soda](https://github.com/sodadata/soda-core?tab=readme-ov-file), and [PyDeequ](https://github.com/awslabs/python-deequ). Let's look at the main reporting table that users are likely to see quite often.
+Just like Great Tables, Pointblank's primary input is a table and the goal of that library is to perform checks of the tabular data. Other libraries in this domain include [Great Expectations](https://github.com/great-expectations/great_expectations), [pandera](https://github.com/unionai-oss/pandera), [Soda](https://github.com/sodadata/soda-core?tab=readme-ov-file), and [PyDeequ](https://github.com/awslabs/python-deequ).
+
+Below is the main validation report table that users are likely to see quite often. Each row is a validation step, with columns reporting details about each step and their results.
 
 ```{python}
 #| code-fold: true
@@ -39,6 +41,8 @@ validation = (
 
 validation
 ```
+
+The first validation step (`cols_val_gt()`) checks the `d` column in the data, to ensure each value is greater than `1000`. Notice that the red bar on the left indicates it failed, and the `FAIL` column says it has 6 failing values out of 13 `UNITS`.
 
 The table is chock full of the information you need when doing data validation tasks. And it's also easy on the eyes. Some cool features include:
 
@@ -72,13 +76,13 @@ validation = (
 validation
 ```
 
-Pointblank makes it easy to get started by giving you a simple entry point (`Validate()`), allowing you to define as many validation steps as needed.
+Pointblank makes it easy to get started by giving you a simple entry point (`Validate()`), allowing you to define as many validation steps as needed. Each validation step is specified by calling methods like `.cols_vals_gt()`, which is short for checking that "column values are greater than" some specified value.
 
 Pointblank enables you to validate many types of DataFrames and SQL databases. Pointblank supports Pandas and Polars through Narwhals, and numerous backends (like DuckDB and MySQL) are also supported though our Ibis integration.
 
 ### Exploring data validation failures
 
-Note that the above validation showed 6 failures in the first step. You might want to know exactly *what* failed, giving you a chance to fix the underlying data quality issues. To do that, you can use the `get_step_report()` method:
+Note that the above validation report table showed 6 failures in the first validation step. You might want to know exactly *what* failed, giving you a chance to fix the underlying data quality issues. To do that, you can use the `get_step_report()` method:
 
 ```{python}
 validation.get_step_report(i=1)
@@ -94,7 +98,7 @@ Different types of validation methods will have step report tables that organize
 
 ### Previewing datasets across backends
 
-Because Pointblank supports many backends, with varying ways for displaying the underlying data, we provide the `preview()` function. With that you can get a beautiful and consistent view of any data table. Here is how it looks against a 2,000 row DuckDB table that's included in the package (`game_revenue`):
+Because many of the backends Pointblank supports have varying ways to view the underlying data, we provide a unified `preview()` function. It gives you a beautiful and consistent view of any data table. Here is how it looks against a 2,000 row DuckDB table that's included in the package (`game_revenue`):
 
 ```{python}
 # | code-fold: true
@@ -102,6 +106,8 @@ Because Pointblank supports many backends, with varying ways for displaying the 
 
 pb.preview(pb.load_dataset(dataset="game_revenue", tbl_type="duckdb"))
 ```
+
+Notice that the table displays only 10 rows by default, 5 from the top and 5 from the bottom. The grey text on the left of the table indicates the row number, and a blue line helps demarcate the top and bottom rows.
 
 The `preview()` function had a few design goals in mind:
 
