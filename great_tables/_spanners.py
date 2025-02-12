@@ -3,12 +3,15 @@ from __future__ import annotations
 import itertools
 from typing import TYPE_CHECKING
 
+from typing_extensions import TypeAlias
+
 from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
+from ._options import tab_options
+from ._render import infer_render_env
 from ._tbl_data import SelectExpr
 from ._text import BaseText, Text
 from ._utils import OrderedSet, _assert_list_is_subset
-from typing_extensions import TypeAlias
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
@@ -581,6 +584,54 @@ def empty_spanner_matrix(
     return [{var: var for var in vars}], vars
 
 
+def _quarto_cols_width(self: GTSelf, cases: dict[str, str]) -> tuple[GTSelf, dict[str, str]]:
+    """Configure cols_width on a table rendered in a Quarto environment.
+
+    Quarto uses Pandoc internally to handle tables, and Pandoc tables do not support pixel widths.
+    As a result, when cols_width is used in a Quarto environment, widths need to converted to
+    percentages.
+
+    This is only possible when every column width is specified. If the given specification
+    isn't complete, GT will instead instruct Quarto to not process the produced table.
+    """
+
+    # Only process if all columns are specified
+    curr_boxhead = self._boxhead
+    column_names = set(curr_boxhead._get_columns())
+    case_names = set(cases.keys())
+    if column_names != case_names:
+        self = self._replace(
+            _options=self._options._set_option_value("quarto_disable_processing", True)
+        )
+        return (self, cases)
+
+    # Handle mixed pixel and percentage widths
+    # by converting existing pixel widths to percentages
+    # This doesn't validate that the sum of percentages is <= 100%
+
+    sum_of_pixels = sum([int(width[:-2]) for width in cases.values() if width[-2:] == "px"])
+    remaining_sum_of_percentages = sum(
+        [int(width[:-1]) for width in cases.values() if width[-1] == "%"]
+    )
+    sum_of_percentages = 100 - remaining_sum_of_percentages
+    total_pixels = sum_of_pixels * (100 / sum_of_percentages)
+    self = tab_options(self, table_width=f"{total_pixels}px")
+    # Example: [30px, 50px, 20%]
+    # sum_of_pixels = 80
+    # sum_of_percentages = 20
+    # total_pixels = 100
+
+    # now convert pixel widths to percentages
+    new_cases: dict[str, str] = {}
+    for col, width in cases.items():
+        if width[-2:] == "px":
+            new_cases[col] = f"{(int(width[:-2]) / total_pixels) * 100}%"
+        else:
+            new_cases[col] = width
+
+    return (self, new_cases)
+
+
 def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str) -> GTSelf:
     """Set the widths of columns.
 
@@ -588,6 +639,11 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
     choose which columns get specific widths. This can be in units of pixels or as percentages.
     Width assignments are supplied inside of a dictionary where columns are the keys and the
     corresponding width is the value.
+
+    If great_tables is being used in a Quarto environment, a pixel configuration in cols_width will
+    be converted to percentages. In this case, great_tables will also automatically
+    set `tab_options(table_width = sum_of_pixels)`. This happens because Pandoc does not
+    support pixel widths in its column specifications.
 
     Parameters
     ----------
@@ -690,6 +746,12 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
     """
     cases = cases if cases is not None else {}
     new_cases = cases | kwargs
+
+    # Check if we are rendering in the Quarto environment
+    # If so, convert pixel widths to percentages
+    env = infer_render_env()
+    if env == "quarto":
+        (self, new_cases) = _quarto_cols_width(self, new_cases)
 
     # If nothing is provided, return `data` unchanged
     if len(new_cases) == 0:
