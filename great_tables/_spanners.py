@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import itertools
+import warnings
+
 from typing import TYPE_CHECKING
 
 from typing_extensions import TypeAlias
@@ -599,17 +601,22 @@ def _quarto_cols_width(self: GTSelf, cases: dict[str, str]) -> tuple[GTSelf, dic
     curr_boxhead = self._boxhead
     column_names = set(curr_boxhead._get_columns())
     case_names = set(cases.keys())
-    if column_names != case_names:
-        self = self._replace(
-            _options=self._options._set_option_value("quarto_disable_processing", True)
-        )
+    if column_names != case_names and not self._options.quarto_disable_processing:
+        warnings.warn(
+            "This column width specification is not supported by Quarto "
+            "unless quarto_disable_processing is set to True.",
+            category=UserWarning,)
+        return (self, cases)
+
+    sum_of_pixels = sum([int(width[:-2]) for width in cases.values() if width[-2:] == "px"])
+    # If there are no pixel widths, return the original cases
+    if sum_of_pixels == 0:
         return (self, cases)
 
     # Handle mixed pixel and percentage widths
     # by converting existing pixel widths to percentages
-    # This doesn't validate that the sum of percentages is <= 100%
+    # This function doesn't validate that the sum of percentages is <= 100%
 
-    sum_of_pixels = sum([int(width[:-2]) for width in cases.values() if width[-2:] == "px"])
     remaining_sum_of_percentages = sum(
         [int(width[:-1]) for width in cases.values() if width[-1] == "%"]
     )
