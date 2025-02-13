@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import itertools
-from collections import defaultdict
 from typing import TYPE_CHECKING, TypedDict
 
 from typing_extensions import TypeAlias
@@ -316,34 +315,35 @@ def tab_spanner_delim(
         level: int
         root_col: str
 
-    info_list: list[dict[str, list[SpInfo]]] = []
+    new_obj = copy.copy(self)
+    info_list: list[dict[str, SpInfo]] = []
 
     sel_cols = resolve_cols_c(data=self, expr=columns)
     for sel_col in sel_cols:
         col_names = split_func(sel_col, delim, limit)  # split for one column
-        info_dict: dict[str, list[SpInfo]] = defaultdict(list)
+        info_dict: dict[str, SpInfo] = {}
         for level, col_name in zip(reversed(range(len(col_names))), col_names):
             # `level` value is recorded from high to low
-            spinfo_dict: SpInfo = {"level": level, "root_col": sel_col}
-            info_dict[col_name].append(spinfo_dict)
+            info_dict[col_name] = {"level": level, "root_col": sel_col}
         info_list.append(info_dict)
 
-    new_obj = copy.copy(self)
+    # This block could potentially be merged with the previous one. It's kept separate for now because:
+    # 1. It's unclear whether `reverse=` will require operations on the recorded data.
+    # 2. There may be opportunities for aggregation to reduce calls to `tab_spanner()`.
     for info_d in info_list:
-        for col_name, spinfo_list in info_d.items():
-            for spinfo in spinfo_list:
-                level, root_col = spinfo["level"], spinfo["root_col"]
-                if level != 0:
-                    new_obj = tab_spanner(
-                        new_obj,
-                        label=col_name,
-                        columns=root_col,
-                        level=level,
-                        id=random_id(),
-                    )
-                else:
-                    # if `level=0`, call `cols_label()` instead of `tab_spanner()`
-                    new_obj = cols_label(new_obj, {root_col: col_name})
+        for col_name, spinfo in info_d.items():
+            level, root_col = spinfo["level"], spinfo["root_col"]
+            if level != 0:
+                new_obj = tab_spanner(
+                    new_obj,
+                    label=col_name,
+                    columns=root_col,
+                    level=level,
+                    id=random_id(),
+                )
+            else:
+                # if `level=0`, call `cols_label()` instead of `tab_spanner()`
+                new_obj = cols_label(new_obj, {root_col: col_name})
     return new_obj
 
 
