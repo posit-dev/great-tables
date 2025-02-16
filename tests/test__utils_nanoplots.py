@@ -1,5 +1,7 @@
 import numpy as np
 import pytest
+import polars as pl
+from great_tables import GT, nanoplot_options
 
 
 from typing import Any, Union
@@ -2036,3 +2038,26 @@ def test_get_n_intlike(nums: list[Any], n: int):
 )
 def test_remove_exponent(n: "int | float | str", result: int):
     assert _remove_exponent(n) == result
+
+
+def test_noerror_list_of_strings() -> None:
+    random_numbers_df = pl.DataFrame(
+        {
+            "example": ["Row " + str(x) for x in range(1, 5)],
+            "numbers": [
+                "20 23 6",
+                "2.3 6.8 9.2",
+                "-12 -5 6",
+                "2 0 15",
+            ],
+        }
+    )
+
+    GT(random_numbers_df).fmt_nanoplot(
+        columns="numbers",
+        options=nanoplot_options(
+            data_point_radius=5,
+            data_point_stroke_color=["black", "red", "black"],
+            show_data_area=False,
+        ),
+    )
