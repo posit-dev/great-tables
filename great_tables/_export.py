@@ -431,8 +431,6 @@ def save(
     ```
 
     """
-    import base64
-
     # Import the required packages
     _try_import(name="selenium", pip_install_line="pip install selenium")
 
@@ -451,10 +449,17 @@ def save(
     wdriver = _get_web_driver(web_driver)
 
     # run browser ----
-    with wdriver(debug_port=debug_port) as headless_browser:
+    with (
+        tempfile.TemporaryDirectory() as tmp_dir,
+        wdriver(debug_port=debug_port) as headless_browser,
+    ):
+        # Write the HTML content to the temp file
+        with open(f"{tmp_dir}/table.html", "w", encoding=encoding) as temp_file:
+            temp_file.write(html_content)
+
+        # Open the HTML file in the headless browser
         headless_browser.set_window_size(*window_size)
-        encoded = base64.b64encode(html_content.encode(encoding=encoding)).decode(encoding=encoding)
-        headless_browser.get(f"data:text/html;base64,{encoded}")
+        headless_browser.get("file://" + temp_file.name)
 
         _save_screenshot(headless_browser, scale, file, debug=_debug_dump)
 
