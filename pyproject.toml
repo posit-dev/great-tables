@@ -67,7 +67,7 @@ dev = [
 ]
 
 dev-no-pandas = [
-    "ruff==0.9.6",
+    "ruff==0.8.0",
     "jupyter",
     "quartodoc>=0.8.1; python_version >= '3.9'",
     "griffe==0.38.1",
