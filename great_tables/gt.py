@@ -46,6 +46,7 @@ from ._options import (
 )
 from ._pipe import pipe
 from ._render import infer_render_env_defaults
+from ._render_checks import _render_check
 from ._source_notes import tab_source_note
 from ._spanners import (
     cols_hide,
@@ -336,6 +337,8 @@ class GT(
         self,
         context: str,
     ) -> str:
+        _render_check(self)
+
         # Note ideally, this function will forward to things like .as_raw_html(), using a
         # context dataclass to set the options on those functions. E.g. a LatexContext
         # would have the options for a .as_latex() method, etc..
