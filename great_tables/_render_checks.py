@@ -10,7 +10,7 @@ class RenderWarning(Warning):
 
 def _render_check(data: GTData):
     if infer_render_env() == "quarto":
-        _render_check(data)
+        _render_check_quarto(data)
 
 
 def _render_check_quarto(data: GTData):
