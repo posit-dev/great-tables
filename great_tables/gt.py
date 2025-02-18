@@ -337,8 +337,6 @@ class GT(
         self,
         context: str,
     ) -> str:
-        _render_check(self)
-
         # Note ideally, this function will forward to things like .as_raw_html(), using a
         # context dataclass to set the options on those functions. E.g. a LatexContext
         # would have the options for a .as_latex() method, etc..
@@ -353,6 +351,9 @@ class GT(
         make_page: bool = False,
         all_important: bool = False,
     ) -> str:
+        # TODO: better to put these checks in a pre render hook?
+        _render_check(self)
+
         heading_component = create_heading_component_h(data=self)
         column_labels_component = create_columns_component_h(data=self)
         body_component = create_body_component_h(data=self)
