@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, ClassVar, cast, Iterable
+from typing import TYPE_CHECKING, ClassVar, Iterable, cast
 
 from . import _utils
 from ._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -164,6 +163,7 @@ def tab_options(
     row_striping_background_color: str | None = None,
     row_striping_include_stub: bool | None = None,
     row_striping_include_table_body: bool | None = None,
+    quarto_disable_processing: bool | None = None,
 ) -> GTSelf:
     """
     Modify the table output options.
@@ -473,6 +473,8 @@ def tab_options(
         An option for whether to include the stub when striping rows.
     row_striping_include_table_body
         An option for whether to include the table body when striping rows.
+    quarto_disable_processing
+        Whether to disable Quarto table processing.
 
 
     Returns

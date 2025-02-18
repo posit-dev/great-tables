@@ -5,7 +5,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
-from typing import Any, Callable, TypeVar, overload, TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal, TypeVar, overload
 
 from typing_extensions import Self, TypeAlias, Union
 
@@ -15,17 +15,17 @@ from ._tbl_data import (
     DataFrameLike,
     TblData,
     _get_cell,
+    _get_column_dtype,
     _set_cell,
     copy_data,
     create_empty_frame,
     get_column_names,
-    _get_column_dtype,
     n_rows,
     to_list,
     validate_frame,
 )
 from ._text import BaseText
-from ._utils import _str_detect, OrderedSet
+from ._utils import OrderedSet, _str_detect
 
 if TYPE_CHECKING:
     from ._helpers import UnitStr
@@ -1218,6 +1218,9 @@ class Options:
     # page_footer_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
     quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
     quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
+
+    def __getitem__(self, k: str) -> Any:
+        return getattr(self, k).value
 
     def _get_all_options_keys(self) -> list[str | None]:
         return [x.parameter for x in self._options.values()]
