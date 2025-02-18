@@ -384,3 +384,11 @@
   </tbody>
   '''
 # ---
+# name: test_table_id_used_in_headers
+  '''
+  <tr class="gt_col_headings">
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_id-Count">Count</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="test_id-Group-Label">Group Label</th>
+  </tr>
+  '''
+# ---
