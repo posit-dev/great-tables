@@ -706,6 +706,8 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
     _assert_list_is_subset(mod_columns, set_list=column_names)
 
     for col, width in new_cases.items():
+        if not isinstance(width, str):
+            raise ValueError(f"Width must be a string. Column {col} width received a {type(width)}")
         curr_boxhead = curr_boxhead._set_column_width(col, width)
 
     return self._replace(_boxhead=curr_boxhead)
