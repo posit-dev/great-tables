@@ -191,7 +191,7 @@ def create_columns_component_h(data: GTData) -> str:
                     colspan=1,
                     style=_flatten_styles(styles_column_labels + styles_i),
                     scope="col",
-                    id=_create_element_id(table_id, info.column_label),
+                    id=_create_element_id(table_id, info.var),
                 )
             )
 
@@ -269,7 +269,7 @@ def create_columns_component_h(data: GTData) -> str:
                         colspan=1,
                         style=_flatten_styles(styles_column_labels + styles_i),
                         scope="col",
-                        id=_create_element_id(table_id, h_info.column_label),
+                        id=_create_element_id(table_id, h_info.var),
                     )
                 )
 
@@ -312,6 +312,10 @@ def create_columns_component_h(data: GTData) -> str:
         if len(remaining_headings) > 0:
             spanned_column_labels = []
 
+            remaining_heading_ids = [
+                entry.var for entry in boxhead if entry.var in remaining_headings
+            ]
+
             for j in range(len(remaining_headings)):
                 # Filter by column label / id, join with overall column labels style
                 # TODO check this filter logic
@@ -329,7 +333,7 @@ def create_columns_component_h(data: GTData) -> str:
                         colspan=1,
                         style=_flatten_styles(styles_column_labels + styles_i),
                         scope="col",
-                        id=_create_element_id(table_id, remaining_headings_labels[j]),
+                        id=_create_element_id(table_id, remaining_heading_ids[j]),
                     )
                 )
 
