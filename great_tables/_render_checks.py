@@ -29,10 +29,15 @@ def _render_check_quarto(data: GTData):
         return
 
     # cols_widths set ----
-    if any([col.column_width is not None for col in data._boxhead]):
+    col_widths = [col.column_width for col in data._boxhead]
+
+    is_any_set = any([width is not None for width in col_widths])
+    is_all_pct = all([width is None or width.rstrip().endswith("%") for width in col_widths])
+    if is_any_set and not is_all_pct:
         warnings.warn(
             "Rendering table with .col_widths() in Quarto may result in unexpected behavior."
             " This is because Quarto performs custom table processing."
-            " Set .tab_options(quarto_disable_processing=True) to disable Quarto table processing.",
+            " Either use all percentage widths, or set .tab_options(quarto_disable_processing=True)"
+            " to disable Quarto table processing.",
             RenderWarning,
         )
