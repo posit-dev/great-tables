@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import itertools
 from typing import TYPE_CHECKING
+import warnings
 
 from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
@@ -707,7 +708,13 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
 
     for col, width in new_cases.items():
         if not isinstance(width, str):
-            raise ValueError(f"Width must be a string. Column {col} width received a {type(width)}")
+            warnings.warn(
+                "Column widths must be a string."
+                f" Column `{col}` specified width using a {type(width)}."
+                " Coercing width to a string, but in the future this will raise an error.",
+                DeprecationWarning,
+            )
+            width = str(width)
         curr_boxhead = curr_boxhead._set_column_width(col, width)
 
     return self._replace(_boxhead=curr_boxhead)
