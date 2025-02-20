@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import itertools
-from typing import TYPE_CHECKING, TypedDict
+from typing import Literal, TYPE_CHECKING
 
 from typing_extensions import TypeAlias
 
@@ -227,11 +227,67 @@ def tab_spanner(
     return new_data
 
 
+class SpannerTransformer:
+    """
+    https://github.com/posit-dev/great-tables/pull/604
+    """
+
+    def __init__(
+        self,
+        columns: list[str],
+        delim: str = ".",
+        split: Literal["first", "last"] = "last",
+        limit: int = -1,
+        reverse: bool = False,
+    ):
+        self._columns = columns
+        self._delim = delim
+        self._split = split
+        self._limit = limit
+        self._reverse = reverse
+
+        self._split_func = self._get_split_func()
+        self._d: dict[str, list[str]] = {}
+        self._rectangle = None
+
+    def _get_split_func(self):
+        if self._split == "first":
+            split_ = "split"
+        elif self._split == "last":
+            split_ = "rsplit"
+        else:
+            raise ValueError("The `split=` parameter accepts only `first` or `last` as input.")
+        return getattr(str, split_)
+
+    def split(self):
+        if not self._d:
+            for col in self._columns:
+                col_names = self._split_func(col, self._delim, self._limit)  # split for one column
+                if self._reverse:
+                    col_names = col_names[::-1]
+                self._d[col] = col_names
+        return self._d
+
+    def get_rectangle(self):
+        d = self.split()  # get the intermediate representation
+        values = [list(v) for v in itertools.zip_longest(*d.values())]
+        if self._reverse:
+            return [list(d.keys()), *values]
+        return [list(d.keys()), *values[::-1]]
+
+    def __repr__(self):
+        cls_name = type(self).__name__
+        return (
+            f"{cls_name}(columns={self._columns!r}, delim={self._delim!r}, "
+            + f"split={self._split!r}, limit={self._limit}, reverse={self._reverse})"
+        )
+
+
 def tab_spanner_delim(
     self: GTSelf,
     delim: str = ".",
     columns: SelectExpr = None,
-    split: str = "last",
+    split: Literal["first", "last"] = "last",
     limit: int = -1,
     reverse: bool = False,
 ) -> GTSelf:
@@ -302,48 +358,29 @@ def tab_spanner_delim(
     gt.tab_spanner_delim()
     ```
     """
-    if split == "first":
-        split_ = "split"
-    elif split == "last":
-        split_ = "rsplit"
-    else:
-        raise ValueError("The `split=` parameter accepts only `first` or `last` as input.")
-
-    split_func = getattr(str, split_)  # get `str.split` or `str.rsplit`
-
-    class SpInfo(TypedDict):
-        level: int
-        root_col: str
-
-    new_obj = copy.copy(self)
-    info_list: list[dict[str, SpInfo]] = []
 
     sel_cols = resolve_cols_c(data=self, expr=columns)
-    for sel_col in sel_cols:
-        col_names = split_func(sel_col, delim, limit)  # split for one column
-        info_dict: dict[str, SpInfo] = {}
-        for level, col_name in zip(reversed(range(len(col_names))), col_names):
-            # `level` value is recorded from high to low
-            info_dict[col_name] = {"level": level, "root_col": sel_col}
-        info_list.append(info_dict)
 
-    # This block could potentially be merged with the previous one. It's kept separate for now because:
-    # 1. It's unclear whether `reverse=` will require operations on the recorded data.
-    # 2. There may be opportunities for aggregation to reduce calls to `tab_spanner()`.
-    for info_d in info_list:
-        for col_name, spinfo in info_d.items():
-            level, root_col = spinfo["level"], spinfo["root_col"]
-            if level != 0:
-                new_obj = tab_spanner(
-                    new_obj,
-                    label=col_name,
-                    columns=root_col,
-                    level=level,
-                    id=random_id(),
-                )
-            else:
-                # if `level=0`, call `cols_label()` instead of `tab_spanner()`
-                new_obj = cols_label(new_obj, {root_col: col_name})
+    spter = SpannerTransformer(
+        delim=delim, columns=sel_cols, split=split, limit=limit, reverse=reverse
+    )
+    col_names, first_col, *other_cols = spter.get_rectangle()
+
+    new_obj = copy.copy(self)
+
+    # for `first_col`, call `.cols_label()`
+    new_obj = cols_label(new_obj, dict(zip(col_names, first_col)))
+
+    # for `other_cols`, call `.tab_spanner()`
+    for level, col_labels in enumerate(other_cols, start=1):
+        for col_name, col_label in zip(col_names, col_labels):
+            new_obj = tab_spanner(
+                new_obj,
+                label=col_label,
+                columns=col_name,
+                level=level,
+                id=random_id(),  # good?
+            )
     return new_obj
 
 
