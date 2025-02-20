@@ -107,16 +107,39 @@ def tab_spanner(
     )
     ```
 
+    One cool feature of `tab_spanner()` is its support for multiple levels, allowing you to group
+    columns in various ways. For example, you can create three bottom spanners by specifying `level=0`
+    and a top spanner by setting `level=1`:
+
+    ```{python}
+    (
+        GT(gtcars_mini)
+        .tab_spanner(
+            label="hp",
+            columns=["hp", "hp_rpm"],
+            level=0,
+        )
+        .tab_spanner(
+            label="trq",
+            columns=["trq", "trq_rpm"],
+            level=0,
+        )
+        .tab_spanner(
+            label="mpg",
+            columns=["mpg_c", "mpg_h"],
+            level=0,
+        )
+        .tab_spanner(
+            label="performance",
+            columns=["hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"],
+            level=1,
+        )
+    )
+    ```
     We can also use Markdown formatting for the spanner label. In this example, we'll use
     `gt.md("*Performance*")` to make the label italicized.
 
     ```{python}
-    from great_tables import GT, md
-    from great_tables.data import gtcars
-
-    colnames = ["model", "hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"]
-    gtcars_mini = gtcars[colnames].head(10)
-
     (
         GT(gtcars_mini)
         .tab_spanner(
