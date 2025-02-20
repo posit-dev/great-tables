@@ -108,8 +108,7 @@ def tab_spanner(
     ```
 
     One cool feature of `tab_spanner()` is its support for multiple levels, allowing you to group
-    columns in various ways. For example, you can create three bottom spanners by specifying `level=0`
-    and a top spanner by setting `level=1`:
+    columns in various ways. For example, you can create three bottom spanners and a top spanner:
 
     ```{python}
     (
@@ -117,25 +116,47 @@ def tab_spanner(
         .tab_spanner(
             label="hp",
             columns=["hp", "hp_rpm"],
-            level=0,
+        )
+        .tab_spanner(
+            label="trq",
+            columns=["trq", "trq_rpm"],
+        )
+        .tab_spanner(
+            label="mpg",
+            columns=["mpg_c", "mpg_h"],
+        )
+        .tab_spanner(
+            label="performance",
+            columns=["hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"],
+        )
+    )
+    ```
+
+    Did you notice that the spanners stacked automatically? What if you want granular control to
+    specify a spanner in a specific hierarchy? **Great Tables** has you covered. By using the `level=`
+    parameter, you can easily adjust the hierarchy of spanners. For example, by specifying `level=0`
+    for the last call of `tab_spanner()`, you can place that spanner at the bottom level (level `0`)
+    instead of the top level (level `2`).
+
+    ```{python}
+    (
+        GT(gtcars_mini)
+        .tab_spanner(
+            label="hp",
+            columns=["hp", "hp_rpm"],
+        )
+        .tab_spanner(
+            label="performance",
+            columns=["hp", "hp_rpm", "trq", "trq_rpm"],
         )
         .tab_spanner(
             label="trq",
             columns=["trq", "trq_rpm"],
             level=0,
         )
-        .tab_spanner(
-            label="mpg",
-            columns=["mpg_c", "mpg_h"],
-            level=0,
-        )
-        .tab_spanner(
-            label="performance",
-            columns=["hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"],
-            level=1,
-        )
     )
     ```
+
     We can also use Markdown formatting for the spanner label. In this example, we'll use
     `gt.md("*Performance*")` to make the label italicized.
 
