@@ -248,7 +248,7 @@ class SpannerTransformer:
 
         self._split_func = self._get_split_func()
         self._d: dict[str, list[str]] = {}
-        self._rectangle = None
+        self._rectangle: list[list[str]] = []
 
     def _get_split_func(self):
         if self._split == "first":
@@ -269,11 +269,14 @@ class SpannerTransformer:
         return self._d
 
     def get_rectangle(self):
-        d = self.split()  # get the intermediate representation
-        values = [list(v) for v in itertools.zip_longest(*d.values())]
-        if self._reverse:
-            return [list(d.keys()), *values]
-        return [list(d.keys()), *values[::-1]]
+        if not self._rectangle:
+            d = self.split()  # get the intermediate representation
+            values = [list(v) for v in itertools.zip_longest(*d.values())]
+            if self._reverse:
+                self._rectangle = [list(d.keys()), *values]
+            else:
+                self._rectangle = [list(d.keys()), *values[::-1]]
+        return self._rectangle
 
     def __repr__(self):
         cls_name = type(self).__name__
