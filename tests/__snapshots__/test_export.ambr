@@ -60,9 +60,9 @@
     </tr>
   <tr class="gt_col_headings">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_table-num">num</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="test_table-char">char</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_table-currency">currency</th>
   </tr>
   </thead>
   <tbody class="gt_table_body">
@@ -143,8 +143,8 @@
   <thead style="border-style: none;">
   
   <tr class="gt_col_headings" style="border-style: none;background-color: transparent;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;">
-    <th class="gt_col_heading gt_columns_bottom_border gt_right" id="num" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">num</th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_left" id="char" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: left;">char</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" id="test_table_small-num" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">num</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" id="test_table_small-char" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: left;">char</th>
   </tr>
   </thead>
   <tbody class="gt_table_body" style="border-style: none;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;">
@@ -176,8 +176,8 @@
   <thead style="border-style: none;">
   
   <tr class="gt_col_headings" style="border-style: none;background-color: transparent;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;">
-    <th class="gt_col_heading gt_columns_bottom_border gt_right" id="num" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">num</th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_left" id="char" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: left;">char</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" id="test_table_small-num" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">num</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" id="test_table_small-char" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: left;">char</th>
   </tr>
   </thead>
   <tbody class="gt_table_body" style="border-style: none;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;">

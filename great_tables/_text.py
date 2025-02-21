@@ -84,7 +84,7 @@ def _process_text(x: str | BaseText | None, context: str = "html") -> str:
 
 
 def _process_text_id(x: str | BaseText | None) -> str:
-    return _process_text(x)
+    return _process_text(x).replace(" ", "-")
 
 
 def _html_escape(x: str) -> str:
