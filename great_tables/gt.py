@@ -46,6 +46,7 @@ from ._options import (
 )
 from ._pipe import pipe
 from ._render import infer_render_env_defaults
+from ._render_checks import _render_check
 from ._source_notes import tab_source_note
 from ._spanners import (
     cols_hide,
@@ -350,6 +351,9 @@ class GT(
         make_page: bool = False,
         all_important: bool = False,
     ) -> str:
+        # TODO: better to put these checks in a pre render hook?
+        _render_check(self)
+
         heading_component = create_heading_component_h(data=self)
         column_labels_component = create_columns_component_h(data=self)
         body_component = create_body_component_h(data=self)
