@@ -41,7 +41,7 @@ The `islands` data is a simple **Pandas** DataFrame with 2 columns and that'll s
 gt_tbl = GT(islands_mini)
 
 # Show the output table
-gt_tbl
+gt_tbl.show()
 ```
 
 That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a **Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
