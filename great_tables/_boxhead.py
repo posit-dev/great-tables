@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
 from ._locations import resolve_cols_c
 from ._utils import _assert_list_is_subset
@@ -152,6 +152,75 @@ def cols_label(
             )
 
     boxhead = self._boxhead._set_column_labels(new_kwargs)
+
+    return self._replace(_boxhead=boxhead)
+
+
+def cols_label_with(self: GTSelf, fn: Callable[[str], str], columns: SelectExpr = None) -> GTSelf:
+    """
+    Relabel one or more columns using a function.
+
+    The `cols_label_with()` function allows for modification of column labels through a supplied
+    function. By default, the function will be invoked on all column labels but this can be limited
+    to a subset via the `columns` parameter.
+
+    Parameters
+    ----------
+    fn
+        A function that accepts a column label as input and returns a transformed label as output.
+
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Notes
+    -----
+    GT always selects columns using their name in the underlying data. This means that a column's
+    label is purely for final presentation.
+
+    Examples
+    --------
+    Let's use a subset of the `sp500` dataset to create a gt table.
+    ```{python}
+    from great_tables import GT, md
+    from great_tables.data import sp500
+
+    gt = GT(sp500.head())
+    gt
+    ```
+
+    We can pass `str.upper()` to the `columns` parameter to convert all column labels to uppercase.
+    ```{python}
+    gt.cols_label_with(str.upper)
+    ```
+
+    One useful use case is using `md()`, provided by **Great Tables**, to format column labels.
+    For example, the following code demonstrates how to make the `date` and `adj_close` column labels
+    bold using markdown syntax.
+    ```{python}
+    gt.cols_label_with(lambda x: md(f"**{x}**"), columns=["date", "adj_close"])
+    ```
+
+    """
+    # Get the full list of column names for the data
+    column_names = self._boxhead._get_columns()
+
+    if isinstance(columns, str):
+        columns = [columns]
+        _assert_list_is_subset(columns, set_list=column_names)
+    elif columns is None:
+        columns = column_names
+
+    sel_cols = resolve_cols_c(data=self, expr=columns)
+
+    new_col_labels = {col: fn(col) for col in sel_cols}
+    boxhead = self._boxhead._set_column_labels(new_col_labels)
 
     return self._replace(_boxhead=boxhead)
 
