@@ -311,7 +311,7 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self.__class__(new_cols)
 
-    def _set_cols_info(self, colnames: list[str], colinfo_type: ColInfoTypeEnum) -> Self:
+    def _set_cols_info_type(self, colnames: list[str], colinfo_type: ColInfoTypeEnum) -> Self:
         # TODO: validate that colname is in the boxhead
         res: list[ColInfo] = []
         for col in self._d:
@@ -324,10 +324,10 @@ class Boxhead(_Sequence[ColInfo]):
         return self.__class__(res)
 
     def set_cols_hidden(self, colnames: list[str]) -> Self:
-        return self._set_cols_info(colnames=colnames, colinfo_type=ColInfoTypeEnum.hidden)
+        return self._set_cols_info_type(colnames=colnames, colinfo_type=ColInfoTypeEnum.hidden)
 
     def set_cols_unhidden(self, colnames: list[str]) -> Self:
-        return self._set_cols_info(colnames=colnames, colinfo_type=ColInfoTypeEnum.default)
+        return self._set_cols_info_type(colnames=colnames, colinfo_type=ColInfoTypeEnum.default)
 
     def align_from_data(self, data: TblData) -> Self:
         """Updates align attribute in entries based on data types."""
