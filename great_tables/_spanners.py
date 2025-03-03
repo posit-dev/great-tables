@@ -559,6 +559,65 @@ def cols_hide(self: GTSelf, columns: SelectExpr) -> GTSelf:
     return self._replace(_boxhead=new_boxhead)
 
 
+def cols_unhide(self: GTSelf, columns: SelectExpr) -> GTSelf:
+    """Unhide one or more columns.
+
+    The `cols_unhide()` method allows us to unhide one or more columns from appearing in the final
+    output table. This may be important in cases where the user obtains a `GT` instance with hidden
+    columns and there is motivation to reveal one or more of those.
+
+    Parameters
+    ----------
+    columns
+        The columns to unhide in the output display table. Can either be a single column name or a
+        series of column names provided in a list.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+
+    Examples
+    --------
+    For this example, we'll use a portion of the `countrypops` dataset to create a simple table.
+    We'll hide the `year` column using `cols_hide()` and then unhide it with `cols_unhide()`,
+    ensuring that the `year` column remains visible in the table.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import countrypops
+
+    countrypops_mini = countrypops.loc[countrypops["country_name"] == "Benin"][
+        ["country_name", "year", "population"]
+    ].tail(5)
+
+    GT(countrypops_mini).cols_hide(columns="year").cols_unhide(columns="year")
+    ```
+
+    See Also
+    --------
+    The counterpart of this function,
+    [`cols_hide()`](`great_tables._spanners.cols_hide`), allows you to hide one or more columns.
+    """
+
+    # If `columns` is a string, convert it to a list
+    if isinstance(columns, str):
+        columns = [columns]
+
+    sel_cols = resolve_cols_c(data=self, expr=columns)
+
+    col_vars = [col.var for col in self._boxhead]
+
+    _validate_sel_cols(sel_cols, col_vars)
+
+    # New boxhead with hidden columns
+    new_boxhead = self._boxhead.set_cols_unhidden(sel_cols)
+
+    return self._replace(_boxhead=new_boxhead)
+
+
 def spanners_print_matrix(
     spanners: Spanners,
     boxhead: Boxhead,
