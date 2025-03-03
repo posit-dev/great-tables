@@ -384,7 +384,7 @@ def test_cols_reorder_raises(DF, columns):
     with pytest.raises(Exception) as exc_info:
         new_gt = cols_reorder(src_gt, columns=columns)
 
-    assert "Reordering vars must contain all boxhead vars." in exc_info.value.args[0]
+    assert "Column reordering must include all columns in the table." in exc_info.value.args[0]
 
 
 @pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "c"), (pl.DataFrame, cs.starts_with("c"))])
