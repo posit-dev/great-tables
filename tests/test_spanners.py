@@ -11,6 +11,7 @@ from great_tables._spanners import (
     cols_move,
     cols_move_to_end,
     cols_move_to_start,
+    cols_unhide,
     empty_spanner_matrix,
     spanners_print_matrix,
     tab_spanner,
@@ -375,6 +376,25 @@ def test_cols_hide_multi_cols(DF, columns):
     src_gt = GT(df)
     new_gt = cols_hide(src_gt, columns=columns)
     assert [col.var for col in new_gt._boxhead if col.visible] == ["b", "c"]
+
+
+@pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "c"), (pl.DataFrame, cs.starts_with("c"))])
+def test_cols_unhide_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_unhide(cols_hide(src_gt, columns=columns), columns=columns)
+    assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "c", "d"]
+
+
+@pytest.mark.parametrize(
+    "DF, columns",
+    [(pd.DataFrame, ["a", "d"]), (pl.DataFrame, cs.starts_with("a") | cs.ends_with("d"))],
+)
+def test_cols_unhide_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_unhide(cols_hide(src_gt, columns=columns), columns=columns)
+    assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "c", "d"]
 
 
 def test_validate_sel_cols():
