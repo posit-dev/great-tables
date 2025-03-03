@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Callable, TYPE_CHECKING
 
 from ._locations import resolve_cols_c
-from ._utils import _assert_list_is_subset
+from ._utils import _assert_list_is_subset, _handle_units_syntax
 from ._tbl_data import SelectExpr
 from ._text import BaseText
 
@@ -114,8 +114,6 @@ def cols_label(
     )
     ```
     """
-    from great_tables._helpers import UnitStr
-
     cases = cases if cases is not None else {}
     new_cases = cases | kwargs
 
@@ -132,24 +130,7 @@ def cols_label(
     _assert_list_is_subset(mod_columns, set_list=column_names)
 
     # Handle units syntax in labels (e.g., "Density ({{ppl / mi^2}})")
-    new_kwargs: dict[str, UnitStr | str | BaseText] = {}
-
-    for k, v in new_cases.items():
-        if isinstance(v, str):
-            unitstr_v = UnitStr.from_str(v)
-
-            if len(unitstr_v.units_str) == 1 and isinstance(unitstr_v.units_str[0], str):
-                new_kwargs[k] = unitstr_v.units_str[0]
-            else:
-                new_kwargs[k] = unitstr_v
-
-        elif isinstance(v, BaseText):
-            new_kwargs[k] = v
-
-        else:
-            raise ValueError(
-                "Column labels must be strings or BaseText objects. Use `md()` or `html()` for formatting."
-            )
+    new_kwargs = _handle_units_syntax(new_cases)
 
     boxhead = self._boxhead._set_column_labels(new_kwargs)
 
@@ -219,8 +200,12 @@ def cols_label_with(self: GTSelf, fn: Callable[[str], str], columns: SelectExpr 
 
     sel_cols = resolve_cols_c(data=self, expr=columns)
 
-    new_col_labels = {col: fn(col) for col in sel_cols}
-    boxhead = self._boxhead._set_column_labels(new_col_labels)
+    new_cases = {col: fn(col) for col in sel_cols}
+
+    # Handle units syntax in labels (e.g., "Density ({{ppl / mi^2}})")
+    new_kwargs = _handle_units_syntax(new_cases)
+
+    boxhead = self._boxhead._set_column_labels(new_kwargs)
 
     return self._replace(_boxhead=boxhead)
 
