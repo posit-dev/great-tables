@@ -599,7 +599,7 @@ def cols_unhide(self: GTSelf, columns: SelectExpr) -> GTSelf:
     See Also
     --------
     The counterpart of this function,
-    [`cols_hide()`](`great_tables._spanners.cols_hide`), allows you to hide one or more columns.
+    [`cols_hide()`](`great_tables.GT.cols_hide`), allows you to hide one or more columns.
     """
 
     # If `columns` is a string, convert it to a list
