@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.41">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -57,7 +57,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -69,10 +69,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-48ffa3e5b9d089919c6712c39e5b00f2.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-5c67a7444eebc356e54fdce0a63e8750.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8647a4a42273f773479d27c00df3f9ed.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -109,6 +109,9 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -176,21 +179,4327 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.GT.with_locale" id="toc-great_tables.GT.with_locale" class="nav-link active" data-scroll-target="#great_tables.GT.with_locale">GT.with_locale</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content column-page-left" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content column-page-left" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">GT.with_locale</h1>
+</div>
 
 
 
+<div class="quarto-title-meta column-page-left">
 
-<section id="great_tables.GT.with_locale" class="level1">
-<h1>GT.with_locale</h1>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>GT.with_locale(<span class="va">self</span>, locale<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Set a column to be the default locale.</p>
-<p>Setting a default locale affects formatters like .fmt_number, and .fmt_date, by having them default to locale-specific features (e.g.&nbsp;representing one thousand as 1.000,00)</p>
+<p>Setting a default locale affects formatters like <code>fmt_number()</code>, and <code>fmt_date()</code>, by having them default to locale-specific features (e.g.&nbsp;representing one thousand as 1.000,00)</p>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
+<dl>
+<dt><code><span class="parameter-name"><strong>locale</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</p>
+</dd>
+</dl>
+</section>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../reference/GT.html#great_tables.GT">GT</a></span></code></dt>
+<dd>
+<p>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</p>
+</dd>
+</dl>
+</section>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<p>Let’s create a table and set its <code>locale=</code> to <code>"ja"</code> for Japan. Then, we call <code>fmt_currency()</code> to format the <code>"currency"</code> column. Since we didn’t specify a <code>locale=</code> for <code>fmt_currency()</code>, it will adopt the globally set <code>"ja"</code> locale.</p>
+<div id="c7596223" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    GT(exibble)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    .with_locale(<span class="st">"ja"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span><span class="st">"currency"</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        decimals<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        use_seps<span class="op">=</span><span class="va">False</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div id="illcxydsya" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#illcxydsya table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#illcxydsya thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#illcxydsya p { margin: 0; padding: 0; }
+ #illcxydsya .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #illcxydsya .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #illcxydsya .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #illcxydsya .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #illcxydsya .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #illcxydsya .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #illcxydsya .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #illcxydsya .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #illcxydsya .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #illcxydsya .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #illcxydsya .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #illcxydsya .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #illcxydsya .gt_spanner_row { border-bottom-style: hidden; }
+ #illcxydsya .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #illcxydsya .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #illcxydsya .gt_from_md> :first-child { margin-top: 0; }
+ #illcxydsya .gt_from_md> :last-child { margin-bottom: 0; }
+ #illcxydsya .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #illcxydsya .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #illcxydsya .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #illcxydsya .gt_row_group_first td { border-top-width: 2px; }
+ #illcxydsya .gt_row_group_first th { border-top-width: 2px; }
+ #illcxydsya .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #illcxydsya .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #illcxydsya .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #illcxydsya .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #illcxydsya .gt_left { text-align: left; }
+ #illcxydsya .gt_center { text-align: center; }
+ #illcxydsya .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #illcxydsya .gt_font_normal { font-weight: normal; }
+ #illcxydsya .gt_font_bold { font-weight: bold; }
+ #illcxydsya .gt_font_italic { font-style: italic; }
+ #illcxydsya .gt_super { font-size: 65%; }
+ #illcxydsya .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #illcxydsya .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+
+<tr class="gt_col_headings">
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="date">date</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="time">time</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="datetime">datetime</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="row">row</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group">group</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">0.1111</td>
+    <td class="gt_row gt_left">apricot</td>
+    <td class="gt_row gt_left">one</td>
+    <td class="gt_row gt_right">2015-01-15</td>
+    <td class="gt_row gt_right">13:35</td>
+    <td class="gt_row gt_right">2018-01-01 02:22</td>
+    <td class="gt_row gt_right">¥49.950</td>
+    <td class="gt_row gt_left">row_1</td>
+    <td class="gt_row gt_left">grp_a</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">2.222</td>
+    <td class="gt_row gt_left">banana</td>
+    <td class="gt_row gt_left">two</td>
+    <td class="gt_row gt_right">2015-02-15</td>
+    <td class="gt_row gt_right">14:40</td>
+    <td class="gt_row gt_right">2018-02-02 14:33</td>
+    <td class="gt_row gt_right">¥17.950</td>
+    <td class="gt_row gt_left">row_2</td>
+    <td class="gt_row gt_left">grp_a</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">33.33</td>
+    <td class="gt_row gt_left">coconut</td>
+    <td class="gt_row gt_left">three</td>
+    <td class="gt_row gt_right">2015-03-15</td>
+    <td class="gt_row gt_right">15:45</td>
+    <td class="gt_row gt_right">2018-03-03 03:44</td>
+    <td class="gt_row gt_right">¥1.390</td>
+    <td class="gt_row gt_left">row_3</td>
+    <td class="gt_row gt_left">grp_a</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">444.4</td>
+    <td class="gt_row gt_left">durian</td>
+    <td class="gt_row gt_left">four</td>
+    <td class="gt_row gt_right">2015-04-15</td>
+    <td class="gt_row gt_right">16:50</td>
+    <td class="gt_row gt_right">2018-04-04 15:55</td>
+    <td class="gt_row gt_right">¥65100.000</td>
+    <td class="gt_row gt_left">row_4</td>
+    <td class="gt_row gt_left">grp_a</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">5550.0</td>
+    <td class="gt_row gt_left"><na></na></td>
+    <td class="gt_row gt_left">five</td>
+    <td class="gt_row gt_right">2015-05-15</td>
+    <td class="gt_row gt_right">17:55</td>
+    <td class="gt_row gt_right">2018-05-05 04:00</td>
+    <td class="gt_row gt_right">¥1325.810</td>
+    <td class="gt_row gt_left">row_5</td>
+    <td class="gt_row gt_left">grp_b</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_left">fig</td>
+    <td class="gt_row gt_left">six</td>
+    <td class="gt_row gt_right">2015-06-15</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_right">2018-06-06 16:11</td>
+    <td class="gt_row gt_right">¥13.255</td>
+    <td class="gt_row gt_left">row_6</td>
+    <td class="gt_row gt_left">grp_b</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">777000.0</td>
+    <td class="gt_row gt_left">grapefruit</td>
+    <td class="gt_row gt_left">seven</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_right">19:10</td>
+    <td class="gt_row gt_right">2018-07-07 05:22</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_left">row_7</td>
+    <td class="gt_row gt_left">grp_b</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">8880000.0</td>
+    <td class="gt_row gt_left">honeydew</td>
+    <td class="gt_row gt_left">eight</td>
+    <td class="gt_row gt_right">2015-08-15</td>
+    <td class="gt_row gt_right">20:20</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_right">¥0.440</td>
+    <td class="gt_row gt_left">row_8</td>
+    <td class="gt_row gt_left">grp_b</td>
+  </tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+<p><strong>Great Tables</strong> internally supports many locale options. You can find the available locales in the following table:</p>
+<div id="8b7197b1" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> __x_locales</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>columns <span class="op">=</span> [<span class="st">"locale"</span>, <span class="st">"lang_name"</span>, <span class="st">"lang_desc"</span>, <span class="st">"territory_name"</span>, <span class="st">"territory_desc"</span>]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>GT(__x_locales.loc[:, columns]).cols_align(<span class="st">"right"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div id="qdmbzaerhp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#qdmbzaerhp table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#qdmbzaerhp thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#qdmbzaerhp p { margin: 0; padding: 0; }
+ #qdmbzaerhp .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #qdmbzaerhp .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #qdmbzaerhp .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #qdmbzaerhp .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #qdmbzaerhp .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #qdmbzaerhp .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #qdmbzaerhp .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #qdmbzaerhp .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #qdmbzaerhp .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #qdmbzaerhp .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #qdmbzaerhp .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #qdmbzaerhp .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #qdmbzaerhp .gt_spanner_row { border-bottom-style: hidden; }
+ #qdmbzaerhp .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #qdmbzaerhp .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #qdmbzaerhp .gt_from_md> :first-child { margin-top: 0; }
+ #qdmbzaerhp .gt_from_md> :last-child { margin-bottom: 0; }
+ #qdmbzaerhp .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #qdmbzaerhp .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #qdmbzaerhp .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #qdmbzaerhp .gt_row_group_first td { border-top-width: 2px; }
+ #qdmbzaerhp .gt_row_group_first th { border-top-width: 2px; }
+ #qdmbzaerhp .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #qdmbzaerhp .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #qdmbzaerhp .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #qdmbzaerhp .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #qdmbzaerhp .gt_left { text-align: left; }
+ #qdmbzaerhp .gt_center { text-align: center; }
+ #qdmbzaerhp .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #qdmbzaerhp .gt_font_normal { font-weight: normal; }
+ #qdmbzaerhp .gt_font_bold { font-weight: bold; }
+ #qdmbzaerhp .gt_font_italic { font-style: italic; }
+ #qdmbzaerhp .gt_super { font-size: 65%; }
+ #qdmbzaerhp .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #qdmbzaerhp .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+
+<tr class="gt_col_headings">
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="locale">locale</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="lang_name">lang_name</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="lang_desc">lang_desc</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="territory_name">territory_name</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="territory_desc">territory_desc</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+  <tr>
+    <td class="gt_row gt_right">af</td>
+    <td class="gt_row gt_right">af</td>
+    <td class="gt_row gt_right">Afrikaans</td>
+    <td class="gt_row gt_right">ZA</td>
+    <td class="gt_row gt_right">South Africa</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">af-NA</td>
+    <td class="gt_row gt_right">af</td>
+    <td class="gt_row gt_right">Afrikaans</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_right">Namibia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">agq</td>
+    <td class="gt_row gt_right">agq</td>
+    <td class="gt_row gt_right">Aghem</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ak</td>
+    <td class="gt_row gt_right">ak</td>
+    <td class="gt_row gt_right">Akan</td>
+    <td class="gt_row gt_right">GH</td>
+    <td class="gt_row gt_right">Ghana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">am</td>
+    <td class="gt_row gt_right">am</td>
+    <td class="gt_row gt_right">Amharic</td>
+    <td class="gt_row gt_right">ET</td>
+    <td class="gt_row gt_right">Ethiopia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">001</td>
+    <td class="gt_row gt_right">world</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-AE</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">AE</td>
+    <td class="gt_row gt_right">United Arab Emirates</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-BH</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">BH</td>
+    <td class="gt_row gt_right">Bahrain</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-DJ</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">DJ</td>
+    <td class="gt_row gt_right">Djibouti</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-DZ</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">DZ</td>
+    <td class="gt_row gt_right">Algeria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-EG</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">EG</td>
+    <td class="gt_row gt_right">Egypt</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-EH</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">EH</td>
+    <td class="gt_row gt_right">Western Sahara</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-ER</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">ER</td>
+    <td class="gt_row gt_right">Eritrea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-IL</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">IL</td>
+    <td class="gt_row gt_right">Israel</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-IQ</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">IQ</td>
+    <td class="gt_row gt_right">Iraq</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-JO</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">JO</td>
+    <td class="gt_row gt_right">Jordan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-KM</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">KM</td>
+    <td class="gt_row gt_right">Comoros</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-KW</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">KW</td>
+    <td class="gt_row gt_right">Kuwait</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-LB</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">LB</td>
+    <td class="gt_row gt_right">Lebanon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-LY</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">LY</td>
+    <td class="gt_row gt_right">Libya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-MA</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">MA</td>
+    <td class="gt_row gt_right">Morocco</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-MR</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">MR</td>
+    <td class="gt_row gt_right">Mauritania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-OM</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">OM</td>
+    <td class="gt_row gt_right">Oman</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-PS</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">PS</td>
+    <td class="gt_row gt_right">Palestinian Territories</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-QA</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">QA</td>
+    <td class="gt_row gt_right">Qatar</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-SA</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">SA</td>
+    <td class="gt_row gt_right">Saudi Arabia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-SD</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">SD</td>
+    <td class="gt_row gt_right">Sudan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-SO</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">SO</td>
+    <td class="gt_row gt_right">Somalia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-SS</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">SS</td>
+    <td class="gt_row gt_right">South Sudan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-SY</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">SY</td>
+    <td class="gt_row gt_right">Syria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-TD</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">TD</td>
+    <td class="gt_row gt_right">Chad</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-TN</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">TN</td>
+    <td class="gt_row gt_right">Tunisia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ar-YE</td>
+    <td class="gt_row gt_right">ar</td>
+    <td class="gt_row gt_right">Arabic</td>
+    <td class="gt_row gt_right">YE</td>
+    <td class="gt_row gt_right">Yemen</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">as</td>
+    <td class="gt_row gt_right">as</td>
+    <td class="gt_row gt_right">Assamese</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">asa</td>
+    <td class="gt_row gt_right">asa</td>
+    <td class="gt_row gt_right">Asu</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ast</td>
+    <td class="gt_row gt_right">ast</td>
+    <td class="gt_row gt_right">Asturian</td>
+    <td class="gt_row gt_right">ES</td>
+    <td class="gt_row gt_right">Spain</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">az</td>
+    <td class="gt_row gt_right">az</td>
+    <td class="gt_row gt_right">Azerbaijani</td>
+    <td class="gt_row gt_right">AZ</td>
+    <td class="gt_row gt_right">Azerbaijan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">az-Cyrl</td>
+    <td class="gt_row gt_right">az</td>
+    <td class="gt_row gt_right">Azerbaijani</td>
+    <td class="gt_row gt_right">AZ</td>
+    <td class="gt_row gt_right">Azerbaijan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">az-Latn</td>
+    <td class="gt_row gt_right">az</td>
+    <td class="gt_row gt_right">Azerbaijani</td>
+    <td class="gt_row gt_right">AZ</td>
+    <td class="gt_row gt_right">Azerbaijan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bas</td>
+    <td class="gt_row gt_right">bas</td>
+    <td class="gt_row gt_right">Basaa</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">be</td>
+    <td class="gt_row gt_right">be</td>
+    <td class="gt_row gt_right">Belarusian</td>
+    <td class="gt_row gt_right">BY</td>
+    <td class="gt_row gt_right">Belarus</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">be-tarask</td>
+    <td class="gt_row gt_right">be</td>
+    <td class="gt_row gt_right">Belarusian</td>
+    <td class="gt_row gt_right">BY</td>
+    <td class="gt_row gt_right">Belarus</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bem</td>
+    <td class="gt_row gt_right">bem</td>
+    <td class="gt_row gt_right">Bemba</td>
+    <td class="gt_row gt_right">ZM</td>
+    <td class="gt_row gt_right">Zambia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bez</td>
+    <td class="gt_row gt_right">bez</td>
+    <td class="gt_row gt_right">Bena</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bg</td>
+    <td class="gt_row gt_right">bg</td>
+    <td class="gt_row gt_right">Bulgarian</td>
+    <td class="gt_row gt_right">BG</td>
+    <td class="gt_row gt_right">Bulgaria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bm</td>
+    <td class="gt_row gt_right">bm</td>
+    <td class="gt_row gt_right">Bambara</td>
+    <td class="gt_row gt_right">ML</td>
+    <td class="gt_row gt_right">Mali</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bn</td>
+    <td class="gt_row gt_right">bn</td>
+    <td class="gt_row gt_right">Bangla</td>
+    <td class="gt_row gt_right">BD</td>
+    <td class="gt_row gt_right">Bangladesh</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bn-IN</td>
+    <td class="gt_row gt_right">bn</td>
+    <td class="gt_row gt_right">Bangla</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bo</td>
+    <td class="gt_row gt_right">bo</td>
+    <td class="gt_row gt_right">Tibetan</td>
+    <td class="gt_row gt_right">CN</td>
+    <td class="gt_row gt_right">China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bo-IN</td>
+    <td class="gt_row gt_right">bo</td>
+    <td class="gt_row gt_right">Tibetan</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">br</td>
+    <td class="gt_row gt_right">br</td>
+    <td class="gt_row gt_right">Breton</td>
+    <td class="gt_row gt_right">FR</td>
+    <td class="gt_row gt_right">France</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">brx</td>
+    <td class="gt_row gt_right">brx</td>
+    <td class="gt_row gt_right">Bodo</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bs</td>
+    <td class="gt_row gt_right">bs</td>
+    <td class="gt_row gt_right">Bosnian</td>
+    <td class="gt_row gt_right">BA</td>
+    <td class="gt_row gt_right">Bosnia &amp; Herzegovina</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bs-Cyrl</td>
+    <td class="gt_row gt_right">bs</td>
+    <td class="gt_row gt_right">Bosnian</td>
+    <td class="gt_row gt_right">BA</td>
+    <td class="gt_row gt_right">Bosnia &amp; Herzegovina</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">bs-Latn</td>
+    <td class="gt_row gt_right">bs</td>
+    <td class="gt_row gt_right">Bosnian</td>
+    <td class="gt_row gt_right">BA</td>
+    <td class="gt_row gt_right">Bosnia &amp; Herzegovina</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ca</td>
+    <td class="gt_row gt_right">ca</td>
+    <td class="gt_row gt_right">Catalan</td>
+    <td class="gt_row gt_right">ES</td>
+    <td class="gt_row gt_right">Spain</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ca-AD</td>
+    <td class="gt_row gt_right">ca</td>
+    <td class="gt_row gt_right">Catalan</td>
+    <td class="gt_row gt_right">AD</td>
+    <td class="gt_row gt_right">Andorra</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ca-ES-valencia</td>
+    <td class="gt_row gt_right">ca</td>
+    <td class="gt_row gt_right">Catalan</td>
+    <td class="gt_row gt_right">ES</td>
+    <td class="gt_row gt_right">Spain</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ca-FR</td>
+    <td class="gt_row gt_right">ca</td>
+    <td class="gt_row gt_right">Catalan</td>
+    <td class="gt_row gt_right">FR</td>
+    <td class="gt_row gt_right">France</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ca-IT</td>
+    <td class="gt_row gt_right">ca</td>
+    <td class="gt_row gt_right">Catalan</td>
+    <td class="gt_row gt_right">IT</td>
+    <td class="gt_row gt_right">Italy</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ccp</td>
+    <td class="gt_row gt_right">ccp</td>
+    <td class="gt_row gt_right">Chakma</td>
+    <td class="gt_row gt_right">BD</td>
+    <td class="gt_row gt_right">Bangladesh</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ccp-IN</td>
+    <td class="gt_row gt_right">ccp</td>
+    <td class="gt_row gt_right">Chakma</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ce</td>
+    <td class="gt_row gt_right">ce</td>
+    <td class="gt_row gt_right">Chechen</td>
+    <td class="gt_row gt_right">RU</td>
+    <td class="gt_row gt_right">Russia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ceb</td>
+    <td class="gt_row gt_right">ceb</td>
+    <td class="gt_row gt_right">Cebuano</td>
+    <td class="gt_row gt_right">PH</td>
+    <td class="gt_row gt_right">Philippines</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">cgg</td>
+    <td class="gt_row gt_right">cgg</td>
+    <td class="gt_row gt_right">Chiga</td>
+    <td class="gt_row gt_right">UG</td>
+    <td class="gt_row gt_right">Uganda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">chr</td>
+    <td class="gt_row gt_right">chr</td>
+    <td class="gt_row gt_right">Cherokee</td>
+    <td class="gt_row gt_right">US</td>
+    <td class="gt_row gt_right">United States</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ckb</td>
+    <td class="gt_row gt_right">ckb</td>
+    <td class="gt_row gt_right">Central Kurdish</td>
+    <td class="gt_row gt_right">IQ</td>
+    <td class="gt_row gt_right">Iraq</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ckb-IR</td>
+    <td class="gt_row gt_right">ckb</td>
+    <td class="gt_row gt_right">Central Kurdish</td>
+    <td class="gt_row gt_right">IR</td>
+    <td class="gt_row gt_right">Iran</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">cs</td>
+    <td class="gt_row gt_right">cs</td>
+    <td class="gt_row gt_right">Czech</td>
+    <td class="gt_row gt_right">CZ</td>
+    <td class="gt_row gt_right">Czechia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">cy</td>
+    <td class="gt_row gt_right">cy</td>
+    <td class="gt_row gt_right">Welsh</td>
+    <td class="gt_row gt_right">GB</td>
+    <td class="gt_row gt_right">United Kingdom</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">da</td>
+    <td class="gt_row gt_right">da</td>
+    <td class="gt_row gt_right">Danish</td>
+    <td class="gt_row gt_right">DK</td>
+    <td class="gt_row gt_right">Denmark</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">da-GL</td>
+    <td class="gt_row gt_right">da</td>
+    <td class="gt_row gt_right">Danish</td>
+    <td class="gt_row gt_right">GL</td>
+    <td class="gt_row gt_right">Greenland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">dav</td>
+    <td class="gt_row gt_right">dav</td>
+    <td class="gt_row gt_right">Taita</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">de</td>
+    <td class="gt_row gt_right">de</td>
+    <td class="gt_row gt_right">German</td>
+    <td class="gt_row gt_right">DE</td>
+    <td class="gt_row gt_right">Germany</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">de-AT</td>
+    <td class="gt_row gt_right">de</td>
+    <td class="gt_row gt_right">German</td>
+    <td class="gt_row gt_right">AT</td>
+    <td class="gt_row gt_right">Austria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">de-BE</td>
+    <td class="gt_row gt_right">de</td>
+    <td class="gt_row gt_right">German</td>
+    <td class="gt_row gt_right">BE</td>
+    <td class="gt_row gt_right">Belgium</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">de-CH</td>
+    <td class="gt_row gt_right">de</td>
+    <td class="gt_row gt_right">German</td>
+    <td class="gt_row gt_right">CH</td>
+    <td class="gt_row gt_right">Switzerland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">de-IT</td>
+    <td class="gt_row gt_right">de</td>
+    <td class="gt_row gt_right">German</td>
+    <td class="gt_row gt_right">IT</td>
+    <td class="gt_row gt_right">Italy</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">de-LI</td>
+    <td class="gt_row gt_right">de</td>
+    <td class="gt_row gt_right">German</td>
+    <td class="gt_row gt_right">LI</td>
+    <td class="gt_row gt_right">Liechtenstein</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">de-LU</td>
+    <td class="gt_row gt_right">de</td>
+    <td class="gt_row gt_right">German</td>
+    <td class="gt_row gt_right">LU</td>
+    <td class="gt_row gt_right">Luxembourg</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">dje</td>
+    <td class="gt_row gt_right">dje</td>
+    <td class="gt_row gt_right">Zarma</td>
+    <td class="gt_row gt_right">NE</td>
+    <td class="gt_row gt_right">Niger</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">doi</td>
+    <td class="gt_row gt_right">doi</td>
+    <td class="gt_row gt_right">Dogri</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">dsb</td>
+    <td class="gt_row gt_right">dsb</td>
+    <td class="gt_row gt_right">Lower Sorbian</td>
+    <td class="gt_row gt_right">DE</td>
+    <td class="gt_row gt_right">Germany</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">dua</td>
+    <td class="gt_row gt_right">dua</td>
+    <td class="gt_row gt_right">Duala</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">dyo</td>
+    <td class="gt_row gt_right">dyo</td>
+    <td class="gt_row gt_right">Jola-Fonyi</td>
+    <td class="gt_row gt_right">SN</td>
+    <td class="gt_row gt_right">Senegal</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">dz</td>
+    <td class="gt_row gt_right">dz</td>
+    <td class="gt_row gt_right">Dzongkha</td>
+    <td class="gt_row gt_right">BT</td>
+    <td class="gt_row gt_right">Bhutan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ebu</td>
+    <td class="gt_row gt_right">ebu</td>
+    <td class="gt_row gt_right">Embu</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ee</td>
+    <td class="gt_row gt_right">ee</td>
+    <td class="gt_row gt_right">Ewe</td>
+    <td class="gt_row gt_right">GH</td>
+    <td class="gt_row gt_right">Ghana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ee-TG</td>
+    <td class="gt_row gt_right">ee</td>
+    <td class="gt_row gt_right">Ewe</td>
+    <td class="gt_row gt_right">TG</td>
+    <td class="gt_row gt_right">Togo</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">el</td>
+    <td class="gt_row gt_right">el</td>
+    <td class="gt_row gt_right">Greek</td>
+    <td class="gt_row gt_right">GR</td>
+    <td class="gt_row gt_right">Greece</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">el-CY</td>
+    <td class="gt_row gt_right">el</td>
+    <td class="gt_row gt_right">Greek</td>
+    <td class="gt_row gt_right">CY</td>
+    <td class="gt_row gt_right">Cyprus</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">US</td>
+    <td class="gt_row gt_right">United States</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-001</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">001</td>
+    <td class="gt_row gt_right">world</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-150</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">150</td>
+    <td class="gt_row gt_right">Europe</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-AE</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">AE</td>
+    <td class="gt_row gt_right">United Arab Emirates</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-AG</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">AG</td>
+    <td class="gt_row gt_right">Antigua &amp; Barbuda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-AI</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">AI</td>
+    <td class="gt_row gt_right">Anguilla</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-AS</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">AS</td>
+    <td class="gt_row gt_right">American Samoa</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-AT</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">AT</td>
+    <td class="gt_row gt_right">Austria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-AU</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">AU</td>
+    <td class="gt_row gt_right">Australia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-BB</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">BB</td>
+    <td class="gt_row gt_right">Barbados</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-BE</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">BE</td>
+    <td class="gt_row gt_right">Belgium</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-BI</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">BI</td>
+    <td class="gt_row gt_right">Burundi</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-BM</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">BM</td>
+    <td class="gt_row gt_right">Bermuda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-BS</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">BS</td>
+    <td class="gt_row gt_right">Bahamas</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-BW</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">BW</td>
+    <td class="gt_row gt_right">Botswana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-BZ</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">BZ</td>
+    <td class="gt_row gt_right">Belize</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-CA</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">CA</td>
+    <td class="gt_row gt_right">Canada</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-CC</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">CC</td>
+    <td class="gt_row gt_right">Cocos (Keeling) Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-CH</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">CH</td>
+    <td class="gt_row gt_right">Switzerland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-CK</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">CK</td>
+    <td class="gt_row gt_right">Cook Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-CM</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-CX</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">CX</td>
+    <td class="gt_row gt_right">Christmas Island</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-CY</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">CY</td>
+    <td class="gt_row gt_right">Cyprus</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-DE</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">DE</td>
+    <td class="gt_row gt_right">Germany</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-DG</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">DG</td>
+    <td class="gt_row gt_right">Diego Garcia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-DK</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">DK</td>
+    <td class="gt_row gt_right">Denmark</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-DM</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">DM</td>
+    <td class="gt_row gt_right">Dominica</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-ER</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">ER</td>
+    <td class="gt_row gt_right">Eritrea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-FI</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">FI</td>
+    <td class="gt_row gt_right">Finland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-FJ</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">FJ</td>
+    <td class="gt_row gt_right">Fiji</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-FK</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">FK</td>
+    <td class="gt_row gt_right">Falkland Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-FM</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">FM</td>
+    <td class="gt_row gt_right">Micronesia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-GB</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">GB</td>
+    <td class="gt_row gt_right">United Kingdom</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-GD</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">GD</td>
+    <td class="gt_row gt_right">Grenada</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-GG</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">GG</td>
+    <td class="gt_row gt_right">Guernsey</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-GH</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">GH</td>
+    <td class="gt_row gt_right">Ghana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-GI</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">GI</td>
+    <td class="gt_row gt_right">Gibraltar</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-GM</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">GM</td>
+    <td class="gt_row gt_right">Gambia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-GU</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">GU</td>
+    <td class="gt_row gt_right">Guam</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-GY</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">GY</td>
+    <td class="gt_row gt_right">Guyana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-HK</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">HK</td>
+    <td class="gt_row gt_right">Hong Kong SAR China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-IE</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">IE</td>
+    <td class="gt_row gt_right">Ireland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-IL</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">IL</td>
+    <td class="gt_row gt_right">Israel</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-IM</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">IM</td>
+    <td class="gt_row gt_right">Isle of Man</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-IN</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-IO</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">IO</td>
+    <td class="gt_row gt_right">British Indian Ocean Territory</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-JE</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">JE</td>
+    <td class="gt_row gt_right">Jersey</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-JM</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">JM</td>
+    <td class="gt_row gt_right">Jamaica</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-KE</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-KI</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">KI</td>
+    <td class="gt_row gt_right">Kiribati</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-KN</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">KN</td>
+    <td class="gt_row gt_right">St. Kitts &amp; Nevis</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-KY</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">KY</td>
+    <td class="gt_row gt_right">Cayman Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-LC</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">LC</td>
+    <td class="gt_row gt_right">St. Lucia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-LR</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">LR</td>
+    <td class="gt_row gt_right">Liberia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-LS</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">LS</td>
+    <td class="gt_row gt_right">Lesotho</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-MG</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">MG</td>
+    <td class="gt_row gt_right">Madagascar</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-MH</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">MH</td>
+    <td class="gt_row gt_right">Marshall Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-MO</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">MO</td>
+    <td class="gt_row gt_right">Macao SAR China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-MP</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">MP</td>
+    <td class="gt_row gt_right">Northern Mariana Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-MS</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">MS</td>
+    <td class="gt_row gt_right">Montserrat</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-MT</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">MT</td>
+    <td class="gt_row gt_right">Malta</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-MU</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">MU</td>
+    <td class="gt_row gt_right">Mauritius</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-MV</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">MV</td>
+    <td class="gt_row gt_right">Maldives</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-MW</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">MW</td>
+    <td class="gt_row gt_right">Malawi</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-MY</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">MY</td>
+    <td class="gt_row gt_right">Malaysia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-NA</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_right">Namibia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-NF</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">NF</td>
+    <td class="gt_row gt_right">Norfolk Island</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-NG</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">NG</td>
+    <td class="gt_row gt_right">Nigeria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-NL</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">NL</td>
+    <td class="gt_row gt_right">Netherlands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-NR</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">NR</td>
+    <td class="gt_row gt_right">Nauru</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-NU</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">NU</td>
+    <td class="gt_row gt_right">Niue</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-NZ</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">NZ</td>
+    <td class="gt_row gt_right">New Zealand</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-PG</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">PG</td>
+    <td class="gt_row gt_right">Papua New Guinea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-PH</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">PH</td>
+    <td class="gt_row gt_right">Philippines</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-PK</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">PK</td>
+    <td class="gt_row gt_right">Pakistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-PN</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">PN</td>
+    <td class="gt_row gt_right">Pitcairn Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-PR</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">PR</td>
+    <td class="gt_row gt_right">Puerto Rico</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-PW</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">PW</td>
+    <td class="gt_row gt_right">Palau</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-RW</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">RW</td>
+    <td class="gt_row gt_right">Rwanda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-SB</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">SB</td>
+    <td class="gt_row gt_right">Solomon Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-SC</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">SC</td>
+    <td class="gt_row gt_right">Seychelles</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-SD</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">SD</td>
+    <td class="gt_row gt_right">Sudan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-SE</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">SE</td>
+    <td class="gt_row gt_right">Sweden</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-SG</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">SG</td>
+    <td class="gt_row gt_right">Singapore</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-SH</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">SH</td>
+    <td class="gt_row gt_right">St. Helena</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-SI</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">SI</td>
+    <td class="gt_row gt_right">Slovenia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-SL</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">SL</td>
+    <td class="gt_row gt_right">Sierra Leone</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-SS</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">SS</td>
+    <td class="gt_row gt_right">South Sudan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-SX</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">SX</td>
+    <td class="gt_row gt_right">Sint Maarten</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-SZ</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">SZ</td>
+    <td class="gt_row gt_right">Eswatini</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-TC</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">TC</td>
+    <td class="gt_row gt_right">Turks &amp; Caicos Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-TK</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">TK</td>
+    <td class="gt_row gt_right">Tokelau</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-TO</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">TO</td>
+    <td class="gt_row gt_right">Tonga</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-TT</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">TT</td>
+    <td class="gt_row gt_right">Trinidad &amp; Tobago</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-TV</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">TV</td>
+    <td class="gt_row gt_right">Tuvalu</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-TZ</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-UG</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">UG</td>
+    <td class="gt_row gt_right">Uganda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-UM</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">UM</td>
+    <td class="gt_row gt_right">U.S. Outlying Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-VC</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">VC</td>
+    <td class="gt_row gt_right">St. Vincent &amp; Grenadines</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-VG</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">VG</td>
+    <td class="gt_row gt_right">British Virgin Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-VI</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">VI</td>
+    <td class="gt_row gt_right">U.S. Virgin Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-VU</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">VU</td>
+    <td class="gt_row gt_right">Vanuatu</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-WS</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">WS</td>
+    <td class="gt_row gt_right">Samoa</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-ZA</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">ZA</td>
+    <td class="gt_row gt_right">South Africa</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-ZM</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">ZM</td>
+    <td class="gt_row gt_right">Zambia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">en-ZW</td>
+    <td class="gt_row gt_right">en</td>
+    <td class="gt_row gt_right">English</td>
+    <td class="gt_row gt_right">ZW</td>
+    <td class="gt_row gt_right">Zimbabwe</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">eo</td>
+    <td class="gt_row gt_right">eo</td>
+    <td class="gt_row gt_right">Esperanto</td>
+    <td class="gt_row gt_right">001</td>
+    <td class="gt_row gt_right">world</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">ES</td>
+    <td class="gt_row gt_right">Spain</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-419</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">419</td>
+    <td class="gt_row gt_right">Latin America</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-AR</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">AR</td>
+    <td class="gt_row gt_right">Argentina</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-BO</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">BO</td>
+    <td class="gt_row gt_right">Bolivia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-BR</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">BR</td>
+    <td class="gt_row gt_right">Brazil</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-BZ</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">BZ</td>
+    <td class="gt_row gt_right">Belize</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-CL</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">CL</td>
+    <td class="gt_row gt_right">Chile</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-CO</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">CO</td>
+    <td class="gt_row gt_right">Colombia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-CR</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">CR</td>
+    <td class="gt_row gt_right">Costa Rica</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-CU</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">CU</td>
+    <td class="gt_row gt_right">Cuba</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-DO</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">DO</td>
+    <td class="gt_row gt_right">Dominican Republic</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-EA</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">EA</td>
+    <td class="gt_row gt_right">Ceuta &amp; Melilla</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-EC</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">EC</td>
+    <td class="gt_row gt_right">Ecuador</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-GQ</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">GQ</td>
+    <td class="gt_row gt_right">Equatorial Guinea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-GT</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">GT</td>
+    <td class="gt_row gt_right">Guatemala</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-HN</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">HN</td>
+    <td class="gt_row gt_right">Honduras</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-IC</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">IC</td>
+    <td class="gt_row gt_right">Canary Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-MX</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">MX</td>
+    <td class="gt_row gt_right">Mexico</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-NI</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">NI</td>
+    <td class="gt_row gt_right">Nicaragua</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-PA</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">PA</td>
+    <td class="gt_row gt_right">Panama</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-PE</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">PE</td>
+    <td class="gt_row gt_right">Peru</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-PH</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">PH</td>
+    <td class="gt_row gt_right">Philippines</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-PR</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">PR</td>
+    <td class="gt_row gt_right">Puerto Rico</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-PY</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">PY</td>
+    <td class="gt_row gt_right">Paraguay</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-SV</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">SV</td>
+    <td class="gt_row gt_right">El Salvador</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-US</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">US</td>
+    <td class="gt_row gt_right">United States</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-UY</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">UY</td>
+    <td class="gt_row gt_right">Uruguay</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">es-VE</td>
+    <td class="gt_row gt_right">es</td>
+    <td class="gt_row gt_right">Spanish</td>
+    <td class="gt_row gt_right">VE</td>
+    <td class="gt_row gt_right">Venezuela</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">et</td>
+    <td class="gt_row gt_right">et</td>
+    <td class="gt_row gt_right">Estonian</td>
+    <td class="gt_row gt_right">EE</td>
+    <td class="gt_row gt_right">Estonia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">eu</td>
+    <td class="gt_row gt_right">eu</td>
+    <td class="gt_row gt_right">Basque</td>
+    <td class="gt_row gt_right">ES</td>
+    <td class="gt_row gt_right">Spain</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ewo</td>
+    <td class="gt_row gt_right">ewo</td>
+    <td class="gt_row gt_right">Ewondo</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fa</td>
+    <td class="gt_row gt_right">fa</td>
+    <td class="gt_row gt_right">Persian</td>
+    <td class="gt_row gt_right">IR</td>
+    <td class="gt_row gt_right">Iran</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fa-AF</td>
+    <td class="gt_row gt_right">fa</td>
+    <td class="gt_row gt_right">Persian</td>
+    <td class="gt_row gt_right">AF</td>
+    <td class="gt_row gt_right">Afghanistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">GN</td>
+    <td class="gt_row gt_right">Guinea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">GN</td>
+    <td class="gt_row gt_right">Guinea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm-BF</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">BF</td>
+    <td class="gt_row gt_right">Burkina Faso</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm-CM</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm-GH</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">GH</td>
+    <td class="gt_row gt_right">Ghana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm-GM</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">GM</td>
+    <td class="gt_row gt_right">Gambia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm-GW</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">GW</td>
+    <td class="gt_row gt_right">Guinea-Bissau</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm-LR</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">LR</td>
+    <td class="gt_row gt_right">Liberia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm-MR</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">MR</td>
+    <td class="gt_row gt_right">Mauritania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm-NE</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">NE</td>
+    <td class="gt_row gt_right">Niger</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm-NG</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">NG</td>
+    <td class="gt_row gt_right">Nigeria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm-SL</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">SL</td>
+    <td class="gt_row gt_right">Sierra Leone</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Adlm-SN</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">SN</td>
+    <td class="gt_row gt_right">Senegal</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">SN</td>
+    <td class="gt_row gt_right">Senegal</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn-BF</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">BF</td>
+    <td class="gt_row gt_right">Burkina Faso</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn-CM</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn-GH</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">GH</td>
+    <td class="gt_row gt_right">Ghana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn-GM</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">GM</td>
+    <td class="gt_row gt_right">Gambia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn-GN</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">GN</td>
+    <td class="gt_row gt_right">Guinea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn-GW</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">GW</td>
+    <td class="gt_row gt_right">Guinea-Bissau</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn-LR</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">LR</td>
+    <td class="gt_row gt_right">Liberia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn-MR</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">MR</td>
+    <td class="gt_row gt_right">Mauritania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn-NE</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">NE</td>
+    <td class="gt_row gt_right">Niger</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn-NG</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">NG</td>
+    <td class="gt_row gt_right">Nigeria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ff-Latn-SL</td>
+    <td class="gt_row gt_right">ff</td>
+    <td class="gt_row gt_right">Fulah</td>
+    <td class="gt_row gt_right">SL</td>
+    <td class="gt_row gt_right">Sierra Leone</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fi</td>
+    <td class="gt_row gt_right">fi</td>
+    <td class="gt_row gt_right">Finnish</td>
+    <td class="gt_row gt_right">FI</td>
+    <td class="gt_row gt_right">Finland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fil</td>
+    <td class="gt_row gt_right">fil</td>
+    <td class="gt_row gt_right">Filipino</td>
+    <td class="gt_row gt_right">PH</td>
+    <td class="gt_row gt_right">Philippines</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fo</td>
+    <td class="gt_row gt_right">fo</td>
+    <td class="gt_row gt_right">Faroese</td>
+    <td class="gt_row gt_right">FO</td>
+    <td class="gt_row gt_right">Faroe Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fo-DK</td>
+    <td class="gt_row gt_right">fo</td>
+    <td class="gt_row gt_right">Faroese</td>
+    <td class="gt_row gt_right">DK</td>
+    <td class="gt_row gt_right">Denmark</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">FR</td>
+    <td class="gt_row gt_right">France</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-BE</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">BE</td>
+    <td class="gt_row gt_right">Belgium</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-BF</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">BF</td>
+    <td class="gt_row gt_right">Burkina Faso</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-BI</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">BI</td>
+    <td class="gt_row gt_right">Burundi</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-BJ</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">BJ</td>
+    <td class="gt_row gt_right">Benin</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-BL</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">BL</td>
+    <td class="gt_row gt_right">St. Barthélemy</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-CA</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">CA</td>
+    <td class="gt_row gt_right">Canada</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-CD</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">CD</td>
+    <td class="gt_row gt_right">Congo - Kinshasa</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-CF</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">CF</td>
+    <td class="gt_row gt_right">Central African Republic</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-CG</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">CG</td>
+    <td class="gt_row gt_right">Congo - Brazzaville</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-CH</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">CH</td>
+    <td class="gt_row gt_right">Switzerland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-CI</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">CI</td>
+    <td class="gt_row gt_right">Côte d’Ivoire</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-CM</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-DJ</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">DJ</td>
+    <td class="gt_row gt_right">Djibouti</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-DZ</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">DZ</td>
+    <td class="gt_row gt_right">Algeria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-GA</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">GA</td>
+    <td class="gt_row gt_right">Gabon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-GF</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">GF</td>
+    <td class="gt_row gt_right">French Guiana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-GN</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">GN</td>
+    <td class="gt_row gt_right">Guinea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-GP</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">GP</td>
+    <td class="gt_row gt_right">Guadeloupe</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-GQ</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">GQ</td>
+    <td class="gt_row gt_right">Equatorial Guinea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-HT</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">HT</td>
+    <td class="gt_row gt_right">Haiti</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-KM</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">KM</td>
+    <td class="gt_row gt_right">Comoros</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-LU</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">LU</td>
+    <td class="gt_row gt_right">Luxembourg</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-MA</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">MA</td>
+    <td class="gt_row gt_right">Morocco</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-MC</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">MC</td>
+    <td class="gt_row gt_right">Monaco</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-MF</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">MF</td>
+    <td class="gt_row gt_right">St. Martin</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-MG</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">MG</td>
+    <td class="gt_row gt_right">Madagascar</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-ML</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">ML</td>
+    <td class="gt_row gt_right">Mali</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-MQ</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">MQ</td>
+    <td class="gt_row gt_right">Martinique</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-MR</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">MR</td>
+    <td class="gt_row gt_right">Mauritania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-MU</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">MU</td>
+    <td class="gt_row gt_right">Mauritius</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-NC</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">NC</td>
+    <td class="gt_row gt_right">New Caledonia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-NE</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">NE</td>
+    <td class="gt_row gt_right">Niger</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-PF</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">PF</td>
+    <td class="gt_row gt_right">French Polynesia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-PM</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">PM</td>
+    <td class="gt_row gt_right">St. Pierre &amp; Miquelon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-RE</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">RE</td>
+    <td class="gt_row gt_right">Réunion</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-RW</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">RW</td>
+    <td class="gt_row gt_right">Rwanda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-SC</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">SC</td>
+    <td class="gt_row gt_right">Seychelles</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-SN</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">SN</td>
+    <td class="gt_row gt_right">Senegal</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-SY</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">SY</td>
+    <td class="gt_row gt_right">Syria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-TD</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">TD</td>
+    <td class="gt_row gt_right">Chad</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-TG</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">TG</td>
+    <td class="gt_row gt_right">Togo</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-TN</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">TN</td>
+    <td class="gt_row gt_right">Tunisia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-VU</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">VU</td>
+    <td class="gt_row gt_right">Vanuatu</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-WF</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">WF</td>
+    <td class="gt_row gt_right">Wallis &amp; Futuna</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fr-YT</td>
+    <td class="gt_row gt_right">fr</td>
+    <td class="gt_row gt_right">French</td>
+    <td class="gt_row gt_right">YT</td>
+    <td class="gt_row gt_right">Mayotte</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fur</td>
+    <td class="gt_row gt_right">fur</td>
+    <td class="gt_row gt_right">Friulian</td>
+    <td class="gt_row gt_right">IT</td>
+    <td class="gt_row gt_right">Italy</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">fy</td>
+    <td class="gt_row gt_right">fy</td>
+    <td class="gt_row gt_right">Western Frisian</td>
+    <td class="gt_row gt_right">NL</td>
+    <td class="gt_row gt_right">Netherlands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ga</td>
+    <td class="gt_row gt_right">ga</td>
+    <td class="gt_row gt_right">Irish</td>
+    <td class="gt_row gt_right">IE</td>
+    <td class="gt_row gt_right">Ireland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ga-GB</td>
+    <td class="gt_row gt_right">ga</td>
+    <td class="gt_row gt_right">Irish</td>
+    <td class="gt_row gt_right">GB</td>
+    <td class="gt_row gt_right">United Kingdom</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">gd</td>
+    <td class="gt_row gt_right">gd</td>
+    <td class="gt_row gt_right">Scottish Gaelic</td>
+    <td class="gt_row gt_right">GB</td>
+    <td class="gt_row gt_right">United Kingdom</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">gl</td>
+    <td class="gt_row gt_right">gl</td>
+    <td class="gt_row gt_right">Galician</td>
+    <td class="gt_row gt_right">ES</td>
+    <td class="gt_row gt_right">Spain</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">gsw</td>
+    <td class="gt_row gt_right">gsw</td>
+    <td class="gt_row gt_right">Swiss German</td>
+    <td class="gt_row gt_right">CH</td>
+    <td class="gt_row gt_right">Switzerland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">gsw-FR</td>
+    <td class="gt_row gt_right">gsw</td>
+    <td class="gt_row gt_right">Swiss German</td>
+    <td class="gt_row gt_right">FR</td>
+    <td class="gt_row gt_right">France</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">gsw-LI</td>
+    <td class="gt_row gt_right">gsw</td>
+    <td class="gt_row gt_right">Swiss German</td>
+    <td class="gt_row gt_right">LI</td>
+    <td class="gt_row gt_right">Liechtenstein</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">gu</td>
+    <td class="gt_row gt_right">gu</td>
+    <td class="gt_row gt_right">Gujarati</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">guz</td>
+    <td class="gt_row gt_right">guz</td>
+    <td class="gt_row gt_right">Gusii</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">gv</td>
+    <td class="gt_row gt_right">gv</td>
+    <td class="gt_row gt_right">Manx</td>
+    <td class="gt_row gt_right">IM</td>
+    <td class="gt_row gt_right">Isle of Man</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ha</td>
+    <td class="gt_row gt_right">ha</td>
+    <td class="gt_row gt_right">Hausa</td>
+    <td class="gt_row gt_right">NG</td>
+    <td class="gt_row gt_right">Nigeria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ha-GH</td>
+    <td class="gt_row gt_right">ha</td>
+    <td class="gt_row gt_right">Hausa</td>
+    <td class="gt_row gt_right">GH</td>
+    <td class="gt_row gt_right">Ghana</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ha-NE</td>
+    <td class="gt_row gt_right">ha</td>
+    <td class="gt_row gt_right">Hausa</td>
+    <td class="gt_row gt_right">NE</td>
+    <td class="gt_row gt_right">Niger</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">haw</td>
+    <td class="gt_row gt_right">haw</td>
+    <td class="gt_row gt_right">Hawaiian</td>
+    <td class="gt_row gt_right">US</td>
+    <td class="gt_row gt_right">United States</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">he</td>
+    <td class="gt_row gt_right">he</td>
+    <td class="gt_row gt_right">Hebrew</td>
+    <td class="gt_row gt_right">IL</td>
+    <td class="gt_row gt_right">Israel</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">hi</td>
+    <td class="gt_row gt_right">hi</td>
+    <td class="gt_row gt_right">Hindi</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">hi-Latn</td>
+    <td class="gt_row gt_right">hi</td>
+    <td class="gt_row gt_right">Hindi</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">hr</td>
+    <td class="gt_row gt_right">hr</td>
+    <td class="gt_row gt_right">Croatian</td>
+    <td class="gt_row gt_right">HR</td>
+    <td class="gt_row gt_right">Croatia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">hr-BA</td>
+    <td class="gt_row gt_right">hr</td>
+    <td class="gt_row gt_right">Croatian</td>
+    <td class="gt_row gt_right">BA</td>
+    <td class="gt_row gt_right">Bosnia &amp; Herzegovina</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">hsb</td>
+    <td class="gt_row gt_right">hsb</td>
+    <td class="gt_row gt_right">Upper Sorbian</td>
+    <td class="gt_row gt_right">DE</td>
+    <td class="gt_row gt_right">Germany</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">hu</td>
+    <td class="gt_row gt_right">hu</td>
+    <td class="gt_row gt_right">Hungarian</td>
+    <td class="gt_row gt_right">HU</td>
+    <td class="gt_row gt_right">Hungary</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">hy</td>
+    <td class="gt_row gt_right">hy</td>
+    <td class="gt_row gt_right">Armenian</td>
+    <td class="gt_row gt_right">AM</td>
+    <td class="gt_row gt_right">Armenia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ia</td>
+    <td class="gt_row gt_right">ia</td>
+    <td class="gt_row gt_right">Interlingua</td>
+    <td class="gt_row gt_right">001</td>
+    <td class="gt_row gt_right">world</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">id</td>
+    <td class="gt_row gt_right">id</td>
+    <td class="gt_row gt_right">Indonesian</td>
+    <td class="gt_row gt_right">ID</td>
+    <td class="gt_row gt_right">Indonesia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ig</td>
+    <td class="gt_row gt_right">ig</td>
+    <td class="gt_row gt_right">Igbo</td>
+    <td class="gt_row gt_right">NG</td>
+    <td class="gt_row gt_right">Nigeria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ii</td>
+    <td class="gt_row gt_right">ii</td>
+    <td class="gt_row gt_right">Sichuan Yi</td>
+    <td class="gt_row gt_right">CN</td>
+    <td class="gt_row gt_right">China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">is</td>
+    <td class="gt_row gt_right">is</td>
+    <td class="gt_row gt_right">Icelandic</td>
+    <td class="gt_row gt_right">IS</td>
+    <td class="gt_row gt_right">Iceland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">it</td>
+    <td class="gt_row gt_right">it</td>
+    <td class="gt_row gt_right">Italian</td>
+    <td class="gt_row gt_right">IT</td>
+    <td class="gt_row gt_right">Italy</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">it-CH</td>
+    <td class="gt_row gt_right">it</td>
+    <td class="gt_row gt_right">Italian</td>
+    <td class="gt_row gt_right">CH</td>
+    <td class="gt_row gt_right">Switzerland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">it-SM</td>
+    <td class="gt_row gt_right">it</td>
+    <td class="gt_row gt_right">Italian</td>
+    <td class="gt_row gt_right">SM</td>
+    <td class="gt_row gt_right">San Marino</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">it-VA</td>
+    <td class="gt_row gt_right">it</td>
+    <td class="gt_row gt_right">Italian</td>
+    <td class="gt_row gt_right">VA</td>
+    <td class="gt_row gt_right">Vatican City</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ja</td>
+    <td class="gt_row gt_right">ja</td>
+    <td class="gt_row gt_right">Japanese</td>
+    <td class="gt_row gt_right">JP</td>
+    <td class="gt_row gt_right">Japan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">jgo</td>
+    <td class="gt_row gt_right">jgo</td>
+    <td class="gt_row gt_right">Ngomba</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">jmc</td>
+    <td class="gt_row gt_right">jmc</td>
+    <td class="gt_row gt_right">Machame</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">jv</td>
+    <td class="gt_row gt_right">jv</td>
+    <td class="gt_row gt_right">Javanese</td>
+    <td class="gt_row gt_right">ID</td>
+    <td class="gt_row gt_right">Indonesia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ka</td>
+    <td class="gt_row gt_right">ka</td>
+    <td class="gt_row gt_right">Georgian</td>
+    <td class="gt_row gt_right">GE</td>
+    <td class="gt_row gt_right">Georgia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kab</td>
+    <td class="gt_row gt_right">kab</td>
+    <td class="gt_row gt_right">Kabyle</td>
+    <td class="gt_row gt_right">DZ</td>
+    <td class="gt_row gt_right">Algeria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kam</td>
+    <td class="gt_row gt_right">kam</td>
+    <td class="gt_row gt_right">Kamba</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kde</td>
+    <td class="gt_row gt_right">kde</td>
+    <td class="gt_row gt_right">Makonde</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kea</td>
+    <td class="gt_row gt_right">kea</td>
+    <td class="gt_row gt_right">Kabuverdianu</td>
+    <td class="gt_row gt_right">CV</td>
+    <td class="gt_row gt_right">Cape Verde</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kgp</td>
+    <td class="gt_row gt_right">kgp</td>
+    <td class="gt_row gt_right">Kaingang</td>
+    <td class="gt_row gt_right">BR</td>
+    <td class="gt_row gt_right">Brazil</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">khq</td>
+    <td class="gt_row gt_right">khq</td>
+    <td class="gt_row gt_right">Koyra Chiini</td>
+    <td class="gt_row gt_right">ML</td>
+    <td class="gt_row gt_right">Mali</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ki</td>
+    <td class="gt_row gt_right">ki</td>
+    <td class="gt_row gt_right">Kikuyu</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kk</td>
+    <td class="gt_row gt_right">kk</td>
+    <td class="gt_row gt_right">Kazakh</td>
+    <td class="gt_row gt_right">KZ</td>
+    <td class="gt_row gt_right">Kazakhstan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kkj</td>
+    <td class="gt_row gt_right">kkj</td>
+    <td class="gt_row gt_right">Kako</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kl</td>
+    <td class="gt_row gt_right">kl</td>
+    <td class="gt_row gt_right">Kalaallisut</td>
+    <td class="gt_row gt_right">GL</td>
+    <td class="gt_row gt_right">Greenland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kln</td>
+    <td class="gt_row gt_right">kln</td>
+    <td class="gt_row gt_right">Kalenjin</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">km</td>
+    <td class="gt_row gt_right">km</td>
+    <td class="gt_row gt_right">Khmer</td>
+    <td class="gt_row gt_right">KH</td>
+    <td class="gt_row gt_right">Cambodia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kn</td>
+    <td class="gt_row gt_right">kn</td>
+    <td class="gt_row gt_right">Kannada</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ko</td>
+    <td class="gt_row gt_right">ko</td>
+    <td class="gt_row gt_right">Korean</td>
+    <td class="gt_row gt_right">KR</td>
+    <td class="gt_row gt_right">South Korea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ko-KP</td>
+    <td class="gt_row gt_right">ko</td>
+    <td class="gt_row gt_right">Korean</td>
+    <td class="gt_row gt_right">KP</td>
+    <td class="gt_row gt_right">North Korea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kok</td>
+    <td class="gt_row gt_right">kok</td>
+    <td class="gt_row gt_right">Konkani</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ks</td>
+    <td class="gt_row gt_right">ks</td>
+    <td class="gt_row gt_right">Kashmiri</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ks-Arab</td>
+    <td class="gt_row gt_right">ks</td>
+    <td class="gt_row gt_right">Kashmiri</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ks-Deva</td>
+    <td class="gt_row gt_right">ks</td>
+    <td class="gt_row gt_right">Kashmiri</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ksb</td>
+    <td class="gt_row gt_right">ksb</td>
+    <td class="gt_row gt_right">Shambala</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ksf</td>
+    <td class="gt_row gt_right">ksf</td>
+    <td class="gt_row gt_right">Bafia</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ksh</td>
+    <td class="gt_row gt_right">ksh</td>
+    <td class="gt_row gt_right">Colognian</td>
+    <td class="gt_row gt_right">DE</td>
+    <td class="gt_row gt_right">Germany</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ku</td>
+    <td class="gt_row gt_right">ku</td>
+    <td class="gt_row gt_right">Kurdish</td>
+    <td class="gt_row gt_right">TR</td>
+    <td class="gt_row gt_right">Turkey</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">kw</td>
+    <td class="gt_row gt_right">kw</td>
+    <td class="gt_row gt_right">Cornish</td>
+    <td class="gt_row gt_right">GB</td>
+    <td class="gt_row gt_right">United Kingdom</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ky</td>
+    <td class="gt_row gt_right">ky</td>
+    <td class="gt_row gt_right">Kyrgyz</td>
+    <td class="gt_row gt_right">KG</td>
+    <td class="gt_row gt_right">Kyrgyzstan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">lag</td>
+    <td class="gt_row gt_right">lag</td>
+    <td class="gt_row gt_right">Langi</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">lb</td>
+    <td class="gt_row gt_right">lb</td>
+    <td class="gt_row gt_right">Luxembourgish</td>
+    <td class="gt_row gt_right">LU</td>
+    <td class="gt_row gt_right">Luxembourg</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">lg</td>
+    <td class="gt_row gt_right">lg</td>
+    <td class="gt_row gt_right">Ganda</td>
+    <td class="gt_row gt_right">UG</td>
+    <td class="gt_row gt_right">Uganda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">lkt</td>
+    <td class="gt_row gt_right">lkt</td>
+    <td class="gt_row gt_right">Lakota</td>
+    <td class="gt_row gt_right">US</td>
+    <td class="gt_row gt_right">United States</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ln</td>
+    <td class="gt_row gt_right">ln</td>
+    <td class="gt_row gt_right">Lingala</td>
+    <td class="gt_row gt_right">CD</td>
+    <td class="gt_row gt_right">Congo - Kinshasa</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ln-AO</td>
+    <td class="gt_row gt_right">ln</td>
+    <td class="gt_row gt_right">Lingala</td>
+    <td class="gt_row gt_right">AO</td>
+    <td class="gt_row gt_right">Angola</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ln-CF</td>
+    <td class="gt_row gt_right">ln</td>
+    <td class="gt_row gt_right">Lingala</td>
+    <td class="gt_row gt_right">CF</td>
+    <td class="gt_row gt_right">Central African Republic</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ln-CG</td>
+    <td class="gt_row gt_right">ln</td>
+    <td class="gt_row gt_right">Lingala</td>
+    <td class="gt_row gt_right">CG</td>
+    <td class="gt_row gt_right">Congo - Brazzaville</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">lo</td>
+    <td class="gt_row gt_right">lo</td>
+    <td class="gt_row gt_right">Lao</td>
+    <td class="gt_row gt_right">LA</td>
+    <td class="gt_row gt_right">Laos</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">lrc</td>
+    <td class="gt_row gt_right">lrc</td>
+    <td class="gt_row gt_right">Northern Luri</td>
+    <td class="gt_row gt_right">IR</td>
+    <td class="gt_row gt_right">Iran</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">lrc-IQ</td>
+    <td class="gt_row gt_right">lrc</td>
+    <td class="gt_row gt_right">Northern Luri</td>
+    <td class="gt_row gt_right">IQ</td>
+    <td class="gt_row gt_right">Iraq</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">lt</td>
+    <td class="gt_row gt_right">lt</td>
+    <td class="gt_row gt_right">Lithuanian</td>
+    <td class="gt_row gt_right">LT</td>
+    <td class="gt_row gt_right">Lithuania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">lu</td>
+    <td class="gt_row gt_right">lu</td>
+    <td class="gt_row gt_right">Luba-Katanga</td>
+    <td class="gt_row gt_right">CD</td>
+    <td class="gt_row gt_right">Congo - Kinshasa</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">luo</td>
+    <td class="gt_row gt_right">luo</td>
+    <td class="gt_row gt_right">Luo</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">luy</td>
+    <td class="gt_row gt_right">luy</td>
+    <td class="gt_row gt_right">Luyia</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">lv</td>
+    <td class="gt_row gt_right">lv</td>
+    <td class="gt_row gt_right">Latvian</td>
+    <td class="gt_row gt_right">LV</td>
+    <td class="gt_row gt_right">Latvia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mai</td>
+    <td class="gt_row gt_right">mai</td>
+    <td class="gt_row gt_right">Maithili</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mas</td>
+    <td class="gt_row gt_right">mas</td>
+    <td class="gt_row gt_right">Masai</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mas-TZ</td>
+    <td class="gt_row gt_right">mas</td>
+    <td class="gt_row gt_right">Masai</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mer</td>
+    <td class="gt_row gt_right">mer</td>
+    <td class="gt_row gt_right">Meru</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mfe</td>
+    <td class="gt_row gt_right">mfe</td>
+    <td class="gt_row gt_right">Morisyen</td>
+    <td class="gt_row gt_right">MU</td>
+    <td class="gt_row gt_right">Mauritius</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mg</td>
+    <td class="gt_row gt_right">mg</td>
+    <td class="gt_row gt_right">Malagasy</td>
+    <td class="gt_row gt_right">MG</td>
+    <td class="gt_row gt_right">Madagascar</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mgh</td>
+    <td class="gt_row gt_right">mgh</td>
+    <td class="gt_row gt_right">Makhuwa-Meetto</td>
+    <td class="gt_row gt_right">MZ</td>
+    <td class="gt_row gt_right">Mozambique</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mgo</td>
+    <td class="gt_row gt_right">mgo</td>
+    <td class="gt_row gt_right">Metaʼ</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mi</td>
+    <td class="gt_row gt_right">mi</td>
+    <td class="gt_row gt_right">Māori</td>
+    <td class="gt_row gt_right">NZ</td>
+    <td class="gt_row gt_right">New Zealand</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mk</td>
+    <td class="gt_row gt_right">mk</td>
+    <td class="gt_row gt_right">Macedonian</td>
+    <td class="gt_row gt_right">MK</td>
+    <td class="gt_row gt_right">North Macedonia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ml</td>
+    <td class="gt_row gt_right">ml</td>
+    <td class="gt_row gt_right">Malayalam</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mn</td>
+    <td class="gt_row gt_right">mn</td>
+    <td class="gt_row gt_right">Mongolian</td>
+    <td class="gt_row gt_right">MN</td>
+    <td class="gt_row gt_right">Mongolia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mni</td>
+    <td class="gt_row gt_right">mni</td>
+    <td class="gt_row gt_right">Manipuri</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mni-Beng</td>
+    <td class="gt_row gt_right">mni</td>
+    <td class="gt_row gt_right">Manipuri</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mr</td>
+    <td class="gt_row gt_right">mr</td>
+    <td class="gt_row gt_right">Marathi</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ms</td>
+    <td class="gt_row gt_right">ms</td>
+    <td class="gt_row gt_right">Malay</td>
+    <td class="gt_row gt_right">MY</td>
+    <td class="gt_row gt_right">Malaysia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ms-BN</td>
+    <td class="gt_row gt_right">ms</td>
+    <td class="gt_row gt_right">Malay</td>
+    <td class="gt_row gt_right">BN</td>
+    <td class="gt_row gt_right">Brunei</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ms-ID</td>
+    <td class="gt_row gt_right">ms</td>
+    <td class="gt_row gt_right">Malay</td>
+    <td class="gt_row gt_right">ID</td>
+    <td class="gt_row gt_right">Indonesia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ms-SG</td>
+    <td class="gt_row gt_right">ms</td>
+    <td class="gt_row gt_right">Malay</td>
+    <td class="gt_row gt_right">SG</td>
+    <td class="gt_row gt_right">Singapore</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mt</td>
+    <td class="gt_row gt_right">mt</td>
+    <td class="gt_row gt_right">Maltese</td>
+    <td class="gt_row gt_right">MT</td>
+    <td class="gt_row gt_right">Malta</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mua</td>
+    <td class="gt_row gt_right">mua</td>
+    <td class="gt_row gt_right">Mundang</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">my</td>
+    <td class="gt_row gt_right">my</td>
+    <td class="gt_row gt_right">Burmese</td>
+    <td class="gt_row gt_right">MM</td>
+    <td class="gt_row gt_right">Myanmar (Burma)</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">mzn</td>
+    <td class="gt_row gt_right">mzn</td>
+    <td class="gt_row gt_right">Mazanderani</td>
+    <td class="gt_row gt_right">IR</td>
+    <td class="gt_row gt_right">Iran</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">naq</td>
+    <td class="gt_row gt_right">naq</td>
+    <td class="gt_row gt_right">Nama</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_right">Namibia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nb</td>
+    <td class="gt_row gt_right">nb</td>
+    <td class="gt_row gt_right">Norwegian Bokmål</td>
+    <td class="gt_row gt_right">NO</td>
+    <td class="gt_row gt_right">Norway</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nb-SJ</td>
+    <td class="gt_row gt_right">nb</td>
+    <td class="gt_row gt_right">Norwegian Bokmål</td>
+    <td class="gt_row gt_right">SJ</td>
+    <td class="gt_row gt_right">Svalbard &amp; Jan Mayen</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nd</td>
+    <td class="gt_row gt_right">nd</td>
+    <td class="gt_row gt_right">North Ndebele</td>
+    <td class="gt_row gt_right">ZW</td>
+    <td class="gt_row gt_right">Zimbabwe</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nds</td>
+    <td class="gt_row gt_right">nds</td>
+    <td class="gt_row gt_right">Low German</td>
+    <td class="gt_row gt_right">DE</td>
+    <td class="gt_row gt_right">Germany</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nds-NL</td>
+    <td class="gt_row gt_right">nds</td>
+    <td class="gt_row gt_right">Low German</td>
+    <td class="gt_row gt_right">NL</td>
+    <td class="gt_row gt_right">Netherlands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ne</td>
+    <td class="gt_row gt_right">ne</td>
+    <td class="gt_row gt_right">Nepali</td>
+    <td class="gt_row gt_right">NP</td>
+    <td class="gt_row gt_right">Nepal</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ne-IN</td>
+    <td class="gt_row gt_right">ne</td>
+    <td class="gt_row gt_right">Nepali</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nl</td>
+    <td class="gt_row gt_right">nl</td>
+    <td class="gt_row gt_right">Dutch</td>
+    <td class="gt_row gt_right">NL</td>
+    <td class="gt_row gt_right">Netherlands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nl-AW</td>
+    <td class="gt_row gt_right">nl</td>
+    <td class="gt_row gt_right">Dutch</td>
+    <td class="gt_row gt_right">AW</td>
+    <td class="gt_row gt_right">Aruba</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nl-BE</td>
+    <td class="gt_row gt_right">nl</td>
+    <td class="gt_row gt_right">Dutch</td>
+    <td class="gt_row gt_right">BE</td>
+    <td class="gt_row gt_right">Belgium</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nl-BQ</td>
+    <td class="gt_row gt_right">nl</td>
+    <td class="gt_row gt_right">Dutch</td>
+    <td class="gt_row gt_right">BQ</td>
+    <td class="gt_row gt_right">Caribbean Netherlands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nl-CW</td>
+    <td class="gt_row gt_right">nl</td>
+    <td class="gt_row gt_right">Dutch</td>
+    <td class="gt_row gt_right">CW</td>
+    <td class="gt_row gt_right">Curaçao</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nl-SR</td>
+    <td class="gt_row gt_right">nl</td>
+    <td class="gt_row gt_right">Dutch</td>
+    <td class="gt_row gt_right">SR</td>
+    <td class="gt_row gt_right">Suriname</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nl-SX</td>
+    <td class="gt_row gt_right">nl</td>
+    <td class="gt_row gt_right">Dutch</td>
+    <td class="gt_row gt_right">SX</td>
+    <td class="gt_row gt_right">Sint Maarten</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nmg</td>
+    <td class="gt_row gt_right">nmg</td>
+    <td class="gt_row gt_right">Kwasio</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nn</td>
+    <td class="gt_row gt_right">nn</td>
+    <td class="gt_row gt_right">Norwegian Nynorsk</td>
+    <td class="gt_row gt_right">NO</td>
+    <td class="gt_row gt_right">Norway</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nnh</td>
+    <td class="gt_row gt_right">nnh</td>
+    <td class="gt_row gt_right">Ngiemboon</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">no</td>
+    <td class="gt_row gt_right">no</td>
+    <td class="gt_row gt_right">Norwegian</td>
+    <td class="gt_row gt_right">NO</td>
+    <td class="gt_row gt_right">Norway</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nus</td>
+    <td class="gt_row gt_right">nus</td>
+    <td class="gt_row gt_right">Nuer</td>
+    <td class="gt_row gt_right">SS</td>
+    <td class="gt_row gt_right">South Sudan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">nyn</td>
+    <td class="gt_row gt_right">nyn</td>
+    <td class="gt_row gt_right">Nyankole</td>
+    <td class="gt_row gt_right">UG</td>
+    <td class="gt_row gt_right">Uganda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">om</td>
+    <td class="gt_row gt_right">om</td>
+    <td class="gt_row gt_right">Oromo</td>
+    <td class="gt_row gt_right">ET</td>
+    <td class="gt_row gt_right">Ethiopia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">om-KE</td>
+    <td class="gt_row gt_right">om</td>
+    <td class="gt_row gt_right">Oromo</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">or</td>
+    <td class="gt_row gt_right">or</td>
+    <td class="gt_row gt_right">Odia</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">os</td>
+    <td class="gt_row gt_right">os</td>
+    <td class="gt_row gt_right">Ossetic</td>
+    <td class="gt_row gt_right">GE</td>
+    <td class="gt_row gt_right">Georgia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">os-RU</td>
+    <td class="gt_row gt_right">os</td>
+    <td class="gt_row gt_right">Ossetic</td>
+    <td class="gt_row gt_right">RU</td>
+    <td class="gt_row gt_right">Russia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pa</td>
+    <td class="gt_row gt_right">pa</td>
+    <td class="gt_row gt_right">Punjabi</td>
+    <td class="gt_row gt_right">PK</td>
+    <td class="gt_row gt_right">Pakistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pa-Arab</td>
+    <td class="gt_row gt_right">pa</td>
+    <td class="gt_row gt_right">Punjabi</td>
+    <td class="gt_row gt_right">PK</td>
+    <td class="gt_row gt_right">Pakistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pa-Guru</td>
+    <td class="gt_row gt_right">pa</td>
+    <td class="gt_row gt_right">Punjabi</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pcm</td>
+    <td class="gt_row gt_right">pcm</td>
+    <td class="gt_row gt_right">Nigerian Pidgin</td>
+    <td class="gt_row gt_right">NG</td>
+    <td class="gt_row gt_right">Nigeria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pl</td>
+    <td class="gt_row gt_right">pl</td>
+    <td class="gt_row gt_right">Polish</td>
+    <td class="gt_row gt_right">PL</td>
+    <td class="gt_row gt_right">Poland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ps</td>
+    <td class="gt_row gt_right">ps</td>
+    <td class="gt_row gt_right">Pashto</td>
+    <td class="gt_row gt_right">AF</td>
+    <td class="gt_row gt_right">Afghanistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ps-PK</td>
+    <td class="gt_row gt_right">ps</td>
+    <td class="gt_row gt_right">Pashto</td>
+    <td class="gt_row gt_right">PK</td>
+    <td class="gt_row gt_right">Pakistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">BR</td>
+    <td class="gt_row gt_right">Brazil</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt-AO</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">AO</td>
+    <td class="gt_row gt_right">Angola</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt-CH</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">CH</td>
+    <td class="gt_row gt_right">Switzerland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt-CV</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">CV</td>
+    <td class="gt_row gt_right">Cape Verde</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt-GQ</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">GQ</td>
+    <td class="gt_row gt_right">Equatorial Guinea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt-GW</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">GW</td>
+    <td class="gt_row gt_right">Guinea-Bissau</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt-LU</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">LU</td>
+    <td class="gt_row gt_right">Luxembourg</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt-MO</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">MO</td>
+    <td class="gt_row gt_right">Macao SAR China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt-MZ</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">MZ</td>
+    <td class="gt_row gt_right">Mozambique</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt-PT</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">PT</td>
+    <td class="gt_row gt_right">Portugal</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt-ST</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">ST</td>
+    <td class="gt_row gt_right">São Tomé &amp; Príncipe</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">pt-TL</td>
+    <td class="gt_row gt_right">pt</td>
+    <td class="gt_row gt_right">Portuguese</td>
+    <td class="gt_row gt_right">TL</td>
+    <td class="gt_row gt_right">Timor-Leste</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">qu</td>
+    <td class="gt_row gt_right">qu</td>
+    <td class="gt_row gt_right">Quechua</td>
+    <td class="gt_row gt_right">PE</td>
+    <td class="gt_row gt_right">Peru</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">qu-BO</td>
+    <td class="gt_row gt_right">qu</td>
+    <td class="gt_row gt_right">Quechua</td>
+    <td class="gt_row gt_right">BO</td>
+    <td class="gt_row gt_right">Bolivia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">qu-EC</td>
+    <td class="gt_row gt_right">qu</td>
+    <td class="gt_row gt_right">Quechua</td>
+    <td class="gt_row gt_right">EC</td>
+    <td class="gt_row gt_right">Ecuador</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">rm</td>
+    <td class="gt_row gt_right">rm</td>
+    <td class="gt_row gt_right">Romansh</td>
+    <td class="gt_row gt_right">CH</td>
+    <td class="gt_row gt_right">Switzerland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">rn</td>
+    <td class="gt_row gt_right">rn</td>
+    <td class="gt_row gt_right">Rundi</td>
+    <td class="gt_row gt_right">BI</td>
+    <td class="gt_row gt_right">Burundi</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ro</td>
+    <td class="gt_row gt_right">ro</td>
+    <td class="gt_row gt_right">Romanian</td>
+    <td class="gt_row gt_right">RO</td>
+    <td class="gt_row gt_right">Romania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ro-MD</td>
+    <td class="gt_row gt_right">ro</td>
+    <td class="gt_row gt_right">Romanian</td>
+    <td class="gt_row gt_right">MD</td>
+    <td class="gt_row gt_right">Moldova</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">rof</td>
+    <td class="gt_row gt_right">rof</td>
+    <td class="gt_row gt_right">Rombo</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ru</td>
+    <td class="gt_row gt_right">ru</td>
+    <td class="gt_row gt_right">Russian</td>
+    <td class="gt_row gt_right">RU</td>
+    <td class="gt_row gt_right">Russia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ru-BY</td>
+    <td class="gt_row gt_right">ru</td>
+    <td class="gt_row gt_right">Russian</td>
+    <td class="gt_row gt_right">BY</td>
+    <td class="gt_row gt_right">Belarus</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ru-KG</td>
+    <td class="gt_row gt_right">ru</td>
+    <td class="gt_row gt_right">Russian</td>
+    <td class="gt_row gt_right">KG</td>
+    <td class="gt_row gt_right">Kyrgyzstan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ru-KZ</td>
+    <td class="gt_row gt_right">ru</td>
+    <td class="gt_row gt_right">Russian</td>
+    <td class="gt_row gt_right">KZ</td>
+    <td class="gt_row gt_right">Kazakhstan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ru-MD</td>
+    <td class="gt_row gt_right">ru</td>
+    <td class="gt_row gt_right">Russian</td>
+    <td class="gt_row gt_right">MD</td>
+    <td class="gt_row gt_right">Moldova</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ru-UA</td>
+    <td class="gt_row gt_right">ru</td>
+    <td class="gt_row gt_right">Russian</td>
+    <td class="gt_row gt_right">UA</td>
+    <td class="gt_row gt_right">Ukraine</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">rw</td>
+    <td class="gt_row gt_right">rw</td>
+    <td class="gt_row gt_right">Kinyarwanda</td>
+    <td class="gt_row gt_right">RW</td>
+    <td class="gt_row gt_right">Rwanda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">rwk</td>
+    <td class="gt_row gt_right">rwk</td>
+    <td class="gt_row gt_right">Rwa</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sa</td>
+    <td class="gt_row gt_right">sa</td>
+    <td class="gt_row gt_right">Sanskrit</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sah</td>
+    <td class="gt_row gt_right">sah</td>
+    <td class="gt_row gt_right">Sakha</td>
+    <td class="gt_row gt_right">RU</td>
+    <td class="gt_row gt_right">Russia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">saq</td>
+    <td class="gt_row gt_right">saq</td>
+    <td class="gt_row gt_right">Samburu</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sat</td>
+    <td class="gt_row gt_right">sat</td>
+    <td class="gt_row gt_right">Santali</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sat-Olck</td>
+    <td class="gt_row gt_right">sat</td>
+    <td class="gt_row gt_right">Santali</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sbp</td>
+    <td class="gt_row gt_right">sbp</td>
+    <td class="gt_row gt_right">Sangu</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sc</td>
+    <td class="gt_row gt_right">sc</td>
+    <td class="gt_row gt_right">Sardinian</td>
+    <td class="gt_row gt_right">IT</td>
+    <td class="gt_row gt_right">Italy</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sd</td>
+    <td class="gt_row gt_right">sd</td>
+    <td class="gt_row gt_right">Sindhi</td>
+    <td class="gt_row gt_right">PK</td>
+    <td class="gt_row gt_right">Pakistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sd-Arab</td>
+    <td class="gt_row gt_right">sd</td>
+    <td class="gt_row gt_right">Sindhi</td>
+    <td class="gt_row gt_right">PK</td>
+    <td class="gt_row gt_right">Pakistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sd-Deva</td>
+    <td class="gt_row gt_right">sd</td>
+    <td class="gt_row gt_right">Sindhi</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">se</td>
+    <td class="gt_row gt_right">se</td>
+    <td class="gt_row gt_right">Northern Sami</td>
+    <td class="gt_row gt_right">NO</td>
+    <td class="gt_row gt_right">Norway</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">se-FI</td>
+    <td class="gt_row gt_right">se</td>
+    <td class="gt_row gt_right">Northern Sami</td>
+    <td class="gt_row gt_right">FI</td>
+    <td class="gt_row gt_right">Finland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">se-SE</td>
+    <td class="gt_row gt_right">se</td>
+    <td class="gt_row gt_right">Northern Sami</td>
+    <td class="gt_row gt_right">SE</td>
+    <td class="gt_row gt_right">Sweden</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">seh</td>
+    <td class="gt_row gt_right">seh</td>
+    <td class="gt_row gt_right">Sena</td>
+    <td class="gt_row gt_right">MZ</td>
+    <td class="gt_row gt_right">Mozambique</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ses</td>
+    <td class="gt_row gt_right">ses</td>
+    <td class="gt_row gt_right">Koyraboro Senni</td>
+    <td class="gt_row gt_right">ML</td>
+    <td class="gt_row gt_right">Mali</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sg</td>
+    <td class="gt_row gt_right">sg</td>
+    <td class="gt_row gt_right">Sango</td>
+    <td class="gt_row gt_right">CF</td>
+    <td class="gt_row gt_right">Central African Republic</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">shi</td>
+    <td class="gt_row gt_right">shi</td>
+    <td class="gt_row gt_right">Tachelhit</td>
+    <td class="gt_row gt_right">MA</td>
+    <td class="gt_row gt_right">Morocco</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">shi-Latn</td>
+    <td class="gt_row gt_right">shi</td>
+    <td class="gt_row gt_right">Tachelhit</td>
+    <td class="gt_row gt_right">MA</td>
+    <td class="gt_row gt_right">Morocco</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">shi-Tfng</td>
+    <td class="gt_row gt_right">shi</td>
+    <td class="gt_row gt_right">Tachelhit</td>
+    <td class="gt_row gt_right">MA</td>
+    <td class="gt_row gt_right">Morocco</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">si</td>
+    <td class="gt_row gt_right">si</td>
+    <td class="gt_row gt_right">Sinhala</td>
+    <td class="gt_row gt_right">LK</td>
+    <td class="gt_row gt_right">Sri Lanka</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sk</td>
+    <td class="gt_row gt_right">sk</td>
+    <td class="gt_row gt_right">Slovak</td>
+    <td class="gt_row gt_right">SK</td>
+    <td class="gt_row gt_right">Slovakia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sl</td>
+    <td class="gt_row gt_right">sl</td>
+    <td class="gt_row gt_right">Slovenian</td>
+    <td class="gt_row gt_right">SI</td>
+    <td class="gt_row gt_right">Slovenia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">smn</td>
+    <td class="gt_row gt_right">smn</td>
+    <td class="gt_row gt_right">Inari Sami</td>
+    <td class="gt_row gt_right">FI</td>
+    <td class="gt_row gt_right">Finland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sn</td>
+    <td class="gt_row gt_right">sn</td>
+    <td class="gt_row gt_right">Shona</td>
+    <td class="gt_row gt_right">ZW</td>
+    <td class="gt_row gt_right">Zimbabwe</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">so</td>
+    <td class="gt_row gt_right">so</td>
+    <td class="gt_row gt_right">Somali</td>
+    <td class="gt_row gt_right">SO</td>
+    <td class="gt_row gt_right">Somalia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">so-DJ</td>
+    <td class="gt_row gt_right">so</td>
+    <td class="gt_row gt_right">Somali</td>
+    <td class="gt_row gt_right">DJ</td>
+    <td class="gt_row gt_right">Djibouti</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">so-ET</td>
+    <td class="gt_row gt_right">so</td>
+    <td class="gt_row gt_right">Somali</td>
+    <td class="gt_row gt_right">ET</td>
+    <td class="gt_row gt_right">Ethiopia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">so-KE</td>
+    <td class="gt_row gt_right">so</td>
+    <td class="gt_row gt_right">Somali</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sq</td>
+    <td class="gt_row gt_right">sq</td>
+    <td class="gt_row gt_right">Albanian</td>
+    <td class="gt_row gt_right">AL</td>
+    <td class="gt_row gt_right">Albania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sq-MK</td>
+    <td class="gt_row gt_right">sq</td>
+    <td class="gt_row gt_right">Albanian</td>
+    <td class="gt_row gt_right">MK</td>
+    <td class="gt_row gt_right">North Macedonia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sq-XK</td>
+    <td class="gt_row gt_right">sq</td>
+    <td class="gt_row gt_right">Albanian</td>
+    <td class="gt_row gt_right">XK</td>
+    <td class="gt_row gt_right">Kosovo</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sr</td>
+    <td class="gt_row gt_right">sr</td>
+    <td class="gt_row gt_right">Serbian</td>
+    <td class="gt_row gt_right">RS</td>
+    <td class="gt_row gt_right">Serbia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sr-Cyrl</td>
+    <td class="gt_row gt_right">sr</td>
+    <td class="gt_row gt_right">Serbian</td>
+    <td class="gt_row gt_right">RS</td>
+    <td class="gt_row gt_right">Serbia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sr-Cyrl-BA</td>
+    <td class="gt_row gt_right">sr</td>
+    <td class="gt_row gt_right">Serbian</td>
+    <td class="gt_row gt_right">BA</td>
+    <td class="gt_row gt_right">Bosnia &amp; Herzegovina</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sr-Cyrl-ME</td>
+    <td class="gt_row gt_right">sr</td>
+    <td class="gt_row gt_right">Serbian</td>
+    <td class="gt_row gt_right">ME</td>
+    <td class="gt_row gt_right">Montenegro</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sr-Cyrl-XK</td>
+    <td class="gt_row gt_right">sr</td>
+    <td class="gt_row gt_right">Serbian</td>
+    <td class="gt_row gt_right">XK</td>
+    <td class="gt_row gt_right">Kosovo</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sr-Latn</td>
+    <td class="gt_row gt_right">sr</td>
+    <td class="gt_row gt_right">Serbian</td>
+    <td class="gt_row gt_right">RS</td>
+    <td class="gt_row gt_right">Serbia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sr-Latn-BA</td>
+    <td class="gt_row gt_right">sr</td>
+    <td class="gt_row gt_right">Serbian</td>
+    <td class="gt_row gt_right">BA</td>
+    <td class="gt_row gt_right">Bosnia &amp; Herzegovina</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sr-Latn-ME</td>
+    <td class="gt_row gt_right">sr</td>
+    <td class="gt_row gt_right">Serbian</td>
+    <td class="gt_row gt_right">ME</td>
+    <td class="gt_row gt_right">Montenegro</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sr-Latn-XK</td>
+    <td class="gt_row gt_right">sr</td>
+    <td class="gt_row gt_right">Serbian</td>
+    <td class="gt_row gt_right">XK</td>
+    <td class="gt_row gt_right">Kosovo</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">su</td>
+    <td class="gt_row gt_right">su</td>
+    <td class="gt_row gt_right">Sundanese</td>
+    <td class="gt_row gt_right">ID</td>
+    <td class="gt_row gt_right">Indonesia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">su-Latn</td>
+    <td class="gt_row gt_right">su</td>
+    <td class="gt_row gt_right">Sundanese</td>
+    <td class="gt_row gt_right">ID</td>
+    <td class="gt_row gt_right">Indonesia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sv</td>
+    <td class="gt_row gt_right">sv</td>
+    <td class="gt_row gt_right">Swedish</td>
+    <td class="gt_row gt_right">SE</td>
+    <td class="gt_row gt_right">Sweden</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sv-AX</td>
+    <td class="gt_row gt_right">sv</td>
+    <td class="gt_row gt_right">Swedish</td>
+    <td class="gt_row gt_right">AX</td>
+    <td class="gt_row gt_right">Åland Islands</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sv-FI</td>
+    <td class="gt_row gt_right">sv</td>
+    <td class="gt_row gt_right">Swedish</td>
+    <td class="gt_row gt_right">FI</td>
+    <td class="gt_row gt_right">Finland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sw</td>
+    <td class="gt_row gt_right">sw</td>
+    <td class="gt_row gt_right">Swahili</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sw-CD</td>
+    <td class="gt_row gt_right">sw</td>
+    <td class="gt_row gt_right">Swahili</td>
+    <td class="gt_row gt_right">CD</td>
+    <td class="gt_row gt_right">Congo - Kinshasa</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sw-KE</td>
+    <td class="gt_row gt_right">sw</td>
+    <td class="gt_row gt_right">Swahili</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">sw-UG</td>
+    <td class="gt_row gt_right">sw</td>
+    <td class="gt_row gt_right">Swahili</td>
+    <td class="gt_row gt_right">UG</td>
+    <td class="gt_row gt_right">Uganda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ta</td>
+    <td class="gt_row gt_right">ta</td>
+    <td class="gt_row gt_right">Tamil</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ta-LK</td>
+    <td class="gt_row gt_right">ta</td>
+    <td class="gt_row gt_right">Tamil</td>
+    <td class="gt_row gt_right">LK</td>
+    <td class="gt_row gt_right">Sri Lanka</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ta-MY</td>
+    <td class="gt_row gt_right">ta</td>
+    <td class="gt_row gt_right">Tamil</td>
+    <td class="gt_row gt_right">MY</td>
+    <td class="gt_row gt_right">Malaysia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ta-SG</td>
+    <td class="gt_row gt_right">ta</td>
+    <td class="gt_row gt_right">Tamil</td>
+    <td class="gt_row gt_right">SG</td>
+    <td class="gt_row gt_right">Singapore</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">te</td>
+    <td class="gt_row gt_right">te</td>
+    <td class="gt_row gt_right">Telugu</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">teo</td>
+    <td class="gt_row gt_right">teo</td>
+    <td class="gt_row gt_right">Teso</td>
+    <td class="gt_row gt_right">UG</td>
+    <td class="gt_row gt_right">Uganda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">teo-KE</td>
+    <td class="gt_row gt_right">teo</td>
+    <td class="gt_row gt_right">Teso</td>
+    <td class="gt_row gt_right">KE</td>
+    <td class="gt_row gt_right">Kenya</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">tg</td>
+    <td class="gt_row gt_right">tg</td>
+    <td class="gt_row gt_right">Tajik</td>
+    <td class="gt_row gt_right">TJ</td>
+    <td class="gt_row gt_right">Tajikistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">th</td>
+    <td class="gt_row gt_right">th</td>
+    <td class="gt_row gt_right">Thai</td>
+    <td class="gt_row gt_right">TH</td>
+    <td class="gt_row gt_right">Thailand</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ti</td>
+    <td class="gt_row gt_right">ti</td>
+    <td class="gt_row gt_right">Tigrinya</td>
+    <td class="gt_row gt_right">ET</td>
+    <td class="gt_row gt_right">Ethiopia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ti-ER</td>
+    <td class="gt_row gt_right">ti</td>
+    <td class="gt_row gt_right">Tigrinya</td>
+    <td class="gt_row gt_right">ER</td>
+    <td class="gt_row gt_right">Eritrea</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">tk</td>
+    <td class="gt_row gt_right">tk</td>
+    <td class="gt_row gt_right">Turkmen</td>
+    <td class="gt_row gt_right">TM</td>
+    <td class="gt_row gt_right">Turkmenistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">to</td>
+    <td class="gt_row gt_right">to</td>
+    <td class="gt_row gt_right">Tongan</td>
+    <td class="gt_row gt_right">TO</td>
+    <td class="gt_row gt_right">Tonga</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">tr</td>
+    <td class="gt_row gt_right">tr</td>
+    <td class="gt_row gt_right">Turkish</td>
+    <td class="gt_row gt_right">TR</td>
+    <td class="gt_row gt_right">Turkey</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">tr-CY</td>
+    <td class="gt_row gt_right">tr</td>
+    <td class="gt_row gt_right">Turkish</td>
+    <td class="gt_row gt_right">CY</td>
+    <td class="gt_row gt_right">Cyprus</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">tt</td>
+    <td class="gt_row gt_right">tt</td>
+    <td class="gt_row gt_right">Tatar</td>
+    <td class="gt_row gt_right">RU</td>
+    <td class="gt_row gt_right">Russia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">twq</td>
+    <td class="gt_row gt_right">twq</td>
+    <td class="gt_row gt_right">Tasawaq</td>
+    <td class="gt_row gt_right">NE</td>
+    <td class="gt_row gt_right">Niger</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">tzm</td>
+    <td class="gt_row gt_right">tzm</td>
+    <td class="gt_row gt_right">Central Atlas Tamazight</td>
+    <td class="gt_row gt_right">MA</td>
+    <td class="gt_row gt_right">Morocco</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ug</td>
+    <td class="gt_row gt_right">ug</td>
+    <td class="gt_row gt_right">Uyghur</td>
+    <td class="gt_row gt_right">CN</td>
+    <td class="gt_row gt_right">China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">uk</td>
+    <td class="gt_row gt_right">uk</td>
+    <td class="gt_row gt_right">Ukrainian</td>
+    <td class="gt_row gt_right">UA</td>
+    <td class="gt_row gt_right">Ukraine</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">und</td>
+    <td class="gt_row gt_right">und</td>
+    <td class="gt_row gt_right">Unknown language</td>
+    <td class="gt_row gt_right"><na></na></td>
+    <td class="gt_row gt_right"><na></na></td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ur</td>
+    <td class="gt_row gt_right">ur</td>
+    <td class="gt_row gt_right">Urdu</td>
+    <td class="gt_row gt_right">PK</td>
+    <td class="gt_row gt_right">Pakistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">ur-IN</td>
+    <td class="gt_row gt_right">ur</td>
+    <td class="gt_row gt_right">Urdu</td>
+    <td class="gt_row gt_right">IN</td>
+    <td class="gt_row gt_right">India</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">uz</td>
+    <td class="gt_row gt_right">uz</td>
+    <td class="gt_row gt_right">Uzbek</td>
+    <td class="gt_row gt_right">AF</td>
+    <td class="gt_row gt_right">Afghanistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">uz-Arab</td>
+    <td class="gt_row gt_right">uz</td>
+    <td class="gt_row gt_right">Uzbek</td>
+    <td class="gt_row gt_right">AF</td>
+    <td class="gt_row gt_right">Afghanistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">uz-Cyrl</td>
+    <td class="gt_row gt_right">uz</td>
+    <td class="gt_row gt_right">Uzbek</td>
+    <td class="gt_row gt_right">UZ</td>
+    <td class="gt_row gt_right">Uzbekistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">uz-Latn</td>
+    <td class="gt_row gt_right">uz</td>
+    <td class="gt_row gt_right">Uzbek</td>
+    <td class="gt_row gt_right">UZ</td>
+    <td class="gt_row gt_right">Uzbekistan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">vai</td>
+    <td class="gt_row gt_right">vai</td>
+    <td class="gt_row gt_right">Vai</td>
+    <td class="gt_row gt_right">LR</td>
+    <td class="gt_row gt_right">Liberia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">vai-Latn</td>
+    <td class="gt_row gt_right">vai</td>
+    <td class="gt_row gt_right">Vai</td>
+    <td class="gt_row gt_right">LR</td>
+    <td class="gt_row gt_right">Liberia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">vai-Vaii</td>
+    <td class="gt_row gt_right">vai</td>
+    <td class="gt_row gt_right">Vai</td>
+    <td class="gt_row gt_right">LR</td>
+    <td class="gt_row gt_right">Liberia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">vi</td>
+    <td class="gt_row gt_right">vi</td>
+    <td class="gt_row gt_right">Vietnamese</td>
+    <td class="gt_row gt_right">VN</td>
+    <td class="gt_row gt_right">Vietnam</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">vun</td>
+    <td class="gt_row gt_right">vun</td>
+    <td class="gt_row gt_right">Vunjo</td>
+    <td class="gt_row gt_right">TZ</td>
+    <td class="gt_row gt_right">Tanzania</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">wae</td>
+    <td class="gt_row gt_right">wae</td>
+    <td class="gt_row gt_right">Walser</td>
+    <td class="gt_row gt_right">CH</td>
+    <td class="gt_row gt_right">Switzerland</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">wo</td>
+    <td class="gt_row gt_right">wo</td>
+    <td class="gt_row gt_right">Wolof</td>
+    <td class="gt_row gt_right">SN</td>
+    <td class="gt_row gt_right">Senegal</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">xh</td>
+    <td class="gt_row gt_right">xh</td>
+    <td class="gt_row gt_right">Xhosa</td>
+    <td class="gt_row gt_right">ZA</td>
+    <td class="gt_row gt_right">South Africa</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">xog</td>
+    <td class="gt_row gt_right">xog</td>
+    <td class="gt_row gt_right">Soga</td>
+    <td class="gt_row gt_right">UG</td>
+    <td class="gt_row gt_right">Uganda</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">yav</td>
+    <td class="gt_row gt_right">yav</td>
+    <td class="gt_row gt_right">Yangben</td>
+    <td class="gt_row gt_right">CM</td>
+    <td class="gt_row gt_right">Cameroon</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">yi</td>
+    <td class="gt_row gt_right">yi</td>
+    <td class="gt_row gt_right">Yiddish</td>
+    <td class="gt_row gt_right">001</td>
+    <td class="gt_row gt_right">world</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">yo</td>
+    <td class="gt_row gt_right">yo</td>
+    <td class="gt_row gt_right">Yoruba</td>
+    <td class="gt_row gt_right">NG</td>
+    <td class="gt_row gt_right">Nigeria</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">yo-BJ</td>
+    <td class="gt_row gt_right">yo</td>
+    <td class="gt_row gt_right">Yoruba</td>
+    <td class="gt_row gt_right">BJ</td>
+    <td class="gt_row gt_right">Benin</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">yrl</td>
+    <td class="gt_row gt_right">yrl</td>
+    <td class="gt_row gt_right">Nheengatu</td>
+    <td class="gt_row gt_right">BR</td>
+    <td class="gt_row gt_right">Brazil</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">yrl-CO</td>
+    <td class="gt_row gt_right">yrl</td>
+    <td class="gt_row gt_right">Nheengatu</td>
+    <td class="gt_row gt_right">CO</td>
+    <td class="gt_row gt_right">Colombia</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">yrl-VE</td>
+    <td class="gt_row gt_right">yrl</td>
+    <td class="gt_row gt_right">Nheengatu</td>
+    <td class="gt_row gt_right">VE</td>
+    <td class="gt_row gt_right">Venezuela</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">yue</td>
+    <td class="gt_row gt_right">yue</td>
+    <td class="gt_row gt_right">Cantonese</td>
+    <td class="gt_row gt_right">CN</td>
+    <td class="gt_row gt_right">China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">yue-Hans</td>
+    <td class="gt_row gt_right">yue</td>
+    <td class="gt_row gt_right">Cantonese</td>
+    <td class="gt_row gt_right">CN</td>
+    <td class="gt_row gt_right">China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">yue-Hant</td>
+    <td class="gt_row gt_right">yue</td>
+    <td class="gt_row gt_right">Cantonese</td>
+    <td class="gt_row gt_right">HK</td>
+    <td class="gt_row gt_right">Hong Kong SAR China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">zgh</td>
+    <td class="gt_row gt_right">zgh</td>
+    <td class="gt_row gt_right">Standard Moroccan Tamazight</td>
+    <td class="gt_row gt_right">MA</td>
+    <td class="gt_row gt_right">Morocco</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">zh</td>
+    <td class="gt_row gt_right">zh</td>
+    <td class="gt_row gt_right">Chinese</td>
+    <td class="gt_row gt_right">CN</td>
+    <td class="gt_row gt_right">China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">zh-Hans</td>
+    <td class="gt_row gt_right">zh</td>
+    <td class="gt_row gt_right">Chinese</td>
+    <td class="gt_row gt_right">CN</td>
+    <td class="gt_row gt_right">China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">zh-Hans-HK</td>
+    <td class="gt_row gt_right">zh</td>
+    <td class="gt_row gt_right">Chinese</td>
+    <td class="gt_row gt_right">HK</td>
+    <td class="gt_row gt_right">Hong Kong SAR China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">zh-Hans-MO</td>
+    <td class="gt_row gt_right">zh</td>
+    <td class="gt_row gt_right">Chinese</td>
+    <td class="gt_row gt_right">MO</td>
+    <td class="gt_row gt_right">Macao SAR China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">zh-Hans-SG</td>
+    <td class="gt_row gt_right">zh</td>
+    <td class="gt_row gt_right">Chinese</td>
+    <td class="gt_row gt_right">SG</td>
+    <td class="gt_row gt_right">Singapore</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">zh-Hant</td>
+    <td class="gt_row gt_right">zh</td>
+    <td class="gt_row gt_right">Chinese</td>
+    <td class="gt_row gt_right">TW</td>
+    <td class="gt_row gt_right">Taiwan</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">zh-Hant-HK</td>
+    <td class="gt_row gt_right">zh</td>
+    <td class="gt_row gt_right">Chinese</td>
+    <td class="gt_row gt_right">HK</td>
+    <td class="gt_row gt_right">Hong Kong SAR China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">zh-Hant-MO</td>
+    <td class="gt_row gt_right">zh</td>
+    <td class="gt_row gt_right">Chinese</td>
+    <td class="gt_row gt_right">MO</td>
+    <td class="gt_row gt_right">Macao SAR China</td>
+  </tr>
+  <tr>
+    <td class="gt_row gt_right">zu</td>
+    <td class="gt_row gt_right">zu</td>
+    <td class="gt_row gt_right">Zulu</td>
+    <td class="gt_row gt_right">ZA</td>
+    <td class="gt_row gt_right">South Africa</td>
+  </tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
 
 
 </section>
