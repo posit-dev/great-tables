@@ -409,7 +409,7 @@ class Boxhead(_Sequence[ColInfo]):
     def reorder(self, vars: list[str]) -> Self:
         boxh_vars = [col.var for col in self]
         if set(vars) != set(boxh_vars):
-            raise ValueError("Reordering vars must contain all boxhead vars.")
+            raise ValueError("Column reordering must include all columns in the table.")
 
         new_order = [boxh_vars.index(var) for var in vars]
 
