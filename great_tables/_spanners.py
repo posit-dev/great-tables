@@ -792,8 +792,8 @@ def cols_reorder(self: GTSelf, columns: SelectExpr) -> GTSelf:
     function: `cols_reorder()`. By passing a list of column names to the `columns=` parameter,
     the table will be reordered accordingly:
     ```{python}
-    col1, col2, col3, *cols = exibble.columns  # col1="num", col2="char", col3="fctr"
-    gt.cols_reorder([col3, *cols, col2,  col1])
+    num_col, char_col, fctr_col, *cols = exibble.columns
+    gt.cols_reorder([fctr_col, *cols, char_col,  num_col])
     ```
     """
 
