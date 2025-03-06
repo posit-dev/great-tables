@@ -244,6 +244,13 @@ def test_cols_width_fully_set_pct_2():
     assert gt_tbl._boxhead[2].column_width == "40%"
 
 
+def test_cols_width_non_str_deprecated():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+
+    with pytest.warns(DeprecationWarning):
+        gt_tbl = GT(df).cols_width({"a": 10})
+
+
 def test_cols_width_html_colgroup():
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
     gt_tbl = GT(df).cols_width({"a": "10px", "b": "20px", "c": "30px"})

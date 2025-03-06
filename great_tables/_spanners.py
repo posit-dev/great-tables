@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import itertools
 from typing import TYPE_CHECKING
+import warnings
 
 from typing_extensions import TypeAlias
 
@@ -751,6 +752,14 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
     _assert_list_is_subset(mod_columns, set_list=column_names)
 
     for col, width in new_cases.items():
+        if not isinstance(width, str):
+            warnings.warn(
+                "Column widths must be a string."
+                f" Column `{col}` specified width using a {type(width)}."
+                " Coercing width to a string, but in the future this will raise an error.",
+                DeprecationWarning,
+            )
+            width = str(width)
         curr_boxhead = curr_boxhead._set_column_width(col, width)
 
     return self._replace(_boxhead=curr_boxhead)
