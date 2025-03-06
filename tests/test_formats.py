@@ -1116,6 +1116,44 @@ def test_format_number_with_sep_dec_marks():
 
 
 # ------------------------------------------------------------------------------
+# Tests of `fmt_scientific()`
+# ------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "fmt_scientific_kwargs,x_in,x_out",
+    [
+        (dict(decimals=2), [123456789], ["1.23 × 10<sup style='font-size: 65%;'>8</sup>"]),
+        (dict(exp_style="low-ten"), [123456789], ["1.23<sub style='font-size: 65%;'>10</sub>08"]),
+        (dict(exp_style="E"), [123456789, 123123123123], ["1.23E08", "1.23E11"]),
+        (dict(exp_style="E1"), [123456789, 123123123123], ["1.23E8", "1.23E11"]),
+        (
+            dict(exp_style="E", force_sign_n=True),
+            [123456789, 123123123123],
+            ["1.23E+08", "1.23E+11"],
+        ),
+        (
+            dict(exp_style="E1", force_sign_n=True),
+            [123456789, 123123123123],
+            ["1.23E+8", "1.23E+11"],
+        ),
+        (
+            dict(exp_style="E", n_sigfig=5),
+            [123456789, 123123123123],
+            ["1.2346E08", "1.2312E11"],
+        ),
+    ],
+)
+def test_fmt_scientific_case(
+    fmt_scientific_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]
+):
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_scientific(columns="x", **fmt_scientific_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+# ------------------------------------------------------------------------------
 # Tests of `fmt_currency()`
 # ------------------------------------------------------------------------------
 
