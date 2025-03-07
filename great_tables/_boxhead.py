@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 def cols_label(
     self: GTSelf,
     cases: dict[str, str | BaseText] | None = None,
-    fn: Callable[[str], str] | None = None,
+    fn: Callable[[str | BaseText], str | BaseText] | None = None,
     **kwargs: str | BaseText,
 ) -> GTSelf:
     """
