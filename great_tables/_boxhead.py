@@ -137,7 +137,9 @@ def cols_label(
     return self._replace(_boxhead=boxhead)
 
 
-def cols_label_with(self: GTSelf, fn: Callable[[str], str], columns: SelectExpr = None) -> GTSelf:
+def cols_label_with(
+    self: GTSelf, columns: SelectExpr = None, fn: Callable[[str], str] | None = None
+) -> GTSelf:
     """
     Relabel one or more columns using a function.
 
@@ -147,12 +149,12 @@ def cols_label_with(self: GTSelf, fn: Callable[[str], str], columns: SelectExpr 
 
     Parameters
     ----------
-    fn
-        A function that accepts a column label as input and returns a transformed label as output.
-
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
+    fn
+        A function that accepts a column label as input and returns a transformed label as output.
+
 
     Returns
     -------
@@ -178,17 +180,20 @@ def cols_label_with(self: GTSelf, fn: Callable[[str], str], columns: SelectExpr 
 
     We can pass `str.upper()` to the `columns` parameter to convert all column labels to uppercase.
     ```{python}
-    gt.cols_label_with(str.upper)
+    gt.cols_label_with(fn=str.upper)
     ```
 
     One useful use case is using `md()`, provided by **Great Tables**, to format column labels.
     For example, the following code demonstrates how to make the `date` and `adj_close` column labels
     bold using markdown syntax.
     ```{python}
-    gt.cols_label_with(lambda x: md(f"**{x}**"), columns=["date", "adj_close"])
+    gt.cols_label_with(["date", "adj_close"], lambda x: md(f"**{x}**"))
     ```
 
     """
+    if fn is None:
+        raise ValueError("Must provide the `fn=` parameter to use `cols_label_with()`.")
+
     # Get the full list of column names for the data
     column_names = self._boxhead._get_columns()
 

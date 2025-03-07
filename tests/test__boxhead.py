@@ -62,7 +62,7 @@ def test_cols_label_with_relabel_columns():
     table = gt.GT(df)
 
     # Relabel the columns
-    modified_table = table.cols_label_with(str.lower)
+    modified_table = table.cols_label_with(fn=str.lower)
 
     # Check that the column labels have been updated
     assert modified_table._boxhead._get_column_labels() == ["a", "b"]
@@ -74,13 +74,24 @@ def test_cols_label_with_relabel_columns_with_markdown():
     table = gt.GT(df)
 
     # Relabel a column with a Markdown formatted label
-    modified_table = table.cols_label_with(lambda x: gt.md(f"**{x}**"), columns="A")
+    modified_table = table.cols_label_with("A", lambda x: gt.md(f"**{x}**"))
 
     # Check that the column label has been updated with Markdown formatting
     modified_column_labels = modified_table._boxhead._get_column_labels()
 
     assert modified_column_labels[0].text == "**A**"
     assert modified_column_labels[1] == "B"
+
+
+def test_cols_label_with_raises():
+    # Create a table with default column labels
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df)
+
+    with pytest.raises(ValueError) as exc_info:
+        table.cols_label_with()
+
+    assert "Must provide the `fn=` parameter to use `cols_label_with()`." in exc_info.value.args[0]
 
 
 def test_cols_align_default():
