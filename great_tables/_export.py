@@ -235,10 +235,6 @@ def as_raw_html(
             # Obtain the `table_id` value from the Options (might be set, might be None)
             table_id = self._options.table_id.value
 
-            import pdb
-
-            pdb.set_trace()
-
             if table_id is None:
                 id = random_id()
             else:
