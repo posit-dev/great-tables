@@ -17,6 +17,20 @@ def test_cols_label_relabel_columns():
     assert modified_table._boxhead._get_column_labels() == ["Column 1", "Column 2"]
 
 
+def test_cols_label_relabel_columns_fn():
+    # Create a table with default column labels
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df)
+
+    # Relabel the columns
+    modified_table = table.cols_label(
+        {"A": "Column 1"}, B="Column 2", fn=lambda x: "".join(x.split())
+    )
+
+    # Check that the column labels have been updated
+    assert modified_table._boxhead._get_column_labels() == ["Column1", "Column2"]
+
+
 def test_cols_label_relabel_columns_with_markdown():
     # Create a table with default column labels
     df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})

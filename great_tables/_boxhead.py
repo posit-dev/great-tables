@@ -12,7 +12,10 @@ if TYPE_CHECKING:
 
 
 def cols_label(
-    self: GTSelf, cases: dict[str, str | BaseText] | None = None, **kwargs: str | BaseText
+    self: GTSelf,
+    cases: dict[str, str | BaseText] | None = None,
+    fn: Callable[[str], str] | None = None,
+    **kwargs: str | BaseText,
 ) -> GTSelf:
     """
     Relabel one or more columns.
@@ -31,7 +34,8 @@ def cols_label(
     cases
         A dictionary where the keys are column names and the values are the labels. Labels may use
         [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helpers for formatting.
-
+    fn
+        A function that accepts a column label as input and returns a transformed label as output.
     **kwargs
         Keyword arguments to specify column labels. Each keyword corresponds to a column name, with
         its value indicating the new label.
@@ -76,8 +80,8 @@ def cols_label(
     `md("*Population*")` to make the label italicized.
 
     ```{python}
-    from great_tables import GT, md
-    from great_tables.data import countrypops
+    from great_tables import md
+
 
     (
         GT(countrypops_mini)
@@ -89,11 +93,26 @@ def cols_label(
     )
     ```
 
+    Furthermore, we can provide a callable to the `fn=` parameter, which will be applied to all
+    specified labels. This is useful for making small adjustments to each label individually.
+    For example, in this case, we want the `country_name` label to be bold and the `year` label to
+    be italicized using markdown syntax. By passing `md()` to `fn=`, we avoid the need to wrap `md()`
+    around each label separately:
+    ```{python}
+    (
+        GT(countrypops_mini)
+        .cols_label(
+            country_name="**Name**",
+            year="*Year*",
+            fn=md
+        )
+    )
+    ```
+
     We can also use unit notation to format the column labels. In this example, we'll use
     `{{cm^3 molecules^-1 s^-1}}` for part of the label for the `OH_k298` column.
 
     ```{python}
-    from great_tables import GT
     from great_tables.data import reactions
     import polars as pl
 
@@ -128,6 +147,11 @@ def cols_label(
     # Stop function if any of the column names specified are not in `cols_labels`
     # msg: "All column names provided must exist in the input `.data` table."
     _assert_list_is_subset(mod_columns, set_list=column_names)
+
+    if fn is not None:
+        new_cases = {
+            orig_colname: fn(given_colname) for orig_colname, given_colname in new_cases.items()
+        }
 
     # Handle units syntax in labels (e.g., "Density ({{ppl / mi^2}})")
     new_kwargs = _handle_units_syntax(new_cases)
