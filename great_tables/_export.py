@@ -566,6 +566,7 @@ def write_raw_html(
     gt: GT,
     filename: str | Path,
     encoding: str = "utf-8",
+    inline_css: bool = False,
     newline: str | None = None,
     make_page: bool = False,
     all_important: bool = False,
@@ -584,6 +585,10 @@ def write_raw_html(
         The name of the file to save the HTML. Can be a string or a `pathlib.Path` object.
     encoding
         The encoding used when writing the file. Defaults to 'utf-8'.
+    inline_css
+        An option to supply styles to table elements as inlined CSS styles. This is useful when
+        including the table HTML as part of an HTML email message body, since inlined styles are
+        largely supported in email clients over using CSS in a `<style>` block.
     newline
         The newline character to use when writing the file. Defaults to `os.linesep`.
     Returns
@@ -593,7 +598,9 @@ def write_raw_html(
     """
     import os
 
-    html_content = as_raw_html(gt, make_page=make_page, all_important=all_important)
+    html_content = as_raw_html(
+        gt, inline_css=inline_css, make_page=make_page, all_important=all_important
+    )
 
     newline = newline if newline is not None else os.linesep
 
