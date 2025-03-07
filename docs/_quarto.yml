@@ -157,6 +157,7 @@ quartodoc:
         - GT.cols_move_to_start
         - GT.cols_move_to_end
         - GT.cols_hide
+        - GT.cols_unhide
     - title: Location Targeting and Styling Classes
       desc: >
         Location targeting is a powerful feature of **Great Tables**. It allows for the precise
@@ -179,6 +180,7 @@ quartodoc:
         - style.fill
         - style.text
         - style.borders
+        - style.css
     - title: Helper functions
       desc: >
         An assortment of helper functions is available in the **Great Tables** package. The

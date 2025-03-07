@@ -43,6 +43,12 @@ def tab_stub(
     groupname_col:
         The column to use for group names. By default no group names added.
 
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
     Examples
     --------
 
@@ -94,9 +100,51 @@ def tab_stub(
 def with_locale(self: GTSelf, locale: str | None = None) -> GTSelf:
     """Set a column to be the default locale.
 
-    Setting a default locale affects formatters like .fmt_number, and .fmt_date,
+    Setting a default locale affects formatters like `fmt_number()`, and `fmt_date()`,
     by having them default to locale-specific features (e.g. representing one thousand
     as 1.000,00)
+
+    Parameters
+    ----------
+    locale
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's create a table and set its `locale=` to `"ja"` for Japan. Then, we call `fmt_currency()`
+    to format the `"currency"` column. Since we didn't specify a `locale=` for `fmt_currency()`,
+    it will adopt the globally set `"ja"` locale.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+
+    (
+        GT(exibble)
+        .with_locale("ja")
+        .fmt_currency(
+            columns="currency",
+            decimals=3,
+            use_seps=False
+        )
+    )
+    ```
+    **Great Tables** internally supports many locale options. You can find the available locales in
+    the following table:
+
+    ```{python}
+    from great_tables.data import __x_locales
+
+    columns = ["locale", "lang_name", "lang_desc", "territory_name", "territory_desc"]
+    GT(__x_locales.loc[:, columns]).cols_align("right")
+    ```
     """
 
     return self._replace(_locale=Locale(locale))
@@ -106,5 +154,27 @@ def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
     """Set the id for this table.
 
     Note that this is a shortcut for the `table_id=` argument in `GT.tab_options()`.
+
+    Parameters
+    ----------
+    id
+        By default (with `None`) the table ID will be a random, ten-letter string as generated
+        through internal use of the `random_id()` function. A custom table ID can be used here by
+        providing a string.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    The use of `with_id` is straightforward—simply pass a string to `id=` to set the table ID:
+    ```{python}
+    from great_tables import GT, exibble
+
+    GT(exibble).with_id("your-table-id")
+    ```
     """
     return self._replace(_options=self._options._set_option_value("table_id", id))

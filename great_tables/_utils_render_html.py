@@ -9,7 +9,7 @@ from . import _locations as loc
 from ._gt_data import GroupRowInfo, GTData, Styles
 from ._spanners import spanners_print_matrix
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
-from ._text import _process_text, _process_text_id
+from ._text import BaseText, _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
 
@@ -39,6 +39,14 @@ def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     # if not wrapping the styles for html element,
     # return None so htmltools omits a style attribute
     return None
+
+
+def _create_element_id(table_id: str | None, element_id: str | BaseText | None) -> str:
+    # Given a table ID, element IDs are prepended by it to ensure the resulting HTML
+    # has unique IDs.
+    new_table_id = table_id or ""
+    processed_id = _process_text_id(element_id)
+    return f"{new_table_id}-{processed_id}" if new_table_id and processed_id else processed_id
 
 
 def create_heading_component_h(data: GTData) -> str:
@@ -150,6 +158,9 @@ def create_columns_component_h(data: GTData) -> str:
     # Initialize the column headings list
     table_col_headings = []
 
+    # Extract the table ID to ensure subsequent IDs are unique
+    table_id = data._options.table_id.value
+
     # If there are no spanners, then we have to create the cells for the stubhead label
     # (if present) and for the column headings
     if spanner_row_count == 0:
@@ -163,7 +174,7 @@ def create_columns_component_h(data: GTData) -> str:
                     colspan=len(stub_layout),
                     style=_flatten_styles(styles_stubhead),
                     scope="colgroup" if len(stub_layout) > 1 else "col",
-                    id=_process_text_id(stub_label),
+                    id=_create_element_id(table_id, stub_label),
                 )
             )
 
@@ -180,7 +191,7 @@ def create_columns_component_h(data: GTData) -> str:
                     colspan=1,
                     style=_flatten_styles(styles_column_labels + styles_i),
                     scope="col",
-                    id=_process_text_id(info.column_label),
+                    id=_create_element_id(table_id, info.var),
                 )
             )
 
@@ -225,7 +236,7 @@ def create_columns_component_h(data: GTData) -> str:
                     colspan=len(stub_layout),
                     style=_flatten_styles(styles_stubhead),
                     scope="colgroup" if len(stub_layout) > 1 else "col",
-                    id=_process_text_id(stub_label),
+                    id=_create_element_id(table_id, stub_label),
                 )
             )
 
@@ -258,7 +269,7 @@ def create_columns_component_h(data: GTData) -> str:
                         colspan=1,
                         style=_flatten_styles(styles_column_labels + styles_i),
                         scope="col",
-                        id=_process_text_id(h_info.column_label),
+                        id=_create_element_id(table_id, h_info.var),
                     )
                 )
 
@@ -286,7 +297,7 @@ def create_columns_component_h(data: GTData) -> str:
                             colspan=colspans[ii],
                             style=_flatten_styles(styles_column_labels + styles_i),
                             scope="colgroup" if colspans[ii] > 1 else "col",
-                            id=_process_text_id(spanner_ids_level_1_index[ii]),
+                            id=_create_element_id(table_id, spanner_ids_level_1_index[ii]),
                         )
                     )
 
@@ -300,6 +311,10 @@ def create_columns_component_h(data: GTData) -> str:
 
         if len(remaining_headings) > 0:
             spanned_column_labels = []
+
+            remaining_heading_ids = [
+                entry.var for entry in boxhead if entry.var in remaining_headings
+            ]
 
             for j in range(len(remaining_headings)):
                 # Filter by column label / id, join with overall column labels style
@@ -318,7 +333,7 @@ def create_columns_component_h(data: GTData) -> str:
                         colspan=1,
                         style=_flatten_styles(styles_column_labels + styles_i),
                         scope="col",
-                        id=_process_text_id(remaining_headings_labels[j]),
+                        id=_create_element_id(table_id, remaining_heading_ids[j]),
                     )
                 )
 

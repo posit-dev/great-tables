@@ -240,3 +240,16 @@ def test_loc_kitchen_sink(snapshot):
     html = new_gt.as_raw_html()
     cleaned = html[html.index("<table") :]
     assert cleaned == snapshot
+
+
+def test_table_id_used_in_headers(snapshot):
+    new_gt = GT(
+        pl.DataFrame(
+            {
+                "Count": [1, 2, 3, 4],
+                "Group Label": ["label a", "label b", "label c", "label d"],
+            }
+        )
+    ).with_id("test_id")
+
+    assert_rendered_columns(snapshot, new_gt)

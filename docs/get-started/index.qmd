@@ -41,6 +41,7 @@ The `islands` data is a simple **Pandas** DataFrame with 2 columns and that'll s
 gt_tbl = GT(islands_mini)
 
 # Show the output table
+# If working in the console, use gt_tbl.show()
 gt_tbl
 ```
 

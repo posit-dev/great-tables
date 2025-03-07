@@ -143,6 +143,14 @@ def val_fmt_number(
     -------
     list[str]
         A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_number([0.325, 777000], decimals=2)
+    ```
     """
 
     gt_obj: GTData = _make_one_col_table(vals=x)
@@ -236,6 +244,14 @@ def val_fmt_integer(
     -------
     list[str]
         A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_integer([100000.1, 2000000000.2], use_seps=False)
+    ```
     """
 
     gt_obj: GTData = _make_one_col_table(vals=x)
@@ -354,6 +370,14 @@ def val_fmt_scientific(
     -------
     list[str]
         A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_scientific([123456, 0.425639], decimals=2)
+    ```
     """
 
     gt_obj: GTData = _make_one_col_table(vals=x)
@@ -474,6 +498,14 @@ def val_fmt_percent(
     -------
     list[str]
         A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_percent([0.3, 0.926132], decimals=2)
+    ```
     """
 
     gt_obj: GTData = _make_one_col_table(vals=x)
@@ -599,6 +631,14 @@ def val_fmt_currency(
     -------
     list[str]
         A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_currency([1.02, 3.46], decimals=3)
+    ```
     """
 
     gt_obj: GTData = _make_one_col_table(vals=x)
@@ -652,6 +692,14 @@ def val_fmt_roman(
     -------
     list[str]
         A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_roman([3, 5])
+    ```
     """
 
     gt_obj: GTData = _make_one_col_table(vals=x)
@@ -754,6 +802,14 @@ def val_fmt_bytes(
     -------
     list[str]
         A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_bytes([123.45, 3615844.256], standard="decimal")
+    ```
     """
 
     gt_obj: GTData = _make_one_col_table(vals=x)
@@ -841,6 +897,14 @@ def val_fmt_date(
     -------
     list[str]
         A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_date(["2025-01-01", "2025-01-02"], date_style="month_day_year")
+    ```
     """
 
     gt_obj: GTData = _make_one_col_table(vals=x)
@@ -907,6 +971,14 @@ def val_fmt_time(
     -------
     list[str]
         A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_time(["05:32:17", "13:01:02"], time_style="h_m_s_p")
+    ```
     """
 
     gt_obj: GTData = _make_one_col_table(vals=x)
@@ -940,6 +1012,29 @@ def val_fmt_markdown(
     -------
     list[str]
         A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    text_1 = \"""
+    ### This is Markdown.
+
+    Markdown’s syntax is comprised entirely of
+    punctuation characters, which punctuation
+    characters have been carefully chosen so as
+    to look like what they mean... assuming
+    you’ve ever used email.
+    \"""
+
+    text_2 = \"""
+    Info on Markdown syntax can be found
+    [here](https://daringfireball.net/projects/markdown/).
+    \"""
+
+    vals.fmt_markdown([text_1, text_2])
+    ```
     """
 
     gt_obj: GTData = _make_one_col_table(vals=x)
@@ -1000,6 +1095,11 @@ def val_fmt_image(
     -------
     list[str]
         A list of formatted values is returned.
+
+    See Also
+    --------
+    Check out our blog post, [Rendering images anywhere in Great Tables](https://posit-dev.github.io/great-tables/blog/rendering-images/),
+    which walks through how to use `vals.fmt_image()`.
     """
     gt_obj: GTData = _make_one_col_table(vals=x)
 
