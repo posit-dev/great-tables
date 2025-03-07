@@ -217,6 +217,10 @@ def as_raw_html(
     gt_tbl.as_raw_html(inline_css=True)
     ```
     """
+
+    if inline_css:
+        _try_import(name="css-inline", pip_install_line="pip install css-inline")
+
     built_table = self._build_data(context="html")
 
     if not inline_css:
