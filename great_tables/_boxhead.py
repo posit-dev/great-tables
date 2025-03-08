@@ -207,10 +207,7 @@ def cols_label_with(
 
     new_cases = {col: fn(col) for col in sel_cols}
 
-    # Handle units syntax in labels (e.g., "Density ({{ppl / mi^2}})")
-    new_kwargs = _handle_units_syntax(new_cases)
-
-    boxhead = self._boxhead._set_column_labels(new_kwargs)
+    boxhead = self._boxhead._set_column_labels(new_cases)
 
     return self._replace(_boxhead=boxhead)
 
