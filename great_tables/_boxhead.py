@@ -9,7 +9,9 @@ from ._text import BaseText
 
 if TYPE_CHECKING:
     from ._types import GTSelf
-    from ._tbl_data import SelectExpr
+    from polars.selectors import _selector_proxy_
+
+    PlSelectExpr = _selector_proxy_
 
 
 def cols_label(
@@ -141,7 +143,7 @@ def cols_label(
 def cols_label_with(
     self: GTSelf,
     columns: SelectExpr = None,
-    converter: Callable[[str], str] | SelectExpr | None = None,
+    converter: Callable[[str], str] | PlSelectExpr | list[PlSelectExpr] | None = None,
 ) -> GTSelf:
     """
     Relabel one or more columns using a function or a Polars expression.
@@ -150,11 +152,12 @@ def cols_label_with(
     function. By default, the function will be invoked on all column labels but this can be limited
     to a subset via the `columns=` parameter.
 
-    Alternatively, you can pass a Polars expression using its
-    [name](https://docs.pola.rs/api/python/stable/reference/expressions/name.html) attribute.
+    Alternatively, you can utilize the
+    [name](https://docs.pola.rs/api/python/stable/reference/expressions/name.html) attribute of
+    Polars expressions.
 
     :::{.callout-warning}
-    If a Polars expression is provided, the `columns=` parameter will be ignored, as **Great Tables**
+    If Polars expressions are utilized, the `columns=` parameter will be ignored, as **Great Tables**
     can infer the original column labels from the expression.
     :::
 
@@ -165,7 +168,8 @@ def cols_label_with(
         provided in a list.
     converter
         A function that takes a column label as input and returns a transformed label.
-        Alternatively, you can use a Polars expression to describe the transformations.
+        Alternatively, you can use a Polars expression or a list of Polars expressions to describe
+        the transformations.
 
     Returns
     -------
@@ -180,25 +184,64 @@ def cols_label_with(
 
     Examples
     --------
-    Let's use a subset of the `sp500` dataset to create a gt table.
+    Let's use a subset of the `sp500` dataset to demonstrate how to convert all column labels to
+    uppercase using `str.upper()`.
+
     ```{python}
+    import polars as pl
+    from polars import selectors as cs
+
     from great_tables import GT, md
     from great_tables.data import sp500
 
-    gt = GT(sp500.head())
-    gt
-    ```
+    sp500_mini = sp500.head()
 
-    We can pass `str.upper()` to the `columns` parameter to convert all column labels to uppercase.
-    ```{python}
-    gt.cols_label_with(converter=str.upper)
+    GT(sp500_mini).cols_label_with(converter=str.upper)
     ```
 
     One useful use case is using `md()`, provided by **Great Tables**, to format column labels.
     For example, the following code demonstrates how to make the `date` and `adj_close` column labels
     bold using markdown syntax.
+
     ```{python}
-    gt.cols_label_with(["date", "adj_close"], lambda x: md(f"**{x}**"))
+    GT(sp500_mini).cols_label_with(["date", "adj_close"], lambda x: md(f"**{x}**"))
+    ```
+
+    Now, let's see how to use Polars expressions to relabel a table when the underlying dataframe
+    comes from Polars. For instance, you can convert all column labels to uppercase using
+    `pl.all().name.to_uppercase()`.
+
+    ```{python}
+    sp500_mini_pl = pl.from_pandas(sp500_mini)
+    GT(sp500_mini_pl).cols_label_with(converter=pl.all().name.to_uppercase())
+    ```
+
+    Polars selectors are also supported. The following example demonstrates how to add a "str_"
+    prefix to string columns using `cs.string().name.prefix("str_")`.
+
+    ```{python}
+    GT(sp500_mini_pl).cols_label_with(converter=cs.string().name.prefix("str_"))
+    ```
+
+    Passing a list of Polars expressions is also supported. The following example shows how to
+    add a "str_" prefix to string columns using `cs.string().name.prefix("str_")`
+    and a "_num" suffix to numerical columns using `cs.numeric().name.suffix("_num")`.
+
+    ```{python}
+    GT(sp500_mini_pl).cols_label_with(
+        converter=[cs.string().name.prefix("str_"), cs.numeric().name.suffix("_num")]
+    )
+    ```
+
+    One final note: if a column is selected multiple times in different Polars expressions,
+    the last applied transformation takes precedence. For example, applying
+    `cs.all().name.to_uppercase()` followed by `cs.all().name.suffix("_all")`
+    will result in only the latter being used for relabeling.
+
+    ```{python}
+    GT(sp500_mini_pl).cols_label_with(
+        converter=[cs.all().name.to_uppercase(), cs.all().name.suffix("_all")]
+    )
     ```
 
     """
@@ -219,12 +262,14 @@ def cols_label_with(
 
         new_cases = {col: converter(col) for col in sel_cols}
 
-    else:  # pl.col().expr.name.method() or selector.name.method()
-        expr = converter
+    else:  # pl.col().expr.name.method() or selector.name.method() or [...]
         frame = self._tbl_data
-        sel_cols = frame.select(expr.meta.undo_aliases()).columns
-        new_cols = frame.select(expr).columns
-        new_cases = dict(zip(sel_cols, new_cols))
+        new_cases: dict[str, str] = {}
+        exprs = converter if isinstance(converter, list) else [converter]
+        for expr in exprs:
+            sel_cols: list[str] = frame.select(expr.meta.undo_aliases()).columns
+            new_cols: list[str] = frame.select(expr).columns
+            new_cases |= dict(zip(sel_cols, new_cols))
 
     boxhead = self._boxhead._set_column_labels(new_cases)
 
