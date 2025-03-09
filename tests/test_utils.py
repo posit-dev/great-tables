@@ -2,7 +2,7 @@ from collections.abc import Generator
 import pytest
 
 
-from great_tables import GT, exibble
+from great_tables import GT, exibble, md
 from great_tables._tbl_data import is_na
 from great_tables._utils import (
     _assert_list_is_subset,
@@ -228,9 +228,9 @@ def test_is_valid_http_schema(url: str):
 
 
 def test_handle_units_syntax():
-    from great_tables._text import BaseText, Text
+    from great_tables._text import BaseText
 
-    new_kwargs = _handle_units_syntax({"column_label_1": "abc", "column_label_2": Text(text="xyz")})
+    new_kwargs = _handle_units_syntax({"column_label_1": "abc", "column_label_2": md(text="xyz")})
 
     assert all(isinstance(v, (str, BaseText)) for v in new_kwargs.values())
 
