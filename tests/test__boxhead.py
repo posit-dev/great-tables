@@ -76,6 +76,7 @@ def test_cols_label_with_relabel_columns():
         cs.by_name("my_col", "my_col2").name.to_uppercase(),
         cs.by_name(["my_col", "my_col2"]).name.to_uppercase(),
         cs.starts_with("my").name.to_uppercase(),
+        pl.col("my_col2", "my_col").name.to_uppercase(),  # test for column positions
     ],
 )
 def test_cols_label_with_relabel_columns_polars(converter):
