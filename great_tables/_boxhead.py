@@ -191,7 +191,7 @@ def cols_label_with(
 
     We can pass `str.upper()` to the `columns` parameter to convert all column labels to uppercase.
     ```{python}
-    gt.cols_label_with(fn=str.upper)
+    gt.cols_label_with(converter=str.upper)
     ```
 
     One useful use case is using `md()`, provided by **Great Tables**, to format column labels.
