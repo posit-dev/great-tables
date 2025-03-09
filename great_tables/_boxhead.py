@@ -9,6 +9,7 @@ from ._text import BaseText
 
 if TYPE_CHECKING:
     from ._types import GTSelf
+    from ._tbl_data import SelectExpr
 
 
 def cols_label(
@@ -138,23 +139,33 @@ def cols_label(
 
 
 def cols_label_with(
-    self: GTSelf, columns: SelectExpr = None, fn: Callable[[str], str] | None = None
+    self: GTSelf,
+    columns: SelectExpr = None,
+    converter: Callable[[str], str] | SelectExpr | None = None,
 ) -> GTSelf:
     """
-    Relabel one or more columns using a function.
+    Relabel one or more columns using a function or a Polars expression.
 
     The `cols_label_with()` function allows for modification of column labels through a supplied
     function. By default, the function will be invoked on all column labels but this can be limited
-    to a subset via the `columns` parameter.
+    to a subset via the `columns=` parameter.
+
+    Alternatively, you can pass a Polars expression using its
+    [name](https://docs.pola.rs/api/python/stable/reference/expressions/name.html) attribute.
+
+    :::{.callout-warning}
+    If a Polars expression is provided, the `columns=` parameter will be ignored, as **Great Tables**
+    can infer the original column labels from the expression.
+    :::
 
     Parameters
     ----------
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
-    fn
-        A function that accepts a column label as input and returns a transformed label as output.
-
+    converter
+        A function that takes a column label as input and returns a transformed label.
+        Alternatively, you can use a Polars expression to describe the transformations.
 
     Returns
     -------
@@ -191,21 +202,29 @@ def cols_label_with(
     ```
 
     """
-    if fn is None:
-        raise ValueError("Must provide the `fn=` parameter to use `cols_label_with()`.")
+    if converter is None:
+        raise ValueError("Must provide the `converter=` parameter to use `cols_label_with()`.")
 
-    # Get the full list of column names for the data
-    column_names = self._boxhead._get_columns()
+    if isinstance(converter, Callable):
+        # Get the full list of column names for the data
+        column_names = self._boxhead._get_columns()
 
-    if isinstance(columns, str):
-        columns = [columns]
-        _assert_list_is_subset(columns, set_list=column_names)
-    elif columns is None:
-        columns = column_names
+        if isinstance(columns, str):
+            columns = [columns]
+            _assert_list_is_subset(columns, set_list=column_names)
+        elif columns is None:
+            columns = column_names
 
-    sel_cols = resolve_cols_c(data=self, expr=columns)
+        sel_cols = resolve_cols_c(data=self, expr=columns)
 
-    new_cases = {col: fn(col) for col in sel_cols}
+        new_cases = {col: converter(col) for col in sel_cols}
+
+    else:  # pl.col().expr.name.method() or selector.name.method()
+        expr = converter
+        frame = self._tbl_data
+        sel_cols = frame.select(expr.meta.undo_aliases()).columns
+        new_cols = frame.select(expr).columns
+        new_cases = dict(zip(sel_cols, new_cols))
 
     boxhead = self._boxhead._set_column_labels(new_cases)
 

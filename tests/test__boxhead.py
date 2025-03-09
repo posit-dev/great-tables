@@ -62,10 +62,32 @@ def test_cols_label_with_relabel_columns():
     table = gt.GT(df)
 
     # Relabel the columns
-    modified_table = table.cols_label_with(fn=str.lower)
+    modified_table = table.cols_label_with(converter=str.lower)
 
     # Check that the column labels have been updated
     assert modified_table._boxhead._get_column_labels() == ["a", "b"]
+
+
+@pytest.mark.parametrize(
+    "converter",
+    [
+        pl.col("my_col", "my_col2").name.to_uppercase(),
+        pl.col(["my_col", "my_col2"]).name.to_uppercase(),
+        cs.by_name("my_col", "my_col2").name.to_uppercase(),
+        cs.by_name(["my_col", "my_col2"]).name.to_uppercase(),
+        cs.starts_with("my").name.to_uppercase(),
+    ],
+)
+def test_cols_label_with_relabel_columns_polars(converter):
+    # Create a table with default column labels
+    df = pl.DataFrame({"my_col": [1, 2, 3], "my_col2": [4, 5, 6]})
+    table = gt.GT(df)
+
+    # Relabel the columns
+    modified_table = table.cols_label_with(converter=converter)
+
+    # Check that the column labels have been updated
+    assert modified_table._boxhead._get_column_labels() == ["MY_COL", "MY_COL2"]
 
 
 def test_cols_label_with_relabel_columns_with_markdown():
@@ -91,7 +113,10 @@ def test_cols_label_with_raises():
     with pytest.raises(ValueError) as exc_info:
         table.cols_label_with()
 
-    assert "Must provide the `fn=` parameter to use `cols_label_with()`." in exc_info.value.args[0]
+    assert (
+        "Must provide the `converter=` parameter to use `cols_label_with()`."
+        in exc_info.value.args[0]
+    )
 
 
 def test_cols_align_default():
