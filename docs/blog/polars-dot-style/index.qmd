@@ -31,11 +31,11 @@ As an experiment, we added support for Polars, and wrote a post called
 
 Curious in what folks thought, we dropped it in the Polars discord, and got some Great Feedback:
 
-![](discord-feedback.png){width=500}
+![](discord-feedback.jpg){width=500}
 
 But Ritchie Vink, the creator of Polars, knew we were harboring a shameful Pandas dependency secret:
 
-![](discord-why-pandas.png){width=500}
+![](discord-why-pandas.jpg){width=500}
 
 It's true, we had baked Pandas in as a dependency. We were just kids back then when starting Great Tables.
 We didn't realize that the world was moving to DataFrame agnostic support 😓.
@@ -55,13 +55,13 @@ Luckily, members of the Polars community, like Jerry Wu, showed up to make sure 
 
 For example, Jerry's first PR was ensuring we handled a Polars deprecation correctly.
 
-![](pr-jerry.png)
+![](pr-jerry.jpg)
 
 I really can't overstate how much we appreciate his help, and how critical it has been in ensuring we get the details right.
 
 In addition to his PRs, Jerry has done really Great Work sharing about table display. The most interesting example of this to me is that he discovered the Polars, Great Tables, and FastHTML work well together.
 
-![](linkedin-jerry.png){width=500px}
+![](linkedin-jerry.jpg){width=500px}
 
 Rich and I had no idea that was possible, and the FastHTML folks ended up adapting his example into an [entry on their gallery](https://fastht.ml/gallery/split_view?category=visualizations&project=great_tables_tables).
 
