@@ -72,11 +72,15 @@ With so much joy coming out of the Polars integration, and support from folks on
 
 This ultimately boiled down to asking: what would it take for the polars.DataFrame.style property to return a Great Tables object? I think this question was helpful for us, because it required us to take the perspective of Polars maintainers.
 
-Ultimately, Great Tables used a reasonable design for table styling, carried few dependencies, and was engineered such that it could be returned from a `DataFrame.style` property.
+After some discussion on discord, the big pieces folks needed were some sense that Great Tables used a reasonable approach to table styling, carried few dependencies, and was engineered such that it could be returned from a `DataFrame.style` property.
 
 ## Making `.style` work
 
-It seems like there were 3 pieces:
+[PR](https://github.com/pola-rs/polars/pull/16809)
+
+Feedback in April, PR in June, Merged in July
+
+It seems like there were 3 big requirements for making the case for `.DataFrame.style` returning a Great Tables object:
 
 * **Design Credibility**: It's clear Great Tables is reasonably thought out.
 * **Dependencies**: It adds only a few, lightweight dependencies.
@@ -85,23 +89,46 @@ It seems like there were 3 pieces:
 
 ### Design credibility
 
-One thing that drew me to Great Tables is the sheer amount of time Rich Iannone has spent researching table display. This might not be immediately obvious, because much of his work before Great Tables was on R libraries.
+One thing that drew me to Great Tables is the sheer amount of time Rich Iannone has spent researching table display. This might not be immediately obvious, because much of his work before Great Tables was on R libraries. Rich's version of Great Tables in R is called gt (2019; see his rstudio::conf() talk).
 
-But once you start digging, the history in R is kind of bananas. There is DT (2014), table1 (2017), flextable (2017), and reactable (2019). Rich's version of Great Tables in R is called gt (2019; see his rstudio::conf() talk). My favorite aspect of `gt` is that the community ran table contests every year. Rich's passion for tables is unleashed in the post Philosophy of Great Tables.
+My favorite aspect of `gt` is that the community ran **table contests** every year. The contests don't even require the use of `gt` or Great Tables, just a zest for the art of table styling. The [2024 Table Contest](https://posit.co/blog/2024-table-contest-winners/) had around **60 submissions**, and is something we often draw on for inspiration.
 
-Fred Hutch workshop.
+In terms of design inspiration, I think there are two big pieces:
+
+* **Use cases**: People often show off ways of laying out a table I wouldn't have thought of. It's helpful to grab a handful of cases and ask why some were laid on one way, and others another way.
+* **API desire paths**: Submissions sometimes workaround limitations with Great Tables. Sometimes the right way ends up looking a big clunky. And sometimes other tools do a better job.
+
+For more on table design, see [The Design Philosophy of Great Tables](https://posit-dev.github.io/great-tables/blog/design-philosophy/), or this [Fred Hutch better tables workshop](https://hutchdatascience.org/better_tables/).
 
 
-### Dependencies and technical work
+### Dependencies
 
-* BYODF
-* GT constructor property compat (`.tab_stub()`)
-* Working out selectors in Polars issue.
-* R pipe mention
+* Make Pandas an optional dependency.
+* [Clarifying use of Polars selectors](https://github.com/pola-rs/polars/issues/16448): unclear whether our use of Polars selectors was in-band.
+
+### Technical wiring work
+
+
+```{python}
+# | output: false
+import polars as pl
+from great_tables import GT
+from great_tables import exibble
+
+# create a GT object ----
+GT(exibble, id="my-table")
+
+# create GT object via .style property ----
+pl.DataFrame(exibble).style
+```
+
+Notice that the `DataFrame.style` property is special, in that you don't pass any parameters to it. This means that arguments like `GT(id=...)` need to be set some other way.
+
+As it turns out, allowing every options settable in the `GT()` constructor to be set somewhere else was not something anticipated in its design. But after some light architectural wrestling, we introduced `.tab_stub()`, `.with_id()`, and `.with_locale()` to capture arguments you might pass to `GT()`.
+
 
 ## What's next?
 
-* Someday: footnotes and summaries
 * Interactive tables
 * Table validation
 
