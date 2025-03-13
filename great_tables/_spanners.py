@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import copy
 import itertools
-from typing import TYPE_CHECKING
+from typing import Literal, TYPE_CHECKING
 import warnings
 
-from typing_extensions import TypeAlias
+from collections import defaultdict
+from dataclasses import dataclass
+from typing_extensions import TypeAlias, TypedDict
 
+from ._boxhead import cols_label
 from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
@@ -269,6 +273,167 @@ def tab_spanner(
     return new_data
 
 
+class _SpannerArgs(TypedDict):
+    label: str
+    columns: list[str]
+
+
+@dataclass
+class SpannerTransformer:
+    """
+    https://github.com/posit-dev/great-tables/pull/604
+    """
+
+    delim: str = "."
+    split: Literal["first", "last"] = "last"
+    limit: int = -1
+    reverse: bool = False
+
+    @staticmethod
+    def split_string(
+        s: str,
+        delim: str = ".",
+        split: Literal["first", "last"] = "last",
+        limit: int = -1,
+        reverse: bool = False,
+    ) -> list[str]:
+        # TODO: better guard
+        f_split = str.split if split == "first" else str.rsplit
+
+        res = f_split(s, delim, limit)
+        if reverse:
+            return list(reversed(res))
+
+        return res
+
+    def split_columns(self, columns: list[str]) -> dict[str, list[str]]:
+        d: dict[str, list[str]] = {}
+        for col in columns:
+            col_names = self.split_string(col, self.delim, self.split, self.limit, self.reverse)
+            d[col] = col_names
+        return d
+
+    @staticmethod
+    def get_rectangle(splits: dict[str, list[str]]) -> list[dict[str, str | None]]:
+        """Return a dictionary mapping col name to label for each spanner level.
+
+        Note that columns without a spanner at a given level are marked with None.
+        """
+        n_max = max(map(len, splits.values()))
+        framed = {k: [*v, *[None] * (n_max - len(v))] for k, v in splits.items()}
+
+        [{k: v[ii]} for k, v in framed.items() for ii in range(n_max)]
+
+    @staticmethod
+    def spanner_groups(cols: dict[str, str | None]) -> list[_SpannerArgs]:
+        labels_to_cols: dict[str, list[str]] = defaultdict(lambda: [])
+        for k, v in cols.items():
+            if v is None:
+                continue
+
+            labels_to_cols[v].append(k)
+
+        return [_SpannerArgs(label=k, columns=v) for k, v in labels_to_cols.items()]
+
+
+def tab_spanner_delim(
+    self: GTSelf,
+    delim: str = ".",
+    columns: SelectExpr = None,
+    split: Literal["first", "last"] = "last",
+    limit: int = -1,
+    reverse: bool = False,
+) -> GTSelf:
+    """
+    `tab_spanner_delim()` can take specially-crafted column names and generate one or more spanners
+    (and revise column labels at the same time). This is done by splitting the column name by the
+    specified delimiter text (delim) and placing the fragments from top to bottom (i.e.,
+    higher-level spanners to the column labels) or vice versa. Furthermore, neighboring text
+    fragments on different spanner levels that have the same text will be coalesced together.
+    For instance, having the three side-by-side column names rating_1, rating_2, and rating_3 will
+    (in the default case at least) result in a spanner with the label "rating" above columns with
+    the labels "1", "2", and "3".
+
+    Parameters
+    ----------
+    delim
+        Delimiter for splitting, default to `"."`.
+
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    split
+        Should the delimiter splitting occur from the "last" instance of the delim character or
+        from the "first"? The default here uses the "last" keyword, and splitting begins at the
+        last instance of the delimiter in the column name. This option only has some consequence
+        when there is a limit value applied that is lesser than the number of delimiter characters
+        for a given column name (i.e., number of splits is not the maximum possible number).
+
+    limit
+        Limit for splitting. An optional limit to place on the splitting procedure. The default -1
+        means that a column name will be split as many times are there are delimiter characters.
+        In other words, the default means there is no limit. If an integer value is given to limit
+        then splitting will cease at the iteration given by limit. This works in tandem with split
+        since we can adjust the number of splits from either the right side (split = "last") or
+        left side (split = "first") of the column name.
+
+    reverse
+        Should the order of split names be reversed? By default, this is `False`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's create a table table that includes the column names province.NL_ZH.pop, province.NL_ZH.gdp,
+    province.NL_NH.pop, and province.NL_NH.gdp, we can see that we have a naming system that has
+    a well-defined structure. We start with the more general to the left ("province") and move to
+    the more specific on the right ("pop"). If the columns are in the table in this exact order,
+    then things are in an ideal state as the eventual spanner labels will form from this neighboring.
+    When using tab_spanner_delim() here with delim set as "." we get the following table:
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT
+
+    data = {
+        "province.NL_ZH.pop": [1, 2, 3],
+        "province.NL_ZH.gdp": [4, 5, 6],
+        "province.NL_NH.pop": [7, 8, 9],
+        "province.NL_NH.gdp": [10, 11, 12],
+    }
+
+    gt = GT(pl.DataFrame(data))
+    gt.tab_spanner_delim()
+    ```
+    """
+
+    sel_cols = resolve_cols_c(data=self, expr=columns)
+
+    spter = SpannerTransformer(delim=delim, split=split, limit=limit, reverse=reverse)
+
+    # TODO: validate, and wrap rect in dataclass
+    # since there are constraints, like level 0 (labels) can't be None
+    rect = spter.get_rectangle(spter.split_columns(sel_cols))
+
+    new_obj = copy.copy(self)
+
+    # for `first_col`, call `.cols_label()`
+    new_obj = cols_label(new_obj, {k: v for k, v in rect[0].items() if v is not None})
+
+    # for `other_cols`, call `.tab_spanner()`
+
+    for col_labels in rect[1:]:
+        spanner_cfgs = spter.spanner_groups(col_labels)
+        for cfg in spanner_cfgs:
+            new_obj = tab_spanner(new_obj, **cfg)
+    return new_obj
+
+
 def _validate_sel_cols(sel_cols: list[str], col_vars: list[str]) -> None:
     if not len(sel_cols):
         raise Exception("No columns selected.")
@@ -353,7 +518,11 @@ def cols_move(self: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
     other_columns = [col for col in col_vars if col not in moving_columns]
 
     indx = other_columns.index(after)
-    final_vars = [*other_columns[: indx + 1], *moving_columns, *other_columns[indx + 1 :]]
+    final_vars = [
+        *other_columns[: indx + 1],
+        *moving_columns,
+        *other_columns[indx + 1 :],
+    ]
 
     new_boxhead = self._boxhead.reorder(final_vars)
     return self._replace(_boxhead=new_boxhead)
