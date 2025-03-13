@@ -5,11 +5,12 @@ import itertools
 from typing import Literal, TYPE_CHECKING
 import warnings
 
-from typing_extensions import TypeAlias
+from collections import defaultdict
+from dataclasses import dataclass
+from typing_extensions import TypeAlias, TypedDict
 
 from ._boxhead import cols_label
 from ._gt_data import SpannerInfo, Spanners
-from ._helpers import random_id
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
 from ._text import BaseText, Text
@@ -272,63 +273,67 @@ def tab_spanner(
     return new_data
 
 
+class _SpannerArgs(TypedDict):
+    label: str
+    columns: list[str]
+
+
+@dataclass
 class SpannerTransformer:
     """
     https://github.com/posit-dev/great-tables/pull/604
     """
 
-    def __init__(
-        self,
-        columns: list[str],
+    delim: str = "."
+    split: Literal["first", "last"] = "last"
+    limit: int = -1
+    reverse: bool = False
+
+    @staticmethod
+    def split_string(
+        s: str,
         delim: str = ".",
         split: Literal["first", "last"] = "last",
         limit: int = -1,
         reverse: bool = False,
-    ):
-        self._columns = columns
-        self._delim = delim
-        self._split = split
-        self._limit = limit
-        self._reverse = reverse
+    ) -> list[str]:
+        # TODO: better guard
+        f_split = str.split if split == "first" else str.rsplit
 
-        self._split_func = self._get_split_func()
-        self._d: dict[str, list[str]] = {}
-        self._rectangle: list[list[str]] = []
+        res = f_split(s, delim, limit)
+        if reverse:
+            return list(reversed(res))
 
-    def _get_split_func(self):
-        if self._split == "first":
-            split_ = "split"
-        elif self._split == "last":
-            split_ = "rsplit"
-        else:
-            raise ValueError("The `split=` parameter accepts only `first` or `last` as input.")
-        return getattr(str, split_)
+        return res
 
-    def split(self):
-        if not self._d:
-            for col in self._columns:
-                col_names = self._split_func(col, self._delim, self._limit)  # split for one column
-                if self._reverse:
-                    col_names = col_names[::-1]
-                self._d[col] = col_names
-        return self._d
+    def split_columns(self, columns: list[str]) -> dict[str, list[str]]:
+        d: dict[str, list[str]] = {}
+        for col in columns:
+            col_names = self.split_string(col, self.delim, self.split, self.limit, self.reverse)
+            d[col] = col_names
+        return d
 
-    def get_rectangle(self):
-        if not self._rectangle:
-            d = self.split()  # get the intermediate representation
-            values = [list(v) for v in itertools.zip_longest(*d.values())]
-            if self._reverse:
-                self._rectangle = [list(d.keys()), *values]
-            else:
-                self._rectangle = [list(d.keys()), *values[::-1]]
-        return self._rectangle
+    @staticmethod
+    def get_rectangle(splits: dict[str, list[str]]) -> list[dict[str, str | None]]:
+        """Return a dictionary mapping col name to label for each spanner level.
 
-    def __repr__(self):
-        cls_name = type(self).__name__
-        return (
-            f"{cls_name}(columns={self._columns!r}, delim={self._delim!r}, "
-            + f"split={self._split!r}, limit={self._limit}, reverse={self._reverse})"
-        )
+        Note that columns without a spanner at a given level are marked with None.
+        """
+        n_max = max(map(len, splits.values()))
+        framed = {k: [*v, *[None] * (n_max - len(v))] for k, v in splits.items()}
+
+        [{k: v[ii]} for k, v in framed.items() for ii in range(n_max)]
+
+    @staticmethod
+    def spanner_groups(cols: dict[str, str | None]) -> list[_SpannerArgs]:
+        labels_to_cols: dict[str, list[str]] = defaultdict(lambda: [])
+        for k, v in cols.items():
+            if v is None:
+                continue
+
+            labels_to_cols[v].append(k)
+
+        return [_SpannerArgs(label=k, columns=v) for k, v in labels_to_cols.items()]
 
 
 def tab_spanner_delim(
@@ -409,26 +414,23 @@ def tab_spanner_delim(
 
     sel_cols = resolve_cols_c(data=self, expr=columns)
 
-    spter = SpannerTransformer(
-        delim=delim, columns=sel_cols, split=split, limit=limit, reverse=reverse
-    )
-    col_names, first_col, *other_cols = spter.get_rectangle()
+    spter = SpannerTransformer(delim=delim, split=split, limit=limit, reverse=reverse)
+
+    # TODO: validate, and wrap rect in dataclass
+    # since there are constraints, like level 0 (labels) can't be None
+    rect = spter.get_rectangle(spter.split_columns(sel_cols))
 
     new_obj = copy.copy(self)
 
     # for `first_col`, call `.cols_label()`
-    new_obj = cols_label(new_obj, dict(zip(col_names, first_col)))
+    new_obj = cols_label(new_obj, {k: v for k, v in rect[0].items() if v is not None})
 
     # for `other_cols`, call `.tab_spanner()`
-    for level, col_labels in enumerate(other_cols, start=1):
-        for col_name, col_label in zip(col_names, col_labels):
-            new_obj = tab_spanner(
-                new_obj,
-                label=col_label,
-                columns=col_name,
-                level=level,
-                id=random_id(),  # good?
-            )
+
+    for col_labels in rect[1:]:
+        spanner_cfgs = spter.spanner_groups(col_labels)
+        for cfg in spanner_cfgs:
+            new_obj = tab_spanner(new_obj, **cfg)
     return new_obj
 
 
