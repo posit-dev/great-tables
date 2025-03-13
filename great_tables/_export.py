@@ -9,7 +9,6 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
-from css_inline import inline, inline_fragment
 from typing_extensions import TypeAlias
 
 from ._helpers import random_id
@@ -217,39 +216,36 @@ def as_raw_html(
     gt_tbl.as_raw_html(inline_css=True)
     ```
     """
+
     built_table = self._build_data(context="html")
-
-    if not inline_css:
-        html_table = built_table._render_as_html(
-            make_page=make_page,
-            all_important=all_important,
-        )
-
-        return html_table
 
     table_html = built_table._render_as_html(
         make_page=make_page,
         all_important=all_important,
     )
 
-    if make_page:
-        inlined = inline(html=table_html)
+    if inline_css:
+        _try_import(name="css_inline", pip_install_line="pip install css-inline")
+        from css_inline import inline, inline_fragment
 
-    else:
-        # Obtain the `table_id` value from the Options (might be set, might be None)
-        table_id = self._options.table_id.value
+        if make_page:
+            return inline(html=table_html)
 
-        if table_id is None:
-            id = random_id()
         else:
-            id = table_id
+            # Obtain the `table_id` value from the Options (might be set, might be None)
+            table_id = self._options.table_id.value
 
-        # Compile the SCSS as CSS
-        table_css = str(compile_scss(self, id=id, compress=False, all_important=all_important))
+            if table_id is None:
+                id = random_id()
+            else:
+                id = table_id
 
-        inlined = inline_fragment(html=table_html, css=table_css)
+            # Compile the SCSS as CSS
+            table_css = str(compile_scss(self, id=id, compress=False, all_important=all_important))
 
-    return inlined
+            return inline_fragment(html=table_html, css=table_css)
+
+    return table_html
 
 
 def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) -> str:
@@ -431,8 +427,6 @@ def save(
     ```
 
     """
-    import base64
-
     # Import the required packages
     _try_import(name="selenium", pip_install_line="pip install selenium")
 
@@ -451,10 +445,17 @@ def save(
     wdriver = _get_web_driver(web_driver)
 
     # run browser ----
-    with wdriver(debug_port=debug_port) as headless_browser:
+    with (
+        tempfile.TemporaryDirectory() as tmp_dir,
+        wdriver(debug_port=debug_port) as headless_browser,
+    ):
+        # Write the HTML content to the temp file
+        with open(f"{tmp_dir}/table.html", "w", encoding=encoding) as temp_file:
+            temp_file.write(html_content)
+
+        # Open the HTML file in the headless browser
         headless_browser.set_window_size(*window_size)
-        encoded = base64.b64encode(html_content.encode(encoding=encoding)).decode(encoding=encoding)
-        headless_browser.get(f"data:text/html;base64,{encoded}")
+        headless_browser.get("file://" + temp_file.name)
 
         _save_screenshot(headless_browser, scale, file, debug=_debug_dump)
 
@@ -566,6 +567,7 @@ def write_raw_html(
     gt: GT,
     filename: str | Path,
     encoding: str = "utf-8",
+    inline_css: bool = False,
     newline: str | None = None,
     make_page: bool = False,
     all_important: bool = False,
@@ -584,6 +586,10 @@ def write_raw_html(
         The name of the file to save the HTML. Can be a string or a `pathlib.Path` object.
     encoding
         The encoding used when writing the file. Defaults to 'utf-8'.
+    inline_css
+        An option to supply styles to table elements as inlined CSS styles. This is useful when
+        including the table HTML as part of an HTML email message body, since inlined styles are
+        largely supported in email clients over using CSS in a `<style>` block.
     newline
         The newline character to use when writing the file. Defaults to `os.linesep`.
     Returns
@@ -593,7 +599,9 @@ def write_raw_html(
     """
     import os
 
-    html_content = as_raw_html(gt, make_page=make_page, all_important=all_important)
+    html_content = as_raw_html(
+        gt, inline_css=inline_css, make_page=make_page, all_important=all_important
+    )
 
     newline = newline if newline is not None else os.linesep
 

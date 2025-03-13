@@ -3,8 +3,9 @@ from __future__ import annotations
 from typing import Any, Callable
 
 import numpy as np
+
 from ._tbl_data import Agnostic, is_na
-from ._utils import _match_arg, _flatten_list
+from ._utils import _flatten_list, _match_arg
 
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
 
@@ -121,7 +122,7 @@ def _format_number_compactly(
     Format a single numeric value compactly, using a currency if provided.
     """
 
-    from great_tables.vals import fmt_currency, fmt_scientific, fmt_integer, fmt_number
+    from great_tables.vals import fmt_currency, fmt_integer, fmt_number, fmt_scientific
 
     if fn is not None and isinstance(fn, Callable):
         res = fn(val)
@@ -912,7 +913,9 @@ def _generate_nanoplot(
     # there are no x values, generate equally-spaced x values according
     # to the number of y values
     if plot_type == "line" and x_vals is not None:
-        if expand_x is not None and _val_is_str(expand_x):
+        if isinstance(expand_x, str) or (
+            isinstance(expand_x, list) and any(isinstance(item, str) for item in expand_x)
+        ):
             # TODO: the line below lacked tests, and called non-existent methods.
             # replace with something that doesn't use pandas and returns the correct thing.
 

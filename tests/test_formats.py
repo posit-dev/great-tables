@@ -1116,6 +1116,44 @@ def test_format_number_with_sep_dec_marks():
 
 
 # ------------------------------------------------------------------------------
+# Tests of `fmt_scientific()`
+# ------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "fmt_scientific_kwargs,x_in,x_out",
+    [
+        (dict(decimals=2), [123456789], ["1.23 × 10<sup style='font-size: 65%;'>8</sup>"]),
+        (dict(exp_style="low-ten"), [123456789], ["1.23<sub style='font-size: 65%;'>10</sub>08"]),
+        (dict(exp_style="E"), [123456789, 123123123123], ["1.23E08", "1.23E11"]),
+        (dict(exp_style="E1"), [123456789, 123123123123], ["1.23E8", "1.23E11"]),
+        (
+            dict(exp_style="E", force_sign_n=True),
+            [123456789, 123123123123],
+            ["1.23E+08", "1.23E+11"],
+        ),
+        (
+            dict(exp_style="E1", force_sign_n=True),
+            [123456789, 123123123123],
+            ["1.23E+8", "1.23E+11"],
+        ),
+        (
+            dict(exp_style="E", n_sigfig=5),
+            [123456789, 123123123123],
+            ["1.2346E08", "1.2312E11"],
+        ),
+    ],
+)
+def test_fmt_scientific_case(
+    fmt_scientific_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]
+):
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_scientific(columns="x", **fmt_scientific_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+# ------------------------------------------------------------------------------
 # Tests of `fmt_currency()`
 # ------------------------------------------------------------------------------
 
@@ -1870,7 +1908,6 @@ df_fmt_nanoplot_multi = pl.DataFrame(
     }
 )
 
-
 FMT_NANOPLOT_CASES: list[dict[str, Any]] = [
     # 1. default case
     dict(),
@@ -2232,6 +2269,48 @@ def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
             ("stroke-width", "2"),
             ("fill", "#A6E6F2"),
             ("fill-opacity", "0.8"),
+        ],
+    )
+
+
+# Test category 8: Line-based nanoplot, multiple values per row, reference line and reference area
+def test_fmt_nanoplot_x_y_vals():
+    df_fmt_nanoplot_multi_xy = pl.DataFrame(
+        {
+            "vals": [
+                {
+                    "x": [6.1, 8.0],
+                    "y": [24.2, 28.2],
+                },
+            ]
+        }
+    )
+
+    gt = GT(df_fmt_nanoplot_multi_xy).fmt_nanoplot(
+        columns="vals",
+        plot_type="line",
+        **FMT_NANOPLOT_CASES[8],
+    )
+
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="polyline",
+        attrs=[
+            ("stroke", "#4682B4"),
+            ("stroke-width", "8"),
+            ("fill", "none"),
         ],
     )
 

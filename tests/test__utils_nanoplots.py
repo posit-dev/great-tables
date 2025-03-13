@@ -1,5 +1,7 @@
 import numpy as np
 import pytest
+import polars as pl
+from great_tables import GT, nanoplot_options
 
 
 from typing import Any, Union
@@ -223,7 +225,7 @@ def test_calc_ref_value(name: str, dst: float):
         (1.2363423e-23, "1.2E−23"),
         (1.9001e-20, "1.9E−20"),
         (1.243234e-10, "1.2E−10"),
-        (0.002345322, "2.3E−30"),
+        (0.002345322, "2.3E−03"),
         (0.074234, "0.074"),
         (0.32923, "0.33"),
         (0.3, "0.30"),
@@ -265,7 +267,7 @@ def test_format_number_compactly_basic(num: float, dst: str):
         (1.2363423e-23, "1.2E−23"),
         (1.9001e-20, "1.9E−20"),
         (1.243234e-10, "1.2E−10"),
-        (0.002345322, "2.3E−30"),
+        (0.002345322, "2.3E−03"),
         (0.074234, "0"),
         (0.32923, "0"),
         (0.3, "0"),
@@ -2036,3 +2038,26 @@ def test_get_n_intlike(nums: list[Any], n: int):
 )
 def test_remove_exponent(n: "int | float | str", result: int):
     assert _remove_exponent(n) == result
+
+
+def test_noerror_list_of_strings() -> None:
+    random_numbers_df = pl.DataFrame(
+        {
+            "example": ["Row " + str(x) for x in range(1, 5)],
+            "numbers": [
+                "20 23 6",
+                "2.3 6.8 9.2",
+                "-12 -5 6",
+                "2 0 15",
+            ],
+        }
+    )
+
+    GT(random_numbers_df).fmt_nanoplot(
+        columns="numbers",
+        options=nanoplot_options(
+            data_point_radius=5,
+            data_point_stroke_color=["black", "red", "black"],
+            show_data_area=False,
+        ),
+    )
