@@ -1,4 +1,3 @@
-import pickle
 import sys
 import tempfile
 import time
@@ -163,6 +162,8 @@ def test_snap_as_latex(snapshot):
 
 
 def test_pickle():
+    import pickle
+
     import polars as pl
     from polars.testing import assert_frame_equal
 
