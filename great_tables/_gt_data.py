@@ -283,7 +283,10 @@ class Boxhead(_Sequence[ColInfo]):
         rowname_col: str | None = None,
         groupname_col: str | None = None,
     ):
-        pass
+        self._data = data
+
+    def __getnewargs__(self):
+        return (self._data,)
 
     def set_stub_cols(self, rowname_col: str | None, groupname_col: str | None) -> Self:
         # Note that None unsets a column
