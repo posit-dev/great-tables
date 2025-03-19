@@ -661,10 +661,6 @@ def fmt_scientific(
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    sep_mark
-        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
-        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
-        ignored if a `locale` is supplied (i.e., is not `None`).
     dec_mark
         The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
         `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
@@ -694,8 +690,7 @@ def fmt_scientific(
     This formatting method can adapt outputs according to a provided `locale` value. Examples
     include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
     locale ID here means separator and decimal marks will be correct for the given locale. Should
-    any values be provided in `sep_mark` or `dec_mark`, they will be overridden by the locale's
-    preferred values.
+    a value be provided in `dec_mark` it will be overridden by the locale's preferred values.
 
     Note that a `locale` value provided here will override any global locale setting performed in
     [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
@@ -723,14 +718,9 @@ def fmt_scientific(
     a single numerical value (or a list of them).
     """
 
-    # Set a default value for `use_seps`; these separators are only used for very
-    # large exponent values
-    use_seps = True
-
     locale = _resolve_locale(self, locale=locale)
 
-    # Use locale-based marks if a locale ID is provided
-    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    # Use a locale-based decimal mark if a locale ID is provided
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     pf_format = partial(
@@ -742,7 +732,6 @@ def fmt_scientific(
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         scale_by=scale_by,
         exp_style=exp_style,
-        sep_mark=sep_mark,
         dec_mark=dec_mark,
         force_sign_m=force_sign_m,
         force_sign_n=force_sign_n,
@@ -762,7 +751,6 @@ def fmt_scientific_context(
     drop_trailing_dec_mark: bool,
     scale_by: float,
     exp_style: str,
-    sep_mark: str,
     dec_mark: str,
     force_sign_m: bool,
     force_sign_n: bool,
@@ -2030,6 +2018,7 @@ def fmt_time(
         time_format_str=time_format_str,
         pattern=pattern,
         locale=locale,
+        context=None,  # Ensure the 'context' parameter is explicitly handled
     )
 
     return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
