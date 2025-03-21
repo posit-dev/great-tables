@@ -23,7 +23,7 @@ gt_pl_air = GT(pl.from_pandas(air_head))
 
 
 :::{.callout-note}
-When using Great Tables with VS Code, some forms of table styling can be suppressed by the IDE's special handling of table outputs. For this reason, it's strongly recommended that `.show("browser")` be called on GT objects when using VS Code.
+When using Great Tables with VS Code, the IDE suppresses some forms of table styling displayed in notebooks. For example, border styles might not appear. Use `.show("browser")` to see the styled GT table in a separate browser window.
 :::
 
 ## Style basics
