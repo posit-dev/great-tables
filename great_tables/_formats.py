@@ -2110,6 +2110,10 @@ def fmt_datetime(
         The time style to use. By default this is the short name `"iso"` which corresponds to how
         times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
         their short names can be viewed using `info_time_style()`.
+    format_str
+        A string that specifies the format of the datetime string. This is a `strftime()` format
+        string that can be used to format date or datetime input. If `format` is provided, the
+        `date_style=` and `time_style=` arguments are ignored.
 
     Formatting with the `date_style` and `time_style` arguments
     ------------------------------------------------------------
