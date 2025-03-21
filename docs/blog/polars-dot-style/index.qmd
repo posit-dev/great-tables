@@ -109,7 +109,7 @@ For more on the long history of table design, see [The Design Philosophy of Grea
 ### Dependencies
 
 Making dependencies optional was a fairly quick, mundane engineering task (discussed in this [Bring Your Own DataFrame post](../bring-your-own-df/index.qmd)).
-However, one important related task was making sure we were using Polars in a way that wouldn't break down the road.
+However, one important related task was **sorting out how we use Polars selectors**, to ensure they didn't break down the road.
 
 For example, Great Tables allows Polars selectors to set styles on specific columns data.
 However, one challenge we ran into was figuring out what Polars considers an expression versus a selector.
