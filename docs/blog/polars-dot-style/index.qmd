@@ -40,7 +40,7 @@ But Ritchie Vink, the creator of Polars, knew we were harboring a shameful Panda
 It's true, we had baked Pandas in as a dependency. We were just kids back then when starting Great Tables.
 We didn't realize that the world was moving to DataFrame agnostic support 😓.
 
-But more we used Polars with Great Tables, the happier we were.
+But the more we used Polars with Great Tables, the happier we were.
 So we made some architectural tweaks to make Great Tables [BYODF (Bring Your Own DataFrame)](./bring-your-own-df/index.qmd).
 With these changes, Polars users could install and use Great Tables without pulling in an unnecessary
 dependency on another DataFrame library (Pandas).
@@ -73,6 +73,7 @@ With so much joy coming out of the Polars integration, and support from folks on
 This ultimately boiled down to asking: what would it take for the polars.DataFrame.style property to return a Great Tables object? I think this question was helpful for us, because it required us to take the perspective of Polars maintainers.
 
 After some discussion on discord, the big pieces folks needed were some sense that Great Tables used a reasonable approach to table styling, carried few dependencies, and was engineered such that it could be returned from a `DataFrame.style` property.
+Ultimately, the next four months were spent getting Great Tables up to snuff, and the Polars PR merged.
 
 ## Making `.style` work
 
@@ -80,7 +81,7 @@ After some discussion on discord, the big pieces folks needed were some sense th
 
 Feedback in April, PR in June, Merged in July
 
-It seems like there were 3 big requirements for making the case for `.DataFrame.style` returning a Great Tables object:
+In this section I'll look at how we addressed the 3 big requirements behind making a strong case for `.DataFrame.style` returning a Great Tables object:
 
 * **Design Credibility**: It's clear Great Tables is reasonably thought out.
 * **Dependencies**: It adds only a few, lightweight dependencies.
@@ -89,7 +90,11 @@ It seems like there were 3 big requirements for making the case for `.DataFrame.
 
 ### Design credibility
 
-One thing that drew me to Great Tables is the sheer amount of time Rich Iannone has spent researching table display. This might not be immediately obvious, because much of his work before Great Tables was on R libraries. Rich's version of Great Tables in R is called gt (2019; see his rstudio::conf() talk).
+Our biggest hurdle was that the Great Tables library was less than a year old.
+However, this youthful appearance is a bit misleading, because Great Tables builds on decades of
+table design and tooling.
+
+One thing that drew me to Great Tables is the sheer amount of time Rich Iannone has spent researching table display. This might not be immediately obvious, because much of his work before Great Tables was on R libraries. For example, Rich's version of Great Tables in R is called gt (2019; see his rstudio::conf() talk).
 
 My favorite aspect of `gt` is that the community ran **table contests** every year. The contests don't even require the use of `gt` or Great Tables, just a zest for the art of table styling. The [2024 Table Contest](https://posit.co/blog/2024-table-contest-winners/) had around **60 submissions**, and is something we often draw on for inspiration.
 
@@ -98,16 +103,59 @@ In terms of design inspiration, I think there are two big pieces:
 * **Use cases**: People often show off ways of laying out a table I wouldn't have thought of. It's helpful to grab a handful of cases and ask why some were laid on one way, and others another way.
 * **API desire paths**: Submissions sometimes workaround limitations with Great Tables. Sometimes the right way ends up looking a big clunky. And sometimes other tools do a better job.
 
-For more on table design, see [The Design Philosophy of Great Tables](https://posit-dev.github.io/great-tables/blog/design-philosophy/), or this [Fred Hutch better tables workshop](https://hutchdatascience.org/better_tables/).
+For more on the long history of table design, see [The Design Philosophy of Great Tables](https://posit-dev.github.io/great-tables/blog/design-philosophy/), or this [Fred Hutch better tables workshop](https://hutchdatascience.org/better_tables/).
 
 
 ### Dependencies
 
-* Make Pandas an optional dependency.
-* [Clarifying use of Polars selectors](https://github.com/pola-rs/polars/issues/16448): unclear whether our use of Polars selectors was in-band.
+Making dependencies optional was a fairly quick, mundane engineering task (discussed in this [Bring Your Own DataFrame post](../bring-your-own-df/index.qmd)).
+However, one important related task was making sure we were using Polars in a way that wouldn't break down the road.
+
+For example, Great Tables allows Polars selectors to set styles on specific columns data.
+However, one challenge we ran into was figuring out what Polars considers an expression versus a selector.
+Essentially, selectors choose columns, but expressions represent operations on the data itself.
+
+The code below shows cases where the `.exclude()` results in expressions or selectors.
+
+```{python}
+# | output: false
+import polars as pl
+import polars.selectors as cs
+
+# selector: all columns except "a"
+cs.exclude("a")
+
+# expression: same columns as above ¯\_(ツ)_/¯
+cs.all().exclude("a")
+```
+
+After discussing with Polars folks [in this Polars issue](https://github.com/pola-rs/polars/issues/16448),
+we landed on **4 rules for selectors**:
+
+| rule | description | example |
+| --- | ------ | ---- |
+| `cs` functions | top-level `cs` selection functions -> **selector** | `cs.starts_with("a")` |
+| infix selectors | infix operators over all selectors -> **selector** | `cs.starts_with("a") - cs.by_name("abc")` |
+| infix expressions | infix operators over any non-selectors -> **expression** | `cs.starts_with("a") - "abc"` |
+| method expressions | method calls off selectors -> **expression** | `cs.all().exclude("a")` |
+
+Clarifying this was critical in Great Tables, because in some place we only accept selectors, so
+we needed to be able to articulate to users how to produce them.
+
 
 ### Technical wiring work
 
+The last hurdle was tweaking the `great_tables.GT` class to fit the flow of `DataFrame.style`.
+For example, here is what creating a `GT()` object looked like before and after `.style`:
+
+* Before: `GT(my_data, id="my-table")`
+* After: `my_data.style.with_id("my-table")`
+
+Notice that before, the `GT(id=...)` argument could set the html id for a table.
+However, `DataFrame.style` is a property that can't take arguments, so we needed methods like `with_id()`
+to set these kinds of options.
+
+Here's a full code example, in case you want to see it in action.
 
 ```{python}
 # | output: false
@@ -122,15 +170,29 @@ GT(exibble, id="my-table")
 pl.DataFrame(exibble).style
 ```
 
-Notice that the `DataFrame.style` property is special, in that you don't pass any parameters to it. This means that arguments like `GT(id=...)` need to be set some other way.
+The `DataFrame.style` property is special, in that you don't pass any parameters to it.
+The motivation for this in Polars is that it matches the Pandas `pandas.DataFrame.style` approach,
+so provides a familiar interface for users coming from that package.
+It also matches the `DataFrame.plot` flow of both packages.
 
-As it turns out, allowing every options settable in the `GT()` constructor to be set somewhere else was not something anticipated in its design. But after some light architectural wrestling, we introduced `.tab_stub()`, `.with_id()`, and `.with_locale()` to capture arguments you might pass to `GT()`.
+As it turns out, allowing every options settable in the `GT()` constructor to be set somewhere else was not something anticipated in the design of Great Tables. But after some light architectural wrestling, we introduced `.tab_stub()`, `.with_id()`, and `.with_locale()` to capture arguments you might pass to `GT()`.
 
 
 ## What's next?
 
-* Interactive tables
-* Table validation
+Currently, we're really excited about using Great Tables in different ways!
 
+* [Pointblank](https://github.com/posit-dev/pointblank): validate your DataFrames and database tables. Pointblank is quick to fire up and produces delightfully styled reports (using Great Tables 😎).
+* [reactable](https://github.com/machow/reactable-py): create interactive tables. We want to use reactable to render a Great Tables object interactively.
+
+We're also focused on keeping bug fixes and features cooking in Great Tables. If there's anything
+in particular you're looking for, definitely reach out on the [Great Tables discussion page](https://github.com/posit-dev/great-tables/discussions).
 
 ## In conclusion
+
+This post looked at how interacting with the Polars community discord shaped Great Tables development early on, and how community members like Jerry ended up ensuring Great Tables and Polars played well together.
+We ended up putting a ring on it, and ensuring Great Tables design, dependencies, and architecture worked
+well enough to justify returning via `polars.DataFrame.style`. (Though not this is still marked unstable in Polars!).
+
+We're excited to look at different use cases for Great Tables (and table styling in general) over the
+next year!
