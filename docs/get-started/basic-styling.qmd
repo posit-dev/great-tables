@@ -21,6 +21,11 @@ gt_air = GT(air_head)
 gt_pl_air = GT(pl.from_pandas(air_head))
 ```
 
+
+:::{.callout-note}
+When using Great Tables with VS Code, the IDE suppresses some forms of table styling displayed in notebooks. For example, border styles might not appear. Use `.show("browser")` to see the styled GT table in a separate browser window.
+:::
+
 ## Style basics
 
 We use the [`tab_style()`](`great_tables.GT.tab_style`) method in combination with [`loc.body()`](`great_tables.loc.body`) to set styles on cells of data in the table body. For example, the table-making code below applies a yellow background color to specific cells.
