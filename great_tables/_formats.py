@@ -2081,6 +2081,7 @@ def fmt_datetime(
     rows: int | list[int] | None = None,
     date_style: DateStyle = "iso",
     time_style: TimeStyle = "iso",
+    format_str: str | None = None,
     sep: str = " ",
     pattern: str = "{x}",
     locale: str | None = None,
@@ -2109,6 +2110,10 @@ def fmt_datetime(
         The time style to use. By default this is the short name `"iso"` which corresponds to how
         times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
         their short names can be viewed using `info_time_style()`.
+    format_str
+        A string that specifies the format of the datetime string. This is a `strftime()` format
+        string that can be used to format date or datetime input. If `format` is provided, the
+        `date_style=` and `time_style=` arguments are ignored.
 
     Formatting with the `date_style` and `time_style` arguments
     ------------------------------------------------------------
@@ -2194,6 +2199,7 @@ def fmt_datetime(
         data=self,
         date_format_str=date_format_str,
         time_format_str=time_format_str,
+        format_str=format_str,
         sep=sep,
         pattern=pattern,
         locale=locale,
@@ -2207,6 +2213,7 @@ def fmt_datetime_context(
     data: GTData,
     date_format_str: str,
     time_format_str: str,
+    format_str: str | None,
     sep: str,
     pattern: str,
     locale: str | None,
@@ -2215,26 +2222,36 @@ def fmt_datetime_context(
     if is_na(data._tbl_data, x):
         return x
 
-    # From the date and time format strings, create a datetime format string
-    datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
+    if format_str is not None:
+        # If `x` is a string, assume it is an ISO datetime string and convert
+        # it to a datetime object
+        if isinstance(x, str):
+            # Convert the ISO datetime string to a datetime object
+            x = _iso_str_to_datetime(x)
 
-    # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
-    if isinstance(x, str):
-        # Convert the ISO datetime string to a datetime object
-        x = _iso_str_to_datetime(x)
+        x_formatted = x.strftime(format_str)
 
     else:
-        # Stop if `x` is not a valid datetime object
-        _validate_datetime_obj(x=x)
+        # From the date and time format strings, create a datetime format string
+        datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
 
-    # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
-    if locale is None:
-        locale = "en_US"
-    else:
-        locale = _str_replace(locale, "-", "_")
+        # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
+        if isinstance(x, str):
+            # Convert the ISO datetime string to a datetime object
+            x = _iso_str_to_datetime(x)
 
-    # Format the datetime object to a string using Babel's `format_datetime()` function
-    x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
+        else:
+            # Stop if `x` is not a valid datetime object
+            _validate_datetime_obj(x=x)
+
+        # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
+        if locale is None:
+            locale = "en_US"
+        else:
+            locale = _str_replace(locale, "-", "_")
+
+        # Format the datetime object to a string using Babel's `format_datetime()` function
+        x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":

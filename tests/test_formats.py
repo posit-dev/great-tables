@@ -1299,6 +1299,28 @@ def test_fmt_datetime():
     ]
 
 
+def test_fmt_datetime_format_str():
+    df = pd.DataFrame(
+        {
+            "x": [
+                "2013-05-15 23:15",
+                "2020-05-20",
+            ],
+        }
+    )
+
+    gt = GT(df).fmt_datetime(
+        columns="x",
+        format_str="%A, %B %d, %Y at %I:%M %p",
+    )
+
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == [
+        "Wednesday, May 15, 2013 at 11:15 PM",
+        "Wednesday, May 20, 2020 at 12:00 AM",
+    ]
+
+
 def test_fmt_datetime_bad_date_style_raises():
     df = pd.DataFrame(
         {
