@@ -2222,26 +2222,36 @@ def fmt_datetime_context(
     if is_na(data._tbl_data, x):
         return x
 
-    # From the date and time format strings, create a datetime format string
-    datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
+    if format_str is not None:
+        # If `x` is a string, assume it is an ISO datetime string and convert
+        # it to a datetime object
+        if isinstance(x, str):
+            # Convert the ISO datetime string to a datetime object
+            x = _iso_str_to_datetime(x)
 
-    # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
-    if isinstance(x, str):
-        # Convert the ISO datetime string to a datetime object
-        x = _iso_str_to_datetime(x)
+        x_formatted = x.strftime(format_str)
 
     else:
-        # Stop if `x` is not a valid datetime object
-        _validate_datetime_obj(x=x)
+        # From the date and time format strings, create a datetime format string
+        datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
 
-    # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
-    if locale is None:
-        locale = "en_US"
-    else:
-        locale = _str_replace(locale, "-", "_")
+        # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
+        if isinstance(x, str):
+            # Convert the ISO datetime string to a datetime object
+            x = _iso_str_to_datetime(x)
 
-    # Format the datetime object to a string using Babel's `format_datetime()` function
-    x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
+        else:
+            # Stop if `x` is not a valid datetime object
+            _validate_datetime_obj(x=x)
+
+        # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
+        if locale is None:
+            locale = "en_US"
+        else:
+            locale = _str_replace(locale, "-", "_")
+
+        # Format the datetime object to a string using Babel's `format_datetime()` function
+        x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
