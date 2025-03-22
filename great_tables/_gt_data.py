@@ -285,6 +285,9 @@ class Boxhead(_Sequence[ColInfo]):
     ):
         pass
 
+    def __getnewargs__(self):
+        return (self._d,)
+
     def set_stub_cols(self, rowname_col: str | None, groupname_col: str | None) -> Self:
         # Note that None unsets a column
         # TODO: validate that rowname_col is in the boxhead
