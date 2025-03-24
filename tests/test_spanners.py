@@ -490,6 +490,9 @@ def test_tab_spanner_delim_level_one():
     assert info2.spanner_id == "span_2"
     assert info2.spanner_level == 0
 
+    # note that span_1 for col "a" and "c" does not gather
+    # so two span_1 labels are shown. This emerges from these
+    # columns not having been moved next to each other.
     assert len(gt._boxhead) == 3
     assert gt._boxhead[0].column_label == "a"
     assert gt._boxhead[1].column_label == "b"
