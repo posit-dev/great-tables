@@ -2112,7 +2112,7 @@ def fmt_datetime(
         their short names can be viewed using `info_time_style()`.
     format_str
         A string that specifies the format of the datetime string. This is a `strftime()` format
-        string that can be used to format date or datetime input. If `format` is provided, the
+        string that can be used to format date or datetime input. If `format=` is provided, the
         `date_style=` and `time_style=` arguments are ignored.
 
     Formatting with the `date_style` and `time_style` arguments
@@ -2222,27 +2222,22 @@ def fmt_datetime_context(
     if is_na(data._tbl_data, x):
         return x
 
+    if isinstance(x, str):
+        # Convert the ISO datetime string to a datetime object
+        x = _iso_str_to_datetime(x)
+    else:
+        # Stop if `x` is not a valid datetime object
+        _validate_datetime_obj(x=x)
+
     if format_str is not None:
-        # If `x` is a string, assume it is an ISO datetime string and convert
-        # it to a datetime object
-        if isinstance(x, str):
-            # Convert the ISO datetime string to a datetime object
-            x = _iso_str_to_datetime(x)
+        if locale is not None:
+            raise ValueError("The `format_str=` and `locale=` arguments cannot be used together.")
 
         x_formatted = x.strftime(format_str)
 
     else:
         # From the date and time format strings, create a datetime format string
         datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
-
-        # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
-        if isinstance(x, str):
-            # Convert the ISO datetime string to a datetime object
-            x = _iso_str_to_datetime(x)
-
-        else:
-            # Stop if `x` is not a valid datetime object
-            _validate_datetime_obj(x=x)
 
         # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
         if locale is None:
