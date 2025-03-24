@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import copy
 import itertools
-from typing import Literal, TYPE_CHECKING
 import warnings
-
 from collections import defaultdict
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Literal
+
 from typing_extensions import TypeAlias, TypedDict
 
 from ._boxhead import cols_label
@@ -318,11 +318,19 @@ class SpannerTransformer:
         """Return a dictionary mapping col name to label for each spanner level.
 
         Note that columns without a spanner at a given level are marked with None.
+
+        Examples
+        --------
+        >>> src = {"a.b": ["a", "b"], "c": ["c", None]}
+        >>> SpannerTransformer().get_rectangle(src)
+        [{"a.b": "a", "c": "c"}, {"a.b": "b", "c": None}]
+
+
         """
         n_max = max(map(len, splits.values()))
         framed = {k: [*v, *[None] * (n_max - len(v))] for k, v in splits.items()}
 
-        [{k: v[ii]} for k, v in framed.items() for ii in range(n_max)]
+        return [{k: v[ii] for k, v in framed.items()} for ii in range(n_max)]
 
     @staticmethod
     def spanner_groups(cols: dict[str, str | None]) -> list[_SpannerArgs]:
@@ -414,7 +422,8 @@ def tab_spanner_delim(
 
     sel_cols = resolve_cols_c(data=self, expr=columns)
 
-    spter = SpannerTransformer(delim=delim, split=split, limit=limit, reverse=reverse)
+    # TODO: replace the not reverse
+    spter = SpannerTransformer(delim=delim, split=split, limit=limit, reverse=not reverse)
 
     # TODO: validate, and wrap rect in dataclass
     # since there are constraints, like level 0 (labels) can't be None
@@ -430,7 +439,7 @@ def tab_spanner_delim(
     for col_labels in rect[1:]:
         spanner_cfgs = spter.spanner_groups(col_labels)
         for cfg in spanner_cfgs:
-            new_obj = tab_spanner(new_obj, **cfg)
+            new_obj = tab_spanner(new_obj, gather=False, **cfg)
     return new_obj
 
 

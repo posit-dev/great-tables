@@ -2,6 +2,7 @@ import pandas as pd
 import polars as pl
 import polars.selectors as cs
 import pytest
+from dataclasses import asdict
 from great_tables import GT, exibble
 from great_tables._gt_data import Boxhead, ColInfo, ColInfoTypeEnum, SpannerInfo, Spanners
 from great_tables._helpers import UnitStr
@@ -450,43 +451,64 @@ def test_spanner_transformer_split(params: dict[str, Any], src: str, dst: list[s
     assert res == dst
 
 
-# def test_spanner_transforme_split_realistic():
-#    columns = [
-#        "pop.NL_ZH.province",
-#        "gdp.NL_ZH.province",
-#        "pop.NL_NH.province",
-#        "gdp.NL_NH.province",
-#    ]
-#
-#    assert SpannerTransformer(columns=columns, reverse=True).split() == {
-#        "pop.NL_ZH.province": ["province", "NL_ZH", "pop"],
-#        "gdp.NL_ZH.province": ["province", "NL_ZH", "gdp"],
-#        "pop.NL_NH.province": ["province", "NL_NH", "pop"],
-#        "gdp.NL_NH.province": ["province", "NL_NH", "gdp"],
-#    }
-#
-#    columns = ["pop.NL_ZH", "gdp.NL_ZH", "pop.NL_NH", "gdp.NL_NH"]
-#    assert SpannerTransformer(columns=columns, reverse=True).split() == {
-#        "pop.NL_ZH": ["NL_ZH", "pop"],
-#        "gdp.NL_ZH": ["NL_ZH", "gdp"],
-#        "pop.NL_NH": ["NL_NH", "pop"],
-#        "gdp.NL_NH": ["NL_NH", "gdp"],
-#    }
-#
-#
-# def test_spanner_transforme_get_rectangle():
-#    columns = ["span_1.A", "span_1.B.x"]
-#    assert SpannerTransformer(columns=columns).get_rectangle() == [
-#        columns,
-#        [None, "x"],
-#        ["A", "B"],
-#        ["span_1", "span_1"],
-#    ]
-#
-#    assert SpannerTransformer(columns=columns, reverse=True).get_rectangle() == [
-#        columns,
-#        ["A", "x"],
-#        ["span_1", "B"],
-#        [None, "span_1"],
-#    ]
-#
+def test_spanner_transformer_split_columns():
+    #
+    res = SpannerTransformer(delim=",", limit=1, split="first").split_columns(
+        ["span_1,A", "span_1,B,x"]
+    )
+    assert res == {
+        "span_1,A": ["span_1", "A"],
+        "span_1,B,x": ["span_1", "B,x"],
+    }
+
+
+def test_spanner_transformer_get_rectangle():
+    src = {"a.b": ["a", "b"], "c": ["c", None]}
+    res = SpannerTransformer().get_rectangle(src)
+
+    assert res == [{"a.b": "a", "c": "c"}, {"a.b": "b", "c": None}]
+
+
+def test_spanner_transformer_spanner_groups():
+    groups = SpannerTransformer().spanner_groups({"a.s1": "s1", "b.s2": "s2", "c.s1": "s1"})
+
+    assert len(groups) == 2
+    assert groups[0] == {"label": "s1", "columns": ["a.s1", "c.s1"]}
+    assert groups[1] == {"label": "s2", "columns": ["b.s2"]}
+
+
+def test_tab_spanner_delim_level_one():
+    df = pl.DataFrame({"span_1.a": [], "span_2.b": [], "span_1.c": []})
+
+    gt = GT(df).tab_spanner_delim()
+
+    assert len(gt._spanners) == 2
+    info1, info2 = gt._spanners
+    assert info1.spanner_id == "span_1"
+    assert info1.spanner_level == 0
+
+    assert info2.spanner_id == "span_2"
+    assert info2.spanner_level == 0
+
+    assert len(gt._boxhead) == 3
+    assert gt._boxhead[0].column_label == "a"
+    assert gt._boxhead[1].column_label == "b"
+    assert gt._boxhead[2].column_label == "c"
+
+
+def test_tab_spanner_delim_level_multi():
+    df = pl.DataFrame({"top.mid.a": [], "mid.b": []})
+
+    gt = GT(df).tab_spanner_delim()
+
+    assert len(gt._spanners) == 2
+    info1, info2 = gt._spanners
+    assert info1.spanner_id == "mid"
+    assert info1.spanner_level == 0
+
+    assert info2.spanner_id == "top"
+    assert info2.spanner_level == 1
+
+    assert len(gt._boxhead) == 2
+    assert gt._boxhead[0].column_label == "a"
+    assert gt._boxhead[1].column_label == "b"
