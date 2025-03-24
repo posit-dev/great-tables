@@ -159,3 +159,24 @@ def test_snap_as_latex(snapshot):
     latex_str_as_latex = gt_tbl.as_latex(use_longtable=True)
 
     assert snapshot == latex_str_as_latex
+
+
+def test_pickle():
+    import pickle
+
+    import polars as pl
+    from polars.testing import assert_frame_equal
+
+    from great_tables.gt import _get_column_labels
+
+    df = pl.DataFrame({"col": [1, 2, 3]})
+    gt_tbl = GT(df).cols_label({"col": "new_col"})
+
+    pickled = pickle.dumps(gt_tbl)
+    gt_tbl2 = pickle.loads(pickled)
+
+    # ensure the DataFrame remains unchanged after pickling
+    assert_frame_equal(gt_tbl2._tbl_data, df)
+
+    # verify that column label is preserved
+    assert _get_column_labels(gt=gt_tbl2, context="html")[0] == "new_col"
