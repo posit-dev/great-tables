@@ -3,7 +3,7 @@ title: "Great Tables: How We Became the Polars .style Property"
 ---
 
 Roughly a year ago, the DataFrame library Polars made its v1.0.0 release.
-One neat feature included in the release was a `DataFrame.style` property---which returns a Great Tables object, so you can
+One neat feature included in the release was a [`DataFrame.style`](https://docs.pola.rs/user-guide/misc/styling/) property---which returns a Great Tables object, so you can
 add things like titles, column labels, and highlighting for reporting.
 
 When talking about the Polars integration, people are often surprised to hear it happened when Great Tables was only 8 months old.
