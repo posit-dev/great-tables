@@ -2222,9 +2222,11 @@ def fmt_datetime_context(
     if is_na(data._tbl_data, x):
         return x
 
+    # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
     if isinstance(x, str):
         # Convert the ISO datetime string to a datetime object
         x = _iso_str_to_datetime(x)
+
     else:
         # Stop if `x` is not a valid datetime object
         _validate_datetime_obj(x=x)
