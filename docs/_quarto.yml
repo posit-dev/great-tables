@@ -110,6 +110,7 @@ quartodoc:
       contents:
         - GT.tab_header
         - GT.tab_spanner
+        - GT.tab_spanner_delim
         - GT.tab_stub
         - GT.tab_stubhead
         - GT.tab_source_note
