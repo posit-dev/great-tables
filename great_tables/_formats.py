@@ -1784,8 +1784,7 @@ def fmt_date(
         formatted. Alternatively, we can supply a list of row indices.
     date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
-        ISO 8601 date formatting. There are 41 date styles in total and their short names can be
-        viewed using `info_date_style()`.
+        ISO 8601 date formatting. There are 41 date styles in total.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -1794,11 +1793,12 @@ def fmt_date(
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
-    Formatting with the `date_style` argument
+    Formatting with the `date_style=` argument
     -----------------------------------------
-    We need to supply a preset date style to the `date_style` argument. The date styles are numerous
-    and can handle localization to any supported locale. The following table provides a listing of
-    all date styles and their output values (corresponding to an input date of `2000-02-29`).
+    We need to supply a preset date style to the `date_style=` argument. The date styles are
+    numerous and can handle localization to any supported locale. The following table provides a
+    listing of all date styles and their output values (corresponding to an input date of
+    `2000-02-29`).
 
     |    | Date Style            | Output                  |
     |----|-----------------------|-------------------------|
@@ -1819,9 +1819,6 @@ def fmt_date(
     | 15 | `"y.mn.day"`          | `"00/02/29"`            |
     | 16 | `"year_week"`         | `"2000-W09"`            |
     | 17 | `"year_quarter"`      | `"2000-Q1"`             |
-
-    We can use the `info_date_style()` function within the console to view a similar table of date
-    styles with example output.
 
     Returns
     -------
@@ -1942,8 +1939,7 @@ def fmt_time(
         formatted. Alternatively, we can supply a list of row indices.
     time_style
         The time style to use. By default this is the short name `"iso"` which corresponds to how
-        times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
-        their short names can be viewed using `info_time_style()`.
+        times are formatted within ISO 8601 datetime values. There are 5 time styles in total.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -1952,11 +1948,12 @@ def fmt_time(
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
-    Formatting with the `time_style` argument
+    Formatting with the `time_style=` argument
     -----------------------------------------
-    We need to supply a preset time style to the `time_style` argument. The time styles are numerous
-    and can handle localization to any supported locale. The following table provides a listing of
-    all time styles and their output values (corresponding to an input time of `14:35:00`).
+    We need to supply a preset time style to the `time_style=` argument. The time styles are
+    numerous and can handle localization to any supported locale. The following table provides a
+    listing of all time styles and their output values (corresponding to an input time of
+    `14:35:00`).
 
     |    | Time Style    | Output                          | Notes         |
     |----|---------------|---------------------------------|---------------|
@@ -1965,9 +1962,6 @@ def fmt_time(
     | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                  | 12h           |
     | 4  | `"h_m_p"`     | `"2:35 PM"`                     | 12h           |
     | 5  | `"h_p"`       | `"2 PM"`                        | 12h           |
-
-    We can use the `info_time_style()` function within the console to view a similar table of time
-    styles with example output.
 
     Returns
     -------
@@ -2093,23 +2087,33 @@ def fmt_datetime(
         formatted. Alternatively, we can supply a list of row indices.
     date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
-        ISO 8601 date formatting. There are 41 date styles in total and their short names can be
-        viewed using `info_date_style()`.
+        ISO 8601 date formatting. There are 41 date styles in total.
     time_style
         The time style to use. By default this is the short name `"iso"` which corresponds to how
-        times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
-        their short names can be viewed using `info_time_style()`.
+        times are formatted within ISO 8601 datetime values. There are 5 time styles in total.
     format_str
         A string that specifies the format of the datetime string. This is a `strftime()` format
         string that can be used to format date or datetime input. If `format=` is provided, the
         `date_style=` and `time_style=` arguments are ignored.
+    sep
+        A string that separates the date and time components of the datetime string. The default is
+        a space character (`" "`). This is ignored if `format=` is provided.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    locale
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+        Only relevant if `date_style=` or `time_style=` are provided.
 
-    Formatting with the `date_style` and `time_style` arguments
-    ------------------------------------------------------------
-    We need to supply a preset date style to the `date_style` argument and a preset time style to
-    the `time_style` argument. The date styles are numerous and can handle localization to any
-    supported locale. The following table provides a listing of all date styles and their output
-    values (corresponding to an input date of `2000-02-29 14:35:00`).
+    Formatting with the `date_style=` and `time_style=` arguments
+    -------------------------------------------------------------
+    If not supplying a formatting string to `format_str=` we need to supply a preset date style to
+    the `date_style=` argument and a preset time style to the `time_style=` argument. The date
+    styles are numerous and can handle localization to any supported locale. The following table
+    provides a listing of all date styles and their output values (corresponding to an input date of
+    `2000-02-29 14:35:00`).
 
     |    | Date Style            | Output                  |
     |----|-----------------------|-------------------------|
@@ -2131,9 +2135,9 @@ def fmt_datetime(
     | 16 | `"year_week"`         | `"2000-W09"`            |
     | 17 | `"year_quarter"`      | `"2000-Q1"`             |
 
-    The time styles are numerous and can handle localization to any supported locale. The following
-    table provides a listing of all time styles and their output values (corresponding to an input
-    time of `2000-02-29 14:35:00`).
+    The time styles can also handle localization to any supported locale. The following table
+    provides a listing of all time styles and their output values (corresponding to an input time of
+    `2000-02-29 14:35:00`).
 
     |    | Time Style    | Output                          | Notes         |
     |----|---------------|---------------------------------|---------------|
@@ -2142,9 +2146,6 @@ def fmt_datetime(
     | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                  | 12h           |
     | 4  | `"h_m_p"`     | `"2:35 PM"`                     | 12h           |
     | 5  | `"h_p"`       | `"2 PM"`                        | 12h           |
-
-    We can use the `info_date_style()` and `info_time_style()` functions within the console to view
-    similar tables of date and time styles with example output.
 
     Returns
     -------
