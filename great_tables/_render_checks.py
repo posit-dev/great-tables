@@ -35,7 +35,7 @@ def _render_check_quarto(data: GTData):
     is_all_pct = all([width is None or width.rstrip().endswith("%") for width in col_widths])
     if is_any_set and not is_all_pct:
         warnings.warn(
-            "Rendering table with .col_widths() in Quarto may result in unexpected behavior."
+            "Rendering table with .cols_width() in Quarto may result in unexpected behavior."
             " This is because Quarto performs custom table processing."
             " Either use all percentage widths, or set .tab_options(quarto_disable_processing=True)"
             " to disable Quarto table processing.",

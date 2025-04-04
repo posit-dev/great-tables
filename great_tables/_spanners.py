@@ -719,8 +719,10 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
     affected (their widths will be automatically set by their content).
 
     ```{python}
+    import warnings
     from great_tables import GT, exibble
 
+    warnings.filterwarnings("ignore")
     exibble_mini = exibble[["num", "char", "date", "datetime", "row"]].head(5)
 
     (
