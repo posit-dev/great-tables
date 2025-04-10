@@ -1116,6 +1116,7 @@ def fmt_currency(
     use_seps: bool = True,
     accounting: bool = False,
     scale_by: float = 1,
+    compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -1181,6 +1182,10 @@ def fmt_currency(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    compact
+        Whether to use compact formatting. This is a boolean value that, when set to `True`, will
+        format large numbers in a more compact form (e.g., `1,000,000` becomes `1M`). This is
+        `False` by default.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -1282,6 +1287,7 @@ def fmt_currency(
         use_seps=use_seps,
         accounting=accounting,
         scale_by=scale_by,
+        compact=compact,
         sep_mark=sep_mark,
         dec_mark=dec_mark,
         force_sign=force_sign,
@@ -1302,6 +1308,7 @@ def fmt_currency_context(
     use_seps: bool,
     accounting: bool,
     scale_by: float,
+    compact: bool,
     sep_mark: str,
     dec_mark: str,
     force_sign: bool,
@@ -1328,17 +1335,30 @@ def fmt_currency_context(
 
     # Format the value to decimal notation; this is done before the currency symbol is
     # affixed to the value
-    x_formatted = _value_to_decimal_notation(
-        value=x,
-        decimals=decimals,
-        n_sigfig=None,
-        drop_trailing_zeros=False,
-        drop_trailing_dec_mark=drop_trailing_dec_mark,
-        use_seps=use_seps,
-        sep_mark=sep_mark,
-        dec_mark=dec_mark,
-        force_sign=force_sign,
-    )
+    if compact:
+        x_formatted = _format_number_compactly(
+            value=x,
+            decimals=decimals,
+            n_sigfig=None,
+            drop_trailing_zeros=False,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
+            force_sign=force_sign,
+        )
+    else:
+        x_formatted = _value_to_decimal_notation(
+            value=x,
+            decimals=decimals,
+            n_sigfig=None,
+            drop_trailing_zeros=False,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=use_seps,
+            sep_mark=sep_mark,
+            dec_mark=dec_mark,
+            force_sign=force_sign,
+        )
 
     # Create a currency pattern for affixing the currency symbol
     space_character = " " if incl_space else ""

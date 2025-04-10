@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from typing_extensions import TypeAlias
 
-from .gt import GT, _get_column_of_values
 from ._gt_data import GTData
 from ._tbl_data import SeriesLike, to_frame
+from .gt import GT, _get_column_of_values
 
 if TYPE_CHECKING:
     from ._formats import DateStyle, TimeStyle
@@ -541,6 +541,7 @@ def val_fmt_currency(
     accounting: bool = False,
     use_seps: bool = True,
     scale_by: float = 1,
+    compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -601,6 +602,10 @@ def val_fmt_currency(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    compact
+        Whether to use compact formatting. This is a boolean value that, when set to `True`, will
+        format large numbers in a more compact form (e.g., `1,000,000` becomes `1M`). This is
+        `False` by default.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -652,6 +657,7 @@ def val_fmt_currency(
         accounting=accounting,
         use_seps=use_seps,
         scale_by=scale_by,
+        compact=compact,
         pattern=pattern,
         sep_mark=sep_mark,
         dec_mark=dec_mark,
