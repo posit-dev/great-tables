@@ -2250,6 +2250,208 @@ def fmt_datetime_context(
     return x_formatted
 
 
+def fmt_tf(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    tf_style: str = "true-false",
+    pattern: str = "{x}",
+    true_val: str | None = None,
+    false_val: str | None = None,
+    na_val: str | None = None,
+    colors: list[str] | None = None,
+) -> GTSelf:
+    """
+    Format True and False values
+
+    There can be times where boolean values are useful in a display table. You might want to express
+    a 'yes' or 'no', a 'true' or 'false', or, perhaps use pairings of complementary symbols that
+    make sense in a table. The `fmt_tf()` method has a set of `tf_style=` presets that can be used
+    to quickly map `True`/`False` values to strings, or, symbols like up/down or left/right arrows
+    and open/closed shapes.
+
+    While the presets are nice, you can provide your own mappings through the `true_val=` and
+    `false_val=` arguments. For extra customization, you can also apply color to the individual
+    `True`, `False`, and NA mappings. Just supply a list of colors (up to a length of 3) to the
+    `colors=` argument.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    tf_style
+        The `True`/`False` mapping style to use. By default this is the short name `"true-false"`
+        which corresponds to the words `"true"` and `"false"`. Two other `tf_style=` values produce
+        words: `"yes-no"` and `"up-down"`. Options `4` through to `10` involve pairs of symbols
+        (e.g., `"check-mark"` displays a check mark for `True` and an X symbol for `False`).
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    true_val
+        While the choice of a `tf_style=` will typically supply the `true_val=` and `false_val=`
+        text, we could override this and supply text for any `True` values. This doesn't need to be
+        used in conjunction with `false_val=`.
+    false_val
+        While the choice of a `tf_style=` will typically supply the `true_val=` and `false_val=`
+        text, we could override this and supply text for any `False` values. This doesn't need to be
+        used in conjunction with `true_val=`.
+    na_val
+        None of the `tf_style` presets will replace any missing values encountered in the targeted
+        cells. While we always have the option to use `sub_missing()` for NA replacement, we have
+        the opportunity handle missing values here with the `na_val=` option. This is useful because
+        we also have the means to add color to the `na_val=` text or symbol and doing that requires
+        that a replacement value for NAs is specified here.
+    colors
+        Providing a list of color values to colors will progressively add color to the formatted
+        result depending on the number of colors provided. With a single color, all formatted values
+        will be in that color. Giving two colors results in `True` values being the first color, and
+        `False` values receiving the second. With the three-color option, the final color will be
+        given to any missing values replaced through `na_val=`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+    """
+    # If colors is a string, convert it to a list
+    if isinstance(colors, str):
+        colors = [colors]
+
+    pf_format = partial(
+        fmt_tf_context,
+        data=self,
+        tf_style=tf_style,
+        pattern=pattern,
+        true_val=true_val,
+        false_val=false_val,
+        na_val=na_val,
+        colors=colors,
+    )
+
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
+
+
+def fmt_tf_context(
+    x: float,
+    data: GTData,
+    tf_style: str,
+    pattern: str,
+    true_val: str | None,
+    false_val: str | None,
+    na_val: str | None,
+    colors: list[str] | None,
+    context: str,
+) -> str:
+    # If `x` is not a boolean value, return it as is
+    if not isinstance(x, bool) and not is_na(data._tbl_data, x):
+        return x
+
+    # Obtain the list of `True`/`False` text values
+    tf_vals_list = _get_tf_vals(tf_style=tf_style)
+
+    if x is True:
+        x_formatted = tf_vals_list[0]
+        if true_val is not None:
+            x_formatted = true_val
+    elif x is False:
+        x_formatted = tf_vals_list[1]
+        if false_val is not None:
+            x_formatted = false_val
+    elif is_na(data._tbl_data, x) and na_val is not None:
+        x_formatted = na_val
+    else:
+        return x
+
+    if context == "html" and colors is not None:
+        _check_colors(colors=colors)
+
+        # Apply colors to the formatted value
+        if len(colors) >= 1 and x is True:
+            x_formatted = f'<span style="color:{colors[0]}">{x_formatted}</span>'
+        elif len(colors) == 1 and x is False:
+            x_formatted = f'<span style="color:{colors[0]}">{x_formatted}</span>'
+        elif len(colors) >= 2 and x is False:
+            x_formatted = f'<span style="color:{colors[1]}">{x_formatted}</span>'
+        elif len(colors) == 3 and is_na(data._tbl_data, x):
+            x_formatted = f'<span style="color:{colors[2]}">{x_formatted}</span>'
+
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
+
+
+TF_FORMATS = {
+    "true-false": ["true", "false"],
+    "yes-no": ["yes", "no"],
+    "up-down": ["up", "down"],
+    "check-mark": ["\u2714", "\u2718"],
+    "circles": ["\u25cf", "\u2b58"],
+    "squares": ["\u25a0", "\u25a1"],
+    "diamonds": ["\u25c6", "\u25c7"],
+    "arrows": ["\u2191", "\u2193"],
+    "triangles": ["\u25b2", "\u25bc"],
+    "triangles-lr": ["\u25b6", "\u25c0"],
+}
+
+
+def _check_colors(colors: list[str]):
+    """
+    Check if the provided colors are valid.
+
+    Parameters
+    ----------
+    colors
+        A list of colors to check.
+    Raises
+    ------
+    ValueError
+        If the colors are not valid.
+    """
+    if not isinstance(colors, list):
+        raise ValueError("The `colors` argument must be a list.")
+    if len(colors) > 3 or len(colors) < 1:
+        raise ValueError("The `colors` argument must be a list of 1 to 3 colors.")
+    for color in colors:
+        if not isinstance(color, str):
+            raise ValueError("Each color in the `colors` list must be a string.")
+
+
+def _get_tf_vals(tf_style: str) -> list[str]:
+    """
+    Get the `True`/`False` text values based on the `tf_style`.
+
+    Parameters
+    ----------
+    tf_style
+        The `True`/`False` mapping style to use.
+
+    Returns
+    -------
+    list[str]
+        A list of two strings representing the `True` and `False` values as strings.
+    """
+    if tf_style not in TF_FORMATS:
+        raise ValueError(
+            f"Invalid `tf_style`: {tf_style}. Must be one of {list(TF_FORMATS.keys())}."
+        )
+
+    # Return the corresponding `True` and `False` values as a two-element list
+    return TF_FORMATS[tf_style]
+
+
 def fmt_markdown(
     self: GTSelf,
     columns: SelectExpr = None,
