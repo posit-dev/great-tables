@@ -406,6 +406,7 @@ def tab_spanner_delim(
 
     ```{python}
     import polars as pl
+    import polars.selectors as cs
     from great_tables import GT
 
     data = {
@@ -417,6 +418,29 @@ def tab_spanner_delim(
 
     gt = GT(pl.DataFrame(data))
     gt.tab_spanner_delim()
+    ```
+
+    ```{python}
+    gt.tab_spanner_delim(limit=1)
+    ```
+
+    ```{python}
+    # the name "province" repeats in the styled table,
+    # because the first spanner is column names
+    gt.tab_spanner_delim(reverse=True)
+    ```
+
+
+    ```{python}
+    from great_tables.data import towny
+
+    lil_towny = (
+        pl.DataFrame(towny)
+        .select("name", cs.starts_with("population"))
+        .head()
+    )
+
+    GT(lil_towny).tab_spanner_delim(delim="_")
     ```
     """
 
