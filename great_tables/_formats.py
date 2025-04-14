@@ -2446,7 +2446,6 @@ def _get_tf_vals(tf_style: str) -> list[str]:
             f"Invalid `tf_style`: {tf_style}. Must be one of {list(TF_FORMATS.keys())}."
         )
 
-    # Return the corresponding `True` and `False` values as a two-element list
     return TF_FORMATS[tf_style]
 
 
