@@ -352,10 +352,10 @@ def tab_spanner_delim(
     limit: int = -1,
     reverse: bool = False,
 ) -> GTSelf:
-    """
-    `tab_spanner_delim()` can take specially-crafted column names and generate one or more spanners
-    (and revise column labels at the same time). This is done by splitting the column name by the
-    specified delimiter text (delim) and placing the fragments from top to bottom (i.e.,
+    """Insert spanners by splitting column names with a delimiter.
+
+    This generates one or more spanners (and sets column labels), by splitting the column name by
+    the specified delimiter text (delim) and placing the fragments from top to bottom (i.e.,
     higher-level spanners to the column labels) or vice versa. Furthermore, neighboring text
     fragments on different spanner levels that have the same text will be coalesced together.
     For instance, having the three side-by-side column names rating_1, rating_2, and rating_3 will
