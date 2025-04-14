@@ -2287,8 +2287,8 @@ def fmt_tf(
     tf_style
         The `True`/`False` mapping style to use. By default this is the short name `"true-false"`
         which corresponds to the words `"true"` and `"false"`. Two other `tf_style=` values produce
-        words: `"yes-no"` and `"up-down"`. Options `4` through to `10` involve pairs of symbols
-        (e.g., `"check-mark"` displays a check mark for `True` and an X symbol for `False`).
+        words: `"yes-no"` and `"up-down"`. The remaining options involve pairs of symbols (e.g.,
+        `"check-mark"` displays a check mark for `True` and an ✗ symbol for `False`).
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -2310,7 +2310,7 @@ def fmt_tf(
     colors
         Providing a list of color values to colors will progressively add color to the formatted
         result depending on the number of colors provided. With a single color, all formatted values
-        will be in that color. Giving two colors results in `True` values being the first color, and
+        will be in that color. Using two colors results in `True` values being the first color, and
         `False` values receiving the second. With the three-color option, the final color will be
         given to any missing values replaced through `na_val=`.
 
@@ -2319,6 +2319,56 @@ def fmt_tf(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    Formatting with the `tf_style=` argument
+    ----------------------------------------
+    We need to supply a preset `tf_style=` value. The following table provides a listing of all
+    `tf_style=` values and their output `True` and `False` values.
+
+    |    | TF Style        | Output                  |
+    |----|-----------------|-------------------------|
+    | 1  | `"true-false"`  | `"true" / `"false"`     |
+    | 2  | `"yes-no"`      | `"yes" / `"no"`         |
+    | 3  | `"up-down"`     | `"up" / `"down"`        |
+    | 4  | `"check-mark"`  | `"✓" / `"✗"`            |
+    | 5  | `"circles"`     | `"●" / `"○"`            |
+    | 6  | `"squares"`     | `"■" / `"□"`            |
+    | 7  | `"diamonds"`    | `"◆" / `"◇"`            |
+    | 8  | `"arrows"`      | `"↑" / `"↓"`            |
+    | 9  | `"triangles"`   | `"▲" / `"▼"`            |
+    | 10 | `"triangles-lr"`| `"▶" / `"◀"`            |
+
+    Examples
+    --------
+    Let's use a subset of the `sp500` dataset to create a small table containing opening and closing
+    price data for the last few days in 2015. We added a boolean column (`dir`) where `True`
+    indicates a price increase from opening to closing and `False` is the opposite. Using `fmt_tf()`
+    generates up and down arrows in the `dir` column. We elect to use green upward arrows and red
+    downward arrows (through the `colors=` option).
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import sp500
+    import polars as pl
+
+    sp500_mini = (
+        pl.from_pandas(sp500)
+        .slice(0, 5)
+        .drop(["volume", "adj_close", "high", "low"])
+        .with_columns(dir = pl.col("close") > pl.col("open"))
+    )
+
+    (
+        GT(sp500_mini, rowname_col="date")
+        .fmt_tf(columns="dir", tf_style="arrows", colors=["green", "red"])
+        .fmt_currency(columns=["open", "close"])
+        .cols_label(
+            open="Opening",
+            close="Closing",
+            dir=""
+        )
+    )
+    ```
     """
     # If colors is a string, convert it to a list
     if isinstance(colors, str):
