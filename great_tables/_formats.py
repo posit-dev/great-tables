@@ -2420,8 +2420,6 @@ def _check_colors(colors: list[str]):
     ValueError
         If the colors are not valid.
     """
-    if not isinstance(colors, list):
-        raise ValueError("The `colors` argument must be a list.")
     if len(colors) > 3 or len(colors) < 1:
         raise ValueError("The `colors` argument must be a list of 1 to 3 colors.")
     for color in colors:
