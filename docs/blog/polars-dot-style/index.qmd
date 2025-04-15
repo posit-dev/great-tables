@@ -71,7 +71,7 @@ Jerry is constantly teaching us about what Great Tables can do.
 
 With so much joy coming out of the Polars integration, and support from folks in the Polars community, we started to wonder: how could Great Tables make Polars a first-class citizen?
 
-This ultimately boiled down to asking: what would it take for the polars.DataFrame.style property to return a Great Tables object?
+This ultimately boiled down to asking: what would it take for the `polars.DataFrame.style` property to return a Great Tables object?
 
 After some discussion on discord, the big pieces folks needed were some sense that Great Tables used a reasonable approach to table styling, carried few dependencies, and was engineered such that it could be returned from a `DataFrame.style` property.
 Ultimately, the next few months were spent getting Great Tables up to snuff, and the Polars PR merged.
@@ -181,7 +181,7 @@ in particular you're looking for, definitely reach out on the [Great Tables disc
 
 This post looked at how interacting with the Polars community discord shaped Great Tables development early on, and how community members like Jerry ended up ensuring Great Tables and Polars played well together.
 We ended up putting a ring on it, and ensuring Great Tables design, dependencies, and architecture worked
-well enough to justify returning via `polars.DataFrame.style`. (Though not this is still marked unstable in Polars!).
+well enough to justify returning via `polars.DataFrame.style`. (Though this is still marked unstable in Polars!)
 
 We're excited to look at different use cases for Great Tables (and table styling in general) over the
 next year!
