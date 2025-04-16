@@ -1,5 +1,6 @@
 ---
 title: "Great Tables: Becoming the Polars `.style` Property"
+author: Michael Chow
 date: 2025-04-16
 ---
 
