@@ -1,6 +1,6 @@
 ---
 title: "Great Tables: Becoming the Polars `.style` Property"
-date: 2025-04-15
+date: 2025-04-16
 ---
 
 Roughly a year ago, the DataFrame library Polars made its v1.0.0 release.
@@ -79,7 +79,9 @@ Ultimately, the next few months were spent getting Great Tables up to snuff, and
 ## Making `.style` work
 
 
-The [PR to implement `.style` in Polars](https://github.com/pola-rs/polars/pull/16809) went super quick, from advice on discord April to merged by June. In this section I'll look at how we addressed the 3 big requirements behind making a strong case for `.DataFrame.style` returning a Great Tables object:
+The [PR to implement `.style` in Polars](https://github.com/pola-rs/polars/pull/16809) went super quick, from advice on discord April to merged by June. A huge force behind the PR was [Marco Gorelli](https://github.com/MarcoGorelli), who encouraged us through the process!
+
+In this section I'll look at how we addressed the 3 big requirements behind making a strong case for `.DataFrame.style` returning a Great Tables object:
 
 * **Design Credibility**: It's clear Great Tables is reasonably thought out.
 * **Working with Polars selectors**: It integrates well with pieces like Polars selectors.
