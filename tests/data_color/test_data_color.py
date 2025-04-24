@@ -331,24 +331,17 @@ def test_all_values_have_zero_range_domain_pl(snapshot: str):
     assert_rendered_body(snapshot, new_gt)
 
 
-def test_data_color_viridis_snap(snapshot: str):
-    df = pd.DataFrame(
-        {
-            "A": [1, 2, 3, 4, 5],
-            "B": [6, 7, 8, 9, 10],
-            "C": ["one", "two", "three", "four", "five"],
-        }
-    )
-
+# test for data_color with truncate=True
+def test_data_color_truncate(df: DataFrameLike):
     new_gt = GT(df).data_color(
-        columns=["A", "B"],
-        domain=[2, 7],
+        columns=["num", "currency"],
+        domain=[10, 40],
         palette=["#654321", "white", "#123456"],
         truncate=True,
     )
 
     # check if all cells are colored
-    assert len(new_gt._styles) == 10
+    assert len(new_gt._styles) == 8
     # check if the last cell (out of range of domain) is colored with the last color in the palette
     assert get_first_style(new_gt._styles[-1], style.fill).color == "#123456"
     # check if the first cell (out of range of domain) is colored with the first color in the palette
