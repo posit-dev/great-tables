@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import polars as pl
 import pytest
+
 from great_tables import GT, style
 from great_tables._gt_data import CellStyle, StyleInfo
 from great_tables._tbl_data import DataFrameLike
@@ -12,7 +13,10 @@ from great_tables.data import exibble
 
 T_CellStyle = TypeVar("T_CellStyle", bound=CellStyle)
 
-params_frames = [pytest.param(pd.DataFrame, id="pandas"), pytest.param(pl.DataFrame, id="polars")]
+params_frames = [
+    pytest.param(pd.DataFrame, id="pandas"),
+    pytest.param(pl.DataFrame, id="polars"),
+]
 
 
 @pytest.fixture(params=params_frames, scope="function")
@@ -111,7 +115,11 @@ def test_data_color_domain_na_color_snap(snapshot: str, df: DataFrameLike):
 def test_data_color_domain_na_color_reverse_snap(snapshot: str, df: DataFrameLike):
     """`data_color` works with `domain`, `na_color`, and `reverse`."""
     gt = GT(df).data_color(
-        columns="currency", palette=["red", "green"], domain=[0, 50], na_color="blue", reverse=True
+        columns="currency",
+        palette=["red", "green"],
+        domain=[0, 50],
+        na_color="blue",
+        reverse=True,
     )
 
     assert_rendered_body(snapshot, gt)
@@ -321,3 +329,27 @@ def test_all_values_have_zero_range_domain_pl(snapshot: str):
     new_gt = GT(df).data_color("x", palette=["green", "blue"], domain=[0, 0])
 
     assert_rendered_body(snapshot, new_gt)
+
+
+def test_data_color_viridis_snap(snapshot: str):
+    df = pd.DataFrame(
+        {
+            "A": [1, 2, 3, 4, 5],
+            "B": [6, 7, 8, 9, 10],
+            "C": ["one", "two", "three", "four", "five"],
+        }
+    )
+
+    new_gt = GT(df).data_color(
+        columns=["A", "B"],
+        domain=[2, 7],
+        palette=["#654321", "white", "#123456"],
+        truncate=True,
+    )
+
+    # check if all cells are colored
+    assert len(new_gt._styles) == 10
+    # check if the last cell (out of range of domain) is colored with the last color in the palette
+    assert get_first_style(new_gt._styles[-1], style.fill).color == "#123456"
+    # check if the first cell (out of range of domain) is colored with the first color in the palette
+    assert get_first_style(new_gt._styles[0], style.fill).color == "#654321"
