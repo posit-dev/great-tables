@@ -14,4 +14,5 @@ from ._formats_vals import (
     val_fmt_time as fmt_time,
     val_fmt_markdown as fmt_markdown,
     val_fmt_image as fmt_image,
+    val_fmt_image_circle as fmt_image_circle,
 )

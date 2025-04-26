@@ -3657,7 +3657,7 @@ def fmt_image(
     columns: SelectExpr = None,
     rows: int | list[int] | None = None,
     height: str | int | None = None,
-    width: str | int | None = None,
+    width: str | None = None,
     sep: str = " ",
     path: str | Path | None = None,
     file_pattern: str = "{}",
@@ -3740,7 +3740,165 @@ def fmt_image(
     )
     ```
     """
+    return _fmt_image(
+        self,
+        columns=columns,
+        rows=rows,
+        height=height,
+        width=width,
+        sep=sep,
+        path=path,
+        file_pattern=file_pattern,
+        encode=encode,
+    )
 
+
+def fmt_image_circle(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    height: str | int | None = None,
+    width: str | None = None,
+    border_radius: str | None = "50%",
+    border_width: str | int | None = None,
+    border_color: str | None = None,
+    border_style: str | None = None,
+    sep: str = " ",
+    path: str | Path | None = None,
+    file_pattern: str = "{}",
+    encode: bool = True,
+) -> GTSelf:
+    """Format image paths to generate circular images within table cells.
+    `fmt_image_circle()` is a utility function similar to [`fmt_image()`](`great_tables.fmt_image`),
+    but it also accepts additional parameters for customizing the image border:
+    `border_radius=`, `border_width=`, `border_color=`, and `border_style=`.
+
+    When calling `fmt_image_circle()`, **Great Tables** automatically sets `border_radius="50%"` to
+    create a full circle. However, we can't assume whether you want the border to be visible.
+    Therefore, you should supply at least one of the following: `border_width=`, `border_color=`,
+    or `border_style=`. Based on your input, sensible defaults will be applied for any unset border
+    properties.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    height
+        The height of the rendered images.
+    width
+        The width of the rendered images.
+    border_radius
+        The radius of the image border. Accepts values in pixels (`px`) or percentages (`%`).
+        Defaults to `50%` to create a circular image.
+    border_width
+        The width of the image border.
+    border_color
+        The color of the image border.
+    border_style
+        The style of the image border (e.g., solid, dashed, dotted).
+    sep
+        In the output of images within a body cell, `sep=` provides the separator between each
+        image.
+    path
+        An optional path to local image files or an HTTP/HTTPS URL.
+        This is combined with the filenames to form the complete image paths.
+    file_pattern
+        The pattern to use for mapping input values in the body cells to the names of the graphics
+        files. The string supplied should use `"{}"` in the pattern to map filename fragments to
+        input strings.
+    encode
+        The option to always use Base64 encoding for image paths that are determined to be local. By
+        default, this is `True`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    This example demonstrates how to use `fmt_image_circle()` to create circular images in table cells,
+    along with its counterpart [`vals.fmt_image_circle`](`great_tables.vals.fmt_image_circle`) to render
+    a circular image in the header.
+    ```{python}
+    import polars as pl
+    from great_tables import GT, vals, html
+
+    posit_avatar = "https://avatars.githubusercontent.com/u/107264312?s=200&v=4"
+    rich_avatar = "https://avatars.githubusercontent.com/u/5612024?v=4"
+    michael_avatar = "https://avatars.githubusercontent.com/u/2574498?v=4"
+
+    title_img = vals.fmt_image_circle(posit_avatar, height=100, border_color="#D3D3D3")[0]
+    df = pl.DataFrame({"@rich-iannone": [rich_avatar], "@machow": [michael_avatar]})
+
+    (
+        GT(df)
+        .fmt_image_circle(height=150, border_width=5)
+        .tab_header(html(title_img))
+        .cols_align("center")
+        .opt_stylize(color="green", style=6)
+    )
+    ```
+    """
+    default_border_props = {
+        "border-width": "3px",
+        "border-color": "#0A0A0A",
+        "border-style": "solid",
+    }
+
+    border_props = {
+        "border-width": border_width,
+        "border-color": border_color,
+        "border-style": border_style,
+    }
+
+    # This block assigns default values to `border-width`, `border-color`, and `border-style`
+    # if the user specifies at least one of them but leaves others unset.
+    if any(border_props.values()):
+        for k, v in default_border_props.items():
+            if border_props[k] is None:
+                border_props[k] = v
+
+    border_width, border_color, border_style = border_props.values()
+
+    return _fmt_image(
+        self,
+        columns=columns,
+        rows=rows,
+        height=height,
+        width=width,
+        border_radius=border_radius,
+        border_width=border_width,
+        border_color=border_color,
+        border_style=border_style,
+        sep=sep,
+        path=path,
+        file_pattern=file_pattern,
+        encode=encode,
+    )
+
+
+def _fmt_image(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    height: str | int | None = None,
+    width: str | None = None,
+    border_radius: str | None = None,
+    border_width: str | int | None = None,
+    border_color: str | None = None,
+    border_style: str | None = None,
+    sep: str = " ",
+    path: str | Path | None = None,
+    file_pattern: str = "{}",
+    encode: bool = True,
+) -> GTSelf:
     # TODO: most parameter options should allow a polars expression (or from_column) ----
     # can other fmt functions do this kind of thing?
     expr_cols = [height, width, sep, path, file_pattern, encode]
@@ -3754,7 +3912,19 @@ def fmt_image(
     if height is None and width is None:
         height = "2em"
 
-    formatter = FmtImage(self._tbl_data, height, width, sep, path, file_pattern, encode)
+    formatter = FmtImage(
+        self._tbl_data,
+        height=height,
+        width=width,
+        border_radius=border_radius,
+        border_width=border_width,
+        border_color=border_color,
+        border_style=border_style,
+        sep=sep,
+        path=path,
+        file_pattern=file_pattern,
+        encode=encode,
+    )
     return fmt(
         self,
         fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
@@ -3767,12 +3937,15 @@ def fmt_image(
 class FmtImage:
     dispatch_on: DataFrameLike | Agnostic = Agnostic()
     height: str | int | None = None
-    width: str | int | None = None
+    width: str | None = None
+    border_radius: str | None = None
+    border_width: str | int | None = None
+    border_color: str | None = None
+    border_style: str | None = None
     sep: str = " "
     path: str | Path | None = None
     file_pattern: str = "{}"
     encode: bool = True
-
     SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
 
     def to_html(self, val: Any):
@@ -3799,7 +3972,29 @@ class FmtImage:
         # TODO: note that only height can be numeric in the R program. Is this on purpose?
         # In any event, raising explicitly for numeric width below.
         if isinstance(self.width, (int, float)):
-            raise NotImplementedError("The width argument must be specified as a string.")
+            raise NotImplementedError("The `width=` argument must be specified as a string.")
+        else:
+            width = self.width
+
+        if self.border_radius is not None:
+            if not isinstance(self.border_radius, str):
+                raise NotImplementedError(
+                    "The `border_radius=` argument must be specified as a string."
+                )
+            if not any(self.border_radius.endswith(suffix) for suffix in {"px", "%"}):
+                raise NotImplementedError(
+                    'The `border_radius=` argument must end with either "px" or "%"'
+                )
+
+        border_radius = self.border_radius
+
+        if isinstance(self.border_width, (int, float)):
+            border_width = px(self.border_width)
+        else:
+            border_width = self.border_width
+
+        border_color = self.border_color
+        border_style = self.border_style
 
         full_files = self._apply_pattern(self.file_pattern, files)
 
@@ -3822,7 +4017,17 @@ class FmtImage:
                     uri = filename
 
             # TODO: do we have a way to create tags, that is good at escaping, etc..?
-            out.append(self._build_img_tag(uri, height, self.width))
+            out.append(
+                self._build_img_tag(
+                    uri=uri,
+                    height=height,
+                    width=width,
+                    border_radius=border_radius,
+                    border_width=border_width,
+                    border_color=border_color,
+                    border_style=border_style,
+                )
+            )
 
         img_tags = self.sep.join(out)
         span = self.SPAN_TEMPLATE.format(img_tags)
@@ -3866,15 +4071,26 @@ class FmtImage:
         return f"image/{suffix}"
 
     @staticmethod
-    def _build_img_tag(uri: str, height: str | None = None, width: str | None = None) -> str:
+    def _build_img_tag(
+        uri: str,
+        height: str | None = None,
+        width: str | None = None,
+        border_radius: str | None = None,
+        border_width: str | None = None,
+        border_color: str | None = None,
+        border_style: str | None = None,
+    ) -> str:
         style_string = "".join(
             [
                 f"height: {height};" if height is not None else "",
                 f"width: {width};" if width is not None else "",
+                f"border-radius: {border_radius};" if border_radius is not None else "",
+                f"border-width: {border_width};" if border_width is not None else "",
+                f"border-color: {border_color};" if border_color is not None else "",
+                f"border-style: {border_style};" if border_style is not None else "",
                 "vertical-align: middle;",
             ]
         )
-
         return f'<img src="{uri}" style="{style_string}">'
 
 

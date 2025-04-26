@@ -1051,7 +1051,7 @@ def val_fmt_markdown(
 def val_fmt_image(
     x: X,
     height: str | int | None = None,
-    width: str | int | None = None,
+    width: str | None = None,
     sep: str = " ",
     path: str | Path | None = None,
     file_pattern: str = "{}",
@@ -1107,6 +1107,92 @@ def val_fmt_image(
         columns="x",
         height=height,
         width=width,
+        sep=sep,
+        path=path,
+        file_pattern=file_pattern,
+        encode=encode,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+def val_fmt_image_circle(
+    x: X,
+    height: str | int | None = None,
+    width: str | None = None,
+    border_radius: str | None = "50%",
+    border_width: str | int | None = None,
+    border_color: str | None = None,
+    border_style: str | None = None,
+    sep: str = " ",
+    path: str | Path | None = None,
+    file_pattern: str = "{}",
+    encode: bool = True,
+) -> list[str]:
+    """Format image paths to generate circular images within table cells.
+    `fmt_image_circle()` is a utility function similar to [`fmt_image()`](`great_tables.fmt_image`),
+    but it also accepts additional parameters for customizing the image border:
+    `border_radius=`, `border_width=`, `border_color=`, and `border_style=`.
+
+    When calling `fmt_image_circle()`, **Great Tables** automatically sets `border_radius="50%"` to
+    create a full circle. However, we can't assume whether you want the border to be visible.
+    Therefore, you should supply at least one of the following: `border_width=`, `border_color=`,
+    or `border_style=`. Based on your input, sensible defaults will be applied for any unset border
+    properties.
+
+    Parameters
+    ----------
+    x
+        A list of values to be formatted.
+    height
+        The height of the rendered images.
+    width
+        The width of the rendered images.
+    border_radius
+        The radius of the image border. Accepts values in pixels (`px`) or percentages (`%`).
+        Defaults to `50%` to create a circular image.
+    border_width
+        The width of the image border.
+    border_color
+        The color of the image border.
+    border_style
+        The style of the image border (e.g., solid, dashed, dotted).
+    sep
+        In the output of images within a body cell, `sep=` provides the separator between each
+        image.
+    path
+        An optional path to local image files or an HTTP/HTTPS URL.
+        This is combined with the filenames to form the complete image paths.
+    file_pattern
+        The pattern to use for mapping input values in the body cells to the names of the graphics
+        files. The string supplied should use `"{}"` in the pattern to map filename fragments to
+        input strings.
+    encode
+        The option to always use Base64 encoding for image paths that are determined to be local. By
+        default, this is `True`.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+
+    See Also
+    --------
+    Check out our blog post, [Rendering images anywhere in Great Tables](https://posit-dev.github.io/great-tables/blog/rendering-images/),
+    which walks through how to use `vals.fmt_image()`.
+    """
+    gt_obj: GTData = _make_one_col_table(vals=x)
+
+    gt_obj_fmt = gt_obj.fmt_image_circle(
+        columns="x",
+        height=height,
+        width=width,
+        border_radius=border_radius,
+        border_width=border_width,
+        border_color=border_color,
+        border_style=border_style,
         sep=sep,
         path=path,
         file_pattern=file_pattern,

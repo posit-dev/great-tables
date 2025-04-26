@@ -18,6 +18,7 @@ from ._formats import (
     fmt_flag,
     fmt_icon,
     fmt_image,
+    fmt_image_circle,
     fmt_integer,
     fmt_markdown,
     fmt_nanoplot,
@@ -233,6 +234,7 @@ class GT(
     fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
     fmt_image = fmt_image
+    fmt_image_circle = fmt_image_circle
     fmt_icon = fmt_icon
     fmt_flag = fmt_flag
     fmt_units = fmt_units

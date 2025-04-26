@@ -1554,11 +1554,13 @@ def test_fmt_image_height_int():
     assert strip_windows_drive(res) == dst
 
 
-def test_fmt_image_width_int():
+def test_fmt_image_width_int_raises():
     formatter = FmtImage(encode=False, width=20)
 
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(NotImplementedError) as exc_info:
         formatter.to_html("/a")
+
+    assert "The `width=` argument must be specified as a string." in exc_info.value.args[0]
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="uses linux specific paths")
@@ -1580,6 +1582,46 @@ def test_fmt_image_path_http(url: str):
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
     assert strip_windows_drive(res) == dst
+
+
+def test_fmt_image_circle_single():
+    formatter = FmtImage(border_radius="50%", sep=" ", file_pattern="{}.svg", encode=False)
+    res = formatter.to_html("/a")
+    dst = formatter.SPAN_TEMPLATE.format(
+        '<img src="/a.svg" style="border-radius: 50%;vertical-align: middle;">'
+    )
+
+    assert strip_windows_drive(res) == dst
+
+
+def test_fmt_image_circle_multiple():
+    formatter = FmtImage(border_radius="50%", sep="---", file_pattern="{}.svg", encode=False)
+    res = formatter.to_html("/a,/b")
+    dst = formatter.SPAN_TEMPLATE.format(
+        '<img src="/a.svg" style="border-radius: 50%;vertical-align: middle;">'
+        "---"
+        '<img src="/b.svg" style="border-radius: 50%;vertical-align: middle;">'
+    )
+
+    assert strip_windows_drive(res) == dst
+
+
+def test_fmt_image_circle_border_radius_raises1():
+    formatter = FmtImage(encode=False, border_radius=20)
+
+    with pytest.raises(NotImplementedError) as exc_info:
+        formatter.to_html("/a")
+    assert "The `border_radius=` argument must be specified as a string." in exc_info.value.args[0]
+
+
+def test_fmt_image_circle_border_radius_raises2():
+    formatter = FmtImage(encode=False, border_radius="20")
+
+    with pytest.raises(NotImplementedError) as exc_info:
+        formatter.to_html("/a")
+    assert (
+        'The `border_radius=` argument must end with either "px" or "%"' in exc_info.value.args[0]
+    )
 
 
 def test_fmt_icon_one_per_cell():

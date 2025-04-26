@@ -29,3 +29,29 @@ def test_val_fmt_image_multiple(img_paths: Path):
 
     assert 'img src="data:image/svg+xml;base64' in img1
     assert 'img src="data:image/svg+xml;base64' in img2
+
+
+def test_locate_val_fmt_image_circle(img_paths: Path):
+    imgs = vals.fmt_image_circle(
+        "1", border_style="solid", path=img_paths, file_pattern="metro_{}.svg"
+    )
+    with open(img_paths / "metro_1.svg", "rb") as f:
+        encoded = base64.b64encode(f.read()).decode()
+
+    assert encoded in imgs[0]
+
+
+def test_val_fmt_image_circle_single(img_paths: Path):
+    imgs = vals.fmt_image_circle(
+        "1", border_style="solid", path=img_paths, file_pattern="metro_{}.svg"
+    )
+    assert 'img src="data:image/svg+xml;base64' in imgs[0]
+
+
+def test_val_fmt_image_circle_multiple(img_paths: Path):
+    img1, img2 = vals.fmt_image_circle(
+        ["1", "2"], border_style="solid", path=img_paths, file_pattern="metro_{}.svg"
+    )
+
+    assert 'img src="data:image/svg+xml;base64' in img1
+    assert 'img src="data:image/svg+xml;base64' in img2
