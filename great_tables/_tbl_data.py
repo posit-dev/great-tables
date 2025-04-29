@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import re
-import warnings
+import sys
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Union
 
 from typing_extensions import TypeAlias
 
@@ -761,7 +761,6 @@ def _(df: PyArrowTable, x: Any) -> bool:
     return arr.is_null().to_pylist()[0] or arr.is_nan().to_pylist()[0]
 
 
-@singledispatch
 def validate_frame(df: DataFrameLike) -> DataFrameLike:
     """Raises an error if a DataFrame is not supported by Great Tables.
 
@@ -771,101 +770,67 @@ def validate_frame(df: DataFrameLike) -> DataFrameLike:
     raise NotImplementedError(f"Unsupported type: {type(df)}")
 
 
-@validate_frame.register
-def _(df: PdDataFrame) -> PdDataFrame:
-    import pandas as pd
+# @validate_frame.register
+# def _(df: PdDataFrame) -> PdDataFrame:
+#     import pandas as pd
 
-    # case 1: multi-index columns ----
-    if isinstance(df.columns, pd.MultiIndex):
-        raise ValueError(
-            "pandas DataFrames with MultiIndex columns are not supported."
-            " Please use .columns.droplevel() to remove extra column levels,"
-            " or combine the levels into a single name per column."
-        )
+#     # case 1: multi-index columns ----
+#     if isinstance(df.columns, pd.MultiIndex):
+#         raise ValueError(
+#             "pandas DataFrames with MultiIndex columns are not supported."
+#             " Please use .columns.droplevel() to remove extra column levels,"
+#             " or combine the levels into a single name per column."
+#         )
 
-    # case 2: duplicate column names ----
-    dupes = df.columns[df.columns.duplicated()]
-    if len(dupes):
-        raise ValueError(
-            f"Column names must be unique. Detected duplicate columns:\n\n {list(dupes)}"
-        )
+#     # case 2: duplicate column names ----
+#     dupes = df.columns[df.columns.duplicated()]
+#     if len(dupes):
+#         raise ValueError(
+#             f"Column names must be unique. Detected duplicate columns:\n\n {list(dupes)}"
+#         )
 
-    non_str_cols = [(ii, el) for ii, el in enumerate(df.columns) if not isinstance(el, str)]
+#     non_str_cols = [(ii, el) for ii, el in enumerate(df.columns) if not isinstance(el, str)]
 
-    if non_str_cols:
-        _col_msg = "\n".join(f"  * Position {ii}: {col}" for ii, col in non_str_cols[:3])
-        warnings.warn(
-            "pandas DataFrame contains non-string column names. Coercing to strings. "
-            "Here are the first few non-string columns:\n\n"
-            f"{_col_msg}",
-            category=UserWarning,
-        )
-        new_df = df.copy()
-        new_df.columns = [str(el) for el in df.columns]
-        return new_df
+#     if non_str_cols:
+#         _col_msg = "\n".join(f"  * Position {ii}: {col}" for ii, col in non_str_cols[:3])
+#         warnings.warn(
+#             "pandas DataFrame contains non-string column names. Coercing to strings. "
+#             "Here are the first few non-string columns:\n\n"
+#             f"{_col_msg}",
+#             category=UserWarning,
+#         )
+#         new_df = df.copy()
+#         new_df.columns = [str(el) for el in df.columns]
+#         return new_df
 
-    return df
-
-
-@validate_frame.register
-def _(df: PlDataFrame) -> PlDataFrame:
-    return df
+#     return df
 
 
-@validate_frame.register
-def _(df: PyArrowTable) -> PyArrowTable:
-    warnings.warn("PyArrow Table support is currently experimental.")
+def to_frame(ser: list[Any], name: str) -> DataFrameLike:
+    # TODO: ser can probably be more broad than a list
 
-    if len(set(df.column_names)) != len(df.column_names):
-        raise ValueError("Column names must be unique.")
+    frame_instantiating_libs: tuple[str, ...] = ("pandas", "polars", "pyarrow")
 
-    return df
+    for lib_name in frame_instantiating_libs:
+        if lib_name in sys.modules:
+            module = sys.modules[lib_name]
+        try:
+            module = __import__(lib_name)
+            break
+        except ImportError:
+            continue
+    else:
+        raise ImportError("None of pandas, polars, or pyarrow could be imported")
 
+    # Now implement the conversion based on which library was imported
+    if lib_name == "pandas":
+        return module.DataFrame({name: ser})
 
-# to_frame ----
+    if lib_name == "polars":
+        return module.DataFrame({name: ser})
 
+    if lib_name == "pyarrow":
+        return module.Table.from_arrays([ser], names=[name])
 
-@singledispatch
-def to_frame(ser: "list[Any] | SeriesLike", name: Optional[str] = None) -> DataFrameLike:
-    # TODO: remove pandas. currently, we support converting a list to a pd.DataFrame
-    # in order to support backwards compatibility in the vals.fmt_* functions.
-
-    try:
-        import pandas as pd
-    except ImportError:
-        _raise_pandas_required(
-            "Passing a plain list of values currently requires the library pandas. "
-            "You can avoid this error by passing a polars Series."
-        )
-
-    if not isinstance(ser, list):
-        raise NotImplementedError(f"Unsupported type: {type(ser)}")
-
-    if not name:
-        raise ValueError("name must be specified, when converting a list to a DataFrame.")
-
-    return pd.DataFrame({name: ser})
-
-
-@to_frame.register
-def _(ser: PdSeries, name: Optional[str] = None) -> PdDataFrame:
-    return ser.to_frame(name)
-
-
-@to_frame.register
-def _(ser: PlSeries, name: Optional[str] = None) -> PlDataFrame:
-    return ser.to_frame(name)
-
-
-@to_frame.register
-def _(ser: PyArrowArray, name: Optional[str] = None) -> PyArrowTable:
-    import pyarrow as pa
-
-    return pa.table({name: ser})
-
-
-@to_frame.register
-def _(ser: PyArrowChunkedArray, name: Optional[str] = None) -> PyArrowTable:
-    import pyarrow as pa
-
-    return pa.table({name: ser})
+    msg = f"Library {lib_name} not supported. Allowed libraries: {frame_instantiating_libs!s}."
+    raise NotImplementedError(msg)

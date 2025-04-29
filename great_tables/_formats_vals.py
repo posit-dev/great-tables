@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from typing_extensions import TypeAlias
 
-from .gt import GT, _get_column_of_values
 from ._gt_data import GTData
 from ._tbl_data import SeriesLike, to_frame
+from .gt import GT, _get_column_of_values
 
 if TYPE_CHECKING:
     from ._formats import DateStyle, TimeStyle
