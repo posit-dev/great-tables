@@ -43,7 +43,7 @@ It's true, we had baked Pandas in as a dependency. We were just kids back then w
 We didn't realize that the world was moving to DataFrame agnostic support 😓.
 
 But the more we used Polars with Great Tables, the happier we were.
-So we made some architectural tweaks to make Great Tables [BYODF (Bring Your Own DataFrame)](./bring-your-own-df/index.qmd).
+So we made some architectural tweaks to make Great Tables [BYODF (Bring Your Own DataFrame)](../bring-your-own-df/index.qmd).
 With these changes, Polars users could install and use Great Tables without pulling in an unnecessary
 dependency on another DataFrame library (Pandas).
 
@@ -93,7 +93,7 @@ In this section I'll look at how we addressed the 3 big requirements behind maki
 
 Our biggest hurdle was that the Great Tables library was less than a year old.
 However, this youthful appearance is a bit misleading, because Great Tables builds on decades of
-table design and tooling. For example, Rich's version of Great Tables in R, called `gt`, has been around since 2019 (see his rstudio::conf() talk).
+table design and tooling. For example, Rich's version of Great Tables in R, called `gt`, has been around since 2019 (see [his rstudio::conf() talk](https://youtu.be/h1KAjSfSbmk)).
 
 My favorite aspect of `gt` is that the community ran **table contests** every year. The contests don't even require the use of `gt` or Great Tables, just a zest for the art of table styling. The [2024 Table Contest](https://posit.co/blog/2024-table-contest-winners/) had around **60 submissions**, and is something we often draw on for inspiration.
 
