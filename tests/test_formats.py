@@ -1340,6 +1340,47 @@ def test_fmt_datetime_bad_date_style_raises():
 
 
 # ------------------------------------------------------------------------------
+# Test `fmt_tf()`
+# ------------------------------------------------------------------------------
+
+FMT_TF_CASES: list[tuple[dict[str, Any], list[str]]] = [
+    (dict(), ["false", "false", "true", "false", "false"]),
+    (dict(tf_style="arrows"), ["↓", "↓", "↑", "↓", "↓"]),
+    (dict(tf_style="yes-no"), ["no", "no", "yes", "no", "no"]),
+    (
+        dict(colors=["green"]),
+        [
+            '<span style="color:green">false</span>',
+            '<span style="color:green">false</span>',
+            '<span style="color:green">true</span>',
+            '<span style="color:green">false</span>',
+            '<span style="color:green">false</span>',
+        ],
+    ),
+    (
+        dict(colors=["green", "red"]),
+        [
+            '<span style="color:red">false</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:green">true</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:red">false</span>',
+        ],
+    ),
+    (dict(tf_style="yes-no", true_val="YES"), ["no", "no", "YES", "no", "no"]),
+    (dict(tf_style="yes-no", false_val="NO"), ["NO", "NO", "yes", "NO", "NO"]),
+]
+
+
+@pytest.mark.parametrize("fmt_tf_kwargs,x_out", FMT_TF_CASES)
+def test_fmt_tf_case(fmt_tf_kwargs: dict[str, Any], x_out: list[str]):
+    df = pl.DataFrame({"x": [False, False, True, False, False]})
+    gt = GT(df).fmt_tf(columns="x", **fmt_tf_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+# ------------------------------------------------------------------------------
 # Test `fmt_bytes()`
 # ------------------------------------------------------------------------------
 @pytest.mark.parametrize(
