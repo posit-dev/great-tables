@@ -9,6 +9,7 @@ from great_tables import GT, _locale
 from great_tables._data_color.base import _html_color
 from great_tables._formats import (
     FmtImage,
+    _check_colors,
     _expand_exponential_to_full_string,
     _format_number_n_sigfig,
     _format_number_fixed_decimals,
@@ -1861,6 +1862,15 @@ def test_fmt_image_http(url: str):
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
     assert strip_windows_drive(res) == dst
+
+
+def test_check_colors():
+    # Error on more than 3 colors provided
+    with pytest.raises(ValueError):
+        _check_colors(colors=["red", "blue", "green", "gray"])
+    # Error on not passing a list of strings
+    with pytest.raises(ValueError):
+        _check_colors(colors=[1, 2, 3])  # type: ignore
 
 
 @pytest.mark.parametrize(
