@@ -2407,6 +2407,7 @@ def fmt_tf_context(
     # Obtain the list of `True`/`False` text values with overrides
     tf_vals_list = _get_tf_vals(tf_style=tf_style, true_val=true_val, false_val=false_val)
 
+    # Depending on the value of `x`, assign the appropriate formatted value
     if x is True:
         x_formatted = tf_vals_list[0]
     elif x is False:
@@ -2416,7 +2417,9 @@ def fmt_tf_context(
     else:
         return x
 
+    # Apply colors to the formatted value
     if context == "html" and colors is not None:
+        # Ensure that the `colors=` value satisfies the requirements
         _check_colors(colors=colors)
 
         # Apply colors to the formatted value
