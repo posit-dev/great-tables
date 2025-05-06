@@ -2404,17 +2404,13 @@ def fmt_tf_context(
     if not isinstance(x, bool) and not is_na(data._tbl_data, x):
         return x
 
-    # Obtain the list of `True`/`False` text values
-    tf_vals_list = _get_tf_vals(tf_style=tf_style)
+    # Obtain the list of `True`/`False` text values with overrides
+    tf_vals_list = _get_tf_vals(tf_style=tf_style, true_val=true_val, false_val=false_val)
 
     if x is True:
         x_formatted = tf_vals_list[0]
-        if true_val is not None:
-            x_formatted = true_val
     elif x is False:
         x_formatted = tf_vals_list[1]
-        if false_val is not None:
-            x_formatted = false_val
     elif is_na(data._tbl_data, x) and na_val is not None:
         x_formatted = na_val
     else:
@@ -2478,26 +2474,41 @@ def _check_colors(colors: list[str]):
             raise ValueError("Each color in the `colors` list must be a string.")
 
 
-def _get_tf_vals(tf_style: str) -> list[str]:
+def _get_tf_vals(
+    tf_style: str, true_val: str | None = None, false_val: str | None = None
+) -> list[str]:
     """
-    Get the `True`/`False` text values based on the `tf_style`.
+    Get the `True`/`False` text values based on the `tf_style`, with optional overrides.
 
     Parameters
     ----------
     tf_style
         The `True`/`False` mapping style to use.
+    true_val
+        Optional override for the True value.
+    false_val
+        Optional override for the False value.
 
     Returns
     -------
     list[str]
-        A list of two strings representing the `True` and `False` values as strings.
+        A list of two strings representing the `True` and `False` values.
     """
     if tf_style not in TF_FORMATS:
         raise ValueError(
             f"Invalid `tf_style`: {tf_style}. Must be one of {list(TF_FORMATS.keys())}."
         )
 
-    return TF_FORMATS[tf_style]
+    # Get the base values from the TF_FORMATS dictionary
+    tf_vals = TF_FORMATS[tf_style].copy()
+
+    # Override with provided values if any
+    if true_val is not None:
+        tf_vals[0] = true_val
+    if false_val is not None:
+        tf_vals[1] = false_val
+
+    return tf_vals
 
 
 def fmt_markdown(
