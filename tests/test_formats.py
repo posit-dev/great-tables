@@ -1360,6 +1360,17 @@ FMT_TF_CASES: list[tuple[dict[str, Any], list[str]]] = [
         ],
     ),
     (
+        dict(colors="blue"),
+        [
+            '<span style="color:blue">false</span>',
+            '<span style="color:blue">false</span>',
+            '<span style="color:blue">true</span>',
+            '<span style="color:blue">false</span>',
+            '<span style="color:blue">false</span>',
+            "None",
+        ],
+    ),
+    (
         dict(colors=["green", "red"]),
         [
             '<span style="color:red">false</span>',
