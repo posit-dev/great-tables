@@ -1173,6 +1173,7 @@ FMT_CURRENCY_CASES: list[tuple[dict[str, Any], list[str]]] = [
     (dict(placement="right"), ["1,234,567.00$", "−5,432.37$"]),
     (dict(placement="right", incl_space=True), ["1,234,567.00 $", "−5,432.37 $"]),
     (dict(incl_space=True), ["$ 1,234,567.00", "−$ 5,432.37"]),
+    (dict(compact=True), ["$1.23M", "−$5.43K"]),
 ]
 
 
