@@ -2428,14 +2428,14 @@ def fmt_tf_context(
         # Ensure that the `colors=` value satisfies the requirements
         _check_colors(colors=colors)
 
-        # Apply colors to the formatted value
-        if len(colors) >= 1 and x is True:
+        # Apply colors to the formatted value based on condition
+        if x is True and len(colors) >= 1:
             x_formatted = f'<span style="color:{colors[0]}">{x_formatted}</span>'
-        elif len(colors) == 1 and x is False:
-            x_formatted = f'<span style="color:{colors[0]}">{x_formatted}</span>'
-        elif len(colors) >= 2 and x is False:
-            x_formatted = f'<span style="color:{colors[1]}">{x_formatted}</span>'
-        elif len(colors) == 3 and is_na(data._tbl_data, x):
+        elif x is False:
+            # Use first color if only one color provided, otherwise use second color
+            color_idx = 0 if len(colors) == 1 else 1
+            x_formatted = f'<span style="color:{colors[color_idx]}">{x_formatted}</span>'
+        elif is_na(data._tbl_data, x) and len(colors) == 3:
             x_formatted = f'<span style="color:{colors[2]}">{x_formatted}</span>'
 
     # Use a supplied pattern specification to decorate the formatted value
