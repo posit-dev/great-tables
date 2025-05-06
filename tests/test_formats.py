@@ -1344,9 +1344,9 @@ def test_fmt_datetime_bad_date_style_raises():
 # ------------------------------------------------------------------------------
 
 FMT_TF_CASES: list[tuple[dict[str, Any], list[str]]] = [
-    (dict(), ["false", "false", "true", "false", "false"]),
-    (dict(tf_style="arrows"), ["↓", "↓", "↑", "↓", "↓"]),
-    (dict(tf_style="yes-no"), ["no", "no", "yes", "no", "no"]),
+    (dict(), ["false", "false", "true", "false", "false", "None"]),
+    (dict(tf_style="arrows"), ["↓", "↓", "↑", "↓", "↓", "None"]),
+    (dict(tf_style="yes-no"), ["no", "no", "yes", "no", "no", "None"]),
     (
         dict(colors=["green"]),
         [
@@ -1355,6 +1355,7 @@ FMT_TF_CASES: list[tuple[dict[str, Any], list[str]]] = [
             '<span style="color:green">true</span>',
             '<span style="color:green">false</span>',
             '<span style="color:green">false</span>',
+            "None",
         ],
     ),
     (
@@ -1365,16 +1366,18 @@ FMT_TF_CASES: list[tuple[dict[str, Any], list[str]]] = [
             '<span style="color:green">true</span>',
             '<span style="color:red">false</span>',
             '<span style="color:red">false</span>',
+            "None",
         ],
     ),
-    (dict(tf_style="yes-no", true_val="YES"), ["no", "no", "YES", "no", "no"]),
-    (dict(tf_style="yes-no", false_val="NO"), ["NO", "NO", "yes", "NO", "NO"]),
+    (dict(tf_style="yes-no", true_val="YES"), ["no", "no", "YES", "no", "no", "None"]),
+    (dict(tf_style="yes-no", false_val="NO"), ["NO", "NO", "yes", "NO", "NO", "None"]),
+    (dict(tf_style="yes-no", na_val="NA"), ["no", "no", "yes", "no", "no", "NA"]),
 ]
 
 
 @pytest.mark.parametrize("fmt_tf_kwargs,x_out", FMT_TF_CASES)
 def test_fmt_tf_case(fmt_tf_kwargs: dict[str, Any], x_out: list[str]):
-    df = pl.DataFrame({"x": [False, False, True, False, False]})
+    df = pl.DataFrame({"x": [False, False, True, False, False, None]})
     gt = GT(df).fmt_tf(columns="x", **fmt_tf_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == x_out
