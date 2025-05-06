@@ -9,6 +9,7 @@ from great_tables import GT, _locale
 from great_tables._data_color.base import _html_color
 from great_tables._formats import (
     FmtImage,
+    _check_colors,
     _expand_exponential_to_full_string,
     _format_number_n_sigfig,
     _format_number_fixed_decimals,
@@ -1341,6 +1342,73 @@ def test_fmt_datetime_bad_date_style_raises():
 
 
 # ------------------------------------------------------------------------------
+# Test `fmt_tf()`
+# ------------------------------------------------------------------------------
+
+FMT_TF_CASES: list[tuple[dict[str, Any], list[str]]] = [
+    (dict(), ["false", "false", "true", "false", "false", "None"]),
+    (dict(tf_style="arrows"), ["↓", "↓", "↑", "↓", "↓", "None"]),
+    (dict(tf_style="yes-no"), ["no", "no", "yes", "no", "no", "None"]),
+    (
+        dict(colors=["green"]),
+        [
+            '<span style="color:green">false</span>',
+            '<span style="color:green">false</span>',
+            '<span style="color:green">true</span>',
+            '<span style="color:green">false</span>',
+            '<span style="color:green">false</span>',
+            "None",
+        ],
+    ),
+    (
+        dict(colors="blue"),
+        [
+            '<span style="color:blue">false</span>',
+            '<span style="color:blue">false</span>',
+            '<span style="color:blue">true</span>',
+            '<span style="color:blue">false</span>',
+            '<span style="color:blue">false</span>',
+            "None",
+        ],
+    ),
+    (
+        dict(colors=["green", "red"]),
+        [
+            '<span style="color:red">false</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:green">true</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:red">false</span>',
+            "None",
+        ],
+    ),
+    (
+        dict(na_val="NA", colors=["green", "red", "blue"]),
+        [
+            '<span style="color:red">false</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:green">true</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:blue">NA</span>',
+        ],
+    ),
+    (dict(tf_style="yes-no", true_val="YES"), ["no", "no", "YES", "no", "no", "None"]),
+    (dict(tf_style="yes-no", false_val="NO"), ["NO", "NO", "yes", "NO", "NO", "None"]),
+    (dict(tf_style="yes-no", na_val="NA"), ["no", "no", "yes", "no", "no", "NA"]),
+    (dict(pattern="{x}!"), ["false!", "false!", "true!", "false!", "false!", "None"]),
+]
+
+
+@pytest.mark.parametrize("fmt_tf_kwargs,x_out", FMT_TF_CASES)
+def test_fmt_tf_case(fmt_tf_kwargs: dict[str, Any], x_out: list[str]):
+    df = pl.DataFrame({"x": [False, False, True, False, False, None]})
+    gt = GT(df).fmt_tf(columns="x", **fmt_tf_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+# ------------------------------------------------------------------------------
 # Test `fmt_bytes()`
 # ------------------------------------------------------------------------------
 @pytest.mark.parametrize(
@@ -1807,6 +1875,15 @@ def test_fmt_image_http(url: str):
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
     assert strip_windows_drive(res) == dst
+
+
+def test_check_colors():
+    # Error on more than 3 colors provided
+    with pytest.raises(ValueError):
+        _check_colors(colors=["red", "blue", "green", "gray"])
+    # Error on not passing a list of strings
+    with pytest.raises(ValueError):
+        _check_colors(colors=[1, 2, 3])  # type: ignore
 
 
 @pytest.mark.parametrize(

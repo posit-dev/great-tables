@@ -25,6 +25,7 @@ from ._formats import (
     fmt_percent,
     fmt_roman,
     fmt_scientific,
+    fmt_tf,
     fmt_time,
     fmt_units,
 )
@@ -237,6 +238,7 @@ class GT(
     fmt_flag = fmt_flag
     fmt_units = fmt_units
     fmt_nanoplot = fmt_nanoplot
+    fmt_tf = fmt_tf
     data_color = data_color
 
     sub_missing = sub_missing
