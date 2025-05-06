@@ -1333,32 +1333,24 @@ def fmt_currency_context(
     if currency_symbol == "$":
         currency_symbol = _context_dollar_mark(context=context)
 
-    # Format the value to decimal notation; this is done before the currency symbol is
-    # affixed to the value
+    # Choose the appropriate formatting function based on the `compact=` option
     if compact:
-        x_formatted = _format_number_compactly(
-            value=x,
-            decimals=decimals,
-            n_sigfig=None,
-            drop_trailing_zeros=False,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=use_seps,
-            sep_mark=sep_mark,
-            dec_mark=dec_mark,
-            force_sign=force_sign,
-        )
+        f_formatter = _format_number_compactly
     else:
-        x_formatted = _value_to_decimal_notation(
-            value=x,
-            decimals=decimals,
-            n_sigfig=None,
-            drop_trailing_zeros=False,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=use_seps,
-            sep_mark=sep_mark,
-            dec_mark=dec_mark,
-            force_sign=force_sign,
-        )
+        f_formatter = _value_to_decimal_notation
+
+    # Perform formatting to decimal notation
+    x_formatted = f_formatter(
+        value=x,
+        decimals=decimals,
+        n_sigfig=None,
+        drop_trailing_zeros=False,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+    )
 
     # Create a currency pattern for affixing the currency symbol
     space_character = " " if incl_space else ""
