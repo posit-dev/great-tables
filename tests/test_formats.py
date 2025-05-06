@@ -1369,6 +1369,17 @@ FMT_TF_CASES: list[tuple[dict[str, Any], list[str]]] = [
             "None",
         ],
     ),
+    (
+        dict(na_val="NA", colors=["green", "red", "blue"]),
+        [
+            '<span style="color:red">false</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:green">true</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:blue">NA</span>',
+        ],
+    ),
     (dict(tf_style="yes-no", true_val="YES"), ["no", "no", "YES", "no", "no", "None"]),
     (dict(tf_style="yes-no", false_val="NO"), ["NO", "NO", "yes", "NO", "NO", "None"]),
     (dict(tf_style="yes-no", na_val="NA"), ["no", "no", "yes", "no", "no", "NA"]),
