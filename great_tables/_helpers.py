@@ -4,29 +4,12 @@ import random
 import re
 import string
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import Any, Callable
 
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self
 
+from .types import FontStackName
 from ._text import BaseText, Html, Md, _md_html
-
-FontStackName: TypeAlias = Literal[
-    "system-ui",
-    "transitional",
-    "old-style",
-    "humanist",
-    "geometric-humanist",
-    "classical-humanist",
-    "neo-grotesque",
-    "monospace-slab-serif",
-    "monospace-code",
-    "industrial",
-    "rounded-sans",
-    "slab-serif",
-    "antique",
-    "didone",
-    "handwritten",
-]
 
 
 FONT_STACKS = {

@@ -8,7 +8,7 @@ del _v
 # Main gt imports ----
 
 from .gt import GT
-from . import vals, loc, style
+from . import loc, style, types, vals
 from ._styles import FromColumn as from_column
 from ._helpers import (
     letters,
@@ -41,6 +41,7 @@ __all__ = (
     "random_id",
     "from_column",
     "vals",
+    "types",
     "loc",
     "style",
 )

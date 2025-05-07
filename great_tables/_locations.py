@@ -3,9 +3,11 @@ from __future__ import annotations
 import itertools
 from dataclasses import dataclass
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable
 
 from typing_extensions import TypeAlias
+
+from .types import NullMeans, PlacementOptions, RowNameAttrs
 
 # note that types like Spanners are only used in annotations for concretes of the
 # resolve generic, but we need to import at runtime, due to singledispatch looking
@@ -27,7 +29,6 @@ if TYPE_CHECKING:
 
 # Misc Types ===========================================================================
 
-PlacementOptions: TypeAlias = Literal["auto", "left", "right"]
 RowSelectExpr: TypeAlias = 'list[int] | PlExpr | Callable[["TblData"], bool] | None'
 
 # Locations ============================================================================
@@ -672,7 +673,7 @@ def resolve_cols_c(
     strict: bool = True,
     excl_stub: bool = True,
     excl_group: bool = True,
-    null_means: Literal["everything", "nothing"] = "everything",
+    null_means: NullMeans = "everything",
 ) -> list[str]:
     """Return a list of column names, selected by expr."""
     selected = resolve_cols_i(
@@ -692,7 +693,7 @@ def resolve_cols_i(
     strict: bool = True,
     excl_stub: bool = True,
     excl_group: bool = True,
-    null_means: Literal["everything", "nothing"] = "everything",
+    null_means: NullMeans = "everything",
 ) -> list[tuple[str, int]]:
     """Return a tuple of (column name, position) pairs, selected by expr."""
 
@@ -759,8 +760,8 @@ def resolve_cols_i(
 def resolve_rows_i(
     data: GTData | list[str],
     expr: RowSelectExpr = None,
-    null_means: Literal["everything", "nothing"] = "everything",
-    row_name_attr: Literal["rowname", "group_id"] = "rowname",
+    null_means: NullMeans = "everything",
+    row_name_attr: RowNameAttrs = "rowname",
 ) -> list[tuple[str, int]]:
     """Return matching row numbers, based on expr
 

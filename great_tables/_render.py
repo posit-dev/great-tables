@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import os
-from typing import Literal
+
+from .types import RenderEnvs
 
 IDE_ENV_FLAGS = {
     "default": {"make_page": False, "all_important": False},
@@ -13,9 +14,7 @@ IDE_ENV_FLAGS = {
 }
 
 
-def infer_render_env() -> (
-    Literal["quarto", "databricks", "ipython_terminal", "vscode", "positron", "default"]
-):
+def infer_render_env() -> RenderEnvs:
     # Check if we are rendering in the Quarto environment
     if "QUARTO_BIN_PATH" in os.environ:
         return "quarto"
