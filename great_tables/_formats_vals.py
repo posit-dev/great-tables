@@ -38,8 +38,17 @@ def _make_one_col_table(vals: X) -> GT:
         # anticipating a tuple may be too defensive
         vals = list(vals)
 
+    if isinstance(vals, list):
+        try:
+            import polars as pl
+        except ImportError:
+            pass
+        else:
+            vals = pl.Series(vals)
+
     # TODO: remove pandas. if vals is not a SeriesLike, then we currently
     # convert them to a pandas Series for backwards compatibility.
+
     df = to_frame(vals, name="x")
 
     # Convert the list to a Pandas DataFrame and then to a GTData object
