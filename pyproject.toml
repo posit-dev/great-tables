@@ -85,6 +85,22 @@ dev-no-pandas = [
 homepage = "https://github.com/posit-dev/great-tables"
 documentation = "https://posit-dev.github.io/great-tables/"
 
+[dependency-groups]
+dev = [
+    "css-inline>=0.14.6",
+    "ipykernel>=6.29.5",
+    "pandas>=2.2.3",
+    "pillow>=11.2.1",
+    "polars>=1.27.1",
+    "pyarrow>=19.0.1",
+    "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
+    "pytest-snapshot>=0.9.0",
+    "requests>=2.32.3",
+    "selenium>=4.31.0",
+    "shiny>=1.4.0",
+]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q --cov=great_tables -m 'not no_pandas'"
