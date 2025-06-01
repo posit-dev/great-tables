@@ -69,7 +69,7 @@ else:
         _backends = [("pandas", "Series")]
 
     class PlSeries(AbstractBackend):
-        _backends = [("polars", "Series")]
+        _backends: list[tuple[str, str]] = [("polars", "series.series.Series")]
 
     class PyArrowArray(AbstractBackend):
         _backends = [("pyarrow", "Array")]
