@@ -2436,10 +2436,12 @@ def fmt_tf_context(
             f"Invalid `tf_style`: {tf_style}. Must be one of {list(TF_FORMATS.keys())}."
         )
 
+    # Check type of `na_val=` and raise error if not a string or None
+    if na_val is not None and not isinstance(na_val, str):
+        raise ValueError("The `na_val` argument must be a string or None.")
+
     if x is None and na_val is None:
         return FormatterSkipElement()
-
-    # TODO: Check type of `na_val=` and raise error if not a string or None
 
     # Obtain the list of `True`/`False` text values with overrides
     tf_vals_list = _get_tf_vals(tf_style=tf_style, true_val=true_val, false_val=false_val)
@@ -2459,8 +2461,10 @@ def fmt_tf_context(
         # Get the appropriate color for this value
         color = color_map.get_color(x, data, strict=False)
 
-        if color is not None:
-            x_formatted = f'<span style="color:{color}">{x_formatted}</span>'
+        x_styled = f'<span style="color:{color}">{x_formatted}</span>'
+
+    else:
+        x_styled = x_formatted
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
@@ -2468,9 +2472,11 @@ def fmt_tf_context(
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
 
-        x_formatted = pattern.replace("{x}", x_formatted)
+        x_out = pattern.replace("{x}", x_styled)
+    else:
+        x_out = x_styled
 
-    return x_formatted
+    return x_out
 
 
 TF_FORMATS: dict[str, list[str]] = {
