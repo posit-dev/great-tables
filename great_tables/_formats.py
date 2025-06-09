@@ -2449,6 +2449,8 @@ def fmt_tf_context(
             x_formatted = f'<span style="color:{colors[color_idx]}">{x_formatted}</span>'
         elif is_na(data._tbl_data, x) and len(colors) == 3:
             x_formatted = f'<span style="color:{colors[2]}">{x_formatted}</span>'
+        else:
+            raise ValueError("Unexpected condition in color application.")
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
