@@ -1407,6 +1407,55 @@ def test_fmt_tf_column_invalid_type():
     assert "Expected boolean value or NA, but got" in exc_info.value.args[0]
 
 
+def test_fmt_tf_invalid_na_val_type():
+    df = pl.DataFrame({"x": [True, False, None]})
+    gt = GT(df).fmt_tf(columns="x", na_val=123)  # Invalid: numeric na_val
+
+    with pytest.raises(ValueError, match="The `na_val` argument must be a string or None"):
+        _get_column_of_values(gt, column_name="x", context="html")
+
+
+def test_fmt_tf_skip_formatting_na_without_na_val():
+    df = pl.DataFrame({"x": [True, False, None]})
+    gt = GT(df).fmt_tf(columns="x")  # No na_val provided
+
+    # NA vals should be skipped (where the original value is preserved)
+    result = _get_column_of_values(gt, column_name="x", context="html")
+
+    # The NA value should remain as the string representation "None"
+    assert result[2] == "None"
+
+
+def test_fmt_tf_latex_context_with_colors():
+    df = pl.DataFrame({"x": [True, False]})
+    gt = GT(df).fmt_tf(columns="x", colors=["red", "blue"])
+
+    with pytest.raises(
+        ValueError, match="The `colors=` argument is not currently supported for LaTeX tables"
+    ):
+        _get_column_of_values(gt, column_name="x", context="latex")
+
+
+@pytest.mark.parametrize(
+    "invalid_na_val",
+    [
+        ["invalid"],  # list
+        {"invalid": "value"},  # dict
+        True,  # boolean
+        123,  # integer
+        12.34,  # float
+        ("tuple", "value"),  # tuple
+        set(["set_value"]),  # set
+    ],
+)
+def test_fmt_tf_na_val_type_validation(invalid_na_val):
+    df = pl.DataFrame({"x": [True, False, None]})
+    gt = GT(df).fmt_tf(columns="x", na_val=invalid_na_val)
+
+    with pytest.raises(ValueError, match="The `na_val` argument must be a string or None"):
+        _get_column_of_values(gt, column_name="x", context="html")
+
+
 # ------------------------------------------------------------------------------
 # Test `fmt_bytes()`
 # ------------------------------------------------------------------------------
