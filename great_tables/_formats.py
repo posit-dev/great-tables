@@ -7,7 +7,18 @@ from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, TypedDict, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    ClassVar,
+    Literal,
+    TypedDict,
+    TypeVar,
+    Union,
+    cast,
+    overload,
+)
 
 import babel
 import faicons
@@ -2402,7 +2413,7 @@ def fmt_tf(
 
 
 def fmt_tf_context(
-    x: float,
+    x: Any,
     data: GTData,
     tf_style: str,
     pattern: str,
@@ -2412,9 +2423,12 @@ def fmt_tf_context(
     colors: list[str] | None,
     context: str,
 ) -> str | FormatterSkipElement:
-    # If `x` is not a boolean value, raise an error
-    if not isinstance(x, bool) and not is_na(data._tbl_data, x):
-        raise ValueError(f"Expected boolean value or NA, but got {str(type(x))}.")
+    if is_na(data._tbl_data, x):
+        x = None
+    elif not isinstance(x, bool):
+        raise ValueError(f"Expected boolean value or NA, but got {type(x)}.")
+
+    x = cast(Union[bool, None], x)
 
     # Validate `tf_style=` value
     if tf_style not in TF_FORMATS:
@@ -2422,22 +2436,17 @@ def fmt_tf_context(
             f"Invalid `tf_style`: {tf_style}. Must be one of {list(TF_FORMATS.keys())}."
         )
 
+    if x is None and na_val is None:
+        return FormatterSkipElement()
+
+    # TODO: Check type of `na_val=` and raise error if not a string or None
+
     # Obtain the list of `True`/`False` text values with overrides
     tf_vals_list = _get_tf_vals(tf_style=tf_style, true_val=true_val, false_val=false_val)
 
-    # Depending on the value of `x`, assign the appropriate formatted value
-    if x is True:
-        x_formatted = tf_vals_list[0]
-    elif x is False:
-        x_formatted = tf_vals_list[1]
-    elif is_na(data._tbl_data, x) and na_val is not None:
-        x_formatted = na_val
-    elif is_na(data._tbl_data, x):
-        # Handle NA values when no `na_val` is provided by skipping formatting entirely
-        return FormatterSkipElement()
-    else:
-        # Note that this should never happen (we have validation at top) but guard against anyway
-        raise ValueError(f"Unexpected value in `fmt_tf_context()`: {x} (type: {type(x)}).")
+    tf_vals = TfMap(*tf_vals_list, na_color=na_val)
+
+    x_formatted = tf_vals.get_color(x, data, strict=True)
 
     # Apply colors to the formatted value
     if context == "html" and colors is not None:
@@ -2445,10 +2454,10 @@ def fmt_tf_context(
         _check_colors(colors=colors)
 
         # Create color mapping
-        color_map = from_colors_list(colors)
+        color_map = TfMap.from_list(colors)
 
         # Get the appropriate color for this value
-        color = color_map.get_color(x, data)
+        color = color_map.get_color(x, data, strict=False)
 
         if color is not None:
             x_formatted = f'<span style="color:{color}">{x_formatted}</span>'
@@ -2531,31 +2540,42 @@ def _get_tf_vals(
 
 
 @dataclass
-class TfColorMap:
+class TfMap:
     true_color: str | None = None
     false_color: str | None = None
     na_color: str | None = None
 
-    def get_color(self, x: bool | None, data: GTData) -> str | None:
-        if x is True:
-            return self.true_color
-        elif x is False:
-            return self.false_color
-        elif is_na(data._tbl_data, x):
-            return self.na_color
+    @classmethod
+    def from_list(cls, colors: list[str]) -> TfMap:
+        if len(colors) == 1:
+            return cls(true_color=colors[0], false_color=colors[0])
+        elif len(colors) == 2:
+            return cls(true_color=colors[0], false_color=colors[1])
+        elif len(colors) == 3:
+            return cls(true_color=colors[0], false_color=colors[1], na_color=colors[2])
         else:
-            raise ValueError(f"Unexpected value type: {type(x)}")
+            raise ValueError("Colors list must have 1-3 elements.")
 
+    @overload
+    def get_color(self, x: bool | None, data: GTData, strict: Literal[False]) -> str | None: ...
 
-def from_colors_list(colors: list[str]) -> TfColorMap:
-    if len(colors) == 1:
-        return TfColorMap(true_color=colors[0], false_color=colors[0])
-    elif len(colors) == 2:
-        return TfColorMap(true_color=colors[0], false_color=colors[1])
-    elif len(colors) == 3:
-        return TfColorMap(true_color=colors[0], false_color=colors[1], na_color=colors[2])
-    else:
-        raise ValueError("Colors list must have 1-3 elements.")
+    @overload
+    def get_color(self, x: bool | None, data: GTData, strict: Literal[True]) -> str: ...
+
+    def get_color(self, x: bool | None, data: GTData, strict: bool = False) -> str | None:
+        if x is True:
+            res = self.true_color
+        elif x is False:
+            res = self.false_color
+        elif is_na(data._tbl_data, x):
+            res = self.na_color
+        else:
+            raise TypeError(f"Unexpected value type: {type(x)}")
+
+        if strict and res is None:
+            raise ValueError("No style defined for this value in TfMap.")
+
+        return res
 
 
 def fmt_markdown(
