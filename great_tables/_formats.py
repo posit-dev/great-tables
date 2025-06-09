@@ -2435,7 +2435,7 @@ def fmt_tf_context(
     elif is_na(data._tbl_data, x):
         # Handle NA values when no `na_val` is provided by skipping formatting entirely
         return FormatterSkipElement()
-    elif is_na(data._tbl_data, x):
+    else:
         # Note that this should never happen (we have validation at top) but guard against anyway
         raise ValueError(f"Unexpected value in `fmt_tf_context()`: {x} (type: {type(x)}).")
 
