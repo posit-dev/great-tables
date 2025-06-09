@@ -2461,7 +2461,7 @@ def fmt_tf_context(
     return x_formatted
 
 
-TF_FORMATS = {
+TF_FORMATS: dict[str, list[str]] = {
     "true-false": ["true", "false"],
     "yes-no": ["yes", "no"],
     "up-down": ["up", "down"],
