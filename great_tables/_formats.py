@@ -2440,8 +2440,13 @@ def fmt_tf_context(
     if na_val is not None and not isinstance(na_val, str):
         raise ValueError("The `na_val` argument must be a string or None.")
 
+    # If `x` is None and `na_val` is None, skip formatting entirely
     if x is None and na_val is None:
         return FormatterSkipElement()
+
+    # Add warning in LaTeX context about `colors=` not being supported
+    if context == "latex" and colors is not None:
+        raise ValueError("The `colors=` argument is not currently supported for LaTeX tables.")
 
     # Obtain the list of `True`/`False` text values with overrides
     tf_vals_list = _get_tf_vals(tf_style=tf_style, true_val=true_val, false_val=false_val)
