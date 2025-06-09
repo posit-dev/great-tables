@@ -2440,17 +2440,14 @@ def fmt_tf_context(
         # Ensure that the `colors=` value satisfies the requirements
         _check_colors(colors=colors)
 
-        # Apply colors to the formatted value based on condition
-        if x is True and len(colors) >= 1:
-            x_formatted = f'<span style="color:{colors[0]}">{x_formatted}</span>'
-        elif x is False:
-            # Use first color if only one color provided, otherwise use second color
-            color_idx = 0 if len(colors) == 1 else 1
-            x_formatted = f'<span style="color:{colors[color_idx]}">{x_formatted}</span>'
-        elif is_na(data._tbl_data, x) and len(colors) == 3:
-            x_formatted = f'<span style="color:{colors[2]}">{x_formatted}</span>'
-        else:
-            raise ValueError("Unexpected condition in color application.")
+        # Create color mapping
+        color_map = from_colors_list(colors)
+
+        # Get the appropriate color for this value
+        color = color_map.get_color(x, data)
+
+        if color is not None:
+            x_formatted = f'<span style="color:{color}">{x_formatted}</span>'
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
@@ -2527,6 +2524,34 @@ def _get_tf_vals(
         tf_vals[1] = false_val
 
     return tf_vals
+
+
+@dataclass
+class TfColorMap:
+    true_color: str | None = None
+    false_color: str | None = None
+    na_color: str | None = None
+
+    def get_color(self, x: bool | None, data: GTData) -> str | None:
+        if x is True:
+            return self.true_color
+        elif x is False:
+            return self.false_color
+        elif is_na(data._tbl_data, x):
+            return self.na_color
+        else:
+            raise ValueError(f"Unexpected value type: {type(x)}")
+
+
+def from_colors_list(colors: list[str]) -> TfColorMap:
+    if len(colors) == 1:
+        return TfColorMap(true_color=colors[0], false_color=colors[0])
+    elif len(colors) == 2:
+        return TfColorMap(true_color=colors[0], false_color=colors[1])
+    elif len(colors) == 3:
+        return TfColorMap(true_color=colors[0], false_color=colors[1], na_color=colors[2])
+    else:
+        raise ValueError("Colors list must have 1-3 elements.")
 
 
 def fmt_markdown(
