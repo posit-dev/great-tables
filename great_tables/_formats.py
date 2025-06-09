@@ -2412,9 +2412,9 @@ def fmt_tf_context(
     colors: list[str] | None,
     context: str,
 ) -> str:
-    # If `x` is not a boolean value, return it as is
+    # If `x` is not a boolean value, raise an error
     if not isinstance(x, bool) and not is_na(data._tbl_data, x):
-        return x
+        raise ValueError(f"Expected boolean value or NA, but got {str(type(x))}.")
 
     # Validate `tf_style=` value
     if tf_style not in TF_FORMATS:

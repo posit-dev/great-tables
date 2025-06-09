@@ -1396,6 +1396,17 @@ def test_fmt_tf_case(fmt_tf_kwargs: dict[str, Any], x_out: list[str]):
     assert x == x_out
 
 
+def test_fmt_tf_column_invalid_type():
+    df = pl.DataFrame({"x": [0, 1, 2]})
+    gt = GT(df).fmt_tf(columns="x")
+
+    with pytest.raises(ValueError) as exc_info:
+        # This triggers the actual formatting by accessing the formatted values
+        _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "Expected boolean value or NA, but got" in exc_info.value.args[0]
+
+
 # ------------------------------------------------------------------------------
 # Test `fmt_bytes()`
 # ------------------------------------------------------------------------------
