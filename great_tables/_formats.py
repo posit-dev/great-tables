@@ -14,7 +14,7 @@ import faicons
 from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
 
-from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
+from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData
 from ._helpers import px
 from ._locale import (
     _get_currencies_data,
@@ -2411,7 +2411,7 @@ def fmt_tf_context(
     na_val: str | None,
     colors: list[str] | None,
     context: str,
-) -> str:
+) -> str | FormatterSkipElement:
     # If `x` is not a boolean value, raise an error
     if not isinstance(x, bool) and not is_na(data._tbl_data, x):
         raise ValueError(f"Expected boolean value or NA, but got {str(type(x))}.")
@@ -2432,8 +2432,12 @@ def fmt_tf_context(
         x_formatted = tf_vals_list[1]
     elif is_na(data._tbl_data, x) and na_val is not None:
         x_formatted = na_val
-    else:
-        return x
+    elif is_na(data._tbl_data, x):
+        # Handle NA values when no `na_val` is provided by skipping formatting entirely
+        return FormatterSkipElement()
+    elif is_na(data._tbl_data, x):
+        # Note that this should never happen (we have validation at top) but guard against anyway
+        raise ValueError(f"Unexpected value in `fmt_tf_context()`: {x} (type: {type(x)}).")
 
     # Apply colors to the formatted value
     if context == "html" and colors is not None:
