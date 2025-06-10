@@ -249,7 +249,7 @@ def cols_label_rotate(
         A string that gives the direction of the text. Options: `"sideways-lr"`, `"sideways-rl"`,
         `"vertical-lr"`. See note for information on text layout.
     align
-        The alignment to apply. Must be one of `"left"`, `"center"`, `"right", or "none"`. If text
+        The alignment to apply. Must be one of `"left"`, `"center"`, `"right"`, or `"none"`. If text
         is laid out vertically, this affects alignment along the vertical axis.
     padding
         The vertical padding to apply to the column labels.
@@ -275,7 +275,8 @@ def cols_label_rotate(
     )
     ```
 
-    Other styles you provide won't override the column label rotation directives.
+    Other styles you provide won't override the column label rotation directives. Here we set the
+    text to the right.
 
     ```{python}
     (
@@ -290,10 +291,7 @@ def cols_label_rotate(
     ```{python}
     (
         GT(exibble_sm, rowname_col="row", groupname_col="group")
-        .cols_label(
-        {
-            "fctr": "A longer description of the values in the column below"
-        })
+        .cols_label({"fctr": "A longer description of the values in the column below"})
         .cols_label_rotate(columns=["num", "fctr"], dir="sideways-lr")
         .tab_style(
             style=[style.text(weight="bold"), style.css(rule="height: 200px;")],
