@@ -32,6 +32,12 @@ def test_cols_label_units_text():
     assert x[2] == "Zee"
 
 
+def test_cols_label_rotate(snapshot: str):
+    df = pd.DataFrame({"x": [1.234, 2.345], "y": [3.456, 4.567], "z": [5.678, 6.789]})
+    gt_tbl = GT(df, id="test").cols_label_rotate(columns=["x", "y"])
+    assert snapshot == gt_tbl.as_raw_html()
+
+
 def test_final_columns_stub_move_to_begining():
     df = pd.DataFrame({"w": [1], "x": [1], "y": [2], "z": [3]})
     gt = GT(df, rowname_col="y")
