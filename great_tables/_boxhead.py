@@ -222,18 +222,26 @@ def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) ->
     return self._replace(_boxhead=self._boxhead._set_column_aligns(sel_cols, align=align))
 
 
-def cols_label_rotate(self: GTSelf, columns: SelectExpr = None, dir: str = "vertical-lr") -> GTSelf:
+def cols_label_rotate(
+    self: GTSelf, columns: SelectExpr = None, dir: str = "sideways-lr", align: str = "none"
+) -> GTSelf:
     """
     Rotate the column label
+
+    The `cols_label_rotate()` method sets the orientation of the column label text to make it flow
+    vertically. The `dir` argument
 
     Parameters
     ----------
     dir
-        A string that gives the direction of the text. Options: `"vertical-rl"`, `"vertical-lr"`,
-        `"sideways-rl"`, `"sideways-lr"`. See note for information on text layout.
+        A string that gives the direction of the text. Options: `"sideways-lr"`, `"sideways-rl"`,
+        `"vertical-lr"`, `"vertical-rl"`. See note for information on text layout.
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list. If `None`, the alignment is applied to all columns.
+    align
+        The alignment to apply. Must be one of `"left"`, `"center"`, or `"right"`. If text is laid
+        out vertically, this affects alignment along the vertical axis.
 
     Returns
     -------
@@ -243,37 +251,61 @@ def cols_label_rotate(self: GTSelf, columns: SelectExpr = None, dir: str = "vert
 
     Examples
     --------
-    ### `"vertical-rl"`
 
-    For ltr scripts, content flows vertically from top to bottom, and the next vertical line is
-    positioned to the left of the previous line. For rtl scripts, content flows vertically from
-    bottom to top, and the next vertical line is positioned to the right of the previous line.
 
-    ### `"vertical-lr"`
+    ```{python}
+    from great_tables import GT, style, loc, exibble
 
-    For ltr scripts, content flows vertically from top to bottom, and the next vertical line is
-    positioned to the right of the previous line. For rtl scripts, content flows vertically from
-    bottom to top, and the next vertical line is positioned to the left of the previous line.
+    exibble_sm = exibble[["num", "fctr", "row", "group"]]
 
-    ### `"sideways-rl"`
+    (
+        GT(exibble_sm, rowname_col="row", groupname_col="group")
+        .cols_label_rotate(columns=["num", "fctr"])
+    )
+    ```
 
-    For ltr scripts, content flows vertically from top to bottom. For rtl scripts, content flows
-    vertically from bottom to top. All the glyphs, even those in vertical scripts, are set sideways
-    toward the right.
+    Other styles you provide won't override the column label rotation directives.
 
-    ### `"sideways-lr"`
+    ```{python}
+    (
+        GT(exibble_sm, rowname_col="row", groupname_col="group")
+        .cols_label_rotate(columns=["num", "fctr"], dir="vertical-lr")
+        .tab_style(style=style.text(weight="bold"), locations=loc.column_labels(["fctr"]))
+    )
+    ```
+
+    Note
+    --------
+    The dir parameter uses the following keywords to alter the direction of the column label text.
+
+    ##### `"sideways-lr"`
 
     For ltr scripts, content flows vertically from bottom to top. For rtl scripts, content flows
     vertically from top to bottom. All the glyphs, even those in vertical scripts, are set sideways
     toward the left.
 
-    Note
-    --------
+    ##### `"sideways-rl"`
+
+    For ltr scripts, content flows vertically from top to bottom. For rtl scripts, content flows
+    vertically from bottom to top. All the glyphs, even those in vertical scripts, are set sideways
+    toward the right.
+
+    ##### `"vertical-rl"`
+
+    For ltr scripts, content flows vertically from top to bottom, and the next vertical line is
+    positioned to the left of the previous line. For rtl scripts, content flows vertically from
+    bottom to top, and the next vertical line is positioned to the right of the previous line.
+
+    ##### `"vertical-lr"`
+
+    For ltr scripts, content flows vertically from top to bottom, and the next vertical line is
+    positioned to the right of the previous line. For rtl scripts, content flows vertically from
+    bottom to top, and the next vertical line is positioned to the left of the previous line.
 
     """
 
     res = self.tab_style(
-        style=CellStyleCss(f"writing-mode: {dir}; vertical-align: middle; transform: scale(-1);"),
+        style=CellStyleCss(f"writing-mode: {dir}; vertical-align: middle; text-align: {align};"),
         locations=LocColumnLabels(columns=columns),
     )
     return res
