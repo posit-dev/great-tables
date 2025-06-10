@@ -2,6 +2,7 @@ import pandas as pd
 from great_tables import GT
 from great_tables.gt import _get_column_labels
 from great_tables._helpers import UnitStr
+from tests.test_utils_render_html import assert_rendered_columns
 
 
 def test_cols_label():
@@ -35,7 +36,7 @@ def test_cols_label_units_text():
 def test_cols_label_rotate(snapshot: str):
     df = pd.DataFrame({"x": [1.234, 2.345], "y": [3.456, 4.567], "z": [5.678, 6.789]})
     gt_tbl = GT(df, id="test").cols_label_rotate(columns=["x", "y"])
-    assert snapshot == gt_tbl.as_raw_html()
+    assert_rendered_columns(snapshot, gt_tbl)
 
 
 def test_final_columns_stub_move_to_begining():
