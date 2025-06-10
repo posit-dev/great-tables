@@ -229,29 +229,28 @@ def cols_label_rotate(
     align: str = "none",
     padding: int = 8,
 ) -> GTSelf:
-    # Todo arabic/hebrew check rotations
-    # Todo overflowed text across different dir
-    # Todo padding (8px)
     # Example with format_tf
     # Todo different browsers
 
     """
-    Rotate the column label
+    Rotate the column label for one or more columns.
 
     The `cols_label_rotate()` method sets the orientation of the column label text to make it flow
-    vertically. The `dir` argument
+    vertically. The `dir` argument can be set to one of `"sideways-lr"`, `"sideways-rl"`, or
+    `"vertical-lr"`, and the `columns` argument can be used to specify which columns to apply the
+    alignment to. If `columns` is not specified, the alignment is applied to all columns.
 
     Parameters
     ----------
-    dir
-        A string that gives the direction of the text. Options: `"sideways-lr"`, `"sideways-rl"`,
-        `"vertical-lr"`, `"vertical-rl"`. See note for information on text layout.
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list. If `None`, the alignment is applied to all columns.
+    dir
+        A string that gives the direction of the text. Options: `"sideways-lr"`, `"sideways-rl"`,
+        `"vertical-lr"`. See note for information on text layout.
     align
-        The alignment to apply. Must be one of `"left"`, `"center"`, or `"right"`. If text is laid
-        out vertically, this affects alignment along the vertical axis.
+        The alignment to apply. Must be one of `"left"`, `"center"`, `"right", or "none"`. If text
+        is laid out vertically, this affects alignment along the vertical axis.
     padding
         The vertical padding to apply to the column labels.
 
@@ -304,7 +303,7 @@ def cols_label_rotate(
 
     ##### `"vertical-lr"`
 
-    Identical to sideways-rl, but overflow lines are appended to the right.
+    Identical to `"sideways-rl"`, but overflow lines are appended to the right.
 
     """
     # Throw if `align` is not one of the four allowed values
