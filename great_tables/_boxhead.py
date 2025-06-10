@@ -223,8 +223,18 @@ def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) ->
 
 
 def cols_label_rotate(
-    self: GTSelf, columns: SelectExpr = None, dir: str = "sideways-lr", align: str = "none"
+    self: GTSelf,
+    columns: SelectExpr = None,
+    dir: str = "sideways-lr",
+    align: str = "none",
+    padding: int = 8,
 ) -> GTSelf:
+    # Todo arabic/hebrew check rotations
+    # Todo overflowed text across different dir
+    # Todo padding (8px)
+    # Example with format_tf
+    # Todo different browsers
+
     """
     Rotate the column label
 
@@ -242,6 +252,8 @@ def cols_label_rotate(
     align
         The alignment to apply. Must be one of `"left"`, `"center"`, or `"right"`. If text is laid
         out vertically, this affects alignment along the vertical axis.
+    padding
+        The vertical padding to apply to the column labels.
 
     Returns
     -------
@@ -281,31 +293,43 @@ def cols_label_rotate(
     ##### `"sideways-lr"`
 
     For ltr scripts, content flows vertically from bottom to top. For rtl scripts, content flows
-    vertically from top to bottom. All the glyphs, even those in vertical scripts, are set sideways
-    toward the left.
+    vertically from top to bottom. Characters are set sideways toward the left. Overflow lines are
+    appended to the right.
 
     ##### `"sideways-rl"`
 
     For ltr scripts, content flows vertically from top to bottom. For rtl scripts, content flows
-    vertically from bottom to top. All the glyphs, even those in vertical scripts, are set sideways
-    toward the right.
-
-    ##### `"vertical-rl"`
-
-    For ltr scripts, content flows vertically from top to bottom, and the next vertical line is
-    positioned to the left of the previous line. For rtl scripts, content flows vertically from
-    bottom to top, and the next vertical line is positioned to the right of the previous line.
+    vertically from bottom to top. Characters are set sideways toward the right. Overflow lines are
+    appended to the left.
 
     ##### `"vertical-lr"`
 
-    For ltr scripts, content flows vertically from top to bottom, and the next vertical line is
-    positioned to the right of the previous line. For rtl scripts, content flows vertically from
-    bottom to top, and the next vertical line is positioned to the left of the previous line.
+    Identical to sideways-rl, but overflow lines are appended to the right.
 
     """
+    # Throw if `align` is not one of the four allowed values
+    if align not in ["none", "left", "center", "right"]:
+        raise ValueError("Align must be one of 'left', 'center', or 'right'.")
+
+    # Throw if `dir` is not one of the three allowed values
+    if dir not in ["sideways-lr", "sideways-rl", "vertical-lr"]:
+        raise ValueError("Dir must be one of 'sideways-lr', 'sideways-rl', or 'vertical-lr'.")
+
+    # Todo ask if this is good practice, I feel like it is useful
+    # Todo consider using "default" instead of "none"
+
+    # If user doesn't set an align value then align to the bottom, which is left in the case of
+    # "sideways-lr" and right in all other cases
+    if align == "none":
+        if dir == "sideways-lr":
+            align = "left"
+        else:
+            align = "right"
 
     res = self.tab_style(
-        style=CellStyleCss(f"writing-mode: {dir}; vertical-align: middle; text-align: {align};"),
+        style=CellStyleCss(
+            f"writing-mode: {dir}; vertical-align: middle; text-align: {align}; padding: {padding}px 0px;"
+        ),
         locations=LocColumnLabels(columns=columns),
     )
     return res
