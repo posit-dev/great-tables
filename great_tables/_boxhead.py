@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ._locations import resolve_cols_c
-from ._utils import _assert_list_is_subset
 from ._tbl_data import SelectExpr
 from ._text import BaseText
+from ._utils import _assert_list_is_subset
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -219,3 +219,17 @@ def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) ->
 
     # Set the alignment for each column
     return self._replace(_boxhead=self._boxhead._set_column_aligns(sel_cols, align=align))
+
+
+def cols_label_rotate(self: GTSelf, columns: SelectExpr = None, dir: str = "vertical-lr") -> GTSelf:
+    """
+    Rotate the column label
+    """
+    from ._locations import LocColumnLabels
+    from ._styles import CellStyleCss
+
+    res = self.tab_style(
+        style=CellStyleCss(f"writing-mode: {dir}; vertical-align: middle; transform: scale(-1);"),
+        locations=LocColumnLabels(columns=columns),
+    )
+    return res
