@@ -262,7 +262,7 @@ def cols_label_rotate(
 
     Examples
     --------
-
+    The example below rotates column labels such that the text is set to the left.
 
     ```{python}
     from great_tables import GT, style, loc, exibble
@@ -282,6 +282,23 @@ def cols_label_rotate(
         GT(exibble_sm, rowname_col="row", groupname_col="group")
         .cols_label_rotate(columns=["num", "fctr"], dir="vertical-lr")
         .tab_style(style=style.text(weight="bold"), locations=loc.column_labels(["fctr"]))
+    )
+    ```
+
+    Labels that are restricted by the height of the stub head will wrap horizontally.
+
+    ```{python}
+    (
+        GT(exibble_sm, rowname_col="row", groupname_col="group")
+        .cols_label(
+        {
+            "fctr": "A longer description of the values in the column below"
+        })
+        .cols_label_rotate(columns=["num", "fctr"], dir="sideways-lr")
+        .tab_style(
+            style=[style.text(weight="bold"), style.css(rule="height: 200px;")],
+            locations=loc.column_labels(["fctr"])
+        )
     )
     ```
 
