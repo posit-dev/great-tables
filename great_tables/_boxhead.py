@@ -302,7 +302,7 @@ def cols_label_rotate(
 
     Note
     --------
-    The dir parameter uses the following keywords to alter the direction of the column label text.
+    The `dir` parameter uses the following keywords to alter the direction of the column label text.
 
     ##### `"sideways-lr"`
 
@@ -323,7 +323,7 @@ def cols_label_rotate(
     """
     # Throw if `align` is not one of the four allowed values
     if align not in ["none", "left", "center", "right"]:
-        raise ValueError("Align must be one of 'left', 'center', or 'right'.")
+        raise ValueError("Align must be one of 'none', 'left', 'center', or 'right'.")
 
     # Throw if `dir` is not one of the three allowed values
     if dir not in ["sideways-lr", "sideways-rl", "vertical-lr"]:
