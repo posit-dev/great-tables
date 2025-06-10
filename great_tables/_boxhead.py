@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ._locations import resolve_cols_c
+from ._locations import LocColumnLabels, resolve_cols_c
+from ._styles import CellStyleCss
 from ._tbl_data import SelectExpr
 from ._text import BaseText
 from ._utils import _assert_list_is_subset
@@ -224,9 +225,52 @@ def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) ->
 def cols_label_rotate(self: GTSelf, columns: SelectExpr = None, dir: str = "vertical-lr") -> GTSelf:
     """
     Rotate the column label
+
+    Parameters
+    ----------
+    dir
+        A string that gives the direction of the text. Options: `"vertical-rl"`, `"vertical-lr"`,
+        `"sideways-rl"`, `"sideways-lr"`. See note for information on text layout.
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list. If `None`, the alignment is applied to all columns.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    ### `"vertical-rl"`
+
+    For ltr scripts, content flows vertically from top to bottom, and the next vertical line is
+    positioned to the left of the previous line. For rtl scripts, content flows vertically from
+    bottom to top, and the next vertical line is positioned to the right of the previous line.
+
+    ### `"vertical-lr"`
+
+    For ltr scripts, content flows vertically from top to bottom, and the next vertical line is
+    positioned to the right of the previous line. For rtl scripts, content flows vertically from
+    bottom to top, and the next vertical line is positioned to the left of the previous line.
+
+    ### `"sideways-rl"`
+
+    For ltr scripts, content flows vertically from top to bottom. For rtl scripts, content flows
+    vertically from bottom to top. All the glyphs, even those in vertical scripts, are set sideways
+    toward the right.
+
+    ### `"sideways-lr"`
+
+    For ltr scripts, content flows vertically from bottom to top. For rtl scripts, content flows
+    vertically from top to bottom. All the glyphs, even those in vertical scripts, are set sideways
+    toward the left.
+
+    Note
+    --------
+
     """
-    from ._locations import LocColumnLabels
-    from ._styles import CellStyleCss
 
     res = self.tab_style(
         style=CellStyleCss(f"writing-mode: {dir}; vertical-align: middle; transform: scale(-1);"),
