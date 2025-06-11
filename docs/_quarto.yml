@@ -70,6 +70,7 @@ filters:
 
 interlinks:
   fast: true
+  autolink: true
   sources:
     numpy:
       url: https://numpy.org/doc/stable/
