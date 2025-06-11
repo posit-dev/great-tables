@@ -14,7 +14,7 @@ To better demonstrate how **Column Labels** work and are displayed, let's use an
 - `Temp`: maximum daily air temperature in degrees Fahrenheit (&deg;F)
 - `Month`, `Day`: the numeric month and day of month for the record
 
-We know that all measurements took place in 1973, so a `year` column will be added to the dataset before it is passed to the [`GT()`](`great_tables.GT`) class.
+We know that all measurements took place in 1973, so a `year` column will be added to the dataset before it is passed to the `GT` class.
 
 ```{python}
 from great_tables import GT, html
@@ -27,7 +27,7 @@ airquality_mini
 
 ## Adding Column Spanners
 
-Let's organize the time information under a `Time` *spanner label*, and put the other columns under a `Measurement` *spanner label*. We can do this with the [`tab_spanner()`](`great_tables.GT.tab_spanner`) method.
+Let's organize the time information under a `Time` *spanner label*, and put the other columns under a `Measurement` *spanner label*. We can do this with the `~~GT.tab_spanner()` method.
 
 ```{python}
 gt_airquality = (
