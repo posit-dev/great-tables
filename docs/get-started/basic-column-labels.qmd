@@ -27,7 +27,7 @@ airquality_mini
 
 ## Adding Column Spanners
 
-Let's organize the time information under a `Time` *spanner label*, and put the other columns under a `Measurement` *spanner label*. We can do this with the `~~gt.GT.tab_spanner()` method.
+Let's organize the time information under a `Time` *spanner label*, and put the other columns under a `Measurement` *spanner label*. We can do this with the `~~GT.tab_spanner()` method.
 
 ```{python}
 gt_airquality = (
