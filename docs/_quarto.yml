@@ -71,6 +71,8 @@ filters:
 interlinks:
   fast: true
   autolink: true
+  aliases:
+    great_tables: [null, gt]
   sources:
     numpy:
       url: https://numpy.org/doc/stable/
