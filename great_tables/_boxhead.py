@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from ._locations import LocColumnLabels, resolve_cols_c
 from ._styles import CellStyleCss
@@ -225,13 +225,10 @@ def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) ->
 def cols_label_rotate(
     self: GTSelf,
     columns: SelectExpr = None,
-    dir: str = "sideways-lr",
-    align: str = "none",
+    dir: Literal["sideways-lr", "sideways-rl", "vertical-lr"] = "sideways-lr",
+    align: Literal["left", "center", "right"] | None = None,
     padding: int = 8,
 ) -> GTSelf:
-    # Example with format_tf
-    # Todo different browsers
-
     """
     Rotate the column label for one or more columns.
 
@@ -322,19 +319,16 @@ def cols_label_rotate(
 
     """
     # Throw if `align` is not one of the four allowed values
-    if align not in ["none", "left", "center", "right"]:
-        raise ValueError("Align must be one of 'none', 'left', 'center', or 'right'.")
+    if align not in [None, "left", "center", "right"]:
+        raise ValueError("Align must be one of `None`, 'left', 'center', or 'right'.")
 
     # Throw if `dir` is not one of the three allowed values
     if dir not in ["sideways-lr", "sideways-rl", "vertical-lr"]:
         raise ValueError("Dir must be one of 'sideways-lr', 'sideways-rl', or 'vertical-lr'.")
 
-    # Todo ask if this is good practice, I feel like it is useful
-    # Todo consider using "default" instead of "none"
-
     # If user doesn't set an align value then align to the bottom, which is left in the case of
     # "sideways-lr" and right in all other cases
-    if align == "none":
+    if not align:
         if dir == "sideways-lr":
             align = "left"
         else:
