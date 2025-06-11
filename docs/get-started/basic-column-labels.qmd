@@ -53,8 +53,8 @@ gt_airquality
 
 We can do two more things to make this presentable:
 
-- move the `Time` columns to the beginning of the series (using [`cols_move_to_start()`](`great_tables.GT.cols_move_to_start`))
-- customize the column labels so that they are more descriptive (using [`cols_label()`](`great_tables.GT.cols_label`))
+- move the `Time` columns to the beginning of the series (using `~~GT.cols_move_to_start()`)
+- customize the column labels so that they are more descriptive (using `~~GT.cols_label()`)
 
 Let's do both of these things in the next example:
 
@@ -71,9 +71,9 @@ Let's do both of these things in the next example:
 )
 ```
 
-Note that even though columns were moved using [`cols_move_to_start()`](`great_tables.GT.cols_move_to_start`), the *spanner column labels* still spanned above the correct *column labels*. There are a number of methods on `GT` to move columns, including [`cols_move()`](`great_tables.GT.cols_move`), [`cols_move_to_end()`](`great_tables.GT.cols_move_to_end`); there's even a method to hide columns: [`cols_hide()`](`great_tables.GT.cols_hide`).
+Note that even though columns were moved using `~~GT.cols_move_to_start()`, the *spanner column labels* still spanned above the correct *column labels*. There are a number of methods on `GT` to move columns, including `~~GT.cols_move()`, `~~GT.cols_move_to_end()`; there's even a method to hide columns: `~~GT.cols_hide()`.
 
-Multiple columns can be renamed in a single use of [`cols_label()`](`great_tables.GT.cols_label`). Further to this, the helper functions [`md()`](`great_tables.md`) and [`html()`](`great_tables.html`) can be used to create column labels with additional styling. In the above example, we provided column labels as HTML so that we can insert linebreaks with `<br>`, insert a superscripted `2` (with `<sup>2</sup>`), and insert a degree symbol as an HTML entity (`&deg;`).
+Multiple columns can be renamed in a single use of `~~GT.cols_label()`. Further to this, the helper functions `md()` and `html()` can be used to create column labels with additional styling. In the above example, we provided column labels as HTML so that we can insert linebreaks with `<br>`, insert a superscripted `2` (with `<sup>2</sup>`), and insert a degree symbol as an HTML entity (`&deg;`).
 
 ## Targeting Columns for `columns=`
 
