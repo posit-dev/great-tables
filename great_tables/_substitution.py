@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any
 
+from .types import HTMLContext
 from ._formats import fmt
 from ._gt_data import FormatterSkipElement
 from ._helpers import html
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def _convert_missing(context: Literal["html"], el: str):
+def _convert_missing(context: HTMLContext, el: str):
     """Convert el to a context specific representation."""
 
     # TODO: how is context passed? Could use a literal string (e.g. "html") for now?

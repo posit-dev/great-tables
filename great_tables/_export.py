@@ -7,10 +7,9 @@ import webbrowser
 from functools import partial
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
-from typing_extensions import TypeAlias
-
+from .types import DebugDumpOptions, RenderTargets, WebDrivers
 from ._helpers import random_id
 from ._scss import compile_scss
 from ._utils import _try_import
@@ -44,11 +43,11 @@ def _create_temp_file_server(fname: Path) -> HTTPServer:
 
 def _infer_render_target(
     ipy: InteractiveShell | None | type = MISSING,
-) -> Literal["auto", "notebook", "browser"]:
+) -> RenderTargets:
     # adapted from py-htmltools
     # Note that `ipy` arguments are possible return values of IPython.get_ipython()
     # They are manually passed in from unit tests to validate this function.
-    target: Literal["auto", "notebook", "browser"]
+    target: RenderTargets
     try:
         import IPython  # pyright: ignore[reportUnknownVariableType]
         from IPython.terminal.interactiveshell import TerminalInteractiveShell
@@ -73,7 +72,7 @@ def _infer_render_target(
 
 def show(
     self: GTSelf,
-    target: Literal["auto", "notebook", "browser"] = "auto",
+    target: RenderTargets = "auto",
 ):
     """Display the table in a notebook or a web browser.
 
@@ -338,17 +337,6 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
     latex_table = _render_as_latex(data=built_table, use_longtable=use_longtable, tbl_pos=tbl_pos)
 
     return latex_table
-
-
-# Create a list of all selenium webdrivers
-WebDrivers: TypeAlias = Literal[
-    "chrome",
-    "firefox",
-    "safari",
-    "edge",
-]
-
-DebugDumpOptions: TypeAlias = Literal["zoom", "width_resize", "final_resize"]
 
 
 def save(

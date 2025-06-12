@@ -5,9 +5,11 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Callable, Literal, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, overload
 
 from typing_extensions import Self, TypeAlias, Union
+
+from .types import ColumnAlignment
 
 # TODO: move this class somewhere else (even gt_data could work)
 from ._styles import CellStyle
@@ -195,9 +197,6 @@ class Body:
 
 
 # Boxhead ----
-ColumnAlignment: TypeAlias = Literal["left", "center", "right", "justify"]
-
-
 class ColInfoTypeEnum(Enum):
     default = auto()
     stub = auto()

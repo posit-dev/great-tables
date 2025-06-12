@@ -7,13 +7,14 @@ from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, TypedDict, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypedDict, TypeVar, cast
 
 import babel
 import faicons
 from babel.dates import format_date, format_datetime, format_time
-from typing_extensions import TypeAlias
 
+
+from .types import DateStyle, MissingVals, PlotType, TimeStyle
 from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
 from ._helpers import px
 from ._locale import (
@@ -41,42 +42,6 @@ if TYPE_CHECKING:
     from ._types import GTSelf
 
 T = TypeVar("T")
-DateStyle: TypeAlias = Literal[
-    "iso",
-    "wday_month_day_year",
-    "wd_m_day_year",
-    "wday_day_month_year",
-    "month_day_year",
-    "m_day_year",
-    "day_m_year",
-    "day_month_year",
-    "day_month",
-    "day_m",
-    "year",
-    "month",
-    "day",
-    "year.mn.day",
-    "y.mn.day",
-    "year_week",
-    "year_quarter",
-]
-TimeStyle: TypeAlias = Literal[
-    "iso",
-    "iso-short",
-    "h_m_s_p",
-    "h_m_p",
-    "h_p",
-]
-PlotType: TypeAlias = Literal[
-    "line",
-    "bar",
-]
-MissingVals: TypeAlias = Literal[
-    "marker",
-    "gap",
-    "zero",
-    "remove",
-]
 
 
 def fmt(
