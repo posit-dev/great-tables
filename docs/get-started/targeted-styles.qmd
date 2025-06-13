@@ -3,7 +3,7 @@ title: Styling the whole table
 jupyter: python3
 ---
 
-In [Styling the Table Body](./basic-styling), we discussed styling table data with `.tab_style()`.
+In [Styling the Table Body](./basic-styling.qmd), we discussed styling table data with `~~GT.tab_style()`.
 In this article we'll cover how the same method can be used to style many other parts of the table, like the header, specific spanner labels, the footer, and more.
 
 :::{.callout-warning}
