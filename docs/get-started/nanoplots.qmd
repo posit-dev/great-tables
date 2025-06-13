@@ -5,7 +5,7 @@ html-table-processing: none
 ---
 
 :::{.callout-warning}
-`fmt_nanoplot()` is still experimental.
+`~~GT.fmt_nanoplot()` is still experimental.
 :::
 
 Nanoplots are tiny plots you can use in your table. They are simple by design, mainly because there isn't a lot of space to work with. With that simplicity, however, you do get a set of very succinct data visualizations that adapt nicely to the amount of data you feed into them. Here's some of the main features:
