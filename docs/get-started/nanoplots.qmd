@@ -93,7 +93,7 @@ GT(random_numbers_df).fmt_nanoplot(columns="numbers", autoscale=True)
 
 If you hover along or touch the left side of any of the plots above, you'll see that each *y* scale runs from `-12.0` to `37.0`. Using `autoscale=True` is very useful if you want to compare the magnitudes of values across rows in addition to their trends. It won't, however, make much sense if the overall magnitudes of values vary wildly across rows (e.g., comparing changing currency values or stock prices over time).
 
-## Using the `nanoplot_options()` helper function
+## Using the `nanoplot_options()`{.qd-no-link} helper function
 
 There are many options for customization. You can radically change the look of a collection of nanoplots with the `nanoplot_options()` helper function. With that function, you invoke it in the `options=` argument of `~~GT.fmt_nanoplot()`. You can modify the sizes and colors of different elements, decide which elements are even present, and much more! Here's an example where a line-based nanoplot retains all of its elements, but the overall appearance is greatly altered.
 
