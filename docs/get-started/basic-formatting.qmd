@@ -63,7 +63,7 @@ While we can use the `fmt_*()` methods on a table, we can also use the functiona
 - `pattern=`: option to use a text pattern for decoration of the formatted values
 - `locale=`: providing a locale ID (e.g., `"en"`, `"fr"`, `"de-AT"`, etc.) will result in numeric formatting specific to the chosen locale
 
-Here are a number of examples that use `~~GT.vals.fmt_number()`.
+Here are a number of examples that use `vals.fmt_number()`.
 
 ```{python}
 fmt_number_1 = vals.fmt_number([1.64, 3.26, 3000.63, 236742.37])
@@ -75,7 +75,7 @@ fmt_number_5 = vals.fmt_number([1.64, 3.26, 3000.63, 236742.37], locale="es")
 print(fmt_number_1, fmt_number_2, fmt_number_3, fmt_number_4, fmt_number_5, sep="\n")
 ```
 
-Scientific notation can be done with `~~GT.vals.fmt_scientific()`.
+Scientific notation can be done with `vals.fmt_scientific()`.
 
 ```{python}
 fmt_sci_1 = vals.fmt_scientific([0.00064, 7.353, 863454.63])
@@ -86,7 +86,7 @@ fmt_sci_4 = vals.fmt_scientific([1.64, 3.26, 3000.63], locale="de")
 print(fmt_sci_1, fmt_sci_2, fmt_sci_3, fmt_sci_4, sep="\n")
 ```
 
-Dates and times are handled with `~~GT.vals.fmt_date()` and `~~GT.vals.fmt_time()`.
+Dates and times are handled with `vals.fmt_date()` and `vals.fmt_time()`.
 
 ```{python}
 fmt_date_1 = vals.fmt_date(
