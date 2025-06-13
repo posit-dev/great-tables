@@ -7,14 +7,25 @@ from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, TypedDict, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    ClassVar,
+    Literal,
+    TypedDict,
+    TypeVar,
+    Union,
+    cast,
+    overload,
+)
 
 import babel
 import faicons
 from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
 
-from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
+from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData
 from ._helpers import px
 from ._locale import (
     _get_currencies_data,
@@ -2261,6 +2272,321 @@ def fmt_datetime_context(
         x_formatted = pattern.replace("{x}", x_formatted)
 
     return x_formatted
+
+
+def fmt_tf(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    tf_style: str = "true-false",
+    pattern: str = "{x}",
+    true_val: str | None = None,
+    false_val: str | None = None,
+    na_val: str | None = None,
+    colors: list[str] | None = None,
+) -> GTSelf:
+    """
+    Format True and False values
+
+    There can be times where boolean values are useful in a display table. You might want to express
+    a 'yes' or 'no', a 'true' or 'false', or, perhaps use pairings of complementary symbols that
+    make sense in a table. The `fmt_tf()` method has a set of `tf_style=` presets that can be used
+    to quickly map `True`/`False` values to strings, or, symbols like up/down or left/right arrows
+    and open/closed shapes.
+
+    While the presets are nice, you can provide your own mappings through the `true_val=` and
+    `false_val=` arguments. For extra customization, you can also apply color to the individual
+    `True`, `False`, and NA mappings. Just supply a list of colors (up to a length of 3) to the
+    `colors=` argument.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    tf_style
+        The `True`/`False` mapping style to use. By default this is the short name `"true-false"`
+        which corresponds to the words `"true"` and `"false"`. Two other `tf_style=` values produce
+        words: `"yes-no"` and `"up-down"`. The remaining options involve pairs of symbols (e.g.,
+        `"check-mark"` displays a check mark for `True` and an ✗ symbol for `False`).
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    true_val
+        While the choice of a `tf_style=` will typically supply the `true_val=` and `false_val=`
+        text, we could override this and supply text for any `True` values. This doesn't need to be
+        used in conjunction with `false_val=`.
+    false_val
+        While the choice of a `tf_style=` will typically supply the `true_val=` and `false_val=`
+        text, we could override this and supply text for any `False` values. This doesn't need to be
+        used in conjunction with `true_val=`.
+    na_val
+        None of the `tf_style` presets will replace any missing values encountered in the targeted
+        cells. While we always have the option to use `sub_missing()` for NA replacement, we have
+        the opportunity handle missing values here with the `na_val=` option. This is useful because
+        we also have the means to add color to the `na_val=` text or symbol and doing that requires
+        that a replacement value for NAs is specified here.
+    colors
+        Providing a list of color values to colors will progressively add color to the formatted
+        result depending on the number of colors provided. With a single color, all formatted values
+        will be in that color. Using two colors results in `True` values being the first color, and
+        `False` values receiving the second. With the three-color option, the final color will be
+        given to any missing values replaced through `na_val=`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Formatting with the `tf_style=` argument
+    ----------------------------------------
+    We need to supply a preset `tf_style=` value. The following table provides a listing of all
+    `tf_style=` values and their output `True` and `False` values.
+
+    |    | TF Style        | Output                  |
+    |----|-----------------|-------------------------|
+    | 1  | `"true-false"`  | `"true" / `"false"`     |
+    | 2  | `"yes-no"`      | `"yes" / `"no"`         |
+    | 3  | `"up-down"`     | `"up" / `"down"`        |
+    | 4  | `"check-mark"`  | `"✓" / `"✗"`            |
+    | 5  | `"circles"`     | `"●" / `"○"`            |
+    | 6  | `"squares"`     | `"■" / `"□"`            |
+    | 7  | `"diamonds"`    | `"◆" / `"◇"`            |
+    | 8  | `"arrows"`      | `"↑" / `"↓"`            |
+    | 9  | `"triangles"`   | `"▲" / `"▼"`            |
+    | 10 | `"triangles-lr"`| `"▶" / `"◀"`            |
+
+    Examples
+    --------
+    Let's use a subset of the `sp500` dataset to create a small table containing opening and closing
+    price data for the last few days in 2015. We added a boolean column (`dir`) where `True`
+    indicates a price increase from opening to closing and `False` is the opposite. Using `fmt_tf()`
+    generates up and down arrows in the `dir` column. We elect to use green upward arrows and red
+    downward arrows (through the `colors=` option).
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import sp500
+    import polars as pl
+
+    sp500_mini = (
+        pl.from_pandas(sp500)
+        .slice(0, 5)
+        .drop(["volume", "adj_close", "high", "low"])
+        .with_columns(dir = pl.col("close") > pl.col("open"))
+    )
+
+    (
+        GT(sp500_mini, rowname_col="date")
+        .fmt_tf(columns="dir", tf_style="arrows", colors=["green", "red"])
+        .fmt_currency(columns=["open", "close"])
+        .cols_label(
+            open="Opening",
+            close="Closing",
+            dir=""
+        )
+    )
+    ```
+    """
+    # If colors is a string, convert it to a list
+    if isinstance(colors, str):
+        colors = [colors]
+
+    pf_format = partial(
+        fmt_tf_context,
+        data=self,
+        tf_style=tf_style,
+        pattern=pattern,
+        true_val=true_val,
+        false_val=false_val,
+        na_val=na_val,
+        colors=colors,
+    )
+
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
+
+
+def fmt_tf_context(
+    x: Any,
+    data: GTData,
+    tf_style: str,
+    pattern: str,
+    true_val: str | None,
+    false_val: str | None,
+    na_val: str | None,
+    colors: list[str] | None,
+    context: str,
+) -> str | FormatterSkipElement:
+    if is_na(data._tbl_data, x):
+        x = None
+    elif not isinstance(x, bool):
+        raise ValueError(f"Expected boolean value or NA, but got {type(x)}.")
+
+    x = cast(Union[bool, None], x)
+
+    # Validate `tf_style=` value
+    if tf_style not in TF_FORMATS:
+        raise ValueError(
+            f"Invalid `tf_style`: {tf_style}. Must be one of {list(TF_FORMATS.keys())}."
+        )
+
+    # Check type of `na_val=` and raise error if not a string or None
+    if na_val is not None and not isinstance(na_val, str):
+        raise ValueError("The `na_val` argument must be a string or None.")
+
+    # If `x` is None and `na_val` is None, skip formatting entirely
+    if x is None and na_val is None:
+        return FormatterSkipElement()
+
+    # Add warning in LaTeX context about `colors=` not being supported
+    if context == "latex" and colors is not None:
+        raise ValueError("The `colors=` argument is not currently supported for LaTeX tables.")
+
+    # Obtain the list of `True`/`False` text values with overrides
+    tf_vals_list = _get_tf_vals(tf_style=tf_style, true_val=true_val, false_val=false_val)
+
+    tf_vals = TfMap(*tf_vals_list, na_color=na_val)
+
+    x_formatted = tf_vals.get_color(x, data, strict=True)
+
+    # Apply colors to the formatted value
+    if context == "html" and colors is not None:
+        # Ensure that the `colors=` value satisfies the requirements
+        _check_colors(colors=colors)
+
+        # Create color mapping
+        color_map = TfMap.from_list(colors)
+
+        # Get the appropriate color for this value
+        color = color_map.get_color(x, data, strict=False)
+
+        x_styled = f'<span style="color:{color}">{x_formatted}</span>'
+
+    else:
+        x_styled = x_formatted
+
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_out = pattern.replace("{x}", x_styled)
+    else:
+        x_out = x_styled
+
+    return x_out
+
+
+TF_FORMATS: dict[str, list[str]] = {
+    "true-false": ["true", "false"],
+    "yes-no": ["yes", "no"],
+    "up-down": ["up", "down"],
+    "check-mark": ["\u2714", "\u2718"],
+    "circles": ["\u25cf", "\u2b58"],
+    "squares": ["\u25a0", "\u25a1"],
+    "diamonds": ["\u25c6", "\u25c7"],
+    "arrows": ["\u2191", "\u2193"],
+    "triangles": ["\u25b2", "\u25bc"],
+    "triangles-lr": ["\u25b6", "\u25c0"],
+}
+
+
+def _check_colors(colors: list[str]):
+    """
+    Check if the provided colors are valid.
+
+    Parameters
+    ----------
+    colors
+        A list of colors to check.
+    Raises
+    ------
+    ValueError
+        If the colors are not valid.
+    """
+    if len(colors) > 3 or len(colors) < 1:
+        raise ValueError("The `colors` argument must be a list of 1 to 3 colors.")
+    for color in colors:
+        if not isinstance(color, str):
+            raise ValueError("Each color in the `colors` list must be a string.")
+
+
+def _get_tf_vals(
+    tf_style: str, true_val: str | None = None, false_val: str | None = None
+) -> list[str]:
+    """
+    Get the `True`/`False` text values based on the `tf_style`, with optional overrides.
+
+    Parameters
+    ----------
+    tf_style
+        The `True`/`False` mapping style to use.
+    true_val
+        Optional override for the True value.
+    false_val
+        Optional override for the False value.
+
+    Returns
+    -------
+    list[str]
+        A list of two strings representing the `True` and `False` values.
+    """
+    # Get the base values from the TF_FORMATS dictionary
+    tf_vals = TF_FORMATS[tf_style].copy()
+
+    # Override with provided values if any
+    if true_val is not None:
+        tf_vals[0] = true_val
+    if false_val is not None:
+        tf_vals[1] = false_val
+
+    return tf_vals
+
+
+@dataclass
+class TfMap:
+    true_color: str | None = None
+    false_color: str | None = None
+    na_color: str | None = None
+
+    @classmethod
+    def from_list(cls, colors: list[str]) -> TfMap:
+        if len(colors) == 1:
+            return cls(true_color=colors[0], false_color=colors[0])
+        elif len(colors) == 2:
+            return cls(true_color=colors[0], false_color=colors[1])
+        elif len(colors) == 3:
+            return cls(true_color=colors[0], false_color=colors[1], na_color=colors[2])
+        else:
+            raise ValueError("Colors list must have 1-3 elements.")
+
+    @overload
+    def get_color(self, x: bool | None, data: GTData, strict: Literal[False]) -> str | None: ...
+
+    @overload
+    def get_color(self, x: bool | None, data: GTData, strict: Literal[True]) -> str: ...
+
+    def get_color(self, x: bool | None, data: GTData, strict: bool = False) -> str | None:
+        if x is True:
+            res = self.true_color
+        elif x is False:
+            res = self.false_color
+        elif is_na(data._tbl_data, x):
+            res = self.na_color
+        else:
+            raise TypeError(f"Unexpected value type: {type(x)}")
+
+        if strict and res is None:
+            raise ValueError("No style defined for this value in TfMap.")
+
+        return res
 
 
 def fmt_markdown(
