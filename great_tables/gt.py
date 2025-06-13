@@ -129,7 +129,7 @@ class GT(
     Examples
     --------
     Let's use the `exibble` dataset for the next few examples, we'll learn how to make simple
-    output tables with the `GT()` class. The most basic thing to do is to just use `GT()` with the
+    output tables with the `GT` class. The most basic thing to do is to just use `GT` with the
     dataset as the input.
 
     ```{python}
@@ -140,7 +140,7 @@ class GT(
 
     This dataset has the `row` and `group` columns. The former contains unique values that are ideal
     for labeling rows, and this often happens in what is called the 'stub' (a reserved area that
-    serves to label rows). With the `GT()` class, we can immediately place the contents of the `row`
+    serves to label rows). With the `GT` class, we can immediately place the contents of the `row`
     column into the stub column. To do this, we use the `rowname_col=` argument with the appropriate
     column name.
 
@@ -178,12 +178,12 @@ class GT(
 
     However which way you generate the initial table object, you can modify it with a huge variety
     of methods to further customize the presentation. Formatting body cells is commonly done with
-    the family of formatting methods (e.g., `fmt_number()`, `fmt_date()`, etc.). The package
-    supports formatting with internationalization ('i18n' features) and so locale-aware methods
-    all come with a `locale=` argument. To avoid having to use that argument repeatedly, the `GT()`
-    class has its own `locale=` argument. Setting a locale in that will make it available globally.
-    Here's an example of how that works in practice when setting `locale = "fr"` in `GT()` prior to
-    using formatting methods:
+    the family of formatting methods (e.g., `~~GT.fmt_number()`, `~~GT.fmt_date()`, etc.). The
+    package supports formatting with internationalization ('i18n' features) and so locale-aware
+    methods all come with a `locale=` argument. To avoid having to use that argument repeatedly, the
+    `GT` class has its own `locale=` argument. Setting a locale in that will make it available
+    globally. Here's an example of how that works in practice when setting `locale = "fr"` in `GT`
+    prior to using formatting methods:
 
     ```{python}
     from great_tables import GT, exibble
@@ -196,9 +196,9 @@ class GT(
     )
     ```
 
-    In this example, the `fmt_currency()`, `fmt_scientific()`, and `fmt_date()` methods understand
-    that the locale for this table is `"fr"` (French), so the appropriate formatting for that locale
-    is apparent in the `currency`, `num`, and `date` columns.
+    In this example, the `~~GT.fmt_currency()`, `~~GT.fmt_scientific()`, and `~~GT.fmt_date()`
+    methods understand that the locale for this table is `"fr"` (French), so the appropriate
+    formatting for that locale is apparent in the `currency`, `num`, and `date` columns.
     """
 
     def __init__(
