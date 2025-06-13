@@ -86,7 +86,7 @@ Notice that in the code above, we used values from the `background` column to sp
 
 In the next few sections, we'll first show how this combines nicely with the `~~GT.cols_hide()` method, then, we'll demonstrate how to use **Polars** expressions to do everything much more simply.
 
-### Combining Styling with `~~GT.cols_hide()`{.qd-no-link}
+### Combining Styling with `cols_hide()`
 
 One common approach is to specify a style from a column, and then hide that column in the final output. For example, we can add a background column to our `airquality` data:
 
