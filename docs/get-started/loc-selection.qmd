@@ -3,7 +3,7 @@ title: Location selection
 jupyter: python3
 ---
 
-Great Tables uses the `loc` module to specify locations for styling in `tab_style()`. Some location specifiers also allow selecting specific columns and rows of data.
+Great Tables uses the `loc` module to specify locations for styling in `~~GT.tab_style()`. Some location specifiers also allow selecting specific columns and rows of data.
 
 For example, you might style a particular row name, group, column, or spanner label.
 
