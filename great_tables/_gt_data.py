@@ -773,10 +773,7 @@ class GroupRows(_Sequence[GroupRowInfo]):
     def reorder(self, group_ids: list[str | MISSING_GROUP]) -> Self:
         # TODO: validate all group_ids are in data
         non_missing = [g for g in group_ids if not isinstance(g, MISSING_GROUP)]
-        try:
-            crnt_order = {grp.group_id: ii for ii, grp in enumerate(self)}
-        except IndexError:
-            crnt_order = {grp.group_id: ii for ii, grp in enumerate(self._d)}
+        crnt_order = {grp.group_id: ii for ii, grp in enumerate(self)}
 
         set_gids = set(group_ids)
         missing_groups = [grp.group_id for grp in self if grp.group_id not in set_gids]
