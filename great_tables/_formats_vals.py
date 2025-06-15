@@ -45,7 +45,7 @@ def _make_one_col_table(vals: X) -> GT:
     with contextlib.suppress(ImportError, ModuleNotFoundError):
         import polars as pl
 
-        vals: pl.Series = pl.Series(vals)
+        vals: pl.Series = pl.Series(values=vals, strict=False)
 
     df = to_frame(vals, name="x")
 
