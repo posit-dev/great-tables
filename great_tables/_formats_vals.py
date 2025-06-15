@@ -38,6 +38,14 @@ def _make_one_col_table(vals: X) -> GT:
         # anticipating a tuple may be too defensive
         vals = list(vals)
 
+    # If list, try converting it to polars
+    try:
+        import polars as pl
+    except (ImportError, ModuleNotFoundError):
+        pass  # better hope pandas is installed
+    else:
+        vals: pl.Series = pl.Series(vals)
+
     # TODO: remove pandas. if vals is not a SeriesLike, then we currently
     # convert them to a pandas Series for backwards compatibility.
     df = to_frame(vals, name="x")
