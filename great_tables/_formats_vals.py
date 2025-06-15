@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -38,21 +39,17 @@ def _make_one_col_table(vals: X) -> GT:
         # anticipating a tuple may be too defensive
         vals = list(vals)
 
-    # If list, try converting it to polars
-    try:
+    # A bare list will always(!) be converted to a pandas Series.
+    # In the case that pandas isn't available, we try converting
+    # it to polars Series.
+    with contextlib.suppress(ImportError, ModuleNotFoundError):
         import polars as pl
-    except (ImportError, ModuleNotFoundError):
-        pass  # better hope pandas is installed
-    else:
+
         vals: pl.Series = pl.Series(vals)
 
-    # TODO: remove pandas. if vals is not a SeriesLike, then we currently
-    # convert them to a pandas Series for backwards compatibility.
     df = to_frame(vals, name="x")
 
-    # Convert the list to a Pandas DataFrame and then to a GTData object
-    gt_obj = GT(df, auto_align=False)
-    return gt_obj
+    return GT(df, auto_align=False)
 
 
 def val_fmt_number(
