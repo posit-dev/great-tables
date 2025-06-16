@@ -135,10 +135,28 @@ def as_raw_html(
     """
     Get the HTML content of a GT object.
 
-    Get the HTML content from a GT object as a string. By default, the generated HTML will have
-    inlined styles, where CSS styles (that were previously contained in CSS rule sets external to
-    the `<table>` element are included as style attributes in the HTML table's tags. This option is
-    preferable when using the output HTML table in an emailing context.
+    The `as_raw_html()` method extracts the HTML representation of a GT table and returns it as a
+    string. This is useful when you need to embed a table in existing HTML content, email templates,
+    web applications, or other contexts where you need direct access to the HTML markup rather than
+    displaying the table directly.
+
+    By default, the method returns an HTML fragment containing just the table and its associated
+    CSS styles in a `<style>` block. However, the method provides several options to customize the
+    output format:
+
+    - `inline_css=True`: all CSS styles are embedded directly into the HTML elements as `style`
+    attributes. This is essential for email clients, which often strip out `<style>` blocks but
+    preserve inline styles.
+
+    - `make_page=True`: the table will be wrapped in a complete HTML document structure with proper
+    `<html>`, `<head>`, and `<body>` tags, making it ready to be saved as a standalone HTML file or
+    opened directly in a browser.
+
+    - `all_important=True`: all CSS declarations are marked with `!important` to ensure they take
+    precedence over other styles that might be present in the document.
+
+    The method preserves all formatting, styling, and interactive features that have been applied to
+    the table, including colors, fonts, borders, cell formatting, and any custom CSS modifications.
 
     Parameters
     ----------
@@ -150,12 +168,16 @@ def as_raw_html(
         largely supported in email clients over using CSS in a `<style>` block.
     make_page
         An option to wrap the table in a complete HTML page. This is useful when you want to display
-        the table in a web browser.
+        the table in a web browser or save it as a standalone HTML file.
+    all_important
+        An option to add `!important` to all CSS styles. This is useful when you want to ensure that
+        the styles are applied and not overridden by other styles in the document.
 
     Returns
     -------
     str
-        An HTML fragment containing a table.
+        An HTML string containing the table. The format depends on the parameters passed to the
+        method.
 
     Examples:
     ------
