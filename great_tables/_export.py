@@ -155,8 +155,8 @@ def as_raw_html(
     - `all_important=True`: all CSS declarations are marked with `!important` to ensure they take
     precedence over other styles that might be present in the document.
 
-    The method preserves all formatting, styling, and interactive features that have been applied to
-    the table, including colors, fonts, borders, cell formatting, and any custom CSS modifications.
+    The method preserves all structural, formatting, and styling that has been applied to the table,
+    including colors, fonts, borders, and cell formatting.
 
     Parameters
     ----------
