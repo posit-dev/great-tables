@@ -68,6 +68,7 @@ class GTData:
     _formats: Formats
     _substitutions: Formats
     _options: Options
+    _google_font_imports: set[str] = field(default_factory=set)
     _has_built: bool = False
 
     def _replace(self, **kwargs: Any) -> Self:
@@ -124,6 +125,7 @@ class GTData:
             _formats=[],
             _substitutions=[],
             _options=options,
+            _google_font_imports=set(),
         )
 
 
