@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13t"]
       fail-fast: false
 
     steps:
@@ -24,6 +24,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Set PYTHON_GIL
+        if: endsWith(matrix.python-version, 't')
+        run: |
+          echo "PYTHON_GIL=0" >> "$GITHUB_ENV"
       - name: Install dependencies
         run: |
           # we are using the -e flag, so that code cov finds the source.
