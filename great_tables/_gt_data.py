@@ -90,7 +90,7 @@ class GTData:
         return self
 
     def _get_google_font_imports(self) -> list[str]:
-        return list(self._google_font_imports)
+        return sorted(list(self._google_font_imports))
 
     @classmethod
     def from_data(
