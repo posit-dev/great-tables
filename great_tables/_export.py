@@ -141,8 +141,8 @@ def as_raw_html(
     displaying the table directly.
 
     By default, the method returns an HTML fragment containing just the table and its associated
-    CSS styles in a `<style>` block. However, the method provides several options to customize the
-    output format.
+    CSS styles in a `<style>` block. However, the method provides several parameters for customizing
+    the output format--like `inline_css=`, `make_page=`, and `all_important=`.
 
     Parameters
     ----------
