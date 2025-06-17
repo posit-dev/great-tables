@@ -57,6 +57,7 @@ from ._spanners import (
     cols_unhide,
     cols_width,
     tab_spanner,
+    tab_spanner_delim,
 )
 from ._stub import reorder_stub_df
 from ._stubhead import tab_stubhead
@@ -267,6 +268,7 @@ class GT(
     tab_header = tab_header
     tab_source_note = tab_source_note
     tab_spanner = tab_spanner
+    tab_spanner_delim = tab_spanner_delim
     tab_stubhead = tab_stubhead
     tab_style = tab_style
     tab_options = tab_options
