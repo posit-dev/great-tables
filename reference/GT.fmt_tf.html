@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>loc.subtitle – great_tables</title>
+<title>gt.fmt_tf – great_tables</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -181,7 +181,9 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#returns" id="toc-returns" class="nav-link active" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#formatting-with-the-tf_style-argument" id="toc-formatting-with-the-tf_style-argument" class="nav-link" data-scroll-target="#formatting-with-the-tf_style-argument">Formatting with the <code>tf_style=</code> argument</a></li>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   </ul>
 </nav>
@@ -191,7 +193,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">loc.subtitle</h1>
+<h1 class="title">GT.fmt_tf</h1>
 </div>
 
 
@@ -208,126 +210,225 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </header>
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>loc.subtitle()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Target the table subtitle.</p>
-<p>With <a href="../reference/loc.subtitle.html#great_tables.loc.subtitle" title="0"><code>loc.subtitle()</code></a>, we can target the part of table containing the subtitle (within the table header). This is useful for applying custom styling with the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method. That method has a <code>locations=</code> argument and this class should be used there to perform the targeting.</p>
-<section id="returns" class="level2 doc-section doc-section-returns">
-<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>GT.fmt_tf(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    rows<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    tf_style<span class="op">=</span><span class="st">'true-false'</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    pattern<span class="op">=</span><span class="st">'</span><span class="sc">{x}</span><span class="st">'</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    true_val<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    false_val<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    na_val<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    colors<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Format True and False values</p>
+<p>There can be times where boolean values are useful in a display table. You might want to express a ‘yes’ or ‘no’, a ‘true’ or ‘false’, or, perhaps use pairings of complementary symbols that make sense in a table. The <code>fmt_tf()</code> method has a set of <code>tf_style=</code> presets that can be used to quickly map <code>True</code>/<code>False</code> values to strings, or, symbols like up/down or left/right arrows and open/closed shapes.</p>
+<p>While the presets are nice, you can provide your own mappings through the <code>true_val=</code> and <code>false_val=</code> arguments. For extra customization, you can also apply color to the individual <code>True</code>, <code>False</code>, and NA mappings. Just supply a list of colors (up to a length of 3) to the <code>colors=</code> argument.</p>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <dl>
-<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../reference/loc.subtitle.html#great_tables.loc.subtitle">LocSubTitle</a></span></code></dt>
+<dt><code><span class="parameter-name"><strong>columns</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>SelectExpr</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>A LocSubTitle object, which is used for a <code>locations=</code> argument if specifying the subtitle of the table.</p>
+<p>The columns to target. Can either be a single column name or a series of column names provided in a list.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>rows</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | <code>list</code>[<code>int</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>In conjunction with <code>columns=</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in targeted columns being formatted. Alternatively, we can supply a list of row indices.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>tf_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'true-false'</span></code></dt>
+<dd>
+<p>The <code>True</code>/<code>False</code> mapping style to use. By default this is the short name <code>"true-false"</code> which corresponds to the words <code>"true"</code> and <code>"false"</code>. Two other <code>tf_style=</code> values produce words: <code>"yes-no"</code> and <code>"up-down"</code>. The remaining options involve pairs of symbols (e.g., <code>"check-mark"</code> displays a check mark for <code>True</code> and an ✗ symbol for <code>False</code>).</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>pattern</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'{x}'</span></code></dt>
+<dd>
+<p>A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the <code>{x}</code> (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>true_val</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>While the choice of a <code>tf_style=</code> will typically supply the <code>true_val=</code> and <code>false_val=</code> text, we could override this and supply text for any <code>True</code> values. This doesn’t need to be used in conjunction with <code>false_val=</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>false_val</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>While the choice of a <code>tf_style=</code> will typically supply the <code>true_val=</code> and <code>false_val=</code> text, we could override this and supply text for any <code>False</code> values. This doesn’t need to be used in conjunction with <code>true_val=</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>na_val</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>None of the <code>tf_style</code> presets will replace any missing values encountered in the targeted cells. While we always have the option to use <code>sub_missing()</code> for NA replacement, we have the opportunity handle missing values here with the <code>na_val=</code> option. This is useful because we also have the means to add color to the <code>na_val=</code> text or symbol and doing that requires that a replacement value for NAs is specified here.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>colors</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>list</code>[<code>str</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Providing a list of color values to colors will progressively add color to the formatted result depending on the number of colors provided. With a single color, all formatted values will be in that color. Using two colors results in <code>True</code> values being the first color, and <code>False</code> values receiving the second. With the three-color option, the final color will be given to any missing values replaced through <code>na_val=</code>.</p>
 </dd>
 </dl>
 </section>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../reference/GT.html#great_tables.GT">GT</a></span></code></dt>
+<dd>
+<p>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</p>
+</dd>
+</dl>
+</section>
+<section id="formatting-with-the-tf_style-argument" class="level2 doc-section doc-section-formatting-with-the-tfstyle-argument">
+<h2 class="doc-section doc-section-formatting-with-the-tfstyle-argument anchored" data-anchor-id="formatting-with-the-tf_style-argument">Formatting with the <code>tf_style=</code> argument</h2>
+<p>We need to supply a preset <code>tf_style=</code> value. The following table provides a listing of all <code>tf_style=</code> values and their output <code>True</code> and <code>False</code> values.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 36%">
+<col style="width: 54%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>TF Style</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><code>"true-false"</code></td>
+<td><code>"true" /</code>“false”<code>| | 2  |</code>“yes-no”<code>|</code>“yes” / <code>"no"</code></td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td><code>"up-down"</code></td>
+<td><code>"up" /</code>“down”<code>| | 4  |</code>“check-mark”<code>|</code>“✓” / <code>"✗"</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><code>"circles"</code></td>
+<td><code>"●" /</code>“○”<code>| | 6  |</code>“squares”<code>|</code>“■” / <code>"□"</code></td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td><code>"diamonds"</code></td>
+<td><code>"◆" /</code>“◇”<code>| | 8  |</code>“arrows”<code>|</code>“↑” / <code>"↓"</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td><code>"triangles"</code></td>
+<td><code>"▲" /</code>“▼”<code>| | 10 |</code>“triangles-lr”<code>|</code>“▶” / <code>"◀"</code></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="examples" class="level2 doc-section doc-section-examples">
 <h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
-<p>Let’s use a subset of the <code>gtcars</code> dataset in a new table. We will style only the ‘subtitle’ part of the table header (leaving the ‘title’ part unaffected). This can be done by using <code>locations=loc.subtitle()</code> within <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style"><code>tab_style()</code></a>.</p>
-<div id="9c5fdc1e" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, style, loc</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> gtcars</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    GT(gtcars[[<span class="st">"mfr"</span>, <span class="st">"model"</span>, <span class="st">"msrp"</span>]].head(<span class="dv">5</span>))</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    .tab_header(</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">"Select Cars from the gtcars Dataset"</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        subtitle<span class="op">=</span><span class="st">"Only the first five cars are displayed"</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.fill(color<span class="op">=</span><span class="st">"lightblue"</span>),</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.subtitle()</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(columns<span class="op">=</span><span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Let’s use a subset of the <code>sp500</code> dataset to create a small table containing opening and closing price data for the last few days in 2015. We added a boolean column (<code>dir</code>) where <code>True</code> indicates a price increase from opening to closing and <code>False</code> is the opposite. Using <code>fmt_tf()</code> generates up and down arrows in the <code>dir</code> column. We elect to use green upward arrows and red downward arrows (through the <code>colors=</code> option).</p>
+<div id="4406b8a6" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> sp500</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>sp500_mini <span class="op">=</span> (</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    pl.from_pandas(sp500)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">slice</span>(<span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    .drop([<span class="st">"volume"</span>, <span class="st">"adj_close"</span>, <span class="st">"high"</span>, <span class="st">"low"</span>])</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    .with_columns(<span class="bu">dir</span> <span class="op">=</span> pl.col(<span class="st">"close"</span>) <span class="op">&gt;</span> pl.col(<span class="st">"open"</span>))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    GT(sp500_mini, rowname_col<span class="op">=</span><span class="st">"date"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    .fmt_tf(columns<span class="op">=</span><span class="st">"dir"</span>, tf_style<span class="op">=</span><span class="st">"arrows"</span>, colors<span class="op">=</span>[<span class="st">"green"</span>, <span class="st">"red"</span>])</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(columns<span class="op">=</span>[<span class="st">"open"</span>, <span class="st">"close"</span>])</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    .cols_label(</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="bu">open</span><span class="op">=</span><span class="st">"Opening"</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        close<span class="op">=</span><span class="st">"Closing"</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="bu">dir</span><span class="op">=</span><span class="st">""</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="jbtcosxtjo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="jlezrenhgo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#jbtcosxtjo table {
+#jlezrenhgo table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#jbtcosxtjo thead, tbody, tfoot, tr, td, th { border-style: none; }
+#jlezrenhgo thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#jbtcosxtjo p { margin: 0; padding: 0; }
- #jbtcosxtjo .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #jbtcosxtjo .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #jbtcosxtjo .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #jbtcosxtjo .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #jbtcosxtjo .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #jbtcosxtjo .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #jbtcosxtjo .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #jbtcosxtjo .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #jbtcosxtjo .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #jbtcosxtjo .gt_column_spanner_outer:first-child { padding-left: 0; }
- #jbtcosxtjo .gt_column_spanner_outer:last-child { padding-right: 0; }
- #jbtcosxtjo .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #jbtcosxtjo .gt_spanner_row { border-bottom-style: hidden; }
- #jbtcosxtjo .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #jbtcosxtjo .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #jbtcosxtjo .gt_from_md> :first-child { margin-top: 0; }
- #jbtcosxtjo .gt_from_md> :last-child { margin-bottom: 0; }
- #jbtcosxtjo .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #jbtcosxtjo .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #jbtcosxtjo .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #jbtcosxtjo .gt_row_group_first td { border-top-width: 2px; }
- #jbtcosxtjo .gt_row_group_first th { border-top-width: 2px; }
- #jbtcosxtjo .gt_striped { background-color: rgba(128,128,128,0.05); }
- #jbtcosxtjo .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #jbtcosxtjo .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #jbtcosxtjo .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #jbtcosxtjo .gt_left { text-align: left; }
- #jbtcosxtjo .gt_center { text-align: center; }
- #jbtcosxtjo .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #jbtcosxtjo .gt_font_normal { font-weight: normal; }
- #jbtcosxtjo .gt_font_bold { font-weight: bold; }
- #jbtcosxtjo .gt_font_italic { font-style: italic; }
- #jbtcosxtjo .gt_super { font-size: 65%; }
- #jbtcosxtjo .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #jbtcosxtjo .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#jlezrenhgo p { margin: 0; padding: 0; }
+ #jlezrenhgo .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #jlezrenhgo .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #jlezrenhgo .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #jlezrenhgo .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #jlezrenhgo .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #jlezrenhgo .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #jlezrenhgo .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #jlezrenhgo .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #jlezrenhgo .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #jlezrenhgo .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #jlezrenhgo .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #jlezrenhgo .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #jlezrenhgo .gt_spanner_row { border-bottom-style: hidden; }
+ #jlezrenhgo .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #jlezrenhgo .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #jlezrenhgo .gt_from_md> :first-child { margin-top: 0; }
+ #jlezrenhgo .gt_from_md> :last-child { margin-bottom: 0; }
+ #jlezrenhgo .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #jlezrenhgo .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #jlezrenhgo .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #jlezrenhgo .gt_row_group_first td { border-top-width: 2px; }
+ #jlezrenhgo .gt_row_group_first th { border-top-width: 2px; }
+ #jlezrenhgo .gt_striped { background-color: rgba(128,128,128,0.05); }
+ #jlezrenhgo .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #jlezrenhgo .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #jlezrenhgo .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #jlezrenhgo .gt_left { text-align: left; }
+ #jlezrenhgo .gt_center { text-align: center; }
+ #jlezrenhgo .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #jlezrenhgo .gt_font_normal { font-weight: normal; }
+ #jlezrenhgo .gt_font_bold { font-weight: bold; }
+ #jlezrenhgo .gt_font_italic { font-style: italic; }
+ #jlezrenhgo .gt_super { font-size: 65%; }
+ #jlezrenhgo .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #jlezrenhgo .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 
-  <tr class="gt_heading">
-    <td colspan="3" class="gt_heading gt_title gt_font_normal">Select Cars from the gtcars Dataset</td>
-  </tr>
-  <tr class="gt_heading">
-    <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="background-color: lightblue;">Only the first five cars are displayed</td>
-  </tr>
 <tr class="gt_col_headings">
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="mfr">mfr</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="model">model</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="msrp">msrp</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="open">Opening</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="close">Closing</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="dir"></th>
 </tr>
 </thead>
 <tbody class="gt_table_body">
   <tr>
-    <td class="gt_row gt_left">Ford</td>
-    <td class="gt_row gt_left">GT</td>
-    <td class="gt_row gt_right">$447,000</td>
+    <th class="gt_row gt_left gt_stub">2015-12-31</th>
+    <td class="gt_row gt_right">$2,060.59</td>
+    <td class="gt_row gt_right">$2,043.94</td>
+    <td class="gt_row gt_center"><span style="color:red">↓</span></td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">Ferrari</td>
-    <td class="gt_row gt_left">458 Speciale</td>
-    <td class="gt_row gt_right">$291,744</td>
+    <th class="gt_row gt_left gt_stub">2015-12-30</th>
+    <td class="gt_row gt_right">$2,077.34</td>
+    <td class="gt_row gt_right">$2,063.36</td>
+    <td class="gt_row gt_center"><span style="color:red">↓</span></td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">Ferrari</td>
-    <td class="gt_row gt_left">458 Spider</td>
-    <td class="gt_row gt_right">$263,553</td>
+    <th class="gt_row gt_left gt_stub">2015-12-29</th>
+    <td class="gt_row gt_right">$2,060.54</td>
+    <td class="gt_row gt_right">$2,078.36</td>
+    <td class="gt_row gt_center"><span style="color:green">↑</span></td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">Ferrari</td>
-    <td class="gt_row gt_left">458 Italia</td>
-    <td class="gt_row gt_right">$233,509</td>
+    <th class="gt_row gt_left gt_stub">2015-12-28</th>
+    <td class="gt_row gt_right">$2,057.77</td>
+    <td class="gt_row gt_right">$2,056.50</td>
+    <td class="gt_row gt_center"><span style="color:red">↓</span></td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">Ferrari</td>
-    <td class="gt_row gt_left">488 GTB</td>
-    <td class="gt_row gt_right">$245,400</td>
+    <th class="gt_row gt_left gt_stub">2015-12-24</th>
+    <td class="gt_row gt_right">$2,063.52</td>
+    <td class="gt_row gt_right">$2,060.99</td>
+    <td class="gt_row gt_center"><span style="color:red">↓</span></td>
   </tr>
 </tbody>
 
