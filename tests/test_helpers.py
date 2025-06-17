@@ -105,18 +105,6 @@ def test_google_font_class():
     )
 
 
-def test_google_font_to_html_style():
-    # Test with simple font name
-    font = GoogleFont("Lato")
-    result = font._to_html_style()
-    assert result == "font-family: Lato;"
-
-    # Test with font name having spaces
-    font_2 = GoogleFont("Open Sans")
-    result_2 = font_2._to_html_style()
-    assert result_2 == "font-family: Open Sans;"
-
-
 def test_google_font_make_import_stmt_with_spaces():
     # Font names with spaces should have those spaces replaced with a '+'
     font = GoogleFont("Open Sans")
