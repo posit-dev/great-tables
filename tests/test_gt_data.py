@@ -1,4 +1,5 @@
 import pandas as pd
+from great_tables import GT, style, loc, google_font
 from great_tables._gt_data import Boxhead, ColInfo, RowInfo, Stub
 
 
@@ -40,3 +41,160 @@ def test_boxhead_reorder():
     new_boxh = boxh.reorder(["b", "a", "c"])
 
     assert new_boxh == Boxhead([ColInfo("b"), ColInfo("a"), ColInfo("c")])
+
+
+def test_opt_table_font_no_duplicates():
+    df = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
+    gt_table = GT(df)
+
+    # Apply the same Google Font multiple times with `opt_table_font()`
+    gt_table = gt_table.opt_table_font(font=google_font(name="Roboto"))
+    gt_table = gt_table.opt_table_font(font=google_font(name="Roboto"))
+    gt_table = gt_table.opt_table_font(font=google_font(name="Open Sans"))
+    gt_table = gt_table.opt_table_font(font=google_font(name="Roboto"))
+
+    # Get the Google Font imports
+    google_font_imports = gt_table._get_google_font_imports()
+
+    # Count import statements
+    roboto_imports = [css for css in google_font_imports if "Roboto" in css and "@import" in css]
+    open_sans_imports = [
+        css for css in google_font_imports if "Open+Sans" in css and "@import" in css
+    ]
+
+    # We should have exactly one import for each unique font
+    assert len(roboto_imports) == 1
+    assert len(open_sans_imports) == 1
+
+
+def test_tab_style_no_duplicates():
+    df = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
+    gt_table = GT(df)
+
+    # Apply the same Google Font multiple times via tab_style
+    gt_table = gt_table.tab_style(
+        style=style.text(font=google_font(name="IBM Plex Mono")),
+        locations=loc.body(columns="x"),
+    )
+    gt_table = gt_table.tab_style(
+        style=style.text(font=google_font(name="IBM Plex Mono")),  # Same font again
+        locations=loc.body(columns="y"),
+    )
+    gt_table = gt_table.tab_style(
+        style=style.text(font=google_font(name="Source Code Pro")),  # Different font
+        locations=loc.body(columns="x"),
+    )
+    gt_table = gt_table.tab_style(
+        style=style.text(font=google_font(name="IBM Plex Mono")),  # Same font again
+        locations=loc.body(columns="y"),
+    )
+
+    # Get the Google Font imports
+    google_font_imports = gt_table._get_google_font_imports()
+
+    # Count import statements
+    ibm_plex_imports = [
+        css for css in google_font_imports if "IBM+Plex+Mono" in css and "@import" in css
+    ]
+    source_code_imports = [
+        css for css in google_font_imports if "Source+Code+Pro" in css and "@import" in css
+    ]
+
+    # We should have exactly one import for each unique font
+    assert (
+        len(ibm_plex_imports) == 1
+    ), f"Expected 1 IBM Plex Mono import, got {len(ibm_plex_imports)}"
+    assert (
+        len(source_code_imports) == 1
+    ), f"Expected 1 Source Code Pro import, got {len(source_code_imports)}"
+
+
+def test_mixed_usage_no_duplicates():
+    df = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
+    gt_table = GT(df)
+
+    # Mix opt_table_font and tab_style with same fonts
+    gt_table = gt_table.opt_table_font(font=google_font(name="Nunito"))
+    gt_table = gt_table.tab_style(
+        style=style.text(font=google_font(name="Nunito")),
+        locations=loc.body(columns="x"),
+    )
+    gt_table = gt_table.opt_table_font(font=google_font(name="Nunito"))
+    gt_table = gt_table.tab_style(
+        style=style.text(font=google_font(name="Lato")),
+        locations=loc.body(columns="y"),
+    )
+
+    # Get the Google Font imports
+    google_font_imports = gt_table._get_google_font_imports()
+
+    # Count import statements
+    nunito_imports = [css for css in google_font_imports if "Nunito" in css and "@import" in css]
+    lato_imports = [css for css in google_font_imports if "Lato" in css and "@import" in css]
+
+    # Should have exactly one import for each unique font
+    assert len(nunito_imports) == 1, f"Expected 1 Nunito import, got {len(nunito_imports)}"
+    assert len(lato_imports) == 1, f"Expected 1 Lato import, got {len(lato_imports)}"
+
+
+def test_rendered_html_no_duplicates():
+    df = pd.DataFrame({"num": [1, 2], "char": ["a", "b"]})
+
+    gt_table = (
+        GT(df)
+        .opt_table_font(font=google_font(name="Playfair Display"))
+        .tab_style(
+            style=style.text(font=google_font(name="Playfair Display")),
+            locations=loc.body(columns="num"),
+        )
+        .tab_style(
+            style=style.text(font=google_font(name="Fira Code")),
+            locations=loc.body(columns="char"),
+        )
+    )
+
+    # Get the raw HTML output
+    html = gt_table.as_raw_html()
+
+    # Count import statements in the HTML
+    playfair_count = html.count(
+        "@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');"
+    )
+    fira_code_count = html.count(
+        "@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');"
+    )
+
+    # Expect one import for each unique font in the HTML output
+    assert playfair_count == 1
+    assert fira_code_count == 1
+
+
+def test_google_font_imports_methods():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    gt_table = GT(df)
+
+    import1 = "@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');"
+    import2 = "@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');"
+
+    # Test of the initial state (no imports)
+    assert gt_table._get_google_font_imports() == []
+
+    gt_tbl = gt_table._add_google_font_import(import1)
+    assert len(gt_tbl._get_google_font_imports()) == 1
+    assert import1 in gt_tbl._get_google_font_imports()
+
+    # Test with a duplicate font import (doesn't add to the count)
+    gt_tbl = gt_tbl._add_google_font_import(import1)
+    assert len(gt_tbl._get_google_font_imports()) == 1
+
+    # Add a second unique import
+    gt_tbl = gt_tbl._add_google_font_import(import2)
+    assert len(gt_tbl._get_google_font_imports()) == 2
+
+    # Check that both imports are present
+    assert import1 in gt_tbl._get_google_font_imports()
+    assert import2 in gt_tbl._get_google_font_imports()
+
+    # Test that imports are sorted consistently
+    imports = gt_tbl._get_google_font_imports()
+    assert imports == sorted(imports)
