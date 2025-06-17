@@ -71,7 +71,7 @@ def test_tab_style_no_duplicates():
     df = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
     gt_table = GT(df)
 
-    # Apply the same Google Font multiple times via tab_style
+    # Apply the same Google Font multiple times via `tab_style()`
     gt_table = gt_table.tab_style(
         style=style.text(font=google_font(name="IBM Plex Mono")),
         locations=loc.body(columns="x"),
@@ -101,12 +101,8 @@ def test_tab_style_no_duplicates():
     ]
 
     # We should have exactly one import for each unique font
-    assert (
-        len(ibm_plex_imports) == 1
-    ), f"Expected 1 IBM Plex Mono import, got {len(ibm_plex_imports)}"
-    assert (
-        len(source_code_imports) == 1
-    ), f"Expected 1 Source Code Pro import, got {len(source_code_imports)}"
+    assert len(ibm_plex_imports) == 1
+    assert len(source_code_imports) == 1
 
 
 def test_mixed_usage_no_duplicates():
@@ -133,8 +129,8 @@ def test_mixed_usage_no_duplicates():
     lato_imports = [css for css in google_font_imports if "Lato" in css and "@import" in css]
 
     # Should have exactly one import for each unique font
-    assert len(nunito_imports) == 1, f"Expected 1 Nunito import, got {len(nunito_imports)}"
-    assert len(lato_imports) == 1, f"Expected 1 Lato import, got {len(lato_imports)}"
+    assert len(nunito_imports) == 1
+    assert len(lato_imports) == 1
 
 
 def test_rendered_html_no_duplicates():
