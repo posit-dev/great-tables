@@ -10,7 +10,7 @@ from importlib_resources import files
 from ._data_color.base import _html_color, _ideal_fgnd_color
 from ._gt_data import GTData
 from ._helpers import pct, px
-from ._utils import _as_css_font_family_attr, OrderedSet
+from ._utils import OrderedSet, _as_css_font_family_attr
 
 DEFAULTS_TABLE_BACKGROUND = (
     "heading_background_color",
@@ -141,6 +141,10 @@ def compile_scss(
     # Generate styles ----
     gt_table_open_str = f"#{id} table" if has_id else ".gt_table"
 
+    # Get Google Font imports ----
+    google_font_imports = data._get_google_font_imports()
+    google_font_css = "\n".join(google_font_imports) + "\n" if google_font_imports else ""
+
     # Prepend any additional CSS ----
     additional_css = data._options.table_additional_css.value
 
@@ -181,6 +185,6 @@ def compile_scss(
     if all_important:
         compiled_css = re.sub(r";", " !important;", compiled_css, count=0, flags=re.MULTILINE)
 
-    finalized_css = f"{gt_table_class_str}\n\n{compiled_css}"
+    finalized_css = f"{google_font_css}{gt_table_class_str}\n\n{compiled_css}"
 
     return finalized_css
