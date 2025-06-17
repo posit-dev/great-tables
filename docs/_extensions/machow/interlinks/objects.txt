@@ -1,0 +1,7 @@
+# Sphinx inventory version 2
+# Project: quartodoc
+# Version: 0.0.9999
+# The remainder of this file is compressed using zlib.
+some_func py:function 1 api/some_func.html -
+a.b.c py:function 1 api/a.b.c.html -
+quartodoc.Auto py:class 1 api/Auto.html -

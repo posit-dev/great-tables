@@ -4,7 +4,7 @@ jupyter: python3
 html-table-processing: none
 ---
 
-Location and formatter functions (e.g. [`loc.body()`](`great_tables.loc.body`) and [`GT.fmt_number()`](`great_tables.GT.fmt_number`)) can be applied to specific rows, using the `rows=` argument.
+Location and formatter functions (e.g. `loc.body()` and `~~GT.fmt_number()`) can be applied to specific rows, using the `rows=` argument.
 
 Rows may be specified using any of the following:
 

@@ -70,6 +70,9 @@ filters:
 
 interlinks:
   fast: true
+  autolink: true
+  aliases:
+    great_tables: [null, gt]
   sources:
     numpy:
       url: https://numpy.org/doc/stable/
@@ -132,6 +135,7 @@ quartodoc:
         - GT.fmt_roman
         - GT.fmt_date
         - GT.fmt_time
+        - GT.fmt_tf
         - GT.fmt_datetime
         - GT.fmt_markdown
         - GT.fmt_units
@@ -154,6 +158,7 @@ quartodoc:
         - GT.cols_align
         - GT.cols_width
         - GT.cols_label
+        - GT.cols_label_rotate
         - GT.cols_move
         - GT.cols_move_to_start
         - GT.cols_move_to_end

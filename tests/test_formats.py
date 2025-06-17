@@ -9,6 +9,7 @@ from great_tables import GT, _locale
 from great_tables._data_color.base import _html_color
 from great_tables._formats import (
     FmtImage,
+    _check_colors,
     _expand_exponential_to_full_string,
     _format_number_n_sigfig,
     _format_number_fixed_decimals,
@@ -1172,6 +1173,7 @@ FMT_CURRENCY_CASES: list[tuple[dict[str, Any], list[str]]] = [
     (dict(placement="right"), ["1,234,567.00$", "−5,432.37$"]),
     (dict(placement="right", incl_space=True), ["1,234,567.00 $", "−5,432.37 $"]),
     (dict(incl_space=True), ["$ 1,234,567.00", "−$ 5,432.37"]),
+    (dict(compact=True), ["$1.23M", "−$5.43K"]),
 ]
 
 
@@ -1299,6 +1301,28 @@ def test_fmt_datetime():
     ]
 
 
+def test_fmt_datetime_format_str():
+    df = pd.DataFrame(
+        {
+            "x": [
+                "2013-05-15 23:15",
+                "2020-05-20",
+            ],
+        }
+    )
+
+    gt = GT(df).fmt_datetime(
+        columns="x",
+        format_str="%A, %B %d, %Y at %I:%M %p",
+    )
+
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == [
+        "Wednesday, May 15, 2013 at 11:15 PM",
+        "Wednesday, May 20, 2020 at 12:00 AM",
+    ]
+
+
 def test_fmt_datetime_bad_date_style_raises():
     df = pd.DataFrame(
         {
@@ -1315,6 +1339,121 @@ def test_fmt_datetime_bad_date_style_raises():
         )
 
     assert "date_style must be one of:" in exc_info.value.args[0]
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_tf()`
+# ------------------------------------------------------------------------------
+
+FMT_TF_CASES: list[tuple[dict[str, Any], list[str]]] = [
+    (dict(), ["true", "false", "None"]),
+    (dict(tf_style="arrows"), ["↑", "↓", "None"]),
+    (dict(tf_style="yes-no"), ["yes", "no", "None"]),
+    (
+        dict(colors=["green"]),
+        [
+            '<span style="color:green">true</span>',
+            '<span style="color:green">false</span>',
+            "None",
+        ],
+    ),
+    (
+        dict(colors="blue"),
+        [
+            '<span style="color:blue">true</span>',
+            '<span style="color:blue">false</span>',
+            "None",
+        ],
+    ),
+    (
+        dict(colors=["green", "red"]),
+        [
+            '<span style="color:green">true</span>',
+            '<span style="color:red">false</span>',
+            "None",
+        ],
+    ),
+    (
+        dict(na_val="NA", colors=["green", "red", "blue"]),
+        [
+            '<span style="color:green">true</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:blue">NA</span>',
+        ],
+    ),
+    (dict(tf_style="yes-no", true_val="YES"), ["YES", "no", "None"]),
+    (dict(tf_style="yes-no", false_val="NO"), ["yes", "NO", "None"]),
+    (dict(tf_style="yes-no", na_val="NA"), ["yes", "no", "NA"]),
+    (dict(pattern="{x}!"), ["true!", "false!", "None"]),
+]
+
+
+@pytest.mark.parametrize("fmt_tf_kwargs,x_out", FMT_TF_CASES)
+def test_fmt_tf_case(fmt_tf_kwargs: dict[str, Any], x_out: list[str]):
+    df = pl.DataFrame({"x": [True, False, None]})
+    gt = GT(df).fmt_tf(columns="x", **fmt_tf_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+def test_fmt_tf_column_invalid_type():
+    df = pl.DataFrame({"x": [0, 1, 2]})
+    gt = GT(df).fmt_tf(columns="x")
+
+    with pytest.raises(ValueError) as exc_info:
+        # This triggers the actual formatting by accessing the formatted values
+        _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "Expected boolean value or NA, but got" in exc_info.value.args[0]
+
+
+def test_fmt_tf_invalid_na_val_type():
+    df = pl.DataFrame({"x": [True, False, None]})
+    gt = GT(df).fmt_tf(columns="x", na_val=123)  # Invalid: numeric na_val
+
+    with pytest.raises(ValueError, match="The `na_val` argument must be a string or None"):
+        _get_column_of_values(gt, column_name="x", context="html")
+
+
+def test_fmt_tf_skip_formatting_na_without_na_val():
+    df = pl.DataFrame({"x": [True, False, None]})
+    gt = GT(df).fmt_tf(columns="x")  # No na_val provided
+
+    # NA vals should be skipped (where the original value is preserved)
+    result = _get_column_of_values(gt, column_name="x", context="html")
+
+    # The NA value should remain as the string representation "None"
+    assert result[2] == "None"
+
+
+def test_fmt_tf_latex_context_with_colors():
+    df = pl.DataFrame({"x": [True, False]})
+    gt = GT(df).fmt_tf(columns="x", colors=["red", "blue"])
+
+    with pytest.raises(
+        ValueError, match="The `colors=` argument is not currently supported for LaTeX tables"
+    ):
+        _get_column_of_values(gt, column_name="x", context="latex")
+
+
+@pytest.mark.parametrize(
+    "invalid_na_val",
+    [
+        ["invalid"],  # list
+        {"invalid": "value"},  # dict
+        True,  # boolean
+        123,  # integer
+        12.34,  # float
+        ("tuple", "value"),  # tuple
+        set(["set_value"]),  # set
+    ],
+)
+def test_fmt_tf_na_val_type_validation(invalid_na_val):
+    df = pl.DataFrame({"x": [True, False, None]})
+    gt = GT(df).fmt_tf(columns="x", na_val=invalid_na_val)
+
+    with pytest.raises(ValueError, match="The `na_val` argument must be a string or None"):
+        _get_column_of_values(gt, column_name="x", context="html")
 
 
 # ------------------------------------------------------------------------------
@@ -1784,6 +1923,15 @@ def test_fmt_image_http(url: str):
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
     assert strip_windows_drive(res) == dst
+
+
+def test_check_colors():
+    # Error on more than 3 colors provided
+    with pytest.raises(ValueError):
+        _check_colors(colors=["red", "blue", "green", "gray"])
+    # Error on not passing a list of strings
+    with pytest.raises(ValueError):
+        _check_colors(colors=[1, 2, 3])  # type: ignore
 
 
 @pytest.mark.parametrize(

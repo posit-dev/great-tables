@@ -1,0 +1,10 @@
+# serializer version: 1
+# name: test_cols_label_rotate
+  '''
+  <tr class="gt_col_headings">
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="writing-mode: sideways-lr; vertical-align: middle; text-align: left; padding: 8px 0px;" scope="col" id="test-x">x</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="writing-mode: sideways-lr; vertical-align: middle; text-align: left; padding: 8px 0px;" scope="col" id="test-y">y</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test-z">z</th>
+  </tr>
+  '''
+# ---
