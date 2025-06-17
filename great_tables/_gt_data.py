@@ -81,6 +81,16 @@ class GTData:
 
         return new_obj
 
+    def _add_google_font_import(self, import_statement: str) -> Self:
+        if import_statement not in self._google_font_imports:
+            new_imports = self._google_font_imports.copy()
+            new_imports.add(import_statement)
+            return self._replace(_google_font_imports=new_imports)
+        return self
+
+    def _get_google_font_imports(self) -> list[str]:
+        return list(self._google_font_imports)
+
     @classmethod
     def from_data(
         cls,
