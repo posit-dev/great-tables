@@ -290,6 +290,9 @@ class GoogleFont:
     def get_font_name(self) -> str:
         return self.font
 
+    def _to_html_style(self) -> dict[str, str]:
+        return {"font-family": self.font}
+
 
 def google_font(name: str) -> GoogleFont:
     """Specify a font from the *Google Fonts* service.
