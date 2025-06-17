@@ -142,36 +142,23 @@ def as_raw_html(
 
     By default, the method returns an HTML fragment containing just the table and its associated
     CSS styles in a `<style>` block. However, the method provides several options to customize the
-    output format:
-
-    - `inline_css=True`: all CSS styles are embedded directly into the HTML elements as `style`
-    attributes. This is essential for email clients, which often strip out `<style>` blocks but
-    preserve inline styles.
-
-    - `make_page=True`: the table will be wrapped in a complete HTML document structure with proper
-    `<html>`, `<head>`, and `<body>` tags, making it ready to be saved as a standalone HTML file or
-    opened directly in a browser.
-
-    - `all_important=True`: all CSS declarations are marked with `!important` to ensure they take
-    precedence over other styles that might be present in the document.
-
-    The method preserves all structural, formatting, and styling that has been applied to the table,
-    including colors, fonts, borders, and cell formatting.
+    output format.
 
     Parameters
     ----------
     gt
         A GT object.
     inline_css
-        An option to supply styles to table elements as inlined CSS styles. This is useful when
-        including the table HTML as part of an HTML email message body, since inlined styles are
-        largely supported in email clients over using CSS in a `<style>` block.
+        If `True`, all CSS styles are inlined into the HTML elements as `style` attributes.
+        This is essential for email clients, which often strip out `<style>` blocks but preserve
+        inline styles.
     make_page
-        An option to wrap the table in a complete HTML page. This is useful when you want to display
-        the table in a web browser or save it as a standalone HTML file.
+        If `True`, the table will be wrapped in a complete HTML page with proper `<html>`, `<head>`,
+        and `<body>` tags. This is useful when you want to display the table in a web browser or
+        save it as a standalone HTML file.
     all_important
-        An option to add `!important` to all CSS styles. This is useful when you want to ensure that
-        the styles are applied and not overridden by other styles in the document.
+        If `True`, all CSS declarations are marked with `!important` to ensure they take precedence
+        over other styles that might be present in the document.
 
     Returns
     -------
