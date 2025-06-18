@@ -68,6 +68,7 @@ class GTData:
     _formats: Formats
     _substitutions: Formats
     _options: Options
+    _google_font_imports: set[str] = field(default_factory=set)
     _has_built: bool = False
 
     def _replace(self, **kwargs: Any) -> Self:
@@ -80,6 +81,16 @@ class GTData:
         new_obj.__dict__.update(kwargs)
 
         return new_obj
+
+    def _add_google_font_import(self, import_statement: str) -> Self:
+        if import_statement not in self._google_font_imports:
+            new_imports = self._google_font_imports.copy()
+            new_imports.add(import_statement)
+            return self._replace(_google_font_imports=new_imports)
+        return self
+
+    def _get_google_font_imports(self) -> list[str]:
+        return sorted(list(self._google_font_imports))
 
     @classmethod
     def from_data(
@@ -114,6 +125,7 @@ class GTData:
             _formats=[],
             _substitutions=[],
             _options=options,
+            _google_font_imports=set(),
         )
 
 
