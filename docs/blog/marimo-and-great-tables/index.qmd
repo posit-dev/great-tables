@@ -30,4 +30,4 @@ For more details on marimo's widget system, check out their [UI elements documen
 
 ## Marimo + Quarto Integration
 
-For those interested in embedding marimo notebooks directly in Quarto documents, the Marimo team has also created a [quarto-marimo plugin](https://github.com/marimo-team/quarto-marimo). This extension allows you to run marimo code blocks natively within Quarto documents using marimo islands, making it easy to create interactive content that combines the best of both tools. It's a very exciting development since we use Quarto extensively (our docs and this very blog post were authored through Quarto!).
+For those interested in embedding marimo notebooks directly in Quarto documents, the Marimo team has also created a [quarto-marimo plugin](https://github.com/marimo-team/quarto-marimo). This extension allows you to run marimo code blocks natively within Quarto documents, making it easy to create interactive content that combines the best of both tools. It's a very exciting development since we use Quarto extensively (our docs and this very blog post were authored through Quarto!).
