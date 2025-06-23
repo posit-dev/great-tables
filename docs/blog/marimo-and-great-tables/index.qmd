@@ -22,7 +22,7 @@ gt.opt_stylize(
 
 ## Quick Video, by marimo
 
-The Marimo team must have seen that post and liked what they saw since they released a showcasing how Marimo widgets work with Great Tables to create reactive tables. Watch the video below!
+The Marimo team must have seen that post and liked what they saw! They recently released a video showcasing how Marimo widgets work with Great Tables to create reactive tables.
 
 {{< video https://youtu.be/09ByveIiXGY >}}
 
