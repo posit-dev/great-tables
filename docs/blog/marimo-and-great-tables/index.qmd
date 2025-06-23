@@ -1,5 +1,5 @@
 ---
-title: "Great Tables + Marimo = Interactive Tables"
+title: "Great Tables + marimo = Interactive Tables"
 author: Rich Iannone and Jerry Wu
 date: 2025-06-24
 ---
@@ -28,8 +28,8 @@ The marimo team must have seen that post and liked what they saw! They recently 
 
 For more details on marimo's widget system, check out their [UI elements documentation](https://docs.marimo.io/api/inputs/) and [reactivity guide](https://docs.marimo.io/guides/reactivity/).
 
-## Marimo + Quarto Integration
+## marimo + Quarto Integration
 
-For those interested in embedding marimo notebooks directly in Quarto documents, the Marimo team has also created a [quarto-marimo plugin](https://github.com/marimo-team/quarto-marimo). This extension allows you to run marimo code blocks natively within Quarto documents, making it easy to create interactive content that combines the best of both tools. It's a very exciting development since we use Quarto extensively (our docs and this very blog post were authored through Quarto!). And naturally there's a video for this as well.
+For those interested in embedding marimo notebooks directly in Quarto documents, the marimo team has also created a [quarto-marimo plugin](https://github.com/marimo-team/quarto-marimo). This extension allows you to run marimo code blocks natively within Quarto documents, making it easy to create interactive content that combines the best of both tools. It's a very exciting development since we use Quarto extensively (our docs and this very blog post were authored through Quarto!). And naturally there's a video for this as well.
 
 {{< video https://youtu.be/scuGmtv81S0 >}}
