@@ -8,7 +8,7 @@ Jerry Wu's [recent post](https://tech.ycwu.space/posts/gt-marimo-in-quarto/20250
 
 ## Quick Demo
 
-![Interactive Great Tables with Marimo widgets](gt_marimo.gif)
+![Interactive Great Tables with marimo widgets](gt_marimo.gif)
 
 The marimo reactive widgets can be embedded into a GT table through the [`html()`](https://posit-dev.github.io/great-tables/reference/html.html) helper function. In Jerry's example, the table responds to widget changes in the `opt_stylize()` method call, where the `.value` attributes for all of the widgets are passed in as arguments.
 
@@ -22,7 +22,7 @@ gt.opt_stylize(
 
 ## Quick Video, by marimo
 
-The Marimo team must have seen that post and liked what they saw! They recently released a video showcasing how Marimo widgets work with Great Tables to create reactive tables.
+The marimo team must have seen that post and liked what they saw! They recently released a video showcasing how marimo widgets work with Great Tables to create reactive tables.
 
 {{< video https://youtu.be/09ByveIiXGY >}}
 
@@ -30,4 +30,6 @@ For more details on marimo's widget system, check out their [UI elements documen
 
 ## Marimo + Quarto Integration
 
-For those interested in embedding marimo notebooks directly in Quarto documents, the Marimo team has also created a [quarto-marimo plugin](https://github.com/marimo-team/quarto-marimo). This extension allows you to run marimo code blocks natively within Quarto documents, making it easy to create interactive content that combines the best of both tools. It's a very exciting development since we use Quarto extensively (our docs and this very blog post were authored through Quarto!).
+For those interested in embedding marimo notebooks directly in Quarto documents, the Marimo team has also created a [quarto-marimo plugin](https://github.com/marimo-team/quarto-marimo). This extension allows you to run marimo code blocks natively within Quarto documents, making it easy to create interactive content that combines the best of both tools. It's a very exciting development since we use Quarto extensively (our docs and this very blog post were authored through Quarto!). And naturally there's a video for this as well.
+
+{{< video https://youtu.be/scuGmtv81S0 >}}
