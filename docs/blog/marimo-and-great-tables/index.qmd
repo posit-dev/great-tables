@@ -1,0 +1,120 @@
+---
+title: "Great Tables + Marimo = Interactive Tables"
+author: Rich Iannone
+date: 2025-06-24
+---
+
+Our longtime collaborator Jerry Wu [recently posted](https://tech.ycwu.space/posts/gt-marimo-in-quarto/20250612.html) about how Great Tables goes really well with marimo, enabling reactivity in GT objects. His demo showcases a really nice integration where marimo's reactive widgets can be embedded directly into Great Tables using the `html()` helper function. This effectively creates an interactive table that updates in real-time whenever users interact with the controls.
+
+## Interactive Demo
+
+Here's a reproduction of the demo he used in his post:
+
+```{python}
+# | code-fold: true
+# | eval: false
+# | code-summary: Show full code
+import marimo
+
+__generated_with = "0.13.15"
+app = marimo.App(width="medium")
+
+
+@app.cell
+def _():
+    import marimo as mo
+    import polars as pl
+    from great_tables import GT, html
+
+    return GT, html, mo, pl
+
+
+@app.cell
+def _(pl):
+    data = {
+        "col1": [2, 5, 7, 10, 15],
+        "col2": ["x", "y", "y", "z", "z"],
+        "color": ["lightgrey", "lightblue", "lightblue", "papayawhip", "papayawhip"],
+    }
+    df = pl.DataFrame(data)
+    return (df,)
+
+
+@app.cell
+def _(GT, df, html, mo):
+    style_widget = mo.ui.slider(1, 6, label="Style Number")
+
+    _colors = ["blue", "cyan", "pink", "green", "red", "gray"]
+    color_widget = mo.ui.radio(
+        options=_colors, value=_colors[0], label="Style Color", inline=True
+    )
+
+    row_striping_widget = mo.ui.switch(value=True, label="Row Striping?")
+
+    gt = (
+        GT(df)
+        .tab_header(html(style_widget), html(color_widget))
+        .tab_source_note(html(row_striping_widget))
+        .opt_align_table_header("left")
+    )
+    return color_widget, gt, row_striping_widget, style_widget
+
+
+@app.cell
+def _(color_widget, gt, row_striping_widget, style_widget):
+    gt.opt_stylize(
+        style=style_widget.value,
+        color=color_widget.value,
+        add_row_striping=row_striping_widget.value,
+    )
+    return
+
+
+if __name__ == "__main__":
+    app.run()
+```
+
+
+This demo showcases a fascinating integration between Marimo's reactive widgets and Great Tables. Let's go through how it works.
+
+### Embedding Widgets in Tables
+
+The key innovation here is using Great Tables' [`html()`](https://posit-dev.github.io/great-tables/reference/html.html) function to embed Marimo widgets directly into the table structure:
+
+```python
+gt = (
+    GT(df)
+    .tab_header(html(style_widget), html(color_widget))
+    .tab_source_note(html(row_striping_widget))
+    .opt_align_table_header("left")
+)
+```
+
+The widgets are placed in the table header and source note areas using:
+
+- `html(style_widget)`: embeds a slider for choosing style numbers (1-6)
+- `html(color_widget)`: embeds radio buttons for color selection
+- `html(row_striping_widget)`: embeds a toggle switch for row striping
+
+### Reactive Updates
+
+The reactivity happens in the final code cell, where the table responds to widget changes in the `opt_stylize()` method call. There, we pass in the `.value` attributes for all of the widgets defined.
+
+```python
+gt.opt_stylize(
+    style=style_widget.value,
+    color=color_widget.value,
+    add_row_striping=row_striping_widget.value,
+)
+```
+
+As Jerry Wu noted, this creates "interactive widgets to control the table's appearance in a Quarto environment via WASM — a surprisingly powerful capability". The table automatically updates whenever any widget value changes, creating a truly reactive experience. It's also pretty wild that widgets in the table can affect said table. I personally think this is not too far removed from pure magic.
+
+For more details on Marimo's widget system, check out their [UI elements documentation](https://docs.marimo.io/api/inputs/) and [reactivity guide](https://docs.marimo.io/guides/reactivity/).
+
+## A Great Tables video by the marimo team
+
+The Marimo team must have seen Jerry's post and liked what they saw—they released a showcasing how Marimo widgets work with Great Tables to create reactive tables. Watch the video below!
+
+{{< video https://youtu.be/09ByveIiXGY >}}
+
