@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import TypeAlias
 
-from ._gt_data import GTData
+from ._gt_data import GTData, FramelessData
 from ._tbl_data import SeriesLike, to_frame
 from .gt import GT, _get_column_of_values
 
@@ -15,6 +15,12 @@ if TYPE_CHECKING:
 
 
 X: TypeAlias = "Any | list[Any] | SeriesLike"
+
+
+def _upgrade_to_list(x: Any) -> list[Any]:
+    if not isinstance(x, (tuple, list, SeriesLike)):
+        return [x]
+    return x
 
 
 def _make_one_col_table(vals: X) -> GT:
@@ -254,10 +260,21 @@ def val_fmt_integer(
     ```
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=x)
+    from great_tables._formats import _get_locale_sep_mark, _resolve_locale, fmt_integer_context
+    from functools import partial
 
-    gt_obj_fmt = gt_obj.fmt_integer(
-        columns="x",
+    x = _upgrade_to_list(x)
+
+    # TODO: handle data init from fmt_integer()
+    # e.g. locale
+    locale = _resolve_locale(None, locale)
+    # Use locale-based marks if a locale ID is provided
+    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+
+    # data: GTData is used for ._tbl_data, so we just need to wrap Agnostic
+    pf = partial(
+        fmt_integer_context,
+        data=FramelessData(),
         use_seps=use_seps,
         accounting=accounting,
         scale_by=scale_by,
@@ -265,12 +282,10 @@ def val_fmt_integer(
         pattern=pattern,
         sep_mark=sep_mark,
         force_sign=force_sign,
-        locale=locale,
+        context="html",
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
-
-    return vals_fmt
+    return [pf(val) for val in x]
 
 
 def val_fmt_scientific(
