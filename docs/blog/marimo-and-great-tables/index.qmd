@@ -4,13 +4,15 @@ author: Rich Iannone and Jerry Wu
 date: 2025-06-24
 ---
 
-Jerry Wu's [recent post](https://tech.ycwu.space/posts/gt-marimo-in-quarto/20250612.html) demonstrates how Great Tables can be made reactive in a marimo notebook. The demo showcases a really nice integration where marimo's reactive widgets can be embedded directly into Great Tables using the `html()` helper function. This effectively creates an interactive table that updates in real-time whenever users interact with the controls.
+Jerry Wu's [recent post](https://tech.ycwu.space/posts/gt-marimo-in-quarto/20250612.html) demonstrates how Great Tables can be made reactive in a marimo notebook. The post showcases a really nice integration where marimo's reactive widgets can be embedded directly into Great Tables using the [`html()`](https://posit-dev.github.io/great-tables/reference/html.html) helper function. This effectively creates an interactive table that updates in real-time whenever users interact with the controls.
 
-## Quick Demo
+## Interactive Table Demo
+
+Here's a screencast (based on the [aforementioned post](https://tech.ycwu.space/posts/gt-marimo-in-quarto/20250612.html)) showing Jerry's GT table in marimo. It demonstrates how the embedded marimo widgets create reactive effects, allowing you to directly modify the table in real-time.
 
 ![Interactive Great Tables with marimo widgets](gt_marimo.gif)
 
-The marimo reactive widgets can be embedded into a GT table through the [`html()`](https://posit-dev.github.io/great-tables/reference/html.html) helper function. In Jerry's example, the table responds to widget changes in the `opt_stylize()` method call, where the `.value` attributes for all of the widgets are passed in as arguments.
+The marimo reactive widgets can be embedded into a GT table through the [`html()`](https://posit-dev.github.io/great-tables/reference/html.html) helper function. In Jerry's example, the table responds to widget changes in the [`opt_stylize()`](https://posit-dev.github.io/great-tables/reference/GT.opt_stylize.html) method call, where the `.value` attributes for all of the widgets are passed in as arguments.
 
 ```python
 gt.opt_stylize(
@@ -20,7 +22,7 @@ gt.opt_stylize(
 )
 ```
 
-## Quick Video, by marimo
+## marimo Showcases the Integration
 
 The marimo team must have seen that post and liked what they saw! They recently released a video showcasing how marimo widgets work with Great Tables to create reactive tables.
 
