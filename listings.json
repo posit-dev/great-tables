@@ -2,6 +2,7 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/marimo-and-great-tables/index.html",
       "/blog/polars-dot-style/index.html",
       "/blog/pointblank-intro/index.html",
       "/blog/locbody-mask/index.html",
