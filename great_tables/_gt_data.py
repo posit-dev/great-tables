@@ -89,9 +89,6 @@ class GTData:
             return self._replace(_google_font_imports=new_imports)
         return self
 
-    def _get_google_font_imports(self) -> list[str]:
-        return sorted(list(self._google_font_imports))
-
     @classmethod
     def from_data(
         cls,

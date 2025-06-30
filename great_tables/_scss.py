@@ -142,8 +142,11 @@ def compile_scss(
     gt_table_open_str = f"#{id} table" if has_id else ".gt_table"
 
     # Get Google Font imports ----
-    google_font_imports = data._get_google_font_imports()
-    google_font_css = "\n".join(google_font_imports) + "\n" if google_font_imports else ""
+    google_font_css = (
+        "\n".join(sorted(list(data._google_font_imports))) + "\n"
+        if data._google_font_imports
+        else ""
+    )
 
     # Prepend any additional CSS ----
     additional_css = data._options.table_additional_css.value
