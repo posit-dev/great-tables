@@ -1254,7 +1254,7 @@ def opt_table_font(
 
                 # Add the Google Font import statement to the internal font imports
                 import_stmt = item.make_import_stmt()
-                res = res._add_google_font_import(import_stmt)
+                res = res._replace(_google_font_imports=res._google_font_imports.add(import_stmt))
 
             else:
                 raise TypeError(

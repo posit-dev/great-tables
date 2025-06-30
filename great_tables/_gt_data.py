@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, TypeVar, overload
 
 from typing_extensions import Self, TypeAlias, Union
 
+from ._helpers import GoogleFontImports
+
 # TODO: move this class somewhere else (even gt_data could work)
 from ._styles import CellStyle
 from ._tbl_data import (
@@ -68,7 +70,7 @@ class GTData:
     _formats: Formats
     _substitutions: Formats
     _options: Options
-    _google_font_imports: frozenset[str] = field(default_factory=frozenset)
+    _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
 
     def _replace(self, **kwargs: Any) -> Self:
@@ -81,12 +83,6 @@ class GTData:
         new_obj.__dict__.update(kwargs)
 
         return new_obj
-
-    def _add_google_font_import(self, import_statement: str) -> Self:
-        if import_statement not in self._google_font_imports:
-            new_imports = self._google_font_imports | frozenset([import_statement])
-            return self._replace(_google_font_imports=new_imports)
-        return self
 
     @classmethod
     def from_data(
@@ -121,7 +117,7 @@ class GTData:
             _formats=[],
             _substitutions=[],
             _options=options,
-            _google_font_imports=frozenset(),
+            _google_font_imports=GoogleFontImports(),
         )
 
 

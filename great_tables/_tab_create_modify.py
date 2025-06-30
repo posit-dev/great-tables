@@ -138,7 +138,9 @@ def tab_style(
                 s.font = font_name
 
                 # Add the Google Font import statement to the internal font imports
-                new_data = new_data._add_google_font_import(font_import_stmt)
+                new_data = new_data._replace(
+                    _google_font_imports=new_data._google_font_imports.add(font_import_stmt)
+                )
 
     for loc in locations:
         new_data = set_style(loc, new_data, style)

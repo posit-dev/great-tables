@@ -143,9 +143,7 @@ def compile_scss(
 
     # Get Google Font imports ----
     google_font_css = (
-        "\n".join(sorted(list(data._google_font_imports))) + "\n"
-        if data._google_font_imports
-        else ""
+        data._google_font_imports.to_css() + "\n" if data._google_font_imports.to_css() else ""
     )
 
     # Prepend any additional CSS ----
