@@ -1,5 +1,5 @@
 import pandas as pd
-from great_tables import GT, style, loc, google_font
+from great_tables import GT
 from great_tables._gt_data import Boxhead, ColInfo, RowInfo, Stub
 
 
