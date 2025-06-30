@@ -45,4 +45,4 @@ def test_boxhead_reorder():
 
 def test_google_font_imports_is_set():
     gt_table = GT(pd.DataFrame())
-    assert isinstance(gt_table._google_font_imports, set)
+    assert isinstance(gt_table._google_font_imports, frozenset)

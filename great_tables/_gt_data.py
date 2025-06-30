@@ -68,7 +68,7 @@ class GTData:
     _formats: Formats
     _substitutions: Formats
     _options: Options
-    _google_font_imports: set[str] = field(default_factory=set)
+    _google_font_imports: frozenset[str] = field(default_factory=frozenset)
     _has_built: bool = False
 
     def _replace(self, **kwargs: Any) -> Self:
@@ -84,8 +84,7 @@ class GTData:
 
     def _add_google_font_import(self, import_statement: str) -> Self:
         if import_statement not in self._google_font_imports:
-            new_imports = self._google_font_imports.copy()
-            new_imports.add(import_statement)
+            new_imports = self._google_font_imports | frozenset([import_statement])
             return self._replace(_google_font_imports=new_imports)
         return self
 
@@ -122,7 +121,7 @@ class GTData:
             _formats=[],
             _substitutions=[],
             _options=options,
-            _google_font_imports=set(),
+            _google_font_imports=frozenset(),
         )
 
 
