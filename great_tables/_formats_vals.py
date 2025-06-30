@@ -9,6 +9,12 @@ from ._gt_data import GTData, FramelessData
 from ._tbl_data import SeriesLike, to_frame
 from .gt import GT, _get_column_of_values
 
+# TODO: these imports make it so that vals.fmt_integer does not require pandas
+# as part of broader work to remove the pandas dependency from val functions.
+from ._formats import _get_locale_sep_mark, _resolve_locale, fmt_integer_context
+from functools import partial
+
+
 if TYPE_CHECKING:
     from ._formats import DateStyle, TimeStyle
     from ._tbl_data import SeriesLike
@@ -259,9 +265,6 @@ def val_fmt_integer(
     vals.fmt_integer([100000.1, 2000000000.2], use_seps=False)
     ```
     """
-
-    from great_tables._formats import _get_locale_sep_mark, _resolve_locale, fmt_integer_context
-    from functools import partial
 
     x = _upgrade_to_list(x)
 
