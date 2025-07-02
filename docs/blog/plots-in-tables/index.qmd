@@ -140,7 +140,7 @@ def create_plot_plotnine(val: int) -> str:
     )
 
     buf = StringIO()
-    plot.save(buf, format="svg", width=0.5, height=0.5, verbose=False)
+    plot.save(buf, format="svg", width=0.5, height=0.3, verbose=False)
     svg_content = buf.getvalue()
     buf.close()
 
