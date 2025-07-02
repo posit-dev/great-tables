@@ -78,6 +78,7 @@ dev-no-pandas = [
     "pytest>=3",
     "pytest-cov",
     "shiny",
+    "svg.py",
     "syrupy"
 ]
 
