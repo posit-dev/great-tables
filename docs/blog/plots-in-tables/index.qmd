@@ -6,7 +6,7 @@ date: 2025-07-02
 jupyter: python3
 ---
 
-While working on **gt-extras**, I've been exploring how to add small plots to Great Tables. These can go by many names, like spark lines, nanoplots, and so on. In this post, I'll look at three approaches I tried: adding plots with `plotnine`, `svg.py`, or adding HTML directly. In the first two cases, the plots are SVGs, while the latter entails a collection of composed HTML div elements.
+While working on [**gt-extras**](https://posit-dev.github.io/gt-extras/articles/intro.html), I've been exploring how to add small plots to Great Tables. These can go by many names, like spark lines, nanoplots, and so on. In this post, I'll look at three approaches I tried: adding plots with [`plotnine`](https://plotnine.org/), [`svg.py`](https://github.com/orsinium-labs/svg.py), or adding HTML directly. In the first two cases, the plots are SVGs, while the latter entails a collection of composed HTML div elements.
 
 Here's are the pieces I'll cover:
 
@@ -14,7 +14,7 @@ Here's are the pieces I'll cover:
 * **svg.py**: creating your own tiny chart directly for a row.
 * **direct HTML**: adding HTML divs directly.
 
-In the end, it's often simplest to use `svg.py`, since you can create simple charts with minimal overhead. Building elements with HTML has less overhead, but is slightly less user-friendly. On the other end of the spectrum, as your chart grows in complexity, using existing packages like the more exhaustive `plotnine` are good alternatives.
+In the end, it's often simplest to use `svg.py`, since you can create simple charts with minimal overhead. Building elements with HTML has _even_ less overhead, but it is also slightly less user-friendly. On the other end of the spectrum, as your chart grows in complexity, using existing packages like the more exhaustive `plotnine` are good alternatives.
 
 
 ```{python}
