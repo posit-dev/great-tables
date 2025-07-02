@@ -4,7 +4,7 @@ jupyter: python3
 html-table-processing: none
 ---
 
-The `columns=` argument for methods like [`GT.tab_spanner()`](`great_tables.GT.tab_spanner`), [`GT.cols_move()`](`great_tables.GT.cols_move`), and [`GT.tab_style`](`great_tables.GT.tab_style`) allows a range of options for selecting columns.
+The `columns=` argument for methods like `~~GT.tab_spanner()`, `~~GT.cols_move()`, and `~~GT.tab_style` allows a range of options for selecting columns.
 
 The simplest approach is just a list of strings with the exact column names. However, we can specify columns using any of the following:
 
