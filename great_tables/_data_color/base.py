@@ -596,29 +596,19 @@ def _rescale_numeric(
         scaled_vals = [0.0 if not is_na(df, x) else x for x in vals]
     else:
         # Rescale the values in `vals` to the range [0, 1], pass through NA values
-        scaled_vals: list[float] = []
-        for x in vals:
-            if is_na(df, x):
-                scaled_vals.append(np.nan)
-            else:
-                # Rescale the value to the range [0, 1]
-                scaled_val = (x - domain_min) / domain_range
-                if scaled_val < 0:
-                    if truncate:
-                        # If `truncate` is True, set the scaled value to 0
-                        scaled_val = 0.0
-                    else:
-                        # If `truncate` is False, set the scaled value to NaN
-                        scaled_val = np.nan
-                elif scaled_val > 1:
-                    if truncate:
-                        # If `truncate` is True, set the scaled value to 1
-                        scaled_val = 1.0
-                    else:
-                        # If `truncate` is False, set the scaled value to NaN
-                        scaled_val = np.nan
-                # Append the scaled value to the list
-                scaled_vals.append(scaled_val)
+        filled = [np.nan if is_na(df, x) else x for x in vals]
+        scaled = [(x - domain_min) / domain_range for x in filled]
+
+        if truncate:
+            # values outside domain set to 0 or 1
+            min_val = 0.0
+            max_val = 1.0
+        else:
+            # values outside domain set to missing
+            min_val = np.nan
+            max_val = np.nan
+
+        scaled_vals = [min_val if x < 0 else max_val if x > 1 else x for x in scaled]
 
     return scaled_vals
 

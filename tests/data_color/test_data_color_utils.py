@@ -23,6 +23,18 @@ from great_tables._data_color.base import (
     _srgb,
 )
 from great_tables._data_color.palettes import GradientPalette
+from great_tables._tbl_data import is_na, Agnostic
+
+
+def assert_equal_with_na(x: list, y: list):
+    """Assert two lists are equal, evaluating all NAs as equivalent
+
+    Note that some cases like [np.nan] == [np.nan] will be True (since it checks id), but this
+    function handles cases that trigger equality checks (since np.nan == np.nan is False).
+    """
+    assert len(x) == len(y)
+    for ii in range(len(x)):
+        assert (is_na(Agnostic(), x[ii]) and is_na(Agnostic(), y[ii])) or (x[ii] == y[ii])
 
 
 def test_ideal_fgnd_color_dark_contrast():
@@ -468,7 +480,7 @@ def test_rescale_numeric():
     domain = [1, 5]
     expected_result = [np.nan, np.nan]
     result = _rescale_numeric(df, vals, domain)
-    assert result == expected_result
+    assert_equal_with_na(result, expected_result)
 
     # Test case 3: Rescale values with NA values
     df = pd.DataFrame({"col": [1, 2, np.nan, 4, 5]})
@@ -476,7 +488,7 @@ def test_rescale_numeric():
     domain = [1, 5]
     expected_result = [0.25, np.nan, 0.75]
     result = _rescale_numeric(df, vals, domain)
-    assert result == expected_result
+    assert_equal_with_na(result, expected_result)
 
 
 def test_get_domain_numeric():
