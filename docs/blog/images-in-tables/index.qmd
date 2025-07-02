@@ -1,0 +1,121 @@
+---
+title: "Adding plots to Great Tables"
+html-table-processing: none
+author: Jules Walzer-Goldfeld and Michael Chow
+date: 2024-07-02
+jupyter: python3
+---
+
+While working on gt-extras, I've been exploring how to add small plots to Great Tables. These can go by many names, like spark lines, nanoplots, and so on. In this post, I'll look at three approaches I tried: adding plots with `plotnine`, `svg.py`, or adding HTML directly. In both cases, the plots are SVGs.
+
+Here's are the pieces I'll cover:
+
+* **plotnine**: adding a full, stripped-down chart to a row.
+* **svg.py**: creating your own tiny chart directly for a row.
+* **direct HTML**: adding HTML directly.
+
+In the end, it's often simpler to use `svg.py`, since you can create simple charts very quickly. However, if you need a very complex chart, using an existing library like `plotnine` is a good option.
+
+
+```{python}
+# | echo: false
+import polars as pl
+
+from plotnine import ggplot, aes, geom_bar, coord_flip, geom_col, expand_limits
+from great_tables import GT
+
+df = pl.DataFrame({"x": [1, 2, 3], "y": [3, 1, 2], "plot": [None] * 3})
+
+gt = GT(df)
+gt
+```
+
+Here is the final result:
+
+```{python}
+# | code-fold: true
+
+# preview of final thing (e.g. with svg.py)
+
+GT(df)
+```
+
+## Setup
+
+Here is the code to start:
+
+```{python}
+import polars as pl
+
+from plotnine import ggplot, aes, geom_bar, coord_flip, geom_col
+from great_tables import GT
+
+df = pl.DataFrame({"x": [1, 2, 3], "y": [3, 1, 2], "plot": [None] * 3})
+
+gt = GT(df)
+```
+
+## plotnine
+
+```{python}
+# NOTE: this doesn't necessarily need to be plotnine, but plotnine
+# could be a good choice here since we already have the code.
+p = ggplot(df, aes(x="x", y="y")) + geom_col() + expand_limits(y=4) + coord_flip()
+
+p
+```
+
+```{python}
+# TODO: each row should have its own plot
+# (but also this code shouldn't get too hard to read)
+from io import StringIO
+
+buf = StringIO()
+
+
+p.save(buf, format="svg", dpi=96, width=0.5, height=0.5, verbose=False)
+buf.seek(0)
+svg_content = buf.getvalue()
+buf.close()
+html = f"<div>{svg_content}</div>"
+
+GT(df).fmt(lambda x: html, columns=["plot"])
+```
+
+Notice pieces a and b in the code or output above.
+
+## svg.py
+
+
+```{python}
+# TODO: each row should have its own plot
+from svg import SVG, Rect
+height = 20
+width = 50
+
+canvas = SVG(
+    #width=width,
+    #height=height,
+    elements=[
+        Rect(
+            x=0,
+            y=height / 2,
+            width=width,
+            height=height,
+            fill="blue",
+            # onmouseover="this.style.fill= 'blue';",
+            # onmouseout=f"this.style.fill='{fill}';",
+        ),
+    ],
+)
+
+html = f'<div style="display: flex;">{canvas.as_str()}</div>'
+
+GT(df).fmt(lambda x: html, columns=["plot"])
+```
+
+## Adding HTML directly
+
+Notice that in the previous section, `svg.py` just generated a string of HTML. You can do the same thing directly.
+
+## Conclusion
