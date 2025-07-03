@@ -8,13 +8,13 @@ jupyter: python3
 
 While working on [**gt-extras**](https://posit-dev.github.io/gt-extras/articles/intro.html), I've been exploring how to add small plots to Great Tables. These can go by many names, like spark lines, nanoplots, and so on. In this post, I'll look at three approaches I tried: adding plots with [`plotnine`](https://plotnine.org/), [`svg.py`](https://github.com/orsinium-labs/svg.py), or adding HTML directly. In the first two cases, the plots are SVGs, while the latter entails a collection of composed HTML div elements.
 
-Here's are the pieces I'll cover:
+Here are the pieces I'll cover:
 
 * **plotnine**: adding a full, stripped-down chart to a row.
 * **svg.py**: creating your own tiny chart directly for a row.
 * **direct HTML**: adding HTML divs directly.
 
-In the end, it's often simplest to use `svg.py`, since you can create simple charts with minimal overhead. Building elements with HTML has _even_ less overhead, but it is also slightly less user-friendly. On the other end of the spectrum, as your chart grows in complexity, using existing packages like the more exhaustive `plotnine` are good alternatives.
+In the end, it's often simplest to use `svg.py`, since you can create simple charts with minimal overhead. Building elements with HTML has _even_ less overhead, but it is also slightly less user-friendly. At the other end of the spectrum, as your charts become more complex, using existing packages like the more exhaustive `plotnine` are good alternatives.
 
 
 ```{python}
@@ -154,7 +154,7 @@ Now you get to call `fmt()` to modify the column you want to apply the plotting 
 gt.fmt(fns=create_plot_plotnine, columns="Plot")
 ```
 
-Nice! But that was a sizable chunk of code to create plots comprised of one bar each. Still, when you come across a use case that necessitates more detailed plots, a comprehensive plotting package like `plotnine` will probably be your best bet. Imagine we are passing in a list of tuples and want to generate a scatterplot, writing all of those as `svg.py` elemnts or direct HTML would be quite cumbersome.
+Nice! But that was a sizable chunk of code to create plots comprised of one bar each. But this isn't the only graphic you might want to have on display – when you come across a use case that necessitates more detailed plots, a comprehensive plotting package like `plotnine` will probably be your best bet. Imagine we are passing in a list of tuples and want to generate a scatterplot, writing all of those as `svg.py` elements or direct HTML would be quite cumbersome.
 
 
 ## A Lightweight Approach: Svg.py
@@ -193,8 +193,10 @@ Now that we've defined our `create_plot_*` formatting function, the call to `fmt
 gt.fmt(fns=create_plot_svg_py, columns="Plot")
 ```
 
-No saving to a buffer or importing hevay duty plotting functions. This time we built the string and were able to insert into the table with only the help of `svg.py`. See the string below:
+This time we don't have to save to a buffer or import heavy duty plotting functions. We built the string with the help of `svg.py` and were able to insert into the table. See the string below:
 
+<!-- I would really like to wrap the output here, but nothing I've tried has worked -->
+<!-- https://github.com/quarto-dev/quarto-cli/discussions/6017 -->
 ```{python}
 # | echo: false
 create_plot_svg_py(4)
@@ -203,7 +205,7 @@ create_plot_svg_py(4)
 
 ## Extreme Minimalism: Adding HTML directly
 
-Notice that in the previous section, `svg.py` just generated a string of HTML. You can do the same thing directly.
+In the previous section, note that `svg.py` simply generated a string of HTML. You can do the same thing directly.
 
 ```{python}
 def create_plot_html(val: int) -> str:
@@ -237,8 +239,10 @@ def create_plot_html(val: int) -> str:
 gt.fmt(fns=create_plot_html, columns="Plot")
 ```
 
-At first glance, encoding HTML in multi-line strings is not pretty, nor is it particularly more lightweight than `svg.py`. Still, it provides a good alternative if you are like me, and insist on being as close to the output as possible.
+At first glance, encoding HTML in multi-line strings may not be aesthetically pleasing, nor is it particularly more lightweight than `svg.py`. Still, it provides a good alternative if you are like me and insist on being as close to the output as possible. Separately, I have found the inclusion of text to be simpler with HTML on account of the default text handling behavior that comes along with it.
 
 ## Conclusion
 
-How you choose to add plots to Great Tables is up to you.  In writing graphical plotting functions for **gt-extras**, I've personally turned towards an HTML-only approach that I've felt comfortable with in other settings. With that said, I still believe converting table values to graphic output is a task best done with a little bit of help (whether it be `svg-py` or another plotting library will depend on how detailed your plots are).
+How you choose to add plots to Great Tables is up to you. In writing graphical plotting functions for **gt-extras**, I've personally turned towards an HTML-only approach that I've felt comfortable with in other settings. With that said, I do believe converting table values to graphic output is a task best done with a little bit of help (whether it be `svg-py` or another plotting library will depend on how detailed your plots are).
+
+The choice ultimately depends on your specific needs: simplicity and directness, versus abstraction and power. By understanding the trade-offs, you will be able to pick the method that best suits your project.
