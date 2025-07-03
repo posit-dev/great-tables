@@ -1252,13 +1252,9 @@ def opt_table_font(
                 # Case where the list item is a GoogleFont object
                 new_font_list.append(item.get_font_name())
 
-                # Append the import statement to the `table_additional_css` list
-                existing_additional_css = self._options.table_additional_css.value + [
-                    item.make_import_stmt()
-                ]
-
-                # Add revised CSS list via the `tab_options()` method
-                res = tab_options(res, table_additional_css=existing_additional_css)
+                # Add the Google Font import statement to the internal font imports
+                import_stmt = item.make_import_stmt()
+                res = res._replace(_google_font_imports=res._google_font_imports.add(import_stmt))
 
             else:
                 raise TypeError(

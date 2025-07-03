@@ -1,4 +1,5 @@
 import pandas as pd
+from great_tables import GT
 from great_tables._gt_data import Boxhead, ColInfo, RowInfo, Stub
 
 
@@ -40,3 +41,10 @@ def test_boxhead_reorder():
     new_boxh = boxh.reorder(["b", "a", "c"])
 
     assert new_boxh == Boxhead([ColInfo("b"), ColInfo("a"), ColInfo("c")])
+
+
+def test_google_font_imports_is_set():
+    gt_table = GT(pd.DataFrame())
+    from great_tables._helpers import GoogleFontImports
+
+    assert isinstance(gt_table._google_font_imports, GoogleFontImports)

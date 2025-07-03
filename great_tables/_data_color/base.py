@@ -635,7 +635,7 @@ def _rescale_factor(
     scaled_vals = _rescale_numeric(
         df=df,
         vals=[domain.index(x) if x in domain else np.nan for x in vals],
-        domain=[0, domain_length],
+        domain=[0, domain_length - 1],
     )
 
     return scaled_vals
