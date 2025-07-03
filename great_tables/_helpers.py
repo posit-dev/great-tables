@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 import re
 import string
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Callable, Literal
 
 from typing_extensions import Self, TypeAlias
@@ -354,6 +354,17 @@ def google_font(name: str) -> GoogleFont:
     """
 
     return GoogleFont(font=name)
+
+
+@dataclass(frozen=True)
+class GoogleFontImports:
+    imports: frozenset[str] = field(default_factory=frozenset)
+
+    def add(self, import_stmt: str) -> "GoogleFontImports":
+        return GoogleFontImports(self.imports | frozenset([import_stmt]))
+
+    def to_css(self) -> str:
+        return "\n".join(sorted(self.imports))
 
 
 def system_fonts(name: FontStackName = "system-ui") -> list[str]:

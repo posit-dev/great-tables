@@ -1,4 +1,40 @@
 # serializer version: 1
+# name: test_opt_striping_with_group_snap
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">a</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">1</th>
+      <td class="gt_row gt_left">val</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">3</th>
+      <td class="gt_row gt_left gt_striped">val</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">5</th>
+      <td class="gt_row gt_left">val</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">b</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">2</th>
+      <td class="gt_row gt_left gt_striped">val</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">4</th>
+      <td class="gt_row gt_left">val</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">6</th>
+      <td class="gt_row gt_left gt_striped">val</td>
+    </tr>
+  </tbody>
+  '''
+# ---
 # name: test_opt_stylize
   '''
   #abc table {

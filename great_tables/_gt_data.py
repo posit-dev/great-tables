@@ -5,13 +5,16 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Callable, Literal, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, TypeVar, overload
 
 from typing_extensions import Self, TypeAlias, Union
+
+from ._helpers import GoogleFontImports
 
 # TODO: move this class somewhere else (even gt_data could work)
 from ._styles import CellStyle
 from ._tbl_data import (
+    Agnostic,
     DataFrameLike,
     TblData,
     _get_cell,
@@ -32,6 +35,16 @@ if TYPE_CHECKING:
     from ._locations import Loc
 
 T = TypeVar("T")
+
+
+# Frame Data ----
+# this is a reduced form of GTData, with just the DataFrame-like object
+class PFrameData(Protocol):
+    _tbl_data: TblData | Agnostic
+
+
+class FramelessData:
+    _tbl_data: Agnostic = Agnostic()
 
 
 # GT Data ----
@@ -68,6 +81,7 @@ class GTData:
     _formats: Formats
     _substitutions: Formats
     _options: Options
+    _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
 
     def _replace(self, **kwargs: Any) -> Self:
@@ -114,6 +128,7 @@ class GTData:
             _formats=[],
             _substitutions=[],
             _options=options,
+            _google_font_imports=GoogleFontImports(),
         )
 
 
