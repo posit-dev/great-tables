@@ -466,11 +466,12 @@ def create_body_component_h(data: GTData) -> str:
 
     ordered_index: list[tuple[int, GroupRowInfo]] = data._stub.group_indices_map()
 
-    for i, group_info in ordered_index:
+    for j, (i, group_info) in enumerate(ordered_index):
         # For table striping we want to add a striping CSS class to the even-numbered
         # rows in the rendered table; to target these rows, determine if `i` in the current
         # row render is an odd number
-        odd_i_row = i % 2 == 1
+
+        odd_j_row = j % 2 == 1
 
         body_cells: list[str] = []
 
@@ -525,7 +526,7 @@ def create_body_component_h(data: GTData) -> str:
 
                 _rowname_styles = [x for x in styles_row_label if x.rownum == i]
 
-                if table_stub_striped and odd_i_row:
+                if table_stub_striped and odd_j_row:
                     classes.append("gt_striped")
 
             else:
@@ -535,7 +536,7 @@ def create_body_component_h(data: GTData) -> str:
 
                 _rowname_styles = []
 
-                if table_body_striped and odd_i_row:
+                if table_body_striped and odd_j_row:
                     classes.append("gt_striped")
 
             # Ensure that `classes` becomes a space-separated string

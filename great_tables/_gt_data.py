@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, TypeVar, ove
 
 from typing_extensions import Self, TypeAlias, Union
 
+from ._helpers import GoogleFontImports
+
 # TODO: move this class somewhere else (even gt_data could work)
 from ._styles import CellStyle
 from ._tbl_data import (
@@ -79,6 +81,7 @@ class GTData:
     _formats: Formats
     _substitutions: Formats
     _options: Options
+    _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
 
     def _replace(self, **kwargs: Any) -> Self:
@@ -125,6 +128,7 @@ class GTData:
             _formats=[],
             _substitutions=[],
             _options=options,
+            _google_font_imports=GoogleFontImports(),
         )
 
 
