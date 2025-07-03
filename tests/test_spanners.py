@@ -3,7 +3,7 @@ import polars as pl
 import polars.selectors as cs
 import pytest
 from dataclasses import asdict
-from great_tables import GT, exibble
+from great_tables import GT, exibble, loc, style
 from great_tables._gt_data import Boxhead, ColInfo, ColInfoTypeEnum, SpannerInfo, Spanners
 from great_tables._helpers import UnitStr
 from great_tables._spanners import (
@@ -19,7 +19,7 @@ from great_tables._spanners import (
     SpannerTransformer,
 )
 from great_tables._utils_render_html import _get_table_defs
-
+from .test_utils_render_html import assert_rendered_columns
 from typing import Any
 
 
@@ -515,3 +515,18 @@ def test_tab_spanner_delim_level_multi():
     assert len(gt._boxhead) == 2
     assert gt._boxhead[0].column_label == "a"
     assert gt._boxhead[1].column_label == "b"
+
+
+def test_spanners_styled(snapshot: str):
+    df = pl.DataFrame({"a": 1, "b": 2, "c": 3, "d": 4, "group": "A", "row": "row_1"})
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .tab_spanner("A", ["a", "b", "c"])
+        .tab_spanner("B", ["b", "c", "d"])
+        .tab_spanner("C", ["b", "c"])
+        .tab_style(style=style.fill(color="#33BB88"), locations=loc.spanner_labels(ids=["A"]))
+        .tab_style(style=style.fill(color="#1133FF"), locations=loc.spanner_labels(ids=["B", "C"]))
+    )
+
+    assert_rendered_columns(snapshot, gt)

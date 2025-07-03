@@ -1,0 +1,42 @@
+# serializer version: 1
+# name: test_spanners_styled
+  '''
+  <tr class="gt_col_headings gt_spanner_row">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col">
+      <span>&nbsp</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col">
+      <span>&nbsp;</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" style="background-color: #1133FF;" scope="colgroup">
+      <span class="gt_column_spanner">C</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col">
+      <span>&nbsp;</span>
+    </th>
+  </tr>
+  <tr class="gt_col_headings gt_spanner_row">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col">
+      <span>&nbsp</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col">
+      <span>&nbsp;</span>
+    </th>
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" style="background-color: #1133FF;" scope="colgroup">
+      <span class="gt_column_spanner">B</span>
+    </th>
+  </tr>
+  <tr class="gt_col_headings gt_spanner_row">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id=""></th>
+    <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" style="background-color: #33BB88;" scope="colgroup" id="A">
+      <span class="gt_column_spanner">A</span>
+    </th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" scope="col" id="d">d</th>
+  </tr>
+  <tr class="gt_col_headings">
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="a">a</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="b">b</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="c">c</th>
+  </tr>
+  '''
+# ---

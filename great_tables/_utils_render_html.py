@@ -277,13 +277,12 @@ def create_columns_component_h(data: GTData) -> str:
                 # If colspans[i] == 0, it means that a previous cell's
                 # `colspan` will cover us
                 if colspans[ii] > 0:
-                    # Filter by column label / id, join with overall column labels style
-                    # TODO check this filter logic
+                    # Filter by spanner label / id, join with overall column labels style
                     styles_i = [
                         x
                         for x in styles_spanner_label
-                        # TODO: refactor use of set
-                        if set(x.grpname) & set([spanner_ids_level_1_index[ii]])
+                        if spanner_ids_level_1_index[ii]
+                        and spanner_ids_level_1_index[ii] in x.grpname
                     ]
 
                     level_1_spanners.append(
@@ -366,13 +365,9 @@ def create_columns_component_h(data: GTData) -> str:
 
             for colspan, span_label in zip(colspans, spanners_row.values()):
                 if colspan > 0:
-                    # Filter by column label / id, join with overall column labels style
-                    # TODO check this filter logic
+                    # Filter by spanner label / id, join with overall column labels style
                     styles_i = [
-                        x
-                        for x in styles_column_label
-                        # TODO: refactor use of set
-                        if set(x.grpname) & set([colspan, span_label])
+                        x for x in styles_spanner_label if span_label and span_label in x.grpname
                     ]
 
                     if span_label:
