@@ -386,7 +386,6 @@ def create_columns_component_h(data: GTData) -> str:
                             colspan=colspan,
                             style=_flatten_styles(styles_column_labels + styles_i),
                             scope="colgroup" if colspan > 1 else "col",
-                            id=_create_element_id(table_id, span_label),
                         )
                     )
 
