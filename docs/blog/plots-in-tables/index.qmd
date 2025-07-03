@@ -2,7 +2,7 @@
 title: "Adding Plots to Great Tables"
 html-table-processing: none
 author: Jules Walzer-Goldfeld and Michael Chow
-date: 2025-07-02
+date: 2025-07-03
 jupyter: python3
 ---
 
@@ -14,7 +14,7 @@ Here are the pieces I'll cover:
 * **svg.py**: creating your own tiny chart directly for a row.
 * **direct HTML**: adding HTML divs directly.
 
-In the end, it's often simplest to use `svg.py`, since you can create simple charts with minimal overhead. Building elements with HTML has _even_ less overhead, but it is also slightly less user-friendly. At the other end of the spectrum, as your charts become more complex, using existing packages like the more exhaustive `plotnine` are good alternatives.
+In the end, it's often simplest to use `svg.py`, since you can create basic charts with minimal overhead. Building elements with HTML has even _less_ overhead, but it is also slightly less user-friendly. At the other end of the spectrum, as your charts become more complex, using existing packages like the more exhaustive `plotnine` is a good alternative.
 
 
 ```{python}
@@ -94,7 +94,7 @@ gt = GT(df)
 ```
 
 
-## The Binding Component: gt.fmt()
+## The Binding Component: GT.fmt()
 
 Let's take advantage of the [`fmt()`](https://posit-dev.github.io/great-tables/reference/GT.fmt.html#great_tables.GT.fmt) method to apply a plotting function that formats our row values into plots. To see how we might use `fmt()`, we first need to define a formatting function to apply to each cell in a column. It will take as input the value in the cell, and should return whatever you want in that cell. Before plotting, let's imagine we wanted to tally the number of legs using `fmt()`:
 
@@ -202,6 +202,7 @@ This time we don't have to save to a buffer or import heavy duty plotting functi
 create_plot_svg_py(4)
 ```
 
+Even in its outputted form the string is still readable, which is another upside of using an SVG generation package.
 
 ## Extreme Minimalism: Adding HTML directly
 
@@ -243,6 +244,6 @@ At first glance, encoding HTML in multi-line strings may not be aesthetically pl
 
 ## Conclusion
 
-How you choose to add plots to Great Tables is up to you. In writing graphical plotting functions for **gt-extras**, I've personally turned towards an HTML-only approach that I've felt comfortable with in other settings. With that said, I do believe converting table values to graphic output is a task best done with a little bit of help (whether it be `svg-py` or another plotting library will depend on how detailed your plots are).
+How you choose to add plots to Great Tables is up to you. In writing graphical plotting functions for [**gt-extras**](https://posit-dev.github.io/gt-extras/articles/intro.html), I've personally turned towards an HTML-only approach that I've felt comfortable with in other settings. With that said, I do believe converting table values to graphic output is a task best done with a little bit of help (whether it be `svg-py` or another plotting package will depend on how detailed your plots are).
 
 The choice ultimately depends on your specific needs: simplicity and directness, versus abstraction and power. By understanding the trade-offs, you will be able to pick the method that best suits your project.
