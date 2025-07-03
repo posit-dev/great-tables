@@ -3,11 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from great_tables._locations import resolve_cols_c, resolve_rows_i, RowSelectExpr
-from great_tables._tbl_data import DataFrameLike, is_na, SelectExpr
+from typing_extensions import TypeAlias
+
+from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
+from great_tables._tbl_data import DataFrameLike, SelectExpr, is_na
 from great_tables.loc import body
 from great_tables.style import fill, text
-from typing_extensions import TypeAlias
 
 from .constants import ALL_PALETTES, COLOR_NAME_TO_HEX, DEFAULT_PALETTE
 
@@ -617,7 +618,7 @@ def _rescale_factor(
     scaled_vals = _rescale_numeric(
         df=df,
         vals=[domain.index(x) if x in domain else np.nan for x in vals],
-        domain=[0, domain_length],
+        domain=[0, domain_length - 1],
     )
 
     return scaled_vals
