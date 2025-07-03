@@ -25,7 +25,7 @@ import faicons
 from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
 
-from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData
+from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData, PFrameData
 from ._helpers import px
 from ._locale import (
     _get_currencies_data,
@@ -529,7 +529,7 @@ def fmt_integer(
 
 def fmt_integer_context(
     x: float | None,
-    data: GTData,
+    data: PFrameData,
     use_seps: bool,
     scale_by: float,
     accounting: bool,
@@ -3500,7 +3500,10 @@ def _normalize_locale(locale: str | None = None) -> str | None:
     return supplied_locale
 
 
-def _resolve_locale(x: GTData, locale: str | None = None) -> str | None:
+def _resolve_locale(x: GTData | None, locale: str | None = None) -> str | None:
+    if x is None and locale is None:
+        return None
+
     # Get the locale from the locale value set globally; note that this may also be None
     # but a None value will eventually be resolved to the 'en' locale
     locale = x._locale._locale if locale is None else locale
