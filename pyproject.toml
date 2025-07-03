@@ -64,6 +64,7 @@ extra = [
 dev = [
     "great_tables[dev-no-pandas]",
     "pandas",
+    "plotnine",
 ]
 
 dev-no-pandas = [
@@ -78,6 +79,7 @@ dev-no-pandas = [
     "pytest>=3",
     "pytest-cov",
     "shiny",
+    "svg.py",
     "syrupy"
 ]
 
