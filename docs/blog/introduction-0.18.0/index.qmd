@@ -101,7 +101,7 @@ The `fmt_tf()` method transforms boolean values into visually appealing symbols 
 
 When dealing with many columns or long column names, horizontal space becomes precious. The `cols_label_rotate()` method solves this by rotating column labels vertically, allowing for more compact table layouts.
 
-Here's an example using the `gtcars` dataset to create a feature matrix:
+Here's an example where we use the `gtcars` dataset to create a table which communicates a feature matrix:
 
 ```{python}
 from great_tables import GT, style, loc
@@ -119,7 +119,7 @@ gtcars_mini = (
         (pl.col("mpg_h") > 25).alias("Fuel Efficient"),
         (pl.col("drivetrain") == "awd").alias("All Wheel Drive"),
         (pl.col("msrp") > 100000).alias("Premium Price"),
-        (pl.col("trsmn").str.contains("manual")).alias("Manual Trans")
+        (pl.col("trsmn").str.contains("manual")).alias("Manual Transmission")
     ])
     .select([
         "mfr", "model", "trim",
@@ -127,7 +127,7 @@ gtcars_mini = (
         "Fuel Efficient",
         "All Wheel Drive",
         "Premium Price",
-        "Manual Trans"
+        "Manual Transmission"
     ])
     .head(10)
 )
@@ -155,7 +155,7 @@ gtcars_mini = (
 )
 ```
 
-This example demonstrates both `fmt_tf()` and `cols_label_rotate()` working together. The boolean columns use checkmarks (✓/✗) with custom colors, while the rotated labels save horizontal space in this dense feature matrix. The combination allows you to put more information into a compact, readable format.
+This example demonstrates how both the `fmt_tf()` and `cols_label_rotate()` methods can work well together. The boolean columns use checkmarks (✓/✗) with custom `colors=`, while the rotated labels save horizontal space in this dense feature matrix. The combination allows you to put more information into a compact and still readable format.
 
 ### Enhanced datetime formatting with `fmt_datetime()`
 
