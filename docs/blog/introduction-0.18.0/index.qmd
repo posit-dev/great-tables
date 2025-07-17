@@ -41,12 +41,11 @@ towny_mini = (
     .head(5)
 )
 
-# Let's see the column names
-print("Column names in our dataset:")
+# Let's look at the column names
 print(towny_mini.columns)
 ```
 
-Notice how the column names have a clear hierarchical structure with underscores as delimiters. Now let's create a table that takes advantage of this structure:
+Notice how the column names have a clear hierarchical structure with underscores as delimiters. Let's now create a table that takes advantage of this structure:
 
 ```{python}
 (
@@ -59,7 +58,7 @@ Notice how the column names have a clear hierarchical structure with underscores
 )
 ```
 
-The `tab_spanner_delim()` method recognizes the underscore delimiter and creates a hierarchical structure: `"population"` and `"density"` become top-level spanners, with the years (`1996`, `2001`, `2021`) as the final column labels. This creates a clean, organized appearance that clearly groups related metrics together.
+The `tab_spanner_delim()` method recognizes the underscore delimiter and creates a hierarchical structure: `"population"` and `"density"` become top-level spanners, with the years (`1996`, `2001`, `2021`) as the final column labels. This creates a clean, organized appearance that clearly groups related metrics together. And, this one method can be used instead of a combination of `cols_label()` and `tab_spanner()` (which requires a separate invocation per spanner added).
 
 ### Beautiful boolean formatting with `fmt_tf()`
 
