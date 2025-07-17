@@ -2,7 +2,7 @@
 title: "Great Tables `v0.18.0`: Powerful New Features for Modern Table Creation"
 html-table-processing: none
 author: Rich Iannone
-date: 2025-07-17
+date: 2025-07-18
 freeze: true
 jupyter: python3
 ---
@@ -199,7 +199,7 @@ gibraltar_mini = (
         condition="Conditions",
     )
     .tab_header(
-        title="Gibraltar Temperature and Humididity Conditions",
+        title="Gibraltar Temperature and Humidity Conditions",
         subtitle="Morning, Noon, and Evening Readings"
     )
     .opt_stylize(style=1, color="cyan")
