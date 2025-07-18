@@ -9,10 +9,10 @@ jupyter: python3
 
 The development of Great Tables continues! We're excited to announce the release of `v0.18.0`, which brings several powerful new features. These features make it even easier to create beautiful, informative tables. The key additions in this release include:
 
-- quick spanner creation with the new `tab_spanner_delim()` method
-- easy boolean value formatting with the new `fmt_tf()` method
-- column label rotation via `cols_label_rotate()`
-- custom datetime formatting through the enhanced `fmt_datetime()` method
+- quick spanner creation with the new `GT.tab_spanner_delim()` method
+- easy boolean value formatting with the new `GT.fmt_tf()` method
+- column label rotation via `GT.cols_label_rotate()`
+- custom datetime formatting through the enhanced `GT.fmt_datetime()` method
 
 Let's explore each of these interesting new features!
 
