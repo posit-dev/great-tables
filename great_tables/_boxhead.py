@@ -334,10 +334,39 @@ def cols_label_rotate(
         else:
             align = "right"
 
+    # Create CSS with Safari fallbacks
+    css_rules: list[str] = []
+
+    # Standard writing-mode
+    css_rules.append(f"writing-mode: {dir}")
+
+    # Safari-specific fallbacks using transform
+    if dir == "sideways-lr":
+        css_rules.extend(
+            [
+                "-webkit-writing-mode: vertical-lr",
+                "transform: rotate(180deg)",
+                "-webkit-transform: rotate(180deg)",
+            ]
+        )
+    elif dir == "sideways-rl":
+        css_rules.extend(
+            ["-webkit-writing-mode: vertical-rl", "transform: none", "-webkit-transform: none"]
+        )
+    elif dir == "vertical-lr":
+        css_rules.extend(
+            ["-webkit-writing-mode: vertical-lr", "transform: none", "-webkit-transform: none"]
+        )
+
+    # Add common styles
+    css_rules.extend(
+        ["vertical-align: middle", f"text-align: {align}", f"padding: {padding}px 0px"]
+    )
+
+    css_string = "; ".join(css_rules) + ";"
+
     res = self.tab_style(
-        style=CellStyleCss(
-            f"writing-mode: {dir}; vertical-align: middle; text-align: {align}; padding: {padding}px 0px;"
-        ),
+        style=CellStyleCss(css_string),
         locations=LocColumnLabels(columns=columns),
     )
     return res
