@@ -1,5 +1,5 @@
 ---
-title: "Great Tables `v0.18.0`: Powerful New Features for Modern Table Creation"
+title: "Great Tables `v0.18.0`: Easy Column Spanners and More!"
 html-table-processing: none
 author: Rich Iannone
 date: 2025-07-18
