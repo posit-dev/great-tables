@@ -516,7 +516,7 @@ def _(df: PdDataFrame):
 def _(df: PlDataFrame):
     import polars as pl
 
-    return df.clear().cast(pl.Utf8).clear(len(df))
+    return df.clear(len(df)).cast(pl.Utf8)
 
 
 @create_empty_frame.register
@@ -569,12 +569,19 @@ def _(df: PlDataFrame):
     import polars.selectors as cs
 
     list_cols = [
-        name for name, dtype in zip(df.columns, df.dtypes) if issubclass(dtype.base_type(), pl.List)
+        name for name, dtype in df.collect_schema().items() if issubclass(dtype.base_type(), pl.List)
     ]
 
     return df.with_columns(
-        cs.by_name(list_cols).map_elements(lambda x: str(x.to_list()), return_dtype=pl.String),
-        cs.all().exclude(list_cols).cast(pl.Utf8),
+        *[
+            pl.concat_str(
+                pl.lit("["),
+                pl.col(c).cast(pl.List(pl.String())).list.join(", "),
+                pl.lit("]")
+            ).alias(c)
+            for c in list_cols
+        ],
+        cs.all().exclude(list_cols).cast(pl.String()),
     )
 
 
