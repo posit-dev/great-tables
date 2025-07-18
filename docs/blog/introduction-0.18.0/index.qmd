@@ -9,16 +9,16 @@ jupyter: python3
 
 The development of Great Tables continues! We're excited to announce the release of `v0.18.0`, which brings several powerful new features. These features make it even easier to create beautiful, informative tables. The key additions in this release include new methods (and a tweak to an existing one):
 
-- `~~GT.tab_spanner_delim()`: quick spanner creation
-- `~~GT.fmt_tf()`: easy boolean value formatting
-- `~~GT.cols_label_rotate()`: enables column label rotation
-- `~~GT.fmt_datetime()`: added `format_str=` parameter for extra customization
+- `~~.GT.tab_spanner_delim()`: quick spanner creation
+- `~~.GT.fmt_tf()`: easy boolean value formatting
+- `~~.GT.cols_label_rotate()`: enables column label rotation
+- `~~.GT.fmt_datetime()`: added `format_str=` parameter for extra customization
 
 Let's explore each of these interesting new features!
 
 ### Quick spanner creation with `tab_spanner_delim()`
 
-Working with data that has hierarchical column names can be tedious when manually creating spanners. The new `~~GT.tab_spanner_delim()` method automates this process by intelligently splitting column names based on a delimiter and creating the appropriate spanner structure.
+Working with data that has hierarchical column names can be tedious when manually creating spanners. The new `~~.GT.tab_spanner_delim()` method automates this process by intelligently splitting column names based on a delimiter and creating the appropriate spanner structure.
 
 Here's a practical example using the `towny` dataset, which contains population data for a collection of municipalities across multiple census years. Let's start by looking at the most populated cities and examining their column structure:
 
@@ -58,11 +58,11 @@ Notice how the column names have a clear hierarchical structure with underscores
 )
 ```
 
-The `~~GT.tab_spanner_delim()` method recognizes the underscore delimiter and creates a hierarchical structure: `"population"` and `"density"` become top-level spanners, with the years (`1996`, `2001`, `2021`) as the final column labels. This creates a clean, organized appearance that clearly groups related metrics together. And, this one method can be used instead of a combination of `~~GT.cols_label()` and `~~GT.tab_spanner()` (which requires a separate invocation per spanner added).
+The `~~.GT.tab_spanner_delim()` method recognizes the underscore delimiter and creates a hierarchical structure: `"population"` and `"density"` become top-level spanners, with the years (`1996`, `2001`, `2021`) as the final column labels. This creates a clean, organized appearance that clearly groups related metrics together. And, this one method can be used instead of a combination of `~~.GT.cols_label()` and `~~.GT.tab_spanner()` (which requires a separate invocation per spanner added).
 
 ### Beautiful boolean formatting with `fmt_tf()`
 
-Boolean data is common in analytical tables, but raw `True`/`False` values can look unprofessional. The new `~~GT.fmt_tf()` method provides elegant ways to display boolean data using symbols, words, or custom formatting.
+Boolean data is common in analytical tables, but raw `True`/`False` values can look unprofessional. The new `~~.GT.fmt_tf()` method provides elegant ways to display boolean data using symbols, words, or custom formatting.
 
 Here's a simple example showing different `tf_style=` options:
 
@@ -95,11 +95,11 @@ You can also use different symbols and colors for a more distinctive look:
 )
 ```
 
-The `~~GT.fmt_tf()` method transforms boolean values into visually appealing symbols that make it easy to quickly scan and compare data across rows and columns.
+The `~~.GT.fmt_tf()` method transforms boolean values into visually appealing symbols that make it easy to quickly scan and compare data across rows and columns.
 
 ### Rotating column labels with `cols_label_rotate()`
 
-When dealing with many columns or long column names, horizontal space becomes precious. The `~~GT.cols_label_rotate()` method solves this by rotating column labels vertically, allowing for more compact table layouts.
+When dealing with many columns or long column names, horizontal space becomes precious. The `~~.GT.cols_label_rotate()` method solves this by rotating column labels vertically, allowing for more compact table layouts.
 
 Here's an example where we use the `gtcars` dataset to create a table which communicates a feature matrix:
 
@@ -155,11 +155,11 @@ gtcars_mini = (
 )
 ```
 
-This example demonstrates how both the `~~GT.fmt_tf()` and `~~GT.cols_label_rotate()` methods can work well together. The boolean columns use checkmarks (✓/✗) with custom `colors=`, while the rotated labels save horizontal space in this dense feature matrix. The combination allows you to put more information into a compact and still readable format.
+This example demonstrates how both the `~~.GT.fmt_tf()` and `~~.GT.cols_label_rotate()` methods can work well together. The boolean columns use checkmarks (✓/✗) with custom `colors=`, while the rotated labels save horizontal space in this dense feature matrix. The combination allows you to put more information into a compact and still readable format.
 
 ### Enhanced datetime formatting with `fmt_datetime()`
 
-The `~~GT.fmt_datetime()` method now supports custom format strings through the new `format_str=` parameter, giving you complete control over how datetime values appear in your tables.
+The `~~.GT.fmt_datetime()` method now supports custom format strings through the new `format_str=` parameter, giving you complete control over how datetime values appear in your tables.
 
 Here's an example using the included `gibraltar` weather dataset:
 
