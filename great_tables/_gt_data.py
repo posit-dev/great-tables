@@ -5,6 +5,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
+from itertools import product
 from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, TypeVar, overload
 
 from typing_extensions import Self, TypeAlias, Union
@@ -248,7 +249,7 @@ class ColInfo:
 
     @property
     def is_stub(self) -> bool:
-        return self.type == ColInfoTypeEnum.stub or self.type == ColInfoTypeEnum.row_group
+        return self.type in {ColInfoTypeEnum.stub, ColInfoTypeEnum.row_group}
 
     @property
     def defaulted_align(self) -> str:
@@ -311,7 +312,9 @@ class Boxhead(_Sequence[ColInfo]):
                 "rowname_col and groupname_col may not be set to the same column. "
                 f"Received column name: `{rowname_col}`."
             )
+
         new_cols = []
+        stub_or_row_group = {ColInfoTypeEnum.stub, ColInfoTypeEnum.row_group}
         for col in self:
             # either set the col to be the new stub or row_group ----
             # note that this assumes col.var is always a string, so never equals None
@@ -320,7 +323,7 @@ class Boxhead(_Sequence[ColInfo]):
             elif col.var == groupname_col:
                 new_col = replace(col, type=ColInfoTypeEnum.row_group)
             # otherwise, unset the existing stub or row_group ----
-            elif col.type == ColInfoTypeEnum.stub or col.type == ColInfoTypeEnum.row_group:
+            elif col.type in stub_or_row_group:
                 new_col = replace(col, type=ColInfoTypeEnum.default)
             else:
                 new_col = replace(col)
@@ -331,14 +334,10 @@ class Boxhead(_Sequence[ColInfo]):
 
     def _set_cols_info_type(self, colnames: list[str], colinfo_type: ColInfoTypeEnum) -> Self:
         # TODO: validate that colname is in the boxhead
-        res: list[ColInfo] = []
-        for col in self._d:
-            if col.var in colnames:
-                new_col = replace(col, type=colinfo_type)
-                res.append(new_col)
-            else:
-                res.append(col)
-
+        res: list[ColInfo] = [
+            replace(col, type=colinfo_type) if col.var in colnames else col
+            for col in self._d
+        ]
         return self.__class__(res)
 
     def set_cols_hidden(self, colnames: list[str]) -> Self:
@@ -374,11 +373,11 @@ class Boxhead(_Sequence[ColInfo]):
 
                 # Detect whether all non-NA values in the column are 'number-like'
                 # through use of a regular expression
-                number_like_matches = []
-
-                for val in col_vals:
-                    if isinstance(val, str):
-                        number_like_matches.append(re.match("^[0-9 -/:\\.]*$", val))
+                number_like_matches = (
+                    re.match("^[0-9 -/:\\.]*$", val)
+                    for val in col_vals
+                    if isinstance(val, str)
+                )
 
                 # If all values in the column are 'number-like', then set the
                 # dtype to 'character-numeric'
@@ -390,40 +389,24 @@ class Boxhead(_Sequence[ColInfo]):
         # Get a list of `align` values by translating the column classes
         align: list[str] = []
 
+        align_to_left = {"object", "utf8", "string"}
         for col_class in col_classes:
             # Ensure that `col_class` is lowercase
             col_class = str(col_class).lower()
 
             # Translate the column classes to an alignment value of 'left', 'right', or 'center'
-            if col_class == "character-numeric":
+            if col_class == "character-numeric" or _str_detect(col_class, r"int|uint|float|date"):
                 align.append("right")
-            elif col_class == "object":
+            elif col_class in align_to_left:
                 align.append("left")
-            elif col_class == "utf8":
-                align.append("left")
-            elif col_class == "string":
-                align.append("left")
-            elif (
-                _str_detect(col_class, "int")
-                or _str_detect(col_class, "uint")
-                or _str_detect(col_class, "float")
-            ):
-                align.append("right")
-            elif _str_detect(col_class, "date"):
-                align.append("right")
-            elif _str_detect(col_class, "bool"):
-                align.append("center")
-            elif col_class == "factor":
-                align.append("center")
-            elif col_class == "list":
-                align.append("center")
             else:
                 align.append("center")
 
         # Set the alignment for each column in the boxhead
-        new_cols: list[ColInfo] = []
-        for col_info, alignment in zip(self._d, align):
-            new_cols.append(replace(col_info, column_align=alignment))
+        new_cols: list[ColInfo] = [
+            replace(col_info, column_align=alignment)
+            for col_info, alignment in zip(self._d, align)
+        ]
 
         return self.__class__(new_cols)
 
@@ -462,25 +445,22 @@ class Boxhead(_Sequence[ColInfo]):
 
     # Set column label
     def _set_column_labels(self, col_labels: dict[str, str | BaseText]) -> Self:
-        out_cols: list[ColInfo] = []
-        for x in self._d:
-            new_label = col_labels.get(x.var, None)
-            if new_label is not None:
-                out_cols.append(replace(x, column_label=new_label))
-            else:
-                out_cols.append(x)
+        out_cols: list[ColInfo] = [
+            replace(x, column_label=col_labels[x.var]) if x.var in col_labels
+            else x
+            for x in self._d
+        ]
 
         return self.__class__(out_cols)
 
     # Set column alignments
     def _set_column_aligns(self, columns: list[str], align: str) -> Self:
         set_cols = set(columns)
-        out_cols: list[ColInfo] = []
-        for x in self._d:
-            if x.var in set_cols:
-                out_cols.append(replace(x, column_align=align))
-            else:
-                out_cols.append(x)
+        out_cols: list[ColInfo] = [
+            replace(x, column_align=align) if x.var in set_cols
+            else x
+            for x in self._d
+        ]
 
         return self.__class__(out_cols)
 
@@ -554,18 +534,15 @@ class Boxhead(_Sequence[ColInfo]):
         return n_data_cols
 
     def _set_column_width(self, colname: str, width: str) -> Self:
-        out_cols: list[ColInfo] = []
-
         colnames = [x.var for x in self._d]
 
         if colname not in colnames:
             raise ValueError(f"Column name {colname} not found in table.")
 
-        for x in self._d:
-            if x.var == colname:
-                out_cols.append(replace(x, column_width=width))
-            else:
-                out_cols.append(x)
+        out_cols = [
+            replace(x, column_width=width) if xvar == colname else x
+            for x, xvar in zip(self._d, colnames)
+        ]
 
         return self.__class__(out_cols)
 
@@ -610,7 +587,7 @@ class Stub:
     group_rows: GroupRows
 
     def __init__(self, rows: list[RowInfo], group_rows: GroupRows):
-        self.rows = self._d = list(rows)
+        self.rows = self._d = rows.copy()
         self.group_rows = group_rows
 
     @classmethod
@@ -731,10 +708,10 @@ class Stub:
         else:
             stub_layout = [
                 label
-                for label, condition in [
+                for label, condition in (
                     ("group_label", stub_groupnames_is_column),
                     ("rowname", stub_rownames_is_column),
-                ]
+                )
                 if condition
             ]
 
@@ -781,20 +758,21 @@ class GroupRows(_Sequence[GroupRowInfo]):
         else:
             from ._tbl_data import group_splits
 
-            self._d = []
-            for group_id, ind in group_splits(data, group_key=group_key).items():
-                self._d.append(GroupRowInfo(group_id, indices=ind))
+            self._d = [
+                GroupRowInfo(group_id, indices=ind)
+                for group_id, ind in group_splits(data, group_key=group_key).items()
+            ]
 
     def reorder(self, group_ids: list[str | MISSING_GROUP]) -> Self:
         # TODO: validate all group_ids are in data
-        non_missing = [g for g in group_ids if not isinstance(g, MISSING_GROUP)]
+        non_missing = (g for g in group_ids if not isinstance(g, MISSING_GROUP))
         crnt_order = {grp.group_id: ii for ii, grp in enumerate(self)}
 
         set_gids = set(group_ids)
-        missing_groups = [grp.group_id for grp in self if grp.group_id not in set_gids]
+        missing_groups = (grp.group_id for grp in self if grp.group_id not in set_gids)
         reordered = [
-            *[self[crnt_order[g]] for g in non_missing],
-            *[self[crnt_order[g]] for g in missing_groups],
+            *(self[crnt_order[g]] for g in non_missing),
+            *(self[crnt_order[g]] for g in missing_groups),
         ]
 
         return self.__class__(reordered)
@@ -965,7 +943,7 @@ class FormatFns:
     default: FormatFn | None
 
     def __init__(self, **kwargs: FormatFn):
-        for format in ["html", "latex", "rtf", "default"]:
+        for format in ("html", "latex", "rtf", "default"):
             if fmt := kwargs.get(format):
                 setattr(self, format, fmt)
 
@@ -983,8 +961,8 @@ class CellRectangle(CellSubset):
         self.cols = cols
         self.rows = rows
 
-    def resolve(self):
-        return list((col, row) for col in self.cols for row in self.rows)
+    def resolve(self) -> list[tuple[str, int]]:
+        return list(product(self.cols, self.rows))
 
 
 class FormatInfo:
