@@ -249,7 +249,7 @@ class ColInfo:
 
     @property
     def is_stub(self) -> bool:
-        return self.type in {ColInfoTypeEnum.stub, ColInfoTypeEnum.row_group}
+        return self.type in (ColInfoTypeEnum.stub, ColInfoTypeEnum.row_group)
 
     @property
     def defaulted_align(self) -> str:
@@ -314,7 +314,7 @@ class Boxhead(_Sequence[ColInfo]):
             )
 
         new_cols = []
-        stub_or_row_group = {ColInfoTypeEnum.stub, ColInfoTypeEnum.row_group}
+        stub_or_row_group = (ColInfoTypeEnum.stub, ColInfoTypeEnum.row_group)
         for col in self:
             # either set the col to be the new stub or row_group ----
             # note that this assumes col.var is always a string, so never equals None
