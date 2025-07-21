@@ -1,19 +1,19 @@
 from __future__ import annotations
 
+import re
+import warnings
 from itertools import chain
 from typing import TYPE_CHECKING
-import warnings
 
-import re
-from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
-from .quarto import is_quarto_render
 from ._spanners import spanners_print_matrix
+from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
+from ._text import _process_text
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 from ._utils_render_html import _get_spanners_matrix_height
-from ._text import _process_text
+from .quarto import is_quarto_render
 
 if TYPE_CHECKING:
-    from ._gt_data import GTData, GroupRowInfo
+    from ._gt_data import GroupRowInfo, GTData
 
 
 LENGTH_TRANSLATIONS_TO_PX = {
@@ -322,7 +322,7 @@ def create_columns_component_l(data: GTData) -> str:
 
             spanner_labs = []
             spanner_lines = []
-            span_accumlator = 0
+            span_accumulator = 0
 
             for j, _ in enumerate(level_i_spanners):
                 if level_i_spanners[j] is None:
@@ -342,16 +342,16 @@ def create_columns_component_l(data: GTData) -> str:
                     spanner_labs.append(multicolumn_stmt)
 
                     # Get cmidrule statement for spanner, it uses 1-based indexing
-                    # and the span is the number of columns to span; we use the `span_accumlator`
+                    # and the span is the number of columns to span; we use the `span_accumulator`
                     # across iterations to adjust the starting index (j) to adjust for previous
                     # multicolumn spanning values
 
-                    begin = j + span_accumlator + 1
-                    end = j + span_accumlator + span
+                    begin = j + span_accumulator + 1
+                    end = j + span_accumulator + span
 
                     cmidrule = f"\\cmidrule(lr){{{begin}-{end}}}"
 
-                    span_accumlator += span - 1
+                    span_accumulator += span - 1
 
                     spanner_lines.append(cmidrule)
 

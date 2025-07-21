@@ -77,7 +77,7 @@ def show(
 ):
     """Display the table in a notebook or a web browser.
 
-    Note that this function is often unecessary in a notebook. However, it's sometimes useful for
+    Note that this function is often unnecessary in a notebook. However, it's sometimes useful for
     manually triggering display within a code cell.
 
     Parameters

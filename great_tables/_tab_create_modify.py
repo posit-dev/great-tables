@@ -165,7 +165,7 @@ def tab_footnote(
         The footnote text.
     locations
         The location to place the footnote. If None, then a footnote is created without
-        a correesponding marker on the table (TODO: double check this).
+        a corresponding marker on the table (TODO: double check this).
     placement
         Where to affix the footnote marks to the table content.
 

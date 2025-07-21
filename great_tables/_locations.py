@@ -802,7 +802,7 @@ def resolve_rows_i(
 
     elif isinstance(expr, PlExpr):
         # TODO: decide later on the name supplied to `name`
-        # with_row_index supercedes with_row_count
+        # with_row_index supersedes with_row_count
         frame: PlDataFrame = data._tbl_data
         meth_row_number = getattr(frame, "with_row_index", None)
         if not meth_row_number:

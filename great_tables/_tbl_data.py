@@ -325,7 +325,7 @@ def _(data: PlDataFrame, group_key: str) -> dict[Any, list[int]]:
     # TODO: should ensure row count name isn't already in data
     import polars as pl
 
-    # with_row_index supercedes with_row_count
+    # with_row_index supersedes with_row_count
     meth_row_number = getattr(data, "with_row_index", None)
     if not meth_row_number:
         meth_row_number = data.with_row_count
