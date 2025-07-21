@@ -205,10 +205,6 @@ def create_columns_component_h(data: GTData) -> str:
     #
 
     if spanner_row_count >= 1:
-        spanners, _ = spanners_print_matrix(
-            spanners=data._spanners, boxhead=boxhead, include_hidden=False
-        )
-
         spanner_ids, spanner_col_names = spanners_print_matrix(
             spanners=data._spanners, boxhead=boxhead, include_hidden=False, ids=False
         )
@@ -302,38 +298,40 @@ def create_columns_component_h(data: GTData) -> str:
                     )
 
         remaining_headings = [k for k, v in spanner_ids[level_1_index].items() if v is not None]
-        remaining_headings_labels = [
+        remaining_headings_labels = (
             entry.column_label for entry in boxhead if entry.var in remaining_headings
-        ]
-        col_alignment = [
-            entry.defaulted_align for entry in boxhead if entry.var in remaining_headings
-        ]
+        )
+        # col_alignment = [
+        #     entry.defaulted_align for entry in boxhead if entry.var in remaining_headings
+        # ]
 
         if remaining_headings:
             spanned_column_labels = []
 
-            remaining_heading_ids = [
+            remaining_heading_ids = (
                 entry.var for entry in boxhead if entry.var in remaining_headings
-            ]
+            )
 
-            for j in range(len(remaining_headings)):
+            for remaining_heading, remaining_headings_label, element_id in zip(
+                remaining_headings, remaining_headings_labels, remaining_heading_ids
+            ):
                 # Filter by column label / id, join with overall column labels style
                 # TODO check this filter logic
-                styles_i = [x for x in styles_column_label if x.colname == remaining_headings[j]]
+                styles_i = [x for x in styles_column_label if x.colname == remaining_heading]
 
                 remaining_alignment = boxhead._get_boxhead_get_alignment_by_var(
-                    var=remaining_headings[j]
+                    var=remaining_heading
                 )
 
                 spanned_column_labels.append(
                     tags.th(
-                        HTML(_process_text(remaining_headings_labels[j])),
+                        HTML(_process_text(remaining_headings_label)),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{remaining_alignment}",
                         rowspan=1,
                         colspan=1,
                         style=_flatten_styles(styles_column_labels + styles_i),
                         scope="col",
-                        id=_create_element_id(table_id, remaining_heading_ids[j]),
+                        id=_create_element_id(table_id, element_id),
                     )
                 )
 
@@ -349,14 +347,10 @@ def create_columns_component_h(data: GTData) -> str:
     if _get_spanners_matrix_height(data=data) > 2:
         # Spanners are listed top to bottom, so we need to work bottom to top
         # We can skip the last (column labels) and second to last (first spanner)
-        higher_spanner_rows_idx = range(0, len(spanner_ids) - 2)
         higher_spanner_rows = TagList()
 
-        for i in higher_spanner_rows_idx:
-            spanners_row = spanners[i]
-            for k, v in spanners_row.items():
-                if v is None:
-                    spanners_row[k] = ""
+        for spanners_row in spanner_ids[:-2]:
+            spanners_row = {k: "" if v is None else v for k, v in spanners_row.items()}
 
             spanner_ids_index = spanners_row.values()
             spanners_rle = seq_groups(seq=spanner_ids_index)
