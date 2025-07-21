@@ -5,7 +5,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
-from itertools import product
+from itertools import chain, product
 from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, TypeVar, overload
 
 from typing_extensions import Self, TypeAlias, Union
@@ -335,8 +335,7 @@ class Boxhead(_Sequence[ColInfo]):
     def _set_cols_info_type(self, colnames: list[str], colinfo_type: ColInfoTypeEnum) -> Self:
         # TODO: validate that colname is in the boxhead
         res: list[ColInfo] = [
-            replace(col, type=colinfo_type) if col.var in colnames else col
-            for col in self._d
+            replace(col, type=colinfo_type) if col.var in colnames else col for col in self._d
         ]
         return self.__class__(res)
 
@@ -374,9 +373,7 @@ class Boxhead(_Sequence[ColInfo]):
                 # Detect whether all non-NA values in the column are 'number-like'
                 # through use of a regular expression
                 number_like_matches = (
-                    re.match("^[0-9 -/:\\.]*$", val)
-                    for val in col_vals
-                    if isinstance(val, str)
+                    re.match("^[0-9 -/:\\.]*$", val) for val in col_vals if isinstance(val, str)
                 )
 
                 # If all values in the column are 'number-like', then set the
@@ -404,8 +401,7 @@ class Boxhead(_Sequence[ColInfo]):
 
         # Set the alignment for each column in the boxhead
         new_cols: list[ColInfo] = [
-            replace(col_info, column_align=alignment)
-            for col_info, alignment in zip(self._d, align)
+            replace(col_info, column_align=alignment) for col_info, alignment in zip(self._d, align)
         ]
 
         return self.__class__(new_cols)
@@ -446,8 +442,7 @@ class Boxhead(_Sequence[ColInfo]):
     # Set column label
     def _set_column_labels(self, col_labels: dict[str, str | BaseText]) -> Self:
         out_cols: list[ColInfo] = [
-            replace(x, column_label=col_labels[x.var]) if x.var in col_labels
-            else x
+            replace(x, column_label=col_labels[x.var]) if x.var in col_labels else x
             for x in self._d
         ]
 
@@ -457,9 +452,7 @@ class Boxhead(_Sequence[ColInfo]):
     def _set_column_aligns(self, columns: list[str], align: str) -> Self:
         set_cols = set(columns)
         out_cols: list[ColInfo] = [
-            replace(x, column_align=align) if x.var in set_cols
-            else x
-            for x in self._d
+            replace(x, column_align=align) if x.var in set_cols else x for x in self._d
         ]
 
         return self.__class__(out_cols)
@@ -475,15 +468,11 @@ class Boxhead(_Sequence[ColInfo]):
 
     def _get_stub_column(self) -> ColInfo | None:
         stub_column = [x for x in self._d if x.type == ColInfoTypeEnum.stub]
-        if len(stub_column) == 0:
-            return None
-        return stub_column[0]
+        return None if not stub_column else stub_column[0]
 
     def _get_row_group_column(self) -> ColInfo | None:
         column = [x for x in self._d if x.type == ColInfoTypeEnum.row_group]
-        if len(column) == 0:
-            return None
-        return column[0]
+        return None if not column else column[0]
 
     # Get a list of visible column labels
     def _get_default_column_labels(self) -> list[Union[str, BaseText, None]]:
@@ -508,9 +497,6 @@ class Boxhead(_Sequence[ColInfo]):
         # Check for length of alignment and raise error if not 1
         if len(alignment) != 1:
             raise ValueError("Alignment must be length 1.")
-
-        if len(alignment) == 0:
-            raise ValueError(f"The `var` used ({var}) doesn't exist in the boxhead.")
 
         # Convert the single alignment value in the list to a string
         return str(alignment[0])
@@ -770,10 +756,7 @@ class GroupRows(_Sequence[GroupRowInfo]):
 
         set_gids = set(group_ids)
         missing_groups = (grp.group_id for grp in self if grp.group_id not in set_gids)
-        reordered = [
-            *(self[crnt_order[g]] for g in non_missing),
-            *(self[crnt_order[g]] for g in missing_groups),
-        ]
+        reordered = [self[crnt_order[g]] for g in chain(non_missing, missing_groups)]
 
         return self.__class__(reordered)
 
@@ -785,10 +768,11 @@ class GroupRows(_Sequence[GroupRowInfo]):
         distinct from MISSING_GROUP (which may currently be unused?).
 
         """
-
-        if not len(self._d):
-            return [(ii, None) for ii in range(n)]
-        return [(ind, info) for info in self for ind in info.indices]
+        return (
+            [(ii, None) for ii in range(n)]
+            if not self._d
+            else [(ind, info) for info in self for ind in info.indices]
+        )
 
 
 # Spanners ----
