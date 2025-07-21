@@ -932,11 +932,8 @@ def _generate_nanoplot(
     # Create normalized (and inverted for SVG) data `x` and `y` values for the
     # plot area; these are named `data_x_points` and `data_y_points`
     #
-    data_y_points = [safe_y_d + ((1 - y_p) * data_y_height) for y_p in y_proportions]
-    data_x_points = [(data_x_width * x_p) + safe_x_d for x_p in x_proportions]
-
-    # data_y_points = y_proportions
-    # data_x_points = x_proportions
+    data_y_points = tuple(safe_y_d + ((1 - y_p) * data_y_height) for y_p in y_proportions)
+    data_x_points = tuple((data_x_width * x_p) + safe_x_d for x_p in x_proportions)
 
     #
     # Ensure that certain options have their lengths checked and
@@ -995,7 +992,7 @@ def _generate_nanoplot(
             curved_path_string = [f"M {curve_x[0]},{curve_y[0]}"]
 
             for j in range(1, len(curve_x)):
-                point_b1 = f"{curve_x[j - 1] + x_d / 2},{ [j - 1]}"
+                point_b1 = f"{curve_x[j - 1] + x_d / 2},{curve_y[j - 1]}"
                 point_b2 = f"{curve_x[j] - x_d / 2},{curve_y[j]}"
                 point_i = f"{curve_x[j]},{curve_y[j]}"
 
