@@ -22,7 +22,7 @@ def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
 
 def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     # flatten all StyleInfo.styles lists
-    style_entries = list(chain(*[x.styles for x in styles]))
+    style_entries = list(chain.from_iterable((x.styles for x in styles)))
     rendered_styles = [el._to_html_style() for el in style_entries]
 
     # TODO dedupe rendered styles in sequence
@@ -145,7 +145,7 @@ def create_columns_component_h(data: GTData) -> str:
     styles_column_label = [x for x in data._styles if _is_loc(x.locname, loc.LocColumnLabels)]
 
     # If columns are present in the stub, then replace with a set stubhead label or nothing
-    if len(stub_layout) > 0 and stubh is not None:
+    if stub_layout and stubh is not None:
         stub_label = stubh
         stub_var = "::stub"
     else:
@@ -165,7 +165,7 @@ def create_columns_component_h(data: GTData) -> str:
     # (if present) and for the column headings
     if spanner_row_count == 0:
         # Create the cell for the stubhead label
-        if len(stub_layout) > 0:
+        if stub_layout:
             table_col_headings.append(
                 tags.th(
                     HTML(_process_text(stub_label)),
@@ -227,11 +227,11 @@ def create_columns_component_h(data: GTData) -> str:
         spanned_column_labels = []
 
         # Create the cell for the stubhead label
-        if len(stub_layout) > 0:
+        if stub_layout:
             level_1_spanners.append(
                 tags.th(
                     HTML(_process_text(stub_label)),
-                    class_=f"gt_col_heading gt_columns_bottom_border gt_{str(stubhead_label_alignment)}",
+                    class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
                     rowspan=2,
                     colspan=len(stub_layout),
                     style=_flatten_styles(styles_stubhead),
@@ -243,17 +243,18 @@ def create_columns_component_h(data: GTData) -> str:
         # NOTE: Run-length encoding treats missing values as distinct from each other; in other
         # words, each missing value starts a new run of length 1
 
-        spanner_ids_level_1_index = list(spanner_ids[level_1_index].values())
+        spanner_ids_level_1 = spanner_ids[level_1_index]
+        spanner_ids_level_1_index = list(spanner_ids_level_1.values())
         spanners_rle = seq_groups(seq=spanner_ids_level_1_index)
 
         # `colspans` matches `spanners` in length; each element is the number of columns that the
         # <th> at that position should span; if 0, then skip the <th> at that position
-        group_spans = [[x[1]] + [0] * (x[1] - 1) for x in spanners_rle]
+        group_spans = ([x[1]] + [0] * (x[1] - 1) for x in spanners_rle)
 
-        colspans = list(chain(*group_spans))
+        colspans = list(chain.from_iterable(group_spans))
 
         for ii, (span_key, h_info) in enumerate(zip(spanner_col_names, headings_info)):
-            if spanner_ids[level_1_index][span_key] is None:
+            if spanner_ids_level_1[span_key] is None:
                 # Filter by column label / id, join with overall column labels style
                 styles_i = [x for x in styles_column_label if x.colname == h_info.var]
 
@@ -264,7 +265,7 @@ def create_columns_component_h(data: GTData) -> str:
                 level_1_spanners.append(
                     tags.th(
                         HTML(_process_text(h_info.column_label)),
-                        class_=f"gt_col_heading gt_columns_bottom_border gt_{str(first_set_alignment)}",
+                        class_=f"gt_col_heading gt_columns_bottom_border gt_{first_set_alignment}",
                         rowspan=2,
                         colspan=1,
                         style=_flatten_styles(styles_column_labels + styles_i),
@@ -273,7 +274,7 @@ def create_columns_component_h(data: GTData) -> str:
                     )
                 )
 
-            elif spanner_ids[level_1_index][span_key] is not None:
+            elif spanner_ids_level_1[span_key] is not None:
                 # If colspans[i] == 0, it means that a previous cell's
                 # `colspan` will cover us
                 if colspans[ii] > 0:
@@ -308,7 +309,7 @@ def create_columns_component_h(data: GTData) -> str:
             entry.defaulted_align for entry in boxhead if entry.var in remaining_headings
         ]
 
-        if len(remaining_headings) > 0:
+        if remaining_headings:
             spanned_column_labels = []
 
             remaining_heading_ids = [
@@ -359,8 +360,8 @@ def create_columns_component_h(data: GTData) -> str:
 
             spanner_ids_index = spanners_row.values()
             spanners_rle = seq_groups(seq=spanner_ids_index)
-            group_spans = [[x[1]] + [0] * (x[1] - 1) for x in spanners_rle]
-            colspans = list(chain(*group_spans))
+            group_spans = ([x[1]] + [0] * (x[1] - 1) for x in spanners_rle)
+            colspans = list(chain.from_iterable(group_spans))
             level_i_spanners = []
 
             for colspan, span_label in zip(colspans, spanners_row.values()):
@@ -389,12 +390,12 @@ def create_columns_component_h(data: GTData) -> str:
                         )
                     )
 
-            if len(stub_layout) > 0:
+            if stub_layout:
                 level_i_spanners.insert(
                     0,
                     tags.th(
                         tags.span(HTML("&nbsp")),
-                        class_=f"gt_col_heading gt_columns_bottom_border gt_{str(stubhead_label_alignment)}",
+                        class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
                         rowspan=1,
                         colspan=len(stub_layout),
                         scope="colgroup" if len(stub_layout) > 1 else "col",
@@ -431,7 +432,7 @@ def create_body_component_h(data: GTData) -> str:
     # Filter list of StyleInfo to only those that apply to the stub
     styles_row_group_label = [x for x in data._styles if _is_loc(x.locname, loc.LocRowGroups)]
     styles_row_label = [x for x in data._styles if _is_loc(x.locname, loc.LocStub)]
-    styles_summary_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSummaryLabel)]
+    # styles_summary_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSummaryLabel)]
 
     # Filter list of StyleInfo to only those that apply to the body
     styles_cells = [x for x in data._styles if _is_loc(x.locname, loc.LocBody)]
@@ -569,7 +570,7 @@ def create_source_notes_component_h(data: GTData) -> str:
     styles_source_notes = [x for x in data._styles if _is_loc(x.locname, loc.LocSourceNotes)]
 
     # If there are no source notes, then return an empty string
-    if source_notes == []:
+    if not source_notes:
         return ""
 
     # Obtain the `multiline` and `separator` options from `_options`
