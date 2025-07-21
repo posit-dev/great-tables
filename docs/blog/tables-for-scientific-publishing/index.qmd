@@ -23,7 +23,7 @@ We've added **six new datasets**, to help quickly show off scientific publishing
 :::{.callout-tip}
 Rich presented on this topic at SciPy 2024!
 
-At SciPy 2024 (on July 11, 2024), Rich delivered a talk called *Great Tables for Everyone* and it presented some of the tables shown in this post. If you weren't in attendence that's okay, you can [watch the recorded talk](https://youtu.be/uvH-Z39ZUj0?si=3NVipMteXaeO3vb1) and the materials are available [in GitHub](https://github.com/rich-iannone/presentations/tree/main/2024-07-11-SciPy-talk-GT).
+At SciPy 2024 (on July 11, 2024), Rich delivered a talk called *Great Tables for Everyone* and it presented some of the tables shown in this post. If you weren't in attendance that's okay, you can [watch the recorded talk](https://youtu.be/uvH-Z39ZUj0?si=3NVipMteXaeO3vb1) and the materials are available [in GitHub](https://github.com/rich-iannone/presentations/tree/main/2024-07-11-SciPy-talk-GT).
 :::
 
 ## Unit and scientific notation
@@ -86,9 +86,9 @@ This is a nice-looking table! And note these pieces:
 
 * The `label=` argument to functions like `.tab_spanner()` supports the use of curly braces (`{{`/`}}`) for the specialized units notation. So using `"{{cm^3 molecules^–1 s^–1}}"` in the input will become cm<sup>3</sup> molecules<sup>–1</sup> s<sup>–1</sup> in the output
 * The `.fmt_units()` method converts values that are already in units notation in the table body. For example, a cell with text `"%CH4S%"` becomes CH<sub>4</sub>S (the surrounding `%` indicates that the text should be interpreted as chemistry notation).
-* The `.fmt_scientific()` method formats values (in this case, very small values) to scientific notation (e.g., 3.50 × 10<sup>–11</sup>). Not doing so would make the table look very strange to a researcher that is familar with this sort of data.
+* The `.fmt_scientific()` method formats values (in this case, very small values) to scientific notation (e.g., 3.50 × 10<sup>–11</sup>). Not doing so would make the table look very strange to a researcher that is familiar with this sort of data.
 
-The combination of units notation (and chemistry notation, which is a part of that) really makes the presentation of this table complete and understandable to a practioner of the field. **Great Tables** supports the use of units notation in spanner labels (with `.tab_spanner()`) and also in column labels (with `.cols_labels()`). The column label 'NO<sub>3</sub>' was created with the latter method by supplying the text `"{{%NO3%}}"` as the column label for the `NO3_k298` column.
+The combination of units notation (and chemistry notation, which is a part of that) really makes the presentation of this table complete and understandable to a practitioner of the field. **Great Tables** supports the use of units notation in spanner labels (with `.tab_spanner()`) and also in column labels (with `.cols_labels()`). The column label 'NO<sub>3</sub>' was created with the latter method by supplying the text `"{{%NO3%}}"` as the column label for the `NO3_k298` column.
 
 ## Nanoplots
 

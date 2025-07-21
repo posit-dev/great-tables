@@ -37,7 +37,7 @@ Now that we've moved away from the default palette and specified colors, we can 
 
 ## Coloring missing values with `na_color`
 
-There is a lone `"None"` value in the `float` column, and it has a gray background. Thoughout the **Great Tables** package, missing values are treated in different ways and, in this case, it's given a default color value. We can change that with the `na_color=` argument. Let's try it now:
+There is a lone `"None"` value in the `float` column, and it has a gray background. Throughout the **Great Tables** package, missing values are treated in different ways and, in this case, it's given a default color value. We can change that with the `na_color=` argument. Let's try it now:
 
 ```{python}
 GT(simple_df).data_color(palette=["blue", "red"], na_color="#FFE4C4")
