@@ -489,7 +489,7 @@ def derive_table_width_statement_l(data: GTData, use_longtable: bool) -> str:
         tw = float(tbl_width.strip("%"))
 
         side_width = (100 - tw) / 200
-        side_width = f"{side_width:.6f}".rstrip(".0")
+        side_width = f"{side_width:.6f}".rstrip("0").rstrip(".")
 
         statement = "\n".join([f"\\setlength\\{side}{{{side_width}\\linewidth}}" for side in sides])
 
