@@ -295,28 +295,19 @@ def create_columns_component_l(data: GTData) -> str:
         #     ids=True,
         #     omit_columns_row=True,
         # )
-
         for spanners_row in spanners:
-            for k, v in spanners_row.items():
-                if v is None:
-                    spanners_row[k] = ""
+            spanners_row = {k: "" if v is None else v for k, v in spanners_row.items()}
 
             spanner_ids_index = spanners_row.values()
             spanners_rle = seq_groups(seq=spanner_ids_index)
 
-            group_spans = ([x[1]] + [0] * (x[1] - 1) for x in spanners_rle)
-            colspans = list(chain.from_iterable(group_spans))
-            level_i_spanners = []
-
-            for colspan, span_label in zip(colspans, spanners_row.values()):
-                if colspan > 0:
-                    if span_label:
-                        span = _process_text(span_label, context="latex")
-
-                    else:
-                        span = None
-
-                    level_i_spanners.append(span)
+            group_spans = [[x[1]] + [0] * (x[1] - 1) for x in spanners_rle]
+            colspans = chain.from_iterable(group_spans)
+            level_i_spanners = (
+                _process_text(span_label, context="latex") if span_label else None
+                for colspan, span_label in zip(colspans, spanners_row.values())
+                if colspan > 0
+            )
 
             spanner_labs = []
             spanner_lines = []
