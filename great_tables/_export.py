@@ -250,7 +250,7 @@ def as_raw_html(
                 id = table_id
 
             # Compile the SCSS as CSS
-            table_css = str(compile_scss(self, id=id, compress=False, all_important=all_important))
+            table_css = compile_scss(self, id=id, compress=False, all_important=all_important)
 
             return inline_fragment(html=table_html, css=table_css)
 
