@@ -784,22 +784,22 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         raise ValueError("`scale` must be a value between `0` and `3`.")
 
     # Get the parameters from the options that relate to vertical padding
-    vertical_padding_params = [
+    vertical_padding_params = (
         "heading_padding",
         "column_labels_padding",
         "data_row_padding",
         "row_group_padding",
         "source_notes_padding",
-    ]
+    )
 
     # Get the current values for the vertical padding parameters
-    vertical_padding_vals = [
+    vertical_padding_vals = (
         self._options.heading_padding.value,
         self._options.column_labels_padding.value,
         self._options.data_row_padding.value,
         self._options.row_group_padding.value,
         self._options.source_notes_padding.value,
-    ]
+    )
 
     # Multiply each of the padding values by the `scale` factor but strip off the units first
     # then reattach the units after the multiplication
@@ -881,22 +881,22 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         raise ValueError("`scale` must be a value between `0` and `3`.")
 
     # Get the parameters from the options that relate to horizontal padding
-    horizontal_padding_params = [
+    horizontal_padding_params = (
         "heading_padding_horizontal",
         "column_labels_padding_horizontal",
         "data_row_padding_horizontal",
         "row_group_padding_horizontal",
         "source_notes_padding_horizontal",
-    ]
+    )
 
     # Get the current values for the horizontal padding parameters
-    horizontal_padding_vals = [
+    horizontal_padding_vals = (
         self._options.heading_padding_horizontal.value,
         self._options.column_labels_padding_horizontal.value,
         self._options.data_row_padding_horizontal.value,
         self._options.row_group_padding_horizontal.value,
         self._options.source_notes_padding_horizontal.value,
-    ]
+    )
 
     # Multiply each of the padding values by the `scale` factor but strip off the units first
     # then reattach the units after the multiplication
@@ -1376,7 +1376,7 @@ def opt_stylize(
     """
 
     # Validate the `style` and `color` arguments
-    if style not in [1, 2, 3, 4, 5, 6]:
+    if style not in (1, 2, 3, 4, 5, 6):
         raise ValueError("`style` must be an integer value from `1` to `6`.")
     color = _utils._match_arg(x=color, lst=["gray", "blue", "cyan", "pink", "green", "red"])
 
@@ -1403,12 +1403,12 @@ def opt_stylize(
     if add_row_striping:
         mapped_params["row_striping_include_table_body"] = ["True"]
 
-    if style in [2, 4, 5]:
+    if style in (2, 4, 5):
         # For styles 2, 4, and 5 we need to set the border colors and widths
 
         # Use a dictionary comprehension to generate the border parameters
-        directions = ["top", "bottom", "left", "right"]
-        attributes = ["color", "width", "style"]
+        directions = ("top", "bottom", "left", "right")
+        attributes = ("color", "width", "style")
 
         border_params: dict[str, str] = {
             f"table_border_{d}_{a}": (
