@@ -900,14 +900,16 @@ class UnitDefinitionList:
 
         units_str = ""
 
+        common_condition = len(self) == 3 and self[1].unit == "/"
         for unit_add in built_units:
-            if re.search("\\($|\\[$", units_str) or re.search("^\\)|^\\]", unit_add):
+            if (
+                common_condition
+                or re.search("\\($|\\[$", units_str)
+                or re.search("^\\)|^\\]", unit_add)
+            ):
                 spacer = ""
             else:
                 spacer = " "
-
-            if len(self) == 3 and self[1].unit == "/":
-                spacer = ""
 
             units_str += f"{spacer}{unit_add}"
 
@@ -1127,10 +1129,7 @@ def define_units(units_notation: str) -> UnitDefinitionList:
     # Get a list of raw tokens
     tokens_list = _generate_tokens_list(units_notation=units_notation)
 
-    # Initialize a list to store the units
-    units_list = []
-
-    if len(tokens_list) == 0:
+    if not tokens_list:
         return UnitDefinitionList(units_list=[])
 
     units_list = [UnitDefinition.from_token(token) for token in tokens_list]
