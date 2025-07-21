@@ -702,10 +702,7 @@ def resolve_cols_i(
 
         # TODO: special handling of "stub()"
         if isinstance(expr, list) and any(isinstance(x, str) and x == "stub()" for x in expr):
-            if len(stub_var):
-                return [(stub_var[0], 1)]
-
-            return []
+            return [(stub_var[0], 1)] if stub_var else []
 
         # If expr is None, we want to select everything or nothing depending on
         # the value of `null_means`
@@ -736,18 +733,18 @@ def resolve_cols_i(
             # always excluded but in certain cases (i.e., `rows_add()`)
             # we may want to include this column
             _group_vars = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
-            group_var = _group_vars[0] if len(_group_vars) else None
+            group_var = _group_vars[0] if _group_vars else None
         else:
             group_var = None
 
-        cols_excl = [stub_var, group_var]
+        cols_excl = (stub_var, group_var)
 
         tbl_data = data._tbl_data
     else:
         # I am not sure if this gets used in the R program, but it's
         # convenient for testing
         tbl_data = data
-        cols_excl = []
+        cols_excl = ()
 
     selected = eval_select(tbl_data, expr, strict)
     return [name_pos for name_pos in selected if name_pos[0] not in cols_excl]
