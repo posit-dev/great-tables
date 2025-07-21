@@ -1,19 +1,19 @@
 from __future__ import annotations
 
+import re
+import warnings
 from itertools import chain
 from typing import TYPE_CHECKING
-import warnings
 
-import re
-from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
-from .quarto import is_quarto_render
 from ._spanners import spanners_print_matrix
+from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
+from ._text import _process_text
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 from ._utils_render_html import _get_spanners_matrix_height
-from ._text import _process_text
+from .quarto import is_quarto_render
 
 if TYPE_CHECKING:
-    from ._gt_data import GTData, GroupRowInfo
+    from ._gt_data import GroupRowInfo, GTData
 
 
 LENGTH_TRANSLATIONS_TO_PX = {
@@ -52,7 +52,7 @@ def css_length_has_supported_units(x: str, no_units_valid: bool = True) -> bool:
 
     units = get_units_from_length_string(x)
 
-    return units in LENGTH_TRANSLATIONS_TO_PX.keys()
+    return units in LENGTH_TRANSLATIONS_TO_PX
 
 
 def get_units_from_length_string(length: str) -> str:
@@ -296,9 +296,7 @@ def create_columns_component_l(data: GTData) -> str:
         #     omit_columns_row=True,
         # )
 
-        for i in range(len(spanners)):
-            spanners_row = spanners[i]
-
+        for spanners_row in spanners:
             for k, v in spanners_row.items():
                 if v is None:
                     spanners_row[k] = ""
@@ -306,8 +304,8 @@ def create_columns_component_l(data: GTData) -> str:
             spanner_ids_index = spanners_row.values()
             spanners_rle = seq_groups(seq=spanner_ids_index)
 
-            group_spans = [[x[1]] + [0] * (x[1] - 1) for x in spanners_rle]
-            colspans = list(chain(*group_spans))
+            group_spans = ([x[1]] + [0] * (x[1] - 1) for x in spanners_rle)
+            colspans = list(chain.from_iterable(group_spans))
             level_i_spanners = []
 
             for colspan, span_label in zip(colspans, spanners_row.values()):
@@ -324,20 +322,20 @@ def create_columns_component_l(data: GTData) -> str:
             spanner_lines = []
             span_accumlator = 0
 
-            for j, _ in enumerate(level_i_spanners):
-                if level_i_spanners[j] is None:
+            for j, level_i_spanner_j in enumerate(level_i_spanners):
+                if level_i_spanner_j is None:
                     # Get the number of columns to span nothing
                     span = group_spans[j][0]
                     spanner_labs.append("" * span)
 
-                elif level_i_spanners[j] is not None:
+                elif level_i_spanner_j is not None:
                     # Get the number of columns to span the spanner
                     span = group_spans[j][0]
 
                     # TODO: Get alignment for spanner, for now it's center (`c`)
 
                     # Get multicolumn statement for spanner
-                    multicolumn_stmt = f"\\multicolumn{{{span}}}{{c}}{{{level_i_spanners[j]}}}"
+                    multicolumn_stmt = f"\\multicolumn{{{span}}}{{c}}{{{level_i_spanner_j}}}"
 
                     spanner_labs.append(multicolumn_stmt)
 
@@ -490,7 +488,7 @@ def derive_table_width_statement_l(data: GTData, use_longtable: bool) -> str:
     tbl_width = data._options.table_width.value
 
     # Initialize the statement variables LTleft and LTright
-    sides = ["LTleft", "LTright"]
+    sides = ("LTleft", "LTright")
 
     # Bookends are not required if a table width is not specified or if using floating table
     if tbl_width == "auto" or not use_longtable:
@@ -500,14 +498,14 @@ def derive_table_width_statement_l(data: GTData, use_longtable: bool) -> str:
         tw = float(tbl_width.strip("%"))
 
         side_width = (100 - tw) / 200
-        side_width = f"{side_width:.6f}".rstrip("0").rstrip(".")
+        side_width = f"{side_width:.6f}".rstrip(".0")
 
         statement = "\n".join([f"\\setlength\\{side}{{{side_width}\\linewidth}}" for side in sides])
 
     else:
         width_in_pt = convert_to_pt(tbl_width)
 
-        halfwidth_in_pt = f"{width_in_pt / 2:.6f}".rstrip("0").rstrip(".")
+        halfwidth_in_pt = f"{width_in_pt / 2:.6f}".rstrip(".0")
 
         statement = "\n".join(
             f"\\setlength\\{side}{{\\dimexpr(0.5\\linewidth - {halfwidth_in_pt}pt)}}"
@@ -550,10 +548,7 @@ def create_wrap_start_l(use_longtable: bool, tbl_pos: str | None) -> str:
 
         tbl_pos = f"[{tbl_pos}]"
 
-    if use_longtable:
-        return "\\begingroup"
-    else:
-        return f"\\begin{{table}}{tbl_pos}"
+    return "\\begingroup" if use_longtable else f"\\begin{{table}}{tbl_pos}"
 
 
 def create_wrap_end_l(use_longtable: bool) -> str:
