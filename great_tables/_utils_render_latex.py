@@ -496,7 +496,7 @@ def derive_table_width_statement_l(data: GTData, use_longtable: bool) -> str:
     else:
         width_in_pt = convert_to_pt(tbl_width)
 
-        halfwidth_in_pt = f"{width_in_pt / 2:.6f}".rstrip(".0")
+        halfwidth_in_pt = f"{width_in_pt / 2:.6f}".rstrip("0").rstrip(".")
 
         statement = "\n".join(
             f"\\setlength\\{side}{{\\dimexpr(0.5\\linewidth - {halfwidth_in_pt}pt)}}"
