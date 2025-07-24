@@ -407,6 +407,7 @@ class Boxhead(_Sequence[ColInfo]):
                 _str_detect(col_class, "int")
                 or _str_detect(col_class, "uint")
                 or _str_detect(col_class, "float")
+                or _str_detect(col_class, "double")
             ):
                 align.append("right")
             elif _str_detect(col_class, "date"):
