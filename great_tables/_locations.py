@@ -19,7 +19,7 @@ from ._gt_data import (
     StyleInfo,
 )
 from ._styles import CellStyle
-from ._tbl_data import PlDataFrame, PlExpr, eval_select, eval_transform
+from ._tbl_data import PlDataFrame, PlExpr, eval_select, eval_transform, get_column_names
 
 if TYPE_CHECKING:
     from ._gt_data import TblData
@@ -715,7 +715,7 @@ def resolve_cols_i(
 
                 return [
                     (col, ii)
-                    for ii, col in enumerate(data._tbl_data.columns)
+                    for ii, col in enumerate(get_column_names(data._tbl_data))
                     if col not in cols_excl
                 ]
 
