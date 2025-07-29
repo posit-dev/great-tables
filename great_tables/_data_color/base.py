@@ -6,7 +6,7 @@ import numpy as np
 from typing_extensions import TypeAlias
 
 from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
-from great_tables._tbl_data import DataFrameLike, SelectExpr, is_na
+from great_tables._tbl_data import DataFrameLike, SelectExpr, get_column_names, is_na
 from great_tables.loc import body
 from great_tables.style import fill, text
 
@@ -216,7 +216,7 @@ def data_color(
     columns_resolved: list[str]
 
     if columns is None:
-        columns_resolved = data_table.columns
+        columns_resolved = get_column_names(data_table)
     else:
         columns_resolved = resolve_cols_c(data=self, expr=columns)
 
