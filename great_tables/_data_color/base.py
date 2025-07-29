@@ -572,8 +572,7 @@ def _expand_short_hex(hex_color: str) -> str:
 
     # Return the expanded 6-digit hexadecimal color value
     expanded = "#" + "".join(x * 2 for x in hex_color)
-    expanded = expanded.upper()
-    return expanded
+    return expanded.upper()
 
 
 def _rescale_numeric(

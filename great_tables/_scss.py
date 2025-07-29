@@ -53,10 +53,10 @@ def font_color(color: str, dark_option: str, light_option: str) -> str:
         # With the `transparent` color, the font color should have the same value
         # as the `dark_option` option since the background will be transparent
         return dark_normalized
-    if color in ["currentcolor", "currentColor"]:
+    if color in ("currentcolor", "currentColor"):
         # With two variations of `currentColor` value, normalize to `currentcolor`
         return "currentcolor"
-    if color in ["inherit", "initial", "unset"]:
+    if color in ("inherit", "initial", "unset"):
         # For the other valid CSS color attribute values, we should pass them through
         return color
 

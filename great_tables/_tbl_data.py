@@ -325,7 +325,7 @@ def _(data: PlDataFrame, group_key: str) -> dict[Any, list[int]]:
     # TODO: should ensure row count name isn't already in data
     import polars as pl
 
-    # with_row_index supercedes with_row_count
+    # with_row_index supersedes with_row_count
     meth_row_number = getattr(data, "with_row_index", None)
     if not meth_row_number:
         meth_row_number = data.with_row_count
@@ -481,12 +481,13 @@ def _eval_select_from_list(
 
     # TODO: should prohibit duplicate names in expr?
     res: list[tuple[str, int]] = []
+    n_cols = len(columns)
     for col in expr:
         if isinstance(col, str):
             if col in col_pos:
                 res.append((col, col_pos[col]))
         elif isinstance(col, int):
-            _pos = col if col >= 0 else len(columns) + col
+            _pos = col if col >= 0 else n_cols + col
             res.append((columns[col], _pos))
         else:
             raise TypeError(
@@ -750,7 +751,7 @@ def _(df: PlDataFrame, x: Any) -> bool:
 
     import polars as pl
 
-    return isinstance(x, (pl.Null, type(None))) or (isinstance(x, float) and isnan(x))
+    return x is None or isinstance(x, pl.Null) or (isinstance(x, float) and isnan(x))
 
 
 @is_na.register
