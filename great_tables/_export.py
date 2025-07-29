@@ -77,7 +77,7 @@ def show(
 ):
     """Display the table in a notebook or a web browser.
 
-    Note that this function is often unecessary in a notebook. However, it's sometimes useful for
+    Note that this function is often unnecessary in a notebook. However, it's sometimes useful for
     manually triggering display within a code cell.
 
     Parameters
@@ -250,7 +250,7 @@ def as_raw_html(
                 id = table_id
 
             # Compile the SCSS as CSS
-            table_css = str(compile_scss(self, id=id, compress=False, all_important=all_important))
+            table_css = compile_scss(self, id=id, compress=False, all_important=all_important)
 
             return inline_fragment(html=table_html, css=table_css)
 

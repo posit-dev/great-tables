@@ -125,7 +125,7 @@ def test_format_col_selection_multi(expr: Any):
 
 
 @pytest.mark.parametrize("expr", [1, pl.selectors.by_name("y"), "y"])
-def test_formt_col_selection_single(expr: Any):
+def test_format_col_selection_single(expr: Any):
     df = pd.DataFrame({"x": [1], "y": [2], "z": [3]})
 
     if isinstance(expr, pl.Expr):
@@ -793,7 +793,7 @@ def test_fmt_number_n_sigfig(n_sigfig: int, x_out: str):
 
 
 # TODO: Expect that the `drop_trailing_zeros` argument is ignored when formatting
-# to a fixed number of signficant digits
+# to a fixed number of significant digits
 
 
 @pytest.mark.parametrize(

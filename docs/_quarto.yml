@@ -255,7 +255,7 @@ quartodoc:
     - title: Built in datasets
       desc: >
         The **Great Tables** package is equipped with sixteen datasets that come in all shapes and
-        sizes. Many examples thoughout the help docs use these datasets to quickly demonstrate the
+        sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the
         awesome features of the package! Please note that using any of these datasets requires the
         Pandas library to be installed.
       contents:
