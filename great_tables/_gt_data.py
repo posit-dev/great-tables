@@ -25,6 +25,7 @@ from ._tbl_data import (
     create_empty_frame,
     get_column_names,
     n_rows,
+    n_cols,
     to_list,
     validate_frame,
 )
@@ -970,6 +971,120 @@ class FormatInfo:
 #     def __init__(self):
 #         pass
 Formats = list
+
+# Merge matrices ----
+
+_MergeMatrix: TypeAlias = "list[list[int]]"
+
+
+class MergeError(Exception):
+    """Represent an error from an invalid merge operation."""
+
+
+@dataclass(frozen=True)
+class CellMerges:
+    """Matrix of merge values for a table body.
+
+    This matrix is indexable using `body[row][col]`. Cells may have the value 0 (hidden), 1 (normal),
+    or greater than 1 (merging other cells). The top-left cell will be the one whose content and
+    styles are used.
+    """
+
+    rowspans: _MergeMatrix
+    colspans: _MergeMatrix
+
+    def _assign_merge_value(
+        self, matrix: _MergeMatrix, row: int, col: int, value: int
+    ) -> _MergeMatrix:
+        """Assign a merge value to a cell in the matrix."""
+        self.validate_merge_cell(row, col, value)
+
+        new_body = matrix.copy()
+        new_row = new_body[row].copy()
+
+        new_row[col] = value
+        new_body[row] = new_row
+
+        return new_body
+
+    def assign_rowspan(self, row: int, col: int, value: int) -> Self:
+        """Assign a rowspan value to a cell in the rowspans matrix."""
+        old_val = self.rowspans[row][col]
+        new_rowspans = self._assign_merge_value(self.rowspans, row, col, value)
+
+        # if cell is already a merging cell, reset the merge (without mutating)
+        if old_val > 1:
+            for ii in range(row + 1, row + value):
+                new_rowspans[ii][col] = 1
+
+        # set new merge
+        for ii in range(row + 1, row + value):
+            new_rowspans[ii][col] = 0
+
+        return self.__class__(rowspans=new_rowspans, colspans=self.colspans)
+
+    def assign_colspan(self, row: int, col: int, value: int) -> Self:
+        """Assign a colspan value to a cell in the colspans matrix."""
+        old_val = self.rowspans[row][col]
+        new_colspans = self._assign_merge_value(self.colspans, row, col, value)
+
+        # if cell is already a merging cell, reset the merge (without mutating)
+        if old_val > 1:
+            for ii in range(col + 1, col + value):
+                new_colspans[row][ii] = 1
+
+        # set new merge
+        for ii in range(col + 1, col + value):
+            new_colspans[row][ii] = 0
+
+        return self.__class__(rowspans=self.rowspans, colspans=new_colspans)
+
+    def validate_merge_cell(self, row: int, col: int, value: int) -> None:
+        # TODO: handle value 0 or 1
+
+        # Case: merging on cells
+        # rowspan checks ----
+        cell_rowspans = [crnt_row[col] for crnt_row in self.rowspans[row : row + value]]
+        cell_colspans = [crnt_row[col] for crnt_row in self.colspans[row : row + value]]
+
+        # merging cell is not being merged on
+        if cell_rowspans[0] != 0:
+            raise MergeError(
+                "Merging cell is already being merged on from the left."
+                f"\n\n* row: {row}\n* col: {col}"
+            )
+        if cell_colspans[0] != 0:
+            raise MergeError(
+                "Merging cell is already being merged on from above."
+                f"\n\n* row: {row}\n* col: {col}"
+            )
+
+        # merged cells are not part of another merge (or a merging cell)
+        n_other = len(cell_rowspans) - 1
+        if cell_rowspans[1:] != [1] * n_other:
+            raise MergeError(
+                "Attempting to merge on cells that are part of another merge from left."
+                f"\n\n* row: {row}\n* col: {col}"
+            )
+        if cell_colspans[1:] != [1] * n_other:
+            raise MergeError(
+                "Attempting to merge on cells that are part of another merge from above."
+                f"\n\n* row: {row}\n* col: {col}"
+            )
+
+    def from_data_frame(self, data: TblData) -> Self:
+        """Create a merge matrix from a DataFrame.
+
+        The merge matrix is a 2D list of integers, where each int represents the number of
+        cells that should be merged into the cell. Great Tables creates two merge matrices,
+        one for merging cells to the right, one for merging cells downward.
+        """
+
+        rows = n_rows(data)
+        cols = n_cols(data)
+
+        default = [[1] * rows for _ in range(cols)]
+        return self.__class__(rowspans=default, colspans=default)
 
 
 # Options ----
