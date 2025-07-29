@@ -392,7 +392,9 @@ class Boxhead(_Sequence[ColInfo]):
             col_class = str(col_class).lower()
 
             # Translate the column classes to an alignment value of 'left', 'right', or 'center'
-            if col_class == "character-numeric" or _str_detect(col_class, r"int|uint|float|date"):
+            if col_class == "character-numeric" or _str_detect(
+                col_class, r"int|uint|float|date|double"
+            ):
                 align.append("right")
             elif col_class in align_to_left:
                 align.append("left")
