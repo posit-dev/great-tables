@@ -121,7 +121,7 @@ def cols_label(
     new_cases = cases | kwargs
 
     # If nothing is provided, return `data` unchanged
-    if len(new_cases) == 0:
+    if not new_cases:
         return self
 
     # Get the full list of column names for the data
@@ -203,7 +203,7 @@ def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) ->
     """
 
     # Throw if `align` is not one of the three allowed values
-    if align not in ["left", "center", "right"]:
+    if align not in ("left", "center", "right"):
         raise ValueError("Align must be one of 'left', 'center', or 'right'.")
 
     # Get the full list of column names for the data
@@ -319,11 +319,11 @@ def cols_label_rotate(
 
     """
     # Throw if `align` is not one of the four allowed values
-    if align not in [None, "left", "center", "right"]:
+    if align not in (None, "left", "center", "right"):
         raise ValueError("Align must be one of `None`, 'left', 'center', or 'right'.")
 
     # Throw if `dir` is not one of the three allowed values
-    if dir not in ["sideways-lr", "sideways-rl", "vertical-lr"]:
+    if dir not in ("sideways-lr", "sideways-rl", "vertical-lr"):
         raise ValueError("Dir must be one of 'sideways-lr', 'sideways-rl', or 'vertical-lr'.")
 
     # If user doesn't set an align value then align to the bottom, which is left in the case of

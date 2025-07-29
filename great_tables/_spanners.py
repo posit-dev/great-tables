@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import copy
-import itertools
 import warnings
 from collections import defaultdict
 from dataclasses import dataclass
+from itertools import chain
 from typing import TYPE_CHECKING, Literal
 
 from typing_extensions import TypeAlias, TypedDict
@@ -223,8 +223,8 @@ def tab_spanner(
         raise NotImplementedError("columns/spanners must be specified")
 
     # get column names associated with selected spanners ----
-    _vars = [span.vars for span in self._spanners if span.spanner_id in spanner_ids]
-    spanner_column_names = OrderedSet(itertools.chain(*_vars)).as_list()
+    _vars = (span.vars for span in self._spanners if span.spanner_id in spanner_ids)
+    spanner_column_names = OrderedSet(chain.from_iterable(_vars)).as_list()
 
     column_names = OrderedSet([*selected_column_names, *spanner_column_names]).as_list()
     # combine columns names and those from spanners ----
@@ -334,7 +334,7 @@ class SpannerTransformer:
 
     @staticmethod
     def spanner_groups(cols: dict[str, str | None]) -> list[_SpannerArgs]:
-        labels_to_cols: dict[str, list[str]] = defaultdict(lambda: [])
+        labels_to_cols: dict[str, list[str]] = defaultdict(list)
         for k, v in cols.items():
             if v is None:
                 continue
@@ -467,7 +467,7 @@ def tab_spanner_delim(
 
 
 def _validate_sel_cols(sel_cols: list[str], col_vars: list[str]) -> None:
-    if not len(sel_cols):
+    if not sel_cols:
         raise Exception("No columns selected.")
     elif not all(col in col_vars for col in sel_cols):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
@@ -537,7 +537,7 @@ def cols_move(self: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
 
     col_vars = [col.var for col in self._boxhead]
 
-    if not len(sel_after):
+    if not sel_after:
         raise ValueError(f"Column {after} not found in table.")
     elif len(sel_after) > 1:
         raise ValueError(
@@ -861,12 +861,13 @@ def spanners_print_matrix(
     ]
 
     for span_ii, span in enumerate(crnt_spans):
+        label_matrix_spanner_level = label_matrix[span.spanner_level]
         for var in span.vars:
             # This if clause skips spanned columns that are not in the
             # boxhead vars we are planning to use (e.g. not in the visible ones
             # or in the stub).
-            if var in label_matrix[span.spanner_level]:
-                label_matrix[span.spanner_level][var] = spanner_reprs[span_ii]
+            if var in label_matrix_spanner_level:
+                label_matrix_spanner_level[var] = spanner_reprs[span_ii]
 
     # reverse order , so if you were to print it out, level 0 would appear on the bottom
     label_matrix.reverse()
@@ -1000,7 +1001,7 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
     new_cases = cases | kwargs
 
     # If nothing is provided, return `data` unchanged
-    if len(new_cases) == 0:
+    if not new_cases:
         return self
 
     curr_boxhead = self._boxhead
