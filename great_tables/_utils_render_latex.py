@@ -311,7 +311,7 @@ def create_columns_component_l(data: GTData) -> str:
 
             spanner_labs = []
             spanner_lines = []
-            span_accumlator = 0
+            span_accumulator = 0
 
             for j, level_i_spanner_j in enumerate(level_i_spanners):
                 if level_i_spanner_j is None:
@@ -331,16 +331,16 @@ def create_columns_component_l(data: GTData) -> str:
                     spanner_labs.append(multicolumn_stmt)
 
                     # Get cmidrule statement for spanner, it uses 1-based indexing
-                    # and the span is the number of columns to span; we use the `span_accumlator`
+                    # and the span is the number of columns to span; we use the `span_accumulator`
                     # across iterations to adjust the starting index (j) to adjust for previous
                     # multicolumn spanning values
 
-                    begin = j + span_accumlator + 1
-                    end = j + span_accumlator + span
+                    begin = j + span_accumulator + 1
+                    end = j + span_accumulator + span
 
                     cmidrule = f"\\cmidrule(lr){{{begin}-{end}}}"
 
-                    span_accumlator += span - 1
+                    span_accumulator += span - 1
 
                     spanner_lines.append(cmidrule)
 

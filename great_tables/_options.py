@@ -862,7 +862,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 
     The overall effect of scaling the horizontal padding is that the table will appear wider or
     and there will added buffer space between the table elements. The overall look of the table will
-    be more spacious and neigboring pieces of text will be less cramped.
+    be more spacious and neighboring pieces of text will be less cramped.
 
     Let's go the other way and scale the horizontal padding of the table by a factor of `0.5` using
     the `opt_horizontal_padding()` method.

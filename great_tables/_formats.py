@@ -3676,7 +3676,7 @@ def _get_currency_exponent(currency: str) -> int:
 
     else:
         # TODO: in what situation are we given a currency code with no match?
-        # why return this? E.g. what if someone mispelled a currency code?
+        # why return this? E.g. what if someone misspelled a currency code?
         exponent = 2
 
     return exponent

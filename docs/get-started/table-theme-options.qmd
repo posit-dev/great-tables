@@ -142,7 +142,7 @@ gt_ex.tab_options(
 )
 ```
 
-Options set across the whole table, can be overriden by styling a specific part.
+Options set across the whole table, can be overridden by styling a specific part.
 
 ```{python}
 gt_ex.tab_options(

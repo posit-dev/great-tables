@@ -541,7 +541,7 @@ def cols_move(self: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
         raise ValueError(f"Column {after} not found in table.")
     elif len(sel_after) > 1:
         raise ValueError(
-            f"Only 1 value should be supplied to `after`, recieved argument: {sel_after}"
+            f"Only 1 value should be supplied to `after`, received argument: {sel_after}"
         )
 
     _validate_sel_cols(sel_cols, col_vars)
