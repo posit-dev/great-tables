@@ -570,19 +570,12 @@ def _(df: PlDataFrame):
     import polars.selectors as cs
 
     list_cols = [
-        name
-        for name, dtype in df.collect_schema().items()
-        if issubclass(dtype.base_type(), pl.List)
+        name for name, dtype in df.schema.items() if issubclass(dtype.base_type(), pl.List)
     ]
 
     return df.with_columns(
-        *[
-            pl.concat_str(
-                pl.lit("["), pl.col(c).cast(pl.List(pl.String())).list.join(", "), pl.lit("]")
-            ).alias(c)
-            for c in list_cols
-        ],
-        cs.all().exclude(list_cols).cast(pl.String()),
+        cs.by_name(list_cols).map_elements(lambda x: str(x.to_list()), return_dtype=pl.String),
+        cs.all().exclude(list_cols).cast(pl.Utf8),
     )
 
 
