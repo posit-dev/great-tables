@@ -1,7 +1,11 @@
+from __future__ import annotations
+
 from importlib.util import find_spec
 
 from typing import Any, Sequence
+
 import pytest
+
 from narwhals.typing import IntoSeries
 from narwhals.utils import parse_version
 
