@@ -873,26 +873,26 @@ def _(ser: PyArrowChunkedArray, name: Optional[str] = None) -> PyArrowTable:
 
 
 @singledispatch
-def get_at_row_positions(ser: SeriesLike, indexes: list[int]) -> SeriesLike:
+def get_rows(ser: SeriesLike, indexes: list[int]) -> SeriesLike:
     """Returns values of the series at `indexes` position.`"""
     raise NotImplementedError(f"Unsupported type: {type(ser)}")
 
 
-@get_at_row_positions.register
+@get_rows.register
 def _(ser: PdSeries, indexes: list[int]) -> PdSeries:
     return ser.iloc[indexes]
 
 
-@get_at_row_positions.register
+@get_rows.register
 def _(ser: PlSeries, indexes: list[int]) -> PlSeries:
     return ser[indexes]
 
 
-@get_at_row_positions.register
+@get_rows.register
 def _(ser: PyArrowArray, indexes: list[int]) -> PyArrowArray:
     return ser.take(indexes)
 
 
-@get_at_row_positions.register
+@get_rows.register
 def _(ser: PyArrowChunkedArray, indexes: list[int]) -> PyArrowChunkedArray:
     return ser.take(indexes)
