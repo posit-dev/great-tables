@@ -4,8 +4,8 @@ import math
 from datetime import date, datetime
 from typing import TYPE_CHECKING, Any, Callable, Iterator, Sequence
 
-import pandas as pd
 from narwhals.typing import IntoSeries, SeriesT
+from narwhals.dependencies import get_pandas
 
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
@@ -39,7 +39,7 @@ def assert_series_equal(left: SeriesT, right: SeriesT) -> None:
             are_equivalent_values = all(
                 left_side == right_side for left_side, right_side in zip(lhs, rhs)
             )
-        elif pd.isna(lhs):
+        elif (pd := get_pandas()) is not None and pd.isna(lhs):
             are_equivalent_values = pd.isna(rhs)
         elif type(lhs) is date and type(rhs) is datetime:
             are_equivalent_values = datetime(lhs.year, lhs.month, lhs.day) == rhs
