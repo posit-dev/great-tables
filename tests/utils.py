@@ -15,19 +15,15 @@ SeriesConstructor: TypeAlias = Callable[[Sequence[Any]], IntoSeries]
 
 
 def zip_strict(left: SeriesT, right: SeriesT) -> Iterator[Any]:
-    if len(left) != len(right):
-        msg = f"{len(left)=} != {len(right)=}\nLeft: {left}\nRight: {right}"  # pragma: no cover
-        raise AssertionError(msg)  # pragma: no cover
+    """Return zip(left, right) after checking that the length is the same."""
+    left_size, right_size = len(left), len(right)
+    assert left_size == right_size, f"{left_size=} != {len(right)=}\nLeft: {left}\nRight: {right}"
+
     return zip(left, right)
 
 
-def assert_series_equal(left: SeriesT, right: SeriesT, *, check_name: bool = False) -> None:
-    if check_name:
-        left_name, right_name = left.name, right.name
-        assert (
-            left_name == right_name
-        ), f"Expected names to be equal, found '{left_name}' and '{right_name}'"
-
+def assert_series_equal(left: SeriesT, right: SeriesT) -> None:
+    """Check left and right series have the same elements at each index."""
     for i, (lhs, rhs) in enumerate(zip_strict(left, right)):
         if isinstance(lhs, float) and not math.isnan(lhs):
             are_equivalent_values = rhs is not None and math.isclose(

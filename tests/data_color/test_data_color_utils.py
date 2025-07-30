@@ -2,7 +2,6 @@ import math
 
 import narwhals.stable.v2 as nw
 import numpy as np
-import pandas as pd
 import pytest
 from great_tables._data_color.base import (
     _add_alpha,
@@ -463,11 +462,11 @@ def test_expand_short_hex_valid_short_hex():
         ([2, 3, 4], [0.25, 0.5, 0.75]),  # Test case 1: Rescale values within the domain range
         (
             [0, 6],
-            [np.nan, np.nan],
+            [float("nan"), float("nan")],
         ),  # Test case 2: Rescale values outside the domain range
         (
-            [2.0, np.nan, 4.0],
-            [0.25, np.nan, 0.75],
+            [2.0, float("nan"), 4.0],
+            [0.25, float("nan"), 0.75],
         ),  # Test case 3: Rescale values with NA values
     ],
 )
@@ -485,8 +484,8 @@ def test_rescale_numeric(
     "vals",
     [
         (1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-        (1.0, 2, 3, 4, 5, 6, 7, 8, 9, 10, np.nan),
-        (1.0, 2, 3, 4, 5, 6, 7, 8, 9, 10, np.nan, np.nan),
+        (1.0, 2, 3, 4, 5, 6, 7, 8, 9, 10, float("nan")),
+        (1.0, 2, 3, 4, 5, 6, 7, 8, 9, 10, float("nan"), float("nan")),
     ],
 )
 def test_get_domain_numeric(series_constructor: SeriesConstructor, vals: list[float]) -> None:
