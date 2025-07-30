@@ -15,7 +15,7 @@ keywords = ["tables"]
 license.file = "LICENSE"
 authors = [
     { name = "Richard Iannone", email = "rich@posit.co" },
-    { name = "Michael Chow", email = "michael.chow@posit.co" }
+    { name = "Michael Chow", email = "michael.chow@posit.co" },
 ]
 dynamic = ["version"]
 classifiers = [
@@ -35,7 +35,7 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Text Processing :: Markup :: HTML",
-    "Topic :: Scientific/Engineering :: Visualization"
+    "Topic :: Scientific/Engineering :: Visualization",
 ]
 dependencies = [
     "commonmark>=0.9.1",
@@ -45,27 +45,17 @@ dependencies = [
     "typing_extensions>=3.10.0.0",
     "numpy>=1.22.4",
     "Babel>=2.13.1",
-    "importlib-resources"
+    "importlib-resources",
+    "narwhals>=2.0.0",
 ]
 requires-python = ">=3.9"
 
 [project.optional-dependencies]
-all = [
-    "great_tables[extra]",
-    "great_tables[dev]",
-]
+all = ["great_tables[extra]", "great_tables[dev]"]
 
-extra = [
-    "css-inline>=0.14.1",
-    "selenium>=4.18.1",
-    "Pillow>=10.2.0",
-]
+extra = ["css-inline>=0.14.1", "selenium>=4.18.1", "Pillow>=10.2.0"]
 
-dev = [
-    "great_tables[dev-no-pandas]",
-    "pandas",
-    "plotnine",
-]
+dev = ["great_tables[dev-no-pandas]", "pandas", "plotnine"]
 
 dev-no-pandas = [
     "ruff==0.8.0",
@@ -80,7 +70,7 @@ dev-no-pandas = [
     "pytest-cov",
     "shiny",
     "svg.py",
-    "syrupy"
+    "syrupy",
 ]
 
 [project.urls]
@@ -91,9 +81,7 @@ documentation = "https://posit-dev.github.io/great-tables/"
 minversion = "6.0"
 addopts = "-ra -q --cov=great_tables -m 'not no_pandas'"
 asyncio_mode = "strict"
-testpaths = [
-    "tests"
-]
+testpaths = ["tests"]
 
 markers = [
     "extra: marks tests that require extra dependencies to run",
@@ -108,15 +96,13 @@ line-length = 100
 exclude = ["docs", ".venv", "tests/*"]
 
 ignore = [
-    "E402",    # module level import not at top of file
-    "E501",    # line too long (maximum 100 characters)
-    "F811",    # redefinition of unused name
-    "E203",    # whitespace before ':'
-    "F841",    # local variable 'name' is assigned to but never used
-    "E702",    # multiple statements on one line (semicolon)
+    "E402", # module level import not at top of file
+    "E501", # line too long (maximum 100 characters)
+    "F811", # redefinition of unused name
+    "E203", # whitespace before ':'
+    "F841", # local variable 'name' is assigned to but never used
+    "E702", # multiple statements on one line (semicolon)
 ]
 
 [tool.coverage.report]
-exclude_also = [
-    "if TYPE_CHECKING:"
-]
+exclude_also = ["if TYPE_CHECKING:"]
