@@ -1,5 +1,6 @@
 import math
 
+import narwhals.stable.v2 as nw
 import numpy as np
 import pandas as pd
 import pytest
@@ -25,16 +26,7 @@ from great_tables._data_color.base import (
 from great_tables._data_color.palettes import GradientPalette
 from great_tables._tbl_data import is_na, Agnostic
 
-
-def assert_equal_with_na(x: list, y: list):
-    """Assert two lists are equal, evaluating all NAs as equivalent
-
-    Note that some cases like [np.nan] == [np.nan] will be True (since it checks id), but this
-    function handles cases that trigger equality checks (since np.nan == np.nan is False).
-    """
-    assert len(x) == len(y)
-    for ii in range(len(x)):
-        assert (is_na(Agnostic(), x[ii]) and is_na(Agnostic(), y[ii])) or (x[ii] == y[ii])
+from tests.utils import SeriesConstructor, assert_series_equal
 
 
 def test_ideal_fgnd_color_dark_contrast():
@@ -465,79 +457,62 @@ def test_expand_short_hex_valid_short_hex():
     assert expanded == "#112233"
 
 
-def test_rescale_numeric():
-    # Test case 1: Rescale values within the domain range
-    df = pd.DataFrame({"col": [1, 2, 3, 4, 5]})
-    vals = [2, 3, 4]
+@pytest.mark.parametrize(
+    ("vals", "expected_vals"),
+    [
+        ([2, 3, 4], [0.25, 0.5, 0.75]),  # Test case 1: Rescale values within the domain range
+        (
+            [0, 6],
+            [np.nan, np.nan],
+        ),  # Test case 2: Rescale values outside the domain range
+        (
+            [2.0, np.nan, 4.0],
+            [0.25, np.nan, 0.75],
+        ),  # Test case 3: Rescale values with NA values
+    ],
+)
+def test_rescale_numeric(
+    series_constructor: SeriesConstructor, vals: list[float], expected_vals: list[float]
+):
     domain = [1, 5]
-    expected_result = [0.25, 0.5, 0.75]
-    result = _rescale_numeric(df, vals, domain)
-    assert result == expected_result
-
-    # Test case 2: Rescale values outside the domain range
-    df = pd.DataFrame({"col": [1, 2, 3, 4, 5]})
-    vals = [0, 6]
-    domain = [1, 5]
-    expected_result = [np.nan, np.nan]
-    result = _rescale_numeric(df, vals, domain)
-    assert_equal_with_na(result, expected_result)
-
-    # Test case 3: Rescale values with NA values
-    df = pd.DataFrame({"col": [1, 2, np.nan, 4, 5]})
-    vals = [2, np.nan, 4]
-    domain = [1, 5]
-    expected_result = [0.25, np.nan, 0.75]
-    result = _rescale_numeric(df, vals, domain)
-    assert_equal_with_na(result, expected_result)
+    nw_vals = nw.from_native(series_constructor(vals), series_only=True)
+    expected = nw.from_native(series_constructor(expected_vals), series_only=True)
+    result = _rescale_numeric(vals=nw_vals, domain=domain)
+    assert_series_equal(result, expected)
 
 
-def test_get_domain_numeric():
-    df = pd.DataFrame({"col1": [1, 2, 3, 4, 5], "col2": [6, 7, 8, 9, 10]})
-    vals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    domain = _get_domain_numeric(df, vals)
-    assert domain == [1, 10]
-
-    df = pd.DataFrame({"col1": [1, 2, 3, 4, 5], "col2": [6, 7, 8, 9, 10]})
-    vals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, np.nan]
-    domain = _get_domain_numeric(df, vals)
-    assert domain == [1, 10]
-
-    df = pd.DataFrame({"col1": [1, 2, 3, 4, 5], "col2": [6, 7, 8, 9, 10]})
-    vals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, np.nan, np.nan]
-    domain = _get_domain_numeric(df, vals)
-    assert domain == [1, 10]
+@pytest.mark.parametrize(
+    "vals",
+    [
+        (1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+        (1.0, 2, 3, 4, 5, 6, 7, 8, 9, 10, np.nan),
+        (1.0, 2, 3, 4, 5, 6, 7, 8, 9, 10, np.nan, np.nan),
+    ],
+)
+def test_get_domain_numeric(series_constructor: SeriesConstructor, vals: list[float]) -> None:
+    nw_vals = nw.from_native(series_constructor(vals), series_only=True).rename("col")
+    result = _get_domain_numeric(nw_vals)
+    assert result == [1, 10]
 
 
-def test_get_domain_factor():
-    # Test case 1: Empty DataFrame
-    df = pd.DataFrame()
-    vals = []
-    result = _get_domain_factor(df, vals)
-    assert result == []
-
-    # Test case 2: DataFrame with factor values
-    df = pd.DataFrame({"col1": ["A", "B", "A", "C", "B"]})
-    vals = ["A", "B", "C"]
-    result = _get_domain_factor(df, vals)
-    assert result == ["A", "B", "C"]
-
-    # Test case 3: DataFrame with factor values and NA values
-    df = pd.DataFrame({"col1": ["A", "B", np.nan, "C", "B"]})
-    vals = ["A", "B", "C"]
-    result = _get_domain_factor(df, vals)
-    assert result == ["A", "B", "C"]
-
-    # Test case 4: DataFrame with factor values and NA values in `vals`
-    df = pd.DataFrame({"col1": ["A", "B", "C"]})
-    vals = ["A", "B", np.nan, "C"]
-    result = _get_domain_factor(df, vals)
-    assert result == ["A", "B", "C"]
-
-    # Test case 5: DataFrame with factor values and duplicate values in `vals`
-    df = pd.DataFrame({"col1": ["A", "B", "C"]})
-    vals = ["A", "B", "B", "C"]
-    result = _get_domain_factor(df, vals)
-    assert result == ["A", "B", "C"]
+@pytest.mark.parametrize(
+    ("vals", "expected_vals"),
+    [
+        ([], []),  # Test case 1: Empty Series
+        (["A", "B", "A", "C", "B"], ["A", "B", "C"]),  # Test case 2: Series with factor values
+        (
+            ["A", "B", None, "C"],
+            ["A", "B", "C"],
+        ),  # Test case 3: Series with factor & nan values
+        (["A", "B", "B", "C"], ["A", "B", "C"]),  # Test case 4: Series with duplicate values
+    ],
+)
+def test_get_domain_factor(
+    series_constructor: SeriesConstructor, vals: list[str], expected_vals: list[str]
+) -> None:
+    nw_vals = nw.from_native(series_constructor(vals), series_only=True).rename("col")
+    result = _get_domain_factor(nw_vals)
+    assert result.to_list() == expected_vals
 
 
 def test_gradient_n_pal():

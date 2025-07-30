@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-import numpy as np
+import narwhals.stable.v2 as nw
+from narwhals.typing import SeriesT
 from typing_extensions import TypeAlias
 
 from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
-from great_tables._tbl_data import DataFrameLike, SelectExpr, get_column_names, is_na
+from great_tables._tbl_data import SelectExpr, is_na
 from great_tables.loc import body
 from great_tables.style import fill, text
 
@@ -184,10 +185,7 @@ def data_color(
     from great_tables._data_color.palettes import GradientPalette
 
     # If no color is provided to `na_color`, use a light gray color as a default
-    if na_color is None:
-        na_color = "#808080"
-    else:
-        na_color = _html_color(colors=[na_color], alpha=alpha)[0]
+    na_color = "#808080" if na_color is None else _html_color(colors=[na_color], alpha=alpha)[0]
 
     # If palette is not provided, use a default palette
     if palette is None:
@@ -209,16 +207,13 @@ def data_color(
     autocalc_domain = domain is None
 
     # Get the internal data table
-    data_table = self._tbl_data
+    data_table = nw.from_native(self._tbl_data, eager_only=True)
 
     # If `columns` is a single value, convert it to a list; if it is None then
     # get a list of all columns in the table body
-    columns_resolved: list[str]
-
-    if columns is None:
-        columns_resolved = get_column_names(data_table)
-    else:
-        columns_resolved = resolve_cols_c(data=self, expr=columns)
+    columns_resolved = (
+        data_table.columns if columns is None else resolve_cols_c(data=self, expr=columns)
+    )
 
     row_res = resolve_rows_i(self, rows)
     row_pos = [name_pos[1] for name_pos in row_res]
@@ -227,11 +222,15 @@ def data_color(
 
     # For each column targeted, get the data values as a new list object
     for col in columns_resolved:
-        # This line handles both pandas and polars dataframes
-        column_vals = data_table[col][row_pos].to_list()
+        column_vals = data_table[row_pos, col]
 
+        null_mask = (
+            (column_vals.is_null() | column_vals.is_nan())
+            if column_vals.dtype.is_numeric()
+            else column_vals.is_null()
+        )
         # Filter out NA values from `column_vals`
-        filtered_column_vals = [x for x in column_vals if not is_na(data_table, x)]
+        filtered_column_vals = column_vals.filter(~null_mask)
 
         # The methodology for domain calculation and rescaling depends on column values being:
         # (1) numeric (integers or floats), then the method should be 'numeric'
@@ -241,22 +240,18 @@ def data_color(
         ):
             # If `domain` is not provided, then infer it from the data values
             if autocalc_domain:
-                domain = _get_domain_numeric(df=data_table, vals=column_vals)
+                domain = _get_domain_numeric(vals=column_vals)
 
             # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-            scaled_vals = _rescale_numeric(
-                df=data_table, vals=column_vals, domain=domain, truncate=truncate
-            )
+            scaled_vals = _rescale_numeric(vals=column_vals, domain=domain, truncate=truncate)
 
         elif all(isinstance(x, str) for x in filtered_column_vals):
             # If `domain` is not provided, then infer it from the data values
             if autocalc_domain:
-                domain = _get_domain_factor(df=data_table, vals=column_vals)
+                domain = _get_domain_factor(vals=column_vals).to_list()
 
             # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-            scaled_vals = _rescale_factor(
-                df=data_table, vals=column_vals, domain=domain, palette=palette
-            )
+            scaled_vals = _rescale_factor(vals=column_vals, domain=domain, palette=palette)
 
         else:
             raise ValueError(
@@ -264,7 +259,7 @@ def data_color(
             )
 
         # Replace NA values in `scaled_vals` with `None`
-        scaled_vals = [np.nan if is_na(data_table, x) else x for x in scaled_vals]
+        scaled_vals = scaled_vals.fill_null(float("nan")).to_list()
 
         # Create a color scale function from the palette
         color_scale_fn = GradientPalette(colors=palette)
@@ -273,7 +268,8 @@ def data_color(
         color_vals = color_scale_fn(scaled_vals)
 
         # Replace 'None' and 'np.nan' values in `color_vals` with the `na_color=` color
-        color_vals = [na_color if is_na(data_table, x) else x for x in color_vals]
+        _native_tbl = data_table.to_native()
+        color_vals = [na_color if is_na(_native_tbl, x) else x for x in color_vals]
 
         # for every color value in color_vals, apply a fill to the corresponding cell
         # by using `tab_style()`
@@ -576,8 +572,8 @@ def _expand_short_hex(hex_color: str) -> str:
 
 
 def _rescale_numeric(
-    df: DataFrameLike, vals: list[int | float], domain: list[float], truncate: bool = False
-) -> list[float]:
+    vals: SeriesT, domain: list[float | int], *, truncate: bool = False
+) -> SeriesT:
     """
     Rescale numeric values
 
@@ -592,29 +588,27 @@ def _rescale_numeric(
 
     if domain_range == 0:
         # In the case where the domain range is 0, all scaled values in `vals` will be `0`
-        scaled_vals = [0.0 if not is_na(df, x) else x for x in vals]
+        scaled_vals = vals.clip(0, 0)
     else:
         # Rescale the values in `vals` to the range [0, 1], pass through NA values
-        filled = [np.nan if is_na(df, x) else x for x in vals]
-        scaled = [(x - domain_min) / domain_range for x in filled]
+        scaled = (vals - domain_min) / domain_range
 
         if truncate:
             # values outside domain set to 0 or 1
-            min_val = 0.0
-            max_val = 1.0
+            min_val, max_val = 0.0, 1.0
+            scaled_vals = scaled.clip(min_val, max_val)
         else:
             # values outside domain set to missing
-            min_val = np.nan
-            max_val = np.nan
-
-        scaled_vals = [min_val if x < 0 else max_val if x > 1 else x for x in scaled]
+            impl = vals.implementation
+            nan_vals: SeriesT = nw.new_series(
+                "_tmp_nan", values=(float("nan") for _ in range(len(vals))), backend=impl
+            )
+            scaled_vals = scaled.zip_with((scaled.is_between(0, 1, closed="both")), nan_vals)
 
     return scaled_vals
 
 
-def _rescale_factor(
-    df: DataFrameLike, vals: list[int | float], domain: list[float], palette: list[str]
-) -> list[float]:
+def _rescale_factor(vals: SeriesT, domain: list[float | int], palette: list[str]) -> SeriesT:
     """
     Rescale factor values
 
@@ -631,50 +625,34 @@ def _rescale_factor(
 
     # For each value in `vals`, get the index of the value in `domain` but if not present then
     # use NA; then scale these index values to the range [0, 1]
+    values = (domain.index(x) if x in domain else float("nan") for x in vals)
+
     scaled_vals = _rescale_numeric(
-        df=df,
-        vals=[domain.index(x) if x in domain else np.nan for x in vals],
+        vals=nw.new_series("_tmp", values, backend=vals.implementation),
         domain=[0, domain_length - 1],
     )
 
     return scaled_vals
 
 
-def _get_domain_numeric(df: DataFrameLike, vals: list[int | float]) -> list[float]:
+def _get_domain_numeric(vals: nw.Series[Any]) -> list[float]:
     """
     Get the domain of numeric values.
 
     Get the domain of numeric values in `vals=` as a list of two values: the min and max values.
     """
-
-    # Exclude any NA values from `vals`
-    vals = [x for x in vals if not is_na(df, x)]
-
-    # Get the minimum and maximum values from `vals`
-    domain_min = min(vals)
-    domain_max = max(vals)
-
-    # Create the domain
-    domain = [domain_min, domain_max]
-
-    return domain
+    # Narwhals min/max ignore NA values
+    return [vals.min(), vals.max()]
 
 
-def _get_domain_factor(df: DataFrameLike, vals: list[str]) -> list[str]:
+def _get_domain_factor(vals: SeriesT) -> SeriesT:
     """
     Get the domain of factor values.
 
-    Get the domain of factor values in `vals=` as a list of the unique values in the order provided.
+    Get the domain of factor values in `vals=` as the series of unique values in the order provided.
     """
 
     # Exclude any NA values from `vals`
-    vals = [x for x in vals if not is_na(df, x)]
-
+    null_mask = (vals.is_null() | vals.is_nan()) if vals.dtype.is_numeric() else vals.is_null()
     # Create the domain by getting the unique values in `vals` in order provided
-    seen: list[str] = []
-
-    for item in vals:
-        if item not in seen:
-            seen.append(item)
-
-    return seen
+    return vals.filter(~null_mask).unique(maintain_order=True)
