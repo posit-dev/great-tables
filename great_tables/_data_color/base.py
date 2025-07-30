@@ -6,7 +6,14 @@ import numpy as np
 from typing_extensions import TypeAlias
 
 from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
-from great_tables._tbl_data import DataFrameLike, SelectExpr, get_column_names, is_na
+from great_tables._tbl_data import (
+    DataFrameLike,
+    SelectExpr,
+    get_at_row_positions,
+    get_column_names,
+    is_na,
+    to_list,
+)
 from great_tables.loc import body
 from great_tables.style import fill, text
 
@@ -228,7 +235,7 @@ def data_color(
     # For each column targeted, get the data values as a new list object
     for col in columns_resolved:
         # This line handles both pandas and polars dataframes
-        column_vals = data_table[col][row_pos].to_list()
+        column_vals = to_list(get_at_row_positions(data_table[col], indexes=row_pos))
 
         # Filter out NA values from `column_vals`
         filtered_column_vals = [x for x in column_vals if not is_na(data_table, x)]
