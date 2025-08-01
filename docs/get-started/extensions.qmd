@@ -144,8 +144,7 @@ Here's an example of how you might create a custom icon extension that maps nume
 
 ```{python}
 # | eval: False
-def fmt_star_rating(value, max_stars=5):
-    filled_stars = int(value)
+def fmt_star_rating(filled_stars: int, max_stars=5):
     empty_stars = max_stars - filled_stars
 
     star_html = "★" * filled_stars + "☆" * empty_stars
@@ -153,7 +152,7 @@ def fmt_star_rating(value, max_stars=5):
 
 
 # Apply to your table, again `fmt()` comes in handy!
-gt.fmt(fns=fmt_star_rating, columns="rating")
+gt.fmt(fns=fmt_star_rating, columns="my_data_column")
 ```
 
 ### Beyond
