@@ -29,7 +29,6 @@ FONT_COLOR_VARS = (
     "table_background_color",
     "heading_background_color",
     "column_labels_background_color",
-    "column_labels_background_color",
     "row_group_background_color",
     "stub_background_color",
     "stub_row_group_background_color",
