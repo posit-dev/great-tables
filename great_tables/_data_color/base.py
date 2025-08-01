@@ -509,21 +509,6 @@ def _add_alpha(colors: list[str], alpha: int | float) -> list[str]:
     return colors
 
 
-def _remove_alpha(colors: list[str]) -> list[str]:
-    # Loop through the colors and remove the alpha value from each one
-    for i in range(len(colors)):
-        color = colors[i]
-        # If the color value is already in the `#RRGGBB` format, then we need to add the
-        # alpha value to it before removing the alpha value
-        if _is_standard_hex_col([color])[0]:
-            color = color + "FF"
-
-        # Remove the alpha value from the color value
-        colors[i] = color[:-2]
-
-    return colors
-
-
 def _float_to_hex(x: float) -> str:
     """
     Convert a float to a hexadecimal value.

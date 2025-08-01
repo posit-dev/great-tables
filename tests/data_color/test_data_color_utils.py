@@ -19,7 +19,6 @@ from great_tables._data_color.base import (
     _is_short_hex,
     _is_standard_hex_col,
     _relative_luminance,
-    _remove_alpha,
     _rescale_numeric,
     _srgb,
 )
@@ -259,20 +258,6 @@ def test_add_alpha_invalid_alpha():
             str(e)
             == "Invalid alpha value provided (1.5). Please ensure that alpha is a value between 0 and 1."
         )
-
-
-def test_remove_alpha():
-    colors = ["#FF0000FF", "#00FF00FF", "#0000FFFF"]
-    result = _remove_alpha(colors)
-    assert result == ["#FF0000", "#00FF00", "#0000FF"]
-
-    colors = ["#FF000080", "#00FF0080", "#0000FF80"]
-    result = _remove_alpha(colors)
-    assert result == ["#FF0000", "#00FF00", "#0000FF"]
-
-    colors = ["#FF0000", "#00FF00", "#0000FF"]
-    result = _remove_alpha(colors)
-    assert result == ["#FF0000", "#00FF00", "#0000FF"]
 
 
 def test_alpha_composite_with_white():
