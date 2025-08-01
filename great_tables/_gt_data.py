@@ -1181,9 +1181,7 @@ class Options:
     )
     source_notes_multiline: OptionsInfo = OptionsInfo(False, "source_notes", "boolean", True)
     source_notes_sep: OptionsInfo = OptionsInfo(False, "source_notes", "value", " ")
-    row_striping_background_color: OptionsInfo = OptionsInfo(
-        True, "row", "value", "rgba(128,128,128,0.05)"
-    )
+    row_striping_background_color: OptionsInfo = OptionsInfo(True, "row", "value", None)
     row_striping_include_stub: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
     row_striping_include_table_body: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
     container_width: OptionsInfo = OptionsInfo(False, "container", "px", "auto")

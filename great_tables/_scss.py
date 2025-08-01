@@ -22,6 +22,7 @@ DEFAULTS_TABLE_BACKGROUND = (
     "grand_summary_row_background_color",
     "footnotes_background_color",
     "source_notes_background_color",
+    "row_striping_background_color",
 )
 
 FONT_COLOR_VARS = (
@@ -36,6 +37,7 @@ FONT_COLOR_VARS = (
     "grand_summary_row_background_color",
     "footnotes_background_color",
     "source_notes_background_color",
+    "row_striping_background_color",
 )
 
 
