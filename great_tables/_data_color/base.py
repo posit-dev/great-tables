@@ -294,8 +294,8 @@ def data_color(
 
 
 def _ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000000") -> str:
-    # Remove alpha value from hexadecimal color value in `bgnd_color=`
-    bgnd_color = _remove_alpha(colors=[bgnd_color])[0]
+    # Compose alpha value from hexadecimal color value in `bgnd_color=`
+    bgnd_color = _alpha_composite_with_white(bgnd_color)
 
     contrast_dark = _get_wcag_contrast_ratio(color_1=dark, color_2=bgnd_color)
     contrast_light = _get_wcag_contrast_ratio(color_1=light, color_2=bgnd_color)
@@ -303,6 +303,48 @@ def _ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000
     fgnd_color = dark if abs(contrast_dark) > abs(contrast_light) else light
 
     return fgnd_color
+
+
+def _alpha_composite_with_white(color: str) -> str:
+    """
+    Alpha composite a color with white background
+
+    Parameters
+    ----------
+    color : str
+        Hexadecimal color value, either #RRGGBB or #RRGGBBAA format
+
+    Returns
+    -------
+    str
+        Composited color in #RRGGBB format
+    """
+
+    # If no alpha channel, return as-is
+    if len(color) != 9:
+        return color
+
+    # Extract RGB and alpha components
+    r = int(color[1:3], 16)
+    g = int(color[3:5], 16)
+    b = int(color[5:7], 16)
+    alpha = int(color[7:9], 16) / 255.0
+
+    # White background (255, 255, 255) with full opacity
+    white_r, white_g, white_b = 255, 255, 255
+
+    # Apply alpha compositing formula: cr = cf * af + cb * ab * (1 - af)
+    result_r = int(r * alpha + white_r * (1 - alpha))
+    result_g = int(g * alpha + white_g * (1 - alpha))
+    result_b = int(b * alpha + white_b * (1 - alpha))
+
+    # Clamp values to [0, 255] range
+    result_r = max(0, min(255, result_r))
+    result_g = max(0, min(255, result_g))
+    result_b = max(0, min(255, result_b))
+
+    # Convert back to hex format
+    return f"#{result_r:02X}{result_g:02X}{result_b:02X}"
 
 
 def _get_wcag_contrast_ratio(color_1: str, color_2: str) -> float:
