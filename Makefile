@@ -9,6 +9,12 @@ test-no-pandas:
 test-update:
 	pytest --snapshot-update
 
+install-pre-commit: # Install pre-commit hooks
+	@uvx pre-commit install
+
+run-pre-commit: # Run pre-commit hooks
+	@uvx pre-commit run --all-files
+
 check:
 	pyright --pythonversion 3.8 gt
 	pyright --pythonversion 3.9 gt
