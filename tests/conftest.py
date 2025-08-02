@@ -4,7 +4,7 @@ from importlib.util import find_spec
 
 import pytest
 
-from great_tables._tbl_data import DataFrameLike
+from great_tables._tbl_data import DataFrameLike, _re_version
 from tests.utils import DataFrameConstructor, DataLike
 
 
@@ -40,14 +40,16 @@ def pyarrow_table_constructor(obj: DataLike) -> DataFrameLike:
 
 frame_constructors: list[DataFrameConstructor] = []
 
+is_pandas_installed = find_spec("pandas") is not None
+is_polars_installed = find_spec("polars") is not None
 is_pyarrow_installed = find_spec("pyarrow") is not None
 
-if find_spec("pandas"):
+if is_pandas_installed:
     import pandas as pd
 
     frame_constructors.append(pandas_constructor)
 
-    pandas_ge_v2 = pd.__version__ >= "2.0.0"
+    pandas_ge_v2 = _re_version(pd.__version__) >= (2, 0, 0)
 
     if pandas_ge_v2:
         frame_constructors.append(pandas_nullable_constructor)
@@ -57,7 +59,7 @@ if find_spec("pandas"):
         # https://pandas.pydata.org/docs/whatsnew/v2.0.0.html#new-dtype-backends
         frame_constructors.append(pandas_pyarrow_constructor)
 
-if find_spec("polars"):
+if is_polars_installed:
     frame_constructors.append(polars_constructor)
 
 if is_pyarrow_installed:
