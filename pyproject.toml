@@ -55,8 +55,11 @@ all = [
     "great_tables[dev]",
 ]
 
-extra = [
+css = [
     "css-inline>=0.14.1",
+]
+
+extra = [
     "selenium>=4.18.1",
     "Pillow>=10.2.0",
 ]
