@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import importlib
 import itertools
 import re
@@ -15,17 +16,13 @@ if TYPE_CHECKING:
     from ._tbl_data import TblData
 
 
-def _try_import(name: str, pip_install_line: str | None = None) -> ModuleType:
-    try:
-        return importlib.import_module(name)
-    except ImportError:
-        if pip_install_line is not None:
-            raise ImportError(
-                f"Module {name} not found. Run the following to install."
-                f"\n\n`{pip_install_line}`"
-            ) from None
-        else:
-            raise ImportError(f"Module {name} not found.")
+def _try_import(pkg: str, group: str) -> ModuleType:
+    """Try importing a optionally dependent package."""
+    with contextlib.suppress(ImportError):
+        return importlib.import_module(pkg)
+
+    msg = f"Module `{pkg!s}` not found. Install with `<pkg manager> install great-tables[{group}]`."
+    raise ImportError(msg)
 
 
 def heading_has_title(title: str | BaseText | None) -> bool:
