@@ -90,6 +90,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e '.[extra]'
+          pip install -e '.[css]'
           pip install pandas
       - name: save browser tables
         run: |
