@@ -29,10 +29,10 @@ if TYPE_CHECKING:
     PlSelectExpr = _selector_proxy_
     PlExpr = pl.Expr
 
-    PdSeries = pd.Series
+    PdSeries = pd.Series[Any]
     PlSeries = pl.Series
-    PyArrowArray = pa.Array
-    PyArrowChunkedArray = pa.ChunkedArray
+    PyArrowArray = pa.Array[Any]
+    PyArrowChunkedArray = pa.ChunkedArray[Any]
 
     PdNA = pd.NA
     PlNull = pl.Null
@@ -888,11 +888,7 @@ def _(ser: PlSeries, indexes: list[int]) -> PlSeries:
     return ser[indexes]
 
 
-@get_rows.register
-def _(ser: PyArrowArray, indexes: list[int]) -> PyArrowArray:
-    return ser.take(indexes)
-
-
-@get_rows.register
-def _(ser: PyArrowChunkedArray, indexes: list[int]) -> PyArrowChunkedArray:
+@get_rows.register(PyArrowArray)
+@get_rows.register(PyArrowChunkedArray)
+def _(ser: Any, indexes: list[int]) -> PyArrowArray | PyArrowChunkedArray:
     return ser.take(indexes)
