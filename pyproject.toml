@@ -52,6 +52,7 @@ requires-python = ">=3.9"
 [project.optional-dependencies]
 all = [
     "great_tables[extra]",
+    "great_tables[css]",
     "great_tables[dev]",
 ]
 
@@ -100,6 +101,7 @@ testpaths = [
 
 markers = [
     "extra: marks tests that require extra dependencies to run",
+    "css: marks tests that require CSS support",
     "no_pandas: test meant to run without pandas installed",
 ]
 
