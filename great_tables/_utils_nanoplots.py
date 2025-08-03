@@ -933,7 +933,7 @@ def _generate_nanoplot(
         x_proportions = x_proportions_list["vals"]
 
     else:
-        x_proportions = np.linspace(0, 1, num_y_vals)
+        x_proportions = [i / (num_y_vals - 1) if num_y_vals > 1 else 0 for i in range(num_y_vals)]
 
     #
     # Create normalized (and inverted for SVG) data `x` and `y` values for the
