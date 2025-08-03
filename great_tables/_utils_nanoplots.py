@@ -4,7 +4,6 @@ import random
 from typing import Any, Callable
 
 import narwhals as nw
-import numpy as np
 
 from ._tbl_data import Agnostic, is_na
 from ._utils import _flatten_list, _match_arg
@@ -400,22 +399,21 @@ def _generate_ref_line_from_keyword(vals: list[int | float], keyword: str) -> in
     return ref_line
 
 
-def _normalize_vals(x: list[int] | list[float] | list[int | float]) -> list[int | float]:
+def _normalize_vals(x: list[int] | list[float] | list[int | float]) -> list[float | None]:
     """
     Normalize a list of numeric values to be between 0 and 1. Account for missing values.
     """
 
     x_missing = [i for i, val in enumerate(x) if _is_na(val)]
-    mean_x = np.mean([val for val in x if not _is_na(val)])
-    x = [mean_x if _is_na(val) else val for val in x]
-    x = np.array(x)
-    min_attr = np.min(x, axis=0)
-    max_attr = np.max(x, axis=0)
-    x = x - min_attr
-    x = x / (max_attr - min_attr)
-    x = x.tolist()
-    x = [np.nan if i in x_missing else val for i, val in enumerate(x)]
-    return x
+    mean_x: float = sum(val for val in x if not _is_na(val)) / sum(
+        1 for val in x if not _is_na(val)
+    )
+    x: list[float] = [mean_x if _is_na(val) else val for val in x]
+    min_attr: float = min(x)
+    max_attr: float = max(x)
+    xmin: list[float] = [val - min_attr for val in x]
+    xover_diff: list[float] = [x / (max_attr - min_attr) for x in xmin]
+    return [None if i in x_missing else val for i, val in enumerate(xover_diff)]
 
 
 # TODO: example nanoplot showing when jitter vals might be applied
