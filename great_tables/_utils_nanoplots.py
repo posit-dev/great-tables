@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import Any, Callable
 
 import narwhals as nw
@@ -425,7 +426,7 @@ def _jitter_vals(x: list[int | float], amount: float) -> list[int | float]:
     Jitter a list of numeric values by a small amount.
     """
 
-    return [val + np.random.uniform(-amount, amount) for val in x]
+    return [val + random.uniform(-amount, amount) for val in x]
 
 
 def _normalize_to_dict(**kwargs: list[int | float]) -> dict[str, list[int | float]]:
