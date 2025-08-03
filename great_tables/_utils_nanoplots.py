@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
+import narwhals as nw
 import numpy as np
 
 from ._tbl_data import Agnostic, is_na
@@ -56,7 +57,13 @@ def _is_integerlike(val_list: list[Any]) -> bool:
     if not val_list:
         return False
 
-    return all((isinstance(val, (int, np.integer)) or _is_na(val)) for val in val_list)
+    ## use narwhals to determine if it's numpy
+    try:
+        alt_int = nw.dependencies.get_numpy().integer
+    except AttributeError:  # if no numpy, `integer` won't exist on None
+        alt_int = int
+
+    return all((isinstance(val, (int, alt_int)) or _is_na(val)) for val in val_list)
 
 
 def _any_na_in_list(x: list[Any]) -> bool:
