@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import numpy as np
 from typing_extensions import TypeAlias
 
 from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
@@ -264,7 +263,7 @@ def data_color(
             )
 
         # Replace NA values in `scaled_vals` with `None`
-        scaled_vals = [np.nan if is_na(data_table, x) else x for x in scaled_vals]
+        scaled_vals = [None if is_na(data_table, x) else x for x in scaled_vals]
 
         # Create a color scale function from the palette
         color_scale_fn = GradientPalette(colors=palette)
@@ -272,7 +271,7 @@ def data_color(
         # Call the color scale function on the scaled values to get a list of colors
         color_vals = color_scale_fn(scaled_vals)
 
-        # Replace 'None' and 'np.nan' values in `color_vals` with the `na_color=` color
+        # Replace 'None' values in `color_vals` with the `na_color=` color
         color_vals = [na_color if is_na(data_table, x) else x for x in color_vals]
 
         # for every color value in color_vals, apply a fill to the corresponding cell
@@ -577,7 +576,7 @@ def _expand_short_hex(hex_color: str) -> str:
 
 def _rescale_numeric(
     df: DataFrameLike, vals: list[int | float], domain: list[float], truncate: bool = False
-) -> list[float]:
+) -> list[float | None]:
     """
     Rescale numeric values
 
@@ -592,24 +591,31 @@ def _rescale_numeric(
 
     if domain_range == 0:
         # In the case where the domain range is 0, all scaled values in `vals` will be `0`
-        scaled_vals = [0.0 if not is_na(df, x) else x for x in vals]
+        return [0.0 if not is_na(df, x) else x for x in vals]
+
+    # Rescale the values in `vals` to the range [0, 1], pass through NA values
+    filled: list[float | None] = [None if is_na(df, x) else x for x in vals]
+    scaled: list[float | None] = [
+        None if x is None else (x - domain_min) / domain_range for x in filled
+    ]
+
+    if truncate:
+        # values outside domain set to 0 or 1
+        min_val, max_val = 0, 1
     else:
-        # Rescale the values in `vals` to the range [0, 1], pass through NA values
-        filled = [np.nan if is_na(df, x) else x for x in vals]
-        scaled = [(x - domain_min) / domain_range for x in filled]
+        # values outside domain set to missing
+        min_val, max_val = None, None
 
-        if truncate:
-            # values outside domain set to 0 or 1
-            min_val = 0.0
-            max_val = 1.0
-        else:
-            # values outside domain set to missing
-            min_val = np.nan
-            max_val = np.nan
-
-        scaled_vals = [min_val if x < 0 else max_val if x > 1 else x for x in scaled]
-
-    return scaled_vals
+    return [
+        min_val
+        if x is not None and x < 0
+        else max_val
+        if x is not None and x > 1
+        else x
+        if x is not None
+        else None
+        for x in scaled
+    ]
 
 
 def _rescale_factor(
@@ -633,7 +639,7 @@ def _rescale_factor(
     # use NA; then scale these index values to the range [0, 1]
     scaled_vals = _rescale_numeric(
         df=df,
-        vals=[domain.index(x) if x in domain else np.nan for x in vals],
+        vals=[domain.index(x) if x in domain else None for x in vals],
         domain=[0, domain_length - 1],
     )
 
