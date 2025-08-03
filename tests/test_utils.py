@@ -21,7 +21,26 @@ from great_tables._utils import (
     heading_has_subtitle,
     heading_has_title,
     seq_groups,
+    _try_import,
 )
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("selenium", "extras"),
+        ("PIL", "extras"),
+        ("css_inline", "css"),
+    ],
+)
+def test_try_import_success(args: tuple[str, str]) -> None:
+    module = _try_import(*args)
+    assert module is not None
+
+
+def test_try_import_failure() -> None:
+    with pytest.raises(ImportError, match="not found. Install with"):
+        _try_import("non_existent_lib", "extras")
 
 
 def test_heading_has_title():
