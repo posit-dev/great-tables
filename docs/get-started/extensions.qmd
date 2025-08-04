@@ -6,7 +6,7 @@ format: html
 <!-- Intro -->
 The **Great Tables** package boasts a diverse range of methods for creating beautiful tables. With no shortage of tools, styles, formats and themes, you can produce a very wide range of tables. If you haven't yet, head over to the [examples gallery](../examples/index.qmd) for a flavor of the variety that is possible.
 
-But what happens when there's something you want to add to your table, but it's not directly supported by **Great Tables**? Let's say you have a very specific use case for your great table, so it's not necessarily broad enough to [contribute to the package](contributing.qmd). Or maybe it *is* generalizable, but it's beyond the scope of what you want to do. There are plenty of reasons to want a specific feature for your table that doesn't warrant a pull request.
+But what happens when there's something you want to add to your table, and it's not directly supported by **Great Tables**? Let's say you have a very specific use case for your great table, so it's not necessarily broad enough to [contribute to the package](contributing.qmd). Or maybe it *is* generalizable, but it's beyond the scope of what you want to do. Not every feature fits neatly into a pull request.
 
 [**gt-extras**](https://posit-dev.github.io/gt-extras/) is a great case study in this, filling some table goals that aren't supported by **Great Tables** directly.
 
@@ -45,7 +45,7 @@ def highlight_cols(gt: GT, columns: SelectExpr) -> GT:
     )
 ```
 
-In fact, many of the functions in [**gt-extras**](https://posit-dev.github.io/gt-extras/) are wrappers. What you see above is very similar to the source code for the function [`gt_highlight_cols()`](https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols), which is a wrapper function that doesn't add *new* functionality to **Great Tables**.
+In fact, many of the functions in [**gt-extras**](https://posit-dev.github.io/gt-extras/) are wrappers. What you see above is very similar to the source code for the function [`gt_highlight_cols()`](https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols), which is a wrapper function that doesn't add *new* functionality to **Great Tables**, instead it makes a common action much easier.
 
 ### Composing Functions
 
@@ -82,7 +82,7 @@ This is where composed functions really shine. Maybe you want a very standardize
 
 ### Extensions
 
-Let's extend the post-processing by building an HTML string containing two side-by-side tables. This function takes two separate `~~GT` objects, renders them as HTML using `~~GT.as_raw_html()`, and then wraps them in custom HTML structure to create a side-by-side layout, which would not be possible with **Great Tables** methods alone.
+Let's extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate `~~GT` objects, renders them as HTML using `~~GT.as_raw_html()`, and then wraps them in custom HTML structure to create a side-by-side layout, which would not be possible with **Great Tables** methods alone.
 
 ```{python}
 # | eval: False
@@ -110,13 +110,13 @@ def double_table(gt1: GT, gt2: GT) -> str:
     return double_table_html
 ```
 
-Again, this is a **gt-extras** function which extends the customizing of tables, [`gt_two_column_layout()`](https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout) does a little more heavy lifting than **Great Tables** itself supports. Notice this time it is new behavior we're adding.
+Again, this is a facet of the **gt-extras** function which extends the customizing of tables, [`gt_two_column_layout()`](https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout) does a little more heavy lifting than **Great Tables** itself supports. Notice this time it is new behavior we're adding.
 
 ## Extension Plots
 
-Embedded plots in tables (also known as sparklines) are a powerful tool.. So much so that some plotting is already built in, called [nanoplots](nanoplots.qmd). But there are endless plot types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
+Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some plotting is already built in, called [nanoplots](nanoplots.qmd). But there are endless plot types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
 
-The key to adding custom plots to your tables is using `~~GT.fmt()` with a function that converts your data values into visual representations. Your formatting function should take a value from your table and return an HTML string containing your plot—whether that's an SVG, a series of styled `<div>` elements, or even embedded images.
+The key to adding custom plots to your tables is using `~~GT.fmt()` with a function that converts your data values into visual representations. Your formatting function should take a value from your table and return an HTML string containing your plot – whether that's an SVG, a series of styled `<div>` elements, or even embedded images.
 
 Here's the basic pattern for a plot extension:
 
@@ -139,8 +139,8 @@ Check out this [blog post](../blog/plots-in-tables/index.qmd)  for a deeper dive
 
 They say a picture is worth a thousand words. So maybe you want to take `~~GT.fmt_icon()` and run with it, but with your own custom icon sets or specialized styling needs. For example:
 
-- **Create domain-specific icon mappings**: Automatically map data values to meaningful icons (like status indicators, ratings, or categories)
-- **Apply custom styling**: Add animations, colors, or hover effects to your icons
+- *Create domain-specific icon mappings:* Automatically map data values to meaningful icons (like status indicators, ratings, or categories)
+- *Apply custom styling:* Add animations, colors, or hover effects to your icons
 
 Here's an example of how you might create a custom icon extension that maps numerical ratings to star icons:
 
