@@ -12,78 +12,107 @@ But what happens when there's something you want to add to your table, but it's 
 
 ## Writing an Extension Function
 
-When extending **Great Tables**, you have two main approaches: *wrappers* and *extensions*. Understanding the distinction between these approaches will help you choose the right strategy for your use case.
+When extending **Great Tables**, you have three main approaches: *wrappers*, *extensions*, and what we might call *composing functions*.
 
 - **Wrappers** simplify existing functionality by bundling common parameter combinations into convenient functions. They don't add new capabilities, but make complex styling or formatting tasks more accessible.
+- **Composing functions** combine multiple methods into a single function, allowing you to build more complex table logic or reusable patterns.
 - **Extensions**, on the other hand, add new functionality by combining multiple methods in creative ways, processing data outside the package, or generating custom content (like HTML or images) that gets integrated into your table.
 
-Both approaches are valuable contributions to the **Great Tables** ecosystem, and the choice between them depends on whether you're making it easier to access existing tooling or creating entirely new capabilities.
+All approaches are valuable contributions to the **Great Tables** ecosystem, and the choice between them depends on whether you're making it easier to access existing tooling or creating entirely new capabilities.
 
-### gt-extras
+### Wrappers
 
-Some of the functions in [**gt-extras**](https://posit-dev.github.io/gt-extras/) are wrappers. Take [`gt_highlight_cols()`](https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols), which is a wrapper function that doesn't add *new* functionality to **Great Tables**. If you look at the underlying code, you'll see it makes a call to `~~GT.tab_style()`, while setting specific `locations=` and `style=` parameters. Something as lightweight as this might be useful for someone who knows what effect they want, but doesn't want to investigate the entire space of options for styling.
-
-<!-- Show code here maybe? -->
+Let's wrap `~~GT.tab_style()` to perform a specific action supported by the general function. `~~GT.tab_style()` takes `locations=` and `style=` parameters, so let's assign those. Something this lightweight might be useful for someone who knows what effect they want, but doesn't want to investigate the entire space of options for styling.
 
 ```{python}
 # | eval: False
-# | code-fold: true
-# | code-summary: "Show the code"
-# Select locations based on the parameters in scope at this point of the function
-locations: list[Loc] = [loc.body(columns=columns)]
-if include_column_labels:
-    locations.append(loc.column_labels(columns=columns))
+def highlight_cols(gt: GT, columns: SelectExpr) -> GT:
+    locations = [
+        loc.body(columns=columns),
+        loc.column_labels(columns=columns),
+    ]
 
-# Select styles according to fill, font_weight, and font_color parameters
-styles: list[CellStyle] = [
-    style.fill(color=fill),
-    style.borders(color=fill),
-    style.text(weight=font_weight, color=font_color),
-]
+    styles = [
+        style.fill(color="lightblue"),
+        style.borders(color="lightblue"),
+        style.text(weight="bold", color="black"),
+    ]
 
-# Make the wrapped tab_style call
-gt = gt.tab_style(
-    style=styles,
-    locations=locations,
-)
+    # Make the wrapped tab_style call
+    return gt.tab_style(
+        style=styles,
+        locations=locations,
+    )
 ```
 
+In fact, many of the functions in [**gt-extras**](https://posit-dev.github.io/gt-extras/) are wrappers. What you see above is very similar to the source code for the function [`gt_highlight_cols()`](https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols), which is a wrapper function that doesn't add *new* functionality to **Great Tables**.
 
-**gt-extras** also extends the customizing of tables, beyond making existing methods even more convenient to use. For example [`gt_two_column_layout()`](https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout) does a little more heavy lifting, building an HTML string containing two side-by-side tables. This function takes two separate `~~GT` objects, renders them as HTML using `~~GT.as_raw_html()`, and then wraps them in custom HTML structure to create a unified side-by-side layout, which would not be possible with **Great Tables** methods alone.
+### Composing Functions
+
+A little more complex than wrapping, we can also compose functions to perform several steps, such as applying multiple styles, formatting, or themes all at once.
+
+Here's how **gt-extras** implemented the [ESPN](https://posit-dev.github.io/gt-extras/reference/gt_theme_espn) theme:
 
 ```{python}
 # | eval: False
-# | code-fold: true
-# | code-summary: "Show the code"
-# In one of the branched of `gt_two_column_layout`, a header isn't set
-header_html = ""
-table_1_html = gt1.as_raw_html()
-table_2_html = gt2.as_raw_html()
+def espn_theme(gt: GT) -> GT:
+    return (
+        gt.opt_all_caps()
+        .opt_table_font(font=google_font("Lato"), weight=400)
+        .opt_row_striping()
+        .tab_style(
+            style=style.text(weight="bold"),
+            locations=loc.column_header(),
+        )
+        .tab_options(
+            row_striping_background_color="#fafafa",
+            table_body_hlines_color="#f6f7f7",
+            source_notes_font_size="12px",
+            table_font_size="16px",
+            heading_align="left",
+            heading_title_font_size="24px",
+            table_border_top_color="white",
+            table_border_top_width="3px",
+            data_row_padding="7px",
+        )
+    )
+```
 
-# Great Tables is extended via supplemental html
-double_table_html = f"""
-    <div style="display: flex; justify-content: center; width: 100%;">
-        <div id="mycombinedtable" style="display: inline-block; width: auto;">
-            {header_html}
-            <div style="overflow: auto; white-space: nowrap;">
-                <div style="display: inline-block; margin-right: 1em;">
-                    {table_1_html}
-                </div>
-                <div style="display: inline-block;">
-                    {table_2_html}
+This is where wrapper functions really shine. Maybe you want a very standardized look, or you want all of your tables to mimic your favorite one. Take advantage of `~~GT.tab_options()` for your own [premade themes](./table-theme-premade.qmd), with styles from any of the [table theme options](./table-theme-options.qmd) of your choosing.
+
+### Extensions
+
+Let's extend the post-processing by building an HTML string containing two side-by-side tables. This function takes two separate `~~GT` objects, renders them as HTML using `~~GT.as_raw_html()`, and then wraps them in custom HTML structure to create a side-by-side layout, which would not be possible with **Great Tables** methods alone.
+
+```{python}
+# | eval: False
+def double_table(gt1: GT, gt2: GT) -> str:
+    header_html = "Combined Table"
+    table_1_html = gt1.as_raw_html()
+    table_2_html = gt2.as_raw_html()
+
+    # Great Tables is extended via supplemental html
+    double_table_html = f"""
+        <div style="display: flex; justify-content: center; width: 100%;">
+            <div id="mycombinedtable" style="display: inline-block; width: auto;">
+                {header_html}
+                <div style="overflow: auto; white-space: nowrap;">
+                    <div style="display: inline-block; margin-right: 1em;">
+                        {table_1_html}
+                    </div>
+                    <div style="display: inline-block;">
+                        {table_2_html}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    """
+        """
+    return double_table_html
 ```
 
+Aagin, this is a **gt-extras** function which extends the customizing of tables, [`gt_two_column_layout()`](https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout) does a little more heavy lifting than **Great Tables** itself supports. Notice this time it is new behavior we're adding.
 
-## Great Tables Extension Possibilities
-
-What might you want to put into an extension to **Great Tables**? Here are some of the most common and impactful areas where extensions can add significant value to your tables.
-
-### Plots
+## Extension Plots
 
 Also known as sparklines, embedded plots in tables are a powerful tool. So much so that some plotting is already built in, called [nanoplots](nanoplots.qmd). But there are endless plot types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
 
@@ -106,34 +135,7 @@ gt.fmt(fns=create_my_plot, columns="my_data_column")
 
 Check out this [blog post](../blog/plots-in-tables/index.qmd)  for a deeper dive into different approaches for creating plots in tables.
 
-### Themes
-
-This is where wrapper functions really shine. Maybe you want a very standardized look, or you want all of your tables to mimic your favorite one. Take advantage of `~~GT.tab_options()` for your own [premade themes](./table-theme-premade.qmd), with styles from any of the [table theme options](./table-theme-options.qmd) of your choosing.
-
-Here's how **gt-extras** implemented the [ESPN](https://posit-dev.github.io/gt-extras/reference/gt_theme_espn) theme:
-
-```{python}
-# | eval: False
-gt_theme_espn = (
-    gt.opt_all_caps()
-    .opt_table_font(font=google_font("Lato"), weight=400)
-    .opt_row_striping()
-    .tab_style(style=style.text(weight="bold"), locations=loc.column_header())
-    .tab_options(
-        row_striping_background_color="#fafafa",
-        table_body_hlines_color="#f6f7f7",
-        source_notes_font_size="12px",
-        table_font_size="16px",
-        heading_align="left",
-        heading_title_font_size="24px",
-        table_border_top_color="white",
-        table_border_top_width="3px",
-        data_row_padding="7px",
-    )
-)
-```
-
-### Icons
+## Extension Icons
 
 They say a picture is worth a thousand words. So maybe you want to take `~~GT.fmt_icon()` and run with it, but with your own custom icon sets or specialized styling needs. For example:
 
@@ -155,6 +157,14 @@ def fmt_star_rating(filled_stars: int, max_stars=5):
 gt.fmt(fns=fmt_star_rating, columns="my_data_column")
 ```
 
-### Beyond
+## Beyond
 
-Go where your heart desires, you aren't constrained by what is provided by this package, in fact, this package is just the beginning of your tabling life!
+For some inspiration on ways to extend **Great Tables**, check out [**gt-extras**](posit-dev.github.io/gt-extras/) and its [source code](https://github.com/posit-dev/gt-extras).
+
+| Function |   Type   |
+|----------|----------|
+| [gt_plt_bar](https://posit-dev.github.io/gt-extras/reference/gt_plt_bar) | Extension |
+| [gt_color_box](https://posit-dev.github.io/gt-extras/reference/gt_color_box) | Extension |
+| [gt_data_color_by_group](https://posit-dev.github.io/gt-extras/reference/gt_data_color_by_group) | Wrapper |
+| [gt_add_divider](https://posit-dev.github.io/gt-extras/reference/gt_add_divider) | Wrapper |
+| [gt_theme_538](https://posit-dev.github.io/gt-extras/reference/gt_theme_538) | Composite |
