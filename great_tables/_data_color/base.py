@@ -605,16 +605,7 @@ def _rescale_numeric(
         # values outside domain set to missing
         min_val, max_val = None, None
 
-    return [
-        min_val
-        if x is not None and x < 0
-        else max_val
-        if x is not None and x > 1
-        else x
-        if x is not None
-        else None
-        for x in scaled
-    ]
+    return [None if x is None else min_val if x < 0 else max_val if x > 1 else x for x in scaled]
 
 
 def _rescale_factor(
