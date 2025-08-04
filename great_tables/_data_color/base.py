@@ -594,9 +594,8 @@ def _rescale_numeric(
         return [0.0 if not is_na(df, x) else x for x in vals]
 
     # Rescale the values in `vals` to the range [0, 1], pass through NA values
-    filled: list[float | None] = [None if is_na(df, x) else x for x in vals]
     scaled: list[float | None] = [
-        None if x is None else (x - domain_min) / domain_range for x in filled
+        None if is_na(df, x) else (x - domain_min) / domain_range for x in vals
     ]
 
     if truncate:
