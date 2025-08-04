@@ -598,12 +598,7 @@ def _rescale_numeric(
         None if is_na(df, x) else (x - domain_min) / domain_range for x in vals
     ]
 
-    if truncate:
-        # values outside domain set to 0 or 1
-        min_val, max_val = 0, 1
-    else:
-        # values outside domain set to missing
-        min_val, max_val = None, None
+    min_val, max_val = (0, 1) if truncate else (None, None)
 
     return [None if x is None else min_val if x < 0 else max_val if x > 1 else x for x in scaled]
 
