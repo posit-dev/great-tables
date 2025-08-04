@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from typing import Any, Callable
 
-from ._tbl_data import Agnostic, is_na
+from ._tbl_data import Agnostic, NpInteger, is_na
 from ._utils import _flatten_list, _match_arg
 
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
@@ -55,15 +55,7 @@ def _is_integerlike(val_list: list[Any]) -> bool:
     if not val_list:
         return False
 
-    ## use narwhals to determine if it's numpy
-    try:
-        import numpy as np
-    except (ImportError, ModuleNotFoundError):
-        alt_int = int
-    else:
-        alt_int = np.integer
-
-    return all((isinstance(val, (int, alt_int)) or _is_na(val)) for val in val_list)
+    return all((isinstance(val, (int, NpInteger)) or _is_na(val)) for val in val_list)
 
 
 def _any_na_in_list(x: list[Any]) -> bool:
