@@ -10,17 +10,17 @@ But what happens when there's something you want to add to your table, and it's 
 
 [**gt-extras**](https://posit-dev.github.io/gt-extras/) is a great case study in this, filling some table goals that aren't supported by **Great Tables** directly.
 
-## Writing an Extension Function
+## Writing an Add-on Function
 
-When extending **Great Tables**, you have three main approaches: *wrappers*, *extensions*, and what we might call *composing functions*.
+When adding to **Great Tables**, you have three main approaches: *wrapping*, *extending*, and what we might call *composing*.
 
-- **Wrappers** simplify existing functionality by bundling common parameter combinations into convenient functions. They don't add new capabilities, but make complex styling or formatting tasks more accessible.
-- **Composing functions** combine multiple methods into a single function, allowing you to build more complex table logic or reusable patterns.
-- **Extensions**, on the other hand, add new functionality by combining multiple methods in creative ways, processing data outside the package, or generating custom content (like HTML or images) that gets integrated into your table.
+- **Wrapping** is when you simplify existing functionality by bundling common parameter combinations. It doesn't add new capabilities, instead makes specific or complex styling tasks more accessible.
+- **Composing** multiple methods into a single function, allowing you to build more complex table logic or reusable patterns.
+- **Extending**, on the other hand, adds new functionality by adding behavior beyond built-in methods. This could include processing data outside the package, or generating custom content (like HTML or images), that gets integrated into your table.
 
 All approaches are valuable contributions to the **Great Tables** ecosystem, and the choice between them depends on whether you're making it easier to access existing tooling or creating entirely new capabilities.
 
-### Wrappers
+### Wrapping
 
 Let's wrap `~~GT.tab_style()` to perform a specific action supported by the general function. `~~GT.tab_style()` takes `locations=` and `style=` parameters, so let's assign those. Something this lightweight might be useful for someone who knows what effect they want, but doesn't want to investigate the entire space of options for styling.
 
@@ -39,13 +39,13 @@ def highlight_cols(gt: GT, columns: SelectExpr) -> GT:
     )
 ```
 
-In fact, many of the functions in [**gt-extras**](https://posit-dev.github.io/gt-extras/) are wrappers. What you see above is very similar to the source code for the function [`gt_highlight_cols()`](https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols), which is a wrapper function that doesn't add *new* functionality to **Great Tables**, instead it makes a common action much easier.
+In fact, many of the functions in [**gt-extras**](https://posit-dev.github.io/gt-extras/) are wrappers. What you see above is pulled from the source code for the function [`gt_highlight_cols()`](https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols), which is a wrapper function that doesn't add *new* functionality to **Great Tables**, instead it makes a common action much easier.
 
-### Composing Functions
+### Composing
 
-A little more complex than wrapping, we can also compose functions to perform several steps, such as applying multiple styles, formatting, or themes all at once.
+A little more complex than wrapping, we can also compose methods to perform several steps, such as applying multiple styles, formatting, or themes all at once.
 
-Here's how **gt-extras** implemented the [ESPN](https://posit-dev.github.io/gt-extras/reference/gt_theme_espn) theme:
+Here's a flavor of the composed methods that **gt-extras** used in the [ESPN theme](https://posit-dev.github.io/gt-extras/reference/gt_theme_espn):
 
 ```{python}
 # | eval: False
@@ -60,11 +60,11 @@ def some_theme(gt: GT) -> GT:
     )
 ```
 
-This is where composed functions really shine. Maybe you want a very standardized look, or you want all of your tables to mimic your favorite one. Take advantage of `~~GT.tab_options()` for your own [premade themes](./table-theme-premade.qmd), with styles from any of the [table theme options](./table-theme-options.qmd) of your choosing.
+This is where composing really shine. Maybe you want a very standardized look, or you want all of your tables to mimic your favorite one. Take advantage of `~~GT.tab_options()` for your own [premade themes](./table-theme-premade.qmd), with styles from any of the [table theme options](./table-theme-options.qmd) of your choosing.
 
-### Extensions
+### Extending
 
-Let's extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate `~~GT` objects, renders them as HTML using `~~GT.as_raw_html()`, and then wraps them in custom HTML structure to create a side-by-side layout, which would not be possible with **Great Tables** methods alone.
+Let's extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate `~~GT` objects, renders them as HTML using `~~GT.as_raw_html()`, and then joins them in custom HTML structure, which would not be possible with **Great Tables** methods alone.
 
 ```{python}
 # | eval: False
@@ -75,9 +75,9 @@ def double_table(gt1: GT, gt2: GT) -> str:
     return f"""<div>{table_1_html}</div><div>{table_2_html}</div>"""
 ```
 
-Again, this is a facet of the **gt-extras** function which extends the customizing of tables, [`gt_two_column_layout()`](https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout) does a little more heavy lifting than **Great Tables** itself supports. Notice this time it is new behavior we're adding.
+Again, this is a sneak peek of the **gt-extras** function, [`gt_two_column_layout()`](https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout), which does a little more heavy lifting than **Great Tables** itself supports. Notice this time it is new behavior we're adding.
 
-## Extension Plots
+## Extending with Plots
 
 Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some plotting is already built in, called [nanoplots](nanoplots.qmd). But there are endless plot types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
 
@@ -100,7 +100,7 @@ gt.fmt(fns=create_my_plot, columns="my_data_column")
 
 Check out this [blog post](../blog/plots-in-tables/index.qmd)  for a deeper dive into different approaches for creating plots in tables.
 
-## Extension Icons
+## Extending with Icons
 
 They say a picture is worth a thousand words. So maybe you want to take `~~GT.fmt_icon()` and run with it, but with your own custom icon sets or specialized styling needs. For example:
 
@@ -111,10 +111,8 @@ Here's an example of how you might create a custom icon extension that maps nume
 
 ```{python}
 # | eval: False
-def fmt_star_rating(filled_stars: int, max_stars=5):
-    empty_stars = max_stars - filled_stars
-
-    star_html = "★" * filled_stars + "☆" * empty_stars
+def fmt_star_rating(filled_stars: int):
+    star_html = "★" * filled_stars
     return f'<span style="color: gold; font-size: 18px;">{star_html}</span>'
 
 
@@ -128,8 +126,8 @@ For some inspiration on ways to extend **Great Tables**, check out [**gt-extras*
 
 | Function |   Type   |
 |----------|----------|
-| [gt_plt_bar](https://posit-dev.github.io/gt-extras/reference/gt_plt_bar) | Extension |
-| [gt_color_box](https://posit-dev.github.io/gt-extras/reference/gt_color_box) | Extension |
-| [gt_data_color_by_group](https://posit-dev.github.io/gt-extras/reference/gt_data_color_by_group) | Wrapper |
-| [gt_add_divider](https://posit-dev.github.io/gt-extras/reference/gt_add_divider) | Wrapper |
-| [gt_theme_538](https://posit-dev.github.io/gt-extras/reference/gt_theme_538) | Composite |
+| [gt_plt_bar](https://posit-dev.github.io/gt-extras/reference/gt_plt_bar) | Extend |
+| [gt_color_box](https://posit-dev.github.io/gt-extras/reference/gt_color_box) | Extend |
+| [gt_data_color_by_group](https://posit-dev.github.io/gt-extras/reference/gt_data_color_by_group) | Wrap |
+| [gt_add_divider](https://posit-dev.github.io/gt-extras/reference/gt_add_divider) | Wrap |
+| [gt_theme_538](https://posit-dev.github.io/gt-extras/reference/gt_theme_538) | Compose |
