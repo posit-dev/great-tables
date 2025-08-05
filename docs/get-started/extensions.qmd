@@ -32,15 +32,9 @@ def highlight_cols(gt: GT, columns: SelectExpr) -> GT:
         loc.column_labels(columns=columns),
     ]
 
-    styles = [
-        style.fill(color="lightblue"),
-        style.borders(color="lightblue"),
-        style.text(weight="bold", color="black"),
-    ]
-
     # Make the wrapped tab_style call
     return gt.tab_style(
-        style=styles,
+        style=style.fill(color="lightblue"),
         locations=locations,
     )
 ```
@@ -55,26 +49,14 @@ Here's how **gt-extras** implemented the [ESPN](https://posit-dev.github.io/gt-e
 
 ```{python}
 # | eval: False
-def espn_theme(gt: GT) -> GT:
+def some_theme(gt: GT) -> GT:
     return (
         gt.opt_all_caps()
-        .opt_table_font(font=google_font("Lato"), weight=400)
+        .opt_table_font(
+            font=google_font("Lato"),
+            weight=400,
+        )
         .opt_row_striping()
-        .tab_style(
-            style=style.text(weight="bold"),
-            locations=loc.column_header(),
-        )
-        .tab_options(
-            row_striping_background_color="#fafafa",
-            table_body_hlines_color="#f6f7f7",
-            source_notes_font_size="12px",
-            table_font_size="16px",
-            heading_align="left",
-            heading_title_font_size="24px",
-            table_border_top_color="white",
-            table_border_top_width="3px",
-            data_row_padding="7px",
-        )
     )
 ```
 
@@ -87,27 +69,10 @@ Let's extend the post-processing step by building an HTML string containing two 
 ```{python}
 # | eval: False
 def double_table(gt1: GT, gt2: GT) -> str:
-    header_html = "Combined Table"
     table_1_html = gt1.as_raw_html()
     table_2_html = gt2.as_raw_html()
 
-    # Great Tables is extended via supplemental html
-    double_table_html = f"""
-        <div style="display: flex; justify-content: center; width: 100%;">
-            <div id="mycombinedtable" style="display: inline-block; width: auto;">
-                {header_html}
-                <div style="overflow: auto; white-space: nowrap;">
-                    <div style="display: inline-block; margin-right: 1em;">
-                        {table_1_html}
-                    </div>
-                    <div style="display: inline-block;">
-                        {table_2_html}
-                    </div>
-                </div>
-            </div>
-        </div>
-        """
-    return double_table_html
+    return f"""<div>{table_1_html}</div><div>{table_2_html}</div>"""
 ```
 
 Again, this is a facet of the **gt-extras** function which extends the customizing of tables, [`gt_two_column_layout()`](https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout) does a little more heavy lifting than **Great Tables** itself supports. Notice this time it is new behavior we're adding.
