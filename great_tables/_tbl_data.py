@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     PlNull = pl.Null
 
     NpNan = np.nan
+    NpInteger = np.integer
 
     DataFrameLike = Union[PdDataFrame, PlDataFrame, PyArrowTable]
     SeriesLike = Union[PdSeries, PlSeries, PyArrowArray, PyArrowChunkedArray]
@@ -85,6 +86,9 @@ else:
 
     class NpNan(AbstractBackend):
         _backends = [("numpy", "nan")]
+
+    class NpInteger(AbstractBackend):
+        _backends = [("numpy", "integer")]
 
     # TODO: these types are imported throughout gt, so we need to either put
     # those imports under TYPE_CHECKING, or continue to make available dynamically here.
