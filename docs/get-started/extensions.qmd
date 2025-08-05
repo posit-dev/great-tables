@@ -64,7 +64,19 @@ This is where composing really shines. Maybe you want a very standardized look, 
 
 ### Extending
 
-Let's extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate `~~GT` objects, renders them as HTML using `~~GT.as_raw_html()`, and then joins them in custom HTML structure, which would not be possible with **Great Tables** methods alone.
+Perhaps the most complex, this involves new behavior not supported by **Great Tables** methods alone. Formatting values is a common way to do this:
+
+```{python}
+# | eval: false
+def fmt_threshold(gt, columns, threshold: float):
+    """Format values to 0 if they are under threshold.""""
+    def _truncate(val: float)
+        return "0" if val < threshold else str(val)
+
+    return gt.fmt(_truncate, columns)
+```
+
+Alternatively, we can extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate `~~GT` objects, renders them as HTML using `~~GT.as_raw_html()`, and then joins them in custom HTML structure, which would not be possible with **Great Tables** methods alone.
 
 ```{python}
 # | eval: False
