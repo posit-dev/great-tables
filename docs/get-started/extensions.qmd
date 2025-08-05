@@ -8,7 +8,7 @@ The **Great Tables** package boasts a diverse range of methods for creating beau
 
 But what happens when there's something you want to add to your table, and it's not directly supported by **Great Tables**? Let's say you have a very specific use case for your great table, so it's not necessarily broad enough to [contribute to the package](contributing.qmd). Or maybe it *is* generalizable, but implementing it is beyond the scope of your current project. Not every feature fits neatly into a pull request.
 
-[**gt-extras**](https://posit-dev.github.io/gt-extras/) is a great case study in this, filling some table goals that aren't supported by **Great Tables** directly.
+[**gt-extras**](https://posit-dev.github.io/gt-extras/) is a great case study in this, filling your table desires that aren't supported by **Great Tables** directly.
 
 ## Writing an Add-on Function
 
