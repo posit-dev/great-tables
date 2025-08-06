@@ -19,7 +19,7 @@ from ._gt_data import (
     StyleInfo,
 )
 from ._styles import CellStyle
-from ._tbl_data import PlDataFrame, PlExpr, eval_select, eval_transform
+from ._tbl_data import PlDataFrame, PlExpr, eval_select, eval_transform, get_column_names
 
 if TYPE_CHECKING:
     from ._gt_data import TblData
@@ -702,10 +702,7 @@ def resolve_cols_i(
 
         # TODO: special handling of "stub()"
         if isinstance(expr, list) and any(isinstance(x, str) and x == "stub()" for x in expr):
-            if len(stub_var):
-                return [(stub_var[0], 1)]
-
-            return []
+            return [(stub_var[0], 1)] if stub_var else []
 
         # If expr is None, we want to select everything or nothing depending on
         # the value of `null_means`
@@ -715,7 +712,7 @@ def resolve_cols_i(
 
                 return [
                     (col, ii)
-                    for ii, col in enumerate(data._tbl_data.columns)
+                    for ii, col in enumerate(get_column_names(data._tbl_data))
                     if col not in cols_excl
                 ]
 
@@ -736,18 +733,18 @@ def resolve_cols_i(
             # always excluded but in certain cases (i.e., `rows_add()`)
             # we may want to include this column
             _group_vars = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
-            group_var = _group_vars[0] if len(_group_vars) else None
+            group_var = _group_vars[0] if _group_vars else None
         else:
             group_var = None
 
-        cols_excl = [stub_var, group_var]
+        cols_excl = (stub_var, group_var)
 
         tbl_data = data._tbl_data
     else:
         # I am not sure if this gets used in the R program, but it's
         # convenient for testing
         tbl_data = data
-        cols_excl = []
+        cols_excl = ()
 
     selected = eval_select(tbl_data, expr, strict)
     return [name_pos for name_pos in selected if name_pos[0] not in cols_excl]
@@ -802,7 +799,7 @@ def resolve_rows_i(
 
     elif isinstance(expr, PlExpr):
         # TODO: decide later on the name supplied to `name`
-        # with_row_index supercedes with_row_count
+        # with_row_index supersedes with_row_count
         frame: PlDataFrame = data._tbl_data
         meth_row_number = getattr(frame, "with_row_index", None)
         if not meth_row_number:

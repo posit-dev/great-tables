@@ -5,17 +5,17 @@
     <tr>
       <td class="gt_row gt_right">$1.00</td>
       <td class="gt_row gt_left">a</td>
-      <td class="gt_row gt_center">4</td>
+      <td class="gt_row gt_right">4</td>
     </tr>
     <tr>
       <td class="gt_row gt_right">$2.00</td>
       <td class="gt_row gt_left">b</td>
-      <td class="gt_row gt_center">5</td>
+      <td class="gt_row gt_right">5</td>
     </tr>
     <tr>
       <td class="gt_row gt_right">$3.00</td>
       <td class="gt_row gt_left">c</td>
-      <td class="gt_row gt_center">6</td>
+      <td class="gt_row gt_right">6</td>
     </tr>
   </tbody>
   '''
