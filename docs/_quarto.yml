@@ -55,6 +55,7 @@ website:
         - section: Extra
           contents:
             - get-started/contributing.qmd
+            - get-started/extensions.qmd
 
 format:
   html:
