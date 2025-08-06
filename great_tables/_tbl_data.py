@@ -208,6 +208,19 @@ def _(data: PyArrowTable) -> int:
     return data.num_rows
 
 
+# n_cols ----
+@singledispatch
+def n_cols(data: DataFrameLike) -> int:
+    """Get the number of columns from the input data table"""
+    raise _raise_not_implemented(data)
+
+
+@n_cols.register(PdDataFrame)
+@n_cols.register(PlDataFrame)
+def _(data: Any) -> int:
+    return len(data.columns)
+
+
 # _get_cell ----
 
 

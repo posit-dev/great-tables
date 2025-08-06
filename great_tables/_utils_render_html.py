@@ -461,6 +461,8 @@ def create_body_component_h(data: GTData) -> str:
 
     ordered_index: list[tuple[int, GroupRowInfo]] = data._stub.group_indices_map()
 
+    # Loop over rows (j)
+    # TODO: are j and i the same? If so, remove one (e.g. by setting to _)
     for j, (i, group_info) in enumerate(ordered_index):
         # For table striping we want to add a striping CSS class to the even-numbered
         # rows in the rendered table; to target these rows, determine if `i` in the current
@@ -470,7 +472,7 @@ def create_body_component_h(data: GTData) -> str:
 
         body_cells: list[str] = []
 
-        # Create table row specifically for group (if applicable)
+        # Create row for group (if applicable) -----------------------------------------------------
         if has_stub_column and has_groups and not has_two_col_stub:
             colspan_value = data._boxhead._get_effective_number_of_columns(
                 stub=data._stub, options=data._options
@@ -495,9 +497,12 @@ def create_body_component_h(data: GTData) -> str:
 
                 body_rows.append(group_row)
 
-        # Create row cells
+        # Create row cells -------------------------------------------------------------------------
         for colinfo in column_vars:
-            cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
+            # TODO: get rowspan, colspan from merge matrices
+            # TODO: set rowspan, colspan
+            # TODO: if rowspan, colspan is 0, then do not create cell
+            cell_content: str | None = _get_cell(tbl_data, i, colinfo.var)
             cell_str: str = str(cell_content)
 
             # Determine whether the current cell is the stub cell
