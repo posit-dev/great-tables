@@ -93,3 +93,113 @@ def test_cell_merges_validate_merge_cell_error_rowspan_not_zero():
 
     with pytest.raises(MergeError, match="Merging cell is already being merged on from the left"):
         merges.validate_merge_cell(0, 0, 2)
+
+
+def test_cell_merges_validate_merge_cell_error_colspan_not_zero():
+    # Merging cell is already being merged on from above (cell_colspans[0] != 0) raises an error
+    merges = CellMerges(
+        rowspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]], colspans=[[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+    )
+
+    with pytest.raises(MergeError, match="Merging cell is already being merged on from above"):
+        merges.validate_merge_cell(0, 0, 2)
+
+
+def test_cell_merges_validate_merge_cell_error_rowspan_merge_conflict():
+    # Attempting to merge on cells that are part of another merge from left raises an error
+    merges = CellMerges(
+        rowspans=[[0, 1, 1], [0, 1, 1], [1, 1, 1]], colspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]]
+    )
+
+    with pytest.raises(
+        MergeError, match="Attempting to merge on cells that are part of another merge from left"
+    ):
+        merges.validate_merge_cell(0, 0, 2)
+
+
+def test_cell_merges_validate_merge_cell_error_colspan_merge_conflict():
+    # Attempting to merge on cells that are part of another merge from above raises an error
+    merges = CellMerges(
+        rowspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]], colspans=[[0, 1, 1], [0, 1, 1], [1, 1, 1]]
+    )
+
+    with pytest.raises(
+        MergeError, match="Attempting to merge on cells that are part of another merge from above"
+    ):
+        merges.validate_merge_cell(0, 0, 2)
+
+
+def test_cell_merges_validate_merge_cell_success():
+    # this is a valid merge scenario that shouldn't raise an error
+    merges = CellMerges(
+        rowspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]], colspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]]
+    )
+
+    merges.validate_merge_cell(0, 0, 2)
+
+
+def test_cell_merges_assign_merge_value():
+    # top-left (0,0) ready for merging (value 0)
+    merges = CellMerges(
+        rowspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]], colspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]]
+    )
+    new_matrix = merges._assign_merge_value([[0, 1, 1], [1, 1, 1], [1, 1, 1]], 0, 0, 3)
+
+    assert new_matrix[0][0] == 3
+    assert new_matrix[0][1] == 1
+
+
+def test_cell_merges_with_merge_value_2():
+    # 2-cell rowspan already applied: top-left (0,0) merges with left (1,0)
+    merges = CellMerges(
+        rowspans=[[2, 1, 1], [0, 1, 1], [1, 1, 1]], colspans=[[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+    )
+
+    assert merges.rowspans[0][0] == 2
+    assert merges.rowspans[1][0] == 0
+
+
+def test_cell_merges_assign_rowspan_value_2():
+    # 2-cell rowspan: top-left (0,0) merges with left (1,0)
+    merges = CellMerges(
+        rowspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]], colspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]]
+    )
+    new_merges = merges.assign_rowspan(0, 0, 2)
+
+    assert new_merges.rowspans[0][0] == 2
+    assert new_merges.rowspans[1][0] == 0
+
+
+def test_cell_merges_assign_colspan_value_2():
+    # 2-cell colspan: top-left (0,0) merges with top (0,1)
+    merges = CellMerges(
+        rowspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]], colspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]]
+    )
+    new_merges = merges.assign_colspan(0, 0, 2)
+
+    assert new_merges.colspans[0][0] == 2
+    assert new_merges.colspans[0][1] == 0
+
+
+def test_cell_merges_assign_rowspan_value_3():
+    # 3-cell rowspan: top-left (0,0) merges with left (1,0) and bottom-left (2,0)
+    merges = CellMerges(
+        rowspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]], colspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]]
+    )
+    new_merges = merges.assign_rowspan(0, 0, 3)
+
+    assert new_merges.rowspans[0][0] == 3
+    assert new_merges.rowspans[1][0] == 0
+    assert new_merges.rowspans[2][0] == 0
+
+
+def test_cell_merges_assign_colspan_value_3():
+    # 3-cell colspan: top-left (0,0) merges with top (0,1) and top-right (0,2)
+    merges = CellMerges(
+        rowspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]], colspans=[[0, 1, 1], [1, 1, 1], [1, 1, 1]]
+    )
+    new_merges = merges.assign_colspan(0, 0, 3)
+
+    assert new_merges.colspans[0][0] == 3
+    assert new_merges.colspans[0][1] == 0
+    assert new_merges.colspans[0][2] == 0
