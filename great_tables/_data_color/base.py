@@ -344,6 +344,7 @@ def _alpha_composite_with_white(color: str) -> str:
     result_b = max(0, min(255, result_b))
 
     # Convert back to hex format
+    # TODO: After refactor, use rgb_to_hex (now in palettes.py)
     return f"#{result_r:02X}{result_g:02X}{result_b:02X}"
 
 
