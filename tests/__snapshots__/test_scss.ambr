@@ -274,7 +274,7 @@
   
   #abc .gt_striped {
     color: #333333;
-    background-color: #FFFFFF;
+    background-color: #F4F4F4;
   }
   
   #abc .gt_table_body {
