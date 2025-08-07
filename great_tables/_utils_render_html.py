@@ -437,6 +437,7 @@ def create_body_component_h(data: GTData) -> str:
     column_vars = data._boxhead._get_default_columns()
 
     stub_var = data._boxhead._get_stub_column()
+    row_group_var = data._boxhead._get_row_group_column()
 
     stub_layout = data._stub._get_stub_layout(options=data._options)
 
@@ -447,6 +448,10 @@ def create_body_component_h(data: GTData) -> str:
     # If there is a stub, then prepend that to the `column_vars` list
     if stub_var is not None:
         column_vars = [stub_var] + column_vars
+
+    # If there is a row group stub, then prepend that to the `column_vars` list
+    if has_stub_column and has_groups and has_two_col_stub:
+        column_vars = [row_group_var] + column_vars
 
     # Is the stub to be striped?
     table_stub_striped = data._options.row_striping_include_stub.value
@@ -503,8 +508,10 @@ def create_body_component_h(data: GTData) -> str:
             # Determine whether the current cell is the stub cell
             if has_stub_column:
                 is_stub_cell = colinfo.var == stub_var.var
+                is_row_group_cell = colinfo.var == row_group_var.var
             else:
                 is_stub_cell = False
+                is_row_group_cell = False
 
             # Get alignment for the current column from the `col_alignment` list
             # by using the `name` value to obtain the index of the alignment value
@@ -514,7 +521,7 @@ def create_body_component_h(data: GTData) -> str:
             # `styles_cells` list for the current row and column
             _body_styles = [x for x in styles_cells if x.rownum == i and x.colname == colinfo.var]
 
-            if is_stub_cell:
+            if is_stub_cell or is_row_group_cell:
                 el_name = "th"
 
                 classes = ["gt_row", "gt_left", "gt_stub"]
@@ -523,6 +530,10 @@ def create_body_component_h(data: GTData) -> str:
 
                 if table_stub_striped and odd_j_row:
                     classes.append("gt_striped")
+
+                # Leave row_group_cell blank if this is now the first row of data within the group
+                if is_row_group_cell and group_info is prev_group_info:
+                    cell_str = ""
 
             else:
                 el_name = "td"
