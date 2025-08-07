@@ -527,8 +527,8 @@ def create_body_component_h(data: GTData) -> str:
             # Determine whether the current cell is the stub cell
             if has_stub_column:
                 is_stub_cell = colinfo.var == stub_var.var
-                if has_groups and has_two_col_stub:
-                    is_row_group_cell = colinfo.var == row_group_var.var
+            if has_groups and has_two_col_stub:
+                is_row_group_cell = colinfo.var == row_group_var.var
 
             # Get alignment for the current column from the `col_alignment` list
             # by using the `name` value to obtain the index of the alignment value
@@ -541,9 +541,19 @@ def create_body_component_h(data: GTData) -> str:
             if is_stub_cell or is_row_group_cell:
                 el_name = "th"
 
-                classes = ["gt_row", "gt_left", "gt_stub"]
+                classes = ["gt_row", "gt_left"]
 
-                _rowname_styles = [x for x in styles_row_label if x.rownum == i]
+                # Handle stub cell and row_group_cells differently,
+                # in the case of row_group_as_column == True
+                if is_stub_cell:
+                    _rowname_styles = [x for x in styles_row_label if x.rownum == i]
+                    classes.append("gt_stub")
+
+                if is_row_group_cell and group_info is not prev_group_info:
+                    _rowname_styles = [
+                        x for x in styles_row_group_label if group_info.group_id in x.grpname
+                    ]
+                    classes.append("gt_group_heading")
 
                 if table_stub_striped and odd_j_row:
                     classes.append("gt_striped")
