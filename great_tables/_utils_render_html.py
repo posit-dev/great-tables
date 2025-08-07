@@ -166,14 +166,30 @@ def create_columns_component_h(data: GTData) -> str:
     if spanner_row_count == 0:
         # Create the cell for the stubhead label
         if stub_layout:
+            if "group_label" in stub_layout:
+                len_without_group_label = len(stub_layout) - 1
+                table_col_headings.append(
+                    tags.th(
+                        None,
+                        class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
+                        rowspan="1",
+                        colspan=len_without_group_label,
+                        style=_flatten_styles(styles_stubhead),
+                        scope="colgroup" if len_without_group_label > 1 else "col",
+                        id=_create_element_id(table_id, "group_label"),  # TODO: incomplete id
+                    )
+                )
+            else:
+                len_without_group_label = len(stub_layout)
+
             table_col_headings.append(
                 tags.th(
                     HTML(_process_text(stub_label)),
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
                     rowspan="1",
-                    colspan=len(stub_layout),
+                    colspan=len_without_group_label,
                     style=_flatten_styles(styles_stubhead),
-                    scope="colgroup" if len(stub_layout) > 1 else "col",
+                    scope="colgroup" if len_without_group_label > 1 else "col",
                     id=_create_element_id(table_id, stub_label),
                 )
             )
