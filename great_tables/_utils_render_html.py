@@ -538,6 +538,7 @@ def create_body_component_h(data: GTData) -> str:
             # `styles_cells` list for the current row and column
             _body_styles = [x for x in styles_cells if x.rownum == i and x.colname == colinfo.var]
 
+            # TODO: These should probably be independent cases
             if is_stub_cell or is_row_group_cell:
                 el_name = "th"
 
@@ -548,19 +549,22 @@ def create_body_component_h(data: GTData) -> str:
                 if is_stub_cell:
                     _rowname_styles = [x for x in styles_row_label if x.rownum == i]
                     classes.append("gt_stub")
+                    _rowspan_attr = ""
 
-                if is_row_group_cell and group_info is not prev_group_info:
+                elif is_row_group_cell and group_info is not prev_group_info:
                     _rowname_styles = [
                         x for x in styles_row_group_label if group_info.group_id in x.grpname
                     ]
                     classes.append("gt_group_heading")
+                    _rowspan_attr = f'rowspan="{len(group_info.indices)}"'
+
+                # This case is: is_row_group_cell and group_info is prev_group_info:
+                # We don't want to add a cell in this case
+                else:
+                    continue
 
                 if table_stub_striped and odd_j_row:
                     classes.append("gt_striped")
-
-                # Leave row_group_cell blank if this is now the first row of data within the group
-                if is_row_group_cell and group_info is prev_group_info:
-                    cell_str = ""
 
             else:
                 el_name = "td"
@@ -568,6 +572,8 @@ def create_body_component_h(data: GTData) -> str:
                 classes = ["gt_row", f"gt_{cell_alignment}"]
 
                 _rowname_styles = []
+
+                _rowspan_attr = ""
 
                 if table_body_striped and odd_j_row:
                     classes.append("gt_striped")
@@ -580,7 +586,7 @@ def create_body_component_h(data: GTData) -> str:
             )
 
             body_cells.append(
-                f"""    <{el_name}{cell_styles} class="{classes}">{cell_str}</{el_name}>"""
+                f"""    <{el_name}{cell_styles} class="{classes}"{_rowspan_attr}>{cell_str}</{el_name}>"""
             )
 
         prev_group_info = group_info
