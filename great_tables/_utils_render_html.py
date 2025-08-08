@@ -436,17 +436,17 @@ def create_body_component_h(data: GTData) -> str:
     # Get the default column vars
     column_vars = data._boxhead._get_default_columns()
 
-    stub_var = data._boxhead._get_stub_column()
+    row_stub_var = data._boxhead._get_stub_column()
 
     stub_layout = data._stub._get_stub_layout(options=data._options)
 
-    has_stub_column = "rowname" in stub_layout
-    has_two_col_stub = "group_label" in stub_layout
+    has_row_stub_column = "rowname" in stub_layout
+    has_group_stub_column = "group_label" in stub_layout
     has_groups = data._stub.group_ids is not None and len(data._stub.group_ids) > 0
 
     # If there is a stub, then prepend that to the `column_vars` list
-    if stub_var is not None:
-        column_vars = [stub_var] + column_vars
+    if row_stub_var is not None:
+        column_vars = [row_stub_var] + column_vars
 
     # Is the stub to be striped?
     table_stub_striped = data._options.row_striping_include_stub.value
@@ -471,7 +471,7 @@ def create_body_component_h(data: GTData) -> str:
         body_cells: list[str] = []
 
         # Create table row specifically for group (if applicable)
-        if has_stub_column and has_groups and not has_two_col_stub:
+        if has_row_stub_column and has_groups and not has_group_stub_column:
             colspan_value = data._boxhead._get_effective_number_of_columns(
                 stub=data._stub, options=data._options
             )
@@ -501,8 +501,8 @@ def create_body_component_h(data: GTData) -> str:
             cell_str: str = str(cell_content)
 
             # Determine whether the current cell is the stub cell
-            if has_stub_column:
-                is_stub_cell = colinfo.var == stub_var.var
+            if has_row_stub_column:
+                is_stub_cell = colinfo.var == row_stub_var.var
             else:
                 is_stub_cell = False
 
