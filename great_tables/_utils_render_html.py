@@ -478,7 +478,12 @@ def create_body_component_h(data: GTData) -> str:
 
             # Only create if this is the first row of data within the group
             if group_info is not prev_group_info:
-                group_label = group_info.defaulted_label()
+                # Fetch group label from _tbl_data
+                # since fmt functions have been applied at this point
+                rowgroup_var = data._boxhead._get_row_group_column()
+                cell_content: Any = _get_cell(tbl_data, i, rowgroup_var.var)
+                group_label: str = str(cell_content)
+
                 group_class = (
                     "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
                 )
