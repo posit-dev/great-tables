@@ -528,7 +528,6 @@ def create_body_component_h(data: GTData) -> str:
             # `styles_cells` list for the current row and column
             _body_styles = [x for x in styles_cells if x.rownum == i and x.colname == colinfo.var]
 
-            # TODO: These should probably be independent cases
             if is_stub_cell:
                 el_name = "th"
 
