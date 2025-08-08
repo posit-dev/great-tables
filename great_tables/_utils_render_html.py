@@ -471,7 +471,7 @@ def create_body_component_h(data: GTData) -> str:
         body_cells: list[str] = []
 
         # Create table row specifically for group (if applicable)
-        if has_row_stub_column and has_groups and not has_group_stub_column:
+        if has_groups and not has_group_stub_column:
             colspan_value = data._boxhead._get_effective_number_of_columns(
                 stub=data._stub, options=data._options
             )
