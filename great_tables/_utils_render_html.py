@@ -437,7 +437,6 @@ def create_body_component_h(data: GTData) -> str:
     column_vars = data._boxhead._get_default_columns()
 
     stub_var = data._boxhead._get_stub_column()
-    row_group_var = data._boxhead._get_row_group_column()
 
     stub_layout = data._stub._get_stub_layout(options=data._options)
 
@@ -448,10 +447,6 @@ def create_body_component_h(data: GTData) -> str:
     # If there is a stub, then prepend that to the `column_vars` list
     if stub_var is not None:
         column_vars = [stub_var] + column_vars
-
-    # If there is a row group stub, then prepend that to the `column_vars` list
-    if has_stub_column and has_groups and has_two_col_stub:
-        column_vars = [row_group_var] + column_vars
 
     # Is the stub to be striped?
     table_stub_striped = data._options.row_striping_include_stub.value
@@ -475,18 +470,11 @@ def create_body_component_h(data: GTData) -> str:
 
         body_cells: list[str] = []
 
-        # Create table row specifically for group (if applicable)
-        if has_stub_column and has_groups and not has_two_col_stub:
-            colspan_value = data._boxhead._get_effective_number_of_columns(
-                stub=data._stub, options=data._options
-            )
-
+        # Create table row or label in the stub specifically for group (if applicable)
+        if has_stub_column and has_groups:
             # Only create if this is the first row of data within the group
             if group_info is not prev_group_info:
                 group_label = group_info.defaulted_label()
-                group_class = (
-                    "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
-                )
 
                 _styles = [
                     style
@@ -494,25 +482,43 @@ def create_body_component_h(data: GTData) -> str:
                     if group_info.group_id in style.grpname
                 ]
                 group_styles = _flatten_styles(_styles, wrap=True)
-                group_row = f"""  <tr class="{group_class}">
+
+                # Add group label that spans multiple columns when row_group_as_column is true
+                # Note - this is brittle, and will only work if rowname_col is also set
+                if has_two_col_stub:
+                    rowspan_value = len(group_info.indices)
+
+                    body_cells.append(
+                        f"""  <th{group_styles} class="gt_row gt_left gt_stub_row_group"
+    rowspan="{rowspan_value}">{group_label}</th>"""
+                    )
+
+                # Append a table row for the group heading
+                else:
+                    colspan_value = data._boxhead._get_effective_number_of_columns(
+                        stub=data._stub, options=data._options
+                    )
+
+                    group_class = (
+                        "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
+                    )
+
+                    group_row = f"""  <tr class="{group_class}">
     <th class="gt_group_heading" colspan="{colspan_value}"{group_styles}>{group_label}</th>
   </tr>"""
 
-                body_rows.append(group_row)
+                    body_rows.append(group_row)
 
         # Create row cells
         for colinfo in column_vars:
             cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
             cell_str: str = str(cell_content)
 
-            is_row_group_cell = False
-            is_stub_cell = False
-
             # Determine whether the current cell is the stub cell
             if has_stub_column:
                 is_stub_cell = colinfo.var == stub_var.var
-            if has_groups and has_two_col_stub:
-                is_row_group_cell = colinfo.var == row_group_var.var
+            else:
+                is_stub_cell = False
 
             # Get alignment for the current column from the `col_alignment` list
             # by using the `name` value to obtain the index of the alignment value
@@ -523,29 +529,12 @@ def create_body_component_h(data: GTData) -> str:
             _body_styles = [x for x in styles_cells if x.rownum == i and x.colname == colinfo.var]
 
             # TODO: These should probably be independent cases
-            if is_stub_cell or is_row_group_cell:
+            if is_stub_cell:
                 el_name = "th"
 
-                classes = ["gt_row", "gt_left"]
+                classes = ["gt_row", "gt_left", "gt_stub"]
 
-                # Handle stub cell and row_group_cells differently,
-                # in the case of row_group_as_column == True
-                if is_stub_cell:
-                    _rowname_styles = [x for x in styles_row_label if x.rownum == i]
-                    classes.append("gt_stub")
-                    _rowspan_attr = ""
-
-                elif is_row_group_cell and group_info is not prev_group_info:
-                    _rowname_styles = [
-                        x for x in styles_row_group_label if group_info.group_id in x.grpname
-                    ]
-                    classes.append("gt_group_heading")
-                    _rowspan_attr = f'rowspan="{len(group_info.indices)}"'
-
-                # This case is: is_row_group_cell and group_info is prev_group_info:
-                # We don't want to add a cell in this case
-                else:
-                    continue
+                _rowname_styles = [x for x in styles_row_label if x.rownum == i]
 
                 if table_stub_striped and odd_j_row:
                     classes.append("gt_striped")
@@ -556,8 +545,6 @@ def create_body_component_h(data: GTData) -> str:
                 classes = ["gt_row", f"gt_{cell_alignment}"]
 
                 _rowname_styles = []
-
-                _rowspan_attr = ""
 
                 if table_body_striped and odd_j_row:
                     classes.append("gt_striped")
@@ -570,7 +557,7 @@ def create_body_component_h(data: GTData) -> str:
             )
 
             body_cells.append(
-                f"""    <{el_name}{cell_styles} class="{classes}"{_rowspan_attr}>{cell_str}</{el_name}>"""
+                f"""    <{el_name}{cell_styles} class="{classes}">{cell_str}</{el_name}>"""
             )
 
         prev_group_info = group_info
