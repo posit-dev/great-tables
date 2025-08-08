@@ -8,7 +8,7 @@ from htmltools import HTML, TagList, css, tags
 from . import _locations as loc
 from ._gt_data import GroupRowInfo, GTData, Styles
 from ._spanners import spanners_print_matrix
-from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
+from ._tbl_data import _get_cell, cast_frame_to_string, is_na, replace_null_frame
 from ._text import BaseText, _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
@@ -478,11 +478,14 @@ def create_body_component_h(data: GTData) -> str:
 
             # Only create if this is the first row of data within the group
             if group_info is not prev_group_info:
-                # Fetch group label from _tbl_data
+                group_label = group_info.defaulted_label()
+
+                # If we have a group_label, fetch group label from _tbl_data
                 # since fmt functions have been applied at this point
-                rowgroup_var = data._boxhead._get_row_group_column()
-                cell_content: Any = _get_cell(tbl_data, i, rowgroup_var.var)
-                group_label: str = str(cell_content)
+                if not is_na(tbl_data, group_label):
+                    rowgroup_var = data._boxhead._get_row_group_column()
+                    cell_content: Any = _get_cell(tbl_data, i, rowgroup_var.var)
+                    group_label: str = str(cell_content)
 
                 group_class = (
                     "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
