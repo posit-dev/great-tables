@@ -1,10 +1,9 @@
 from __future__ import annotations
 
+import random
 from typing import Any, Callable
 
-import numpy as np
-
-from ._tbl_data import Agnostic, is_na
+from ._tbl_data import Agnostic, NpInteger, is_na
 from ._utils import _flatten_list, _match_arg
 
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
@@ -56,7 +55,7 @@ def _is_integerlike(val_list: list[Any]) -> bool:
     if not val_list:
         return False
 
-    return all((isinstance(val, (int, np.integer)) or _is_na(val)) for val in val_list)
+    return all((isinstance(val, (int, NpInteger)) or _is_na(val)) for val in val_list)
 
 
 def _any_na_in_list(x: list[Any]) -> bool:
@@ -392,22 +391,21 @@ def _generate_ref_line_from_keyword(vals: list[int | float], keyword: str) -> in
     return ref_line
 
 
-def _normalize_vals(x: list[int] | list[float] | list[int | float]) -> list[int | float]:
+def _normalize_vals(x: list[int] | list[float] | list[int | float]) -> list[float | None]:
     """
     Normalize a list of numeric values to be between 0 and 1. Account for missing values.
     """
 
     x_missing = [i for i, val in enumerate(x) if _is_na(val)]
-    mean_x = np.mean([val for val in x if not _is_na(val)])
-    x = [mean_x if _is_na(val) else val for val in x]
-    x = np.array(x)
-    min_attr = np.min(x, axis=0)
-    max_attr = np.max(x, axis=0)
-    x = x - min_attr
-    x = x / (max_attr - min_attr)
-    x = x.tolist()
-    x = [np.nan if i in x_missing else val for i, val in enumerate(x)]
-    return x
+    mean_x: float = sum(val for val in x if not _is_na(val)) / sum(
+        1 for val in x if not _is_na(val)
+    )
+    x: list[float] = [mean_x if _is_na(val) else val for val in x]
+    min_attr: float = min(x)
+    max_attr: float = max(x)
+    xmin: list[float] = [val - min_attr for val in x]
+    xover_diff: list[float] = [x / (max_attr - min_attr) for x in xmin]
+    return [None if i in x_missing else val for i, val in enumerate(xover_diff)]
 
 
 # TODO: example nanoplot showing when jitter vals might be applied
@@ -418,7 +416,7 @@ def _jitter_vals(x: list[int | float], amount: float) -> list[int | float]:
     Jitter a list of numeric values by a small amount.
     """
 
-    return [val + np.random.uniform(-amount, amount) for val in x]
+    return [val + random.uniform(-amount, amount) for val in x]
 
 
 def _normalize_to_dict(**kwargs: list[int | float]) -> dict[str, list[int | float]]:
@@ -926,7 +924,7 @@ def _generate_nanoplot(
         x_proportions = x_proportions_list["vals"]
 
     else:
-        x_proportions = np.linspace(0, 1, num_y_vals)
+        x_proportions = [i / (num_y_vals - 1) if num_y_vals > 1 else 0 for i in range(num_y_vals)]
 
     #
     # Create normalized (and inverted for SVG) data `x` and `y` values for the
