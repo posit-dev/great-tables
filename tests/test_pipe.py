@@ -1,11 +1,11 @@
-from typing import TYPE_CHECKING
+from __future__ import annotations
+
 import polars as pl
 
 from great_tables import GT
 
-if TYPE_CHECKING:
-    from great_tables._text import BaseText
-    from great_tables._tbl_data import SelectExpr
+from great_tables._text import BaseText
+from great_tables._tbl_data import SelectExpr
 
 
 def test_pipe() -> None:
