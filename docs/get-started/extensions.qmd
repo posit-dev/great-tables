@@ -1,0 +1,145 @@
+---
+title: Extending Great Tables
+format: html
+---
+
+<!-- Intro -->
+The **Great Tables** package boasts a diverse range of methods for creating beautiful tables. With no shortage of tools, styles, formats and themes, you can produce a very wide range of tables. If you haven't yet, head over to the [examples gallery](../examples/index.qmd) for a flavor of the variety that is possible.
+
+But what happens when there's something you want to add to your table, and it's not directly supported by **Great Tables**? Let's say you have a very specific use case for your great table, so it's not necessarily broad enough to [contribute to the package](contributing.qmd). Or maybe it *is* generalizable, but implementing it is beyond the scope of your current project. Not every feature fits neatly into a pull request.
+
+[**gt-extras**](https://posit-dev.github.io/gt-extras/) is a great case study in this, filling your table desires that aren't supported by **Great Tables** directly.
+
+## Writing an Add-on Function
+
+When adding to **Great Tables**, you have three main approaches: *wrapping*, *extending*, and what we might call *composing*.
+
+- **Wrapping** is when you simplify existing functionality by bundling common parameter combinations. It doesn't add new capabilities, instead makes specific or complex styling tasks more accessible.
+- **Composing** multiple methods into a single function, allowing you to build more complex table logic or reusable patterns.
+- **Extending**, on the other hand, adds new functionality by adding behavior beyond built-in methods. This could include processing data outside the package, or generating custom content (like HTML or images), that gets integrated into your table.
+
+All approaches are valuable contributions to the **Great Tables** ecosystem, and the choice between them depends on whether you're making it easier to access existing tooling or creating entirely new capabilities.
+
+### Wrapping
+
+Let's wrap `~~GT.tab_style()` to perform a specific action supported by the general function. `~~GT.tab_style()` takes `locations=` and `style=` parameters, so let's assign those. Something this lightweight might be useful for someone who knows what effect they want, but doesn't want to investigate the entire space of options for styling.
+
+```{python}
+# | eval: False
+def highlight_cols(gt: GT, columns: SelectExpr) -> GT:
+    locations = [
+        loc.body(columns=columns),
+        loc.column_labels(columns=columns),
+    ]
+
+    # Make the wrapped tab_style call
+    return gt.tab_style(
+        style=style.fill(color="lightblue"),
+        locations=locations,
+    )
+```
+
+In fact, many of the functions in [**gt-extras**](https://posit-dev.github.io/gt-extras/) are wrappers. What you see above is pulled from the source code for the function [`gt_highlight_cols()`](https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols), which is a wrapper function that doesn't add *new* functionality to **Great Tables**, instead it makes a common action much easier.
+
+### Composing
+
+A little more complex than wrapping, we can also compose methods to perform several steps, such as applying multiple styles, formatting, or themes all at once.
+
+Here's a flavor of the composed methods that **gt-extras** used in the [ESPN theme](https://posit-dev.github.io/gt-extras/reference/gt_theme_espn):
+
+```{python}
+# | eval: False
+def some_theme(gt: GT) -> GT:
+    return (
+        gt.opt_all_caps()
+        .opt_table_font(
+            font=google_font("Lato"),
+            weight=400,
+        )
+        .opt_row_striping()
+    )
+```
+
+This is where composing really shines. Maybe you want a very standardized look, or you want all of your tables to mimic your favorite one. Take advantage of `~~GT.tab_options()` for your own [premade themes](./table-theme-premade.qmd), with styles from any of the [table theme options](./table-theme-options.qmd) of your choosing.
+
+### Extending
+
+Perhaps the most complex, this involves new behavior not supported by **Great Tables** methods alone. Formatting values is a common way to do this:
+
+```{python}
+# | eval: false
+def fmt_threshold(gt, columns, threshold: float):
+    """Format values to 0 if they are under threshold.""""
+    def _truncate(val: float)
+        return "0" if val < threshold else str(val)
+
+    return gt.fmt(_truncate, columns)
+```
+
+Alternatively, we can extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate `~~GT` objects, renders them as HTML using `~~GT.as_raw_html()`, and then joins them in custom HTML structure, which would not be possible with **Great Tables** methods alone.
+
+```{python}
+# | eval: False
+def double_table(gt1: GT, gt2: GT) -> str:
+    table_1_html = gt1.as_raw_html()
+    table_2_html = gt2.as_raw_html()
+
+    return f"""<div>{table_1_html}</div><div>{table_2_html}</div>"""
+```
+
+Again, this is a sneak peek of the **gt-extras** function, [`gt_two_column_layout()`](https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout), which does a little more heavy lifting than **Great Tables** itself supports. This time, we're adding new behavior.
+
+## Extending with Plots
+
+Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some plotting is already built in, called [nanoplots](nanoplots.qmd). But there are endless plot types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
+
+The key to adding custom plots to your tables is using `~~GT.fmt()` with a function that converts your data values into visual representations. Your formatting function should take a value from your table and return an HTML string containing your plot – whether that's an SVG, a series of styled `<div>` elements, or even embedded images.
+
+Here's a basic pattern for a plot extension:
+
+```{python}
+# | eval: False
+def create_my_plot(value):
+    # Transform the data value into a visual representation
+    # This could use any plotting library or even pure HTML/CSS
+    plot_html = f"<svg>...</svg>"  # Your plot generation logic here
+    return plot_html
+
+
+# Apply to your table
+gt.fmt(fns=create_my_plot, columns="my_data_column")
+```
+
+Check out this [blog post](../blog/plots-in-tables/index.qmd)  for a deeper dive into different approaches for creating plots in tables.
+
+## Extending with Icons
+
+They say a picture is worth a thousand words. Maybe you want to take `~~GT.fmt_icon()` and run with it, but with your own custom icon sets or specialized styling needs. For example:
+
+- *Create domain-specific icon mappings:* Automatically map data values to meaningful icons (like status indicators, ratings, or categories)
+- *Apply custom styling:* Add animations, colors, or hover effects to your icons
+
+Here's an example of how you might create a custom icon extension that maps numerical ratings to star icons:
+
+```{python}
+# | eval: False
+def fmt_star_rating(filled_stars: int):
+    star_html = "★" * filled_stars
+    return f'<span style="color: gold; font-size: 18px;">{star_html}</span>'
+
+
+# Apply to your table, again `fmt()` comes in handy!
+gt.fmt(fns=fmt_star_rating, columns="my_data_column")
+```
+
+## Beyond
+
+For inspiration on ways to extend **Great Tables**, check out [**gt-extras**](https://posit-dev.github.io/gt-extras/) and its [source code](https://github.com/posit-dev/gt-extras).
+
+| Function |   Type   |
+|----------|----------|
+| [gt_plt_bar](https://posit-dev.github.io/gt-extras/reference/gt_plt_bar) | Extend |
+| [gt_color_box](https://posit-dev.github.io/gt-extras/reference/gt_color_box) | Extend |
+| [gt_data_color_by_group](https://posit-dev.github.io/gt-extras/reference/gt_data_color_by_group) | Wrap |
+| [gt_add_divider](https://posit-dev.github.io/gt-extras/reference/gt_add_divider) | Wrap |
+| [gt_theme_538](https://posit-dev.github.io/gt-extras/reference/gt_theme_538) | Compose |

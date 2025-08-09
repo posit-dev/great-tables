@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     PlNull = pl.Null
 
     NpNan = np.nan
+    NpInteger = np.integer
 
     DataFrameLike = Union[PdDataFrame, PlDataFrame, PyArrowTable]
     SeriesLike = Union[PdSeries, PlSeries, PyArrowArray, PyArrowChunkedArray]
@@ -85,6 +86,9 @@ else:
 
     class NpNan(AbstractBackend):
         _backends = [("numpy", "nan")]
+
+    class NpInteger(AbstractBackend):
+        _backends = [("numpy", "integer")]
 
     # TODO: these types are imported throughout gt, so we need to either put
     # those imports under TYPE_CHECKING, or continue to make available dynamically here.
@@ -517,7 +521,7 @@ def _(df: PdDataFrame):
 def _(df: PlDataFrame):
     import polars as pl
 
-    return df.clear().cast(pl.Utf8).clear(len(df))
+    return df.clear(len(df)).cast(pl.Utf8)
 
 
 @create_empty_frame.register
@@ -570,7 +574,7 @@ def _(df: PlDataFrame):
     import polars.selectors as cs
 
     list_cols = [
-        name for name, dtype in zip(df.columns, df.dtypes) if issubclass(dtype.base_type(), pl.List)
+        name for name, dtype in df.schema.items() if issubclass(dtype.base_type(), pl.List)
     ]
 
     return df.with_columns(
