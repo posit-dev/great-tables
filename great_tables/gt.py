@@ -63,6 +63,7 @@ from ._stub import reorder_stub_df
 from ._stubhead import tab_stubhead
 from ._substitution import sub_missing, sub_zero
 from ._tab_create_modify import tab_style
+from ._footnotes import tab_footnote
 from ._tbl_data import _get_cell, n_rows
 from ._utils import _migrate_unformatted_to_output
 from ._utils_render_html import (
@@ -267,6 +268,7 @@ class GT(
 
     tab_header = tab_header
     tab_source_note = tab_source_note
+    tab_footnote = tab_footnote
     tab_spanner = tab_spanner
     tab_spanner_delim = tab_spanner_delim
     tab_stubhead = tab_stubhead
