@@ -3,6 +3,7 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
+fallback_version = "0.18.0"
 
 [tool.setuptools.packages.find]
 include = ["great_tables"]
@@ -73,7 +74,7 @@ dev-no-pandas = [
     "jupyter",
     "quartodoc>=0.11.0; python_version >= '3.9'",
     "griffe==0.38.1",
-    "gt-extras",
+    "gt-extras>=0.0.6",
     "polars",
     "pre-commit==2.15.0",
     "pyarrow",
