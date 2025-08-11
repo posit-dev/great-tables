@@ -763,17 +763,56 @@ def _create_footnote_mark_html(mark: str, location: str = "ref") -> str:
 
 
 def _get_footnote_mark_number(data: GTData, footnote_info: FootnoteInfo) -> int:
-    """Get the mark number for a footnote based on unique footnote text."""
     if not data._footnotes or not footnote_info.footnotes:
         return 1
 
-    # Get all unique footnote texts in order of first appearance
-    unique_footnotes = []
+    # Create a list of all footnote positions with their text, following R gt approach
+    footnote_positions: list[tuple[tuple[int, int, int], str]] = []
+
     for fn_info in data._footnotes:
-        if fn_info.footnotes:
-            footnote_text = fn_info.footnotes[0]  # Use first footnote text
-            if footnote_text not in unique_footnotes:
-                unique_footnotes.append(footnote_text)
+        if not fn_info.footnotes or fn_info.locname == "none":
+            continue
+
+        footnote_text = fn_info.footnotes[0]
+
+        # Assign locnum (location number) based on R gt table location hierarchy
+        # Lower numbers appear first in reading order
+        if fn_info.locname == "title":
+            locnum = 1
+        elif fn_info.locname == "subtitle":
+            locnum = 2
+        elif fn_info.locname == "columns_columns":  # Column headers
+            locnum = 3
+        elif fn_info.locname == "data":  # Table body
+            locnum = 4
+        elif fn_info.locname == "summary":
+            locnum = 5
+        elif fn_info.locname == "grand_summary":
+            locnum = 6
+        else:
+            locnum = 999  # Other locations come last
+
+        # Get colnum (column number) - 0-based index of column
+        colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
+
+        # Get rownum - for headers use 0, for body use actual row number
+        if fn_info.locname == "columns_columns":
+            rownum = 0  # Headers are row 0
+        else:
+            rownum = fn_info.rownum if fn_info.rownum is not None else 0
+
+        # Sort key: (locnum, colnum, rownum) - this matches R gt behavior
+        sort_key = (locnum, colnum, rownum)
+        footnote_positions.append((sort_key, footnote_text))
+
+    # Sort by (locnum, colnum, rownum) - headers before body, left-to-right, top-to-bottom
+    footnote_positions.sort(key=lambda x: x[0])
+
+    # Get unique footnote texts in sorted order
+    unique_footnotes: list[str] = []
+    for _, text in footnote_positions:
+        if text not in unique_footnotes:
+            unique_footnotes.append(text)
 
     # Find the mark number for this footnote's text
     if footnote_info.footnotes:
@@ -784,6 +823,19 @@ def _get_footnote_mark_number(data: GTData, footnote_info: FootnoteInfo) -> int:
             return 1
 
     return 1
+
+
+def _get_column_index(data: GTData, colname: str | None) -> int:
+    if not colname:
+        return 0
+
+    # Get the column order from boxhead
+    columns = data._boxhead._get_default_columns()
+    for i, col_info in enumerate(columns):
+        if col_info.var == colname:
+            return i
+
+    return 0
 
 
 def _add_footnote_marks_to_text(
@@ -798,7 +850,7 @@ def _add_footnote_marks_to_text(
         return text
 
     # Find footnotes that match this location
-    matching_footnotes = []
+    matching_footnotes: list[tuple[int, FootnoteInfo]] = []
     for footnote in data._footnotes:
         if footnote.locname == locname:
             # Check if this footnote targets this specific location
@@ -819,7 +871,7 @@ def _add_footnote_marks_to_text(
         return text
 
     # Create footnote marks
-    marks = []
+    marks: list[str] = []
     for mark_num, footnote in matching_footnotes:
         mark_html = _create_footnote_mark_html(str(mark_num))
         marks.append(mark_html)
