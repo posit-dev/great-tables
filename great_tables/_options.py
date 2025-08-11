@@ -145,7 +145,7 @@ def tab_options(
     # footnotes_border_lr_style: str | None = None,
     # footnotes_border_lr_width: str | None = None,
     # footnotes_border_lr_color: str | None = None,
-    # footnotes_marks: str | list[str] | None = None,
+    footnotes_marks: str | list[str] | None = None,
     # footnotes_multiline: bool | None = None,
     # footnotes_sep: str | None = None,
     source_notes_background_color: str | None = None,
