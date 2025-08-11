@@ -1,13 +1,13 @@
 .PHONY: check
 
 test:
-	uv run pytest --cov=great_tables --cov-report=xml
+	pytest --cov=great_tables --cov-report=xml
 
 test-no-pandas:
-	uv run pytest tests/test_dependencies.py -m "no_pandas"
+	pytest tests/test_dependencies.py -m "no_pandas"
 
 test-update:
-	uv run pytest --snapshot-update
+	pytest --snapshot-update
 
 check:
 	pyright --pythonversion 3.8 gt
