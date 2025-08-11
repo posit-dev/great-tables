@@ -717,8 +717,8 @@ def _process_footnotes_for_display(
     if not footnotes:
         return []
 
-    # Group footnotes by their text to avoid duplicates
-    footnote_texts: dict[str, int] = {}
+    # Group footnotes by their text to avoid duplicates and get their marks
+    footnote_data: dict[str, str] = {}  # text -> mark_string
     footnote_order: list[str] = []
 
     for footnote in footnotes:
@@ -728,8 +728,9 @@ def _process_footnotes_for_display(
 
         if footnote.footnotes:
             text = footnote.footnotes[0] if footnote.footnotes else ""
-            if text not in footnote_texts:
-                footnote_texts[text] = len(footnote_texts) + 1
+            if text not in footnote_data:
+                mark_string = _get_footnote_mark_string(data, footnote)
+                footnote_data[text] = mark_string
                 footnote_order.append(text)
 
     # Add footnotes without marks at the beginning
@@ -741,12 +742,88 @@ def _process_footnotes_for_display(
         if footnote.footnotes:
             result.append({"mark": "", "text": footnote.footnotes[0]})
 
-    # Add footnotes with marks
-    for text in footnote_order:
-        mark_number = footnote_texts[text]
-        result.append({"mark": str(mark_number), "text": text})
+    # Add footnotes with marks - sort by mark order
+    # For numbers, sort numerically; for symbols, they should already be in order
+    mark_type = _get_footnote_marks_option(data)
+    if isinstance(mark_type, str) and mark_type == "numbers":
+        # Sort by numeric mark value
+        sorted_texts = sorted(
+            footnote_order,
+            key=lambda text: int(footnote_data[text])
+            if footnote_data[text].isdigit()
+            else float("inf"),
+        )
+    else:
+        # For symbols, maintain the order they appear (visual order)
+        sorted_texts = footnote_order
+
+    for text in sorted_texts:
+        mark_string = footnote_data[text]
+        result.append({"mark": mark_string, "text": text})
 
     return result
+
+
+def _get_footnote_mark_symbols() -> dict[str, list[str]]:
+    """Get predefined footnote mark symbol sets."""
+    from ._helpers import LETTERS, letters
+
+    return {
+        "numbers": [],  # Special case - handled separately
+        "letters": letters(),
+        "LETTERS": LETTERS(),
+        "standard": ["*", "†", "‡", "§"],
+        "extended": ["*", "†", "‡", "§", "‖", "¶"],
+    }
+
+
+def _generate_footnote_mark(mark_index: int, mark_type: str | list[str] = "numbers") -> str:
+    """Generate a footnote mark based on index and mark type.
+
+    Args:
+        mark_index: 1-based index for the footnote mark
+        mark_type: Either a string key for preset marks or a list of custom marks
+
+    Returns:
+        String representation of the footnote mark
+    """
+    if isinstance(mark_type, str):
+        if mark_type == "numbers":
+            return str(mark_index)
+
+        symbol_sets = _get_footnote_mark_symbols()
+        if mark_type in symbol_sets:
+            symbols = symbol_sets[mark_type]
+        else:
+            # Default to numbers if unknown type
+            return str(mark_index)
+    elif isinstance(mark_type, list):
+        symbols = mark_type
+    else:
+        # Default to numbers
+        return str(mark_index)
+
+    if not symbols:
+        return str(mark_index)
+
+    # Calculate symbol and repetition for cycling behavior
+    # E.g., for 4 symbols: index 1-4 -> symbol once, 5-8 -> symbol twice, etc.
+    symbol_index = (mark_index - 1) % len(symbols)
+    repetitions = (mark_index - 1) // len(symbols) + 1
+
+    return symbols[symbol_index] * repetitions
+
+
+def _get_footnote_marks_option(data: GTData) -> str | list[str]:
+    """Get the footnote marks option from GT data."""
+    # Read from the options system
+    if hasattr(data, "_options") and hasattr(data._options, "footnotes_marks"):
+        marks_value = data._options.footnotes_marks.value
+        if marks_value is not None:
+            return marks_value
+
+    # Default to numbers
+    return "numbers"
 
 
 def _create_footnote_mark_html(mark: str, location: str = "ref") -> str:
@@ -762,9 +839,11 @@ def _create_footnote_mark_html(mark: str, location: str = "ref") -> str:
         return f'<span class="gt_footnote_marks"><sup>{mark}</sup></span>'
 
 
-def _get_footnote_mark_number(data: GTData, footnote_info: FootnoteInfo) -> int:
+def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
+    """Get the mark string for a footnote based on R gt sorting and mark type."""
     if not data._footnotes or not footnote_info.footnotes:
-        return 1
+        mark_type = _get_footnote_marks_option(data)
+        return _generate_footnote_mark(1, mark_type)
 
     # Create a list of all footnote positions with their text, following R gt approach
     footnote_positions: list[tuple[tuple[int, int, int], str]] = []
@@ -814,15 +893,30 @@ def _get_footnote_mark_number(data: GTData, footnote_info: FootnoteInfo) -> int:
         if text not in unique_footnotes:
             unique_footnotes.append(text)
 
-    # Find the mark number for this footnote's text
+    # Find the mark index for this footnote's text
     if footnote_info.footnotes:
         footnote_text = footnote_info.footnotes[0]
         try:
-            return unique_footnotes.index(footnote_text) + 1  # 1-based indexing
+            mark_index = unique_footnotes.index(footnote_text) + 1  # 1-based indexing
+            mark_type = _get_footnote_marks_option(data)
+            return _generate_footnote_mark(mark_index, mark_type)
         except ValueError:
-            return 1
+            mark_type = _get_footnote_marks_option(data)
+            return _generate_footnote_mark(1, mark_type)
 
-    return 1
+    mark_type = _get_footnote_marks_option(data)
+    return _generate_footnote_mark(1, mark_type)
+
+
+def _get_footnote_mark_number(data: GTData, footnote_info: FootnoteInfo) -> int:
+    """Legacy function - now wraps _get_footnote_mark_string for backward compatibility."""
+    mark_string = _get_footnote_mark_string(data, footnote_info)
+    # Try to convert to int for numeric marks, otherwise return 1
+    try:
+        return int(mark_string)
+    except ValueError:
+        # For symbol marks, we need a different approach in the calling code
+        return 1
 
 
 def _get_column_index(data: GTData, colname: str | None) -> int:
@@ -850,7 +944,7 @@ def _add_footnote_marks_to_text(
         return text
 
     # Find footnotes that match this location
-    matching_footnotes: list[tuple[int, FootnoteInfo]] = []
+    matching_footnotes: list[tuple[str, FootnoteInfo]] = []
     for footnote in data._footnotes:
         if footnote.locname == locname:
             # Check if this footnote targets this specific location
@@ -864,21 +958,33 @@ def _add_footnote_marks_to_text(
                 match = False
 
             if match:
-                mark_num = _get_footnote_mark_number(data, footnote)
-                matching_footnotes.append((mark_num, footnote))
+                mark_string = _get_footnote_mark_string(data, footnote)
+                matching_footnotes.append((mark_string, footnote))
 
     if not matching_footnotes:
         return text
 
-    # Create footnote marks
-    marks: list[str] = []
-    for mark_num, footnote in matching_footnotes:
-        mark_html = _create_footnote_mark_html(str(mark_num))
-        marks.append(mark_html)
+    # Collect unique mark strings and sort them properly
+    mark_strings: list[str] = []
+    for mark_string, footnote in matching_footnotes:
+        if mark_string not in mark_strings:
+            mark_strings.append(mark_string)
 
-    # Add marks to the text
-    if marks:
-        marks_html = "".join(marks)
+    # Sort marks - for numbers, sort numerically; for symbols, sort by their order in symbol set
+    mark_type = _get_footnote_marks_option(data)
+    if isinstance(mark_type, str) and mark_type == "numbers":
+        # Sort numerically for numbers
+        mark_strings.sort(key=lambda x: int(x) if x.isdigit() else float("inf"))
+    else:
+        # For symbols, maintain the order they appear (which should already be correct)
+        # since _get_footnote_mark_string returns them in visual order
+        pass
+
+    # Create a single footnote mark span with comma-separated marks
+    if mark_strings:
+        # Join mark strings with commas (no spaces)
+        marks_text = ",".join(mark_strings)
+        marks_html = f'<span class="gt_footnote_marks"><sup>{marks_text}</sup></span>'
         return f"{text}{marks_html}"
 
     return text
