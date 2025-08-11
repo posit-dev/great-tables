@@ -81,7 +81,8 @@ dev-no-pandas = [
     "pytest-cov",
     "shiny",
     "svg.py",
-    "syrupy"
+    "syrupy",
+    "gt-extras"
 ]
 
 [project.urls]
