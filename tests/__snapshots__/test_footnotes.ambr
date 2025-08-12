@@ -1,0 +1,15 @@
+# serializer version: 1
+# name: test_tab_footnote_stub_body_ordering_snapshot
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <th class="gt_row gt_left gt_stub">A<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></th>
+      <td class="gt_row gt_left">Y</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">B</th>
+      <td class="gt_row gt_left">Z<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+    </tr>
+  </tbody>
+  '''
+# ---

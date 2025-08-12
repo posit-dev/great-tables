@@ -1,6 +1,14 @@
 import polars as pl
 import re
 from great_tables import GT, loc
+from great_tables._utils_render_html import create_body_component_h
+
+
+def assert_rendered_body(snapshot, gt):
+    built = gt._build_data("html")
+    body = create_body_component_h(built)
+
+    assert snapshot == body
 
 
 def _create_test_data():
@@ -429,3 +437,27 @@ def test_tab_footnote_mixed_locations_hidden():
     )
     assert marks_match is not None
     assert marks_match.group(1) == "1"
+
+
+def test_tab_footnote_stub_body_ordering_snapshot(snapshot):
+    df = pl.DataFrame(
+        {
+            "name": ["A", "B"],
+            "value": ["Y", "Z"],
+        }
+    )
+
+    gt_table = (
+        GT(df, rowname_col="name", id="test_stub_body_footnotes")
+        .tab_footnote(
+            footnote="Body note.",
+            locations=loc.body(columns="value", rows=[1]),
+        )
+        .tab_footnote(
+            footnote="Stub note.",
+            locations=loc.stub(rows=[0]),
+        )
+    )
+
+    # Use assert_rendered_body to create a smaller, focused snapshot
+    assert_rendered_body(snapshot, gt_table)
