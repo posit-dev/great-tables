@@ -1,6 +1,6 @@
 import polars as pl
 import re
-from great_tables import GT, loc
+from great_tables import GT, loc, md, html
 from great_tables._utils_render_html import create_body_component_h
 
 
@@ -461,3 +461,36 @@ def test_tab_footnote_stub_body_ordering_snapshot(snapshot):
 
     # Use assert_rendered_body to create a smaller, focused snapshot
     assert_rendered_body(snapshot, gt_table)
+
+
+def test_tab_footnote_md_with_unit_notation():
+    df = pl.DataFrame({"area": [100, 200], "value": [10, 20]})
+
+    gt_table = GT(df).tab_footnote(
+        footnote=md("**Area** is measured in {{km^2}}."),
+        locations=loc.body(columns="area", rows=[0]),
+    )
+
+    html_output = gt_table._render_as_html()
+
+    assert (
+        '<strong>Area</strong> is measured in km<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>'
+        in html_output
+    )
+
+
+def test_tab_footnote_html_with_unit_notation():
+    # Test that html() footnotes also support unit notation like {{km^2}}
+    df = pl.DataFrame({"area": [100, 200], "value": [10, 20]})
+
+    gt_table = GT(df).tab_footnote(
+        footnote=html("<strong>Area</strong> is measured in {{km^2}}."),
+        locations=loc.body(columns="area", rows=[0]),
+    )
+
+    html_output = gt_table._render_as_html()
+
+    assert (
+        '<strong>Area</strong> is measured in km<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>'
+        in html_output
+    )
