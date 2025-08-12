@@ -330,3 +330,104 @@ def test_tab_footnote_with_text_object():
     assert re.search(r"10<span[^>]*>1</span>", html)
     # The text object content should appear in footer
     assert "Bold text" in html
+
+
+def test_tab_footnote_hidden_columns():
+    df = pl.DataFrame(
+        {
+            "col1": [10],
+            "col2": [100],  # Will be hidden
+            "col3": [1000],
+            "col4": [10000],  # Will be hidden
+        }
+    )
+
+    gt_table = (
+        GT(df)
+        .tab_footnote(footnote="Note A", locations=loc.column_labels(columns="col1"))  # Visible
+        .tab_footnote(
+            footnote="Note A", locations=loc.column_labels(columns="col2")
+        )  # Hidden (same text)
+        .tab_footnote(
+            footnote="Note A", locations=loc.column_labels(columns="col3")
+        )  # Visible (same text)
+        .tab_footnote(footnote="Note B", locations=loc.column_labels(columns="col2"))  # Hidden only
+        .tab_footnote(
+            footnote="Note B", locations=loc.column_labels(columns="col4")
+        )  # Hidden only (same text)
+        .tab_footnote(footnote="Note C", locations=loc.column_labels(columns="col1"))  # Visible
+        .cols_hide(columns=["col2", "col4"])
+    )
+
+    html = gt_table._render_as_html()
+
+    # Extract footnote marks from visible column headers
+    col1_match = re.search(r'id="col1"[^>]*>([^<]*(?:<[^>]*>[^<]*)*)</th>', html)
+    col3_match = re.search(r'id="col3"[^>]*>([^<]*(?:<[^>]*>[^<]*)*)</th>', html)
+
+    assert col1_match is not None
+    assert col3_match is not None
+
+    col1_marks_match = re.search(
+        r'<span class="gt_footnote_marks"[^>]*>([^<]*)</span>', col1_match.group(1)
+    )
+    col3_marks_match = re.search(
+        r'<span class="gt_footnote_marks"[^>]*>([^<]*)</span>', col3_match.group(1)
+    )
+
+    # col1 should have marks 1,2 (Note A and Note C)
+    assert col1_marks_match is not None
+    assert col1_marks_match.group(1) == "1,2"
+
+    # col3 should have mark 1 only (Note A)
+    assert col3_marks_match is not None
+    assert col3_marks_match.group(1) == "1"
+
+    # Extract footer footnotes
+    footer_matches = re.findall(
+        r'<span class="gt_footnote_marks"[^>]*>([^<]*)</span>\s*([^<]+?)(?=</td>)', html
+    )
+
+    # Should only show 2 footnotes in footer (Note A and Note C)
+    # Note B should not appear because it only targets hidden columns
+    assert len(footer_matches) == 2
+
+    # Check footnote texts and marks
+    footnote_dict = {mark.rstrip("."): text.strip() for mark, text in footer_matches}
+    assert footnote_dict["1"] == "Note A"  # Appears on visible columns
+    assert footnote_dict["2"] == "Note C"  # Appears on visible column
+    assert "Note B" not in html  # Should not appear anywhere since only targets hidden columns
+
+    # Verify that duplicate footnote text gets same mark number
+    # Note A appears on both col1 and col3 but should use the same mark (1)
+
+
+def test_tab_footnote_mixed_locations_hidden():
+    df = pl.DataFrame({"visible_col": [10], "hidden_col": [100]})
+
+    gt_table = (
+        GT(df)
+        .tab_footnote(
+            footnote="Mixed location note",
+            locations=[
+                loc.column_labels(columns="visible_col"),
+                loc.column_labels(columns="hidden_col"),
+            ],
+        )
+        .cols_hide(columns="hidden_col")
+    )
+
+    html = gt_table._render_as_html()
+
+    # Footnote should appear because it targets at least one visible location
+    assert "Mixed location note" in html
+
+    # Mark should appear on visible column
+    visible_match = re.search(r'id="visible_col"[^>]*>([^<]*(?:<[^>]*>[^<]*)*)</th>', html)
+    assert visible_match is not None
+
+    marks_match = re.search(
+        r'<span class="gt_footnote_marks"[^>]*>([^<]*)</span>', visible_match.group(1)
+    )
+    assert marks_match is not None
+    assert marks_match.group(1) == "1"
