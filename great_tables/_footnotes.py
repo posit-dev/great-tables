@@ -77,14 +77,63 @@ def tab_footnote(
 
     Examples
     --------
-    See [`GT.tab_footnote()`](`great_tables.GT.tab_footnote`) for examples.
+
+    This example table will be based on the `towny` dataset. We have a header part, with a title and
+    a subtitle. We can choose which of these could be associated with a footnote and in this case it
+    is the `"subtitle"`. This table has a stub with row labels and some of those labels are
+    associated with a footnote. So long as row labels are unique, they can be easily used as row
+    identifiers in `loc.stub()`. The third footnote is placed on the `"Density"` column label. Here,
+    changing the order of the `tab_footnote()` calls has no effect on the final table rendering.
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT, loc, md
+    from great_tables.data import towny
+
+
+    towny_mini = (
+        pl.from_pandas(towny)
+        .filter(pl.col('csd_type') == 'city')
+        .select(['name', 'density_2021', 'population_2021'])
+        .top_k(10, by='population_2021')
+        .sort('population_2021', descending=True)
+    )
+
+    (
+        GT(towny_mini, rowname_col='name')
+        .tab_header(
+            title=md('The 10 Largest Municipalities in `towny`'),
+            subtitle='Population values taken from the 2021 census.'
+        )
+        .fmt_integer()
+        .cols_label(
+            density_2021='Density',
+            population_2021='Population'
+        )
+        .tab_footnote(
+            footnote='Part of the Greater Toronto Area.',
+            locations=loc.stub(rows=[
+                'Toronto', 'Mississauga', 'Brampton', 'Markham', 'Vaughan'
+            ])
+        )
+        .tab_footnote(
+            footnote=md('Density is in terms of persons per km^2^.'),
+            locations=loc.column_labels(columns='density_2021')
+        )
+        .tab_footnote(
+            footnote='Census results made public on February 9, 2022.',
+            locations=loc.subtitle()
+        )
+        .tab_source_note(
+            source_note=md('Data taken from the `towny` dataset.')
+        )
+        .opt_footnote_marks(marks='letters')
+    )
+    ```
     """
 
-    # Convert footnote to string if it's a Text object
-    if hasattr(footnote, "__str__"):
-        footnote_str = str(footnote)
-    else:
-        footnote_str = footnote
+    # Store footnote as-is to preserve Text objects for later processing
+    footnote_str = footnote
 
     # Handle None locations (footnote without mark)
     if locations is None:
