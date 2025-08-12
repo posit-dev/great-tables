@@ -772,15 +772,19 @@ def _process_footnotes_for_display(
         elif fn_info.locname == "data":
             locnum = 4
         elif fn_info.locname == "stub":
-            locnum = 5
+            locnum = 4  # Same as data since stub and data cells are on the same row level
         elif fn_info.locname == "summary":
-            locnum = 6
+            locnum = 5
         elif fn_info.locname == "grand_summary":
-            locnum = 7
+            locnum = 6
         else:
             locnum = 999
 
-        colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
+        # Assign column number, with stub getting a lower value than data columns
+        if fn_info.locname == "stub":
+            colnum = -1  # Stub appears before all data columns
+        else:
+            colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
         rownum = (
             0
             if fn_info.locname == "columns_columns"
@@ -929,16 +933,19 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
         elif fn_info.locname == "data":
             locnum = 4
         elif fn_info.locname == "stub":
-            locnum = 5
+            locnum = 4  # Same as data since stub and data cells are on the same row level
         elif fn_info.locname == "summary":
-            locnum = 6
+            locnum = 5
         elif fn_info.locname == "grand_summary":
-            locnum = 7
+            locnum = 6
         else:
             locnum = 999  # Other locations come last
 
-        # Get colnum (column number) - 0-based index of column
-        colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
+        # Get colnum (column number) - assign stub a lower value than data columns
+        if fn_info.locname == "stub":
+            colnum = -1  # Stub appears before all data columns
+        else:
+            colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
 
         # Get rownum - for headers use 0, for body use actual row number
         if fn_info.locname == "columns_columns":
