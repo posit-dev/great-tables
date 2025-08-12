@@ -295,7 +295,7 @@ def test_tab_footnote_multiple_columns():
 
 
 def test_tab_footnote_footer_rendering():
-    # Test that the footnote footer section is properly rendered
+    # Test that the footnotes section is properly rendered
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="First footnote text", locations=loc.body(columns="col1", rows=[0]))
@@ -305,11 +305,9 @@ def test_tab_footnote_footer_rendering():
 
     html = gt_table._render_as_html()
 
-    # Check footer section exists
-    assert re.search(r"<tfoot[^>]*>.*?</tfoot>", html, re.DOTALL)
-
     # Check footnotes appear in footer with correct marks
     footer_match = re.search(r"<tfoot[^>]*>.*?</tfoot>", html, re.DOTALL)
+    assert footer_match is not None
     footer_html = footer_match.group(0)
 
     assert re.search(r"<span[^>]*>\*\.</span>\s*First footnote text", footer_html)
@@ -328,7 +326,7 @@ def test_tab_footnote_with_text_object():
 
     # Check that the footnote mark appears
     assert re.search(r"10<span[^>]*>1</span>", html)
-    # The text object content should appear in footer
+    # Check that the text object content should appear in the footer
     assert "Bold text" in html
 
 
