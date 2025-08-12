@@ -484,7 +484,6 @@ def create_body_component_h(data: GTData) -> str:
                 group_styles = _flatten_styles(_styles, wrap=True)
 
                 # Add group label that spans multiple columns when row_group_as_column is true
-                # Note - this is brittle, and will only work if rowname_col is also set
                 if has_group_stub_column:
                     rowspan_value = len(group_info.indices)
 
