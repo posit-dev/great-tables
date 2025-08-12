@@ -852,8 +852,8 @@ def _create_footnote_mark_html(mark: str, location: str = "ref") -> str:
 
     # Use consistent span structure for both references and footer
     if location == "ftr":
-        # In footer, show mark with period
-        return f'<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">{mark}.</span>'
+        # In footer, show mark without period
+        return f'<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">{mark}</span>'
     else:
         # In text, show mark without period
         return f'<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">{mark}</span>'

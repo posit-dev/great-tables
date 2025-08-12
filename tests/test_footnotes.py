@@ -310,8 +310,8 @@ def test_tab_footnote_footer_rendering():
     assert footer_match is not None
     footer_html = footer_match.group(0)
 
-    assert re.search(r"<span[^>]*>\*\.</span>\s*First footnote text", footer_html)
-    assert re.search(r"<span[^>]*>†\.</span>\s*Second footnote text", footer_html)
+    assert re.search(r"<span[^>]*>\*</span>\s*First footnote text", footer_html)
+    assert re.search(r"<span[^>]*>†</span>\s*Second footnote text", footer_html)
 
 
 def test_tab_footnote_with_text_object():
