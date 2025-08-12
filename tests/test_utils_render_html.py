@@ -67,7 +67,6 @@ def test_row_group_as_column_with_rowname(snapshot):
     new_gt = GT(df, groupname_col="g", rowname_col="x").tab_options(
         row_group_as_column=True,
     )
-    new_gt.show()
 
     assert_rendered_body(snapshot, new_gt)
 
@@ -78,7 +77,6 @@ def test_row_group_as_column_without_rowname(snapshot):
     new_gt = GT(df, groupname_col="g").tab_options(
         row_group_as_column=True,
     )
-    new_gt.show()
 
     assert_rendered_body(snapshot, new_gt)
 
