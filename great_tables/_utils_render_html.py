@@ -268,10 +268,15 @@ def create_columns_component_h(data: GTData) -> str:
                 # Get the alignment values for the first set of column labels
                 first_set_alignment = h_info.defaulted_align
 
+                # Add footnote marks to column label if any
+                column_label_with_footnotes = _add_footnote_marks_to_text(
+                    data, _process_text(h_info.column_label), "columns_columns", colname=h_info.var
+                )
+
                 # Creation of <th> tags for column labels with no spanners above them
                 level_1_spanners.append(
                     tags.th(
-                        HTML(_process_text(h_info.column_label)),
+                        HTML(column_label_with_footnotes),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{first_set_alignment}",
                         rowspan=2,
                         colspan=1,
@@ -334,9 +339,17 @@ def create_columns_component_h(data: GTData) -> str:
                     var=remaining_heading
                 )
 
+                # Add footnote marks to column label if any
+                remaining_headings_label_with_footnotes = _add_footnote_marks_to_text(
+                    data,
+                    _process_text(remaining_headings_label),
+                    "columns_columns",
+                    colname=remaining_heading,
+                )
+
                 spanned_column_labels.append(
                     tags.th(
-                        HTML(_process_text(remaining_headings_label)),
+                        HTML(remaining_headings_label_with_footnotes),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{remaining_alignment}",
                         rowspan=1,
                         colspan=1,
@@ -830,13 +843,13 @@ def _create_footnote_mark_html(mark: str, location: str = "ref") -> str:
     if not mark:
         return ""
 
-    # For now, use simple superscript numbers
+    # Use consistent span structure for both references and footer
     if location == "ftr":
         # In footer, show mark with period
-        return f'<span class="gt_footnote_marks"><sup>{mark}.</sup></span>'
+        return f'<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">{mark}.</span>'
     else:
-        # In text, show mark as superscript
-        return f'<span class="gt_footnote_marks"><sup>{mark}</sup></span>'
+        # In text, show mark without period
+        return f'<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">{mark}</span>'
 
 
 def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
@@ -880,11 +893,11 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
         else:
             rownum = fn_info.rownum if fn_info.rownum is not None else 0
 
-        # Sort key: (locnum, colnum, rownum) - this matches R gt behavior
-        sort_key = (locnum, colnum, rownum)
+        # Sort key: (locnum, rownum, colnum) - this matches reading order: top-to-bottom, left-to-right
+        sort_key = (locnum, rownum, colnum)
         footnote_positions.append((sort_key, footnote_text))
 
-    # Sort by (locnum, colnum, rownum) - headers before body, left-to-right, top-to-bottom
+    # Sort by (locnum, rownum, colnum) - headers before body, top-to-bottom, left-to-right
     footnote_positions.sort(key=lambda x: x[0])
 
     # Get unique footnote texts in sorted order
@@ -984,7 +997,7 @@ def _add_footnote_marks_to_text(
     if mark_strings:
         # Join mark strings with commas (no spaces)
         marks_text = ",".join(mark_strings)
-        marks_html = f'<span class="gt_footnote_marks"><sup>{marks_text}</sup></span>'
+        marks_html = f'<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">{marks_text}</span>'
         return f"{text}{marks_html}"
 
     return text
