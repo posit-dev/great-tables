@@ -724,17 +724,34 @@ def create_footnotes_component_h(data: GTData):
         )
 
 
+def _should_display_footnote(data: GTData, footnote: FootnoteInfo) -> bool:
+    # If footnote targets a specific column, check if it's hidden
+    if footnote.colname is not None:
+        # Get column info from boxhead to check if it's hidden
+        for col_info in data._boxhead._d:
+            if col_info.var == footnote.colname:
+                return col_info.visible
+        # If column not found in boxhead, assume it should be displayed
+        return True
+
+    # For footnotes that don't target specific columns (e.g., title, subtitle), always display
+    return True
+
+
 def _process_footnotes_for_display(
     data: GTData, footnotes: list[FootnoteInfo]
 ) -> list[dict[str, str]]:
     if not footnotes:
         return []
 
+    # Filter out footnotes for hidden columns
+    visible_footnotes = [f for f in footnotes if _should_display_footnote(data, f)]
+
     # Group footnotes by their text to avoid duplicates and get their marks
     footnote_data: dict[str, str] = {}  # text -> mark_string
     footnote_order: list[str] = []
 
-    for footnote in footnotes:
+    for footnote in visible_footnotes:
         if footnote.locname == "none":  # type: ignore
             # Footnotes without marks come first
             continue
@@ -746,8 +763,8 @@ def _process_footnotes_for_display(
                 footnote_data[text] = mark_string
                 footnote_order.append(text)
 
-    # Add footnotes without marks at the beginning
-    markless_footnotes = [f for f in footnotes if f.locname == "none"]  # type: ignore
+    # Add footnotes without marks at the beginning (also filter for visibility)
+    markless_footnotes = [f for f in visible_footnotes if f.locname == "none"]  # type: ignore
     result: list[dict[str, str]] = []
 
     # Add markless footnotes first
@@ -778,7 +795,6 @@ def _process_footnotes_for_display(
 
 
 def _get_footnote_mark_symbols() -> dict[str, list[str]]:
-    """Get predefined footnote mark symbol sets."""
     from ._helpers import LETTERS, letters
 
     return {
@@ -791,15 +807,6 @@ def _get_footnote_mark_symbols() -> dict[str, list[str]]:
 
 
 def _generate_footnote_mark(mark_index: int, mark_type: str | list[str] = "numbers") -> str:
-    """Generate a footnote mark based on index and mark type.
-
-    Args:
-        mark_index: 1-based index for the footnote mark
-        mark_type: Either a string key for preset marks or a list of custom marks
-
-    Returns:
-        String representation of the footnote mark
-    """
     if isinstance(mark_type, str):
         if mark_type == "numbers":
             return str(mark_index)
@@ -865,6 +872,10 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
         if not fn_info.footnotes or fn_info.locname == "none":
             continue
 
+        # Skip footnotes for hidden columns
+        if not _should_display_footnote(data, fn_info):
+            continue
+
         footnote_text = fn_info.footnotes[0]
 
         # Assign locnum (location number) based on R gt table location hierarchy
@@ -922,7 +933,6 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
 
 
 def _get_footnote_mark_number(data: GTData, footnote_info: FootnoteInfo) -> int:
-    """Legacy function - now wraps _get_footnote_mark_string for backward compatibility."""
     mark_string = _get_footnote_mark_string(data, footnote_info)
     # Try to convert to int for numeric marks, otherwise return 1
     try:
