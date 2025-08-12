@@ -1,8 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from statistics import quantiles
+from typing import TYPE_CHECKING, Literal
+
+from great_tables._locations import resolve_cols_c
 
 from ._gt_data import Locale, RowGroups, Styles
+from ._tbl_data import (
+    SelectExpr,
+    copy_data,
+    get_column_names,
+    insert_row,
+    to_list,
+)
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -16,8 +26,8 @@ def row_group_order(self: GTSelf, groups: RowGroups) -> GTSelf:
 
 def _remove_from_body_styles(styles: Styles, column: str) -> Styles:
     # TODO: refactor
-    from ._utils_render_html import _is_loc
     from ._locations import LocBody
+    from ._utils_render_html import _is_loc
 
     new_styles = [
         info for info in styles if not (_is_loc(info.locname, LocBody) and info.colname == column)
@@ -178,3 +188,75 @@ def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
     ```
     """
     return self._replace(_options=self._options._set_option_value("table_id", id))
+
+
+# def grand_summary_rows(
+#     self: GTSelf,
+#     fns: list[Literal["min", "max", "mean", "median"]] | Literal["min", "max", "mean", "median"],
+#     columns: SelectExpr = None,
+#     side: Literal["bottom", "top"] = "bottom",
+# ) -> GTSelf:
+#     new_body = self._body.copy()
+#     new_tbl_data = new_body.body
+
+
+#     new_body.append()
+
+#     self._replace(_body=new_body)
+
+#     return self
+
+
+def grand_summary_rows(
+    self: GTSelf,
+    fns: list[Literal["min", "max", "mean", "median"]] | Literal["min", "max", "mean", "median"],
+    columns: SelectExpr = None,
+    side: Literal["bottom", "top"] = "bottom",
+    missing_text: str = "---",
+) -> GTSelf:
+    if isinstance(fns, str):
+        fns = [fns]
+
+    tbl_data = self._tbl_data
+
+    new_tbl_data = copy_data(tbl_data)
+
+    original_column_names = get_column_names(tbl_data)
+
+    summary_col_names = resolve_cols_c(data=self, expr=columns)
+
+    # Create summary rows DataFrame
+    for fn_name in fns:
+        summary_row = []
+
+        for col in original_column_names:
+            if col in summary_col_names:
+                col_data = to_list(tbl_data[col])
+
+                if fn_name == "min":
+                    new_cell = [str(min(col_data))]
+                elif fn_name == "max":
+                    new_cell = [str(max(col_data))]
+                elif fn_name == "mean":
+                    new_cell = [str(sum(col_data) / len(col_data))]
+                elif fn_name == "median":
+                    new_cell = [str(quantiles(col_data, n=2))]
+                else:
+                    # Should never get here
+                    new_cell = ["hi"]
+            else:
+                new_cell = [missing_text]
+
+            summary_row += new_cell
+
+        new_tbl_data = insert_row(new_tbl_data, summary_row, 0)
+
+    # Concatenate based on side parameter
+    # if side == "bottom":
+    #     new_data = concat_frames(tbl_data, summary_df)
+    # else:  # top
+    #     new_data = concat_frames(summary_df, tbl_data)
+
+    print(new_tbl_data)
+
+    return self._replace(_tbl_data=new_tbl_data)

@@ -874,3 +874,56 @@ def _(ser: PyArrowChunkedArray, name: Optional[str] = None) -> PyArrowTable:
     import pyarrow as pa
 
     return pa.table({name: ser})
+
+
+# insert_row ----
+
+
+@singledispatch
+def insert_row(df: DataFrameLike, row_data: list, index: int) -> DataFrameLike:
+    """Insert a single row into a DataFrame at the specified index"""
+    raise NotImplementedError(f"Unsupported type: {type(df)}")
+
+
+@insert_row.register
+def _(df: PdDataFrame, row_data: list, index: int) -> PdDataFrame:
+    import pandas as pd
+
+    new_row = pd.DataFrame([row_data], columns=df.columns)
+
+    if index == 0:
+        return pd.concat([new_row, df], ignore_index=True)
+    else:
+        before = df.iloc[:index]
+        after = df.iloc[index:]
+        return pd.concat([before, new_row, after], ignore_index=True)
+
+
+@insert_row.register
+def _(df: PlDataFrame, row_data: list, index: int) -> PlDataFrame:
+    import polars as pl
+
+    row_dict = dict(zip(df.columns, row_data))
+    new_row = pl.DataFrame([row_dict])
+
+    if index == 0:
+        return new_row.vstack(df)
+    else:
+        before = df[:index]
+        after = df[index:]
+        return before.vstack(new_row).vstack(after)
+
+
+@insert_row.register
+def _(df: PyArrowTable, row_data: list, index: int) -> PyArrowTable:
+    import pyarrow as pa
+
+    row_dict = dict(zip(df.column_names, row_data))
+    new_row = pa.table([row_dict])
+
+    if index == 0:
+        return pa.concat_tables([new_row, df])
+    else:
+        before = df.slice(0, index)
+        after = df.slice(index)
+        return pa.concat_tables([before, new_row, after])
