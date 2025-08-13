@@ -800,10 +800,6 @@ def _process_footnotes_for_display(
             locnum = 4
         elif fn_info.locname == "stub":
             locnum = 4  # Same as data since stub and data cells are on the same row level
-        elif fn_info.locname == "summary":
-            locnum = 5
-        elif fn_info.locname == "grand_summary":
-            locnum = 6
         else:
             locnum = 999
 
@@ -931,7 +927,6 @@ def _create_footnote_mark_html(mark: str, location: str = "ref") -> str:
 
 
 def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
-    """Get the mark string for a footnote based on R gt sorting and mark type."""
     if not data._footnotes or not footnote_info.footnotes:
         mark_type = _get_footnote_marks_option(data)
         return _generate_footnote_mark(1, mark_type)
@@ -965,10 +960,6 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
             locnum = 6
         elif fn_info.locname == "stub":
             locnum = 6  # Same as data since stub and data cells are on the same row level
-        elif fn_info.locname == "summary":
-            locnum = 7
-        elif fn_info.locname == "grand_summary":
-            locnum = 8
         else:
             locnum = 999  # Other locations come last
 
@@ -1040,7 +1031,6 @@ def _get_column_index(data: GTData, colname: str | None) -> int:
 
 
 def _get_spanner_leftmost_column_index(data: GTData, spanner_grpname: str | None) -> int:
-    """Get the leftmost column index for a spanner group to enable proper left-to-right ordering."""
     if not spanner_grpname:
         return 0
 
@@ -1115,17 +1105,6 @@ def _add_footnote_marks_to_text(
         return f"{text}{marks_html}"
 
     return text
-
-
-def _get_effective_number_of_columns(data: GTData) -> int:
-    """Get the effective number of columns for the table."""
-    from ._gt_data import ColInfoTypeEnum
-
-    # Count visible columns (default type) and stub columns
-    visible_cols = len([col for col in data._boxhead if col.type == ColInfoTypeEnum.default])
-    stub_cols = len([col for col in data._boxhead if col.type == ColInfoTypeEnum.stub])
-
-    return visible_cols + stub_cols
 
 
 def rtl_modern_unicode_charset() -> str:
