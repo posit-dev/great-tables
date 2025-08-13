@@ -1,7 +1,11 @@
 import polars as pl
 import re
 from great_tables import GT, loc, md, html
-from great_tables._utils_render_html import create_body_component_h
+from great_tables._utils_render_html import (
+    create_body_component_h,
+    _get_column_index,
+    _get_spanner_leftmost_column_index,
+)
 
 
 def test_tab_footnote_mark_coalescing():
@@ -1073,9 +1077,6 @@ def test_footnote_mark_string_edge_cases():
 
 
 def test_get_column_index_edge_cases():
-    from great_tables._utils_render_html import _get_column_index
-
-    # Create test data
     df = pl.DataFrame({"col1": [1], "col2": [2], "col3": [3]})
     gt_table = GT(df)
     data = gt_table._build_data("test")
@@ -1100,3 +1101,26 @@ def test_get_column_index_edge_cases():
 
     result = _get_column_index(data, "col3")
     assert result == 2
+
+
+def test_get_spanner_leftmost_column_index_edge_cases():
+    df = pl.DataFrame({"col1": [1], "col2": [2], "col3": [3]})
+    gt_table = GT(df).tab_spanner(label="Test Spanner", columns=["col2", "col3"])
+    data = gt_table._build_data("test")
+
+    # Test case 1: `spanner_grpname` is None
+    result = _get_spanner_leftmost_column_index(data, None)
+    assert result == 0
+
+    # Test case 2: `spanner_grpname` is empty string
+    result = _get_spanner_leftmost_column_index(data, "")
+    assert result == 0
+
+    # Test case 3: `spanner_grpname` doesn't exist
+    result = _get_spanner_leftmost_column_index(data, "Nonexistent Spanner")
+    assert result == 0
+
+    # Test normal case: existing spanner should return leftmost column index;
+    # col2 is at index 1, col3 at index 2, so leftmost is 1
+    result = _get_spanner_leftmost_column_index(data, "Test Spanner")
+    assert result == 1
