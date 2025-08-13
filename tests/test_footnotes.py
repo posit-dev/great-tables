@@ -1044,3 +1044,29 @@ def test_footnote_and_source_note_integration():
     assert "Data source: Example dataset" in footer_content
     assert "Number footnote" in footer_content
     assert "Text footnote" in footer_content
+
+
+def test_create_footnote_mark_html_edge_cases():
+    from great_tables._utils_render_html import _create_footnote_mark_html
+
+    # Test that empty mark should return an empty string
+    result = _create_footnote_mark_html("")
+    assert result == ""
+
+
+def test_footnote_mark_string_edge_cases():
+    from great_tables._utils_render_html import _get_footnote_mark_string
+    from great_tables._gt_data import FootnoteInfo
+
+    # Test with empty GTData (no footnotes)
+    empty_gt = GT(pl.DataFrame({"col": [1]}))
+    footnote_info = FootnoteInfo(locname="body", rownum=0, colname="col", footnotes=["test"])
+
+    # Should return mark "1" when no existing footnotes
+    result = _get_footnote_mark_string(empty_gt._build_data("footnote_test"), footnote_info)
+    assert result == "1"
+
+    # Test with footnote_info having no footnotes
+    footnote_info_empty = FootnoteInfo(locname="body", rownum=0, colname="col", footnotes=[])
+    result = _get_footnote_mark_string(empty_gt._build_data("footnote_test"), footnote_info_empty)
+    assert result == "1"
