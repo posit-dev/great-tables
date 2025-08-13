@@ -12,6 +12,23 @@ from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import BaseText, _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
+# Visual hierarchy mapping for footnote location ordering
+FOOTNOTE_LOCATION_HIERARCHY = {
+    "title": 1,
+    "subtitle": 2,
+    "stubhead": 3,
+    "columns_groups": 4,
+    "columns_columns": 5,
+    "data": 6,
+    "stub": 6,  # Same as data since stub and data cells are on the same row level
+}
+
+
+def _get_locnum_for_footnote_location(locname: str | None) -> int:
+    if locname is None:
+        return 999
+    return FOOTNOTE_LOCATION_HIERARCHY.get(locname, 999)  # Default to 999 for unknown locations
+
 
 def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
     if isinstance(loc, str):
@@ -790,18 +807,7 @@ def _process_footnotes_for_display(
             continue
 
         # Assign locnum based on visual hierarchy
-        if fn_info.locname == "title":
-            locnum = 1
-        elif fn_info.locname == "subtitle":
-            locnum = 2
-        elif fn_info.locname == "columns_columns":
-            locnum = 3
-        elif fn_info.locname == "data":
-            locnum = 4
-        elif fn_info.locname == "stub":
-            locnum = 4  # Same as data since stub and data cells are on the same row level
-        else:
-            locnum = 999
+        locnum = _get_locnum_for_footnote_location(fn_info.locname)
 
         # Assign column number, with stub getting a lower value than data columns
         if fn_info.locname == "stub":
@@ -946,22 +952,7 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
 
         # Assign locnum (location number) based on the location hierarchy where
         # lower numbers appear first in reading order
-        if fn_info.locname == "title":
-            locnum = 1
-        elif fn_info.locname == "subtitle":
-            locnum = 2
-        elif fn_info.locname == "stubhead":
-            locnum = 3
-        elif fn_info.locname == "columns_groups":
-            locnum = 4
-        elif fn_info.locname == "columns_columns":
-            locnum = 5
-        elif fn_info.locname == "data":
-            locnum = 6
-        elif fn_info.locname == "stub":
-            locnum = 6  # Same as data since stub and data cells are on the same row level
-        else:
-            locnum = 999  # Other locations come last
+        locnum = _get_locnum_for_footnote_location(fn_info.locname)
 
         # Get colnum (column number) and assign stub a lower value than data columns
         if fn_info.locname == "stub":
