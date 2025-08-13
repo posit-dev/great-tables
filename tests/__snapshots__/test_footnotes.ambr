@@ -29,7 +29,7 @@
   <tbody class="gt_table_body">
     <tr>
       <th class="gt_row gt_left gt_stub">Row1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <td class="gt_row gt_right">10<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></td>
+      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 10</td>
       <td class="gt_row gt_right">20</td>
     </tr>
   </tbody>

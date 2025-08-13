@@ -4,6 +4,22 @@ from great_tables import GT, loc, md, html
 from great_tables._utils_render_html import create_body_component_h
 
 
+def test_tab_footnote_mark_coalescing():
+    gt_table = (
+        _create_base_gt()
+        .tab_footnote(footnote="First note", locations=loc.body(columns="col1", rows=[0]))
+        .tab_footnote(footnote="Second note", locations=loc.body(columns="col1", rows=[0]))
+        .tab_footnote(footnote="Third note", locations=loc.body(columns="col2", rows=[1]))
+    )
+
+    html = gt_table._render_as_html()
+
+    # First cell should have coalesced marks "1,2" (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>1,2</span> 10", html)
+    # Second cell should have mark "3"
+    assert re.search(r"<span[^>]*>3</span> 200", html)
+
+
 def assert_rendered_body(snapshot, gt):
     built = gt._build_data("html")
     body = create_body_component_h(built)
@@ -50,8 +66,8 @@ def test_tab_footnote_basic():
 
     # Check that footnote appears in footer
     assert "Test footnote" in html
-    # Check that footnote mark appears in cell
-    assert re.search(r"10<span[^>]*>1</span>", html)
+    # Check that footnote mark appears in cell (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>1</span> 10", html)
 
 
 def test_tab_footnote_numeric_marks():
@@ -64,10 +80,10 @@ def test_tab_footnote_numeric_marks():
 
     html = gt_table._render_as_html()
 
-    # Check that marks appear in the correct order
-    assert re.search(r"10<span[^>]*>1</span>", html)  # First cell
-    assert re.search(r"200<span[^>]*>2</span>", html)  # Second cell
-    assert re.search(r"3000<span[^>]*>3</span>", html)  # Third cell
+    # Check that marks appear in the correct order (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>1</span> 10", html)  # First cell
+    assert re.search(r"<span[^>]*>2</span> 200", html)  # Second cell
+    assert re.search(r"<span[^>]*>3</span> 3000", html)  # Third cell
 
 
 def test_tab_footnote_mark_coalescing():
@@ -80,10 +96,10 @@ def test_tab_footnote_mark_coalescing():
 
     html = gt_table._render_as_html()
 
-    # First cell should have coalesced marks "1,2"
-    assert re.search(r"10<span[^>]*>1,2</span>", html)
-    # Second cell should have single mark "3"
-    assert re.search(r"200<span[^>]*>3</span>", html)
+    # First cell should have coalesced marks "1,2" (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>1,2</span> 10", html)
+    # Second cell should have single mark "3" (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>3</span> 200", html)
 
 
 def test_tab_footnote_ordering():
@@ -96,12 +112,12 @@ def test_tab_footnote_ordering():
 
     html = gt_table._render_as_html()
 
-    # Header should get mark 1 (comes before body)
+    # Header should get mark 1 (comes before body); text gets right placement
     assert re.search(r">col1<span[^>]*>1</span>", html)
-    # First body cell should get mark 2
-    assert re.search(r"10<span[^>]*>2</span>", html)
-    # Later body cell should get mark 3
-    assert re.search(r"200<span[^>]*>3</span>", html)
+    # First body cell should get mark 2; numbers get left placement with auto
+    assert re.search(r"<span[^>]*>2</span> 10", html)
+    # Later body cell should get mark 3; numbers get left placement with auto
+    assert re.search(r"<span[^>]*>3</span> 200", html)
 
 
 def test_tab_footnote_all_locations():
@@ -147,11 +163,11 @@ def test_tab_footnote_symbol_marks_standard():
 
     html = gt_table._render_as_html()
 
-    # Check standard symbols appear in visual reading order
-    assert re.search(r"10<span[^>]*>\*</span>", html)
-    assert re.search(r"20<span[^>]*>†</span>", html)
-    assert re.search(r"200<span[^>]*>‡</span>", html)
-    assert re.search(r"3000<span[^>]*>§</span>", html)
+    # Check standard symbols appear in visual reading order (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>\*</span> 10", html)
+    assert re.search(r"<span[^>]*>†</span> 20", html)
+    assert re.search(r"<span[^>]*>‡</span> 200", html)
+    assert re.search(r"<span[^>]*>§</span> 3000", html)
 
 
 def test_tab_footnote_symbol_marks_extended():
@@ -169,12 +185,13 @@ def test_tab_footnote_symbol_marks_extended():
     html = gt_table._render_as_html()
 
     # Check extended symbols appear in reading order (left-to-right, top-to-bottom)
+    # Numbers get left placement with auto
     symbols = ["*", "†", "‡", "§", "‖", "¶"]
     values = [10, 100, 1000, 20, 200, 2000]
 
     for symbol, value in zip(symbols, values):
         escaped_symbol = re.escape(symbol)
-        assert re.search(f"{value}<span[^>]*>{escaped_symbol}</span>", html)
+        assert re.search(f"<span[^>]*>{escaped_symbol}</span> {value}", html)
 
 
 def test_tab_footnote_symbol_marks_letters():
@@ -188,10 +205,10 @@ def test_tab_footnote_symbol_marks_letters():
 
     html = gt_table._render_as_html()
 
-    # Check that the letter marks appear
-    assert re.search(r"10<span[^>]*>a</span>", html)
-    assert re.search(r"100<span[^>]*>b</span>", html)
-    assert re.search(r"1000<span[^>]*>c</span>", html)
+    # Check that the letter marks appear (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>a</span> 10", html)
+    assert re.search(r"<span[^>]*>b</span> 100", html)
+    assert re.search(r"<span[^>]*>c</span> 1000", html)
 
 
 def test_tab_footnote_symbol_marks_uppercase_letters():
@@ -205,10 +222,10 @@ def test_tab_footnote_symbol_marks_uppercase_letters():
 
     html = gt_table._render_as_html()
 
-    # Check that the uppercase letter marks appear
-    assert re.search(r"10<span[^>]*>A</span>", html)
-    assert re.search(r"100<span[^>]*>B</span>", html)
-    assert re.search(r"1000<span[^>]*>C</span>", html)
+    # Check that the uppercase letter marks appear (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>A</span> 10", html)
+    assert re.search(r"<span[^>]*>B</span> 100", html)
+    assert re.search(r"<span[^>]*>C</span> 1000", html)
 
 
 def test_tab_footnote_custom_symbol_marks():
@@ -223,10 +240,10 @@ def test_tab_footnote_custom_symbol_marks():
 
     html = gt_table._render_as_html()
 
-    # Check that the custom marks appear (in the right order)
-    assert re.search(r"10<span[^>]*>❶</span>", html)
-    assert re.search(r"100<span[^>]*>❷</span>", html)
-    assert re.search(r"1000<span[^>]*>❸</span>", html)
+    # Check that the custom marks appear (in the right order, left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>❶</span> 10", html)
+    assert re.search(r"<span[^>]*>❷</span> 100", html)
+    assert re.search(r"<span[^>]*>❸</span> 1000", html)
 
 
 def test_tab_footnote_symbol_cycling():
@@ -246,12 +263,12 @@ def test_tab_footnote_symbol_cycling():
 
     html = gt_table._render_as_html()
 
-    # Check the cycling behavior
-    assert re.search(r"10<span[^>]*>\*</span>", html)
-    assert re.search(r"100<span[^>]*>†</span>", html)
-    assert re.search(r"1000<span[^>]*>‡</span>", html)
-    assert re.search(r"20<span[^>]*>§</span>", html)
-    assert re.search(r"200<span[^>]*>\*\*</span>", html)
+    # Check the cycling behavior (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>\*</span> 10", html)
+    assert re.search(r"<span[^>]*>†</span> 100", html)
+    assert re.search(r"<span[^>]*>‡</span> 1000", html)
+    assert re.search(r"<span[^>]*>§</span> 20", html)
+    assert re.search(r"<span[^>]*>\*\*</span> 200", html)
 
 
 def test_tab_footnote_symbol_coalescing():
@@ -265,11 +282,11 @@ def test_tab_footnote_symbol_coalescing():
 
     html = gt_table._render_as_html()
 
-    # The first cell should have a coalesced symbol marks
-    assert re.search(r"10<span[^>]*>\*,†</span>", html)
+    # The first cell should have a coalesced symbol marks (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>\*,†</span> 10", html)
 
-    # The second cell should have a single symbol mark
-    assert re.search(r"100<span[^>]*>‡</span>", html)
+    # The second cell should have a single symbol mark (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>‡</span> 100", html)
 
 
 def test_tab_footnote_multiple_rows():
@@ -279,10 +296,10 @@ def test_tab_footnote_multiple_rows():
 
     html = gt_table._render_as_html()
 
-    # All three cells should have the same footnote mark
-    assert re.search(r"10<span[^>]*>1</span>", html)
-    assert re.search(r"20<span[^>]*>1</span>", html)
-    assert re.search(r"30<span[^>]*>1</span>", html)
+    # All three cells should have the same footnote mark (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>1</span> 10", html)
+    assert re.search(r"<span[^>]*>1</span> 20", html)
+    assert re.search(r"<span[^>]*>1</span> 30", html)
 
 
 def test_tab_footnote_multiple_columns():
@@ -292,9 +309,9 @@ def test_tab_footnote_multiple_columns():
 
     html = gt_table._render_as_html()
 
-    # Both cells in the first row should have the same footnote mark
-    assert re.search(r"10<span[^>]*>1</span>", html)
-    assert re.search(r"100<span[^>]*>1</span>", html)
+    # Both cells in the first row should have the same footnote mark (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>1</span> 10", html)
+    assert re.search(r"<span[^>]*>1</span> 100", html)
 
 
 def test_tab_footnote_footer_rendering():
@@ -326,8 +343,8 @@ def test_tab_footnote_with_text_object():
 
     html = gt_table._render_as_html()
 
-    # Check that the footnote mark appears
-    assert re.search(r"10<span[^>]*>1</span>", html)
+    # Check that the footnote mark appears (left placement for numbers with auto)
+    assert re.search(r"<span[^>]*>1</span> 10", html)
 
     # Check that the text object content should appear in the footer
     assert "Bold text" in html
