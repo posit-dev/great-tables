@@ -174,7 +174,11 @@ def create_columns_component_h(data: GTData) -> str:
         if stub_layout:
             table_col_headings.append(
                 tags.th(
-                    HTML(_process_text(stub_label)),
+                    HTML(
+                        _add_footnote_marks_to_text(
+                            data, _process_text(stub_label), locname="stubhead"
+                        )
+                    ),
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
                     rowspan="1",
                     colspan=len(stub_layout),
@@ -237,7 +241,11 @@ def create_columns_component_h(data: GTData) -> str:
         if stub_layout:
             level_1_spanners.append(
                 tags.th(
-                    HTML(_process_text(stub_label)),
+                    HTML(
+                        _add_footnote_marks_to_text(
+                            data, _process_text(stub_label), locname="stubhead"
+                        )
+                    ),
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
                     rowspan=2,
                     colspan=len(stub_layout),
@@ -245,9 +253,7 @@ def create_columns_component_h(data: GTData) -> str:
                     scope="colgroup" if len(stub_layout) > 1 else "col",
                     id=_create_element_id(table_id, stub_label),
                 )
-            )
-
-        # NOTE: Run-length encoding treats missing values as distinct from each other; in other
+            )  # NOTE: Run-length encoding treats missing values as distinct from each other; in other
         # words, each missing value starts a new run of length 1
 
         spanner_ids_level_1 = spanner_ids[level_1_index]
@@ -301,7 +307,14 @@ def create_columns_component_h(data: GTData) -> str:
                     level_1_spanners.append(
                         tags.th(
                             tags.span(
-                                HTML(_process_text(spanner_ids_level_1_index[ii])),
+                                HTML(
+                                    _add_footnote_marks_to_text(
+                                        data,
+                                        _process_text(spanner_ids_level_1_index[ii]),
+                                        locname="columns_groups",
+                                        grpname=spanner_ids_level_1_index[ii],
+                                    )
+                                ),
                                 class_="gt_column_spanner",
                             ),
                             class_="gt_center gt_columns_top_border gt_column_spanner_outer",
@@ -391,7 +404,14 @@ def create_columns_component_h(data: GTData) -> str:
 
                     if span_label:
                         span = tags.span(
-                            HTML(_process_text(span_label)),
+                            HTML(
+                                _add_footnote_marks_to_text(
+                                    data,
+                                    _process_text(span_label),
+                                    locname="columns_groups",
+                                    grpname=span_label,
+                                )
+                            ),
                             class_="gt_column_spanner",
                         )
                     else:
@@ -1001,22 +1021,29 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
             locnum = 1
         elif fn_info.locname == "subtitle":
             locnum = 2
-        elif fn_info.locname == "columns_columns":
+        elif fn_info.locname == "stubhead":
             locnum = 3
-        elif fn_info.locname == "data":
+        elif fn_info.locname == "columns_groups":
             locnum = 4
-        elif fn_info.locname == "stub":
-            locnum = 4  # Same as data since stub and data cells are on the same row level
-        elif fn_info.locname == "summary":
+        elif fn_info.locname == "columns_columns":
             locnum = 5
-        elif fn_info.locname == "grand_summary":
+        elif fn_info.locname == "data":
             locnum = 6
+        elif fn_info.locname == "stub":
+            locnum = 6  # Same as data since stub and data cells are on the same row level
+        elif fn_info.locname == "summary":
+            locnum = 7
+        elif fn_info.locname == "grand_summary":
+            locnum = 8
         else:
             locnum = 999  # Other locations come last
 
         # Get colnum (column number) and assign stub a lower value than data columns
         if fn_info.locname == "stub":
             colnum = -1  # Stub appears before all data columns
+        elif fn_info.locname == "columns_groups":
+            # For spanners, use the leftmost column index to ensure left-to-right ordering
+            colnum = _get_spanner_leftmost_column_index(data, fn_info.grpname)
         else:
             colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
 
@@ -1074,6 +1101,26 @@ def _get_column_index(data: GTData, colname: str | None) -> int:
     for i, col_info in enumerate(columns):
         if col_info.var == colname:
             return i
+
+    return 0
+
+
+def _get_spanner_leftmost_column_index(data: GTData, spanner_grpname: str | None) -> int:
+    """Get the leftmost column index for a spanner group to enable proper left-to-right ordering."""
+    if not spanner_grpname:
+        return 0
+
+    # Find the spanner with this group name
+    for spanner in data._spanners:
+        if spanner.spanner_label == spanner_grpname:
+            # Get the column indices for all columns in this spanner
+            column_indices = []
+            for col_var in spanner.vars:
+                col_index = _get_column_index(data, col_var)
+                column_indices.append(col_index)
+
+            # Return the minimum (leftmost) column index
+            return min(column_indices) if column_indices else 0
 
     return 0
 
