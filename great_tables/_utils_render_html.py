@@ -6,7 +6,7 @@ from typing import Any, cast
 from htmltools import HTML, TagList, css, tags
 
 from . import _locations as loc
-from ._gt_data import FootnoteInfo, GroupRowInfo, GTData, Styles
+from ._gt_data import FootnoteInfo, FootnotePlacement, GroupRowInfo, GTData, Styles
 from ._spanners import spanners_print_matrix
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import BaseText, _process_text, _process_text_id
@@ -1074,9 +1074,11 @@ def _add_footnote_marks_to_text(
 
     # Collect unique mark strings and sort them properly
     mark_strings: list[str] = []
+    footnote_placements: list[FootnoteInfo] = []
     for mark_string, footnote in matching_footnotes:
         if mark_string not in mark_strings:
             mark_strings.append(mark_string)
+            footnote_placements.append(footnote)
 
     # Sort marks: for numbers, sort numerically; for symbols, sort by their order in symbol set
     mark_type = _get_footnote_marks_option(data)
@@ -1085,7 +1087,7 @@ def _add_footnote_marks_to_text(
         mark_strings.sort(key=lambda x: int(x) if x.isdigit() else float("inf"))
     else:
         # For symbols, maintain the order they appear (which should already be correct)
-        # since _get_footnote_mark_string() returns them in visual order
+        # since `_get_footnote_mark_string()` returns them in visual order
         pass
 
     # Create a single footnote mark span with comma-separated marks
@@ -1093,9 +1095,64 @@ def _add_footnote_marks_to_text(
         # Join mark strings with commas (no spaces)
         marks_text = ",".join(mark_strings)
         marks_html = f'<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">{marks_text}</span>'
-        return f"{text}{marks_html}"
+
+        # Determine placement based on the first footnote's placement setting
+        # (all footnotes for the same location should have the same placement)
+        placement = footnote_placements[0].placement if footnote_placements else None
+
+        # Apply placement logic
+        return _apply_footnote_placement(text, marks_html, placement)
 
     return text
+
+
+def _apply_footnote_placement(
+    text: str, marks_html: str, placement: FootnotePlacement | None
+) -> str:
+    # Default to auto if no placement specified
+    if placement is None:
+        placement_setting = FootnotePlacement.auto
+    else:
+        placement_setting = placement
+
+    if placement_setting == FootnotePlacement.left:
+        # Left placement: footnote marks + space + text
+        return f"{marks_html} {text}"
+    elif placement_setting == FootnotePlacement.right:
+        # Right placement: text + footnote marks
+        return f"{text}{marks_html}"
+    else:
+        # Auto placement: left for numbers, right for everything else
+        if _is_numeric_content(text):
+            # For numbers, place marks on the left so alignment is preserved
+            return f"{marks_html} {text}"
+        else:
+            # For text, place marks on the right
+            return f"{text}{marks_html}"
+
+
+def _is_numeric_content(text: str) -> bool:
+    import re
+
+    # Strip HTML tags for analysis
+    clean_text = re.sub(r"<[^>]+>", "", text).strip()
+
+    if not clean_text:
+        return False
+
+    # Remove common formatting characters to get to the core content
+    # This handles formatted numbers with commas, currency symbols, percent signs, etc.
+    # Include a wide range of currency symbols and formatting characters
+    formatting_chars = r"[,\s$%€£¥₹₽₩₪₱₡₴₦₨₵₸₲₩\(\)−\-+]"
+    number_core = re.sub(formatting_chars, "", clean_text)
+
+    # Check if what remains is primarily numeric (including decimals)
+    if not number_core:
+        return False
+
+    # Check if the core is just digits and decimal points
+    numeric_pattern = r"^[\d.]+$"
+    return bool(re.match(numeric_pattern, number_core))
 
 
 def rtl_modern_unicode_charset() -> str:
