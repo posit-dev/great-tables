@@ -36,8 +36,6 @@
    #test_table .gt_row_group_first th { border-top-width: 2px; }
    #test_table .gt_striped { background-color: rgba(128,128,128,0.05); }
    #test_table .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-   #test_table .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-   #test_table .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
    #test_table .gt_left { text-align: left; }
    #test_table .gt_center { text-align: center; }
    #test_table .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
@@ -45,6 +43,10 @@
    #test_table .gt_font_bold { font-weight: bold; }
    #test_table .gt_font_italic { font-style: italic; }
    #test_table .gt_super { font-size: 65%; }
+   #test_table .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+   #test_table .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+   #test_table .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+   #test_table .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
    #test_table .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
    #test_table .gt_asterisk { font-size: 100%; vertical-align: 0; }
    
@@ -121,14 +123,7 @@
       <td class="gt_row gt_right">$0.44</td>
     </tr>
   </tbody>
-    <tfoot class="gt_sourcenotes">
-    
-    <tr>
-      <td class="gt_sourcenote" colspan="4">This is only a subset of the dataset.</td>
-    </tr>
-  
-  </tfoot>
-  
+  <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4"><span class="gt_from_md">This is only a subset of the dataset.</span></td></tr></tfoot>
   </table>
   
   </div>
@@ -157,7 +152,6 @@
       <td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">banana</td>
     </tr>
   </tbody>
-  
   
   </table>
   
@@ -190,7 +184,6 @@
       <td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">banana</td>
     </tr>
   </tbody>
-  
   
   </table>
   

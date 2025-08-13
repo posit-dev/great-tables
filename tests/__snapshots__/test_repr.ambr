@@ -36,8 +36,6 @@
    #test .gt_row_group_first th { border-top-width: 2px; }
    #test .gt_striped { background-color: rgba(128,128,128,0.05); }
    #test .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-   #test .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-   #test .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
    #test .gt_left { text-align: left; }
    #test .gt_center { text-align: center; }
    #test .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
@@ -45,6 +43,10 @@
    #test .gt_font_bold { font-weight: bold; }
    #test .gt_font_italic { font-style: italic; }
    #test .gt_super { font-size: 65%; }
+   #test .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+   #test .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+   #test .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+   #test .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
    #test .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
    #test .gt_asterisk { font-size: 100%; vertical-align: 0; }
    
@@ -67,7 +69,6 @@
       <td class="gt_row gt_right">5</td>
     </tr>
   </tbody>
-  
   
   </table>
   
@@ -112,8 +113,6 @@
    #test .gt_row_group_first th { border-top-width: 2px; }
    #test .gt_striped { background-color: rgba(128,128,128,0.05); }
    #test .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-   #test .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-   #test .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
    #test .gt_left { text-align: left; }
    #test .gt_center { text-align: center; }
    #test .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
@@ -121,6 +120,10 @@
    #test .gt_font_bold { font-weight: bold; }
    #test .gt_font_italic { font-style: italic; }
    #test .gt_super { font-size: 65%; }
+   #test .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+   #test .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+   #test .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+   #test .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
    #test .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
    #test .gt_asterisk { font-size: 100%; vertical-align: 0; }
    
@@ -143,7 +146,6 @@
       <td class="gt_row gt_right">5</td>
     </tr>
   </tbody>
-  
   
   </table>
   
@@ -194,8 +196,6 @@
    #test .gt_row_group_first th { border-top-width: 2px !important; }
    #test .gt_striped { background-color: rgba(128,128,128,0.05) !important; }
    #test .gt_table_body { border-top-style: solid !important; border-top-width: 2px !important; border-top-color: #D3D3D3 !important; border-bottom-style: solid !important; border-bottom-width: 2px !important; border-bottom-color: #D3D3D3 !important; }
-   #test .gt_sourcenotes { color: #333333 !important; background-color: #FFFFFF !important; border-bottom-style: none !important; border-bottom-width: 2px !important; border-bottom-color: #D3D3D3 !important; border-left-style: none !important; border-left-width: 2px !important; border-left-color: #D3D3D3 !important; border-right-style: none !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; }
-   #test .gt_sourcenote { font-size: 90% !important; padding-top: 4px !important; padding-bottom: 4px !important; padding-left: 5px !important; padding-right: 5px !important; text-align: left !important; }
    #test .gt_left { text-align: left !important; }
    #test .gt_center { text-align: center !important; }
    #test .gt_right { text-align: right !important; font-variant-numeric: tabular-nums !important; }
@@ -203,6 +203,10 @@
    #test .gt_font_bold { font-weight: bold !important; }
    #test .gt_font_italic { font-style: italic !important; }
    #test .gt_super { font-size: 65% !important; }
+   #test .gt_footnotes { color: font-color(#FFFFFF) !important; background-color: #FFFFFF !important; border-bottom-style: none !important; border-bottom-width: 2px !important; border-bottom-color: #D3D3D3 !important; border-left-style: none !important; border-left-width: 2px !important; border-left-color: #D3D3D3 !important; border-right-style: none !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; }
+   #test .gt_footnote { margin: 0px !important; font-size: 90% !important; padding-top: 4px !important; padding-bottom: 4px !important; padding-left: 5px !important; padding-right: 5px !important; }
+   #test .gt_sourcenotes { color: #333333 !important; background-color: #FFFFFF !important; border-bottom-style: none !important; border-bottom-width: 2px !important; border-bottom-color: #D3D3D3 !important; border-left-style: none !important; border-left-width: 2px !important; border-left-color: #D3D3D3 !important; border-right-style: none !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; }
+   #test .gt_sourcenote { font-size: 90% !important; padding-top: 4px !important; padding-bottom: 4px !important; padding-left: 5px !important; padding-right: 5px !important; text-align: left !important; }
    #test .gt_footnote_marks { font-size: 75% !important; vertical-align: 0.4em !important; position: initial !important; }
    #test .gt_asterisk { font-size: 100% !important; vertical-align: 0 !important; }
    
@@ -225,7 +229,6 @@
       <td class="gt_row gt_right">5</td>
     </tr>
   </tbody>
-  
   
   </table>
   
@@ -273,8 +276,6 @@
    #test .gt_row_group_first th { border-top-width: 2px; }
    #test .gt_striped { background-color: rgba(128,128,128,0.05); }
    #test .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-   #test .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-   #test .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
    #test .gt_left { text-align: left; }
    #test .gt_center { text-align: center; }
    #test .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
@@ -282,6 +283,10 @@
    #test .gt_font_bold { font-weight: bold; }
    #test .gt_font_italic { font-style: italic; }
    #test .gt_super { font-size: 65%; }
+   #test .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+   #test .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+   #test .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+   #test .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
    #test .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
    #test .gt_asterisk { font-size: 100%; vertical-align: 0; }
    
@@ -304,7 +309,6 @@
       <td class="gt_row gt_right">5</td>
     </tr>
   </tbody>
-  
   
   </table>
   
@@ -349,8 +353,6 @@
    #test .gt_row_group_first th { border-top-width: 2px !important; }
    #test .gt_striped { background-color: rgba(128,128,128,0.05) !important; }
    #test .gt_table_body { border-top-style: solid !important; border-top-width: 2px !important; border-top-color: #D3D3D3 !important; border-bottom-style: solid !important; border-bottom-width: 2px !important; border-bottom-color: #D3D3D3 !important; }
-   #test .gt_sourcenotes { color: #333333 !important; background-color: #FFFFFF !important; border-bottom-style: none !important; border-bottom-width: 2px !important; border-bottom-color: #D3D3D3 !important; border-left-style: none !important; border-left-width: 2px !important; border-left-color: #D3D3D3 !important; border-right-style: none !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; }
-   #test .gt_sourcenote { font-size: 90% !important; padding-top: 4px !important; padding-bottom: 4px !important; padding-left: 5px !important; padding-right: 5px !important; text-align: left !important; }
    #test .gt_left { text-align: left !important; }
    #test .gt_center { text-align: center !important; }
    #test .gt_right { text-align: right !important; font-variant-numeric: tabular-nums !important; }
@@ -358,6 +360,10 @@
    #test .gt_font_bold { font-weight: bold !important; }
    #test .gt_font_italic { font-style: italic !important; }
    #test .gt_super { font-size: 65% !important; }
+   #test .gt_footnotes { color: font-color(#FFFFFF) !important; background-color: #FFFFFF !important; border-bottom-style: none !important; border-bottom-width: 2px !important; border-bottom-color: #D3D3D3 !important; border-left-style: none !important; border-left-width: 2px !important; border-left-color: #D3D3D3 !important; border-right-style: none !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; }
+   #test .gt_footnote { margin: 0px !important; font-size: 90% !important; padding-top: 4px !important; padding-bottom: 4px !important; padding-left: 5px !important; padding-right: 5px !important; }
+   #test .gt_sourcenotes { color: #333333 !important; background-color: #FFFFFF !important; border-bottom-style: none !important; border-bottom-width: 2px !important; border-bottom-color: #D3D3D3 !important; border-left-style: none !important; border-left-width: 2px !important; border-left-color: #D3D3D3 !important; border-right-style: none !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; }
+   #test .gt_sourcenote { font-size: 90% !important; padding-top: 4px !important; padding-bottom: 4px !important; padding-left: 5px !important; padding-right: 5px !important; text-align: left !important; }
    #test .gt_footnote_marks { font-size: 75% !important; vertical-align: 0.4em !important; position: initial !important; }
    #test .gt_asterisk { font-size: 100% !important; vertical-align: 0 !important; }
    
@@ -380,7 +386,6 @@
       <td class="gt_row gt_right">5</td>
     </tr>
   </tbody>
-  
   
   </table>
   

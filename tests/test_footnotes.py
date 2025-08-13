@@ -494,3 +494,36 @@ def test_tab_footnote_html_with_unit_notation():
         '<strong>Area</strong> is measured in km<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>'
         in html_output
     )
+
+
+def test_footer_structure_combined():
+    df = pl.DataFrame({"area": [100, 200], "value": [10, 20]})
+
+    gt_table = (
+        GT(df)
+        .tab_source_note("Source: Test data.")
+        .tab_footnote(
+            footnote="Area footnote.",
+            locations=loc.body(columns="area", rows=[0]),
+        )
+        .tab_footnote(
+            footnote="Value footnote.",
+            locations=loc.body(columns="value", rows=[1]),
+        )
+    )
+
+    html_output = gt_table._render_as_html()
+
+    # Check that there is only a single <tfoot> container
+    assert html_output.count("<tfoot") == 1
+    assert html_output.count("</tfoot>") == 1
+
+    # Check that both source notes and footnotes are present
+    assert "gt_sourcenote" in html_output
+    assert html_output.count("gt_footnote") >= 2
+
+    # Check proper class structure (should use the `gt_footnotes` class)
+    assert 'class="gt_footnotes"' in html_output
+
+    # Check that footnote marks are present
+    assert "gt_footnote_marks" in html_output
