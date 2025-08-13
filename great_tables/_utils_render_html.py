@@ -1150,9 +1150,10 @@ def _is_numeric_content(text: str) -> bool:
     if not number_core:
         return False
 
-    # Check if the core is just digits and decimal points
-    numeric_pattern = r"^[\d.]+$"
-    return bool(re.match(numeric_pattern, number_core))
+    # Check if the core is a valid number: must have at least one digit,
+    # and can have at most one decimal point
+    numeric_pattern = r"^\d*\.?\d+$|^\d+\.?\d*$"
+    return bool(re.match(numeric_pattern, number_core)) and number_core != "."
 
 
 def rtl_modern_unicode_charset() -> str:
