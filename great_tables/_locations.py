@@ -1088,4 +1088,144 @@ def _(loc: None, data: GTData, footnote: str, placement: PlacementOptions) -> GT
 
 @set_footnote.register
 def _(loc: LocTitle, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
-    raise NotImplementedError()
+    place = FootnotePlacement[placement]
+    info = FootnoteInfo(locname="title", footnotes=[footnote], placement=place, locnum=1)
+    return data._replace(_footnotes=data._footnotes + [info])
+
+
+@set_footnote.register
+def _(loc: LocSubTitle, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
+    place = FootnotePlacement[placement]
+    info = FootnoteInfo(locname="subtitle", footnotes=[footnote], placement=place, locnum=2)
+    return data._replace(_footnotes=data._footnotes + [info])
+
+
+@set_footnote.register
+def _(loc: LocStubhead, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
+    place = FootnotePlacement[placement]
+    info = FootnoteInfo(locname="stubhead", footnotes=[footnote], placement=place, locnum=2.5)
+    return data._replace(_footnotes=data._footnotes + [info])
+
+
+@set_footnote.register
+def _(loc: LocColumnLabels, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
+    place = FootnotePlacement[placement]
+
+    # Resolve which columns to target - returns list[tuple[str, int]]
+    name_pos_list = resolve(loc, data)
+
+    result = data
+    for name, pos in name_pos_list:
+        info = FootnoteInfo(
+            locname="columns_columns", colname=name, footnotes=[footnote], placement=place, locnum=4
+        )
+        result = result._replace(_footnotes=result._footnotes + [info])
+
+    return result
+
+
+@set_footnote.register
+def _(loc: LocSpannerLabels, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
+    place = FootnotePlacement[placement]
+
+    # Get spanners from data
+    spanners = data._spanners if hasattr(data, "_spanners") else []
+
+    # Resolve which spanners to target
+    resolved_loc = resolve(loc, spanners)
+
+    result = data
+    for spanner_id in resolved_loc.ids:
+        info = FootnoteInfo(
+            locname="columns_groups",
+            grpname=spanner_id,
+            footnotes=[footnote],
+            placement=place,
+            locnum=3,
+        )
+        result = result._replace(_footnotes=result._footnotes + [info])
+
+    return result
+
+
+@set_footnote.register
+def _(loc: LocRowGroups, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
+    place = FootnotePlacement[placement]
+
+    # Resolve which row groups to target - returns set[str]
+    group_names = resolve(loc, data)
+
+    result = data
+    for group_name in group_names:
+        info = FootnoteInfo(
+            locname="row_groups",
+            grpname=group_name,
+            footnotes=[footnote],
+            placement=place,
+            locnum=5,
+        )
+        result = result._replace(_footnotes=result._footnotes + [info])
+
+    return result
+
+
+@set_footnote.register
+def _(loc: LocStub, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
+    place = FootnotePlacement[placement]
+
+    # Resolve which stub rows to target - returns set[int]
+    row_positions = resolve(loc, data)
+
+    result = data
+    for row_pos in row_positions:
+        info = FootnoteInfo(
+            locname="stub", rownum=row_pos, footnotes=[footnote], placement=place, locnum=5
+        )
+        result = result._replace(_footnotes=result._footnotes + [info])
+
+    return result
+
+
+@set_footnote.register
+def _(loc: LocBody, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
+    place = FootnotePlacement[placement]
+
+    # Resolve which body cells to target
+    positions = resolve(loc, data)
+
+    result = data
+    for pos in positions:
+        info = FootnoteInfo(
+            locname="data",
+            colname=pos.colname,
+            rownum=pos.row,
+            footnotes=[footnote],
+            placement=place,
+            locnum=5,
+        )
+        result = result._replace(_footnotes=result._footnotes + [info])
+
+    return result
+
+
+@set_footnote.register
+def _(loc: LocSummary, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
+    place = FootnotePlacement[placement]
+
+    # Resolve which summary cells to target
+    positions = resolve(loc, data)
+
+    result = data
+    for pos in positions:
+        info = FootnoteInfo(
+            locname="summary_cells",
+            grpname=getattr(pos, "group_id", None),
+            colname=pos.colname,
+            rownum=pos.row,
+            footnotes=[footnote],
+            placement=place,
+            locnum=5.5,
+        )
+        result = result._replace(_footnotes=result._footnotes + [info])
+
+    return result
