@@ -19,6 +19,7 @@ from ._tbl_data import (
     create_no_row_frame,
     get_column_names,
     insert_row,
+    n_rows,
     to_list,
 )
 
@@ -222,11 +223,11 @@ def grand_summary_rows(
 
         # Convert list of values to TblData (single row DataFrame)
         summary_tbl_data = create_no_row_frame(self._tbl_data)
-        summary_tbl_data = insert_row(summary_tbl_data, row_values_list, len(summary_tbl_data))
+        summary_tbl_data = insert_row(summary_tbl_data, row_values_list, n_rows(summary_tbl_data))
 
         summary_row_info = SummaryRowInfo(
             function=fn_name,
-            values=summary_tbl_data,
+            values=row_values_list,  # TODO: revisit type
             side=side,
             group=GRAND_SUMMARY_GROUP,
         )
@@ -234,8 +235,6 @@ def grand_summary_rows(
 
     existing_rows = self._summary_rows._d if self._summary_rows is not None else []
     new_summary_rows = SummaryRows(existing_rows + summary_row_infos)
-
-    print([n.values for n in new_summary_rows])
 
     return self._replace(_summary_rows=new_summary_rows)
 
