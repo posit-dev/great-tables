@@ -24,6 +24,7 @@ from ._tbl_data import (
     copy_data,
     create_empty_frame,
     get_column_names,
+    insert_row,
     n_rows,
     to_list,
     validate_frame,
@@ -179,6 +180,37 @@ class Body:
 
     def __init__(self, body: TblData):
         self.body = body
+
+    def merge_summary_rows(self, old_tbl_data: TblData, summary_rows: SummaryRows):
+        if not summary_rows or summary_rows == []:
+            return self
+
+        tbl_data = self.body
+
+        for i, summary_row in enumerate(summary_rows):
+            # Concatenate based on side parameter
+            if summary_row.side == "bottom":
+                tbl_data = insert_row(tbl_data, summary_row.values, n_rows(tbl_data))
+            else:  # top
+                tbl_data = insert_row(tbl_data, summary_row.values, i)
+
+        self.body = tbl_data
+
+        # _row_group_info = self._boxhead._get_row_group_column()
+        # groupname_col = _row_group_info.var if _row_group_info is not None else None
+
+        # _row_name_info = self._boxhead._get_stub_column()
+        # rowname_col = _row_name_info.var if _row_name_info is not None else None
+
+        # stub, boxhead = self._stub._set_cols(
+        #     self._tbl_data, self._boxhead, rowname_col, groupname_col
+        # )
+
+        # self._body.body = new_tbl_data
+
+        # return self._replace(_stub=stub, _boxhead=boxhead)
+
+        return self
 
     def render_formats(self, data_tbl: TblData, formats: list[FormatInfo], context: Any):
         for fmt in formats:
@@ -982,7 +1014,7 @@ class SummaryRowInfo:
     """Information about a single summary row"""
 
     function: Literal["min", "max", "mean", "median"]
-    values: TblData
+    values: list[str | int | float]  # TODO: consider datatype
     side: Literal["top", "bottom"]
     group: GroupRowInfo
 
