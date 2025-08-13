@@ -929,3 +929,118 @@ def test_footnote_placement_snapshot_right_placement(snapshot):
     )
 
     assert_complete_html_without_style(snapshot, gt_right)
+
+
+def test_source_notes_single_line_with_footnotes():
+    import pandas as pd
+
+    df = pd.DataFrame({"values": [42, 123]})
+
+    # Create a table with source notes in single-line mode and footnotes
+    gt_table = (
+        GT(df)
+        .tab_header(title="Table with Source Notes and Footnotes")
+        .tab_source_note("First source note")
+        .tab_source_note("Second source note")
+        .tab_source_note("Third source note")
+        .tab_footnote("Value footnote", locations=loc.body(columns="values", rows=[0]))
+        .tab_options(source_notes_multiline=False)
+    )
+
+    html = gt_table._render_as_html()
+
+    # Check that source notes are in single line (joined by separator)
+    # The default separator should be used to join the notes
+    assert "First source note" in html
+    assert "Second source note" in html
+    assert "Third source note" in html
+
+    # Check that footnotes are also present
+    assert "Value footnote" in html
+
+    # Verify the HTML structure: source notes should be in a single row
+    import re
+
+    # Look for source notes in a single <td> with the `gt_sourcenote` class
+    source_note_pattern = r'<tr class="gt_sourcenotes"><td class="gt_sourcenote"[^>]*><span class="gt_from_md">[^<]*First source note[^<]*Second source note[^<]*Third source note[^<]*</span></td></tr>'
+    assert re.search(source_note_pattern, html)
+
+
+def test_source_notes_multiline_with_footnotes():
+    import pandas as pd
+
+    df = pd.DataFrame({"values": [42, 123]})
+
+    # Create a table with source notes in multiline mode and footnotes
+    gt_table = (
+        GT(df)
+        .tab_header(title="Table with Multiline Source Notes and Footnotes")
+        .tab_source_note("First source note")
+        .tab_source_note("Second source note")
+        .tab_source_note("Third source note")
+        .tab_footnote("Value footnote", locations=loc.body(columns="values", rows=[0]))
+        .tab_options(source_notes_multiline=True)
+    )
+
+    html = gt_table._render_as_html()
+
+    # Check that source notes are present
+    assert "First source note" in html
+    assert "Second source note" in html
+    assert "Third source note" in html
+
+    # Check that footnotes are also present
+    assert "Value footnote" in html
+
+    # Verify the HTML structure: each source note should be in its own row
+    import re
+
+    # Look for multiple source note rows
+    source_note_rows = re.findall(
+        r'<tr class="gt_sourcenotes"><td class="gt_sourcenote"[^>]*>', html
+    )
+    assert len(source_note_rows) >= 3
+
+
+def test_footnote_and_source_note_integration():
+    import pandas as pd
+
+    df = pd.DataFrame({"numbers": [100, 200], "text": ["Alpha", "Beta"]})
+
+    # Create a comprehensive table with both footnotes and source notes
+    gt_table = (
+        GT(df)
+        .tab_header(title="Integration Test: Footnotes and Source Notes")
+        .tab_footnote("Number footnote", locations=loc.body(columns="numbers", rows=[0]))
+        .tab_footnote("Text footnote", locations=loc.body(columns="text", rows=[1]))
+        .tab_source_note("Data source: Example dataset")
+        .tab_source_note("Analysis performed in 2025")
+        .tab_options(source_notes_multiline=False)
+    )
+
+    html = gt_table._render_as_html()
+
+    # Verify footnotes are applied with correct placement
+    import re
+
+    # Numbers should get left placement, text should get right placement
+    assert re.search(r"<span[^>]*>1</span> 100", html), "Number footnote should be left-placed"
+    assert re.search(r"Beta<span[^>]*>2</span>", html), "Text footnote should be right-placed"
+
+    # Verify footnotes appear in footer
+    assert "Number footnote" in html
+    assert "Text footnote" in html
+
+    # Verify source notes appear in footer in single line
+    assert "Data source: Example dataset" in html
+    assert "Analysis performed in 2025" in html
+
+    # Check that both footnotes and source notes are in the footer section
+    footer_match = re.search(r"<tfoot>(.*?)</tfoot>", html, re.DOTALL)
+    assert footer_match
+
+    # Footer should contain both source notes and footnotes
+    footer_content = footer_match.group(1)
+    assert "Data source: Example dataset" in footer_content
+    assert "Number footnote" in footer_content
+    assert "Text footnote" in footer_content
