@@ -11,8 +11,16 @@ def assert_rendered_body(snapshot, gt):
     assert snapshot == body
 
 
+def assert_complete_html_without_style(snapshot, gt):
+    import re
+
+    html = gt.as_raw_html()
+    html_without_style = re.sub(r"<style>.*?</style>", "", html, flags=re.DOTALL)
+
+    assert snapshot == html_without_style
+
+
 def _create_test_data():
-    # Create DataFrame with potential for stub and two row groups
     return pl.DataFrame(
         {
             "group": ["A", "A", "A", "B", "B", "B"],
@@ -34,7 +42,6 @@ def _create_base_gt():
 
 
 def test_tab_footnote_basic():
-    # Test basic footnote creation and HTML rendering
     gt_table = _create_base_gt().tab_footnote(
         footnote="Test footnote", locations=loc.body(columns="col1", rows=[0])
     )
@@ -48,7 +55,6 @@ def test_tab_footnote_basic():
 
 
 def test_tab_footnote_numeric_marks():
-    # Test numeric footnote marks (default type of marks)
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="First note", locations=loc.body(columns="col1", rows=[0]))
@@ -65,7 +71,6 @@ def test_tab_footnote_numeric_marks():
 
 
 def test_tab_footnote_mark_coalescing():
-    # Test that multiple footnotes on same location show up as comma-separated marks
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="First note", locations=loc.body(columns="col1", rows=[0]))
@@ -82,7 +87,6 @@ def test_tab_footnote_mark_coalescing():
 
 
 def test_tab_footnote_ordering():
-    # Test that footnotes are ordered left-to-right, top-to-bottom
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="Body note", locations=loc.body(columns="col1", rows=[0]))
@@ -101,7 +105,6 @@ def test_tab_footnote_ordering():
 
 
 def test_tab_footnote_all_locations():
-    # Test that footnotes can be placed in all major locations
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="Title note", locations=loc.title())
@@ -133,7 +136,6 @@ def test_tab_footnote_all_locations():
 
 
 def test_tab_footnote_symbol_marks_standard():
-    # Test "standard" symbol marks
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="First note", locations=loc.body(columns="col1", rows=[0]))
@@ -153,7 +155,6 @@ def test_tab_footnote_symbol_marks_standard():
 
 
 def test_tab_footnote_symbol_marks_extended():
-    # Test "extended" symbol marks
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="Note 1", locations=loc.body(columns="col1", rows=[0]))
@@ -177,7 +178,6 @@ def test_tab_footnote_symbol_marks_extended():
 
 
 def test_tab_footnote_symbol_marks_letters():
-    # Test letter-based marks ("letters")
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="Note A", locations=loc.body(columns="col1", rows=[0]))
@@ -195,7 +195,6 @@ def test_tab_footnote_symbol_marks_letters():
 
 
 def test_tab_footnote_symbol_marks_uppercase_letters():
-    # Test uppercase letter marks ("LETTERS")
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="Note A", locations=loc.body(columns="col1", rows=[0]))
@@ -213,7 +212,6 @@ def test_tab_footnote_symbol_marks_uppercase_letters():
 
 
 def test_tab_footnote_custom_symbol_marks():
-    # Test custom symbol marks
     custom_marks = ["❶", "❷", "❸", "❹"]  # using circled numbers
     gt_table = (
         _create_base_gt()
@@ -232,7 +230,6 @@ def test_tab_footnote_custom_symbol_marks():
 
 
 def test_tab_footnote_symbol_cycling():
-    # Test the symbol cycling feature (when there are more footnotes than symbols)
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="Note 1", locations=loc.body(columns="col1", rows=[0]))
@@ -258,7 +255,6 @@ def test_tab_footnote_symbol_cycling():
 
 
 def test_tab_footnote_symbol_coalescing():
-    # Test symbol mark coalescing with commas
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="First note", locations=loc.body(columns="col1", rows=[0]))
@@ -271,12 +267,12 @@ def test_tab_footnote_symbol_coalescing():
 
     # The first cell should have a coalesced symbol marks
     assert re.search(r"10<span[^>]*>\*,†</span>", html)
+
     # The second cell should have a single symbol mark
     assert re.search(r"100<span[^>]*>‡</span>", html)
 
 
 def test_tab_footnote_multiple_rows():
-    # Test a single footnote targeting multiple rows
     gt_table = _create_base_gt().tab_footnote(
         footnote="Multiple rows note", locations=loc.body(columns="col1", rows=[0, 1, 2])
     )
@@ -290,7 +286,6 @@ def test_tab_footnote_multiple_rows():
 
 
 def test_tab_footnote_multiple_columns():
-    # Test footnote targeting multiple columns
     gt_table = _create_base_gt().tab_footnote(
         footnote="Multiple columns note", locations=loc.body(columns=["col1", "col2"], rows=[0])
     )
@@ -303,7 +298,6 @@ def test_tab_footnote_multiple_columns():
 
 
 def test_tab_footnote_footer_rendering():
-    # Test that the footnotes section is properly rendered
     gt_table = (
         _create_base_gt()
         .tab_footnote(footnote="First footnote text", locations=loc.body(columns="col1", rows=[0]))
@@ -316,8 +310,8 @@ def test_tab_footnote_footer_rendering():
     # Check footnotes appear in footer with correct marks
     footer_match = re.search(r"<tfoot[^>]*>.*?</tfoot>", html, re.DOTALL)
     assert footer_match is not None
-    footer_html = footer_match.group(0)
 
+    footer_html = footer_match.group(0)
     assert re.search(r"<span[^>]*>\*</span>\s*First footnote text", footer_html)
     assert re.search(r"<span[^>]*>†</span>\s*Second footnote text", footer_html)
 
@@ -334,6 +328,7 @@ def test_tab_footnote_with_text_object():
 
     # Check that the footnote mark appears
     assert re.search(r"10<span[^>]*>1</span>", html)
+
     # Check that the text object content should appear in the footer
     assert "Bold text" in html
 
@@ -350,18 +345,12 @@ def test_tab_footnote_hidden_columns():
 
     gt_table = (
         GT(df)
-        .tab_footnote(footnote="Note A", locations=loc.column_labels(columns="col1"))  # Visible
-        .tab_footnote(
-            footnote="Note A", locations=loc.column_labels(columns="col2")
-        )  # Hidden (same text)
-        .tab_footnote(
-            footnote="Note A", locations=loc.column_labels(columns="col3")
-        )  # Visible (same text)
-        .tab_footnote(footnote="Note B", locations=loc.column_labels(columns="col2"))  # Hidden only
-        .tab_footnote(
-            footnote="Note B", locations=loc.column_labels(columns="col4")
-        )  # Hidden only (same text)
-        .tab_footnote(footnote="Note C", locations=loc.column_labels(columns="col1"))  # Visible
+        .tab_footnote(footnote="Note A", locations=loc.column_labels(columns="col1"))
+        .tab_footnote(footnote="Note A", locations=loc.column_labels(columns="col2"))
+        .tab_footnote(footnote="Note A", locations=loc.column_labels(columns="col3"))
+        .tab_footnote(footnote="Note B", locations=loc.column_labels(columns="col2"))
+        .tab_footnote(footnote="Note B", locations=loc.column_labels(columns="col4"))
+        .tab_footnote(footnote="Note C", locations=loc.column_labels(columns="col1"))
         .cols_hide(columns=["col2", "col4"])
     )
 
@@ -398,14 +387,11 @@ def test_tab_footnote_hidden_columns():
     # Note B should not appear because it only targets hidden columns
     assert len(footer_matches) == 2
 
-    # Check footnote texts and marks
+    # Check footnote text and marks
     footnote_dict = {mark.rstrip("."): text.strip() for mark, text in footer_matches}
     assert footnote_dict["1"] == "Note A"  # Appears on visible columns
     assert footnote_dict["2"] == "Note C"  # Appears on visible column
     assert "Note B" not in html  # Should not appear anywhere since only targets hidden columns
-
-    # Verify that duplicate footnote text gets same mark number
-    # Note A appears on both col1 and col3 but should use the same mark (1)
 
 
 def test_tab_footnote_mixed_locations_hidden():
@@ -461,6 +447,37 @@ def test_tab_footnote_stub_body_ordering_snapshot(snapshot):
 
     # Use assert_rendered_body to create a smaller, focused snapshot
     assert_rendered_body(snapshot, gt_table)
+
+
+def test_tab_footnote_complete_ordering_snapshot(snapshot):
+    df = pl.DataFrame(
+        {
+            "name": ["Row1"],
+            "col1": [10],
+            "col2": [20],
+        }
+    )
+
+    gt_table = (
+        GT(df, rowname_col="name", id="test_complete_footnote_ordering")
+        .tab_header(title="Title", subtitle="Subtitle")
+        .tab_stubhead(label="Stubhead")
+        .tab_spanner(label="Spanner A", columns=["col1"])
+        .tab_spanner(label="Spanner B", columns=["col2"])
+        .tab_footnote(footnote="Subtitle note", locations=loc.subtitle())
+        .tab_footnote(footnote="Spanner B note", locations=loc.spanner_labels(ids=["Spanner B"]))
+        .tab_footnote(footnote="Spanner A note", locations=loc.spanner_labels(ids=["Spanner A"]))
+        .tab_footnote(footnote="Title note", locations=loc.title())
+        .tab_footnote(footnote="Col2 note", locations=loc.column_labels(columns="col2"))
+        .tab_footnote(footnote="Col1 note", locations=loc.column_labels(columns="col1"))
+        .tab_footnote(footnote="Body note", locations=loc.body(columns="col1", rows=[0]))
+        .tab_footnote(footnote="Stub note", locations=loc.stub(rows=[0]))
+        .tab_footnote(footnote="Stubhead note", locations=loc.stubhead())
+    )
+
+    # Use `assert_complete_html_without_style()` to capture all footnote marks in the table (and
+    # the footnotes in the footer section)
+    assert_complete_html_without_style(snapshot, gt_table)
 
 
 def test_tab_footnote_md_with_unit_notation():
@@ -527,3 +544,174 @@ def test_footer_structure_combined():
 
     # Check that footnote marks are present
     assert "gt_footnote_marks" in html_output
+
+
+def test_tab_footnote_complex_spanner_ordering():
+    df = pl.DataFrame(
+        {
+            "region": ["North", "South", "East", "West"],
+            "q1_sales": [100, 110, 95, 105],
+            "q1_profit": [20, 25, 18, 22],
+            "q2_sales": [120, 130, 115, 125],
+            "q2_profit": [25, 30, 22, 28],
+            "q3_sales": [140, 150, 135, 145],
+            "q3_profit": [30, 35, 27, 32],
+        }
+    )
+
+    gt_table = (
+        GT(df, rowname_col="region")
+        .tab_header(title="Quarterly Performance", subtitle="By Region")
+        .tab_stubhead(label="Region")
+        .tab_spanner(label="Q1 Performance", columns=["q1_sales", "q1_profit"])
+        .tab_spanner(label="Q2 Performance", columns=["q2_sales", "q2_profit"])
+        .tab_spanner(label="Q3 Performance", columns=["q3_sales", "q3_profit"])
+        .tab_spanner(label="Sales Data", columns=["q1_sales", "q2_sales", "q3_sales"])
+        .tab_spanner(label="Profit Data", columns=["q1_profit", "q2_profit", "q3_profit"])
+        .cols_label(
+            q1_sales="Sales",
+            q1_profit="Profit",
+            q2_sales="Sales",
+            q2_profit="Profit",
+            q3_sales="Sales",
+            q3_profit="Profit",
+        )
+        .tab_footnote(footnote="Title footnote", locations=loc.title())
+        .tab_footnote(footnote="Subtitle footnote", locations=loc.subtitle())
+        .tab_footnote(footnote="Stubhead footnote", locations=loc.stubhead())
+        .tab_footnote(
+            footnote="Sales Data spanner footnote", locations=loc.spanner_labels(ids=["Sales Data"])
+        )
+        .tab_footnote(
+            footnote="Profit Data spanner footnote",
+            locations=loc.spanner_labels(ids=["Profit Data"]),
+        )
+        .tab_footnote(
+            footnote="Q1 Performance spanner footnote",
+            locations=loc.spanner_labels(ids=["Q1 Performance"]),
+        )
+        .tab_footnote(
+            footnote="Q2 Performance spanner footnote",
+            locations=loc.spanner_labels(ids=["Q2 Performance"]),
+        )
+        .tab_footnote(
+            footnote="Q3 Performance spanner footnote",
+            locations=loc.spanner_labels(ids=["Q3 Performance"]),
+        )
+        .tab_footnote(
+            footnote="Q1 Sales column footnote", locations=loc.column_labels(columns="q1_sales")
+        )
+        .tab_footnote(
+            footnote="Q1 Profit column footnote", locations=loc.column_labels(columns="q1_profit")
+        )
+        .tab_footnote(footnote="North region footnote", locations=loc.stub(rows=[0]))
+        .tab_footnote(footnote="South region footnote", locations=loc.stub(rows=[1]))
+        .tab_footnote(
+            footnote="Cell footnote (North Q1 Sales)",
+            locations=loc.body(columns="q1_sales", rows=[0]),
+        )
+        .tab_footnote(
+            footnote="Cell footnote (South Q2 Profit)",
+            locations=loc.body(columns="q2_profit", rows=[1]),
+        )
+    )
+
+    html = gt_table._render_as_html()
+
+    # Check that all footnotes appear in footer
+    expected_footnotes = [
+        "Title footnote",
+        "Subtitle footnote",
+        "Stubhead footnote",
+        "Sales Data spanner footnote",
+        "Profit Data spanner footnote",
+        "Q1 Performance spanner footnote",
+        "Q2 Performance spanner footnote",
+        "Q3 Performance spanner footnote",
+        "Q1 Sales column footnote",
+        "Q1 Profit column footnote",
+        "North region footnote",
+        "South region footnote",
+        "Cell footnote (North Q1 Sales)",
+        "Cell footnote (South Q2 Profit)",
+    ]
+
+    for footnote in expected_footnotes:
+        assert footnote in html
+
+    #
+    # Check that footnote marks appear in the expected locations
+    #
+
+    # Title should have mark 1
+    assert re.search(r"Quarterly Performance<span[^>]*>1</span>", html)
+
+    # Subtitle should have mark 2
+    assert re.search(r"By Region<span[^>]*>2</span>", html)
+
+    # Stubhead should have mark 3
+    assert re.search(r"Region<span[^>]*>3</span>", html)
+
+    # Test that spanner marks are present by looking for any spanner with footnote marks
+    spanner_marks = re.findall(
+        r'<span class="gt_column_spanner">[^<]*<span[^>]*class="gt_footnote_marks"[^>]*>([^<]+)</span>',
+        html,
+    )
+    assert len(spanner_marks) > 0
+
+    #
+    # Test that marks are ordered sequentially (1, 2, 3, ...)
+    #
+
+    # Extract all footnote marks from the HTML
+    mark_pattern = r'<span[^>]*class="gt_footnote_marks"[^>]*>([^<]+)</span>'
+    all_marks = re.findall(mark_pattern, html)
+
+    # Convert marks to individual numbers (handle comma-separated marks like "1,2")
+    mark_numbers = []
+    for mark in all_marks:
+        for single_mark in mark.split(","):
+            if single_mark.strip().isdigit():
+                mark_numbers.append(int(single_mark.strip()))
+
+    # Check they include sequential numbers starting from 1
+    if mark_numbers:
+        unique_marks = sorted(list(set(mark_numbers)))
+        assert 1 in unique_marks
+        assert len(unique_marks) >= 3
+
+
+def test_tab_footnote_spanner_specific_functionality():
+    df = pl.DataFrame({"col1": [1, 2], "col2": [3, 4], "col3": [5, 6], "col4": [7, 8]})
+
+    gt_table = (
+        GT(df)
+        .tab_spanner(label="Group A", columns=["col1", "col2"])
+        .tab_spanner(label="Group B", columns=["col3", "col4"])
+        .tab_footnote(footnote="First spanner note", locations=loc.spanner_labels(ids=["Group A"]))
+        .tab_footnote(footnote="Second spanner note", locations=loc.spanner_labels(ids=["Group A"]))
+        .tab_footnote(footnote="Group B note", locations=loc.spanner_labels(ids=["Group B"]))
+    )
+
+    html = gt_table._render_as_html()
+
+    # Check that all spanner footnotes appear
+    assert "First spanner note" in html
+    assert "Second spanner note" in html
+    assert "Group B note" in html
+
+    #
+    # Check that spanner labels get footnote marks
+    #
+
+    # Group A should have marks for both footnotes
+    group_a_marks = re.findall(
+        r'Group A<span[^>]*class="gt_footnote_marks"[^>]*>([^<]+)</span>', html
+    )
+    assert len(group_a_marks) >= 1
+
+    # Group B should have its own mark
+    group_b_marks = re.findall(
+        r'Group B<span[^>]*class="gt_footnote_marks"[^>]*>([^<]+)</span>', html
+    )
+    assert len(group_b_marks) >= 1

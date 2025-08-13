@@ -1,4 +1,45 @@
 # serializer version: 1
+# name: test_tab_footnote_complete_ordering_snapshot
+  '''
+  <div id="test_complete_footnote_ordering" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+  
+  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+  
+    <tr class="gt_heading">
+      <td colspan="3" class="gt_heading gt_title gt_font_normal">Title<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Subtitle<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+    </tr>
+  <tr class="gt_col_headings gt_spanner_row">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="test_complete_footnote_ordering-Stubhead">Stubhead<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>
+    <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col" id="test_complete_footnote_ordering-Spanner-A">
+      <span class="gt_column_spanner">Spanner A<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span></span>
+    </th>
+    <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col" id="test_complete_footnote_ordering-Spanner-B">
+      <span class="gt_column_spanner">Spanner B<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span></span>
+    </th>
+  </tr>
+  <tr class="gt_col_headings">
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_complete_footnote_ordering-col1">col1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span></th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_complete_footnote_ordering-col2">col2<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
+  </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <th class="gt_row gt_left gt_stub">Row1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <td class="gt_row gt_right">10<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+  </tbody>
+  <tfoot><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner A note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Spanner B note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Col1 note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Col2 note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Body note</td></tr></tfoot>
+  </table>
+  
+  </div>
+          
+  '''
+# ---
 # name: test_tab_footnote_stub_body_ordering_snapshot
   '''
   <tbody class="gt_table_body">
