@@ -998,16 +998,6 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
     return _generate_footnote_mark(1, mark_type)
 
 
-def _get_footnote_mark_number(data: GTData, footnote_info: FootnoteInfo) -> int:
-    mark_string = _get_footnote_mark_string(data, footnote_info)
-    # Try to convert to int for numeric marks, otherwise return 1
-    try:
-        return int(mark_string)
-    except ValueError:
-        # For symbol marks, we need a different approach in the calling code
-        return 1
-
-
 def _get_column_index(data: GTData, colname: str | None) -> int:
     if not colname:
         return 0
