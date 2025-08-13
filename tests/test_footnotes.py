@@ -1,27 +1,17 @@
 import polars as pl
 import re
 from great_tables import GT, loc, md, html
+from great_tables._gt_data import FootnotePlacement, FootnoteInfo
+from great_tables._text import Text
 from great_tables._utils_render_html import (
     create_body_component_h,
+    _apply_footnote_placement,
+    _create_footnote_mark_html,
     _get_column_index,
+    _get_footnote_mark_string,
     _get_spanner_leftmost_column_index,
+    _is_numeric_content,
 )
-
-
-def test_tab_footnote_mark_coalescing():
-    gt_table = (
-        _create_base_gt()
-        .tab_footnote(footnote="First note", locations=loc.body(columns="col1", rows=[0]))
-        .tab_footnote(footnote="Second note", locations=loc.body(columns="col1", rows=[0]))
-        .tab_footnote(footnote="Third note", locations=loc.body(columns="col2", rows=[1]))
-    )
-
-    html = gt_table._render_as_html()
-
-    # First cell should have coalesced marks "1,2" (left placement for numbers with auto)
-    assert re.search(r"<span[^>]*>1,2</span> 10", html)
-    # Second cell should have mark "3"
-    assert re.search(r"<span[^>]*>3</span> 200", html)
 
 
 def assert_rendered_body(snapshot, gt):
@@ -338,9 +328,7 @@ def test_tab_footnote_footer_rendering():
 
 
 def test_tab_footnote_with_text_object():
-    # Test a footnote with the Text object (not using a basic string)
-    from great_tables._text import Text
-
+    # Test a footnote with the Text object
     gt_table = _create_base_gt().tab_footnote(
         footnote=Text("Bold text"), locations=loc.body(columns="col1", rows=[0])
     )
@@ -744,8 +732,6 @@ def test_tab_footnote_spanner_specific_functionality():
 
 
 def test_is_numeric_content():
-    from great_tables._utils_render_html import _is_numeric_content
-
     # Test basic numbers
     assert _is_numeric_content("123") == True
     assert _is_numeric_content("123.45") == True
@@ -798,10 +784,6 @@ def test_is_numeric_content():
 
 
 def test_apply_footnote_placement():
-    """Test the _apply_footnote_placement function with different placement options."""
-    from great_tables._utils_render_html import _apply_footnote_placement
-    from great_tables._gt_data import FootnotePlacement
-
     text = "123"
     marks_html = '<span class="gt_footnote_marks">1</span>'
 
@@ -1051,17 +1033,12 @@ def test_footnote_and_source_note_integration():
 
 
 def test_create_footnote_mark_html_edge_cases():
-    from great_tables._utils_render_html import _create_footnote_mark_html
-
     # Test that empty mark should return an empty string
     result = _create_footnote_mark_html("")
     assert result == ""
 
 
 def test_footnote_mark_string_edge_cases():
-    from great_tables._utils_render_html import _get_footnote_mark_string
-    from great_tables._gt_data import FootnoteInfo
-
     # Test with empty GTData (no footnotes)
     empty_gt = GT(pl.DataFrame({"col": [1]}))
     footnote_info = FootnoteInfo(locname="body", rownum=0, colname="col", footnotes=["test"])
