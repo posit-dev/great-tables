@@ -731,6 +731,78 @@ def create_footnotes_component_h(data: GTData):
         )
 
 
+def create_footer_component_h(data: GTData) -> str:
+    source_notes = data._source_notes
+    footnotes = data._footnotes
+
+    # Get the effective number of columns for colspan
+    n_cols_total = data._boxhead._get_effective_number_of_columns(
+        stub=data._stub, options=data._options
+    )
+
+    footer_rows = []
+
+    # Add source notes if they exist
+    if source_notes:
+        # Filter list of StyleInfo to only those that apply to the source notes
+        styles_footer = [x for x in data._styles if _is_loc(x.locname, loc.LocFooter)]
+        styles_source_notes = [x for x in data._styles if _is_loc(x.locname, loc.LocSourceNotes)]
+
+        # Obtain the `multiline` and `separator` options from `_options`
+        multiline = data._options.source_notes_multiline.value
+        separator = cast(str, data._options.source_notes_sep.value)
+
+        if multiline:
+            # Each source note gets its own row with gt_sourcenotes class on the tr
+            _styles = _flatten_styles(styles_footer + styles_source_notes, wrap=True)
+            for note in source_notes:
+                note_str = _process_text(note)
+                footer_rows.append(
+                    f'<tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="{n_cols_total}"{_styles}><span class="gt_from_md">{note_str}</span></td></tr>'
+                )
+        else:
+            # All source notes in a single row with gt_sourcenotes class on the tr
+            source_note_list = []
+            for note in source_notes:
+                note_str = _process_text(note)
+                source_note_list.append(note_str)
+
+            source_notes_str_joined = separator.join(source_note_list)
+            footer_rows.append(
+                f'<tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="{n_cols_total}"><span class="gt_from_md">{source_notes_str_joined}</span></td></tr>'
+            )
+
+    # Add footnotes if they exist
+    if footnotes:
+        # Process footnotes and assign marks
+        footnotes_with_marks = _process_footnotes_for_display(data, footnotes)
+
+        if footnotes_with_marks:
+            # Each footnote gets its own row
+            for footnote_data in footnotes_with_marks:
+                mark = footnote_data.get("mark", "")
+                text = footnote_data.get("text", "")
+
+                footnote_mark_html = _create_footnote_mark_html(mark, location="ftr")
+
+                # Wrap footnote text in `gt_from_md` span if it contains HTML markup
+                if "<" in text and ">" in text:
+                    footnote_text = f'<span class="gt_from_md">{text}</span>'
+                else:
+                    footnote_text = text
+
+                footnote_html = f"{footnote_mark_html} {footnote_text}"
+                footer_rows.append(
+                    f'<tr class="gt_footnotes"><td class="gt_footnote" colspan="{n_cols_total}">{footnote_html}</td></tr>'
+                )
+
+    # If no footer content, return empty string
+    if not footer_rows:
+        return ""
+
+    return f'<tfoot>{"".join(footer_rows)}</tfoot>'
+
+
 def _should_display_footnote(data: GTData, footnote: FootnoteInfo) -> bool:
     # If footnote targets a specific column, check if it's hidden
     if footnote.colname is not None:
@@ -754,8 +826,9 @@ def _process_footnotes_for_display(
     # Filter out footnotes for hidden columns
     visible_footnotes = [f for f in footnotes if _should_display_footnote(data, f)]
 
-    # Sort footnotes by visual order (same logic as in _get_footnote_mark_string)
-    # This ensures footnotes appear in the footnotes section in the same order as their marks in the table
+    # Sort footnotes by visual order (same logic as in _get_footnote_mark_string);
+    # this ensures footnotes appear in the footnotes section in the same order as their
+    # marks in the table
     footnote_positions: list[tuple[tuple[int, int, int], FootnoteInfo]] = []
 
     for fn_info in visible_footnotes:
@@ -821,8 +894,8 @@ def _process_footnotes_for_display(
             processed_text = _process_text(footnote.footnotes[0])
             result.append({"mark": "", "text": processed_text})
 
-    # Add footnotes with marks - maintain visual order (order they appear in table)
-    # The footnote_order list already contains footnotes in visual order based on how
+    # Add footnotes with marks and maintain visual order (order they appear in table);
+    # the footnote_order list already contains footnotes in visual order based on how
     # _get_footnote_mark_string assigns marks (top-to-bottom, left-to-right)
     mark_type = _get_footnote_marks_option(data)
     if isinstance(mark_type, str) and mark_type == "numbers":
@@ -848,7 +921,7 @@ def _get_footnote_mark_symbols() -> dict[str, list[str]]:
     from ._helpers import LETTERS, letters
 
     return {
-        "numbers": [],  # Special case - handled separately
+        "numbers": [],
         "letters": letters(),
         "LETTERS": LETTERS(),
         "standard": ["*", "†", "‡", "§"],
@@ -876,8 +949,8 @@ def _generate_footnote_mark(mark_index: int, mark_type: str | list[str] = "numbe
     if not symbols:
         return str(mark_index)
 
-    # Calculate symbol and repetition for cycling behavior
-    # E.g., for 4 symbols: index 1-4 -> symbol once, 5-8 -> symbol twice, etc.
+    # Calculate symbol and repetition for cycling behavior;
+    # e.g., for 4 symbols: index 1-4 -> symbol once, 5-8 -> symbol twice, etc.
     symbol_index = (mark_index - 1) % len(symbols)
     repetitions = (mark_index - 1) // len(symbols) + 1
 
@@ -941,13 +1014,13 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
         else:
             locnum = 999  # Other locations come last
 
-        # Get colnum (column number) - assign stub a lower value than data columns
+        # Get colnum (column number) and assign stub a lower value than data columns
         if fn_info.locname == "stub":
             colnum = -1  # Stub appears before all data columns
         else:
             colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
 
-        # Get rownum - for headers use 0, for body use actual row number
+        # Get rownum; for headers use 0, for body use actual row number
         if fn_info.locname == "columns_columns":
             rownum = 0  # Headers are row 0
         else:
@@ -1043,7 +1116,7 @@ def _add_footnote_marks_to_text(
         if mark_string not in mark_strings:
             mark_strings.append(mark_string)
 
-    # Sort marks - for numbers, sort numerically; for symbols, sort by their order in symbol set
+    # Sort marks: for numbers, sort numerically; for symbols, sort by their order in symbol set
     mark_type = _get_footnote_marks_option(data)
     if isinstance(mark_type, str) and mark_type == "numbers":
         # Sort numerically for numbers
