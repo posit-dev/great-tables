@@ -218,7 +218,6 @@ def grand_summary_rows(
         fns = [fns]
 
     tbl_data = self._tbl_data
-
     new_tbl_data = copy_data(tbl_data)
 
     original_column_names = get_column_names(tbl_data)
@@ -234,18 +233,18 @@ def grand_summary_rows(
                 col_data = to_list(tbl_data[col])
 
                 if fn_name == "min":
-                    new_cell = [str(min(col_data))]
+                    new_cell = [min(col_data)]
                 elif fn_name == "max":
-                    new_cell = [str(max(col_data))]
+                    new_cell = [max(col_data)]
                 elif fn_name == "mean":
-                    new_cell = [str(sum(col_data) / len(col_data))]
+                    new_cell = [sum(col_data) / len(col_data)]
                 elif fn_name == "median":
-                    new_cell = [str(quantiles(col_data, n=2))]
+                    new_cell = [quantiles(col_data, n=2)]
                 else:
                     # Should never get here
                     new_cell = ["hi"]
             else:
-                new_cell = [missing_text]
+                new_cell = [None]
 
             summary_row += new_cell
 
@@ -257,6 +256,16 @@ def grand_summary_rows(
     # else:  # top
     #     new_data = concat_frames(summary_df, tbl_data)
 
-    print(new_tbl_data)
+    self = self._replace(_tbl_data=new_tbl_data)
 
-    return self._replace(_tbl_data=new_tbl_data)
+    _row_group_info = self._boxhead._get_row_group_column()
+    groupname_col = _row_group_info.var if _row_group_info is not None else None
+
+    _row_name_info = self._boxhead._get_stub_column()
+    rowname_col = _row_name_info.var if _row_name_info is not None else None
+
+    stub, boxhead = self._stub._set_cols(self._tbl_data, self._boxhead, rowname_col, groupname_col)
+
+    self._body.body = new_tbl_data
+
+    return self._replace(_stub=stub, _boxhead=boxhead)
