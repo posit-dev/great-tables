@@ -549,6 +549,11 @@ def create_body_component_h(data: GTData) -> str:
 
         body_rows.append("  <tr>\n" + "\n".join(body_cells) + "\n  </tr>")
 
+        ## after the last row in the group, we need to append the summary rows for the group
+        ## if this table has summary rows
+
+    ## outside of the standard body rows loop, we need to add summary rows that are grand here
+
     all_body_rows = "\n".join(body_rows)
 
     return f"""<tbody class="gt_table_body">

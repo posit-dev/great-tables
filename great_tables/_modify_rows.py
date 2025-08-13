@@ -208,8 +208,9 @@ def grand_summary_rows(
 ) -> GTSelf:
     """Add grand summary rows to the table.
 
-    Computes summary rows immediately but stores them separately from main data.
+    TODO docstring
     """
+    # Computes summary rows immediately but stores them separately from main data.
 
     if isinstance(fns, str):
         fns = [fns]
@@ -221,6 +222,8 @@ def grand_summary_rows(
             self, fn_name, columns, missing_text, group_id=None
         )
 
+        # TODO: minimize to one new df function, don't need insert row elsewhere.
+        # Maybe don't even need this to be a SeriesLike or DataFrameLike
         # Convert list of values to TblData (single row DataFrame)
         summary_tbl_data = create_no_row_frame(self._tbl_data)
         summary_tbl_data = insert_row(summary_tbl_data, row_values_list, n_rows(summary_tbl_data))
