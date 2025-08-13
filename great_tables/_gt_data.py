@@ -84,6 +84,7 @@ class GTData:
     _options: Options
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
+    _summary_rows: SummaryRows | None = None
 
     def _replace(self, **kwargs: Any) -> Self:
         new_obj = copy.copy(self)
@@ -719,7 +720,7 @@ class GroupRowInfo:
     indices: list[int] = field(default_factory=list)
     # row_start: int | None = None
     # row_end: int | None = None
-    has_summary_rows: bool = False
+    has_summary_rows: bool = False  # TODO: remove
     summary_row_side: str | None = None
 
     def defaulted_label(self) -> str:
@@ -970,6 +971,31 @@ class FormatInfo:
 #     def __init__(self):
 #         pass
 Formats = list
+
+
+# Summary Rows ---
+GRAND_SUMMARY_GROUP = GroupRowInfo(group_id="__grand_summary_group__")
+
+
+@dataclass(frozen=True)
+class SummaryRowInfo:
+    """Information about a single summary row"""
+
+    function: Literal["min", "max", "mean", "median"]
+    values: TblData
+    side: Literal["top", "bottom"]
+    group: GroupRowInfo
+
+
+class SummaryRows(_Sequence[SummaryRowInfo]):
+    """A sequence of summary rows"""
+
+    _d: list[SummaryRowInfo]
+
+    def __init__(self, rows: list[SummaryRowInfo] | None = None):
+        if rows is None:
+            rows = []
+        self._d = rows
 
 
 # Options ----
