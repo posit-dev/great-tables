@@ -1,14 +1,22 @@
 from __future__ import annotations
 
 from statistics import quantiles
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from great_tables._locations import resolve_cols_c
 
-from ._gt_data import Locale, RowGroups, Styles
+from ._gt_data import (
+    GRAND_SUMMARY_GROUP,
+    GTData,
+    Locale,
+    RowGroups,
+    Styles,
+    SummaryRowInfo,
+    SummaryRows,
+)
 from ._tbl_data import (
     SelectExpr,
-    copy_data,
+    create_no_row_frame,
     get_column_names,
     insert_row,
     to_list,
@@ -190,23 +198,6 @@ def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
     return self._replace(_options=self._options._set_option_value("table_id", id))
 
 
-# def grand_summary_rows(
-#     self: GTSelf,
-#     fns: list[Literal["min", "max", "mean", "median"]] | Literal["min", "max", "mean", "median"],
-#     columns: SelectExpr = None,
-#     side: Literal["bottom", "top"] = "bottom",
-# ) -> GTSelf:
-#     new_body = self._body.copy()
-#     new_tbl_data = new_body.body
-
-
-#     new_body.append()
-
-#     self._replace(_body=new_body)
-
-#     return self
-
-
 def grand_summary_rows(
     self: GTSelf,
     fns: list[Literal["min", "max", "mean", "median"]] | Literal["min", "max", "mean", "median"],
@@ -214,58 +205,145 @@ def grand_summary_rows(
     side: Literal["bottom", "top"] = "bottom",
     missing_text: str = "---",
 ) -> GTSelf:
+    """Add grand summary rows to the table.
+
+    Computes summary rows immediately but stores them separately from main data.
+    """
+
     if isinstance(fns, str):
         fns = [fns]
 
-    tbl_data = self._tbl_data
-    new_tbl_data = copy_data(tbl_data)
+    # Compute summary rows immediately
+    summary_row_infos = []
+    for fn_name in fns:
+        row_values_list = _calculate_summary_row(
+            self, fn_name, columns, missing_text, group_id=None
+        )
+
+        # Convert list of values to TblData (single row DataFrame)
+        summary_tbl_data = create_no_row_frame(self._tbl_data)
+        summary_tbl_data = insert_row(summary_tbl_data, row_values_list, len(summary_tbl_data))
+
+        summary_row_info = SummaryRowInfo(
+            function=fn_name,
+            values=summary_tbl_data,
+            side=side,
+            group=GRAND_SUMMARY_GROUP,
+        )
+        summary_row_infos.append(summary_row_info)  # There is probably a better way to do this
+
+    existing_rows = self._summary_rows._d if self._summary_rows is not None else []
+    new_summary_rows = SummaryRows(existing_rows + summary_row_infos)
+
+    print([n.values for n in new_summary_rows])
+
+    return self._replace(_summary_rows=new_summary_rows)
+
+
+# def grand_summary_rows(
+#     self: GTSelf,
+#     fns: list[Literal["min", "max", "mean", "median"]] | Literal["min", "max", "mean", "median"],
+#     columns: SelectExpr = None,
+#     side: Literal["bottom", "top"] = "bottom",
+#     missing_text: str = "---",
+# ) -> GTSelf:
+#     if isinstance(fns, str):
+#         fns = [fns]
+
+#     tbl_data = self._tbl_data
+#     new_tbl_data = copy_data(tbl_data)
+
+#     original_column_names = get_column_names(tbl_data)
+
+#     summary_col_names = resolve_cols_c(data=self, expr=columns)
+
+#     # Create summary rows DataFrame
+#     for fn_name in fns:
+#         summary_row = []
+
+#         for col in original_column_names:
+#             if col in summary_col_names:
+#                 col_data = to_list(tbl_data[col])
+
+#                 if fn_name == "min":
+#                     new_cell = [min(col_data)]
+#                 elif fn_name == "max":
+#                     new_cell = [max(col_data)]
+#                 elif fn_name == "mean":
+#                     new_cell = [sum(col_data) / len(col_data)]
+#                 elif fn_name == "median":
+#                     new_cell = [quantiles(col_data, n=2)]
+#                 else:
+#                     # Should never get here
+#                     new_cell = ["hi"]
+#             else:
+#                 new_cell = [None]
+
+#             summary_row += new_cell
+
+#         new_tbl_data = insert_row(new_tbl_data, summary_row, 0)
+
+#     # Concatenate based on side parameter
+#     # if side == "bottom":
+#     #     new_data = concat_frames(tbl_data, summary_df)
+#     # else:  # top
+#     #     new_data = concat_frames(summary_df, tbl_data)
+
+#     self = self._replace(_tbl_data=new_tbl_data)
+
+#     _row_group_info = self._boxhead._get_row_group_column()
+#     groupname_col = _row_group_info.var if _row_group_info is not None else None
+
+#     _row_name_info = self._boxhead._get_stub_column()
+#     rowname_col = _row_name_info.var if _row_name_info is not None else None
+
+#     stub, boxhead = self._stub._set_cols(self._tbl_data, self._boxhead, rowname_col, groupname_col)
+
+#     self._body.body = new_tbl_data
+
+#     return self._replace(_stub=stub, _boxhead=boxhead)
+
+
+def _calculate_summary_row(
+    data: GTData,
+    fn_name: str,
+    columns: SelectExpr,
+    missing_text: str,
+    group_id: str | None = None,  # None means grand summary (all data)
+) -> list[Any]:
+    """Calculate a summary row based on the function name and selected columns for a specific group."""
+    tbl_data = data._tbl_data
 
     original_column_names = get_column_names(tbl_data)
 
-    summary_col_names = resolve_cols_c(data=self, expr=columns)
+    summary_col_names = resolve_cols_c(data=data, expr=columns)
 
-    # Create summary rows DataFrame
-    for fn_name in fns:
-        summary_row = []
+    if group_id is None:
+        group_id = GRAND_SUMMARY_GROUP.group_id
+    else:
+        # Future: group-specific logic would go here
+        raise NotImplementedError("Group-specific summaries not yet implemented")
 
-        for col in original_column_names:
-            if col in summary_col_names:
-                col_data = to_list(tbl_data[col])
+    # Create summary rows _tbl_data
+    summary_row = []
 
-                if fn_name == "min":
-                    new_cell = [min(col_data)]
-                elif fn_name == "max":
-                    new_cell = [max(col_data)]
-                elif fn_name == "mean":
-                    new_cell = [sum(col_data) / len(col_data)]
-                elif fn_name == "median":
-                    new_cell = [quantiles(col_data, n=2)]
-                else:
-                    # Should never get here
-                    new_cell = ["hi"]
+    for col in original_column_names:
+        if col in summary_col_names:
+            col_data = to_list(tbl_data[col])
+
+            if fn_name == "min":
+                new_cell = [min(col_data)]
+            elif fn_name == "max":
+                new_cell = [max(col_data)]
+            elif fn_name == "mean":
+                new_cell = [sum(col_data) / len(col_data)]
+            elif fn_name == "median":
+                new_cell = [quantiles(col_data, n=2)]
             else:
-                new_cell = [None]
+                # Should never get here
+                new_cell = ["hi"]
+        else:
+            new_cell = [missing_text]
 
-            summary_row += new_cell
-
-        new_tbl_data = insert_row(new_tbl_data, summary_row, 0)
-
-    # Concatenate based on side parameter
-    # if side == "bottom":
-    #     new_data = concat_frames(tbl_data, summary_df)
-    # else:  # top
-    #     new_data = concat_frames(summary_df, tbl_data)
-
-    self = self._replace(_tbl_data=new_tbl_data)
-
-    _row_group_info = self._boxhead._get_row_group_column()
-    groupname_col = _row_group_info.var if _row_group_info is not None else None
-
-    _row_name_info = self._boxhead._get_stub_column()
-    rowname_col = _row_name_info.var if _row_name_info is not None else None
-
-    stub, boxhead = self._stub._set_cols(self._tbl_data, self._boxhead, rowname_col, groupname_col)
-
-    self._body.body = new_tbl_data
-
-    return self._replace(_stub=stub, _boxhead=boxhead)
+        summary_row += new_cell
+    return summary_row
