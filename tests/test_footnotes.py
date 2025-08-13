@@ -732,3 +732,200 @@ def test_tab_footnote_spanner_specific_functionality():
         r'Group B<span[^>]*class="gt_footnote_marks"[^>]*>([^<]+)</span>', html
     )
     assert len(group_b_marks) >= 1
+
+
+# ===========================================================================================
+# Tests for utility functions
+# ===========================================================================================
+
+
+def test_is_numeric_content():
+    from great_tables._utils_render_html import _is_numeric_content
+
+    # Test basic numbers
+    assert _is_numeric_content("123") == True
+    assert _is_numeric_content("123.45") == True
+    assert _is_numeric_content("0") == True
+    assert _is_numeric_content("0.0") == True
+
+    # Test formatted numbers
+    assert _is_numeric_content("1,234") == True
+    assert _is_numeric_content("1,234.56") == True
+    assert _is_numeric_content("$123") == True
+    assert _is_numeric_content("$1,234.56") == True
+    assert _is_numeric_content("123%") == True
+    assert _is_numeric_content("(123)") == True
+    assert _is_numeric_content("€1,234.56") == True
+    assert _is_numeric_content("£1,234.56") == True
+    assert _is_numeric_content("¥1,234") == True
+
+    # Test numbers with various formatting
+    assert _is_numeric_content("  123  ") == True
+    assert _is_numeric_content("+123") == True
+    assert _is_numeric_content("-123") == True
+    assert _is_numeric_content("−123") == True
+
+    # Test with HTML tags
+    assert _is_numeric_content("<span>123</span>") == True
+    assert _is_numeric_content("<b>$1,234.56</b>") == True
+    assert _is_numeric_content('<div class="number">123.45</div>') == True
+
+    # Test non-numeric content
+    assert _is_numeric_content("Hello") == False
+    assert _is_numeric_content("Text123") == False
+    assert _is_numeric_content("123Text") == False
+    assert _is_numeric_content("A") == False
+    assert _is_numeric_content("NA") == False
+    assert _is_numeric_content("NULL") == False
+    assert _is_numeric_content("") == False
+    assert _is_numeric_content("   ") == False
+
+    # Test mixed content with HTML
+    assert _is_numeric_content("<span>Hello</span>") == False
+    assert _is_numeric_content("<b>Text Content</b>") == False
+
+    # Test edge cases
+    assert _is_numeric_content("$") == False
+    assert _is_numeric_content("%") == False
+    assert _is_numeric_content("()") == False
+    assert _is_numeric_content(",") == False
+    assert _is_numeric_content(".") == False
+    assert _is_numeric_content("..") == False
+
+
+def test_apply_footnote_placement():
+    """Test the _apply_footnote_placement function with different placement options."""
+    from great_tables._utils_render_html import _apply_footnote_placement
+    from great_tables._gt_data import FootnotePlacement
+
+    text = "123"
+    marks_html = '<span class="gt_footnote_marks">1</span>'
+
+    # Test left placement
+    result = _apply_footnote_placement(text, marks_html, FootnotePlacement.left)
+    expected = '<span class="gt_footnote_marks">1</span> 123'
+    assert result == expected
+
+    # Test right placement
+    result = _apply_footnote_placement(text, marks_html, FootnotePlacement.right)
+    expected = '123<span class="gt_footnote_marks">1</span>'
+    assert result == expected
+
+    # Test auto placement with numeric content
+    result = _apply_footnote_placement("123", marks_html, FootnotePlacement.auto)
+    expected = '<span class="gt_footnote_marks">1</span> 123'  # Should go left for numbers
+    assert result == expected
+
+    # Test auto placement with text content
+    result = _apply_footnote_placement("Hello", marks_html, FootnotePlacement.auto)
+    expected = 'Hello<span class="gt_footnote_marks">1</span>'  # Should go right for text
+    assert result == expected
+
+    # Test auto placement with formatted numbers
+    result = _apply_footnote_placement("$1,234.56", marks_html, FootnotePlacement.auto)
+    expected = (
+        '<span class="gt_footnote_marks">1</span> $1,234.56'  # Should go left for formatted numbers
+    )
+    assert result == expected
+
+    # Test None placement (should default to auto)
+    result = _apply_footnote_placement("123", marks_html, None)
+    expected = '<span class="gt_footnote_marks">1</span> 123'  # Should go left for numbers
+    assert result == expected
+
+    # Test with HTML content
+    html_text = "<b>456</b>"
+    result = _apply_footnote_placement(html_text, marks_html, FootnotePlacement.auto)
+    expected = (
+        '<span class="gt_footnote_marks">1</span> <b>456</b>'  # Should go left for numbers in HTML
+    )
+    assert result == expected
+
+    html_text = "<b>Hello</b>"
+    result = _apply_footnote_placement(html_text, marks_html, FootnotePlacement.auto)
+    expected = (
+        '<b>Hello</b><span class="gt_footnote_marks">1</span>'  # Should go right for text in HTML
+    )
+    assert result == expected
+
+
+def test_footnote_placement_snapshot_different_types(snapshot):
+    import pandas as pd
+
+    # Create test data with different value types
+    df = pd.DataFrame(
+        {
+            "integers": [42],
+            "floats": [123.45],
+            "currency": ["$1,234.56"],
+            "percentages": ["85.5%"],
+            "text": ["Hello"],
+            "mixed": ["ABC123"],
+            "formatted_num": ["(1,000)"],
+            "scientific": ["1.23e-4"],
+        }
+    )
+
+    # Test with auto placement (default)
+    gt_auto = (
+        GT(df, id="test_auto_placement")
+        .tab_header(title="Auto Placement Test")
+        .tab_footnote("Integer footnote", locations=loc.body(columns="integers", rows=[0]))
+        .tab_footnote("Float footnote", locations=loc.body(columns="floats", rows=[0]))
+        .tab_footnote("Currency footnote", locations=loc.body(columns="currency", rows=[0]))
+        .tab_footnote("Percentage footnote", locations=loc.body(columns="percentages", rows=[0]))
+        .tab_footnote("Text footnote", locations=loc.body(columns="text", rows=[0]))
+        .tab_footnote("Mixed footnote", locations=loc.body(columns="mixed", rows=[0]))
+        .tab_footnote(
+            "Formatted number footnote", locations=loc.body(columns="formatted_num", rows=[0])
+        )
+        .tab_footnote("Scientific footnote", locations=loc.body(columns="scientific", rows=[0]))
+    )
+
+    assert_complete_html_without_style(snapshot, gt_auto)
+
+
+def test_footnote_placement_snapshot_left_placement(snapshot):
+    import pandas as pd
+
+    df = pd.DataFrame({"integers": [42], "text": ["Hello"], "currency": ["$1,234.56"]})
+
+    # Test with explicit left placement
+    gt_left = (
+        GT(df, id="test_left_placement")
+        .tab_header(title="Left Placement Test")
+        .tab_footnote(
+            "Integer footnote", locations=loc.body(columns="integers", rows=[0]), placement="left"
+        )
+        .tab_footnote(
+            "Text footnote", locations=loc.body(columns="text", rows=[0]), placement="left"
+        )
+        .tab_footnote(
+            "Currency footnote", locations=loc.body(columns="currency", rows=[0]), placement="left"
+        )
+    )
+
+    assert_complete_html_without_style(snapshot, gt_left)
+
+
+def test_footnote_placement_snapshot_right_placement(snapshot):
+    import pandas as pd
+
+    df = pd.DataFrame({"integers": [42], "text": ["Hello"], "currency": ["$1,234.56"]})
+
+    # Test with explicit right placement
+    gt_right = (
+        GT(df, id="test_right_placement")
+        .tab_header(title="Right Placement Test")
+        .tab_footnote(
+            "Integer footnote", locations=loc.body(columns="integers", rows=[0]), placement="right"
+        )
+        .tab_footnote(
+            "Text footnote", locations=loc.body(columns="text", rows=[0]), placement="right"
+        )
+        .tab_footnote(
+            "Currency footnote", locations=loc.body(columns="currency", rows=[0]), placement="right"
+        )
+    )
+
+    assert_complete_html_without_style(snapshot, gt_right)
