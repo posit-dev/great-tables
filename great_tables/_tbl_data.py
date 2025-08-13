@@ -890,13 +890,9 @@ def _(df: PdDataFrame, row_data: list, index: int) -> PdDataFrame:
     import pandas as pd
 
     new_row = pd.DataFrame([row_data], columns=df.columns)
-
-    if index == 0:
-        return pd.concat([new_row, df], ignore_index=True)
-    else:
-        before = df.iloc[:index]
-        after = df.iloc[index:]
-        return pd.concat([before, new_row, after], ignore_index=True)
+    before = df.iloc[:index]
+    after = df.iloc[index:]
+    return pd.concat([before, new_row, after], ignore_index=True)
 
 
 @insert_row.register
@@ -905,13 +901,9 @@ def _(df: PlDataFrame, row_data: list, index: int) -> PlDataFrame:
 
     row_dict = dict(zip(df.columns, row_data))
     new_row = pl.DataFrame([row_dict])
-
-    if index == 0:
-        return new_row.vstack(df)
-    else:
-        before = df[:index]
-        after = df[index:]
-        return before.vstack(new_row).vstack(after)
+    before = df[:index]
+    after = df[index:]
+    return before.vstack(new_row).vstack(after)
 
 
 @insert_row.register
@@ -920,10 +912,34 @@ def _(df: PyArrowTable, row_data: list, index: int) -> PyArrowTable:
 
     row_dict = dict(zip(df.column_names, row_data))
     new_row = pa.table([row_dict])
+    before = df.slice(0, index)
+    after = df.slice(index)
+    return pa.concat_tables([before, new_row, after])
 
-    if index == 0:
-        return pa.concat_tables([new_row, df])
-    else:
-        before = df.slice(0, index)
-        after = df.slice(index)
-        return pa.concat_tables([before, new_row, after])
+
+# create_no_row_frame ----
+
+
+@singledispatch
+def create_no_row_frame(df: DataFrameLike) -> DataFrameLike:
+    """Return a DataFrame with the same columns but no rows"""
+    raise NotImplementedError(f"Unsupported type: {type(df)}")
+
+
+@create_no_row_frame.register
+def _(df: PdDataFrame):
+    import pandas as pd
+
+    return pd.DataFrame(columns=df.columns).astype(df.dtypes)
+
+
+@create_no_row_frame.register
+def _(df: PlDataFrame):
+    return df.clear()
+
+
+@create_no_row_frame.register
+def _(df: PyArrowTable):
+    import pyarrow as pa
+
+    return pa.table({col: pa.array([], type=df.column(col).type) for col in df.column_names})
