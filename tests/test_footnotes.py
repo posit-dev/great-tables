@@ -1070,3 +1070,33 @@ def test_footnote_mark_string_edge_cases():
     footnote_info_empty = FootnoteInfo(locname="body", rownum=0, colname="col", footnotes=[])
     result = _get_footnote_mark_string(empty_gt._build_data("footnote_test"), footnote_info_empty)
     assert result == "1"
+
+
+def test_get_column_index_edge_cases():
+    from great_tables._utils_render_html import _get_column_index
+
+    # Create test data
+    df = pl.DataFrame({"col1": [1], "col2": [2], "col3": [3]})
+    gt_table = GT(df)
+    data = gt_table._build_data("test")
+
+    # Test situation where colname is None or empty
+    result = _get_column_index(data, None)
+    assert result == 0
+
+    result = _get_column_index(data, "")
+    assert result == 0
+
+    # Test situation where the column name is not found
+    result = _get_column_index(data, "nonexistent_column")
+    assert result == 0
+
+    # Tests of normal cases where the column provided exists
+    result = _get_column_index(data, "col1")
+    assert result == 0
+
+    result = _get_column_index(data, "col2")
+    assert result == 1
+
+    result = _get_column_index(data, "col3")
+    assert result == 2
