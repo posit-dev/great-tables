@@ -473,19 +473,20 @@ def create_body_component_h(data: GTData) -> str:
     grand_summary_rows = summary_rows_dict.get(GRAND_SUMMARY_GROUP.group_id, [])
 
     # Add grand summary rows at top
-    for summary_row in grand_summary_rows:
-        if summary_row.side == "top":
-            row_html = _create_row_component_h(
-                column_vars=column_vars,
-                stub_var=stub_var,
-                has_stub_column=has_stub_column,
-                apply_stub_striping=False,  # No striping for summary rows
-                apply_body_striping=False,  # No striping for summary rows
-                styles_cells=styles_grand_summary,
-                styles_labels=styles_grand_summary_label,
-                summary_row=summary_row,
-            )
-            body_rows.append(row_html)
+    top_summary_rows = [row for row in grand_summary_rows if row.side == "top"]
+    for i, summary_row in enumerate(top_summary_rows):
+        row_html = _create_row_component_h(
+            column_vars=column_vars,
+            stub_var=stub_var,
+            has_stub_column=has_stub_column,
+            apply_stub_striping=False,  # No striping for summary rows
+            apply_body_striping=False,  # No striping for summary rows
+            styles_cells=styles_grand_summary,
+            styles_labels=styles_grand_summary_label,
+            summary_row=summary_row,
+            css_class="gt_last_grand_summary_row_top" if i == len(top_summary_rows) - 1 else None,
+        )
+        body_rows.append(row_html)
 
     # iterate over rows (ordered by groupings)
     prev_group_info = None
@@ -543,20 +544,21 @@ def create_body_component_h(data: GTData) -> str:
         ## after the last row in the group, we need to append the summary rows for the group
         ## if this table has summary rows
 
-    # Add bottom grand summary rows
-    for summary_row in grand_summary_rows:
-        if summary_row.side == "bottom":
-            row_html = _create_row_component_h(
-                column_vars=column_vars,
-                stub_var=stub_var,
-                has_stub_column=has_stub_column,
-                apply_stub_striping=False,  # No striping for summary rows
-                apply_body_striping=False,  # No striping for summary rows
-                styles_cells=styles_grand_summary,
-                styles_labels=styles_grand_summary_label,
-                summary_row=summary_row,
-            )
-            body_rows.append(row_html)
+    # Add grand summary rows at bottom
+    bottom_summary_rows = [row for row in grand_summary_rows if row.side == "bottom"]
+    for i, summary_row in enumerate(bottom_summary_rows):
+        row_html = _create_row_component_h(
+            column_vars=column_vars,
+            stub_var=stub_var,
+            has_stub_column=has_stub_column,
+            apply_stub_striping=False,  # No striping for summary rows
+            apply_body_striping=False,  # No striping for summary rows
+            styles_cells=styles_grand_summary,
+            styles_labels=styles_grand_summary_label,
+            summary_row=summary_row,
+            css_class="gt_first_grand_summary_row_bottom" if i == 0 else None,
+        )
+        body_rows.append(row_html)
 
     all_body_rows = "\n".join(body_rows)
 
@@ -576,6 +578,7 @@ def _create_row_component_h(
     row_index: int | None = None,  # For data rows
     summary_row: SummaryRowInfo | None = None,  # For summary rows
     tbl_data: TblData | None = None,
+    css_class: str | None = None,
 ) -> str:
     """Create a single table row (either data row or summary row)"""
 
@@ -593,6 +596,11 @@ def _create_row_component_h(
 
         else:
             cell_content = _get_cell(tbl_data, row_index, colinfo.var)
+
+        if css_class:
+            classes = [css_class]
+        else:
+            classes = []
 
         cell_str = str(cell_content)
         is_stub_cell = has_stub_column and colinfo.var == stub_var.var
@@ -615,14 +623,14 @@ def _create_row_component_h(
         # Build classes and element
         if is_stub_cell:
             el_name = "th"
-            classes = ["gt_row", "gt_left", "gt_stub"]
+            classes += ["gt_row", "gt_left", "gt_stub"]
             if is_summary_row:
                 classes.append("gt_grand_summary_row")
             if apply_stub_striping:
                 classes.append("gt_striped")
         else:
             el_name = "td"
-            classes = ["gt_row", f"gt_{cell_alignment}"]
+            classes += ["gt_row", f"gt_{cell_alignment}"]
             if is_summary_row:
                 classes.append("gt_grand_summary_row")
             if apply_body_striping:
