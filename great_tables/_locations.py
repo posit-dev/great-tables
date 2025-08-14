@@ -481,7 +481,12 @@ class LocRowGroups(Loc):
 
 
 @dataclass
-class LocSummaryLabel(Loc):
+class LocSummaryStub(Loc):
+    rows: RowSelectExpr = None
+
+
+@dataclass
+class LocGrandSummaryStub(Loc):
     rows: RowSelectExpr = None
 
 
@@ -552,6 +557,13 @@ class LocBody(Loc):
 
 @dataclass
 class LocSummary(Loc):
+    # TODO: these can be tidyselectors
+    columns: SelectExpr = None
+    rows: RowSelectExpr = None
+
+
+@dataclass
+class LocGrandSummary(Loc):
     # TODO: these can be tidyselectors
     columns: SelectExpr = None
     rows: RowSelectExpr = None
@@ -919,6 +931,16 @@ def _(loc: LocStub, data: GTData) -> set[int]:
 
 
 @resolve.register
+def _(loc: LocSummaryStub, data: GTData) -> set[int]:
+    pass
+
+
+@resolve.register
+def _(loc: LocGrandSummaryStub, data: GTData) -> set[int]:
+    pass
+
+
+@resolve.register
 def _(loc: LocBody, data: GTData) -> list[CellPos]:
     if (loc.columns is not None or loc.rows is not None) and loc.mask is not None:
         raise ValueError(
@@ -939,6 +961,16 @@ def _(loc: LocBody, data: GTData) -> list[CellPos]:
     return cell_pos
 
 
+# @resolve.register
+# def _(loc: LocSummary, data: GTData) -> list[CellPos]:
+#     pass
+
+
+@resolve.register
+def _(loc: LocGrandSummary, data: GTData) -> list[CellPos]:
+    pass
+
+
 # Style generic ========================================================================
 
 
@@ -953,9 +985,11 @@ def _(loc: LocBody, data: GTData) -> list[CellPos]:
 # LocStub
 # LocRowGroupLabel
 # LocRowLabel
-# LocSummaryLabel
+# LocSummaryStub
+# LocGrandSummaryStub
 # LocBody
 # LocSummary
+# LocGrandSummary
 # LocFooter
 # LocFootnotes
 # LocSourceNotes
@@ -1039,8 +1073,14 @@ def _(loc: LocRowGroups, data: GTData, style: list[CellStyle]) -> GTData:
     )
 
 
-@set_style.register
-def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
+@set_style.register(LocStub)
+@set_style.register(LocSummaryStub)
+@set_style.register(LocGrandSummaryStub)
+def _(
+    loc: (LocStub | LocSummaryStub | LocGrandSummaryStub),
+    data: GTData,
+    style: list[CellStyle],
+) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
@@ -1051,8 +1091,14 @@ def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
     return data._replace(_styles=data._styles + new_styles)
 
 
-@set_style.register
-def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
+@set_style.register(LocBody)
+@set_style.register(LocSummary)
+@set_style.register(LocGrandSummary)
+def _(
+    loc: (LocBody | LocSummary | LocGrandSummary),
+    data: GTData,
+    style: list[CellStyle],
+) -> GTData:
     positions: list[CellPos] = resolve(loc, data)
 
     # evaluate any column expressions in styles

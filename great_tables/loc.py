@@ -17,9 +17,15 @@ from ._locations import (
     # Stub ----
     LocStub as stub,
     LocRowGroups as row_groups,
+    # LocSummaryStub as summary_stub,
+    LocGrandSummaryStub as grand_summary_stub,
     #
     # Body ----
     LocBody as body,
+    #
+    # Summary ----
+    # LocSummary as summary,
+    LocGrandSummary as grand_summary,
     #
     # Footer ----
     LocFooter as footer,
@@ -36,7 +42,11 @@ __all__ = (
     "column_labels",
     "stub",
     "row_groups",
+    # "summary_stub",
+    "grand_summary_stub",
     "body",
+    # "summary",
+    "grand_summary",
     "footer",
     "source_notes",
 )
