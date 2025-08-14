@@ -922,26 +922,20 @@ def _(loc: LocRowGroups, data: GTData) -> set[str]:
     return group_pos
 
 
-@resolve.register
-def _(loc: LocStub, data: GTData) -> set[int]:
+@resolve.register(LocStub)
+@resolve.register(LocSummaryStub)
+@resolve.register(LocGrandSummaryStub)
+def _(loc: (LocStub | LocSummaryStub | LocGrandSummaryStub), data: GTData) -> set[int]:
     # TODO: what are the rules for matching row groups?
     rows = resolve_rows_i(data=data, expr=loc.rows)
     cell_pos = set(row[1] for row in rows)
     return cell_pos
 
 
-@resolve.register
-def _(loc: LocSummaryStub, data: GTData) -> set[int]:
-    pass
-
-
-@resolve.register
-def _(loc: LocGrandSummaryStub, data: GTData) -> set[int]:
-    pass
-
-
-@resolve.register
-def _(loc: LocBody, data: GTData) -> list[CellPos]:
+@resolve.register(LocBody)
+@resolve.register(LocSummary)
+@resolve.register(LocGrandSummary)
+def _(loc: (LocBody | LocSummary | LocGrandSummary), data: GTData) -> list[CellPos]:
     if (loc.columns is not None or loc.rows is not None) and loc.mask is not None:
         raise ValueError(
             "Cannot specify the `mask` argument along with `columns` or `rows` in `loc.body()`."
@@ -959,16 +953,6 @@ def _(loc: LocBody, data: GTData) -> list[CellPos]:
         cellpos_data = resolve_mask(data=data, expr=loc.mask)
         cell_pos = [CellPos(*cellpos) for cellpos in cellpos_data]
     return cell_pos
-
-
-# @resolve.register
-# def _(loc: LocSummary, data: GTData) -> list[CellPos]:
-#     pass
-
-
-@resolve.register
-def _(loc: LocGrandSummary, data: GTData) -> list[CellPos]:
-    pass
 
 
 # Style generic ========================================================================
