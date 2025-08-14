@@ -75,6 +75,7 @@ class GTData:
     _spanners: Spanners
     _heading: Heading
     _stubhead: Stubhead
+    _summary_rows: SummaryRows
     _source_notes: SourceNotes
     _footnotes: Footnotes
     _styles: Styles
@@ -84,7 +85,6 @@ class GTData:
     _options: Options
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
-    _summary_rows: SummaryRows | None = None
 
     def _replace(self, **kwargs: Any) -> Self:
         new_obj = copy.copy(self)
@@ -123,6 +123,7 @@ class GTData:
             _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=None,
+            _summary_rows=SummaryRows([]),
             _source_notes=[],
             _footnotes=[],
             _styles=[],
@@ -1013,6 +1014,16 @@ class SummaryRows(_Sequence[SummaryRowInfo]):
         if rows is None:
             rows = []
         self._d = rows
+
+    def summary_rows_dict(self) -> dict[str, list[SummaryRowInfo]]:
+        """Get dictionary mapping group_id to list of summary rows for that group"""
+        result = {}
+        for summary_row in self._d:
+            group_id = summary_row.group.group_id
+            if group_id not in result:
+                result[group_id] = []
+            result[group_id].append(summary_row)
+        return result
 
 
 # Options ----
