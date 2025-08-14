@@ -6,9 +6,17 @@ from typing import Any, cast
 from htmltools import HTML, TagList, css, tags
 
 from . import _locations as loc
-from ._gt_data import GRAND_SUMMARY_GROUP, GroupRowInfo, GTData, Styles
+from ._gt_data import (
+    GRAND_SUMMARY_GROUP,
+    ColInfo,
+    GroupRowInfo,
+    GTData,
+    StyleInfo,
+    Styles,
+    SummaryRowInfo,
+)
 from ._spanners import spanners_print_matrix
-from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
+from ._tbl_data import TblData, _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import BaseText, _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
@@ -417,6 +425,86 @@ def create_columns_component_h(data: GTData) -> str:
     return table_col_headings
 
 
+def _create_row_component_h(
+    column_vars: list[ColInfo],
+    stub_var: ColInfo | None,
+    has_stub_column: bool,
+    apply_stub_striping: bool,
+    apply_body_striping: bool,
+    styles_cells: list[StyleInfo],  # Either styles_cells OR styles_grand_summary
+    styles_labels: list[StyleInfo],  # Either styles_row_label OR styles_grand_summary_label
+    row_index: int | None = None,  # For data rows
+    summary_row: SummaryRowInfo | None = None,  # For summary rows
+    tbl_data: TblData | None = None,
+) -> str:
+    """Create a single table row (either data row or summary row)"""
+
+    is_summary_row = summary_row is not None
+    body_cells: list[str] = []
+
+    for colinfo in column_vars:
+        # Get cell content
+        if is_summary_row:
+            if colinfo == stub_var:
+                cell_content = summary_row.function.capitalize()
+            else:
+                non_stub_cols = [col for col in column_vars if col != stub_var]
+                try:
+                    col_index = non_stub_cols.index(colinfo)
+                    cell_content = (
+                        summary_row.values[col_index]
+                        if col_index < len(summary_row.values)
+                        else "---"
+                    )
+                except ValueError:
+                    cell_content = "---"
+        else:
+            cell_content = _get_cell(tbl_data, row_index, colinfo.var)
+
+        cell_str = str(cell_content)
+        is_stub_cell = has_stub_column and colinfo.var == stub_var.var
+        cell_alignment = colinfo.defaulted_align
+
+        # Get styles
+        if is_summary_row:
+            _body_styles = styles_cells  # Already filtered to grand summary styles
+            _rowname_styles = (
+                styles_labels if is_stub_cell else []
+            )  # Already filtered to grand summary label styles
+        else:
+            _body_styles = [
+                x for x in styles_cells if x.rownum == row_index and x.colname == colinfo.var
+            ]
+            _rowname_styles = (
+                [x for x in styles_labels if x.rownum == row_index] if is_stub_cell else []
+            )
+
+        # Build classes and element
+        if is_stub_cell:
+            el_name = "th"
+            classes = ["gt_row", "gt_left", "gt_stub"]
+            if is_summary_row:
+                classes.append("gt_grand_summary")
+            if apply_stub_striping:
+                classes.append("gt_striped")
+        else:
+            el_name = "td"
+            classes = ["gt_row", f"gt_{cell_alignment}"]
+            if is_summary_row:
+                classes.append("gt_grand_summary")
+            if apply_body_striping:
+                classes.append("gt_striped")
+
+        classes_str = " ".join(classes)
+        cell_styles = _flatten_styles(_body_styles + _rowname_styles, wrap=True)
+
+        body_cells.append(
+            f"""    <{el_name}{cell_styles} class="{classes_str}">{cell_str}</{el_name}>"""
+        )
+
+    return "  <tr>\n" + "\n".join(body_cells) + "\n  </tr>"
+
+
 def create_body_component_h(data: GTData) -> str:
     # for now, just coerce everything in the original data to a string
     # so we can fill in the body data with it
@@ -461,28 +549,23 @@ def create_body_component_h(data: GTData) -> str:
     body_rows: list[str] = []
 
     # Load summary rows
-    summary_rows = data._summary_rows.summary_rows_dict()
+    summary_rows_dict = data._summary_rows.summary_rows_dict()
 
-    # Add grand summary rows if there are summary rows in GRAND_SUMMARY_GROUP at top
-    grand_summary_rows = summary_rows.get(GRAND_SUMMARY_GROUP.group_id)
-    if grand_summary_rows:
-        print(grand_summary_rows)
-        # Filter for rows with side == "top"
-        # for row in grand_summary_rows:
-        #     if row.side == "top":
-
-        #         label = row.values
-        #         _styles = [
-        #             style
-        #             for style in styles_row_group_label
-        #             if GRAND_SUMMARY_GROUP.group_id in getattr(style, "grpname", [])
-        #         ]
-        #         group_styles = _flatten_styles(_styles, wrap=True)
-        #         body_rows.append(
-        #             f"""  <tr class="{group_class}">
-        #     <th class="gt_group_heading" {group_styles}>{group_label}</th>
-        # </tr>"""
-        #         )
+    # Add grand summary rows at top (no striping for summary rows)
+    grand_summary_rows = summary_rows_dict.get(GRAND_SUMMARY_GROUP.group_id, [])
+    for summary_row in grand_summary_rows:
+        if summary_row.side == "top":
+            row_html = _create_row_component_h(
+                column_vars=column_vars,
+                stub_var=stub_var,
+                has_stub_column=has_stub_column,
+                apply_stub_striping=False,  # No striping for summary rows
+                apply_body_striping=False,  # No striping for summary rows
+                styles_cells=styles_grand_summary,
+                styles_labels=styles_grand_summary_label,
+                summary_row=summary_row,
+            )
+            body_rows.append(row_html)
 
     # iterate over rows (ordered by groupings)
     prev_group_info = None
@@ -523,59 +606,24 @@ def create_body_component_h(data: GTData) -> str:
 
                 body_rows.append(group_row)
 
-        # Create row cells
-        for colinfo in column_vars:
-            cell_content: Any = _get_cell(tbl_data, i, colinfo.var)
-            cell_str: str = str(cell_content)
-
-            # Determine whether the current cell is the stub cell
-            if has_stub_column:
-                is_stub_cell = colinfo.var == stub_var.var
-            else:
-                is_stub_cell = False
-
-            # Get alignment for the current column from the `col_alignment` list
-            # by using the `name` value to obtain the index of the alignment value
-            cell_alignment = colinfo.defaulted_align
-
-            # Get the style attributes for the current cell by filtering the
-            # `styles_cells` list for the current row and column
-            _body_styles = [x for x in styles_cells if x.rownum == i and x.colname == colinfo.var]
-
-            if is_stub_cell:
-                el_name = "th"
-
-                classes = ["gt_row", "gt_left", "gt_stub"]
-
-                _rowname_styles = [x for x in styles_row_label if x.rownum == i]
-
-                if table_stub_striped and odd_j_row:
-                    classes.append("gt_striped")
-
-            else:
-                el_name = "td"
-
-                classes = ["gt_row", f"gt_{cell_alignment}"]
-
-                _rowname_styles = []
-
-                if table_body_striped and odd_j_row:
-                    classes.append("gt_striped")
-
-            # Ensure that `classes` becomes a space-separated string
-            classes = " ".join(classes)
-            cell_styles = _flatten_styles(
-                _body_styles + _rowname_styles,
-                wrap=True,
-            )
-
-            body_cells.append(
-                f"""    <{el_name}{cell_styles} class="{classes}">{cell_str}</{el_name}>"""
-            )
+        # Create data row
+        row_html = _create_row_component_h(
+            column_vars=column_vars,
+            stub_var=stub_var,
+            has_stub_column=has_stub_column,
+            apply_stub_striping=table_stub_striped and odd_j_row,
+            apply_body_striping=table_body_striped and odd_j_row,
+            styles_cells=styles_cells,
+            styles_labels=styles_row_label,
+            row_index=i,
+            tbl_data=tbl_data,
+        )
+        body_rows.append(row_html)
 
         prev_group_info = group_info
 
-        body_rows.append("  <tr>\n" + "\n".join(body_cells) + "\n  </tr>")
+        # unused code
+        # body_rows.append("  <tr>\n" + "\n".join(body_cells) + "\n  </tr>")
 
         ## after the last row in the group, we need to append the summary rows for the group
         ## if this table has summary rows
