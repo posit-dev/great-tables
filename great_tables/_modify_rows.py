@@ -197,7 +197,8 @@ def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
 
 def grand_summary_rows(
     self: GTSelf,
-    fns: list[Literal["min", "max", "mean", "median"]] | Literal["min", "max", "mean", "median"],
+    fns: list[Literal["min", "max", "mean", "median", "sum"]]
+    | Literal["min", "max", "mean", "median"],
     columns: SelectExpr = None,
     side: Literal["bottom", "top"] = "bottom",
     missing_text: str = "---",
@@ -267,6 +268,8 @@ def _calculate_summary_row(
                 summary_row[col] = sum(col_data) / len(col_data)
             elif fn_name == "median":
                 summary_row[col] = quantiles(col_data, n=2)[0]  # Consider using the one in nanoplot
+            elif fn_name == "sum":
+                summary_row[col] = sum(col_data)
             else:
                 summary_row[col] = "hi"  # Should never get here
         else:
