@@ -543,6 +543,7 @@ def create_body_component_h(data: GTData) -> str:
         ## after the last row in the group, we need to append the summary rows for the group
         ## if this table has summary rows
 
+    # Add bottom grand summary rows
     for summary_row in grand_summary_rows:
         if summary_row.side == "bottom":
             row_html = _create_row_component_h(
@@ -556,8 +557,6 @@ def create_body_component_h(data: GTData) -> str:
                 summary_row=summary_row,
             )
             body_rows.append(row_html)
-
-    ## outside of the standard body rows loop, we need to add summary rows that are grand here
 
     all_body_rows = "\n".join(body_rows)
 

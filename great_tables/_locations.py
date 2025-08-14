@@ -560,6 +560,7 @@ class LocSummary(Loc):
     # TODO: these can be tidyselectors
     columns: SelectExpr = None
     rows: RowSelectExpr = None
+    mask: PlExpr | None = None
 
 
 @dataclass
@@ -567,6 +568,7 @@ class LocGrandSummary(Loc):
     # TODO: these can be tidyselectors
     columns: SelectExpr = None
     rows: RowSelectExpr = None
+    mask: PlExpr | None = None
 
 
 @dataclass
