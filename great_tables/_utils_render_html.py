@@ -448,16 +448,9 @@ def _create_row_component_h(
             if colinfo == stub_var:
                 cell_content = summary_row.function.capitalize()
             else:
-                non_stub_cols = [col for col in column_vars if col != stub_var]
-                try:
-                    col_index = non_stub_cols.index(colinfo)
-                    cell_content = (
-                        summary_row.values[col_index]
-                        if col_index < len(summary_row.values)
-                        else "---"
-                    )
-                except ValueError:
-                    cell_content = "---"
+                # hopefully don't need fallback
+                cell_content = summary_row.values.get(colinfo.var)
+
         else:
             cell_content = _get_cell(tbl_data, row_index, colinfo.var)
 

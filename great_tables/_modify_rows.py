@@ -16,10 +16,6 @@ from ._gt_data import (
 )
 from ._tbl_data import (
     SelectExpr,
-    create_no_row_frame,
-    get_column_names,
-    insert_row,
-    n_rows,
     to_list,
 )
 
@@ -218,19 +214,15 @@ def grand_summary_rows(
     # Compute summary rows immediately
     summary_row_infos = []
     for fn_name in fns:
-        row_values_list = _calculate_summary_row(
+        row_values_dict = _calculate_summary_row(
             self, fn_name, columns, missing_text, group_id=None
         )
 
         # TODO: minimize to one new df function, don't need insert row elsewhere.
-        # Maybe don't even need this to be a SeriesLike or DataFrameLike
-        # Convert list of values to TblData (single row DataFrame)
-        summary_tbl_data = create_no_row_frame(self._tbl_data)
-        summary_tbl_data = insert_row(summary_tbl_data, row_values_list, n_rows(summary_tbl_data))
 
         summary_row_info = SummaryRowInfo(
             function=fn_name,
-            values=row_values_list,  # TODO: revisit type
+            values=row_values_dict,  # TODO: revisit type
             side=side,
             group=GRAND_SUMMARY_GROUP,
         )
@@ -248,11 +240,9 @@ def _calculate_summary_row(
     columns: SelectExpr,
     missing_text: str,
     group_id: str | None = None,  # None means grand summary (all data)
-) -> list[Any]:
+) -> dict[str, Any]:
     """Calculate a summary row based on the function name and selected columns for a specific group."""
-    tbl_data = data._tbl_data
-
-    original_column_names = get_column_names(tbl_data)
+    original_columns = data._boxhead._get_columns()
 
     summary_col_names = resolve_cols_c(data=data, expr=columns)
 
@@ -262,26 +252,24 @@ def _calculate_summary_row(
         # Future: group-specific logic would go here
         raise NotImplementedError("Group-specific summaries not yet implemented")
 
-    # Create summary rows _tbl_data
-    summary_row = []
+    # Create summary row data as dict
+    summary_row = {}
 
-    for col in original_column_names:
+    for col in original_columns:
         if col in summary_col_names:
-            col_data = to_list(tbl_data[col])
+            col_data = to_list(data._tbl_data[col])
 
             if fn_name == "min":
-                new_cell = [min(col_data)]
+                summary_row[col] = min(col_data)
             elif fn_name == "max":
-                new_cell = [max(col_data)]
+                summary_row[col] = max(col_data)
             elif fn_name == "mean":
-                new_cell = [sum(col_data) / len(col_data)]
+                summary_row[col] = sum(col_data) / len(col_data)
             elif fn_name == "median":
-                new_cell = [quantiles(col_data, n=2)]
+                summary_row[col] = quantiles(col_data, n=2)[0]  # Consider using the one in nanoplot
             else:
-                # Should never get here
-                new_cell = ["hi"]
+                summary_row[col] = "hi"  # Should never get here
         else:
-            new_cell = [missing_text]
+            summary_row[col] = missing_text
 
-        summary_row += new_cell
     return summary_row

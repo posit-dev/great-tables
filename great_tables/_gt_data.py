@@ -983,7 +983,7 @@ class SummaryRowInfo:
     """Information about a single summary row"""
 
     function: Literal["min", "max", "mean", "median"]
-    values: list[str | int | float]  # TODO: consider datatype
+    values: dict[str, str | int | float]  # TODO: consider datatype
     side: Literal["top", "bottom"]
     group: GroupRowInfo
 
