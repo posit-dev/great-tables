@@ -470,9 +470,9 @@ def create_body_component_h(data: GTData) -> str:
 
     # Load summary rows
     summary_rows_dict = data._summary_rows.summary_rows_dict()
-
-    # Add grand summary rows at top (no striping for summary rows)
     grand_summary_rows = summary_rows_dict.get(GRAND_SUMMARY_GROUP.group_id, [])
+
+    # Add grand summary rows at top
     for summary_row in grand_summary_rows:
         if summary_row.side == "top":
             row_html = _create_row_component_h(
@@ -498,8 +498,6 @@ def create_body_component_h(data: GTData) -> str:
         # row render is an odd number
 
         odd_j_row = j % 2 == 1
-
-        body_cells: list[str] = []
 
         # Create table row specifically for group (if applicable)
         if has_stub_column and has_groups and not has_two_col_stub:
@@ -542,11 +540,22 @@ def create_body_component_h(data: GTData) -> str:
 
         prev_group_info = group_info
 
-        # unused code
-        # body_rows.append("  <tr>\n" + "\n".join(body_cells) + "\n  </tr>")
-
         ## after the last row in the group, we need to append the summary rows for the group
         ## if this table has summary rows
+
+    for summary_row in grand_summary_rows:
+        if summary_row.side == "bottom":
+            row_html = _create_row_component_h(
+                column_vars=column_vars,
+                stub_var=stub_var,
+                has_stub_column=has_stub_column,
+                apply_stub_striping=False,  # No striping for summary rows
+                apply_body_striping=False,  # No striping for summary rows
+                styles_cells=styles_grand_summary,
+                styles_labels=styles_grand_summary_label,
+                summary_row=summary_row,
+            )
+            body_rows.append(row_html)
 
     ## outside of the standard body rows loop, we need to add summary rows that are grand here
 
