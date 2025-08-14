@@ -425,79 +425,6 @@ def create_columns_component_h(data: GTData) -> str:
     return table_col_headings
 
 
-def _create_row_component_h(
-    column_vars: list[ColInfo],
-    stub_var: ColInfo | None,
-    has_stub_column: bool,
-    apply_stub_striping: bool,
-    apply_body_striping: bool,
-    styles_cells: list[StyleInfo],  # Either styles_cells OR styles_grand_summary
-    styles_labels: list[StyleInfo],  # Either styles_row_label OR styles_grand_summary_label
-    row_index: int | None = None,  # For data rows
-    summary_row: SummaryRowInfo | None = None,  # For summary rows
-    tbl_data: TblData | None = None,
-) -> str:
-    """Create a single table row (either data row or summary row)"""
-
-    is_summary_row = summary_row is not None
-    body_cells: list[str] = []
-
-    for colinfo in column_vars:
-        # Get cell content
-        if is_summary_row:
-            if colinfo == stub_var:
-                cell_content = summary_row.function.capitalize()
-            else:
-                # hopefully don't need fallback
-                cell_content = summary_row.values.get(colinfo.var)
-
-        else:
-            cell_content = _get_cell(tbl_data, row_index, colinfo.var)
-
-        cell_str = str(cell_content)
-        is_stub_cell = has_stub_column and colinfo.var == stub_var.var
-        cell_alignment = colinfo.defaulted_align
-
-        # Get styles
-        if is_summary_row:
-            _body_styles = styles_cells  # Already filtered to grand summary styles
-            _rowname_styles = (
-                styles_labels if is_stub_cell else []
-            )  # Already filtered to grand summary label styles
-        else:
-            _body_styles = [
-                x for x in styles_cells if x.rownum == row_index and x.colname == colinfo.var
-            ]
-            _rowname_styles = (
-                [x for x in styles_labels if x.rownum == row_index] if is_stub_cell else []
-            )
-
-        # Build classes and element
-        if is_stub_cell:
-            el_name = "th"
-            classes = ["gt_row", "gt_left", "gt_stub"]
-            if is_summary_row:
-                classes.append("gt_grand_summary")
-            if apply_stub_striping:
-                classes.append("gt_striped")
-        else:
-            el_name = "td"
-            classes = ["gt_row", f"gt_{cell_alignment}"]
-            if is_summary_row:
-                classes.append("gt_grand_summary")
-            if apply_body_striping:
-                classes.append("gt_striped")
-
-        classes_str = " ".join(classes)
-        cell_styles = _flatten_styles(_body_styles + _rowname_styles, wrap=True)
-
-        body_cells.append(
-            f"""    <{el_name}{cell_styles} class="{classes_str}">{cell_str}</{el_name}>"""
-        )
-
-    return "  <tr>\n" + "\n".join(body_cells) + "\n  </tr>"
-
-
 def create_body_component_h(data: GTData) -> str:
     # for now, just coerce everything in the original data to a string
     # so we can fill in the body data with it
@@ -628,6 +555,79 @@ def create_body_component_h(data: GTData) -> str:
     return f"""<tbody class="gt_table_body">
 {all_body_rows}
 </tbody>"""
+
+
+def _create_row_component_h(
+    column_vars: list[ColInfo],
+    stub_var: ColInfo | None,
+    has_stub_column: bool,
+    apply_stub_striping: bool,
+    apply_body_striping: bool,
+    styles_cells: list[StyleInfo],  # Either styles_cells OR styles_grand_summary
+    styles_labels: list[StyleInfo],  # Either styles_row_label OR styles_grand_summary_label
+    row_index: int | None = None,  # For data rows
+    summary_row: SummaryRowInfo | None = None,  # For summary rows
+    tbl_data: TblData | None = None,
+) -> str:
+    """Create a single table row (either data row or summary row)"""
+
+    is_summary_row = summary_row is not None
+    body_cells: list[str] = []
+
+    for colinfo in column_vars:
+        # Get cell content
+        if is_summary_row:
+            if colinfo == stub_var:
+                cell_content = summary_row.function.capitalize()
+            else:
+                # hopefully don't need fallback
+                cell_content = summary_row.values.get(colinfo.var)
+
+        else:
+            cell_content = _get_cell(tbl_data, row_index, colinfo.var)
+
+        cell_str = str(cell_content)
+        is_stub_cell = has_stub_column and colinfo.var == stub_var.var
+        cell_alignment = colinfo.defaulted_align
+
+        # Get styles
+        if is_summary_row:
+            _body_styles = styles_cells  # Already filtered to grand summary styles
+            _rowname_styles = (
+                styles_labels if is_stub_cell else []
+            )  # Already filtered to grand summary label styles
+        else:
+            _body_styles = [
+                x for x in styles_cells if x.rownum == row_index and x.colname == colinfo.var
+            ]
+            _rowname_styles = (
+                [x for x in styles_labels if x.rownum == row_index] if is_stub_cell else []
+            )
+
+        # Build classes and element
+        if is_stub_cell:
+            el_name = "th"
+            classes = ["gt_row", "gt_left", "gt_stub"]
+            if is_summary_row:
+                classes.append("gt_grand_summary")
+            if apply_stub_striping:
+                classes.append("gt_striped")
+        else:
+            el_name = "td"
+            classes = ["gt_row", f"gt_{cell_alignment}"]
+            if is_summary_row:
+                classes.append("gt_grand_summary")
+            if apply_body_striping:
+                classes.append("gt_striped")
+
+        classes_str = " ".join(classes)
+        cell_styles = _flatten_styles(_body_styles + _rowname_styles, wrap=True)
+
+        body_cells.append(
+            f"""    <{el_name}{cell_styles} class="{classes_str}">{cell_str}</{el_name}>"""
+        )
+
+    return "  <tr>\n" + "\n".join(body_cells) + "\n  </tr>"
 
 
 def create_source_notes_component_h(data: GTData) -> str:
