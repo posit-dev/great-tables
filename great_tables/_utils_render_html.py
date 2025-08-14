@@ -6,7 +6,7 @@ from typing import Any, cast
 from htmltools import HTML, TagList, css, tags
 
 from . import _locations as loc
-from ._gt_data import GroupRowInfo, GTData, Styles
+from ._gt_data import GRAND_SUMMARY_GROUP, GroupRowInfo, GTData, Styles
 from ._spanners import spanners_print_matrix
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import BaseText, _process_text, _process_text_id
@@ -426,12 +426,16 @@ def create_body_component_h(data: GTData) -> str:
     # Filter list of StyleInfo to only those that apply to the stub
     styles_row_group_label = [x for x in data._styles if _is_loc(x.locname, loc.LocRowGroups)]
     styles_row_label = [x for x in data._styles if _is_loc(x.locname, loc.LocStub)]
-    # styles_summary_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSummaryLabel)]
+    # styles_summary_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSummaryStub)]
+    styles_grand_summary_label = [
+        x for x in data._styles if _is_loc(x.locname, loc.LocGrandSummaryStub)
+    ]
 
     # Filter list of StyleInfo to only those that apply to the body
     styles_cells = [x for x in data._styles if _is_loc(x.locname, loc.LocBody)]
     # styles_body = [x for x in data._styles if _is_loc(x.locname, loc.LocBody2)]
     # styles_summary = [x for x in data._styles if _is_loc(x.locname, loc.LocSummary)]
+    styles_grand_summary = [x for x in data._styles if _is_loc(x.locname, loc.LocGrandSummary)]
 
     # Get the default column vars
     column_vars = data._boxhead._get_default_columns()
@@ -455,6 +459,30 @@ def create_body_component_h(data: GTData) -> str:
     table_body_striped = data._options.row_striping_include_table_body.value
 
     body_rows: list[str] = []
+
+    # Load summary rows
+    summary_rows = data._summary_rows.summary_rows_dict()
+
+    # Add grand summary rows if there are summary rows in GRAND_SUMMARY_GROUP at top
+    grand_summary_rows = summary_rows.get(GRAND_SUMMARY_GROUP.group_id)
+    if grand_summary_rows:
+        print(grand_summary_rows)
+        # Filter for rows with side == "top"
+        # for row in grand_summary_rows:
+        #     if row.side == "top":
+
+        #         label = row.values
+        #         _styles = [
+        #             style
+        #             for style in styles_row_group_label
+        #             if GRAND_SUMMARY_GROUP.group_id in getattr(style, "grpname", [])
+        #         ]
+        #         group_styles = _flatten_styles(_styles, wrap=True)
+        #         body_rows.append(
+        #             f"""  <tr class="{group_class}">
+        #     <th class="gt_group_heading" {group_styles}>{group_label}</th>
+        # </tr>"""
+        #         )
 
     # iterate over rows (ordered by groupings)
     prev_group_info = None
