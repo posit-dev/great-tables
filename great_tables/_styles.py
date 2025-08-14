@@ -22,37 +22,51 @@ ColumnExpr: TypeAlias = Union["FromColumn", PlExpr, "FromValues"]
 class FromColumn:
     """Specify that a style value should be fetched from a column in the data.
 
+    Parameters
+    ----------
+    column
+        A column name in the data containing the styling information.
+    na_value
+        A single value to replace any NA values in the column (currently not supported).
+    fn
+        A callable applied to transform each value extracted from `column=`.
+
     Examples
     --------
+    This example demonstrates styling the `"x"` column.
+
+    Style the text color using the `"color"` column:
 
     ```{python}
     import pandas as pd
-    from great_tables import GT, exibble, from_column, loc, style
+    import polars as pl
+    from great_tables import GT, from_column, loc, style, px
 
-    df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
+    df = pd.DataFrame({"x": [15, 20], "color": ["red", "blue"]})
+
+    (GT(df).tab_style(style=style.text(color=from_column("color")), locations=loc.body(columns=["x"])))
+    ```
+
+    With polars, you can pass expressions directly:
+
+    ```{python}
+    df_polars = pl.from_pandas(df)
 
     (
-        GT(df)
-        .tab_style(
-            style=style.text(color=from_column("color")),
-            locations=loc.body(columns=["x"])
+        GT(df_polars).tab_style(
+            style=style.text(color=pl.col("color")), locations=loc.body(columns=["x"])
         )
     )
     ```
 
-    If you are using polars, you can just pass polars expressions in directly:
+    Style the text size using values from the `"x"` column, with the
+    `px()` helper function as the `fn=` parameter:
 
     ```{python}
-    import polars as pl
-    from great_tables import GT, exibble, from_column, loc, style
-
-    df_polars = pl.from_pandas(df)
-
     (
-        GT(df_polars)
-        .tab_style(
-            style=style.text(color=pl.col("color")),
-            locations=loc.body(columns=["x"])
+        GT(df).tab_style(
+            style=style.text(color=from_column("color"), size=from_column("x", fn=px)),
+            locations=loc.body(columns=["x"]),
         )
     )
     ```
