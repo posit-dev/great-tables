@@ -617,14 +617,14 @@ def _create_row_component_h(
             el_name = "th"
             classes = ["gt_row", "gt_left", "gt_stub"]
             if is_summary_row:
-                classes.append("gt_grand_summary")
+                classes.append("gt_grand_summary_row")
             if apply_stub_striping:
                 classes.append("gt_striped")
         else:
             el_name = "td"
             classes = ["gt_row", f"gt_{cell_alignment}"]
             if is_summary_row:
-                classes.append("gt_grand_summary")
+                classes.append("gt_grand_summary_row")
             if apply_body_striping:
                 classes.append("gt_striped")
 
