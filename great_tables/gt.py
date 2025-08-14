@@ -315,12 +315,6 @@ class GT(
         return self._replace(_body=new_body)
 
     def _build_data(self, context: str) -> Self:
-        # new_body = self._body.copy()
-
-        # # mutation
-        # new_body.merge_summary_rows(self._tbl_data, self._summary_rows)
-        # self = self._replace(_body=new_body)
-
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         built = self._render_formats(context)

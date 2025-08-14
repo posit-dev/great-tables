@@ -181,23 +181,6 @@ class Body:
     def __init__(self, body: TblData):
         self.body = body
 
-    # def merge_summary_rows(self, old_tbl_data: TblData, summary_rows: SummaryRows):
-    #     if not summary_rows or summary_rows == []:
-    #         return self
-
-    #     tbl_data = self.body
-
-    #     for i, summary_row in enumerate(summary_rows):
-    #         # Concatenate based on side parameter
-    #         if summary_row.side == "bottom":
-    #             tbl_data = insert_row(tbl_data, summary_row.values, n_rows(tbl_data))
-    #         else:  # top
-    #             tbl_data = insert_row(tbl_data, summary_row.values, i)
-
-    #     self.body = tbl_data
-
-    #     return self
-
     def render_formats(self, data_tbl: TblData, formats: list[FormatInfo], context: Any):
         for fmt in formats:
             eval_func = getattr(fmt.func, context, fmt.func.default)
