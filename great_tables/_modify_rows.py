@@ -12,7 +12,6 @@ from ._gt_data import (
     RowGroups,
     Styles,
     SummaryRowInfo,
-    SummaryRows,
 )
 from ._tbl_data import (
     SelectExpr,
@@ -212,27 +211,22 @@ def grand_summary_rows(
     if isinstance(fns, str):
         fns = [fns]
 
-    # Compute summary rows immediately
-    summary_row_infos = []
     for fn_name in fns:
         row_values_dict = _calculate_summary_row(
             self, fn_name, columns, missing_text, group_id=None
         )
 
-        # TODO: minimize to one new df function, don't need insert row elsewhere.
-
         summary_row_info = SummaryRowInfo(
+            id=fn_name,
             function=fn_name,
             values=row_values_dict,  # TODO: revisit type
             side=side,
             group=GRAND_SUMMARY_GROUP,
         )
-        summary_row_infos.append(summary_row_info)  # There is probably a better way to do this
 
-    existing_rows = self._summary_rows._d if self._summary_rows is not None else []
-    new_summary_rows = SummaryRows(existing_rows + summary_row_infos)
+        self._summary_rows.add_summary_row(summary_row_info)
 
-    return self._replace(_summary_rows=new_summary_rows)
+    return self
 
 
 def _calculate_summary_row(

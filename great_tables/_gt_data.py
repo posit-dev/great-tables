@@ -982,6 +982,7 @@ GRAND_SUMMARY_GROUP = GroupRowInfo(group_id="__grand_summary_group__")
 class SummaryRowInfo:
     """Information about a single summary row"""
 
+    id: str
     function: Literal["min", "max", "mean", "median"]
     values: dict[str, str | int | float]  # TODO: consider datatype
     side: Literal["top", "bottom"]
@@ -989,23 +990,74 @@ class SummaryRowInfo:
 
 
 class SummaryRows(_Sequence[SummaryRowInfo]):
-    """A sequence of summary rows"""
+    """A sequence of summary rows
+
+    The following strctures should always be true about summary rows:
+        - The id is also the label (often the same as the function name)
+        - There is at most 1 row for each group and id pairing
+        - If a summary row is added and no row exists for that group and id, add it
+        - If a summary row is added and a row exists for that group and id pairing,
+            then replace all cells (in values) that are numeric in the new version
+    """
 
     _d: list[SummaryRowInfo]
 
     def __init__(self, rows: list[SummaryRowInfo] | None = None):
-        if rows is None:
-            rows = []
-        self._d = rows
+        self._d = []
+        if rows is not None:
+            for row in rows:
+                self.add_summary_row(row)
 
-    def summary_rows_dict(self) -> dict[str, list[SummaryRowInfo]]:
-        """Get dictionary mapping group_id to list of summary rows for that group"""
-        result = {}
+    def add_summary_row(self, summary_row: SummaryRowInfo) -> None:
+        """Add a summary row following the merging rules in the class docstring."""
+        # Find existing row with same group and id
+        existing_index = None
+        for i, existing_row in enumerate(self._d):
+            if (
+                existing_row.group.group_id == summary_row.group.group_id
+                and existing_row.id == summary_row.id
+            ):
+                existing_index = i
+                break
+
+        new_rows = self._d.copy()
+
+        if existing_index is None:
+            # No existing row for this group and id, add it
+            new_rows.append(summary_row)
+        else:
+            # Replace existing row, but merge numeric values from new version
+            existing_row = self._d[existing_index]
+
+            # Start with existing values
+            merged_values = existing_row.values.copy()
+
+            # Replace with numeric values from new row
+            for key, new_value in summary_row.values.items():
+                if isinstance(new_value, (int, float)):
+                    merged_values[key] = new_value
+
+            # Create merged row with new row's properties but merged values
+            merged_row = SummaryRowInfo(
+                id=summary_row.id,
+                function=summary_row.function,
+                values=merged_values,
+                side=summary_row.side,
+                group=summary_row.group,
+            )
+
+            new_rows[existing_index] = merged_row
+
+        self._d = new_rows
+
+        return
+
+    def get_summary_rows_group(self, group_id: str) -> list[SummaryRowInfo]:
+        """Get list of summary rows for that group"""
+        result: list[SummaryRowInfo] = []
         for summary_row in self._d:
-            group_id = summary_row.group.group_id
-            if group_id not in result:
-                result[group_id] = []
-            result[group_id].append(summary_row)
+            if group_id == summary_row.group.group_id:
+                result += [summary_row]  # is it better to append?
         return result
 
 

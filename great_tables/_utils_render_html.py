@@ -469,8 +469,7 @@ def create_body_component_h(data: GTData) -> str:
     body_rows: list[str] = []
 
     # Load summary rows
-    summary_rows_dict = data._summary_rows.summary_rows_dict()
-    grand_summary_rows = summary_rows_dict.get(GRAND_SUMMARY_GROUP.group_id, [])
+    grand_summary_rows = data._summary_rows.get_summary_rows_group(GRAND_SUMMARY_GROUP.group_id)
 
     # Add grand summary rows at top
     top_summary_rows = [row for row in grand_summary_rows if row.side == "top"]
@@ -607,18 +606,12 @@ def _create_row_component_h(
         cell_alignment = colinfo.defaulted_align
 
         # Get styles
-        if is_summary_row:
-            _body_styles = styles_cells  # Already filtered to grand summary styles
-            _rowname_styles = (
-                styles_labels if is_stub_cell else []
-            )  # Already filtered to grand summary label styles
-        else:
-            _body_styles = [
-                x for x in styles_cells if x.rownum == row_index and x.colname == colinfo.var
-            ]
-            _rowname_styles = (
-                [x for x in styles_labels if x.rownum == row_index] if is_stub_cell else []
-            )
+        _body_styles = [
+            x for x in styles_cells if x.rownum == row_index and x.colname == colinfo.var
+        ]
+        _rowname_styles = (
+            [x for x in styles_labels if x.rownum == row_index] if is_stub_cell else []
+        )
 
         # Build classes and element
         if is_stub_cell:
