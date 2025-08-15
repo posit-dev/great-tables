@@ -1,8 +1,22 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from statistics import quantiles
+from typing import TYPE_CHECKING, Any, Literal
 
-from ._gt_data import Locale, RowGroups, Styles
+from great_tables._locations import resolve_cols_c
+
+from ._gt_data import (
+    GRAND_SUMMARY_GROUP,
+    GTData,
+    Locale,
+    RowGroups,
+    Styles,
+    SummaryRowInfo,
+)
+from ._tbl_data import (
+    SelectExpr,
+    to_list,
+)
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -16,8 +30,8 @@ def row_group_order(self: GTSelf, groups: RowGroups) -> GTSelf:
 
 def _remove_from_body_styles(styles: Styles, column: str) -> Styles:
     # TODO: refactor
-    from ._utils_render_html import _is_loc
     from ._locations import LocBody
+    from ._utils_render_html import _is_loc
 
     new_styles = [
         info for info in styles if not (_is_loc(info.locname, LocBody) and info.colname == column)
@@ -178,3 +192,81 @@ def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
     ```
     """
     return self._replace(_options=self._options._set_option_value("table_id", id))
+
+
+def grand_summary_rows(
+    self: GTSelf,
+    fns: list[Literal["min", "max", "mean", "median", "sum"]]
+    | Literal["min", "max", "mean", "median"],
+    columns: SelectExpr = None,
+    side: Literal["bottom", "top"] = "bottom",
+    missing_text: str = "---",
+) -> GTSelf:
+    """Add grand summary rows to the table.
+
+    TODO docstring
+    """
+    # Computes summary rows immediately but stores them separately from main data.
+
+    if isinstance(fns, str):
+        fns = [fns]
+
+    for fn_name in fns:
+        row_values_dict = _calculate_summary_row(
+            self, fn_name, columns, missing_text, group_id=None
+        )
+
+        summary_row_info = SummaryRowInfo(
+            id=fn_name,
+            function=fn_name,
+            values=row_values_dict,  # TODO: revisit type
+            side=side,
+            group=GRAND_SUMMARY_GROUP,
+        )
+
+        self._summary_rows.add_summary_row(summary_row_info)
+
+    return self
+
+
+def _calculate_summary_row(
+    data: GTData,
+    fn_name: str,
+    columns: SelectExpr,
+    missing_text: str,
+    group_id: str | None = None,  # None means grand summary (all data)
+) -> dict[str, Any]:
+    """Calculate a summary row based on the function name and selected columns for a specific group."""
+    original_columns = data._boxhead._get_columns()
+
+    summary_col_names = resolve_cols_c(data=data, expr=columns)
+
+    if group_id is None:
+        group_id = GRAND_SUMMARY_GROUP.group_id
+    else:
+        # Future: group-specific logic would go here
+        raise NotImplementedError("Group-specific summaries not yet implemented")
+
+    # Create summary row data as dict
+    summary_row = {}
+
+    for col in original_columns:
+        if col in summary_col_names:
+            col_data = to_list(data._tbl_data[col])
+
+            if fn_name == "min":
+                summary_row[col] = min(col_data)
+            elif fn_name == "max":
+                summary_row[col] = max(col_data)
+            elif fn_name == "mean":
+                summary_row[col] = sum(col_data) / len(col_data)
+            elif fn_name == "median":
+                summary_row[col] = quantiles(col_data, n=2)[0]  # Consider using the one in nanoplot
+            elif fn_name == "sum":
+                summary_row[col] = sum(col_data)
+            else:
+                summary_row[col] = "hi"  # Should never get here
+        else:
+            summary_row[col] = missing_text
+
+    return summary_row

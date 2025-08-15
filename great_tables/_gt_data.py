@@ -75,6 +75,7 @@ class GTData:
     _spanners: Spanners
     _heading: Heading
     _stubhead: Stubhead
+    _summary_rows: SummaryRows
     _source_notes: SourceNotes
     _footnotes: Footnotes
     _styles: Styles
@@ -122,6 +123,7 @@ class GTData:
             _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=None,
+            _summary_rows=SummaryRows([]),
             _source_notes=[],
             _footnotes=[],
             _styles=[],
@@ -719,7 +721,7 @@ class GroupRowInfo:
     indices: list[int] = field(default_factory=list)
     # row_start: int | None = None
     # row_end: int | None = None
-    has_summary_rows: bool = False
+    has_summary_rows: bool = False  # TODO: remove
     summary_row_side: str | None = None
 
     def defaulted_label(self) -> str:
@@ -972,6 +974,94 @@ class FormatInfo:
 Formats = list
 
 
+# Summary Rows ---
+GRAND_SUMMARY_GROUP = GroupRowInfo(group_id="__grand_summary_group__")
+
+
+@dataclass(frozen=True)
+class SummaryRowInfo:
+    """Information about a single summary row"""
+
+    id: str
+    function: Literal["min", "max", "mean", "median"]
+    values: dict[str, str | int | float]  # TODO: consider datatype
+    side: Literal["top", "bottom"]
+    group: GroupRowInfo
+
+
+class SummaryRows(_Sequence[SummaryRowInfo]):
+    """A sequence of summary rows
+
+    The following strctures should always be true about summary rows:
+        - The id is also the label (often the same as the function name)
+        - There is at most 1 row for each group and id pairing
+        - If a summary row is added and no row exists for that group and id, add it
+        - If a summary row is added and a row exists for that group and id pairing,
+            then replace all cells (in values) that are numeric in the new version
+    """
+
+    _d: list[SummaryRowInfo]
+
+    def __init__(self, rows: list[SummaryRowInfo] | None = None):
+        self._d = []
+        if rows is not None:
+            for row in rows:
+                self.add_summary_row(row)
+
+    def add_summary_row(self, summary_row: SummaryRowInfo) -> None:
+        """Add a summary row following the merging rules in the class docstring."""
+        # Find existing row with same group and id
+        existing_index = None
+        for i, existing_row in enumerate(self._d):
+            if (
+                existing_row.group.group_id == summary_row.group.group_id
+                and existing_row.id == summary_row.id
+            ):
+                existing_index = i
+                break
+
+        new_rows = self._d.copy()
+
+        if existing_index is None:
+            # No existing row for this group and id, add it
+            new_rows.append(summary_row)
+        else:
+            # Replace existing row, but merge numeric values from new version
+            existing_row = self._d[existing_index]
+
+            # Start with existing values
+            merged_values = existing_row.values.copy()
+
+            # Replace with numeric values from new row
+            for key, new_value in summary_row.values.items():
+                if isinstance(new_value, (int, float)):
+                    merged_values[key] = new_value
+
+            # Create merged row with new row's properties but merged values
+            merged_row = SummaryRowInfo(
+                id=summary_row.id,
+                function=summary_row.function,
+                values=merged_values,
+                # Setting this to existing row instead of summary_row means original side is fixed
+                side=existing_row.side,
+                group=existing_row.group,
+            )
+
+            new_rows[existing_index] = merged_row
+
+        self._d = new_rows
+
+        return
+
+    def get_summary_rows(self, group_id: str, side: str) -> list[SummaryRowInfo]:
+        """Get list of summary rows for that group"""
+        result: list[SummaryRowInfo] = []
+        for summary_row in self._d:
+            if summary_row.group.group_id == group_id and summary_row.side == side:
+                result += [summary_row]  # is it better to append?
+        return result
+
+
 # Options ----
 
 default_fonts_list = [
@@ -1130,25 +1220,25 @@ class Options:
     # summary_row_border_style: OptionsInfo = OptionsInfo(True, "summary_row", "value", "solid")
     # summary_row_border_width: OptionsInfo = OptionsInfo(True, "summary_row", "px", "2px")
     # summary_row_border_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", "#D3D3D3")
-    # grand_summary_row_padding: OptionsInfo = OptionsInfo(True, "grand_summary_row", "px", "8px")
-    # grand_summary_row_padding_horizontal: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "px", "5px"
-    # )
-    # grand_summary_row_background_color: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", None
-    # )
-    # grand_summary_row_text_transform: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", "inherit"
-    # )
-    # grand_summary_row_border_style: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", "double"
-    # )
-    # grand_summary_row_border_width: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "px", "6px"
-    # )
-    # grand_summary_row_border_color: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", "#D3D3D3"
-    # )
+    grand_summary_row_padding: OptionsInfo = OptionsInfo(True, "grand_summary_row", "px", "8px")
+    grand_summary_row_padding_horizontal: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "px", "5px"
+    )
+    grand_summary_row_background_color: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", None
+    )
+    grand_summary_row_text_transform: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "inherit"
+    )
+    grand_summary_row_border_style: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "double"
+    )
+    grand_summary_row_border_width: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "px", "6px"
+    )
+    grand_summary_row_border_color: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "#D3D3D3"
+    )
     # footnotes_font_size: OptionsInfo = OptionsInfo(True, "footnotes", "px", "90%")
     # footnotes_padding: OptionsInfo = OptionsInfo(True, "footnotes", "px", "4px")
     # footnotes_padding_horizontal: OptionsInfo = OptionsInfo(True, "footnotes", "px", "5px")
