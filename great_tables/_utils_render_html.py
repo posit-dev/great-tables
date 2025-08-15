@@ -468,12 +468,9 @@ def create_body_component_h(data: GTData) -> str:
 
     body_rows: list[str] = []
 
-    # Load summary rows
-    grand_summary_rows = data._summary_rows.get_summary_rows_group(GRAND_SUMMARY_GROUP.group_id)
-
     # Add grand summary rows at top
-    top_summary_rows = [row for row in grand_summary_rows if row.side == "top"]
-    for i, summary_row in enumerate(top_summary_rows):
+    top_g_summary_rows = data._summary_rows.get_summary_rows(GRAND_SUMMARY_GROUP.group_id, "top")
+    for i, summary_row in enumerate(top_g_summary_rows):
         row_html = _create_row_component_h(
             column_vars=column_vars,
             stub_var=stub_var,
@@ -483,7 +480,7 @@ def create_body_component_h(data: GTData) -> str:
             styles_cells=styles_grand_summary,
             styles_labels=styles_grand_summary_label,
             summary_row=summary_row,
-            css_class="gt_last_grand_summary_row_top" if i == len(top_summary_rows) - 1 else None,
+            css_class="gt_last_grand_summary_row_top" if i == len(top_g_summary_rows) - 1 else None,
         )
         body_rows.append(row_html)
 
@@ -544,8 +541,10 @@ def create_body_component_h(data: GTData) -> str:
         ## if this table has summary rows
 
     # Add grand summary rows at bottom
-    bottom_summary_rows = [row for row in grand_summary_rows if row.side == "bottom"]
-    for i, summary_row in enumerate(bottom_summary_rows):
+    bottom_g_summary_rows = data._summary_rows.get_summary_rows(
+        GRAND_SUMMARY_GROUP.group_id, "bottom"
+    )
+    for i, summary_row in enumerate(bottom_g_summary_rows):
         row_html = _create_row_component_h(
             column_vars=column_vars,
             stub_var=stub_var,

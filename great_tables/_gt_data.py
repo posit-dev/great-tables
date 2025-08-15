@@ -1042,8 +1042,9 @@ class SummaryRows(_Sequence[SummaryRowInfo]):
                 id=summary_row.id,
                 function=summary_row.function,
                 values=merged_values,
-                side=summary_row.side,
-                group=summary_row.group,
+                # Setting this to existing row instead of summary_row means original side is fixed
+                side=existing_row.side,
+                group=existing_row.group,
             )
 
             new_rows[existing_index] = merged_row
@@ -1052,11 +1053,11 @@ class SummaryRows(_Sequence[SummaryRowInfo]):
 
         return
 
-    def get_summary_rows_group(self, group_id: str) -> list[SummaryRowInfo]:
+    def get_summary_rows(self, group_id: str, side: str) -> list[SummaryRowInfo]:
         """Get list of summary rows for that group"""
         result: list[SummaryRowInfo] = []
         for summary_row in self._d:
-            if group_id == summary_row.group.group_id:
+            if summary_row.group.group_id == group_id and summary_row.side == side:
                 result += [summary_row]  # is it better to append?
         return result
 
