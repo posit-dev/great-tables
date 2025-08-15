@@ -479,6 +479,7 @@ def create_body_component_h(data: GTData) -> str:
             apply_body_striping=False,  # No striping for summary rows
             styles_cells=styles_grand_summary,
             styles_labels=styles_grand_summary_label,
+            row_index=i,
             summary_row=summary_row,
             css_class="gt_last_grand_summary_row_top" if i == len(top_g_summary_rows) - 1 else None,
         )
@@ -553,6 +554,7 @@ def create_body_component_h(data: GTData) -> str:
             apply_body_striping=False,  # No striping for summary rows
             styles_cells=styles_grand_summary,
             styles_labels=styles_grand_summary_label,
+            row_index=i,
             summary_row=summary_row,
             css_class="gt_first_grand_summary_row_bottom" if i == 0 else None,
         )
@@ -587,7 +589,7 @@ def _create_row_component_h(
         # Get cell content
         if is_summary_row:
             if colinfo == stub_var:
-                cell_content = summary_row.function.capitalize()
+                cell_content = summary_row.id
             else:
                 # hopefully don't need fallback
                 cell_content = summary_row.values.get(colinfo.var)

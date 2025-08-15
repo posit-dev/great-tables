@@ -11,6 +11,7 @@ from typing_extensions import TypeAlias
 # resolve generic, but we need to import at runtime, due to singledispatch looking
 # up annotations
 from ._gt_data import (
+    GRAND_SUMMARY_GROUP,
     ColInfoTypeEnum,
     FootnoteInfo,
     FootnotePlacement,
@@ -767,6 +768,59 @@ def resolve_cols_i(
 # resolving rows ----
 
 
+def resolve_summary_rows_i(
+    data: GTData,
+    expr: RowSelectExpr = None,
+    null_means: Literal["everything", "nothing"] = "everything",
+    group_id: str | None = None,  # Which group's summary rows to target
+) -> list[tuple[str, int]]:
+    """Return matching summary row numbers and IDs, based on expr"""
+
+    if isinstance(expr, (str, int)):
+        expr: list[str | int] = [expr]
+
+    # Get summary rows for the specified group
+    if group_id is None:
+        from ._gt_data import GRAND_SUMMARY_GROUP
+
+        group_id = GRAND_SUMMARY_GROUP.group_id
+
+    # Get summary rows for this group
+    summary_rows = [row for row in data._summary_rows._d if row.group.group_id == group_id]
+
+    # Extract row IDs (these become the rownames for the stub)
+    row_ids = [row.id for row in summary_rows]
+
+    if expr is None:
+        if null_means == "everything":
+            return [(row_id, ii) for ii, row_id in enumerate(row_ids)]
+        else:
+            return []
+
+    elif isinstance(expr, list):
+        # Match by function name (id) or by index
+        target_names = set(x for x in expr if isinstance(x, str))
+        target_pos = set(
+            indx if indx >= 0 else len(row_ids) + indx for indx in expr if isinstance(indx, int)
+        )
+
+        selected = [
+            (row_id, ii)
+            for ii, row_id in enumerate(row_ids)
+            if (row_id in target_names or ii in target_pos)
+        ]
+        return selected
+
+    # For summary rows, polars expressions and callables don't make sense
+    # since we're not operating on the main DataFrame
+    raise NotImplementedError(
+        "Summary row selection currently supports:\n\n"
+        "  * a list of function names (strings)\n"
+        "  * a list of integers (row indices)\n"
+        "  * None (for all summary rows)"
+    )
+
+
 def resolve_rows_i(
     data: GTData | list[str],
     expr: RowSelectExpr = None,
@@ -924,14 +978,26 @@ def _(loc: LocRowGroups, data: GTData) -> set[str]:
     return group_pos
 
 
-@resolve.register(LocStub)
-@resolve.register(LocSummaryStub)
-@resolve.register(LocGrandSummaryStub)
-def _(loc: (LocStub | LocSummaryStub | LocGrandSummaryStub), data: GTData) -> set[int]:
+@resolve.register
+def _(loc: LocStub, data: GTData) -> set[int]:
     # TODO: what are the rules for matching row groups?
     rows = resolve_rows_i(data=data, expr=loc.rows)
     cell_pos = set(row[1] for row in rows)
     return cell_pos
+
+
+@resolve.register
+def _(loc: LocGrandSummaryStub, data: GTData) -> set[int]:
+    # Use the specialized function for summary rows
+    rows = resolve_summary_rows_i(data=data, expr=loc.rows, group_id=GRAND_SUMMARY_GROUP.group_id)
+
+    # Return the indices
+    cell_pos = set(row[1] for row in rows)
+    print("cc", cell_pos)
+    return cell_pos
+
+
+# @resolve.register(LocSummaryStub)
 
 
 @resolve.register(LocBody)
@@ -1059,14 +1125,8 @@ def _(loc: LocRowGroups, data: GTData, style: list[CellStyle]) -> GTData:
     )
 
 
-@set_style.register(LocStub)
-@set_style.register(LocSummaryStub)
-@set_style.register(LocGrandSummaryStub)
-def _(
-    loc: (LocStub | LocSummaryStub | LocGrandSummaryStub),
-    data: GTData,
-    style: list[CellStyle],
-) -> GTData:
+@set_style.register
+def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
@@ -1077,14 +1137,26 @@ def _(
     return data._replace(_styles=data._styles + new_styles)
 
 
-@set_style.register(LocBody)
-@set_style.register(LocSummary)
-@set_style.register(LocGrandSummary)
-def _(
-    loc: (LocBody | LocSummary | LocGrandSummary),
-    data: GTData,
-    style: list[CellStyle],
-) -> GTData:
+@set_style.register
+def _(loc: LocGrandSummaryStub, data: GTData, style: list[CellStyle]) -> GTData:
+    # validate ----
+    for entry in style:
+        entry._raise_if_requires_data(loc)
+
+    # Resolve grand summary stub cells
+    cells = resolve(loc, data)
+
+    # Create StyleInfo entries for each resolved summary row
+    new_styles = [StyleInfo(locname=loc, rownum=rownum, styles=style) for rownum in cells]
+    print("settign new styles, ", new_styles)
+    return data._replace(_styles=data._styles + new_styles)
+
+
+# @set_style.register(LocSummaryStub)
+
+
+@set_style.register
+def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
     positions: list[CellPos] = resolve(loc, data)
 
     # evaluate any column expressions in styles
@@ -1099,6 +1171,10 @@ def _(
         all_info.append(crnt_info)
 
     return data._replace(_styles=data._styles + all_info)
+
+
+# @set_style.register(LocSummary)
+# @set_style.register(LocGrandSummary)
 
 
 # Set footnote generic =================================================================
