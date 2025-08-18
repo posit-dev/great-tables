@@ -61,6 +61,14 @@ def test_render_groups_reordered(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
+def test_groupname_with_no_rowname(snapshot):
+    df = pd.DataFrame({"g": ["A", "B"], "x": ["0", "1"], "y": ["22", "33"]})
+
+    new_gt = GT(df, groupname_col="g")
+
+    assert_rendered_body(snapshot, new_gt)
+
+
 def test_body_multiple_locations(snapshot):
     new_gt = GT(small_exibble).tab_style(
         style=style.fill(color="red"),

@@ -2,9 +2,15 @@
 # name: test_row_group_order
   '''
   <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">b</th>
+    </tr>
     <tr>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">4</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">a</th>
     </tr>
     <tr>
       <td class="gt_row gt_right">1</td>
