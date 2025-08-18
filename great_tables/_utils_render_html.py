@@ -470,18 +470,11 @@ def create_body_component_h(data: GTData) -> str:
 
         body_cells: list[str] = []
 
-        # Create table row specifically for group (if applicable)
-        if has_groups and not has_group_stub_column:
-            colspan_value = data._boxhead._get_effective_number_of_columns(
-                stub=data._stub, options=data._options
-            )
-
+        # Create table row or label in the stub specifically for group (if applicable)
+        if has_groups:
             # Only create if this is the first row of data within the group
             if group_info is not prev_group_info:
                 group_label = group_info.defaulted_label()
-                group_class = (
-                    "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
-                )
 
                 _styles = [
                     style
@@ -489,11 +482,31 @@ def create_body_component_h(data: GTData) -> str:
                     if group_info.group_id in style.grpname
                 ]
                 group_styles = _flatten_styles(_styles, wrap=True)
-                group_row = f"""  <tr class="{group_class}">
+
+                # Add group label that spans multiple columns when row_group_as_column is true
+                if has_group_stub_column:
+                    rowspan_value = len(group_info.indices)
+
+                    body_cells.append(
+                        f"""  <th{group_styles} class="gt_row gt_left gt_stub_row_group"
+    rowspan="{rowspan_value}">{group_label}</th>"""
+                    )
+
+                # Append a table row for the group heading
+                else:
+                    colspan_value = data._boxhead._get_effective_number_of_columns(
+                        stub=data._stub, options=data._options
+                    )
+
+                    group_class = (
+                        "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
+                    )
+
+                    group_row = f"""  <tr class="{group_class}">
     <th class="gt_group_heading" colspan="{colspan_value}"{group_styles}>{group_label}</th>
   </tr>"""
 
-                body_rows.append(group_row)
+                    body_rows.append(group_row)
 
         # Create row cells
         for colinfo in column_vars:
