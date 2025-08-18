@@ -78,6 +78,11 @@ def test_row_group_as_column_without_rowname(snapshot):
         row_group_as_column=True,
     )
 
+    def test_groupname_with_no_rowname(snapshot):
+    df = pd.DataFrame({"g": ["A", "B"], "x": ["0", "1"], "y": ["22", "33"]})
+
+    new_gt = GT(df, groupname_col="g")
+
     assert_rendered_body(snapshot, new_gt)
 
 

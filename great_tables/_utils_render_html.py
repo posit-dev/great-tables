@@ -472,6 +472,7 @@ def create_body_component_h(data: GTData) -> str:
 
         # Create table row or label in the stub specifically for group (if applicable)
         if has_groups:
+
             # Only create if this is the first row of data within the group
             if group_info is not prev_group_info:
                 group_label = group_info.defaulted_label()
