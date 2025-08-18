@@ -29,10 +29,10 @@ if TYPE_CHECKING:
     PlSelectExpr = _selector_proxy_
     PlExpr = pl.Expr
 
-    PdSeries = pd.Series
+    PdSeries = pd.Series[Any]
     PlSeries = pl.Series
-    PyArrowArray = pa.Array
-    PyArrowChunkedArray = pa.ChunkedArray
+    PyArrowArray = pa.Array[Any]
+    PyArrowChunkedArray = pa.ChunkedArray[Any]
 
     PdNA = pd.NA
     PlNull = pl.Null
@@ -763,7 +763,7 @@ def _(df: PyArrowTable, x: Any) -> bool:
     import pyarrow as pa
 
     arr = pa.array([x])
-    return arr.is_null().to_pylist()[0] or arr.is_nan().to_pylist()[0]
+    return arr.is_null(nan_is_null=True).to_pylist()[0]
 
 
 @singledispatch
@@ -874,3 +874,25 @@ def _(ser: PyArrowChunkedArray, name: Optional[str] = None) -> PyArrowTable:
     import pyarrow as pa
 
     return pa.table({name: ser})
+
+
+@singledispatch
+def get_rows(ser: SeriesLike, indexes: list[int]) -> SeriesLike:
+    """Returns values of the series at `indexes` position.`"""
+    raise NotImplementedError(f"Unsupported type: {type(ser)}")
+
+
+@get_rows.register
+def _(ser: PdSeries, indexes: list[int]) -> PdSeries:
+    return ser.iloc[indexes]
+
+
+@get_rows.register
+def _(ser: PlSeries, indexes: list[int]) -> PlSeries:
+    return ser[indexes]
+
+
+@get_rows.register(PyArrowArray)
+@get_rows.register(PyArrowChunkedArray)
+def _(ser: Any, indexes: list[int]) -> PyArrowArray | PyArrowChunkedArray:
+    return ser.take(indexes)
