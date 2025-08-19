@@ -179,8 +179,10 @@ quartodoc:
         - loc.column_header
         - loc.spanner_labels
         - loc.column_labels
+        - loc.grand_summary_stub
         - loc.stub
         - loc.row_groups
+        - loc.grand_summary
         - loc.body
         - loc.footer
         - loc.source_notes
