@@ -926,14 +926,6 @@ def _(loc: LocRowGroups, data: GTData) -> set[str]:
 
 
 @resolve.register
-def _(loc: LocStub, data: GTData) -> set[int]:
-    # TODO: what are the rules for matching row groups?
-    rows = resolve_rows_i(data=data, expr=loc.rows)
-    cell_pos = set(row[1] for row in rows)
-    return cell_pos
-
-
-@resolve.register
 def _(loc: LocGrandSummaryStub, data: GTData) -> set[int]:
     # Select just grand summary rows
     grand_summary_rows = data._summary_rows.get_summary_rows(GRAND_SUMMARY_GROUP.group_id)
@@ -946,12 +938,48 @@ def _(loc: LocGrandSummaryStub, data: GTData) -> set[int]:
 
 
 # @resolve.register(LocSummaryStub)
+# Also target by groupname in styleinfo
 
 
-@resolve.register(LocBody)
-@resolve.register(LocSummary)
-@resolve.register(LocGrandSummary)
-def _(loc: (LocBody | LocSummary | LocGrandSummary), data: GTData) -> list[CellPos]:
+@resolve.register
+def _(loc: LocStub, data: GTData) -> set[int]:
+    # TODO: what are the rules for matching row groups?
+    rows = resolve_rows_i(data=data, expr=loc.rows)
+    cell_pos = set(row[1] for row in rows)
+    return cell_pos
+
+
+@resolve.register
+def _(loc: LocGrandSummary, data: GTData) -> list[CellPos]:
+    if (loc.columns is not None or loc.rows is not None) and loc.mask is not None:
+        raise ValueError(
+            "Cannot specify the `mask` argument along with `columns` or `rows` in `loc.body()`."
+        )
+
+    grand_summary_rows = data._summary_rows.get_summary_rows(GRAND_SUMMARY_GROUP.group_id)
+    grand_summary_rows_ids = [row.id for row in grand_summary_rows]
+
+    if loc.mask is None:
+        rows = resolve_rows_i(data=grand_summary_rows_ids, expr=loc.rows)
+        cols = resolve_cols_i(data=data, expr=loc.columns)
+        # TODO: dplyr arranges by `Var1`, and does distinct (since you can tidyselect the same
+        # thing multiple times
+        cell_pos = [
+            CellPos(col[1], row[1], colname=col[0]) for col, row in itertools.product(cols, rows)
+        ]
+    else:
+        # I am not sure how to approach this, since GTData._summary_rows is not a frame
+        # We could convert to a frame, but I don't think that's a simple step
+        raise NotImplementedError("Masked selection is not yet implemented for Grand Summary Rows")
+    return cell_pos
+
+
+# @resolve.register(LocSummary)
+# Also target by groupname in styleinfo
+
+
+@resolve.register
+def _(loc: LocBody, data: GTData) -> list[CellPos]:
     if (loc.columns is not None or loc.rows is not None) and loc.mask is not None:
         raise ValueError(
             "Cannot specify the `mask` argument along with `columns` or `rows` in `loc.body()`."
@@ -1073,8 +1101,10 @@ def _(loc: LocRowGroups, data: GTData, style: list[CellStyle]) -> GTData:
     )
 
 
-@set_style.register
-def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
+# @set_style.register(LocSummaryStub)
+@set_style.register(LocStub)
+@set_style.register(LocGrandSummaryStub)
+def _(loc: (LocStub | LocGrandSummaryStub), data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
@@ -1085,26 +1115,10 @@ def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
     return data._replace(_styles=data._styles + new_styles)
 
 
-@set_style.register
-def _(loc: LocGrandSummaryStub, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-
-    # Resolve grand summary stub cells
-    cells = resolve(loc, data)
-
-    # Create StyleInfo entries for each resolved summary row
-    new_styles = [StyleInfo(locname=loc, rownum=rownum, styles=style) for rownum in cells]
-
-    return data._replace(_styles=data._styles + new_styles)
-
-
-# @set_style.register(LocSummaryStub)
-
-
-@set_style.register
-def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
+# @set_style.register(LocSummary)
+@set_style.register(LocBody)
+@set_style.register(LocGrandSummary)
+def _(loc: (LocBody | LocGrandSummary), data: GTData, style: list[CellStyle]) -> GTData:
     positions: list[CellPos] = resolve(loc, data)
 
     # evaluate any column expressions in styles
@@ -1119,10 +1133,6 @@ def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
         all_info.append(crnt_info)
 
     return data._replace(_styles=data._styles + all_info)
-
-
-# @set_style.register(LocSummary)
-# @set_style.register(LocGrandSummary)
 
 
 # Set footnote generic =================================================================
