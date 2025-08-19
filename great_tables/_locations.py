@@ -481,13 +481,62 @@ class LocRowGroups(Loc):
     rows: RowSelectExpr = None
 
 
-@dataclass
-class LocSummaryStub(Loc):
-    rows: RowSelectExpr = None
+# @dataclass
+# class LocSummaryStub(Loc):
+#     rows: RowSelectExpr = None
 
 
 @dataclass
 class LocGrandSummaryStub(Loc):
+    """Target the grand summary stub.
+
+    With `loc.grand_summary_stub()` we can target the cells containing the grand summary row labels,
+    which reside in the table stub. This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Parameters
+    ----------
+    rows
+        The rows to target within the grand summary stub. Can either be a single row name or a
+        series of row names provided in a list. If no rows are specified, all rows are targeted.
+        Note that if rows are targeted by index, top and bottom grand summary rows are indexed as
+        one combined list starting with the top.
+
+    Returns
+    -------
+    LocGrandSummaryStub
+        A LocGrandSummaryStub object, which is used for a `locations=` argument if specifying the
+        table's grand summary rows' labels.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style the entire table grand
+    summary stub (the row labels) by using `locations=loc.grand_summary_stub()` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "mpg_c"]].head(5),
+            rowname_col="model",
+            groupname_col="mfr",
+        )
+        .tab_options(row_group_as_column=True)
+        .grand_summary_rows(fns=["min", "max"], side="top")
+        .grand_summary_rows(fns="mean", side="bottom")
+        .tab_style(
+            style=[style.text(color="crimson", weight="bold"), style.fill(color="lightgray")],
+            locations=loc.grand_summary_stub(),
+        )
+        .fmt_integer(columns=["hp", "trq", "mpg_c"])
+    )
+    ```
+    """
+
     rows: RowSelectExpr = None
 
 
@@ -556,16 +605,67 @@ class LocBody(Loc):
     mask: PlExpr | None = None
 
 
-@dataclass
-class LocSummary(Loc):
-    # TODO: these can be tidyselectors
-    columns: SelectExpr = None
-    rows: RowSelectExpr = None
-    mask: PlExpr | None = None
+# @dataclass
+# class LocSummary(Loc):
+#     # TODO: these can be tidyselectors
+#     columns: SelectExpr = None
+#     rows: RowSelectExpr = None
+#     mask: PlExpr | None = None
 
 
 @dataclass
 class LocGrandSummary(Loc):
+    """Target the data cells in grand summary rows.
+
+    With `loc.grand_summary()` we can target the cells containing the grand summary data.
+    This is useful for applying custom styling with the [`tab_style()`](`great_tables.GT.tab_style`)
+    method. That method has a `locations=` argument and this class should be used there to perform
+    the targeting.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        The rows to target. Can either be a single row name or a series of row names provided in a
+        list. Note that if rows are targeted by index, top and bottom grand summary rows are indexed
+        as one combined list starting with the top.
+
+    Returns
+    -------
+    LocGrandSummary
+        A LocGrandSummary object, which is used for a `locations=` argument if specifying the
+        table's grand summary rows.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style all of the grand
+    summary cells by using `locations=loc.grand_summary()` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "mpg_c"]].head(5),
+            rowname_col="model",
+            groupname_col="mfr",
+        )
+        .tab_options(row_group_as_column=True)
+        .grand_summary_rows(fns=["min", "max"], side="top")
+        .grand_summary_rows(fns="mean", side="bottom")
+        .tab_style(
+            style=[style.text(color="crimson", weight="bold"), style.fill(color="lightgray")],
+            locations=loc.grand_summary(),
+        )
+        .fmt_integer(columns=["hp", "trq", "mpg_c"])
+    )
+    ```
+    """
+
     # TODO: these can be tidyselectors
     columns: SelectExpr = None
     rows: RowSelectExpr = None
