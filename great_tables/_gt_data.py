@@ -688,15 +688,12 @@ class Stub:
 
         # Resolve the layout of the stub (i.e., the roles of columns if present)
         if n_stub_cols == 0:
-            # TODO: If summary rows are present, we will use the `rowname` column
+            # If summary rows are present, we will use the `rowname` column
             # for the summary row labels
-            print(summary_rows)
             if summary_rows._has_summary_rows():
                 stub_layout = ["rowname"]
             else:
                 stub_layout = []
-
-            # stub_layout = []
 
         else:
             stub_layout = [
@@ -988,7 +985,7 @@ class SummaryRowInfo:
     id: str
     function: Literal["min", "max", "mean", "median"]
     values: dict[str, str | int | float]  # TODO: consider datatype
-    side: Literal["top", "bottom"]
+    side: Literal["top", "bottom"]  # TODO: switch to enum
     group: GroupRowInfo
 
 
@@ -1056,12 +1053,18 @@ class SummaryRows(_Sequence[SummaryRowInfo]):
 
         return
 
-    def get_summary_rows(self, group_id: str, side: str) -> list[SummaryRowInfo]:
-        """Get list of summary rows for that group"""
+    def get_summary_rows(self, group_id: str, side: str | None = None) -> list[SummaryRowInfo]:
+        """Get list of summary rows for that group. If side is None, do not filter by side.
+        Sorts result with 'top' side first, then 'bottom'."""
         result: list[SummaryRowInfo] = []
         for summary_row in self._d:
-            if summary_row.group.group_id == group_id and summary_row.side == side:
-                result += [summary_row]  # is it better to append?
+            if summary_row.group.group_id == group_id and (
+                side is None or summary_row.side == side
+            ):
+                result.append(summary_row)
+
+        # Sort: 'top' first, then 'bottom'
+        result.sort(key=lambda r: 0 if r.side == "top" else 1)  # TODO: modify if enum for side
         return result
 
     def _has_summary_rows(self) -> bool:

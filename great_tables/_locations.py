@@ -768,59 +768,6 @@ def resolve_cols_i(
 # resolving rows ----
 
 
-def resolve_summary_rows_i(
-    data: GTData,
-    expr: RowSelectExpr = None,
-    null_means: Literal["everything", "nothing"] = "everything",
-    group_id: str | None = None,  # Which group's summary rows to target
-) -> list[tuple[str, int]]:
-    """Return matching summary row numbers and IDs, based on expr"""
-
-    if isinstance(expr, (str, int)):
-        expr: list[str | int] = [expr]
-
-    # Get summary rows for the specified group
-    if group_id is None:
-        from ._gt_data import GRAND_SUMMARY_GROUP
-
-        group_id = GRAND_SUMMARY_GROUP.group_id
-
-    # Get summary rows for this group
-    summary_rows = [row for row in data._summary_rows._d if row.group.group_id == group_id]
-
-    # Extract row IDs (these become the rownames for the stub)
-    row_ids = [row.id for row in summary_rows]
-
-    if expr is None:
-        if null_means == "everything":
-            return [(row_id, ii) for ii, row_id in enumerate(row_ids)]
-        else:
-            return []
-
-    elif isinstance(expr, list):
-        # Match by function name (id) or by index
-        target_names = set(x for x in expr if isinstance(x, str))
-        target_pos = set(
-            indx if indx >= 0 else len(row_ids) + indx for indx in expr if isinstance(indx, int)
-        )
-
-        selected = [
-            (row_id, ii)
-            for ii, row_id in enumerate(row_ids)
-            if (row_id in target_names or ii in target_pos)
-        ]
-        return selected
-
-    # For summary rows, polars expressions and callables don't make sense
-    # since we're not operating on the main DataFrame
-    raise NotImplementedError(
-        "Summary row selection currently supports:\n\n"
-        "  * a list of function names (strings)\n"
-        "  * a list of integers (row indices)\n"
-        "  * None (for all summary rows)"
-    )
-
-
 def resolve_rows_i(
     data: GTData | list[str],
     expr: RowSelectExpr = None,
@@ -988,10 +935,12 @@ def _(loc: LocStub, data: GTData) -> set[int]:
 
 @resolve.register
 def _(loc: LocGrandSummaryStub, data: GTData) -> set[int]:
-    # Use the specialized function for summary rows
-    rows = resolve_summary_rows_i(data=data, expr=loc.rows, group_id=GRAND_SUMMARY_GROUP.group_id)
+    # Select just grand summary rows
+    grand_summary_rows = data._summary_rows.get_summary_rows(GRAND_SUMMARY_GROUP.group_id)
+    grand_summary_rows_ids = [row.id for row in grand_summary_rows]
 
-    # Return the indices
+    rows = resolve_rows_i(data=grand_summary_rows_ids, expr=loc.rows)
+
     cell_pos = set(row[1] for row in rows)
     return cell_pos
 

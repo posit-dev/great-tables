@@ -576,12 +576,12 @@ def create_body_component_h(data: GTData) -> str:
         row_html = _create_row_component_h(
             column_vars=column_vars,
             stub_var=row_stub_var,  # Should probably include group stub?
-            has_stub_column=has_row_stub_column,  # Should probably include group stub?
+            has_stub_column=has_row_stub_column,
             apply_stub_striping=False,  # No striping for summary rows
             apply_body_striping=False,  # No striping for summary rows
             styles_cells=styles_grand_summary,
             styles_labels=styles_grand_summary_label,
-            row_index=i,
+            row_index=i + len(top_g_summary_rows),  # Continue indexing from top
             summary_row=summary_row,
             css_class="gt_first_grand_summary_row_bottom" if i == 0 else None,
         )
@@ -603,7 +603,7 @@ def _create_row_component_h(
     styles_cells: list[StyleInfo],  # Either styles_cells OR styles_grand_summary
     styles_labels: list[StyleInfo],  # Either styles_row_label OR styles_grand_summary_label
     leading_cell: str | None = None,  # For group label when row_group_as_column = True
-    row_index: int | None = None,  # For data rows
+    row_index: int | None = None,
     summary_row: SummaryRowInfo | None = None,  # For summary rows
     tbl_data: TblData | None = None,
     css_class: str | None = None,
@@ -636,7 +636,9 @@ def _create_row_component_h(
             classes = []
 
         cell_str = str(cell_content)
-        is_stub_cell = has_stub_column and stub_var and colinfo.var == stub_var.var
+        is_stub_cell = colinfo.var == "__summary_row__" or (
+            stub_var and colinfo.var == stub_var.var
+        )
         cell_alignment = colinfo.defaulted_align
 
         # Get styles
