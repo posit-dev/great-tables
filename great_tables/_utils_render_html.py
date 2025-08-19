@@ -486,8 +486,9 @@ def create_body_component_h(data: GTData) -> str:
     for i, summary_row in enumerate(top_g_summary_rows):
         row_html = _create_row_component_h(
             column_vars=column_vars,
-            stub_var=row_stub_var,  # Should probably include group stub?
-            has_stub_column=has_row_stub_column,  # Should probably include group stub?
+            row_stub_var=row_stub_var,  # Should probably include group stub?
+            has_row_stub_column=has_row_stub_column,  # Should probably include group stub?
+            has_group_stub_column=has_group_stub_column,  # Add this parameter
             apply_stub_striping=False,  # No striping for summary rows
             apply_body_striping=False,  # No striping for summary rows
             styles_cells=styles_grand_summary,
@@ -551,8 +552,9 @@ def create_body_component_h(data: GTData) -> str:
         # Create data row
         row_html = _create_row_component_h(
             column_vars=column_vars,
-            stub_var=row_stub_var,
-            has_stub_column=has_row_stub_column,
+            row_stub_var=row_stub_var,
+            has_row_stub_column=has_row_stub_column,
+            has_group_stub_column=has_group_stub_column,
             leading_cell=leading_cell,
             apply_stub_striping=table_stub_striped and odd_j_row,
             apply_body_striping=table_body_striped and odd_j_row,
@@ -575,13 +577,14 @@ def create_body_component_h(data: GTData) -> str:
     for i, summary_row in enumerate(bottom_g_summary_rows):
         row_html = _create_row_component_h(
             column_vars=column_vars,
-            stub_var=row_stub_var,  # Should probably include group stub?
-            has_stub_column=has_row_stub_column,
-            apply_stub_striping=False,  # No striping for summary rows
-            apply_body_striping=False,  # No striping for summary rows
+            row_stub_var=row_stub_var,
+            has_row_stub_column=has_row_stub_column,
+            has_group_stub_column=has_group_stub_column,  # Add this parameter
+            apply_stub_striping=False,
+            apply_body_striping=False,
             styles_cells=styles_grand_summary,
             styles_labels=styles_grand_summary_label,
-            row_index=i + len(top_g_summary_rows),  # Continue indexing from top
+            row_index=i + len(top_g_summary_rows),
             summary_row=summary_row,
             css_class="gt_first_grand_summary_row_bottom" if i == 0 else None,
         )
@@ -596,8 +599,9 @@ def create_body_component_h(data: GTData) -> str:
 
 def _create_row_component_h(
     column_vars: list[ColInfo],
-    stub_var: ColInfo | None,
-    has_stub_column: bool,
+    row_stub_var: ColInfo | None,
+    has_row_stub_column: bool,
+    has_group_stub_column: bool,
     apply_stub_striping: bool,
     apply_body_striping: bool,
     styles_cells: list[StyleInfo],  # Either styles_cells OR styles_grand_summary
@@ -616,17 +620,46 @@ def _create_row_component_h(
     if leading_cell:
         body_cells.append(leading_cell)
 
-    for colinfo in column_vars:
+    # Handle special cases for summary rows with group stub columns
+    if is_summary_row and has_group_stub_column:
+        if has_row_stub_column:
+            # Case 1: Both row_stub_column and group_stub_column
+            # Create a single cell that spans both columns for summary row label (id)
+            colspan = 2
+        else:
+            # Case 2: Only group_stub_column, no row_stub_column
+            colspan = 1
+
+        cell_styles = _flatten_styles(
+            [x for x in styles_labels if x.rownum == row_index], wrap=True
+        )
+
+        classes = ["gt_row", "gt_left", "gt_stub", "gt_grand_summary_row"]
+        if css_class:
+            classes.append(css_class)
+        classes_str = " ".join(classes)
+
+        body_cells.append(
+            f"""    <th{cell_styles} class="{classes_str}" colspan="{colspan}">{summary_row.id}</th>"""
+        )
+
+        # Skip the first column in column_vars since we've already handled the stub
+        column_vars_to_process = [column for column in column_vars if not column.is_stub]
+
+    else:
+        # Normal case: process all column_vars
+        column_vars_to_process = column_vars
+
+    for colinfo in column_vars_to_process:
         # Get cell content
         if is_summary_row:
-            if colinfo == stub_var or colinfo.type == ColInfoTypeEnum.stub:
+            if colinfo == row_stub_var or colinfo.type == ColInfoTypeEnum.stub:
                 cell_content = summary_row.id
             else:
                 cell_content = summary_row.values.get(colinfo.var)
-
         else:
             if colinfo.var == "__summary_row__":
-                cell_content = ""
+                cell_content = "&nbsp;"
             else:
                 cell_content = _get_cell(tbl_data, row_index, colinfo.var)
 
@@ -637,7 +670,7 @@ def _create_row_component_h(
 
         cell_str = str(cell_content)
         is_stub_cell = colinfo.var == "__summary_row__" or (
-            stub_var and colinfo.var == stub_var.var
+            row_stub_var and colinfo.var == row_stub_var.var
         )
         cell_alignment = colinfo.defaulted_align
 
