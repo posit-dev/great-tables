@@ -35,6 +35,26 @@
   </tbody>
   '''
 # ---
+# name: test_groupname_with_no_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">A</th>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">0</td>
+      <td class="gt_row gt_right">22</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">B</th>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">33</td>
+    </tr>
+  </tbody>
+  '''
+# ---
 # name: test_loc_kitchen_sink
   '''
   <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -174,6 +194,50 @@
   <tbody class="gt_table_body">
     <tr>
       <td class="gt_row gt_center">[1, 2]</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_row_group_as_column_with_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="2">A</th>
+      <th class="gt_row gt_left gt_stub">0</th>
+      <td class="gt_row gt_right">22</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">1</th>
+      <td class="gt_row gt_right">33</td>
+    </tr>
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="1">B</th>
+      <th class="gt_row gt_left gt_stub">2</th>
+      <td class="gt_row gt_right">44</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_row_group_as_column_without_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="2">A</th>
+      <td class="gt_row gt_right">0</td>
+      <td class="gt_row gt_right">22</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">33</td>
+    </tr>
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="1">B</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">44</td>
     </tr>
   </tbody>
   '''

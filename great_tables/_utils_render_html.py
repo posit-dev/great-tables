@@ -448,17 +448,17 @@ def create_body_component_h(data: GTData) -> str:
     # Get the default column vars
     column_vars = data._boxhead._get_default_columns()
 
-    stub_var = data._boxhead._get_stub_column()
+    row_stub_var = data._boxhead._get_stub_column()
 
     stub_layout = data._stub._get_stub_layout(options=data._options)
 
-    has_stub_column = "rowname" in stub_layout
-    has_two_col_stub = "group_label" in stub_layout
+    has_row_stub_column = "rowname" in stub_layout
+    has_group_stub_column = "group_label" in stub_layout
     has_groups = data._stub.group_ids is not None and len(data._stub.group_ids) > 0
 
     # If there is a stub, then prepend that to the `column_vars` list
-    if stub_var is not None:
-        column_vars = [stub_var] + column_vars
+    if row_stub_var is not None:
+        column_vars = [row_stub_var] + column_vars
 
     # Is the stub to be striped?
     table_stub_striped = data._options.row_striping_include_stub.value
@@ -473,8 +473,8 @@ def create_body_component_h(data: GTData) -> str:
     for i, summary_row in enumerate(top_g_summary_rows):
         row_html = _create_row_component_h(
             column_vars=column_vars,
-            stub_var=stub_var,
-            has_stub_column=has_stub_column,
+            stub_var=row_stub_var,  # Should probably include group stub?
+            has_stub_column=has_row_stub_column,  # Should probably include group stub?
             apply_stub_striping=False,  # No striping for summary rows
             apply_body_striping=False,  # No striping for summary rows
             styles_cells=styles_grand_summary,
@@ -497,18 +497,13 @@ def create_body_component_h(data: GTData) -> str:
 
         odd_j_row = j % 2 == 1
 
-        # Create table row specifically for group (if applicable)
-        if has_stub_column and has_groups and not has_two_col_stub:
-            colspan_value = data._boxhead._get_effective_number_of_columns(
-                stub=data._stub, options=data._options
-            )
+        leading_cell = None
 
+        # Create table row or label in the stub specifically for group (if applicable)
+        if has_groups:
             # Only create if this is the first row of data within the group
             if group_info is not prev_group_info:
                 group_label = group_info.defaulted_label()
-                group_class = (
-                    "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
-                )
 
                 _styles = [
                     style
@@ -516,17 +511,36 @@ def create_body_component_h(data: GTData) -> str:
                     if group_info.group_id in style.grpname
                 ]
                 group_styles = _flatten_styles(_styles, wrap=True)
-                group_row = f"""  <tr class="{group_class}">
+
+                # Add group label that spans multiple columns when row_group_as_column is true
+                if has_group_stub_column:
+                    rowspan_value = len(group_info.indices)
+
+                    leading_cell = f"""  <th{group_styles} class="gt_row gt_left gt_stub_row_group"
+    rowspan="{rowspan_value}">{group_label}</th>"""
+
+                # Append a table row for the group heading
+                else:
+                    colspan_value = data._boxhead._get_effective_number_of_columns(
+                        stub=data._stub, options=data._options
+                    )
+
+                    group_class = (
+                        "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
+                    )
+
+                    group_row = f"""  <tr class="{group_class}">
     <th class="gt_group_heading" colspan="{colspan_value}"{group_styles}>{group_label}</th>
   </tr>"""
 
-                body_rows.append(group_row)
+                    body_rows.append(group_row)
 
         # Create data row
         row_html = _create_row_component_h(
             column_vars=column_vars,
-            stub_var=stub_var,
-            has_stub_column=has_stub_column,
+            stub_var=row_stub_var,
+            has_stub_column=has_row_stub_column,
+            leading_cell=leading_cell,
             apply_stub_striping=table_stub_striped and odd_j_row,
             apply_body_striping=table_body_striped and odd_j_row,
             styles_cells=styles_cells,
@@ -548,8 +562,8 @@ def create_body_component_h(data: GTData) -> str:
     for i, summary_row in enumerate(bottom_g_summary_rows):
         row_html = _create_row_component_h(
             column_vars=column_vars,
-            stub_var=stub_var,
-            has_stub_column=has_stub_column,
+            stub_var=row_stub_var,  # Should probably include group stub?
+            has_stub_column=has_row_stub_column,  # Should probably include group stub?
             apply_stub_striping=False,  # No striping for summary rows
             apply_body_striping=False,  # No striping for summary rows
             styles_cells=styles_grand_summary,
@@ -575,6 +589,7 @@ def _create_row_component_h(
     apply_body_striping: bool,
     styles_cells: list[StyleInfo],  # Either styles_cells OR styles_grand_summary
     styles_labels: list[StyleInfo],  # Either styles_row_label OR styles_grand_summary_label
+    leading_cell: str | None = None,  # For group label when row_group_as_column = True
     row_index: int | None = None,  # For data rows
     summary_row: SummaryRowInfo | None = None,  # For summary rows
     tbl_data: TblData | None = None,
@@ -584,6 +599,9 @@ def _create_row_component_h(
 
     is_summary_row = summary_row is not None
     body_cells: list[str] = []
+
+    if leading_cell:
+        body_cells.append(leading_cell)
 
     for colinfo in column_vars:
         # Get cell content
