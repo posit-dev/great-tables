@@ -993,7 +993,6 @@ def _(loc: LocGrandSummaryStub, data: GTData) -> set[int]:
 
     # Return the indices
     cell_pos = set(row[1] for row in rows)
-    print("cc", cell_pos)
     return cell_pos
 
 
@@ -1148,7 +1147,7 @@ def _(loc: LocGrandSummaryStub, data: GTData, style: list[CellStyle]) -> GTData:
 
     # Create StyleInfo entries for each resolved summary row
     new_styles = [StyleInfo(locname=loc, rownum=rownum, styles=style) for rownum in cells]
-    print("settign new styles, ", new_styles)
+
     return data._replace(_styles=data._styles + new_styles)
 
 
