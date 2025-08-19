@@ -9,6 +9,7 @@ from . import _locations as loc
 from ._gt_data import (
     GRAND_SUMMARY_GROUP,
     ColInfo,
+    ColInfoTypeEnum,
     GroupRowInfo,
     GTData,
     StyleInfo,
@@ -85,7 +86,7 @@ def create_heading_component_h(data: GTData) -> str:
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
     n_cols_total = data._boxhead._get_effective_number_of_columns(
-        stub=data._stub, options=data._options
+        stub=data._stub, summary_rows=data._summary_rows, options=data._options
     )
 
     if has_subtitle:
@@ -125,7 +126,9 @@ def create_columns_component_h(data: GTData) -> str:
     # body = data._body
 
     # Get vector representation of stub layout
-    stub_layout = data._stub._get_stub_layout(options=data._options)
+    stub_layout = data._stub._get_stub_layout(
+        summary_rows=data._summary_rows, options=data._options
+    )
 
     # Determine the finalized number of spanner rows
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
@@ -450,15 +453,25 @@ def create_body_component_h(data: GTData) -> str:
 
     row_stub_var = data._boxhead._get_stub_column()
 
-    stub_layout = data._stub._get_stub_layout(options=data._options)
+    stub_layout = data._stub._get_stub_layout(
+        summary_rows=data._summary_rows, options=data._options
+    )
 
     has_row_stub_column = "rowname" in stub_layout
     has_group_stub_column = "group_label" in stub_layout
     has_groups = data._stub.group_ids is not None and len(data._stub.group_ids) > 0
 
     # If there is a stub, then prepend that to the `column_vars` list
-    if row_stub_var is not None:
-        column_vars = [row_stub_var] + column_vars
+    if has_row_stub_column:
+        # There is already a column assigned to the rownames
+        if row_stub_var:
+            column_vars = [row_stub_var] + column_vars
+        # Else we have summary rows but no stub yet
+        else:
+            summary_row_stub_var = ColInfo(
+                "__summary_row__", ColInfoTypeEnum.stub, column_align="left"
+            )
+            column_vars = [summary_row_stub_var] + column_vars
 
     # Is the stub to be striped?
     table_stub_striped = data._options.row_striping_include_stub.value
@@ -522,7 +535,7 @@ def create_body_component_h(data: GTData) -> str:
                 # Append a table row for the group heading
                 else:
                     colspan_value = data._boxhead._get_effective_number_of_columns(
-                        stub=data._stub, options=data._options
+                        stub=data._stub, summary_rows=data._summary_rows, options=data._options
                     )
 
                     group_class = (
@@ -606,14 +619,16 @@ def _create_row_component_h(
     for colinfo in column_vars:
         # Get cell content
         if is_summary_row:
-            if colinfo == stub_var:
+            if colinfo == stub_var or colinfo.type == ColInfoTypeEnum.stub:
                 cell_content = summary_row.id
             else:
-                # hopefully don't need fallback
                 cell_content = summary_row.values.get(colinfo.var)
 
         else:
-            cell_content = _get_cell(tbl_data, row_index, colinfo.var)
+            if colinfo.var == "__summary_row__":
+                cell_content = ""
+            else:
+                cell_content = _get_cell(tbl_data, row_index, colinfo.var)
 
         if css_class:
             classes = [css_class]
@@ -621,7 +636,7 @@ def _create_row_component_h(
             classes = []
 
         cell_str = str(cell_content)
-        is_stub_cell = has_stub_column and colinfo.var == stub_var.var
+        is_stub_cell = has_stub_column and stub_var and colinfo.var == stub_var.var
         cell_alignment = colinfo.defaulted_align
 
         # Get styles
@@ -676,7 +691,7 @@ def create_source_notes_component_h(data: GTData) -> str:
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
     n_cols_total = data._boxhead._get_effective_number_of_columns(
-        stub=data._stub, options=data._options
+        stub=data._stub, summary_rows=data._summary_rows, options=data._options
     )
 
     # Handle the multiline source notes case (each note takes up one line)

@@ -512,10 +512,12 @@ class Boxhead(_Sequence[ColInfo]):
 
     # Obtain the number of visible columns in the built table; this should
     # account for the size of the stub in the final, built table
-    def _get_effective_number_of_columns(self, stub: Stub, options: Options) -> int:
+    def _get_effective_number_of_columns(
+        self, stub: Stub, summary_rows: SummaryRows, options: Options
+    ) -> int:
         n_data_cols = self._get_number_of_visible_data_columns()
 
-        stub_layout = stub._get_stub_layout(options=options)
+        stub_layout = stub._get_stub_layout(summary_rows=summary_rows, options=options)
         # Once the stub is defined in the package, we need to account
         # for the width of the stub at build time to fully obtain the number
         # of visible columns in the built table
@@ -676,7 +678,7 @@ class Stub:
 
         return row_group_as_column
 
-    def _get_stub_layout(self, options: Options) -> list[str]:
+    def _get_stub_layout(self, summary_rows: SummaryRows, options: Options) -> list[str]:
         # Determine which stub components are potentially present as columns
         stub_rownames_is_column = "row_id" in self._get_stub_components()
         stub_groupnames_is_column = self._stub_group_names_has_column(options=options)
@@ -687,13 +689,14 @@ class Stub:
         # Resolve the layout of the stub (i.e., the roles of columns if present)
         if n_stub_cols == 0:
             # TODO: If summary rows are present, we will use the `rowname` column
-            # # for the summary row labels
-            # if _summary_exists(data=data):
-            #     stub_layout = ["rowname"]
-            # else:
-            #     stub_layout = []
+            # for the summary row labels
+            print(summary_rows)
+            if summary_rows._has_summary_rows():
+                stub_layout = ["rowname"]
+            else:
+                stub_layout = []
 
-            stub_layout = []
+            # stub_layout = []
 
         else:
             stub_layout = [
@@ -1060,6 +1063,9 @@ class SummaryRows(_Sequence[SummaryRowInfo]):
             if summary_row.group.group_id == group_id and summary_row.side == side:
                 result += [summary_row]  # is it better to append?
         return result
+
+    def _has_summary_rows(self) -> bool:
+        return len(self._d) > 0
 
 
 # Options ----

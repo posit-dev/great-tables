@@ -554,7 +554,9 @@ def _render_as_latex(data: GTData, use_longtable: bool = False, tbl_pos: str | N
         _not_implemented("Styles are not yet supported in LaTeX output.")
 
     # Get list representation of stub layout
-    stub_layout = data._stub._get_stub_layout(options=data._options)
+    stub_layout = data._stub._get_stub_layout(
+        summary_rows=data._summary_rows, options=data._options
+    )
 
     # Throw exception if a stub is present in the table
     if "rowname" in stub_layout or "group_label" in stub_layout:
