@@ -204,7 +204,39 @@ def grand_summary_rows(
 ) -> GTSelf:
     """Add grand summary rows to the table.
 
-    TODO docstring
+    Add grand summary rows by using the table data and any suitable aggregation functions. With
+    grand summary rows, all of the available data in the gt table is incorporated (regardless of
+    whether some of the data are part of row groups). Multiple grand summary rows can be added via
+    expressions given to fns. You can selectively format the values in the resulting grand summary
+    cells by use of formatting expressions in fmt.
+
+    Parameters
+    ----------
+
+    fns
+        TODO text
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    side
+        Should the grand summary rows be placed at the `"bottom"` (the default) or the `"top"` of
+        the table?
+    missing_text
+        The text to be used in summary cells with no data outputs.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    TODO Explanation
+    ```{python}
+
+    ```
+
     """
     # Computes summary rows immediately but stores them separately from main data.
 
