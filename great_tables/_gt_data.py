@@ -977,13 +977,15 @@ Formats = list
 # Summary Rows ---
 GRAND_SUMMARY_GROUP = GroupRowInfo(group_id="__grand_summary_group__")
 
+SummaryFn = Callable[..., Any]
+
 
 @dataclass(frozen=True)
 class SummaryRowInfo:
     """Information about a single summary row"""
 
     id: str
-    function: Literal["min", "max", "mean", "median"]
+    label: str  # For now, label and id are identical
     values: dict[str, str | int | float]  # TODO: consider datatype
     side: Literal["top", "bottom"]  # TODO: switch to enum
     group: GroupRowInfo
@@ -1040,7 +1042,7 @@ class SummaryRows(_Sequence[SummaryRowInfo]):
             # Create merged row with new row's properties but merged values
             merged_row = SummaryRowInfo(
                 id=summary_row.id,
-                function=summary_row.function,
+                label=summary_row.label,
                 values=merged_values,
                 # Setting this to existing row instead of summary_row means original side is fixed
                 side=existing_row.side,

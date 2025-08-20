@@ -7,10 +7,12 @@ from great_tables._locations import resolve_cols_c
 
 from ._gt_data import (
     GRAND_SUMMARY_GROUP,
+    FormatFn,
     GTData,
     Locale,
     RowGroups,
     Styles,
+    SummaryFn,
     SummaryRowInfo,
 )
 from ._tbl_data import (
@@ -196,8 +198,8 @@ def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
 
 def grand_summary_rows(
     self: GTSelf,
-    fns: list[Literal["min", "max", "mean", "median", "sum"]]
-    | Literal["min", "max", "mean", "median"],
+    fns: str | list[str] | list[SummaryFn] | dict[str, str] | dict[str, SummaryFn],
+    fmt: FormatFn | None = None,
     columns: SelectExpr = None,
     side: Literal["bottom", "top"] = "bottom",
     missing_text: str = "---",
@@ -214,6 +216,8 @@ def grand_summary_rows(
     ----------
 
     fns
+        TODO text
+    fmt
         TODO text
     columns
         The columns to target. Can either be a single column name or a series of column names
@@ -239,18 +243,16 @@ def grand_summary_rows(
 
     """
     # Computes summary rows immediately but stores them separately from main data.
+    normalized_fns = _normalize_fns_to_tuples(fns)
 
-    if isinstance(fns, str):
-        fns = [fns]
-
-    for fn_name in fns:
+    for label, fn_callable in normalized_fns:
         row_values_dict = _calculate_summary_row(
-            self, fn_name, columns, missing_text, group_id=None
+            self, fn_callable, columns, missing_text, group_id=None
         )
 
         summary_row_info = SummaryRowInfo(
-            id=fn_name,
-            function=fn_name,
+            id=label,
+            label=label,
             values=row_values_dict,  # TODO: revisit type
             side=side,
             group=GRAND_SUMMARY_GROUP,
@@ -261,14 +263,65 @@ def grand_summary_rows(
     return self
 
 
+def _normalize_fns_to_tuples(
+    fns: str | list[str] | list[SummaryFn] | dict[str, str] | dict[str, SummaryFn],
+) -> list[tuple[str, SummaryFn]]:
+    """Convert all fns formats to a list of (label, callable) tuples."""
+
+    # Case 1: Single string -> convert to list
+    if isinstance(fns, str):
+        fns = [fns]
+
+    # Case 2: List of strings
+    if isinstance(fns, list) and all(isinstance(fn, str) for fn in fns):
+        return [(fn_name, _get_builtin_function(fn_name)) for fn_name in fns]
+
+    # Case 3: List of callables -> infer labels from function names
+    if isinstance(fns, list) and all(callable(fn) for fn in fns):
+        return [(fn.__name__, fn) for fn in fns]
+
+    # Case 4: Dict with string values -> convert strings to callables
+    if isinstance(fns, dict) and all(isinstance(v, str) for v in fns.values()):
+        return [(label, _get_builtin_function(fn_name)) for label, fn_name in fns.items()]
+
+    # Case 5: Dict with callable values -> everything is given
+    if isinstance(fns, dict) and all(callable(v) for v in fns.values()):
+        return list(fns.items())
+
+    raise ValueError(f"Unsupported fns format: {type(fns)} or mixed types in collection")
+
+
+def _get_builtin_function(fn_name: str) -> SummaryFn:
+    """Convert string function name to actual callable function."""
+
+    def _mean(values: list[Any]) -> float:
+        return sum(values) / len(values)
+
+    def _median(values: list[Any]) -> Any:
+        return quantiles(values, n=2)[0]
+
+    builtin_functions: dict[str, SummaryFn] = {
+        "min": min,
+        "max": max,
+        "sum": sum,
+        "mean": _mean,
+        "median": _median,
+    }
+
+    if fn_name not in builtin_functions:
+        raise ValueError(f"Unknown function name: {fn_name}")
+
+    return builtin_functions[fn_name]
+
+
 def _calculate_summary_row(
     data: GTData,
-    fn_name: str,
+    fn: SummaryFn,
     columns: SelectExpr,
     missing_text: str,
     group_id: str | None = None,  # None means grand summary (all data)
 ) -> dict[str, Any]:
-    """Calculate a summary row based on the function name and selected columns for a specific group."""
+    """Calculate a summary row based on the function and selected columns for a specific group."""
     original_columns = data._boxhead._get_columns()
 
     summary_col_names = resolve_cols_c(data=data, expr=columns)
@@ -285,19 +338,7 @@ def _calculate_summary_row(
     for col in original_columns:
         if col in summary_col_names:
             col_data = to_list(data._tbl_data[col])
-
-            if fn_name == "min":
-                summary_row[col] = min(col_data)
-            elif fn_name == "max":
-                summary_row[col] = max(col_data)
-            elif fn_name == "mean":
-                summary_row[col] = sum(col_data) / len(col_data)
-            elif fn_name == "median":
-                summary_row[col] = quantiles(col_data, n=2)[0]  # Consider using the one in nanoplot
-            elif fn_name == "sum":
-                summary_row[col] = sum(col_data)
-            else:
-                summary_row[col] = "hi"  # Should never get here
+            summary_row[col] = fn(col_data)
         else:
             summary_row[col] = missing_text
 
