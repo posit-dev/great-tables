@@ -247,7 +247,7 @@ def grand_summary_rows(
 
     for label, fn_callable in normalized_fns:
         row_values_dict = _calculate_summary_row(
-            self, fn_callable, columns, missing_text, group_id=None
+            self, fn_callable, fmt, columns, missing_text, group_id=None
         )
 
         summary_row_info = SummaryRowInfo(
@@ -317,6 +317,7 @@ def _get_builtin_function(fn_name: str) -> SummaryFn:
 def _calculate_summary_row(
     data: GTData,
     fn: SummaryFn,
+    fmt: FormatFn | None,
     columns: SelectExpr,
     missing_text: str,
     group_id: str | None = None,  # None means grand summary (all data)
@@ -338,7 +339,14 @@ def _calculate_summary_row(
     for col in original_columns:
         if col in summary_col_names:
             col_data = to_list(data._tbl_data[col])
-            summary_row[col] = fn(col_data)
+            res = fn(col_data)
+
+            if fmt is not None:
+                # The vals functions expect a list and return a list
+                formatted_list = fmt([res])
+                res = formatted_list[0]
+
+            summary_row[col] = res
         else:
             summary_row[col] = missing_text
 
