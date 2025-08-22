@@ -991,7 +991,9 @@ class SummaryRowInfo:
 
     id: str
     label: str  # For now, label and id are identical
-    values: dict[str, str | int | float]  # TODO: consider datatype, series?
+    # The motivation for values as a dict is to ensure cols_* functions don't have to consider
+    # the implications on SummaryRowInfo objects
+    values: dict[str, Any]  # TODO: consider datatype, series?
     side: Literal["top", "bottom"]  # TODO: consider enum
 
 

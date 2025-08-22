@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from statistics import quantiles
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 from great_tables._locations import resolve_cols_c
 
@@ -16,8 +16,10 @@ from ._gt_data import (
     SummaryRowInfo,
 )
 from ._tbl_data import (
+    PlExpr,
     SelectExpr,
-    to_list,
+    TblData,
+    eval_aggregate,
 )
 
 if TYPE_CHECKING:
@@ -198,8 +200,8 @@ def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
 
 def grand_summary_rows(
     self: GTSelf,
-    fns: str | list[str] | list[SummaryFn] | dict[str, str] | dict[str, SummaryFn],
-    # fns: dict[str, Callable[[list], Any]],
+    # fns: str | list[str] | list[SummaryFn] | dict[str, str] | dict[str, SummaryFn],
+    fns: dict[str, PlExpr] | dict[str, Callable[[TblData], Any]],
     fmt: FormatFn | None = None,
     columns: SelectExpr = None,
     side: Literal["bottom", "top"] = "bottom",
@@ -243,18 +245,16 @@ def grand_summary_rows(
     ```
 
     """
-    # Computes summary rows immediately but stores them separately from main data.
-    normalized_fns = _normalize_fns_to_tuples(fns)
 
-    for label, fn_callable in normalized_fns:
-        row_values_dict = _calculate_summary_row(
-            self, fn_callable, fmt, columns, missing_text, group_id=None
-        )
+    summary_col_names = resolve_cols_c(data=self, expr=columns)
+
+    for label, fn in fns.items():
+        row_values_dict = _calculate_summary_row(self, fn, fmt, summary_col_names, missing_text)
 
         summary_row_info = SummaryRowInfo(
             id=label,
             label=label,
-            values=row_values_dict,  # TODO: revisit type
+            values=row_values_dict,
             side=side,
         )
 
@@ -263,7 +263,38 @@ def grand_summary_rows(
     return self
 
 
-# TODO: delegate to group by agg instead
+def _calculate_summary_row(
+    data: GTData,
+    fn: PlExpr | Callable[[TblData], Any],
+    fmt: FormatFn | None,
+    summary_col_names: list[str],
+    missing_text: str,
+) -> dict[str, Any]:
+    """Calculate a summary row using eval_transform."""
+    original_columns = data._boxhead._get_columns()
+    summary_row = {}
+
+    # Use eval_transform to apply the function/expression to the data
+    result_df = eval_aggregate(data._tbl_data, fn)
+
+    # Extract results for each column
+    for col in original_columns:
+        if col in summary_col_names and col in result_df:
+            print("rr ", result_df)
+            res = result_df[col]
+
+            if fmt is not None:
+                formatted = fmt([res])
+                res = formatted[0]
+
+            summary_row[col] = res
+        else:
+            summary_row[col] = missing_text
+
+    return summary_row
+
+
+# TODO: delegate to group by agg instead (group_by for summary row case)
 # TODO: validates after
 
 
@@ -316,42 +347,3 @@ def _get_builtin_function(fn_name: str) -> SummaryFn:
         raise ValueError(f"Unknown function name: {fn_name}")
 
     return builtin_functions[fn_name]
-
-
-def _calculate_summary_row(
-    data: GTData,
-    fn: SummaryFn,
-    fmt: FormatFn | None,
-    columns: SelectExpr,
-    missing_text: str,
-    group_id: str | None = None,  # None means grand summary (all data)
-) -> dict[str, Any]:
-    """Calculate a summary row based on the function and selected columns for a specific group."""
-    original_columns = data._boxhead._get_columns()
-
-    summary_col_names = resolve_cols_c(data=data, expr=columns)
-
-    if group_id is None:
-        group_id = GRAND_SUMMARY_GROUP_ID
-    else:
-        # Future: group-specific logic would go here
-        raise NotImplementedError("Group-specific summaries not yet implemented")
-
-    # Create summary row data as dict
-    summary_row = {}
-
-    for col in original_columns:
-        if col in summary_col_names:
-            col_data = to_list(data._tbl_data[col])
-            res = fn(col_data)
-
-            if fmt is not None:
-                # The vals functions expect a list and return a list
-                formatted_list = fmt([res])
-                res = formatted_list[0]
-
-            summary_row[col] = res
-        else:
-            summary_row[col] = missing_text
-
-    return summary_row
