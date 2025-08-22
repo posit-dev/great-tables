@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from statistics import quantiles
 from typing import TYPE_CHECKING, Any, Callable, Literal
 
 from great_tables._locations import resolve_cols_c
@@ -12,7 +11,6 @@ from ._gt_data import (
     Locale,
     RowGroups,
     Styles,
-    SummaryFn,
     SummaryRowInfo,
 )
 from ._tbl_data import (
@@ -200,7 +198,6 @@ def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
 
 def grand_summary_rows(
     self: GTSelf,
-    # fns: str | list[str] | list[SummaryFn] | dict[str, str] | dict[str, SummaryFn],
     fns: dict[str, PlExpr] | dict[str, Callable[[TblData], Any]],
     fmt: FormatFn | None = None,
     columns: SelectExpr = None,
@@ -280,7 +277,6 @@ def _calculate_summary_row(
     # Extract results for each column
     for col in original_columns:
         if col in summary_col_names and col in result_df:
-            print("rr ", result_df)
             res = result_df[col]
 
             if fmt is not None:
@@ -296,54 +292,3 @@ def _calculate_summary_row(
 
 # TODO: delegate to group by agg instead (group_by for summary row case)
 # TODO: validates after
-
-
-def _normalize_fns_to_tuples(
-    fns: str | list[str] | list[SummaryFn] | dict[str, str] | dict[str, SummaryFn],
-) -> list[tuple[str, SummaryFn]]:
-    """Convert all fns formats to a list of (label, callable) tuples."""
-
-    # Case 1: Single string -> convert to list
-    if isinstance(fns, str):
-        fns = [fns]
-
-    # Case 2: List of strings
-    if isinstance(fns, list) and all(isinstance(fn, str) for fn in fns):
-        return [(fn_name, _get_builtin_function(fn_name)) for fn_name in fns]
-
-    # Case 3: List of callables -> infer labels from function names
-    if isinstance(fns, list) and all(callable(fn) for fn in fns):
-        return [(fn.__name__, fn) for fn in fns]
-
-    # Case 4: Dict with string values -> convert strings to callables
-    if isinstance(fns, dict) and all(isinstance(v, str) for v in fns.values()):
-        return [(label, _get_builtin_function(fn_name)) for label, fn_name in fns.items()]
-
-    # Case 5: Dict with callable values -> everything is given
-    if isinstance(fns, dict) and all(callable(v) for v in fns.values()):
-        return list(fns.items())
-
-    raise ValueError(f"Unsupported fns format: {type(fns)} or mixed types in collection")
-
-
-def _get_builtin_function(fn_name: str) -> SummaryFn:
-    """Convert string function name to actual callable function."""
-
-    def _mean(values: list[Any]) -> float:
-        return sum(values) / len(values)
-
-    def _median(values: list[Any]) -> Any:
-        return quantiles(values, n=2)[0]
-
-    builtin_functions: dict[str, SummaryFn] = {
-        "min": min,
-        "max": max,
-        "sum": sum,
-        "mean": _mean,
-        "median": _median,
-    }
-
-    if fn_name not in builtin_functions:
-        raise ValueError(f"Unknown function name: {fn_name}")
-
-    return builtin_functions[fn_name]

@@ -982,8 +982,6 @@ Formats = list
 # seperate data structure for grand summary row infos
 GRAND_SUMMARY_GROUP_ID = "__grand_summary_group__"
 
-SummaryFn = Callable[..., Any]
-
 
 @dataclass(frozen=True)
 class SummaryRowInfo:
