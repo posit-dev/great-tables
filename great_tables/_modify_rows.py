@@ -210,15 +210,18 @@ def grand_summary_rows(
     grand summary rows, all of the available data in the gt table is incorporated (regardless of
     whether some of the data are part of row groups). Multiple grand summary rows can be added via
     expressions given to fns. You can selectively format the values in the resulting grand summary
-    cells by use of formatting expressions in fmt.
+    cells by use of formatting expressions from the `vals.fmt_*` class of functions.
 
     Parameters
     ----------
-
     fns
-        TODO text
+        A dictionary mapping row labels to aggregation expressions. Can be either Polars
+        expressions or callable functions that take the entire DataFrame and return aggregated
+        results. Each key becomes the label for a grand summary row.
     fmt
-        TODO text
+        A formatting function from the `vals.fmt_*` family (e.g., `vals.fmt_number`,
+        `vals.fmt_currency`) to apply to the summary row values. If `None`, no formatting
+        is applied.
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
@@ -236,9 +239,48 @@ def grand_summary_rows(
 
     Examples
     --------
-    TODO Explanation
-    ```{python}
+    Let's use a subset of the `sp500` dataset to create a table with grand summary rows. We'll
+    calculate min, max, and mean values for the numeric columns.
 
+    ```{python}
+    import polars as pl
+    from great_tables import GT, vals, style, loc
+    from great_tables.data import sp500
+
+    sp500_mini = (
+        pl.from_pandas(sp500)
+        .slice(0, 7)
+        .drop(["volume", "adj_close"])
+    )
+
+    (
+        GT(sp500_mini, rowname_col="date")
+        .grand_summary_rows(
+            fns={
+                "Minimum": pl.min("*"),
+                "Maximum": pl.max("*"),
+                "Average": pl.mean("*"),
+            },
+            fmt=vals.fmt_currency,
+            columns=["open", "high", "low", "close"],
+        )
+        .tab_style(
+            style=[
+                style.text(color="crimson"),
+                style.fill(color="lightgray"),
+            ],
+            locations=loc.grand_summary(),
+        )
+    )
+    ```
+
+    We can also use custom callable functions to create more complex summary calculations:
+
+    TODO pandas ex
+
+    Grand summary rows can be placed at the top of the table and formatted with currency notation:
+
+    TODO example
     ```
 
     """
