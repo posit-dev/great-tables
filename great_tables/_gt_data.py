@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import re
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
 from itertools import chain, product
@@ -76,6 +76,7 @@ class GTData:
     _heading: Heading
     _stubhead: Stubhead
     _summary_rows: SummaryRows
+    _summary_rows_grand: SummaryRows
     _source_notes: SourceNotes
     _footnotes: Footnotes
     _styles: Styles
@@ -123,7 +124,8 @@ class GTData:
             _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=None,
-            _summary_rows=SummaryRows([]),
+            _summary_rows=SummaryRows(),
+            _summary_rows_grand=SummaryRows(),
             _source_notes=[],
             _footnotes=[],
             _styles=[],
@@ -513,11 +515,11 @@ class Boxhead(_Sequence[ColInfo]):
     # Obtain the number of visible columns in the built table; this should
     # account for the size of the stub in the final, built table
     def _get_effective_number_of_columns(
-        self, stub: Stub, summary_rows: SummaryRows, options: Options
+        self, stub: Stub, has_summary_rows: bool, options: Options
     ) -> int:
         n_data_cols = self._get_number_of_visible_data_columns()
 
-        stub_layout = stub._get_stub_layout(summary_rows=summary_rows, options=options)
+        stub_layout = stub._get_stub_layout(has_summary_rows=has_summary_rows, options=options)
         # Once the stub is defined in the package, we need to account
         # for the width of the stub at build time to fully obtain the number
         # of visible columns in the built table
@@ -678,7 +680,7 @@ class Stub:
 
         return row_group_as_column
 
-    def _get_stub_layout(self, summary_rows: SummaryRows, options: Options) -> list[str]:
+    def _get_stub_layout(self, has_summary_rows: bool, options: Options) -> list[str]:
         # Determine which stub components are potentially present as columns
         stub_rownames_is_column = "row_id" in self._get_stub_components()
         stub_groupnames_is_column = self._stub_group_names_has_column(options=options)
@@ -690,7 +692,7 @@ class Stub:
         if n_stub_cols == 0:
             # If summary rows are present, we will use the `rowname` column
             # for the summary row labels
-            if summary_rows._has_summary_rows():
+            if has_summary_rows:
                 stub_layout = ["rowname"]
             else:
                 stub_layout = []
@@ -975,7 +977,10 @@ Formats = list
 
 
 # Summary Rows ---
-GRAND_SUMMARY_GROUP = GroupRowInfo(group_id="__grand_summary_group__")
+
+# This can't conflict with actual group ids since we have a
+# seperate data structure for grand summary row infos
+GRAND_SUMMARY_GROUP_ID = "__grand_summary_group__"
 
 SummaryFn = Callable[..., Any]
 
@@ -986,12 +991,11 @@ class SummaryRowInfo:
 
     id: str
     label: str  # For now, label and id are identical
-    values: dict[str, str | int | float]  # TODO: consider datatype
-    side: Literal["top", "bottom"]  # TODO: switch to enum
-    group: GroupRowInfo
+    values: dict[str, str | int | float]  # TODO: consider datatype, series?
+    side: Literal["top", "bottom"]  # TODO: consider enum
 
 
-class SummaryRows(_Sequence[SummaryRowInfo]):
+class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
     """A sequence of summary rows
 
     The following strctures should always be true about summary rows:
@@ -1002,75 +1006,89 @@ class SummaryRows(_Sequence[SummaryRowInfo]):
             then replace all cells (in values) that are numeric in the new version
     """
 
-    _d: list[SummaryRowInfo]
+    _d: dict[str, list[SummaryRowInfo]]
 
-    def __init__(self, rows: list[SummaryRowInfo] | None = None):
-        self._d = []
-        if rows is not None:
-            for row in rows:
-                self.add_summary_row(row)
+    def __init__(self):
+        self._d = {}
 
-    def add_summary_row(self, summary_row: SummaryRowInfo) -> None:
+    def __bool__(self) -> bool:
+        """Return True if there are any summary rows, False otherwise."""
+        return len(self._d) > 0
+
+    def __getitem__(self, key: str) -> list[SummaryRowInfo]:
+        """Get a summary row by its ID."""
+        return self._d[key]
+
+    def add_summary_row(self, summary_row: SummaryRowInfo, group_id: str) -> None:
         """Add a summary row following the merging rules in the class docstring."""
-        # Find existing row with same group and id
-        existing_index = None
-        for i, existing_row in enumerate(self._d):
-            if (
-                existing_row.group.group_id == summary_row.group.group_id
-                and existing_row.id == summary_row.id
-            ):
-                existing_index = i
-                break
 
-        new_rows = self._d.copy()
+        existing_group = self.get(group_id)
 
-        if existing_index is None:
-            # No existing row for this group and id, add it
-            new_rows.append(summary_row)
+        if not existing_group:
+            self._d[group_id] = [summary_row]
+            return
+
         else:
-            # Replace existing row, but merge numeric values from new version
-            existing_row = self._d[existing_index]
+            existing_index = None
+            for i, existing_row in enumerate(existing_group):
+                if existing_row.id == summary_row.id:
+                    existing_index = i
+                    break
 
-            # Start with existing values
-            merged_values = existing_row.values.copy()
+            new_rows = existing_group
 
-            # Replace with numeric values from new row
-            for key, new_value in summary_row.values.items():
-                if isinstance(new_value, (int, float)):
-                    merged_values[key] = new_value
+            if existing_index is None:
+                # No existing row for this group and id, add it
+                new_rows.append(summary_row)
+            else:
+                # Replace existing row, but merge numeric values from new version
+                existing_row = new_rows[existing_index]
 
-            # Create merged row with new row's properties but merged values
-            merged_row = SummaryRowInfo(
-                id=summary_row.id,
-                label=summary_row.label,
-                values=merged_values,
-                # Setting this to existing row instead of summary_row means original side is fixed
-                side=existing_row.side,
-                group=existing_row.group,
-            )
+                # Start with existing values
+                merged_values = existing_row.values.copy()
 
-            new_rows[existing_index] = merged_row
+                # Replace with numeric values from new row
+                for key, new_value in summary_row.values.items():
+                    if isinstance(new_value, (int, float)):
+                        merged_values[key] = new_value
 
-        self._d = new_rows
+                # Create merged row with new row's properties but merged values
+                merged_row = SummaryRowInfo(
+                    id=summary_row.id,
+                    label=summary_row.label,
+                    values=merged_values,
+                    # Setting this to existing row instead of summary_row means original
+                    # side is fixed by whatever side is first assigned to this row
+                    side=existing_row.side,
+                )
+
+                new_rows[existing_index] = merged_row
+
+        self._d[group_id] = new_rows
 
         return
 
     def get_summary_rows(self, group_id: str, side: str | None = None) -> list[SummaryRowInfo]:
         """Get list of summary rows for that group. If side is None, do not filter by side.
         Sorts result with 'top' side first, then 'bottom'."""
+
         result: list[SummaryRowInfo] = []
-        for summary_row in self._d:
-            if summary_row.group.group_id == group_id and (
-                side is None or summary_row.side == side
-            ):
-                result.append(summary_row)
+        summary_row_group = self.get(group_id)
+
+        if summary_row_group:
+            for summary_row in summary_row_group:
+                if side is None or summary_row.side == side:
+                    result.append(summary_row)
 
         # Sort: 'top' first, then 'bottom'
         result.sort(key=lambda r: 0 if r.side == "top" else 1)  # TODO: modify if enum for side
         return result
 
-    def _has_summary_rows(self) -> bool:
-        return len(self._d) > 0
+    def __iter__(self):
+        raise NotImplementedError
+
+    def __len__(self):
+        raise NotImplementedError
 
 
 # Options ----

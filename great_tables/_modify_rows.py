@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from great_tables._locations import resolve_cols_c
 
 from ._gt_data import (
-    GRAND_SUMMARY_GROUP,
+    GRAND_SUMMARY_GROUP_ID,
     FormatFn,
     GTData,
     Locale,
@@ -199,6 +199,7 @@ def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
 def grand_summary_rows(
     self: GTSelf,
     fns: str | list[str] | list[SummaryFn] | dict[str, str] | dict[str, SummaryFn],
+    # fns: dict[str, Callable[[list], Any]],
     fmt: FormatFn | None = None,
     columns: SelectExpr = None,
     side: Literal["bottom", "top"] = "bottom",
@@ -255,12 +256,15 @@ def grand_summary_rows(
             label=label,
             values=row_values_dict,  # TODO: revisit type
             side=side,
-            group=GRAND_SUMMARY_GROUP,
         )
 
-        self._summary_rows.add_summary_row(summary_row_info)
+        self._summary_rows_grand.add_summary_row(summary_row_info, GRAND_SUMMARY_GROUP_ID)
 
     return self
+
+
+# TODO: delegate to group by agg instead
+# TODO: validates after
 
 
 def _normalize_fns_to_tuples(
@@ -328,7 +332,7 @@ def _calculate_summary_row(
     summary_col_names = resolve_cols_c(data=data, expr=columns)
 
     if group_id is None:
-        group_id = GRAND_SUMMARY_GROUP.group_id
+        group_id = GRAND_SUMMARY_GROUP_ID
     else:
         # Future: group-specific logic would go here
         raise NotImplementedError("Group-specific summaries not yet implemented")

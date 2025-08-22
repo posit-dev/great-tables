@@ -7,7 +7,7 @@ from htmltools import HTML, TagList, css, tags
 
 from . import _locations as loc
 from ._gt_data import (
-    GRAND_SUMMARY_GROUP,
+    GRAND_SUMMARY_GROUP_ID,
     ColInfo,
     ColInfoTypeEnum,
     GroupRowInfo,
@@ -83,10 +83,14 @@ def create_heading_component_h(data: GTData) -> str:
     title_style = _flatten_styles(styles_header + styles_title, wrap=True)
     subtitle_style = _flatten_styles(styles_header + styles_subtitle, wrap=True)
 
+    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
+
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
     n_cols_total = data._boxhead._get_effective_number_of_columns(
-        stub=data._stub, summary_rows=data._summary_rows, options=data._options
+        stub=data._stub,
+        has_summary_rows=has_summary_rows,
+        options=data._options,
     )
 
     if has_subtitle:
@@ -126,8 +130,9 @@ def create_columns_component_h(data: GTData) -> str:
     # body = data._body
 
     # Get vector representation of stub layout
+    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
     stub_layout = data._stub._get_stub_layout(
-        summary_rows=data._summary_rows, options=data._options
+        has_summary_rows=has_summary_rows, options=data._options
     )
 
     # Determine the finalized number of spanner rows
@@ -453,8 +458,9 @@ def create_body_component_h(data: GTData) -> str:
 
     row_stub_var = data._boxhead._get_stub_column()
 
+    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
     stub_layout = data._stub._get_stub_layout(
-        summary_rows=data._summary_rows, options=data._options
+        has_summary_rows=has_summary_rows, options=data._options
     )
 
     has_row_stub_column = "rowname" in stub_layout
@@ -468,6 +474,7 @@ def create_body_component_h(data: GTData) -> str:
             column_vars = [row_stub_var] + column_vars
         # Else we have summary rows but no stub yet
         else:
+            # TODO: this naming is not ideal
             summary_row_stub_var = ColInfo(
                 "__summary_row__", ColInfoTypeEnum.stub, column_align="left"
             )
@@ -482,7 +489,7 @@ def create_body_component_h(data: GTData) -> str:
     body_rows: list[str] = []
 
     # Add grand summary rows at top
-    top_g_summary_rows = data._summary_rows.get_summary_rows(GRAND_SUMMARY_GROUP.group_id, "top")
+    top_g_summary_rows = data._summary_rows_grand.get_summary_rows(GRAND_SUMMARY_GROUP_ID, "top")
     for i, summary_row in enumerate(top_g_summary_rows):
         row_html = _create_row_component_h(
             column_vars=column_vars,
@@ -536,7 +543,7 @@ def create_body_component_h(data: GTData) -> str:
                 # Append a table row for the group heading
                 else:
                     colspan_value = data._boxhead._get_effective_number_of_columns(
-                        stub=data._stub, summary_rows=data._summary_rows, options=data._options
+                        stub=data._stub, has_summary_rows=has_summary_rows, options=data._options
                     )
 
                     group_class = (
@@ -571,8 +578,8 @@ def create_body_component_h(data: GTData) -> str:
         ## if this table has summary rows
 
     # Add grand summary rows at bottom
-    bottom_g_summary_rows = data._summary_rows.get_summary_rows(
-        GRAND_SUMMARY_GROUP.group_id, "bottom"
+    bottom_g_summary_rows = data._summary_rows_grand.get_summary_rows(
+        GRAND_SUMMARY_GROUP_ID, "bottom"
     )
     for i, summary_row in enumerate(bottom_g_summary_rows):
         row_html = _create_row_component_h(
@@ -725,8 +732,9 @@ def create_source_notes_component_h(data: GTData) -> str:
 
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
+    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
     n_cols_total = data._boxhead._get_effective_number_of_columns(
-        stub=data._stub, summary_rows=data._summary_rows, options=data._options
+        stub=data._stub, has_summary_rows=has_summary_rows, options=data._options
     )
 
     # Handle the multiline source notes case (each note takes up one line)

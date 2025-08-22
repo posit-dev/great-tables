@@ -11,7 +11,7 @@ from typing_extensions import TypeAlias
 # resolve generic, but we need to import at runtime, due to singledispatch looking
 # up annotations
 from ._gt_data import (
-    GRAND_SUMMARY_GROUP,
+    GRAND_SUMMARY_GROUP_ID,
     ColInfoTypeEnum,
     FootnoteInfo,
     FootnotePlacement,
@@ -1028,7 +1028,7 @@ def _(loc: LocRowGroups, data: GTData) -> set[str]:
 @resolve.register
 def _(loc: LocGrandSummaryStub, data: GTData) -> set[int]:
     # Select just grand summary rows
-    grand_summary_rows = data._summary_rows.get_summary_rows(GRAND_SUMMARY_GROUP.group_id)
+    grand_summary_rows = data._summary_rows_grand.get_summary_rows(GRAND_SUMMARY_GROUP_ID)
     grand_summary_rows_ids = [row.id for row in grand_summary_rows]
 
     rows = resolve_rows_i(data=grand_summary_rows_ids, expr=loc.rows)
@@ -1056,7 +1056,7 @@ def _(loc: LocGrandSummary, data: GTData) -> list[CellPos]:
             "Cannot specify the `mask` argument along with `columns` or `rows` in `loc.body()`."
         )
 
-    grand_summary_rows = data._summary_rows.get_summary_rows(GRAND_SUMMARY_GROUP.group_id)
+    grand_summary_rows = data._summary_rows_grand.get_summary_rows(GRAND_SUMMARY_GROUP_ID)
     grand_summary_rows_ids = [row.id for row in grand_summary_rows]
 
     if loc.mask is None:
