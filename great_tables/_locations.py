@@ -525,9 +525,7 @@ class LocGrandSummaryStub(Loc):
             rowname_col="model",
             groupname_col="mfr",
         )
-        .tab_options(row_group_as_column=True)
-        .grand_summary_rows(fns=["min", "max"], side="top")
-        .grand_summary_rows(fns="mean", side="bottom")
+        .grand_summary_rows(fns={"min": lambda x: x.min(), "max": lambda x: x.min()}, side="top")
         .tab_style(
             style=[style.text(color="crimson", weight="bold"), style.fill(color="lightgray")],
             locations=loc.grand_summary_stub(),
@@ -645,24 +643,24 @@ class LocGrandSummary(Loc):
     [`tab_style()`](`great_tables.GT.tab_style`).
 
     ```{python}
-    from great_tables import GT, style, loc
-    from great_tables.data import gtcars
+    # from great_tables import GT, style, loc
+    # from great_tables.data import gtcars
 
-    (
-        GT(
-            gtcars[["mfr", "model", "hp", "trq", "mpg_c"]].head(5),
-            rowname_col="model",
-            groupname_col="mfr",
-        )
-        .tab_options(row_group_as_column=True)
-        .grand_summary_rows(fns=["min", "max"], side="top")
-        .grand_summary_rows(fns="mean", side="bottom")
-        .tab_style(
-            style=[style.text(color="crimson", weight="bold"), style.fill(color="lightgray")],
-            locations=loc.grand_summary(),
-        )
-        .fmt_integer(columns=["hp", "trq", "mpg_c"])
-    )
+    # (
+    #     GT(
+    #         gtcars[["mfr", "model", "hp", "trq", "mpg_c"]].head(5),
+    #         rowname_col="model",
+    #         groupname_col="mfr",
+    #     )
+    #     .tab_options(row_group_as_column=True)
+    #     .grand_summary_rows(fns=["min", "max"], side="top")
+    #     .grand_summary_rows(fns="mean", side="bottom")
+    #     .tab_style(
+    #         style=[style.text(color="crimson", weight="bold"), style.fill(color="lightgray")],
+    #         locations=loc.grand_summary(),
+    #     )
+    #     .fmt_integer(columns=["hp", "trq", "mpg_c"])
+    # )
     ```
     """
 
