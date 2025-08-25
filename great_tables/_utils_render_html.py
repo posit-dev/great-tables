@@ -7,7 +7,6 @@ from htmltools import HTML, TagList, css, tags
 
 from . import _locations as loc
 from ._gt_data import (
-    GRAND_SUMMARY_GROUP_ID,
     ColInfo,
     ColInfoTypeEnum,
     GroupRowInfo,
@@ -489,7 +488,7 @@ def create_body_component_h(data: GTData) -> str:
     body_rows: list[str] = []
 
     # Add grand summary rows at top
-    top_g_summary_rows = data._summary_rows_grand.get_summary_rows(GRAND_SUMMARY_GROUP_ID, "top")
+    top_g_summary_rows = data._summary_rows_grand.get_summary_rows(side="top")
     for i, summary_row in enumerate(top_g_summary_rows):
         row_html = _create_row_component_h(
             column_vars=column_vars,
@@ -578,9 +577,7 @@ def create_body_component_h(data: GTData) -> str:
         ## if this table has summary rows
 
     # Add grand summary rows at bottom
-    bottom_g_summary_rows = data._summary_rows_grand.get_summary_rows(
-        GRAND_SUMMARY_GROUP_ID, "bottom"
-    )
+    bottom_g_summary_rows = data._summary_rows_grand.get_summary_rows(side="bottom")
     for i, summary_row in enumerate(bottom_g_summary_rows):
         row_html = _create_row_component_h(
             column_vars=column_vars,

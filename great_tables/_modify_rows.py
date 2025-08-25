@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any, Callable, Literal
 from great_tables._locations import resolve_cols_c
 
 from ._gt_data import (
-    GRAND_SUMMARY_GROUP_ID,
     FormatFn,
     GTData,
     Locale,
@@ -297,7 +296,7 @@ def grand_summary_rows(
             side=side,
         )
 
-        self._summary_rows_grand.add_summary_row(summary_row_info, GRAND_SUMMARY_GROUP_ID)
+        self._summary_rows_grand.add_summary_row(summary_row_info)
 
     return self
 
@@ -313,7 +312,7 @@ def _calculate_summary_row(
     original_columns = data._boxhead._get_columns()
     summary_row = {}
 
-    # Use eval_transform to apply the function/expression to the data
+    # Use eval_aggregate to apply the function/expression to the data
     result_df = eval_aggregate(data._tbl_data, fn)
 
     # Extract results for each column

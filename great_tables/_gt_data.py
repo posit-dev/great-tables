@@ -125,7 +125,7 @@ class GTData:
             _heading=Heading(),
             _stubhead=None,
             _summary_rows=SummaryRows(),
-            _summary_rows_grand=SummaryRows(),
+            _summary_rows_grand=SummaryRows(_is_grand_summary=True),
             _source_notes=[],
             _footnotes=[],
             _styles=[],
@@ -980,7 +980,6 @@ Formats = list
 
 # This can't conflict with actual group ids since we have a
 # seperate data structure for grand summary row infos
-GRAND_SUMMARY_GROUP_ID = "__grand_summary_group__"
 
 
 @dataclass(frozen=True)
@@ -990,7 +989,7 @@ class SummaryRowInfo:
     id: str
     label: str  # For now, label and id are identical
     # The motivation for values as a dict is to ensure cols_* functions don't have to consider
-    # the implications on SummaryRowInfo objects
+    # the implications on existing SummaryRowInfo objects
     values: dict[str, Any]  # TODO: consider datatype, series?
     side: Literal["top", "bottom"]  # TODO: consider enum
 
@@ -1007,20 +1006,35 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
     """
 
     _d: dict[str, list[SummaryRowInfo]]
+    _is_grand_summary: bool
 
-    def __init__(self):
+    GRAND_SUMMARY_KEY = "grand"
+
+    def __init__(self, _is_grand_summary: bool = False):
         self._d = {}
+        self._is_grand_summary = _is_grand_summary
 
     def __bool__(self) -> bool:
         """Return True if there are any summary rows, False otherwise."""
         return len(self._d) > 0
 
-    def __getitem__(self, key: str) -> list[SummaryRowInfo]:
-        """Get a summary row by its ID."""
+    def __getitem__(self, key: str | None) -> list[SummaryRowInfo]:
+        if self._is_grand_summary:
+            key = SummaryRows.GRAND_SUMMARY_KEY
+
+        if not key:
+            raise KeyError("Summary row group key must not be None for group summary rows.")
+
+        if key not in self._d:
+            raise KeyError(f"Group '{key}' not found in summary rows.")
+
         return self._d[key]
 
-    def add_summary_row(self, summary_row: SummaryRowInfo, group_id: str) -> None:
+    def add_summary_row(self, summary_row: SummaryRowInfo, group_id: str | None = None) -> None:
         """Add a summary row following the merging rules in the class docstring."""
+
+        if self._is_grand_summary:
+            group_id = SummaryRows.GRAND_SUMMARY_KEY
 
         existing_group = self.get(group_id)
 
@@ -1068,11 +1082,17 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
 
         return
 
-    def get_summary_rows(self, group_id: str, side: str | None = None) -> list[SummaryRowInfo]:
+    def get_summary_rows(
+        self, group_id: str | None = None, side: str | None = None
+    ) -> list[SummaryRowInfo]:
         """Get list of summary rows for that group. If side is None, do not filter by side.
         Sorts result with 'top' side first, then 'bottom'."""
 
         result: list[SummaryRowInfo] = []
+
+        if self._is_grand_summary:
+            group_id = SummaryRows.GRAND_SUMMARY_KEY
+
         summary_row_group = self.get(group_id)
 
         if summary_row_group:
