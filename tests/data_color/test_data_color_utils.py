@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 from great_tables._data_color.base import (
     _add_alpha,
+    _alpha_composite_with_white,
     _color_name_to_hex,
     _expand_short_hex,
     _float_to_hex,
@@ -18,7 +19,6 @@ from great_tables._data_color.base import (
     _is_short_hex,
     _is_standard_hex_col,
     _relative_luminance,
-    _remove_alpha,
     _rescale_numeric,
     _srgb,
 )
@@ -260,18 +260,32 @@ def test_add_alpha_invalid_alpha():
         )
 
 
-def test_remove_alpha():
-    colors = ["#FF0000FF", "#00FF00FF", "#0000FFFF"]
-    result = _remove_alpha(colors)
-    assert result == ["#FF0000", "#00FF00", "#0000FF"]
+def test_alpha_composite_with_white():
+    colors = ["#FF000040", "#00FF0040", "#0000FF40"]  # 25% alpha
+    result = [_alpha_composite_with_white(color) for color in colors]
+    expected = ["#FFBFBF", "#BFFFBF", "#BFBFFF"]
+    assert result == expected
 
-    colors = ["#FF000080", "#00FF0080", "#0000FF80"]
-    result = _remove_alpha(colors)
-    assert result == ["#FF0000", "#00FF00", "#0000FF"]
+    colors = ["#FF000080", "#00FF0080", "#0000FF80"]  # 50% alpha
+    result = [_alpha_composite_with_white(color) for color in colors]
+    expected = ["#FF7F7F", "#7FFF7F", "#7F7FFF"]
+    assert result == expected
 
+    colors = ["#FF0000FF", "#00FF00FF", "#0000FFFF"]  # 100% alpha
+    result = [_alpha_composite_with_white(color) for color in colors]
+    expected = ["#FF0000", "#00FF00", "#0000FF"]
+    assert result == expected
+
+    colors = ["#FF000000", "#00FF0000", "#0000FF00"]  # 0% alpha
+    result = [_alpha_composite_with_white(color) for color in colors]
+    expected = ["#FFFFFF", "#FFFFFF", "#FFFFFF"]
+    assert result == expected
+
+    # Test colors without alpha
     colors = ["#FF0000", "#00FF00", "#0000FF"]
-    result = _remove_alpha(colors)
-    assert result == ["#FF0000", "#00FF00", "#0000FF"]
+    result = [_alpha_composite_with_white(color) for color in colors]
+    expected = ["#FF0000", "#00FF00", "#0000FF"]
+    assert result == expected
 
 
 def test_float_to_hex():
