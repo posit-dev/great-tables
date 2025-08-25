@@ -1011,6 +1011,7 @@
   }
   
   #abc .gt_striped {
+    color: #333333;
     background-color: #F4F4F4;
   }
   
@@ -1384,6 +1385,7 @@
   }
   
   #abc .gt_striped {
+    color: #333333;
     background-color: #F4F4F4;
   }
   
@@ -1865,7 +1867,8 @@
   }
   
   #abc .gt_striped {
-    background-color: rgba(128,128,128,0.05);
+    color: #000000;
+    background-color: #F4F4F4;
   }
   
   #abc .gt_table_body {
@@ -2238,7 +2241,8 @@
   }
   
   #abc .gt_striped {
-    background-color: rgba(128,128,128,0.05);
+    color: #333333;
+    background-color: #F4F4F4;
   }
   
   #abc .gt_table_body {
