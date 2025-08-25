@@ -44,7 +44,7 @@ gt = (
     .tab_source_note("yo")
     .tab_spanner("spanner", ["char", "fctr"])
     .tab_stubhead("stubhead")
-    .grand_summary_rows(fns="sum", columns="num")
+    # .grand_summary_rows(fns={"sum": lambda x: x.sum("num")}, columns="num")
 )
 
 (
