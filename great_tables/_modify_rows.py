@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable, Literal
 
-from great_tables._locations import resolve_cols_c
-
 from ._gt_data import (
     FormatFn,
     GTData,
@@ -222,8 +220,7 @@ def grand_summary_rows(
         `vals.fmt_currency`) to apply to the summary row values. If `None`, no formatting
         is applied.
     columns
-        The columns to target. Can either be a single column name or a series of column names
-        provided in a list.
+        Currently, this function does not support selection by columns.
     side
         Should the grand summary rows be placed at the `"bottom"` (the default) or the `"top"` of
         the table?
@@ -283,11 +280,15 @@ def grand_summary_rows(
     ```
 
     """
+    if columns is not None:
+        raise NotImplementedError(
+            "Currently, grand_summary_rows() does not support column selection."
+        )
 
-    summary_col_names = resolve_cols_c(data=self, expr=columns)
+    # summary_col_names = resolve_cols_c(data=self, expr=columns)
 
     for label, fn in fns.items():
-        row_values_dict = _calculate_summary_row(self, fn, fmt, summary_col_names, missing_text)
+        row_values_dict = _calculate_summary_row(self, fn, fmt, missing_text)
 
         summary_row_info = SummaryRowInfo(
             id=label,
@@ -305,7 +306,7 @@ def _calculate_summary_row(
     data: GTData,
     fn: PlExpr | Callable[[TblData], Any],
     fmt: FormatFn | None,
-    summary_col_names: list[str],
+    # summary_col_names: list[str],
     missing_text: str,
 ) -> dict[str, Any]:
     """Calculate a summary row using eval_transform."""
@@ -317,7 +318,7 @@ def _calculate_summary_row(
 
     # Extract results for each column
     for col in original_columns:
-        if col in summary_col_names and col in result_df:
+        if col in result_df:
             res = result_df[col]
 
             if fmt is not None:
