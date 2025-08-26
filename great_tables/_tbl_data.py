@@ -898,12 +898,11 @@ def eval_aggregate(df, expr) -> dict[str, Any]:
     dict[str, Any]
         A dictionary mapping column names to their aggregated values
     """
-    raise NotImplementedError(f"eval_to_row not implemented for type: {type(df)}")
+    raise NotImplementedError(f"eval_aggregate not implemented for type: {type(df)}")
 
 
 @eval_aggregate.register
 def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> dict[str, Any]:
-    """Evaluate a callable function and return results as a dict."""
     res = expr(df)
 
     if not isinstance(res, PdSeries):
@@ -914,11 +913,8 @@ def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> dict[str, Any
 
 @eval_aggregate.register
 def _(df: PlDataFrame, expr: PlExpr) -> dict[str, Any]:
-    """Evaluate a polars expression and return aggregated results as a dict."""
-    # Apply the expression to get aggregated results
     res = df.select(expr)
 
-    # Convert the single-row result to a dictionary
     if len(res) != 1:
         raise ValueError(
             f"Expression must produce exactly 1 row (aggregation). Got {len(res)} rows."
@@ -934,11 +930,9 @@ def _(df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowTable]) -> dict[st
     if not isinstance(res, PyArrowTable):
         raise ValueError(f"Result must be a PyArrow Table. Received {type(res)}")
 
-    # Convert the single-row result to a dictionary
     if res.num_rows != 1:
         raise ValueError(
             f"Expression must produce exactly 1 row (aggregation). Got {res.num_rows} rows."
         )
 
-    # Convert to dictionary - PyArrow equivalent of .to_dicts()[0]
     return {col: res.column(col)[0].as_py() for col in res.column_names}
