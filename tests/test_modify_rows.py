@@ -183,7 +183,7 @@ def test_with_id_preserves_other_options():
     assert new_gt._options.container_width.value == "20px"
 
 
-def test_grand_summary_rows(snapshot):
+def test_grand_summary_rows_snap(snapshot):
     for Frame in [pd.DataFrame, pl.DataFrame]:
         df = Frame({"a": [1, 2, 3], "b": [4, 5, 6]})
 
@@ -204,7 +204,7 @@ def test_grand_summary_rows(snapshot):
         assert_rendered_body(snapshot(name="pd_and_pl"), res)
 
 
-def test_grand_summary_rows_with_rowname(snapshot):
+def test_grand_summary_rows_with_rowname_snap(snapshot):
     df = pd.DataFrame({"a": [1, 2], "b": [4, 5], "row": ["x", "y"]})
 
     res = GT(df, rowname_col="row").grand_summary_rows(fns={"Average": mean_expr})
@@ -212,18 +212,16 @@ def test_grand_summary_rows_with_rowname(snapshot):
     assert_rendered_body(snapshot, res)
 
 
-def test_grand_summary_rows_with_groupname():
+def test_grand_summary_rows_with_group_as_col_snap(snapshot):
     df = pd.DataFrame({"a": [1, 2], "b": [4, 5], "group": ["x", "y"]})
 
-    res = GT(df, groupname_col="group").grand_summary_rows(fns={"Average": mean_expr})
-    html = res.as_raw_html()
-
-    assert '<th class="gt_group_heading" colspan="3">x</th>' in html
-    assert '<th class="gt_row gt_left gt_stub">&nbsp;</th>' in html
-    assert (
-        '<th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Average</th>'
-        in html
+    res = (
+        GT(df, groupname_col="group")
+        .grand_summary_rows(fns={"Average": mean_expr})
+        .tab_options(row_group_as_column=True)
     )
+
+    assert_rendered_body(snapshot, res)
 
 
 def test_grand_summary_rows_with_rowname_and_groupname():
