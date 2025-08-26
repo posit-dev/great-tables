@@ -240,25 +240,21 @@ def grand_summary_rows(
 
     ```{python}
     import polars as pl
+    import polars.selectors as cs
     from great_tables import GT, vals, style, loc
     from great_tables.data import sp500
 
-    sp500_mini = (
-        pl.from_pandas(sp500)
-        .slice(0, 7)
-        .drop(["volume", "adj_close"])
-    )
+    sp500_mini = pl.from_pandas(sp500).slice(0, 7).drop(["volume", "adj_close"])
 
     (
         GT(sp500_mini, rowname_col="date")
         .grand_summary_rows(
             fns={
-                "Minimum": pl.min("*"),
-                "Maximum": pl.max("*"),
-                "Average": pl.mean("*"),
+                "Minimum": cs.numeric().min(),
+                "Maximum": cs.numeric().max(),
+                "Average": pl.mean("open", "close"),
             },
             fmt=vals.fmt_currency,
-            columns=["open", "high", "low", "close"],
         )
         .tab_style(
             style=[
