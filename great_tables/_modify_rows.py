@@ -236,7 +236,9 @@ def grand_summary_rows(
     Examples
     --------
     Let's use a subset of the `sp500` dataset to create a table with grand summary rows. We'll
-    calculate min, max, and mean values for the numeric columns.
+    calculate min, max, and mean values for the numeric columns. Notice the different
+    approaches to selecting columns to apply the aggregations to: we can use polars selectors
+    or select the columns directly.
 
     ```{python}
     import polars as pl
@@ -244,15 +246,19 @@ def grand_summary_rows(
     from great_tables import GT, vals, style, loc
     from great_tables.data import sp500
 
-    sp500_mini = pl.from_pandas(sp500).slice(0, 7).drop(["volume", "adj_close"])
+    sp500_mini = (
+        pl.from_pandas(sp500)
+        .slice(0, 7)
+        .drop(["volume", "adj_close"])
+    )
 
     (
         GT(sp500_mini, rowname_col="date")
         .grand_summary_rows(
             fns={
-                "Minimum": cs.numeric().min(),
-                "Maximum": cs.numeric().max(),
-                "Average": pl.mean("open", "close"),
+                "Minimum": pl.min("open", "high", "low", "close"),
+                "Maximum": pl.col("open", "high", "low", "close").max(),
+                "Average": cs.numeric().mean(),
             },
             fmt=vals.fmt_currency,
         )
@@ -266,13 +272,38 @@ def grand_summary_rows(
     )
     ```
 
-    We can also use custom callable functions to create more complex summary calculations:
+    We can also use custom callable functions to create more complex summary calculations.
+    And notice here the grand summary rows can be placed at the top of the table and formatted
+    with currency notation, by passing a formatter from the `vals.fmt_*` class of functions.
 
-    TODO pandas ex
+    ```{python}
+    from great_tables import GT, style, loc, vals
+    from great_tables.data import gtcars
 
-    Grand summary rows can be placed at the top of the table and formatted with currency notation:
+    def pd_median(df):
+        return df.median(numeric_only=True)
 
-    TODO example
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "mpg_c"]].head(6),
+            rowname_col="model",
+        )
+        .fmt_integer(columns=["hp", "trq", "mpg_c"])
+        .grand_summary_rows(
+            fns={
+                "Min": lambda df: df.min(numeric_only=True),
+                "Max": lambda df: df.max(numeric_only=True),
+                "Median": pd_median,
+            },
+            side="top",
+            fmt=vals.fmt_integer,
+        )
+        .tab_style(
+            style=[style.text(color="crimson", weight="bold"), style.fill(color="lightgray")],
+            locations=loc.grand_summary_stub(),
+        )
+    )
     ```
 
     """

@@ -515,21 +515,27 @@ class LocGrandSummaryStub(Loc):
     [`tab_style()`](`great_tables.GT.tab_style`).
 
     ```{python}
-    from great_tables import GT, style, loc
+    from great_tables import GT, style, loc, vals
     from great_tables.data import gtcars
 
     (
         GT(
-            gtcars[["mfr", "model", "hp", "trq", "mpg_c"]].head(5),
+            gtcars[["mfr", "model", "hp", "trq", "mpg_c"]].head(6),
             rowname_col="model",
-            groupname_col="mfr",
         )
-        .grand_summary_rows(fns={"min": lambda x: x.min(), "max": lambda x: x.min()}, side="top")
+        .fmt_integer(columns=["hp", "trq", "mpg_c"])
+        .grand_summary_rows(
+            fns={
+                "Min": lambda df: df.min(numeric_only=True),
+                "Max": lambda x: x.max(numeric_only=True),
+            },
+            side="top",
+            fmt=vals.fmt_integer,
+        )
         .tab_style(
             style=[style.text(color="crimson", weight="bold"), style.fill(color="lightgray")],
             locations=loc.grand_summary_stub(),
         )
-        .fmt_integer(columns=["hp", "trq", "mpg_c"])
     )
     ```
     """
@@ -627,7 +633,7 @@ class LocGrandSummary(Loc):
     rows
         The rows to target. Can either be a single row name or a series of row names provided in a
         list. Note that if rows are targeted by index, top and bottom grand summary rows are indexed
-        as one combined list starting with the top.
+        as one combined list starting with the top rows.
 
     Returns
     -------
@@ -642,24 +648,28 @@ class LocGrandSummary(Loc):
     [`tab_style()`](`great_tables.GT.tab_style`).
 
     ```{python}
-    # from great_tables import GT, style, loc
-    # from great_tables.data import gtcars
+    from great_tables import GT, style, loc, vals
+    from great_tables.data import gtcars
 
-    # (
-    #     GT(
-    #         gtcars[["mfr", "model", "hp", "trq", "mpg_c"]].head(5),
-    #         rowname_col="model",
-    #         groupname_col="mfr",
-    #     )
-    #     .tab_options(row_group_as_column=True)
-    #     .grand_summary_rows(fns=["min", "max"], side="top")
-    #     .grand_summary_rows(fns="mean", side="bottom")
-    #     .tab_style(
-    #         style=[style.text(color="crimson", weight="bold"), style.fill(color="lightgray")],
-    #         locations=loc.grand_summary(),
-    #     )
-    #     .fmt_integer(columns=["hp", "trq", "mpg_c"])
-    # )
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "mpg_c"]].head(6),
+            rowname_col="model",
+        )
+        .fmt_integer(columns=["hp", "trq", "mpg_c"])
+        .grand_summary_rows(
+            fns={
+                "Min": lambda df: df.min(numeric_only=True),
+                "Max": lambda x: x.max(numeric_only=True),
+            },
+            side="top",
+            fmt=vals.fmt_integer,
+        )
+        .tab_style(
+            style=[style.text(color="crimson", weight="bold"), style.fill(color="lightgray")],
+            locations=loc.grand_summary(),
+        )
+    )
     ```
     """
 
