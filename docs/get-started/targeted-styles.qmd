@@ -44,7 +44,7 @@ gt = (
     .tab_source_note("yo")
     .tab_spanner("spanner", ["char", "fctr"])
     .tab_stubhead("stubhead")
-    .grand_summary_rows(fns={"sum": lambda x: x.sum(numeric_only=True)})
+    .grand_summary_rows(fns={"Total": lambda x: x.sum(numeric_only=True)})
 )
 
 (
@@ -133,4 +133,18 @@ gt.tab_style(style.fill("yellow"), loc.body())
 
 ```{python}
 gt.tab_style(style.fill("yellow"), loc.stubhead())
+```
+
+## Grand Summary Rows
+
+```{python}
+(
+    gt.tab_style(
+        style.fill("yellow"),
+        loc.grand_summary_stub(),
+    ).tab_style(
+        style.fill("lightblue"),
+        loc.grand_summary(),
+    )
+)
 ```
