@@ -498,9 +498,9 @@ class LocGrandSummaryStub(Loc):
     ----------
     rows
         The rows to target within the grand summary stub. Can either be a single row name or a
-        series of row names provided in a list. If no rows are specified, all rows are targeted.
-        Note that if rows are targeted by index, top and bottom grand summary rows are indexed as
-        one combined list starting with the top.
+        series of row names provided in a list. If no rows are specified, all grand summary rows
+        are targeted. Note that if rows are targeted by index, top and bottom grand summary rows
+        are indexed as one combined list starting with the top rows.
 
     Returns
     -------

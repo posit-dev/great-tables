@@ -220,7 +220,9 @@ def grand_summary_rows(
         `vals.fmt_currency`) to apply to the summary row values. If `None`, no formatting
         is applied.
     columns
-        Currently, this function does not support selection by columns.
+        Currently, this function does not support selection by columns. If you would like to choose
+        which columns to summarize, you can select columns within the functions given to `fns=`.
+        See examples below for more explicit cases.
     side
         Should the grand summary rows be placed at the `"bottom"` (the default) or the `"top"` of
         the table?
@@ -273,7 +275,7 @@ def grand_summary_rows(
     ```
 
     We can also use custom callable functions to create more complex summary calculations.
-    And notice here the grand summary rows can be placed at the top of the table and formatted
+    Notice here that grand summary rows can be placed at the top of the table and formatted
     with currency notation, by passing a formatter from the `vals.fmt_*` class of functions.
 
     ```{python}
