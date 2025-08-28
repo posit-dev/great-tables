@@ -723,7 +723,7 @@ class GroupRowInfo:
     indices: list[int] = field(default_factory=list)
     # row_start: int | None = None
     # row_end: int | None = None
-    has_summary_rows: bool = False  # TODO: remove
+    # has_summary_rows: bool = False  # TODO: remove
     summary_row_side: str | None = None
 
     def defaulted_label(self) -> str:
