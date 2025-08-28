@@ -727,6 +727,10 @@ class GroupRowInfo:
         label = self.group_label if self.group_label is not None else self.group_id
         return label
 
+    def with_group_label(self, label: str | None) -> Self:
+        """Return a copy of the object with the specified group label."""
+        return replace(self, group_label=label)
+
 
 class MISSING_GROUP:
     """Represent a category of all missing group levels in data."""
