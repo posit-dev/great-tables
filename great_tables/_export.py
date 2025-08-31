@@ -234,7 +234,7 @@ def as_raw_html(
     )
 
     if inline_css:
-        _try_import(name="css_inline", pip_install_line="pip install css-inline")
+        _try_import(pkg="css_inline", group="css")
         from css_inline import inline, inline_fragment
 
         if make_page:
@@ -437,7 +437,7 @@ def save(
 
     """
     # Import the required packages
-    _try_import(name="selenium", pip_install_line="pip install selenium")
+    _try_import(pkg="selenium", group="extra")
 
     from ._utils_selenium import _get_web_driver
 
@@ -555,7 +555,7 @@ def _save_screenshot(
 
     el = WebDriverWait(driver, 1).until(EC.visibility_of_element_located((By.TAG_NAME, "body")))
 
-    _try_import(name="PIL", pip_install_line="pip install pillow")
+    _try_import(pkg="PIL", group="extra")
 
     from PIL import Image
 
