@@ -20,13 +20,13 @@ if TYPE_CHECKING:
     import pyarrow as pa
 
     # the class behind selectors
-    from polars.selectors import _selector_proxy_
+    from polars.selectors import Selector
 
     PdDataFrame = pd.DataFrame
     PlDataFrame = pl.DataFrame
     PyArrowTable = pa.Table
 
-    PlSelectExpr = _selector_proxy_
+    PlSelectExpr = Selector
     PlExpr = pl.Expr
 
     PdSeries = pd.Series
