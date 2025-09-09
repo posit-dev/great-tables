@@ -93,11 +93,15 @@ def create_heading_component_h(data: GTData) -> str:
     title = _process_text(title)
     subtitle = _process_text(subtitle)
 
+    # Filter footnotes for title and subtitle - similar to styles filtering
+    footnotes_title = [x for x in data._footnotes if isinstance(x.locname, loc.LocTitle)]
+    footnotes_subtitle = [x for x in data._footnotes if isinstance(x.locname, loc.LocSubTitle)]
+
     # Add footnote marks to title and subtitle if applicable
     if has_title:
-        title = _add_footnote_marks_to_text(data, title, "title")
+        title = _apply_footnotes_to_text(footnotes_title, data, title)
     if has_subtitle:
-        subtitle = _add_footnote_marks_to_text(data, subtitle, "subtitle")
+        subtitle = _apply_footnotes_to_text(footnotes_subtitle, data, subtitle)
 
     # Filter list of StyleInfo for the various header components
     styles_header = [x for x in data._styles if _is_loc(x.locname, loc.LocHeader)]
@@ -193,6 +197,9 @@ def create_columns_component_h(data: GTData) -> str:
     # Extract the table ID to ensure subsequent IDs are unique
     table_id = data._options.table_id.value
 
+    # Filter footnotes for stubhead - similar to styles filtering
+    footnotes_stubhead = [x for x in data._footnotes if isinstance(x.locname, loc.LocStubhead)]
+
     # If there are no spanners, then we have to create the cells for the stubhead label
     # (if present) and for the column headings
     if spanner_row_count == 0:
@@ -201,8 +208,8 @@ def create_columns_component_h(data: GTData) -> str:
             table_col_headings.append(
                 tags.th(
                     HTML(
-                        _add_footnote_marks_to_text(
-                            data, _process_text(stub_label), locname="stubhead"
+                        _apply_footnotes_to_text(
+                            footnotes_stubhead, data, _process_text(stub_label)
                         )
                     ),
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
@@ -275,8 +282,8 @@ def create_columns_component_h(data: GTData) -> str:
             level_1_spanners.append(
                 tags.th(
                     HTML(
-                        _add_footnote_marks_to_text(
-                            data, _process_text(stub_label), locname="stubhead"
+                        _apply_footnotes_to_text(
+                            footnotes_stubhead, data, _process_text(stub_label)
                         )
                     ),
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
@@ -304,12 +311,19 @@ def create_columns_component_h(data: GTData) -> str:
                 # Filter by column label / id, join with overall column labels style
                 styles_i = [x for x in styles_column_label if x.colname == h_info.var]
 
+                # Filter footnotes for this column label - similar to styles filtering
+                footnotes_i = [
+                    x
+                    for x in data._footnotes
+                    if isinstance(x.locname, loc.LocColumnLabels) and x.colname == h_info.var
+                ]
+
                 # Get the alignment values for the first set of column labels
                 first_set_alignment = h_info.defaulted_align
 
                 # Add footnote marks to column label if any
-                column_label_with_footnotes = _add_footnote_marks_to_text(
-                    data, _process_text(h_info.column_label), "columns_columns", colname=h_info.var
+                column_label_with_footnotes = _apply_footnotes_to_text(
+                    footnotes_i, data, _process_text(h_info.column_label)
                 )
 
                 # Creation of <th> tags for column labels with no spanners above them
@@ -337,15 +351,23 @@ def create_columns_component_h(data: GTData) -> str:
                         and spanner_ids_level_1_index[ii] in x.grpname
                     ]
 
+                    # Filter footnotes for this spanner label - similar to styles filtering
+                    footnotes_i = [
+                        x
+                        for x in data._footnotes
+                        if isinstance(x.locname, loc.LocSpannerLabels)
+                        and spanner_ids_level_1_index[ii]
+                        and x.grpname == spanner_ids_level_1_index[ii]
+                    ]
+
                     level_1_spanners.append(
                         tags.th(
                             tags.span(
                                 HTML(
-                                    _add_footnote_marks_to_text(
+                                    _apply_footnotes_to_text(
+                                        footnotes_i,
                                         data,
                                         _process_text(spanner_ids_level_1_index[ii]),
-                                        locname="columns_groups",
-                                        grpname=spanner_ids_level_1_index[ii],
                                     )
                                 ),
                                 class_="gt_column_spanner",
@@ -381,16 +403,22 @@ def create_columns_component_h(data: GTData) -> str:
                 # TODO check this filter logic
                 styles_i = [x for x in styles_column_label if x.colname == remaining_heading]
 
+                # Filter footnotes for this column label - similar to styles filtering
+                footnotes_i = [
+                    x
+                    for x in data._footnotes
+                    if isinstance(x.locname, loc.LocColumnLabels) and x.colname == remaining_heading
+                ]
+
                 remaining_alignment = boxhead._get_boxhead_get_alignment_by_var(
                     var=remaining_heading
                 )
 
                 # Add footnote marks to column label if any
-                remaining_headings_label_with_footnotes = _add_footnote_marks_to_text(
+                remaining_headings_label_with_footnotes = _apply_footnotes_to_text(
+                    footnotes_i,
                     data,
                     _process_text(remaining_headings_label),
-                    "columns_columns",
-                    colname=remaining_heading,
                 )
 
                 spanned_column_labels.append(
@@ -435,14 +463,22 @@ def create_columns_component_h(data: GTData) -> str:
                         x for x in styles_spanner_label if span_label and span_label in x.grpname
                     ]
 
+                    # Filter footnotes for this spanner label - similar to styles filtering
+                    footnotes_i = [
+                        x
+                        for x in data._footnotes
+                        if isinstance(x.locname, loc.LocSpannerLabels)
+                        and span_label
+                        and x.grpname == span_label
+                    ]
+
                     if span_label:
                         span = tags.span(
                             HTML(
-                                _add_footnote_marks_to_text(
+                                _apply_footnotes_to_text(
+                                    footnotes_i,
                                     data,
                                     _process_text(span_label),
-                                    locname="columns_groups",
-                                    grpname=span_label,
                                 )
                             ),
                             class_="gt_column_spanner",
@@ -583,17 +619,25 @@ def create_body_component_h(data: GTData) -> str:
             else:
                 is_stub_cell = False
 
-            # Add footnote marks to cell content if applicable
-            # Use different locname for stub vs data cells
+            # Filter footnotes for cell content - similar to styles filtering
+            # Use different locations for stub vs data cells
             if is_stub_cell:
-                # For stub cells, don't pass colname since stub footnotes are stored with colname=None
-                cell_str = _add_footnote_marks_to_text(
-                    data, cell_str, "stub", colname=None, rownum=i
-                )
+                # For stub cells, footnotes are stored with colname=None
+                footnotes_i = [
+                    x
+                    for x in data._footnotes
+                    if isinstance(x.locname, loc.LocStub) and x.rownum == i
+                ]
+                cell_str = _apply_footnotes_to_text(footnotes_i, data, cell_str)
             else:
-                cell_str = _add_footnote_marks_to_text(
-                    data, cell_str, "data", colname=colinfo.var, rownum=i
-                )
+                footnotes_i = [
+                    x
+                    for x in data._footnotes
+                    if isinstance(x.locname, loc.LocBody)
+                    and x.colname == colinfo.var
+                    and x.rownum == i
+                ]
+                cell_str = _apply_footnotes_to_text(footnotes_i, data, cell_str)
 
             # Get alignment for the current column from the `col_alignment` list
             # by using the `name` value to obtain the index of the alignment value
@@ -1047,10 +1091,6 @@ def _get_spanner_leftmost_column_index(data: GTData, spanner_grpname: str | None
 
 
 def _apply_footnotes_to_text(footnotes: list[FootnoteInfo], data: GTData, text: str) -> str:
-    """Apply footnote marks to text for a list of pre-filtered footnotes.
-
-    This is similar to how _flatten_styles() works for styles.
-    """
     if not footnotes:
         return text
 
@@ -1087,65 +1127,6 @@ def _apply_footnotes_to_text(footnotes: list[FootnoteInfo], data: GTData, text: 
         return _apply_footnote_placement(text, marks_html, placement)
 
     return text
-
-
-def _add_footnote_marks_to_text(
-    data: GTData,
-    text: str,
-    locname: str | loc.Loc,
-    colname: str | None = None,
-    rownum: int | None = None,
-    grpname: str | None = None,
-) -> str:
-    """Legacy function that filters footnotes and applies marks to text.
-
-    This function is kept for backward compatibility but should eventually be replaced
-    with direct filtering + _apply_footnotes_to_text() calls.
-    """
-    if not data._footnotes:
-        return text
-
-    # Filter footnotes that match this location - similar to styles filtering
-    footnotes_i: list[FootnoteInfo] = []
-    for footnote in data._footnotes:
-        # Check if locname matches - handle both string and Loc object cases
-        locname_matches = False
-        if isinstance(locname, str):
-            # For backward compatibility with string-based calls
-            if locname == "title" and isinstance(footnote.locname, loc.LocTitle):
-                locname_matches = True
-            elif locname == "subtitle" and isinstance(footnote.locname, loc.LocSubTitle):
-                locname_matches = True
-            elif locname == "stubhead" and isinstance(footnote.locname, loc.LocStubhead):
-                locname_matches = True
-            elif locname == "columns_groups" and isinstance(footnote.locname, loc.LocSpannerLabels):
-                locname_matches = True
-            elif locname == "columns_columns" and isinstance(footnote.locname, loc.LocColumnLabels):
-                locname_matches = True
-            elif locname == "data" and isinstance(footnote.locname, loc.LocBody):
-                locname_matches = True
-            elif locname == "stub" and isinstance(footnote.locname, loc.LocStub):
-                locname_matches = True
-            elif locname == "summary_cells" and isinstance(footnote.locname, loc.LocSummary):
-                locname_matches = True
-        else:
-            # Direct Loc object comparison
-            locname_matches = isinstance(footnote.locname, type(locname))
-
-        if locname_matches:
-            # Check if this footnote targets this specific location
-            match = True
-            if colname is not None and footnote.colname != colname:
-                match = False
-            if rownum is not None and footnote.rownum != rownum:
-                match = False
-            if grpname is not None and footnote.grpname != grpname:
-                match = False
-
-            if match:
-                footnotes_i.append(footnote)
-
-    return _apply_footnotes_to_text(footnotes_i, data, text)
 
 
 def _apply_footnote_placement(
