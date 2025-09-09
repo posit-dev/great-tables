@@ -906,12 +906,11 @@ def _process_footnotes_for_display(
 
     for footnote in sorted_footnotes:
         if footnote.footnotes:
-            raw_text = footnote.footnotes[0] if footnote.footnotes else ""
-            processed_text = _process_text(raw_text)  # Process to get comparable string
-            if processed_text not in footnote_data:
+            footnote_text = footnote.footnotes[0] if footnote.footnotes else ""
+            if footnote_text not in footnote_data:
                 mark_string = _get_footnote_mark_string(data, footnote)
-                footnote_data[processed_text] = mark_string
-                footnote_order.append(processed_text)
+                footnote_data[footnote_text] = mark_string
+                footnote_order.append(footnote_text)
 
     # Add footnotes without marks at the beginning (also filter for visibility)
     markless_footnotes = [f for f in visible_footnotes if f.locname is None]  # type: ignore
@@ -920,8 +919,8 @@ def _process_footnotes_for_display(
     # Add markless footnotes first
     for footnote in markless_footnotes:
         if footnote.footnotes:
-            processed_text = _process_text(footnote.footnotes[0])
-            result.append({"mark": "", "text": processed_text})
+            footnote_text = footnote.footnotes[0]
+            result.append({"mark": "", "text": footnote_text})
 
     # Add footnotes with marks and maintain visual order (order they appear in table);
     # the footnote_order list already contains footnotes in visual order based on how
