@@ -3,7 +3,7 @@ from __future__ import annotations
 import itertools
 from dataclasses import dataclass, replace
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal, Union
 
 from typing_extensions import TypeAlias
 
@@ -1053,7 +1053,7 @@ def _(
 
 
 @set_style.register
-def _(loc: LocColumnLabels, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTData:
+def _(loc: LocColumnLabels, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
     styles, new_footnotes = footnotes_split_style_list(style)
 
     selected = resolve(loc, data)
@@ -1084,7 +1084,7 @@ def _(loc: LocColumnLabels, data: GTData, style: list[CellStyle | FootnoteEntry]
 
 
 @set_style.register
-def _(loc: LocSpannerLabels, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTData:
+def _(loc: LocSpannerLabels, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
     styles, new_footnotes = footnotes_split_style_list(style)
 
     # validate ----
@@ -1108,7 +1108,7 @@ def _(loc: LocSpannerLabels, data: GTData, style: list[CellStyle | FootnoteEntry
 
 
 @set_style.register
-def _(loc: LocRowGroups, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTData:
+def _(loc: LocRowGroups, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
     styles, new_footnotes = footnotes_split_style_list(style)
 
     # validate ----
@@ -1131,7 +1131,7 @@ def _(loc: LocRowGroups, data: GTData, style: list[CellStyle | FootnoteEntry]) -
 
 
 @set_style.register
-def _(loc: LocStub, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTData:
+def _(loc: LocStub, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
     styles, new_footnotes = footnotes_split_style_list(style)
 
     # validate ----
@@ -1155,7 +1155,7 @@ def _(loc: LocStub, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTD
 
 
 @set_style.register
-def _(loc: LocBody, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTData:
+def _(loc: LocBody, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
     positions: list[CellPos] = resolve(loc, data)
 
     styles, new_footnotes = footnotes_split_style_list(style)
