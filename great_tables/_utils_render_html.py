@@ -12,22 +12,31 @@ from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import BaseText, _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
-# Visual hierarchy mapping for footnote location ordering
-FOOTNOTE_LOCATION_HIERARCHY = {
-    "title": 1,
-    "subtitle": 2,
-    "stubhead": 3,
-    "columns_groups": 4,
-    "columns_columns": 5,
-    "data": 6,
-    "stub": 6,  # Same as data since stub and data cells are on the same row level
-}
 
-
-def _get_locnum_for_footnote_location(locname: str | None) -> int:
+def _get_locnum_for_footnote_location(locname: loc.Loc | None) -> int | float:
+    """Get the visual hierarchy order for footnote location ordering."""
     if locname is None:
         return 999
-    return FOOTNOTE_LOCATION_HIERARCHY.get(locname, 999)  # Default to 999 for unknown locations
+
+    # Visual hierarchy mapping for footnote location ordering
+    if isinstance(locname, loc.LocTitle):
+        return 1
+    elif isinstance(locname, loc.LocSubTitle):
+        return 2
+    elif isinstance(locname, loc.LocStubhead):
+        return 3
+    elif isinstance(locname, loc.LocSpannerLabels):
+        return 4
+    elif isinstance(locname, loc.LocColumnLabels):
+        return 5
+    elif isinstance(locname, (loc.LocBody, loc.LocStub)):
+        return 6  # Same as data since stub and data cells are on the same row level
+    elif isinstance(locname, loc.LocRowGroups):
+        return 5
+    elif isinstance(locname, loc.LocSummary):
+        return 5.5
+    else:
+        return 999  # Default to 999 for unknown locations
 
 
 def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
@@ -210,9 +219,16 @@ def create_columns_component_h(data: GTData) -> str:
             # Filter by column label / id, join with overall column labels style
             styles_i = [x for x in styles_column_label if x.colname == info.var]
 
+            # Filter footnotes for column label footnotes
+            footnotes_i = [
+                x
+                for x in data._footnotes
+                if isinstance(x.locname, loc.LocColumnLabels) and x.colname == info.var
+            ]
+
             # Add footnote marks to column label if any
-            column_label_with_footnotes = _add_footnote_marks_to_text(
-                data, _process_text(info.column_label), "columns_columns", colname=info.var
+            column_label_with_footnotes = _apply_footnotes_to_text(
+                footnotes=footnotes_i, data=data, text=_process_text(info.column_label)
             )
 
             table_col_headings.append(
@@ -800,23 +816,23 @@ def _process_footnotes_for_display(
     # Sort footnotes by visual order (same logic as in _get_footnote_mark_string);
     # this ensures footnotes appear in the footnotes section in the same order as their
     # marks in the table
-    footnote_positions: list[tuple[tuple[int, int, int], FootnoteInfo]] = []
+    footnote_positions: list[tuple[tuple[int | float, int, int], FootnoteInfo]] = []
 
     for fn_info in visible_footnotes:
-        if fn_info.locname == "none":
+        if fn_info.locname is None:
             continue
 
         # Assign locnum based on visual hierarchy
         locnum = _get_locnum_for_footnote_location(fn_info.locname)
 
         # Assign column number, with stub getting a lower value than data columns
-        if fn_info.locname == "stub":
+        if isinstance(fn_info.locname, loc.LocStub):
             colnum = -1  # Stub appears before all data columns
         else:
             colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
         rownum = (
             0
-            if fn_info.locname == "columns_columns"
+            if isinstance(fn_info.locname, loc.LocColumnLabels)
             else (fn_info.rownum if fn_info.rownum is not None else 0)
         )
 
@@ -841,7 +857,7 @@ def _process_footnotes_for_display(
                 footnote_order.append(processed_text)
 
     # Add footnotes without marks at the beginning (also filter for visibility)
-    markless_footnotes = [f for f in visible_footnotes if f.locname == "none"]  # type: ignore
+    markless_footnotes = [f for f in visible_footnotes if f.locname is None]  # type: ignore
     result: list[dict[str, str]] = []
 
     # Add markless footnotes first
@@ -938,10 +954,10 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
         return _generate_footnote_mark(1, mark_type)
 
     # Create a list of all footnote positions with their text, following R gt approach
-    footnote_positions: list[tuple[tuple[int, int, int], str]] = []
+    footnote_positions: list[tuple[tuple[int | float, int, int], str]] = []
 
     for fn_info in data._footnotes:
-        if not fn_info.footnotes or fn_info.locname == "none":
+        if not fn_info.footnotes or fn_info.locname is None:
             continue
 
         # Skip footnotes for hidden columns
@@ -955,16 +971,16 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
         locnum = _get_locnum_for_footnote_location(fn_info.locname)
 
         # Get colnum (column number) and assign stub a lower value than data columns
-        if fn_info.locname == "stub":
+        if isinstance(fn_info.locname, loc.LocStub):
             colnum = -1  # Stub appears before all data columns
-        elif fn_info.locname == "columns_groups":
+        elif isinstance(fn_info.locname, loc.LocSpannerLabels):
             # For spanners, use the leftmost column index to ensure left-to-right ordering
             colnum = _get_spanner_leftmost_column_index(data, fn_info.grpname)
         else:
             colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
 
         # Get rownum; for headers use 0, for body use actual row number
-        if fn_info.locname == "columns_columns":
+        if isinstance(fn_info.locname, loc.LocColumnLabels):
             rownum = 0  # Headers are row 0
         else:
             rownum = fn_info.rownum if fn_info.rownum is not None else 0
@@ -1030,42 +1046,19 @@ def _get_spanner_leftmost_column_index(data: GTData, spanner_grpname: str | None
     return 0
 
 
-def _add_footnote_marks_to_text(
-    data: GTData,
-    text: str,
-    locname: str,
-    colname: str | None = None,
-    rownum: int | None = None,
-    grpname: str | None = None,
-) -> str:
-    if not data._footnotes:
+def _apply_footnotes_to_text(footnotes: list[FootnoteInfo], data: GTData, text: str) -> str:
+    """Apply footnote marks to text for a list of pre-filtered footnotes.
+
+    This is similar to how _flatten_styles() works for styles.
+    """
+    if not footnotes:
         return text
 
-    # Find footnotes that match this location
-    matching_footnotes: list[tuple[str, FootnoteInfo]] = []
-    for footnote in data._footnotes:
-        if footnote.locname == locname:
-            # Check if this footnote targets this specific location
-            match = True
-
-            if colname is not None and footnote.colname != colname:
-                match = False
-            if rownum is not None and footnote.rownum != rownum:
-                match = False
-            if grpname is not None and footnote.grpname != grpname:
-                match = False
-
-            if match:
-                mark_string = _get_footnote_mark_string(data, footnote)
-                matching_footnotes.append((mark_string, footnote))
-
-    if not matching_footnotes:
-        return text
-
-    # Collect unique mark strings and sort them properly
+    # Get mark strings for each footnote
     mark_strings: list[str] = []
     footnote_placements: list[FootnoteInfo] = []
-    for mark_string, footnote in matching_footnotes:
+    for footnote in footnotes:
+        mark_string = _get_footnote_mark_string(data, footnote)
         if mark_string not in mark_strings:
             mark_strings.append(mark_string)
             footnote_placements.append(footnote)
@@ -1094,6 +1087,65 @@ def _add_footnote_marks_to_text(
         return _apply_footnote_placement(text, marks_html, placement)
 
     return text
+
+
+def _add_footnote_marks_to_text(
+    data: GTData,
+    text: str,
+    locname: str | loc.Loc,
+    colname: str | None = None,
+    rownum: int | None = None,
+    grpname: str | None = None,
+) -> str:
+    """Legacy function that filters footnotes and applies marks to text.
+
+    This function is kept for backward compatibility but should eventually be replaced
+    with direct filtering + _apply_footnotes_to_text() calls.
+    """
+    if not data._footnotes:
+        return text
+
+    # Filter footnotes that match this location - similar to styles filtering
+    footnotes_i: list[FootnoteInfo] = []
+    for footnote in data._footnotes:
+        # Check if locname matches - handle both string and Loc object cases
+        locname_matches = False
+        if isinstance(locname, str):
+            # For backward compatibility with string-based calls
+            if locname == "title" and isinstance(footnote.locname, loc.LocTitle):
+                locname_matches = True
+            elif locname == "subtitle" and isinstance(footnote.locname, loc.LocSubTitle):
+                locname_matches = True
+            elif locname == "stubhead" and isinstance(footnote.locname, loc.LocStubhead):
+                locname_matches = True
+            elif locname == "columns_groups" and isinstance(footnote.locname, loc.LocSpannerLabels):
+                locname_matches = True
+            elif locname == "columns_columns" and isinstance(footnote.locname, loc.LocColumnLabels):
+                locname_matches = True
+            elif locname == "data" and isinstance(footnote.locname, loc.LocBody):
+                locname_matches = True
+            elif locname == "stub" and isinstance(footnote.locname, loc.LocStub):
+                locname_matches = True
+            elif locname == "summary_cells" and isinstance(footnote.locname, loc.LocSummary):
+                locname_matches = True
+        else:
+            # Direct Loc object comparison
+            locname_matches = isinstance(footnote.locname, type(locname))
+
+        if locname_matches:
+            # Check if this footnote targets this specific location
+            match = True
+            if colname is not None and footnote.colname != colname:
+                match = False
+            if rownum is not None and footnote.rownum != rownum:
+                match = False
+            if grpname is not None and footnote.grpname != grpname:
+                match = False
+
+            if match:
+                footnotes_i.append(footnote)
+
+    return _apply_footnotes_to_text(footnotes_i, data, text)
 
 
 def _apply_footnote_placement(

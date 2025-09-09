@@ -3,7 +3,7 @@ from __future__ import annotations
 import itertools
 from dataclasses import dataclass
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal, cast
 
 from typing_extensions import TypeAlias
 
@@ -1078,10 +1078,12 @@ def set_footnote(loc: Loc, data: GTData, footnote: str, placement: PlacementOpti
     raise NotImplementedError(f"Unsupported location type: {type(loc)}")
 
 
+# Register footnote for `None` location (no footnote mark in the table but the footnote text
+# still appears in the footnotes section of the table, before the ordered footnotes)
 @set_footnote.register(type(None))
 def _(loc: None, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
     place = FootnotePlacement[placement]
-    info = FootnoteInfo(locname="none", footnotes=[footnote], placement=place)
+    info = FootnoteInfo(locname=None, footnotes=[footnote], placement=place)
 
     return data._replace(_footnotes=data._footnotes + [info])
 
@@ -1089,21 +1091,21 @@ def _(loc: None, data: GTData, footnote: str, placement: PlacementOptions) -> GT
 @set_footnote.register
 def _(loc: LocTitle, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
     place = FootnotePlacement[placement]
-    info = FootnoteInfo(locname="title", footnotes=[footnote], placement=place, locnum=1)
+    info = FootnoteInfo(locname=loc, footnotes=[footnote], placement=place, locnum=1)
     return data._replace(_footnotes=data._footnotes + [info])
 
 
 @set_footnote.register
 def _(loc: LocSubTitle, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
     place = FootnotePlacement[placement]
-    info = FootnoteInfo(locname="subtitle", footnotes=[footnote], placement=place, locnum=2)
+    info = FootnoteInfo(locname=loc, footnotes=[footnote], placement=place, locnum=2)
     return data._replace(_footnotes=data._footnotes + [info])
 
 
 @set_footnote.register
 def _(loc: LocStubhead, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
     place = FootnotePlacement[placement]
-    info = FootnoteInfo(locname="stubhead", footnotes=[footnote], placement=place, locnum=2.5)
+    info = FootnoteInfo(locname=loc, footnotes=[footnote], placement=place, locnum=2.5)
     return data._replace(_footnotes=data._footnotes + [info])
 
 
@@ -1111,13 +1113,14 @@ def _(loc: LocStubhead, data: GTData, footnote: str, placement: PlacementOptions
 def _(loc: LocColumnLabels, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
     place = FootnotePlacement[placement]
 
-    # Resolve which columns to target - returns list[tuple[str, int]]
-    name_pos_list = resolve(loc, data)
+    # Resolve which columns to target; the cast is needed because resolve()
+    # has a generic return type but we know it returns `list[tuple[str, int]]` for `LocColumnLabels`
+    name_pos_list = cast(list[tuple[str, int]], resolve(loc, data))
 
     result = data
-    for name, pos in name_pos_list:
+    for name, _ in name_pos_list:
         info = FootnoteInfo(
-            locname="columns_columns", colname=name, footnotes=[footnote], placement=place, locnum=4
+            locname=loc, colname=name, footnotes=[footnote], placement=place, locnum=4
         )
         result = result._replace(_footnotes=result._footnotes + [info])
 
@@ -1137,7 +1140,7 @@ def _(loc: LocSpannerLabels, data: GTData, footnote: str, placement: PlacementOp
     result = data
     for spanner_id in resolved_loc.ids:
         info = FootnoteInfo(
-            locname="columns_groups",
+            locname=loc,
             grpname=spanner_id,
             footnotes=[footnote],
             placement=place,
@@ -1158,7 +1161,7 @@ def _(loc: LocRowGroups, data: GTData, footnote: str, placement: PlacementOption
     result = data
     for group_name in group_names:
         info = FootnoteInfo(
-            locname="row_groups",
+            locname=loc,
             grpname=group_name,
             footnotes=[footnote],
             placement=place,
@@ -1179,7 +1182,7 @@ def _(loc: LocStub, data: GTData, footnote: str, placement: PlacementOptions) ->
     result = data
     for row_pos in row_positions:
         info = FootnoteInfo(
-            locname="stub", rownum=row_pos, footnotes=[footnote], placement=place, locnum=5
+            locname=loc, rownum=row_pos, footnotes=[footnote], placement=place, locnum=5
         )
         result = result._replace(_footnotes=result._footnotes + [info])
 
@@ -1196,7 +1199,7 @@ def _(loc: LocBody, data: GTData, footnote: str, placement: PlacementOptions) ->
     result = data
     for pos in positions:
         info = FootnoteInfo(
-            locname="data",
+            locname=loc,
             colname=pos.colname,
             rownum=pos.row,
             footnotes=[footnote],
@@ -1218,7 +1221,7 @@ def _(loc: LocSummary, data: GTData, footnote: str, placement: PlacementOptions)
     result = data
     for pos in positions:
         info = FootnoteInfo(
-            locname="summary_cells",
+            locname=loc,
             grpname=getattr(pos, "group_id", None),
             colname=pos.colname,
             rownum=pos.row,

@@ -875,7 +875,7 @@ class FootnotePlacement(Enum):
 
 @dataclass(frozen=True)
 class FootnoteInfo:
-    locname: str | None = None
+    locname: Loc | None = None
     grpname: str | None = None
     colname: str | None = None
     locnum: int | float | None = None
