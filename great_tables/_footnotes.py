@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ._locations import Loc, PlacementOptions, set_footnote
-from ._text import Text
+from ._gt_data import FootnoteInfo, FootnotePlacement
+from ._locations import FootnoteEntry, Loc, PlacementOptions, set_style
+from ._text import Text, _process_text
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -131,7 +132,11 @@ def tab_footnote(
 
     # Handle None locations (footnote without mark)
     if locations is None:
-        return set_footnote(None, self, footnote_str, placement)  # type: ignore
+        # For None location, directly add to footnotes
+        place = FootnotePlacement[placement]
+        processed_footnote = _process_text(footnote_str)
+        info = FootnoteInfo(locname=None, footnotes=[processed_footnote], placement=place)
+        return self._replace(_footnotes=self._footnotes + [info])  # type: ignore
 
     # Ensure locations is a list
     if not isinstance(locations, list):
@@ -140,6 +145,15 @@ def tab_footnote(
     # Apply footnote to each location
     result = self
     for loc in locations:
-        result = set_footnote(loc, result, footnote_str, placement)  # type: ignore
+        if loc is None:
+            # Handle None in the list
+            place = FootnotePlacement[placement]
+            processed_footnote = _process_text(footnote_str)
+            info = FootnoteInfo(locname=None, footnotes=[processed_footnote], placement=place)
+            result = result._replace(_footnotes=result._footnotes + [info])  # type: ignore
+        else:
+            # Use the new consolidated approach - FootnoteEntry will handle Text conversion internally
+            footnote_entry = FootnoteEntry(footnote=footnote_str, placement=placement)
+            result = set_style(loc, result, [footnote_entry])  # type: ignore
 
     return result  # type: ignore
