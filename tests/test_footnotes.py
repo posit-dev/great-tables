@@ -1034,7 +1034,7 @@ def test_footnote_and_source_note_integration():
 
 def test_create_footnote_mark_html_edge_cases():
     # Test that empty mark should return an empty string
-    result = _create_footnote_mark_html("")
+    result = _create_footnote_mark_html(mark="")
     assert result == ""
 
 

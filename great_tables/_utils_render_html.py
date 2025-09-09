@@ -827,7 +827,7 @@ def create_footer_component_h(data: GTData) -> str:
                 mark = footnote_data.get("mark", "")
                 text = footnote_data.get("text", "")
 
-                footnote_mark_html = _create_footnote_mark_html(mark, location="ftr")
+                footnote_mark_html = _create_footnote_mark_html(mark=mark)
 
                 # Wrap footnote text in `gt_from_md` span if it contains HTML markup
                 if "<" in text and ">" in text:
@@ -923,8 +923,8 @@ def _process_footnotes_for_display(
             result.append({"mark": "", "text": footnote_text})
 
     # Add footnotes with marks and maintain visual order (order they appear in table);
-    # the footnote_order list already contains footnotes in visual order based on how
-    # _get_footnote_mark_string assigns marks (top-to-bottom, left-to-right)
+    # the `footnote_order` list already contains footnotes in visual order based on how
+    # `_get_footnote_mark_string()` assigns marks
     mark_type = _get_footnote_marks_option(data)
     if isinstance(mark_type, str) and mark_type == "numbers":
         # For numbers, sort by numeric mark value to handle any edge cases
@@ -996,7 +996,9 @@ def _get_footnote_marks_option(data: GTData) -> str | list[str]:
     return "numbers"
 
 
-def _create_footnote_mark_html(mark: str, location: str = "ref") -> str:
+def _create_footnote_mark_html(mark: str) -> str:
+    # Handle markless footnotes (footnotes added with `locations=None`)
+    # These appear in the footer without marks in the table body
     if not mark:
         return ""
 
