@@ -264,6 +264,7 @@ p {
 }
 
 .gt_striped {
+  color: $font_color_row_striping_background_color;
   background-color: $row_striping_background_color;
 }
 
