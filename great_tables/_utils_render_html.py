@@ -968,11 +968,8 @@ def _generate_footnote_mark(mark_index: int, mark_type: str | list[str] = "numbe
         else:
             # Default to numbers if unknown type
             return str(mark_index)
-    elif isinstance(mark_type, list):
-        symbols = mark_type
     else:
-        # Default to numbers
-        return str(mark_index)
+        symbols = mark_type
 
     if not symbols:
         return str(mark_index)
