@@ -1117,7 +1117,10 @@ def _apply_footnotes_to_text(footnotes: list[FootnoteInfo], data: GTData, text: 
     if mark_strings:
         # Join mark strings with commas (no spaces)
         marks_text = ",".join(mark_strings)
-        marks_html = f'<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">{marks_text}</span>'
+        marks_html = (
+            '<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;'
+            f'font-weight:normal;line-height:0;">{marks_text}</span>'
+        )
 
         # Determine placement based on the first footnote's placement setting
         # (all footnotes for the same location should have the same placement)
