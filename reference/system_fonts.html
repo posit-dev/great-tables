@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.33">
+<meta name="generator" content="quarto-1.8.25">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -67,14 +67,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="../">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-4df3b0c4fafa0f66eafcead0ee6cff11.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-0b37c64f34216b628666a8dac638b53b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -111,7 +112,7 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
@@ -127,6 +128,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">great_tables</span>
     </a>
@@ -227,7 +230,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </header>
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_fonts(name<span class="op">=</span><span class="st">'system-ui'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_fonts(name<span class="op">=</span><span class="st">'system-ui'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Get a themed font stack that works well across systems.</p>
 <p>A font stack can be obtained from <a href="../reference/system_fonts.html#great_tables.system_fonts" title="0"><code>system_fonts()</code></a> using one of various keywords such as <code>"system-ui"</code>, <code>"old-style"</code>, and <code>"humanist"</code> (there are 15 in total) representing a themed set of fonts. These sets comprise a font family that has been tested to work across a wide range of computer systems.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
@@ -252,85 +255,85 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <h2 class="doc-section doc-section-the-font-stacks-and-the-individual-fonts-used-by-platform anchored" data-anchor-id="the-font-stacks-and-the-individual-fonts-used-by-platform">The font stacks and the individual fonts used by platform</h2>
 <section id="system-ui-system-ui" class="level3">
 <h3 class="anchored" data-anchor-id="system-ui-system-ui">System UI (<code>"system-ui"</code>)</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> system-ui<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> system-ui<span class="op">,</span> sans-serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The operating system interface’s default typefaces are known as system UI fonts. They contain a variety of font weights, are quite readable at small sizes, and are perfect for UI elements. These typefaces serve as a great starting point for text in data tables and so this font stack is the default for <strong>Great Tables</strong>.</p>
 </section>
 <section id="transitional-transitional" class="level3">
 <h3 class="anchored" data-anchor-id="transitional-transitional">Transitional (<code>"transitional"</code>)</h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Charter<span class="op">,</span> 'Bitstream Charter'<span class="op">,</span> 'Sitka Text'<span class="op">,</span> Cambria<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Charter<span class="op">,</span> 'Bitstream Charter'<span class="op">,</span> 'Sitka Text'<span class="op">,</span> Cambria<span class="op">,</span> serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The Enlightenment saw the development of transitional typefaces, which combine Old Style and Modern typefaces. <em>Times New Roman</em>, a transitional typeface created for the Times of London newspaper, is among the most well-known instances of this style.</p>
 </section>
 <section id="old-style-old-style" class="level3">
 <h3 class="anchored" data-anchor-id="old-style-old-style">Old Style (<code>"old-style"</code>)</h3>
-<div class="sourceCode" id="cb4"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Iowan Old Style'<span class="op">,</span> 'Palatino Linotype'<span class="op">,</span> 'URW Palladio L'<span class="op">,</span> P052<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Iowan Old Style'<span class="op">,</span> 'Palatino Linotype'<span class="op">,</span> 'URW Palladio L'<span class="op">,</span> P052<span class="op">,</span> serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Old style typefaces were created during the Renaissance and are distinguished by diagonal stress, a lack of contrast between thick and thin strokes, and rounded serifs. <em>Garamond</em> is among the most well-known instances of an antique typeface.</p>
 </section>
 <section id="humanist-humanist" class="level3">
 <h3 class="anchored" data-anchor-id="humanist-humanist">Humanist (<code>"humanist"</code>)</h3>
-<div class="sourceCode" id="cb5"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Seravek<span class="op">,</span> 'Gill Sans Nova'<span class="op">,</span> Ubuntu<span class="op">,</span> Calibri<span class="op">,</span> 'DejaVu Sans'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Seravek<span class="op">,</span> 'Gill Sans Nova'<span class="op">,</span> Ubuntu<span class="op">,</span> Calibri<span class="op">,</span> 'DejaVu Sans'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Low contrast between thick and thin strokes and organic, calligraphic forms are traits of humanist typefaces. These typefaces, which draw their inspiration from Renaissance calligraphy, are frequently regarded as being more readable and easier to read than other sans serif typefaces.</p>
 </section>
 <section id="geometric-humanist-geometric-humanist" class="level3">
 <h3 class="anchored" data-anchor-id="geometric-humanist-geometric-humanist">Geometric Humanist (<code>"geometric-humanist"</code>)</h3>
-<div class="sourceCode" id="cb6"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Avenir<span class="op">,</span> Montserrat<span class="op">,</span> Corbel<span class="op">,</span> 'URW Gothic'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Avenir<span class="op">,</span> Montserrat<span class="op">,</span> Corbel<span class="op">,</span> 'URW Gothic'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Clean, geometric forms and consistent stroke widths are characteristics of geometric humanist typefaces. These typefaces, which are frequently used for headlines and other display purposes, are frequently thought to be contemporary and slick in appearance. A well-known example of this classification is <em>Futura</em>.</p>
 </section>
 <section id="classical-humanist-classical-humanist" class="level3">
 <h3 class="anchored" data-anchor-id="classical-humanist-classical-humanist">Classical Humanist (<code>"classical-humanist"</code>)</h3>
-<div class="sourceCode" id="cb7"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Optima<span class="op">,</span> Candara<span class="op">,</span> 'Noto Sans'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Optima<span class="op">,</span> Candara<span class="op">,</span> 'Noto Sans'<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The way the strokes gradually widen as they approach the stroke terminals without ending in a serif is what distinguishes classical humanist typefaces. The stone carving on Renaissance-era tombstones and classical Roman capitals served as inspiration for these typefaces.</p>
 </section>
 <section id="neo-grotesque-neo-grotesque" class="level3">
 <h3 class="anchored" data-anchor-id="neo-grotesque-neo-grotesque">Neo-Grotesque (<code>"neo-grotesque"</code>)</h3>
-<div class="sourceCode" id="cb8"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Inter<span class="op">,</span> Roboto<span class="op">,</span> 'Helvetica Neue'<span class="op">,</span> 'Arial Nova'<span class="op">,</span> 'Nimbus Sans'<span class="op">,</span> Arial<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Inter<span class="op">,</span> Roboto<span class="op">,</span> 'Helvetica Neue'<span class="op">,</span> 'Arial Nova'<span class="op">,</span> 'Nimbus Sans'<span class="op">,</span> Arial<span class="op">,</span> sans-serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Neo-grotesque typefaces are a form of sans serif that originated in the late 19th and early 20th centuries. They are distinguished by their crisp, geometric shapes and regular stroke widths. <em>Helvetica</em> is among the most well-known examples of a Neo-grotesque typeface.</p>
 </section>
 <section id="monospace-slab-serif-monospace-slab-serif" class="level3">
 <h3 class="anchored" data-anchor-id="monospace-slab-serif-monospace-slab-serif">Monospace Slab Serif (<code>"monospace-slab-serif"</code>)</h3>
-<div class="sourceCode" id="cb9"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Nimbus Mono PS'<span class="op">,</span> 'Courier New'<span class="op">,</span> monospace;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Nimbus Mono PS'<span class="op">,</span> 'Courier New'<span class="op">,</span> monospace;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Monospace slab serif typefaces are distinguished by their fixed-width letters, which are the same width irrespective of their shape, and their straightforward, geometric forms. For reports, tabular work, and technical documentation, this technique is used to simulate typewriter output.</p>
 </section>
 <section id="monospace-code-monospace-code" class="level3">
 <h3 class="anchored" data-anchor-id="monospace-code-monospace-code">Monospace Code (<code>"monospace-code"</code>)</h3>
-<div class="sourceCode" id="cb10"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> ui-monospace<span class="op">,</span> 'Cascadia Code'<span class="op">,</span> 'Source Code Pro'<span class="op">,</span> Menlo<span class="op">,</span> Consolas<span class="op">,</span> 'DejaVu Sans Mono'<span class="op">,</span> monospace;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> ui-monospace<span class="op">,</span> 'Cascadia Code'<span class="op">,</span> 'Source Code Pro'<span class="op">,</span> Menlo<span class="op">,</span> Consolas<span class="op">,</span> 'DejaVu Sans Mono'<span class="op">,</span> monospace;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Specifically created for use in programming and other technical applications, monospace code typefaces are used in these fields. These typefaces are distinguished by their clear, readable forms and monospaced design, which ensures that all letters and characters are the same width.</p>
 </section>
 <section id="industrial-industrial" class="level3">
 <h3 class="anchored" data-anchor-id="industrial-industrial">Industrial (<code>"industrial"</code>)</h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Bahnschrift<span class="op">,</span> 'DIN Alternate'<span class="op">,</span> 'Franklin Gothic Medium'<span class="op">,</span> 'Nimbus Sans Narrow'<span class="op">,</span> sans-serif-condensed<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Bahnschrift<span class="op">,</span> 'DIN Alternate'<span class="op">,</span> 'Franklin Gothic Medium'<span class="op">,</span> 'Nimbus Sans Narrow'<span class="op">,</span> sans-serif-condensed<span class="op">,</span> sans-serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The development of industrial typefaces began in the late 19th century and was greatly influenced by the industrial and technological advancements of the time. Industrial typefaces are distinguished by their strong sans serif letterforms, straightforward appearance, and use of geometric shapes and straight lines.</p>
 </section>
 <section id="rounded-sans-rounded-sans" class="level3">
 <h3 class="anchored" data-anchor-id="rounded-sans-rounded-sans">Rounded Sans (<code>"rounded-sans"</code>)</h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> ui-rounded<span class="op">,</span> 'Hiragino Maru Gothic ProN'<span class="op">,</span> Quicksand<span class="op">,</span> Comfortaa<span class="op">,</span> Manjari<span class="op">,</span> 'Arial Rounded MT'<span class="op">,</span> 'Arial Rounded MT Bold'<span class="op">,</span> Calibri<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> ui-rounded<span class="op">,</span> 'Hiragino Maru Gothic ProN'<span class="op">,</span> Quicksand<span class="op">,</span> Comfortaa<span class="op">,</span> Manjari<span class="op">,</span> 'Arial Rounded MT'<span class="op">,</span> 'Arial Rounded MT Bold'<span class="op">,</span> Calibri<span class="op">,</span> source-sans-pro<span class="op">,</span> sans-serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The rounded, curved letterforms that define rounded typefaces give them a softer, friendlier appearance. The typeface’s rounded edges give it a more natural and playful feel, making it appropriate for use in casual or kid-friendly designs. Since the 1950s, the rounded sans-serif design has gained popularity and is still frequently used in branding, graphic design, and other fields.</p>
 </section>
 <section id="slab-serif-slab-serif" class="level3">
 <h3 class="anchored" data-anchor-id="slab-serif-slab-serif">Slab Serif (<code>"slab-serif"</code>)</h3>
-<div class="sourceCode" id="cb13"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Rockwell<span class="op">,</span> 'Rockwell Nova'<span class="op">,</span> 'Roboto Slab'<span class="op">,</span> 'DejaVu Serif'<span class="op">,</span> 'Sitka Small'<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Rockwell<span class="op">,</span> 'Rockwell Nova'<span class="op">,</span> 'Roboto Slab'<span class="op">,</span> 'DejaVu Serif'<span class="op">,</span> 'Sitka Small'<span class="op">,</span> serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Slab Serif typefaces are distinguished by the thick, block-like serifs that appear at the ends of each letterform. Typically, these serifs are unbracketed, which means that they do not have any curved or tapered transitions to the letter’s main stroke.</p>
 </section>
 <section id="antique-antique" class="level3">
 <h3 class="anchored" data-anchor-id="antique-antique">Antique (<code>"antique"</code>)</h3>
-<div class="sourceCode" id="cb14"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Superclarendon<span class="op">,</span> 'Bookman Old Style'<span class="op">,</span> 'URW Bookman'<span class="op">,</span> 'URW Bookman L'<span class="op">,</span> 'Georgia Pro'<span class="op">,</span> Georgia<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Superclarendon<span class="op">,</span> 'Bookman Old Style'<span class="op">,</span> 'URW Bookman'<span class="op">,</span> 'URW Bookman L'<span class="op">,</span> 'Georgia Pro'<span class="op">,</span> Georgia<span class="op">,</span> serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Serif typefaces that were popular in the 19th century include antique typefaces, also referred to as Egyptians. They are distinguished by their thick, uniform stroke weight and block-like serifs. The typeface <em>Clarendon</em> is a highly regarded example of this style and <em>Superclarendon</em> is a modern take on that revered typeface.</p>
 </section>
 <section id="didone-didone" class="level3">
 <h3 class="anchored" data-anchor-id="didone-didone">Didone (<code>"didone"</code>)</h3>
-<div class="sourceCode" id="cb15"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Didot<span class="op">,</span> 'Bodoni MT'<span class="op">,</span> 'Noto Serif Display'<span class="op">,</span> 'URW Palladio L'<span class="op">,</span> P052<span class="op">,</span> Sylfaen<span class="op">,</span> serif;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> Didot<span class="op">,</span> 'Bodoni MT'<span class="op">,</span> 'Noto Serif Display'<span class="op">,</span> 'URW Palladio L'<span class="op">,</span> P052<span class="op">,</span> Sylfaen<span class="op">,</span> serif;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Didone typefaces, also referred to as Modern typefaces, are distinguished by their vertical stress, sharp contrast between thick and thin strokes, and hairline serifs without bracketing. The Didone style first appeared in the late 18th century and became well-known in the early 19th century. <em>Bodoni</em> and <em>Didot</em> are two of the most well-known typefaces in this category.</p>
 </section>
 <section id="handwritten-handwritten" class="level3">
 <h3 class="anchored" data-anchor-id="handwritten-handwritten">Handwritten (<code>"handwritten"</code>)</h3>
-<div class="sourceCode" id="cb16"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Segoe Print'<span class="op">,</span> 'Bradley Hand'<span class="op">,</span> Chilanka<span class="op">,</span> TSCu_Comic<span class="op">,</span> casual<span class="op">,</span> cursive;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>font-family<span class="in">:</span> 'Segoe Print'<span class="op">,</span> 'Bradley Hand'<span class="op">,</span> Chilanka<span class="op">,</span> TSCu_Comic<span class="op">,</span> casual<span class="op">,</span> cursive;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The appearance and feel of handwriting are replicated by handwritten typefaces. Although there are a wide variety of handwriting styles, this font stack tends to use a more casual and commonplace style. In regards to these types of fonts in tables, one can say that any table having a handwritten font will evoke a feeling of gleefulness.</p>
 </section>
 </section>
 <section id="examples" class="level2 doc-section doc-section-examples">
 <h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>Using select columns from the <code>exibble</code> dataset, let’s create a table with a number of components added. Following that, we’ll set a font for the entire table using the <code>tab_options()</code> method with the <code>table_font_names</code> parameter. Instead of passing a list of font names, we’ll use the <a href="../reference/system_fonts.html#great_tables.system_fonts" title="0"><code>system_fonts()</code></a> helper function to get a font stack. In this case, we’ll use the <code>"industrial"</code> font stack.</p>
-<div id="984cd17d" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble, md, system_fonts</span>
+<div id="e9817b80" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble, md, system_fonts</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>(</span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  GT(</span>
@@ -347,54 +350,54 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  .tab_source_note(source_note<span class="op">=</span><span class="st">"This is only a subset of the dataset."</span>)</span>
 <span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  .opt_align_table_header(align<span class="op">=</span><span class="st">"left"</span>)</span>
 <span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  .tab_options(table_font_names<span class="op">=</span>system_fonts(<span class="st">"industrial"</span>))</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="cooowdeeeo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="zqjjginnzp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#cooowdeeeo table {
+#zqjjginnzp table {
           font-family: Bahnschrift, 'DIN Alternate', 'Franklin Gothic Medium', 'Nimbus Sans Narrow', sans-serif-condensed, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#cooowdeeeo thead, tbody, tfoot, tr, td, th { border-style: none; }
+#zqjjginnzp thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#cooowdeeeo p { margin: 0; padding: 0; }
- #cooowdeeeo .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #cooowdeeeo .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #cooowdeeeo .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #cooowdeeeo .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #cooowdeeeo .gt_heading { background-color: #FFFFFF; text-align: left; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #cooowdeeeo .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #cooowdeeeo .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #cooowdeeeo .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #cooowdeeeo .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #cooowdeeeo .gt_column_spanner_outer:first-child { padding-left: 0; }
- #cooowdeeeo .gt_column_spanner_outer:last-child { padding-right: 0; }
- #cooowdeeeo .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #cooowdeeeo .gt_spanner_row { border-bottom-style: hidden; }
- #cooowdeeeo .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #cooowdeeeo .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #cooowdeeeo .gt_from_md> :first-child { margin-top: 0; }
- #cooowdeeeo .gt_from_md> :last-child { margin-bottom: 0; }
- #cooowdeeeo .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #cooowdeeeo .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #cooowdeeeo .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #cooowdeeeo .gt_row_group_first td { border-top-width: 2px; }
- #cooowdeeeo .gt_row_group_first th { border-top-width: 2px; }
- #cooowdeeeo .gt_striped { background-color: rgba(128,128,128,0.05); }
- #cooowdeeeo .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #cooowdeeeo .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #cooowdeeeo .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #cooowdeeeo .gt_left { text-align: left; }
- #cooowdeeeo .gt_center { text-align: center; }
- #cooowdeeeo .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #cooowdeeeo .gt_font_normal { font-weight: normal; }
- #cooowdeeeo .gt_font_bold { font-weight: bold; }
- #cooowdeeeo .gt_font_italic { font-style: italic; }
- #cooowdeeeo .gt_super { font-size: 65%; }
- #cooowdeeeo .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #cooowdeeeo .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#zqjjginnzp p { margin: 0; padding: 0; }
+ #zqjjginnzp .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #zqjjginnzp .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #zqjjginnzp .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #zqjjginnzp .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #zqjjginnzp .gt_heading { background-color: #FFFFFF; text-align: left; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #zqjjginnzp .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #zqjjginnzp .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #zqjjginnzp .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #zqjjginnzp .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #zqjjginnzp .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #zqjjginnzp .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #zqjjginnzp .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #zqjjginnzp .gt_spanner_row { border-bottom-style: hidden; }
+ #zqjjginnzp .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #zqjjginnzp .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #zqjjginnzp .gt_from_md> :first-child { margin-top: 0; }
+ #zqjjginnzp .gt_from_md> :last-child { margin-bottom: 0; }
+ #zqjjginnzp .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #zqjjginnzp .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #zqjjginnzp .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #zqjjginnzp .gt_row_group_first td { border-top-width: 2px; }
+ #zqjjginnzp .gt_row_group_first th { border-top-width: 2px; }
+ #zqjjginnzp .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #zqjjginnzp .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #zqjjginnzp .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #zqjjginnzp .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #zqjjginnzp .gt_left { text-align: left; }
+ #zqjjginnzp .gt_center { text-align: center; }
+ #zqjjginnzp .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #zqjjginnzp .gt_font_normal { font-weight: normal; }
+ #zqjjginnzp .gt_font_bold { font-weight: bold; }
+ #zqjjginnzp .gt_font_italic { font-style: italic; }
+ #zqjjginnzp .gt_super { font-size: 65%; }
+ #zqjjginnzp .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #zqjjginnzp .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -540,13 +543,14 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

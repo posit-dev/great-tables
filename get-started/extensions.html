@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.33">
+<meta name="generator" content="quarto-1.8.25">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -68,14 +68,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../get-started/contributing.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-4df3b0c4fafa0f66eafcead0ee6cff11.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-0b37c64f34216b628666a8dac638b53b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -125,6 +126,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">great_tables</span>
     </a>
@@ -184,6 +187,10 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      </a>
+      </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -414,8 +421,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="wrapping" class="level3">
 <h3 class="anchored" data-anchor-id="wrapping">Wrapping</h3>
 <p>Let’s wrap <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" title="0"><code>tab_style()</code></a> to perform a specific action supported by the general function. <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" title="0"><code>tab_style()</code></a> takes <code>locations=</code> and <code>style=</code> parameters, so let’s assign those. Something this lightweight might be useful for someone who knows what effect they want, but doesn’t want to investigate the entire space of options for styling.</p>
-<div id="5a8b7a4c" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> highlight_cols(gt: GT, columns: SelectExpr) <span class="op">-&gt;</span> GT:</span>
+<div id="d289b6b6" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> highlight_cols(gt: GT, columns: SelectExpr) <span class="op">-&gt;</span> GT:</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    locations <span class="op">=</span> [</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        loc.body(columns<span class="op">=</span>columns),</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        loc.column_labels(columns<span class="op">=</span>columns),</span>
@@ -425,7 +432,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gt.tab_style(</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.fill(color<span class="op">=</span><span class="st">"lightblue"</span>),</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>locations,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>In fact, many of the functions in <a href="https://posit-dev.github.io/gt-extras/"><strong>gt-extras</strong></a> are wrappers. What you see above is pulled from the source code for the function <a href="https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols"><code>gt_highlight_cols()</code></a>, which is a wrapper function that doesn’t add <em>new</em> functionality to <strong>Great Tables</strong>, instead it makes a common action much easier.</p>
 </section>
@@ -433,8 +440,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <h3 class="anchored" data-anchor-id="composing">Composing</h3>
 <p>A little more complex than wrapping, we can also compose methods to perform several steps, such as applying multiple styles, formatting, or themes all at once.</p>
 <p>Here’s a flavor of the composed methods that <strong>gt-extras</strong> used in the <a href="https://posit-dev.github.io/gt-extras/reference/gt_theme_espn">ESPN theme</a>:</p>
-<div id="f9f5edec" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> some_theme(gt: GT) <span class="op">-&gt;</span> GT:</span>
+<div id="658f9aa7" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> some_theme(gt: GT) <span class="op">-&gt;</span> GT:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        gt.opt_all_caps()</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        .opt_table_font(</span>
@@ -442,28 +449,28 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>            weight<span class="op">=</span><span class="dv">400</span>,</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        )</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        .opt_row_striping()</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>This is where composing really shines. Maybe you want a very standardized look, or you want all of your tables to mimic your favorite one. Take advantage of <a href="../reference/GT.tab_options.html#great_tables.GT.tab_options" title="0"><code>tab_options()</code></a> for your own <a href="../get-started/table-theme-premade.html">premade themes</a>, with styles from any of the <a href="../get-started/table-theme-options.html">table theme options</a> of your choosing.</p>
 </section>
 <section id="extending" class="level3">
 <h3 class="anchored" data-anchor-id="extending">Extending</h3>
 <p>Perhaps the most complex, this involves new behavior not supported by <strong>Great Tables</strong> methods alone. Formatting values is a common way to do this:</p>
-<div id="1da021ca" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fmt_threshold(gt, columns, threshold: <span class="bu">float</span>):</span>
+<div id="2ca3f99c" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fmt_threshold(gt, columns, threshold: <span class="bu">float</span>):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Format values to 0 if they are under threshold."""</span><span class="st">"</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="er">    def _truncate</span>(val: <span class="bu">float</span>)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">"0"</span> <span class="cf">if</span> val <span class="op">&lt;</span> threshold <span class="cf">else</span> <span class="bu">str</span>(val)</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gt.fmt(_truncate, columns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gt.fmt(_truncate, columns)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Alternatively, we can extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate <a href="../reference/GT.html#great_tables.GT" title="0"><code>GT</code></a> objects, renders them as HTML using <a href="../reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" title="0"><code>as_raw_html()</code></a>, and then joins them in custom HTML structure, which would not be possible with <strong>Great Tables</strong> methods alone.</p>
-<div id="93574442" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> double_table(gt1: GT, gt2: GT) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<div id="4ac11736" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> double_table(gt1: GT, gt2: GT) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    table_1_html <span class="op">=</span> gt1.as_raw_html()</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    table_2_html <span class="op">=</span> gt2.as_raw_html()</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"""&lt;div&gt;</span><span class="sc">{</span>table_1_html<span class="sc">}</span><span class="ss">&lt;/div&gt;&lt;div&gt;</span><span class="sc">{</span>table_2_html<span class="sc">}</span><span class="ss">&lt;/div&gt;"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"""&lt;div&gt;</span><span class="sc">{</span>table_1_html<span class="sc">}</span><span class="ss">&lt;/div&gt;&lt;div&gt;</span><span class="sc">{</span>table_2_html<span class="sc">}</span><span class="ss">&lt;/div&gt;"""</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Again, this is a sneak peek of the <strong>gt-extras</strong> function, <a href="https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout"><code>gt_two_column_layout()</code></a>, which does a little more heavy lifting than <strong>Great Tables</strong> itself supports. This time, we’re adding new behavior.</p>
 </section>
@@ -473,8 +480,8 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <p>Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some plotting is already built in, called <a href="../get-started/nanoplots.html">nanoplots</a>. But there are endless plot types you could want in your great tables, and for these <a href="../reference/GT.fmt.html#great_tables.GT.fmt" title="0"><code>fmt()</code></a> is your friend.</p>
 <p>The key to adding custom plots to your tables is using <a href="../reference/GT.fmt.html#great_tables.GT.fmt" title="0"><code>fmt()</code></a> with a function that converts your data values into visual representations. Your formatting function should take a value from your table and return an HTML string containing your plot – whether that’s an SVG, a series of styled <code>&lt;div&gt;</code> elements, or even embedded images.</p>
 <p>Here’s a basic pattern for a plot extension:</p>
-<div id="02f49567" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_my_plot(value):</span>
+<div id="7e0d760f" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_my_plot(value):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Transform the data value into a visual representation</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This could use any plotting library or even pure HTML/CSS</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    plot_html <span class="op">=</span> <span class="ss">f"&lt;svg&gt;...&lt;/svg&gt;"</span>  <span class="co"># Your plot generation logic here</span></span>
@@ -482,7 +489,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply to your table</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>gt.fmt(fns<span class="op">=</span>create_my_plot, columns<span class="op">=</span><span class="st">"my_data_column"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>gt.fmt(fns<span class="op">=</span>create_my_plot, columns<span class="op">=</span><span class="st">"my_data_column"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Check out this <a href="../blog/plots-in-tables/index.html">blog post</a> for a deeper dive into different approaches for creating plots in tables.</p>
 </section>
@@ -494,14 +501,14 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li><em>Apply custom styling:</em> Add animations, colors, or hover effects to your icons</li>
 </ul>
 <p>Here’s an example of how you might create a custom icon extension that maps numerical ratings to star icons:</p>
-<div id="f24fd5a7" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fmt_star_rating(filled_stars: <span class="bu">int</span>):</span>
+<div id="f6001ec7" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fmt_star_rating(filled_stars: <span class="bu">int</span>):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    star_html <span class="op">=</span> <span class="st">"★"</span> <span class="op">*</span> filled_stars</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f'&lt;span style="color: gold; font-size: 18px;"&gt;</span><span class="sc">{</span>star_html<span class="sc">}</span><span class="ss">&lt;/span&gt;'</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply to your table, again `fmt()` comes in handy!</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>gt.fmt(fns<span class="op">=</span>fmt_star_rating, columns<span class="op">=</span><span class="st">"my_data_column"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>gt.fmt(fns<span class="op">=</span>fmt_star_rating, columns<span class="op">=</span><span class="st">"my_data_column"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="beyond" class="level2">
@@ -593,13 +600,14 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
