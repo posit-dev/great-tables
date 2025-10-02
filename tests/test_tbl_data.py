@@ -15,6 +15,7 @@ from great_tables._tbl_data import (
     _validate_selector_list,
     cast_frame_to_string,
     create_empty_frame,
+    eval_aggregate,
     eval_select,
     get_column_names,
     group_splits,
@@ -323,3 +324,111 @@ def test_copy_frame(df: DataFrameLike):
     copy_df = copy_frame(df)
     assert id(copy_df) != id(df)
     assert_frame_equal(copy_df, df)
+
+
+def test_eval_aggregate_pandas(df: DataFrameLike):
+    def expr(df):
+        return pd.Series({"col1_sum": sum(df["col1"]), "col3_max": max(df["col3"])})
+
+    # Only pandas supports callable aggregation expressions
+    if isinstance(df, pl.DataFrame):
+        with pytest.raises(TypeError) as exc_info:
+            eval_aggregate(df, expr)
+        assert "cannot create expression literal for value of type function" in str(
+            exc_info.value.args[0]
+        )
+        return
+
+    if isinstance(df, pa.Table):
+        with pytest.raises(TypeError) as exc_info:
+            eval_aggregate(df, expr)
+        assert "unsupported operand type(s)" in str(exc_info.value.args[0])
+        return
+
+    result = eval_aggregate(df, expr)
+    assert result == {"col1_sum": 6, "col3_max": 6.0}
+
+
+@pytest.mark.parametrize(
+    "expr,expected",
+    [
+        (pl.col("col1").sum(), {"col1": 6}),
+        (pl.col("col2").first(), {"col2": "a"}),
+        (pl.col("col3").max(), {"col3": 6.0}),
+    ],
+)
+def test_eval_aggregate_polars(df: DataFrameLike, expr, expected):
+    # Only polars supports polars expression aggregations
+    if not isinstance(df, pl.DataFrame):
+        with pytest.raises(TypeError) as exc_info:
+            eval_aggregate(df, expr)
+        assert "'Expr' object is not callable" in str(exc_info.value.args[0])
+        return
+
+    result = eval_aggregate(df, expr)
+    assert result == expected
+
+
+@pytest.mark.parametrize("Frame", [pd.DataFrame, pl.DataFrame, pa.table])
+def test_eval_aggregate_with_nulls(Frame):
+    df = Frame({"a": [1, None, 3]})
+
+    if isinstance(df, pd.DataFrame):
+
+        def expr(df):
+            return pd.Series({"a": df["a"].sum()})
+
+    if isinstance(df, pl.DataFrame):
+        expr = pl.col("a").sum()
+
+    if isinstance(df, pa.Table):
+
+        def expr(tbl):
+            s = pa.compute.sum(tbl.column("a"))
+            return pa.table({"a": [s.as_py()]})
+
+    result = eval_aggregate(df, expr)
+    assert result == {"a": 4}
+
+
+def test_eval_aggregate_pandas_raises():
+    df = pd.DataFrame({"a": [1, 2, 3]})
+
+    def expr(df):
+        return {"a": df["a"].sum()}
+
+    with pytest.raises(ValueError) as exc_info:
+        eval_aggregate(df, expr)
+    assert "Result must be a pandas Series" in str(exc_info.value)
+
+
+def test_eval_aggregate_polars_raises():
+    df = pl.DataFrame({"a": [1, 2, 3]})
+    expr = pl.col("a")
+
+    with pytest.raises(ValueError) as exc_info:
+        eval_aggregate(df, expr)
+    assert "Expression must produce exactly 1 row" in str(exc_info.value)
+
+
+def test_eval_aggregate_pyarrow_raises1():
+    df = pa.table({"a": [1, 2, 3]})
+
+    def expr(tbl):
+        s = pa.compute.sum(tbl.column("a"))
+        return {"a": [s.as_py()]}
+
+    with pytest.raises(ValueError) as exc_info:
+        eval_aggregate(df, expr)
+    assert "Result must be a PyArrow Table" in str(exc_info.value)
+
+
+def test_eval_aggregate_pyarrow_raises2():
+    df = pa.table({"a": [1, 2, 3]})
+
+    def expr(tbl):
+        return pa.table({"a": tbl.column("a")})
+
+    with pytest.raises(ValueError) as exc_info:
+        eval_aggregate(df, expr)
+    assert "Expression must produce exactly 1 row (aggregation)" in str(exc_info.value)

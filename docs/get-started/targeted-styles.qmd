@@ -18,7 +18,7 @@ Below is a big example that shows all possible `loc` specifiers being used.
 ```{python}
 from great_tables import GT, exibble, loc, style
 
-# https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12
+# https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12 and grey
 brewer_colors = [
     "#a6cee3",
     "#1f78b4",
@@ -32,6 +32,7 @@ brewer_colors = [
     "#6a3d9a",
     "#ffff99",
     "#b15928",
+    "#808080",
 ]
 
 c = iter(brewer_colors)
@@ -43,6 +44,7 @@ gt = (
     .tab_source_note("yo")
     .tab_spanner("spanner", ["char", "fctr"])
     .tab_stubhead("stubhead")
+    .grand_summary_rows(fns={"Total": lambda x: x.sum(numeric_only=True)})
 )
 
 (
@@ -64,6 +66,9 @@ gt = (
     .tab_style(style.borders(weight="3px"), loc.stub(rows=1))
     .tab_style(style.fill(next(c)), loc.stub())
     .tab_style(style.fill(next(c)), loc.stubhead())
+    # Summary Rows --------------
+    .tab_style(style.fill(next(c)), loc.grand_summary())
+    .tab_style(style.fill(next(c)), loc.grand_summary_stub())
 )
 ```
 
@@ -128,4 +133,18 @@ gt.tab_style(style.fill("yellow"), loc.body())
 
 ```{python}
 gt.tab_style(style.fill("yellow"), loc.stubhead())
+```
+
+## Grand Summary Rows
+
+```{python}
+(
+    gt.tab_style(
+        style.fill("yellow"),
+        loc.grand_summary_stub(),
+    ).tab_style(
+        style.fill("lightblue"),
+        loc.grand_summary(),
+    )
+)
 ```
