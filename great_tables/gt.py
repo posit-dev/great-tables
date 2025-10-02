@@ -36,6 +36,7 @@ from ._modify_rows import row_group_order, tab_stub, with_id, with_locale
 from ._options import (
     opt_align_table_header,
     opt_all_caps,
+    opt_css,
     opt_footnote_marks,
     opt_horizontal_padding,
     opt_row_striping,
@@ -248,6 +249,7 @@ class GT(
     opt_stylize = opt_stylize
     opt_align_table_header = opt_align_table_header
     opt_all_caps = opt_all_caps
+    opt_css = opt_css
     opt_footnote_marks = opt_footnote_marks
     opt_row_striping = opt_row_striping
     opt_vertical_padding = opt_vertical_padding
