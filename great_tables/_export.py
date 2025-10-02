@@ -294,6 +294,7 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
     functionality that is supported in HTML output tables is not currently supported in LaTeX
     output tables:
 
+    - footnotes (via the `tab_footnote()` method)
     - the rendering of the stub and row group labels (via the `=rowname_col` and `=groupname_col`
       args in the `GT()` class)
     - the use of the `md()` helper function to signal conversion of Markdown text
