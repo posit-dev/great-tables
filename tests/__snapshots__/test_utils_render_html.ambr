@@ -89,14 +89,7 @@
       <td style="BODY" class="gt_row gt_left">one</td>
     </tr>
   </tbody>
-    <tfoot class="gt_sourcenotes">
-    
-    <tr>
-      <td class="gt_sourcenote" colspan="4" style="FOOTER SOURCE_NOTES">yo</td>
-    </tr>
-  
-  </tfoot>
-  
+  <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4" style="FOOTER SOURCE_NOTES"><span class="gt_from_md">yo</span></td></tr></tfoot>
   </table>
   
   </div>

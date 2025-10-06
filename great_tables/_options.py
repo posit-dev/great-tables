@@ -145,7 +145,7 @@ def tab_options(
     # footnotes_border_lr_style: str | None = None,
     # footnotes_border_lr_width: str | None = None,
     # footnotes_border_lr_color: str | None = None,
-    # footnotes_marks: str | list[str] | None = None,
+    footnotes_marks: str | list[str] | None = None,
     # footnotes_multiline: bool | None = None,
     # footnotes_sep: str | None = None,
     source_notes_background_color: str | None = None,
@@ -563,7 +563,8 @@ def tab_options(
 
 def opt_footnote_marks(self: GTSelf, marks: str | list[str] = "numbers") -> GTSelf:
     """
-    Option to modify the set of footnote marks
+    Option to modify the set of footnote marks.
+
     Alter the footnote marks for any footnotes that may be present in the table. Either a list
     of marks can be provided (including Unicode characters), or, a specific keyword could be
     used to signify a preset sequence. This method serves as a shortcut for using

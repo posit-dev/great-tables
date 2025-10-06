@@ -51,7 +51,6 @@
   </tbody>
   
   
-  
   '''
 # ---
 # name: test_format_repr_snap
@@ -161,7 +160,6 @@
       <td class="gt_row gt_left">grp_b</td>
     </tr>
   </tbody>
-  
   
   
   '''
