@@ -51,6 +51,7 @@ from ._render_checks import _render_check
 from ._source_notes import tab_source_note
 from ._spanners import (
     cols_hide,
+    cols_merge,
     cols_move,
     cols_move_to_end,
     cols_move_to_start,
@@ -63,8 +64,12 @@ from ._stub import reorder_stub_df
 from ._stubhead import tab_stubhead
 from ._substitution import sub_missing, sub_zero
 from ._tab_create_modify import tab_style
-from ._tbl_data import _get_cell, n_rows
-from ._utils import _migrate_unformatted_to_output
+from ._tbl_data import _get_cell, _set_cell, is_na, n_rows
+from ._utils import (
+    _extract_pattern_columns,
+    _migrate_unformatted_to_output,
+    _process_col_merge_pattern,
+)
 from ._utils_render_html import (
     _get_table_defs,
     create_body_component_h,
@@ -258,6 +263,7 @@ class GT(
     cols_align = cols_align
     cols_width = cols_width
     cols_label = cols_label
+    cols_merge = cols_merge
     cols_move = cols_move
     cols_move_to_start = cols_move_to_start
     cols_move_to_end = cols_move_to_end
@@ -313,6 +319,96 @@ class GT(
         new_body.render_formats(self._tbl_data, self._substitutions, context)
         return self._replace(_body=new_body)
 
+    def _perform_col_merge(self) -> Self:
+        # If no column merging defined, return unchanged
+        if not self._col_merge:
+            return self  # pragma: no cover
+
+        # Create a copy of the body for modification
+        new_body = self._body.copy()
+
+        # Process each column merge operation in order
+        for col_merge in self._col_merge:
+            if col_merge.type != "merge":
+                # TODO: incorporate other specialized merging operations (e.g., "merge_range") but
+                # only handle the basic 'merge' type for now
+                continue
+
+            # Get the target column (column that receives the merged values)
+            target_column = col_merge.vars[0]
+
+            # Get all columns, rows, and the pattern for this merge operation
+            columns = col_merge.vars
+            rows = col_merge.rows
+            pattern = col_merge.pattern
+
+            # Pattern should always be set by `.cols_merge()`, but check here just in case
+            if pattern is None:  # pragma: no cover
+                raise ValueError("Pattern must be provided for column merge operations.")
+
+            # Validate that pattern references are valid
+            pattern_cols = _extract_pattern_columns(pattern)
+            for col_ref in pattern_cols:
+                # The pattern syntax uses 1-based indexing so adjust here
+                col_idx = int(col_ref) - 1
+
+                # Check that the referenced column exists in the provided columns
+                if col_idx < 0:
+                    raise ValueError(
+                        f"Pattern references column {{{col_ref}}} but column indexing starts "
+                        f"at {{1}}, not {{0}}. Please use 1-based indexing in patterns."
+                    )
+                if col_idx >= len(columns):
+                    raise ValueError(
+                        f"Pattern references column {{{col_ref}}} but only {len(columns)} "
+                        f"columns were provided to cols_merge()."
+                    )
+
+            # Process each row (according to the `rows=` parameter in `cols_merge()`)
+            for row_idx in rows:
+                # Collect values and missing status for all columns
+                col_values = {}
+                col_is_missing = {}
+
+                for i, col_name in enumerate(columns):
+                    # Get the formatted value from the body
+                    formatted_value = _get_cell(new_body.body, row_idx, col_name)
+
+                    # Get the original value from the data table
+                    original_value = _get_cell(self._tbl_data, row_idx, col_name)
+
+                    # If the body cell is missing (unformatted) and the original has a value,
+                    # use the original value; otherwise use the formatted value
+                    if is_na(new_body.body, formatted_value) and not is_na(
+                        self._tbl_data, original_value
+                    ):
+                        # Cell is unformatted but has a value in the original data
+                        display_value = str(original_value)
+                    else:
+                        # If the cell is formatted OR the original is missing then use the
+                        # formatted value (which has the proper NA representation like "<NA>")
+                        display_value = str(formatted_value)
+
+                    # Store with 1-based index (as used in the pattern)
+                    col_key = str(i + 1)
+                    col_values[col_key] = display_value
+                    col_is_missing[col_key] = is_na(self._tbl_data, original_value)
+
+                # Process the pattern with the collected values
+                merged_value = _process_col_merge_pattern(
+                    pattern=pattern, col_values=col_values, col_is_missing=col_is_missing
+                )
+
+                # Set the merged value in the target column
+                result = _set_cell(new_body.body, row_idx, target_column, merged_value)
+
+                # For Pandas and Polars, _set_cell() modifies in place and returns None but
+                # for PyArrow, _set_cell() returns a new table
+                if result is not None:
+                    new_body.body = result
+
+        return self._replace(_body=new_body)
+
     def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
@@ -323,7 +419,9 @@ class GT(
                 data=built, data_tbl=self._tbl_data, formats=self._formats, context=context
             )
 
-        # built._perform_col_merge()
+        # Perform column merging
+        built = built._perform_col_merge()
+
         final_body = body_reassemble(built._body)
 
         # Reordering of the metadata elements of the table
