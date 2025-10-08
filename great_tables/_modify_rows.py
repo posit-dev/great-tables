@@ -319,6 +319,7 @@ def grand_summary_rows(
 
     # summary_col_names = resolve_cols_c(data=self, expr=columns)
 
+    new_summary = self._summary_rows_grand
     for label, fn in fns.items():
         row_values_dict = _calculate_summary_row(self, fn, fmt, missing_text)
 
@@ -329,9 +330,9 @@ def grand_summary_rows(
             side=side,
         )
 
-        self._summary_rows_grand.add_summary_row(summary_row_info)
+        new_summary = new_summary.add_summary_row(summary_row_info)
 
-    return self
+    return self._replace(_summary_rows_grand=new_summary)
 
 
 def _calculate_summary_row(

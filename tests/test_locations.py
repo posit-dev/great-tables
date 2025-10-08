@@ -314,7 +314,7 @@ def test_resolve_loc_grand_summary_stub(rows, res):
     gt = (
         GT(df)
         .grand_summary_rows(fns={"min": lambda x: x.min()}, side="bottom")
-        .grand_summary_rows({"max": lambda x: x.max()}, side="top")
+        .grand_summary_rows(fns={"max": lambda x: x.max()}, side="top")
     )
 
     cells = resolve(LocGrandSummaryStub(rows), gt)
@@ -336,7 +336,7 @@ def test_resolve_loc_grand_summary(cols, rows, resolved_subset, length):
     gt = (
         GT(df)
         .grand_summary_rows(fns={"min": lambda x: x.min()}, side="bottom")
-        .grand_summary_rows({"max": lambda x: x.max()}, side="top")
+        .grand_summary_rows(fns={"max": lambda x: x.max()}, side="top")
     )
 
     cells = resolve(LocGrandSummary(columns=cols, rows=rows), gt)
