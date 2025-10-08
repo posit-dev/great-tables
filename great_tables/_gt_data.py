@@ -224,6 +224,11 @@ class ColInfoTypeEnum(Enum):
     row_group = auto()
     hidden = auto()
 
+    # A placeholder column created when there is no table data in the stub,
+    # but summary rows need to create one for their labels.  e.g. "mean" to indicate
+    # the row is mean summaries
+    summary_placeholder = auto()
+
 
 @dataclass(frozen=True)
 class ColInfo:
@@ -253,7 +258,11 @@ class ColInfo:
 
     @property
     def is_stub(self) -> bool:
-        return self.type in (ColInfoTypeEnum.stub, ColInfoTypeEnum.row_group)
+        return self.type in (
+            ColInfoTypeEnum.stub,
+            ColInfoTypeEnum.row_group,
+            ColInfoTypeEnum.summary_placeholder,
+        )
 
     @property
     def defaulted_align(self) -> str:

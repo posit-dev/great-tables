@@ -478,7 +478,7 @@ def create_body_component_h(data: GTData) -> str:
         else:
             # TODO: this naming is not ideal
             summary_row_stub_var = ColInfo(
-                "__summary_row__", ColInfoTypeEnum.stub, column_align="left"
+                "__do_not_use__", ColInfoTypeEnum.summary_placeholder, column_align="left"
             )
             column_vars = [summary_row_stub_var] + column_vars
 
@@ -660,15 +660,15 @@ def _create_row_component_h(
     for colinfo in column_vars_to_process:
         # Get cell content
         if is_summary_row:
-            if colinfo == row_stub_var or colinfo.type == ColInfoTypeEnum.stub:
+            if colinfo == row_stub_var or colinfo.is_stub:
                 cell_content = summary_row.id
             else:
                 cell_content = summary_row.values.get(colinfo.var)
+        elif colinfo.type == ColInfoTypeEnum.summary_placeholder:
+            # TODO: this row is technically a summary row, but is_summary_row is False here
+            cell_content = "&nbsp;"
         else:
-            if colinfo.var == "__summary_row__":
-                cell_content = "&nbsp;"
-            else:
-                cell_content = _get_cell(tbl_data, row_index, colinfo.var)
+            cell_content = _get_cell(tbl_data, row_index, colinfo.var)
 
         if css_class:
             classes = [css_class]
@@ -676,9 +676,6 @@ def _create_row_component_h(
             classes = []
 
         cell_str = str(cell_content)
-        is_stub_cell = colinfo.var == "__summary_row__" or (
-            row_stub_var and colinfo.var == row_stub_var.var
-        )
         cell_alignment = colinfo.defaulted_align
 
         # Get styles
@@ -686,11 +683,11 @@ def _create_row_component_h(
             x for x in styles_cells if x.rownum == row_index and x.colname == colinfo.var
         ]
         _rowname_styles = (
-            [x for x in styles_labels if x.rownum == row_index] if is_stub_cell else []
+            [x for x in styles_labels if x.rownum == row_index] if colinfo.is_stub else []
         )
 
         # Build classes and element
-        if is_stub_cell:
+        if colinfo.is_stub:
             el_name = "th"
             classes += ["gt_row", "gt_left", "gt_stub"]
             if is_summary_row:
