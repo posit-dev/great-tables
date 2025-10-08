@@ -59,6 +59,9 @@ website:
 
 format:
   html:
+    include-in-header:
+    - text: |
+        <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-margin-left="28"></script>
     theme: cosmo
     css:
       - styles.css
