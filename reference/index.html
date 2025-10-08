@@ -153,6 +153,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <li><a href="#creating-or-modifying-parts-of-a-table" id="toc-creating-or-modifying-parts-of-a-table" class="nav-link" data-scroll-target="#creating-or-modifying-parts-of-a-table">Creating or modifying parts of a table</a></li>
   <li><a href="#formatting-column-data" id="toc-formatting-column-data" class="nav-link" data-scroll-target="#formatting-column-data">Formatting column data</a></li>
   <li><a href="#modifying-columns" id="toc-modifying-columns" class="nav-link" data-scroll-target="#modifying-columns">Modifying columns</a></li>
+  <li><a href="#adding-rows" id="toc-adding-rows" class="nav-link" data-scroll-target="#adding-rows">Adding rows</a></li>
   <li><a href="#location-targeting-and-styling-classes" id="toc-location-targeting-and-styling-classes" class="nav-link" data-scroll-target="#location-targeting-and-styling-classes">Location Targeting and Styling Classes</a></li>
   <li><a href="#helper-functions" id="toc-helper-functions" class="nav-link" data-scroll-target="#helper-functions">Helper functions</a></li>
   <li><a href="#table-options" id="toc-table-options" class="nav-link" data-scroll-target="#table-options">Table options</a></li>
@@ -360,6 +361,18 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </tbody>
 </table>
 </section>
+<section id="adding-rows" class="level2">
+<h2 class="anchored" data-anchor-id="adding-rows">Adding rows</h2>
+<p>The <a href="../reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows"><code>grand_summary_rows()</code></a> function will add rows to summarize data in your table, such as totals or averages.</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows">GT.grand_summary_rows</a></td>
+<td>Add grand summary rows to the table.</td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="location-targeting-and-styling-classes" class="level2">
 <h2 class="anchored" data-anchor-id="location-targeting-and-styling-classes">Location Targeting and Styling Classes</h2>
 <p>Location targeting is a powerful feature of <strong>Great Tables</strong>. It allows for the precise selection of table locations for styling (using the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method). The styling classes allow for the specification of the styling properties to be applied to the targeted locations.</p>
@@ -394,12 +407,20 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <td>Target column labels.</td>
 </tr>
 <tr class="even">
+<td><a href="../reference/loc.grand_summary_stub.html#great_tables.loc.grand_summary_stub">loc.grand_summary_stub</a></td>
+<td>Target the grand summary stub.</td>
+</tr>
+<tr class="odd">
 <td><a href="../reference/loc.stub.html#great_tables.loc.stub">loc.stub</a></td>
 <td>Target the table stub.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="../reference/loc.row_groups.html#great_tables.loc.row_groups">loc.row_groups</a></td>
 <td>Target row groups.</td>
+</tr>
+<tr class="odd">
+<td><a href="../reference/loc.grand_summary.html#great_tables.loc.grand_summary">loc.grand_summary</a></td>
+<td>Target the data cells in grand summary rows.</td>
 </tr>
 <tr class="even">
 <td><a href="../reference/loc.body.html#great_tables.loc.body">loc.body</a></td>
