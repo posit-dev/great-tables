@@ -1,0 +1,71 @@
+---
+title: Technical notes
+jupyter: python3
+---
+
+This document holds technical notes on how the dataclass behind GT interact.
+
+```{python}
+import polars as pl
+from great_tables import GT, exibble
+
+```
+
+## Boxhead, Stub, and Summary Rows
+
+```{python}
+
+lil_ex = pl.from_pandas(exibble).select("num", "row", "group").head(6)
+
+gt = GT(lil_ex).grand_summary_rows(fns={"Total": pl.col("num").sum()})
+```
+
+:::{.grid}
+
+:::{.g-col-4}
+
+### Placeholder stub
+
+```{python}
+(gt
+
+
+)
+```
+
+:::
+
+:::{.g-col-4}
+
+### Rowname stub
+
+```{python}
+(gt
+    .tab_stub(rowname_col="row")
+
+)
+```
+
+:::
+
+:::{.g-col-4}
+
+### Group stub
+
+```{python}
+(gt
+    .tab_stub(groupname_col="group")
+    .tab_options(row_group_as_column=True)
+)
+```
+
+:::
+
+:::
+
+One more not shown above is if both rowname and groupnames are used in the stub, then the summary
+spans both those columns:
+
+```{python}
+(gt.tab_stub(rowname_col="row", groupname_col="group").tab_options(row_group_as_column=True))
+```
