@@ -1094,8 +1094,7 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
 
                 # Replace with numeric values from new row
                 for key, new_value in summary_row.values.items():
-                    if isinstance(new_value, (int, float)):
-                        merged_values[key] = new_value
+                    merged_values[key] = new_value
 
                 # Create merged row with new row's properties but merged values
                 merged_row = SummaryRowInfo(
