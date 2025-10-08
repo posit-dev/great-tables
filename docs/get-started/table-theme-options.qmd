@@ -25,7 +25,7 @@ gt_ex = (
     .tab_header("THE HEADING", "(a subtitle)")
     .tab_stubhead("THE STUBHEAD")
     .tab_source_note("THE SOURCE NOTE")
-    .grand_summary_rows({"GRAND SUMMARY ROW": lambda df: df.sum(numeric_only=True)})
+    .grand_summary_rows(fns={"GRAND SUMMARY ROW": lambda df: df.sum(numeric_only=True)})
 )
 
 gt_ex
