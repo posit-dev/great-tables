@@ -298,38 +298,27 @@ def _process_col_merge_pattern(
     col_values: dict[str, str],
     col_is_missing: dict[str, bool],
 ) -> str:
-    """Process a column merge pattern by substituting values and handling missing data.
+    """Process a column merge pattern by substituting values and handling missing data."""
 
-    Parameters
-    ----------
-    pattern : str
-        The pattern string with {n} placeholders and optional <<>> conditional sections.
-    col_values : dict[str, str]
-        Dictionary mapping column indices (as strings, e.g., "1", "2") to their formatted values.
-    col_is_missing : dict[str, bool]
-        Dictionary mapping column indices to whether the original value was missing/NA.
-
-    Returns
-    -------
-    str
-        The processed pattern with values substituted and conditional sections resolved.
-    """
     # Replace values with tokens if they are truly missing
     processed_values = {}
     for key, value in col_values.items():
-        # Consider a value missing if it's "NA" or "<NA>" (pandas representation)
+        # Consider a value missing if it matches a known NA representation
         # and the original data was also NA
-        if col_is_missing.get(key, False) and value in ("NA", "<NA>"):
+        # - "NA": generic representation
+        # - "<NA>": pandas representation
+        # - "None": Polars representation (str(None))
+        if col_is_missing.get(key, False) and value in ("NA", "<NA>", "None"):
             processed_values[key] = _MISSING_VAL_TOKEN
         else:
             processed_values[key] = value
 
-    # Substitute {n} placeholders with values
+    # Substitute `{n}`` placeholders with values
     result = pattern
     for key, value in processed_values.items():
         result = result.replace(f"{{{key}}}", value)
 
-    # Process conditional sections (<<...>>)
+    # Process conditional sections (`<<...>>`)
     if "<<" in result and ">>" in result:
         result = _resolve_conditional_sections(result)
 
@@ -340,34 +329,20 @@ def _process_col_merge_pattern(
 
 
 def _resolve_conditional_sections(text: str) -> str:
-    """Resolve conditional sections marked with <<...>> in text.
-
-    Removes any section enclosed in <<...>> if it contains the missing value token.
-    Processes innermost sections first to handle nesting.
-
-    Parameters
-    ----------
-    text : str
-        The text containing conditional sections.
-
-    Returns
-    -------
-    str
-        The text with conditional sections resolved.
-    """
+    """Resolve conditional sections marked with <<...>> in text."""
     # Process from innermost to outermost sections
-    max_iterations = 100  # Prevent infinite loops
+    max_iterations = 100  # Prevent infinite looping
     iteration = 0
 
     while "<<" in text and ">>" in text and iteration < max_iterations:
         iteration += 1
 
-        # Find the last occurrence of << (innermost section start)
+        # Find the last occurrence of `<<` (innermost section start)
         last_open = text.rfind("<<")
         if last_open == -1:
             break
 
-        # Find the first >> after that <<
+        # Find the first `>>` after that `<<`
         first_close = text.find(">>", last_open)
         if first_close == -1:
             break
@@ -377,7 +352,7 @@ def _resolve_conditional_sections(text: str) -> str:
 
         # Check if the section contains a missing value token
         if _MISSING_VAL_TOKEN in section_content:
-            # Remove the entire section (including markers)
+            # Remove the entire section (including the markers)
             replacement = ""
         else:
             # Keep the content without the markers
@@ -386,32 +361,22 @@ def _resolve_conditional_sections(text: str) -> str:
         # Replace this section in the text
         text = text[:last_open] + replacement + text[first_close + 2 :]
 
-    # Clean up any remaining markers (shouldn't normally happen)
-    text = text.replace("<<", "").replace(">>", "")
-
     return text
 
 
 def _extract_pattern_columns(pattern: str) -> list[str]:
-    """Extract column references from a pattern string.
+    """Extract column references from a pattern string."""
 
-    Parameters
-    ----------
-    pattern : str
-        The pattern string with {n} placeholders.
-
-    Returns
-    -------
-    list[str]
-        List of unique column indices referenced in the pattern (as strings).
-    """
-    # Find all {n} patterns
+    # Find all `{n}` patterns
     matches = re.findall(r"\{(\d+)\}", pattern)
+
     # Return unique matches in order they appear
     seen = set()
     result = []
+
     for match in matches:
         if match not in seen:
             result.append(match)
             seen.add(match)
+
     return result

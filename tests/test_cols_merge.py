@@ -1,4 +1,5 @@
 import pandas as pd
+import polars as pl
 import pytest
 from great_tables import GT
 from great_tables._gt_data import ColMergeInfo
@@ -249,3 +250,18 @@ def test_cols_merge_with_sub_missing(missing_df: pd.DataFrame):
     # the "--" values should be included in the output
     assert "30 to -- to --" in html_1
     assert "30 to -- to --" in html_2
+
+
+def test_cols_merge_with_formatted_values():
+    df = pl.DataFrame({"a": [1, 2, None], "b": [10, None, 30], "c": [100, 200, 300]})
+
+    gt = (
+        GT(df)
+        .cols_merge(columns=["a", "b"], pattern="{1}<< ({2})>>")
+        .fmt_integer(columns=["a", "b", "c"])
+    )
+
+    html = gt.as_raw_html()
+
+    assert "1 (10)" in html or "1(10)" in html
+    assert "2<" in html  # The < is from the closing tag, not from the pattern

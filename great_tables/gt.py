@@ -348,6 +348,8 @@ class GT(
 
             # Validate that pattern references are valid
             pattern_cols = _extract_pattern_columns(pattern)
+
+            # With each column reference in the pattern, check that it is valid
             for col_ref in pattern_cols:
                 # The pattern syntax uses 1-based indexing so adjust here
                 col_idx = int(col_ref) - 1
