@@ -1066,11 +1066,10 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
             return self.define(**{group_id: [summary_row]})
 
         else:
-            existing_index = None
-            for i, existing_row in enumerate(existing_group):
-                if existing_row.id == summary_row.id:
-                    existing_index = i
-                    break
+            existing_index = next(
+                (ii for ii, crnt_row in enumerate(existing_group) if crnt_row.id == summary_row.id),
+                None,
+            )
 
             new_rows = self.LIST_CLS(existing_group)
 
