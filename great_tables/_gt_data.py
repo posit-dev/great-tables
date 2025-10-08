@@ -994,6 +994,9 @@ class SummaryRowInfo:
     side: Literal["top", "bottom"]  # TODO: consider enum
 
 
+# TODO: refactor into a collection/dataclass wrapping the list part
+#       put most of the methods for filtering, adding, replacing there.
+#       Make immutable to avoid potential bugs.
 class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
     """A sequence of summary rows
 
@@ -1008,10 +1011,18 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
     _d: dict[str, list[SummaryRowInfo]]
     _is_grand_summary: bool
 
+    LIST_CLS = list
     GRAND_SUMMARY_KEY = "grand"
 
-    def __init__(self, _is_grand_summary: bool = False):
-        self._d = {}
+    def __init__(
+        self,
+        entries: dict[str, list[SummaryRowInfo]] | None = None,
+        _is_grand_summary: bool = False,
+    ):
+        if entries is None:
+            self._d = {}
+        else:
+            self._d = entries
         self._is_grand_summary = _is_grand_summary
 
     def __bool__(self) -> bool:
@@ -1028,19 +1039,31 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
         if key not in self._d:
             raise KeyError(f"Group '{key}' not found in summary rows.")
 
-        return self._d[key]
+        return self.LIST_CLS(self._d[key])
 
-    def add_summary_row(self, summary_row: SummaryRowInfo, group_id: str | None = None) -> None:
+    def define(self, **kwargs: list[SummaryRowInfo]) -> Self:
+        """Define multiple summary row groups at once, replacing any existing groups."""
+
+        new_d = dict(self._d)
+        for group_id, summary_rows in kwargs.items():
+            new_d[group_id] = summary_rows
+
+        return self.__class__(new_d, _is_grand_summary=self._is_grand_summary)
+
+    def add_summary_row(self, summary_row: SummaryRowInfo, group_id: str | None = None) -> Self:
         """Add a summary row following the merging rules in the class docstring."""
 
-        if self._is_grand_summary:
+        # TODO: group_id can be None for grand summary configuration, but can't be none
+        # for regular summary configuration (a bit double barrelled).
+        if self._is_grand_summary and group_id is None:
             group_id = SummaryRows.GRAND_SUMMARY_KEY
+        elif group_id is None:
+            raise TypeError("group_id must be provided for group summary rows.")
 
         existing_group = self.get(group_id)
 
         if not existing_group:
-            self._d[group_id] = [summary_row]
-            return
+            return self.define(**{group_id: [summary_row]})
 
         else:
             existing_index = None
@@ -1049,7 +1072,7 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
                     existing_index = i
                     break
 
-            new_rows = existing_group
+            new_rows = self.LIST_CLS(existing_group)
 
             if existing_index is None:
                 # No existing row for this group and id, add it
@@ -1078,9 +1101,7 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
 
                 new_rows[existing_index] = merged_row
 
-        self._d[group_id] = new_rows
-
-        return
+        return self.define(**{group_id: new_rows})
 
     def get_summary_rows(
         self, group_id: str | None = None, side: str | None = None
@@ -1092,6 +1113,8 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
 
         if self._is_grand_summary:
             group_id = SummaryRows.GRAND_SUMMARY_KEY
+        elif group_id is None:
+            raise TypeError("group_id must be provided for group summary rows.")
 
         summary_row_group = self.get(group_id)
 

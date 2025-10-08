@@ -195,6 +195,7 @@ def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
 
 def grand_summary_rows(
     self: GTSelf,
+    *,
     fns: dict[str, PlExpr] | dict[str, Callable[[TblData], Any]],
     fmt: FormatFn | None = None,
     columns: SelectExpr = None,
@@ -208,6 +209,8 @@ def grand_summary_rows(
     whether some of the data are part of row groups). Multiple grand summary rows can be added via
     expressions given to fns. You can selectively format the values in the resulting grand summary
     cells by use of formatting expressions from the `vals.fmt_*` class of functions.
+
+    Note that currently all arguments are keyword-only, since the final positions may change.
 
     Parameters
     ----------
