@@ -1,14 +1,34 @@
 import pandas as pd
+import polars as pl
+import pytest
 
-from great_tables import GT, loc, style
+from great_tables import GT, loc, style, vals
 from great_tables._utils_render_html import create_body_component_h
 
 
-def assert_rendered_body(snapshot, gt):
+def render_only_body(gt) -> str:
     built = gt._build_data("html")
     body = create_body_component_h(built)
 
+    return body
+
+
+def assert_rendered_body(snapshot, gt):
+    body = render_only_body(gt)
+
     assert snapshot == body
+
+
+def mean_expr(df: pd.DataFrame):
+    return df.mean(numeric_only=True)
+
+
+def min_expr(df: pd.DataFrame):
+    return df.min(numeric_only=True)
+
+
+def max_expr(df: pd.DataFrame):
+    return df.max(numeric_only=True)
 
 
 def test_row_group_order(snapshot):
@@ -167,3 +187,133 @@ def test_with_id_preserves_other_options():
     new_gt = gt.with_id("zzz")
     assert new_gt._options.table_id.value == "zzz"
     assert new_gt._options.container_width.value == "20px"
+
+
+def test_grand_summary_rows_snap(snapshot):
+    for Frame in [pd.DataFrame, pl.DataFrame]:
+        df = Frame({"a": [1, 2, 3], "b": [4, 5, 6]})
+
+        if isinstance(df, pd.DataFrame):
+
+            def mean_expr(df):
+                return df.mean()
+
+            def max_expr(df):
+                return df.max()
+
+        if isinstance(df, pl.DataFrame):
+            mean_expr = pl.all().mean()
+            max_expr = pl.all().max()
+
+        res = GT(df).grand_summary_rows(fns={"Average": mean_expr, "Maximum": max_expr})
+
+        assert_rendered_body(snapshot(name="pd_and_pl"), res)
+
+
+def test_grand_summary_rows_with_rowname_snap(snapshot):
+    df = pd.DataFrame({"a": [1, 2], "b": [4, 5], "row": ["x", "y"]})
+
+    res = GT(df, rowname_col="row").grand_summary_rows(fns={"Average": mean_expr})
+
+    assert_rendered_body(snapshot, res)
+
+
+def test_grand_summary_rows_with_group_as_col_snap(snapshot):
+    df = pd.DataFrame({"a": [1, 2], "b": [4, 5], "group": ["x", "y"]})
+
+    res = (
+        GT(df, groupname_col="group")
+        .grand_summary_rows(fns={"Average": mean_expr})
+        .tab_options(row_group_as_column=True)
+    )
+
+    assert_rendered_body(snapshot, res)
+
+
+def test_grand_summary_rows_with_rowname_and_groupname():
+    df = pd.DataFrame({"a": [1, 2], "group": ["x", "x"], "row": ["row1", "row2"]})
+
+    res = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .grand_summary_rows(fns={"Average": mean_expr})
+        .tab_options(row_group_as_column=True)
+    )
+    html = res.as_raw_html()
+
+    assert 'rowspan="2">x</th>' in html
+    assert (
+        '<th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2">Average</th>'
+        in html
+    )
+
+
+def test_grand_summary_rows_with_missing():
+    df = pd.DataFrame({"a": [1, 2], "non_numeric": ["x", "y"]})
+
+    res = GT(df).grand_summary_rows(
+        fns={"Average": mean_expr},
+        missing_text="missing_text",
+    )
+    html = res.as_raw_html()
+
+    assert "missing_text" in html
+
+
+def test_grand_summary_rows_bottom_and_top():
+    df = pd.DataFrame({"a": [1, 2]})
+
+    res = (
+        GT(df)
+        .grand_summary_rows(fns={"Top": min_expr}, side="top")
+        .grand_summary_rows(fns={"Bottom": max_expr}, side="bottom")
+    )
+
+    html = render_only_body(res)
+
+    assert (
+        'gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Bottom</th>'
+        in html
+    )
+    assert (
+        'gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Top</th>'
+        in html
+    )
+
+
+def test_grand_summary_rows_overwritten_row_maintains_location():
+    df = pd.DataFrame({"a": [1, 2], "row": ["x", "y"]})
+
+    res = (
+        GT(df)
+        .grand_summary_rows(fns={"Overwritten": min_expr}, side="top")
+        .grand_summary_rows(fns={"Overwritten": max_expr}, side="bottom")
+    )
+    html = render_only_body(res)
+
+    assert '"gt_last_grand_summary_row_top' in html
+    assert '"gt_first_grand_summary_row_bottom' not in html
+
+    assert 'gt_grand_summary_row">1</td>' not in html
+    assert 'gt_grand_summary_row">2</td>' in html
+
+
+def test_grand_summary_rows_with_fmt():
+    df = pd.DataFrame({"a": [1, 3], "row": ["x", "y"]})
+
+    res = GT(df).grand_summary_rows(fns={"Average": mean_expr}, fmt=vals.fmt_integer)
+    html = render_only_body(res)
+
+    assert 'gt_grand_summary_row">2</td>' in html
+    assert 'gt_grand_summary_row">2.0</td>' not in html
+
+
+def test_grand_summary_rows_raises_columns_not_implemented():
+    df = pd.DataFrame({"a": [1, 2], "row": ["x", "y"]})
+
+    with pytest.raises(NotImplementedError) as exc_info:
+        GT(df).grand_summary_rows(fns={"Minimum": min_expr}, columns="b")
+
+    assert (
+        "Currently, grand_summary_rows() does not support column selection."
+        in exc_info.value.args[0]
+    )
