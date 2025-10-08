@@ -6,9 +6,15 @@ from great_tables import GT, loc, style, vals
 from great_tables._utils_render_html import create_body_component_h
 
 
-def assert_rendered_body(snapshot, gt):
+def render_only_body(gt) -> str:
     built = gt._build_data("html")
     body = create_body_component_h(built)
+
+    return body
+
+
+def assert_rendered_body(snapshot, gt):
+    body = render_only_body(gt)
 
     assert snapshot == body
 
@@ -261,7 +267,8 @@ def test_grand_summary_rows_bottom_and_top():
         .grand_summary_rows(fns={"Top": min_expr}, side="top")
         .grand_summary_rows(fns={"Bottom": max_expr}, side="bottom")
     )
-    html = res.as_raw_html()
+
+    html = render_only_body(res)
 
     assert (
         'gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Bottom</th>'
@@ -281,7 +288,7 @@ def test_grand_summary_rows_overwritten_row_maintains_location():
         .grand_summary_rows(fns={"Overwritten": min_expr}, side="top")
         .grand_summary_rows(fns={"Overwritten": max_expr}, side="bottom")
     )
-    html = res.as_raw_html()
+    html = render_only_body(res)
 
     assert '"gt_last_grand_summary_row_top' in html
     assert '"gt_first_grand_summary_row_bottom' not in html
@@ -294,7 +301,7 @@ def test_grand_summary_rows_with_fmt():
     df = pd.DataFrame({"a": [1, 3], "row": ["x", "y"]})
 
     res = GT(df).grand_summary_rows(fns={"Average": mean_expr}, fmt=vals.fmt_integer)
-    html = res.as_raw_html()
+    html = render_only_body(res)
 
     assert 'gt_grand_summary_row">2</td>' in html
     assert 'gt_grand_summary_row">2.0</td>' not in html
