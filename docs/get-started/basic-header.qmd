@@ -4,7 +4,7 @@ jupyter: python3
 html-table-processing: none
 ---
 
-The way that we add components like the **Table Header** and *source notes* in the **Table Footer** is to use the `tab_*()` family of methods. A **Table Header** is easy to add so let's see how the previous table looks with a *title* and a *subtitle*. We can add this component using the [`tab_header()`](`great_tables.GT.tab_header`) method:
+The way that we add components like the **Table Header** and *source notes* in the **Table Footer** is to use the `tab_*()` family of methods. A **Table Header** is easy to add so let's see how the previous table looks with a *title* and a *subtitle*. We can add this component using the `~~GT.tab_header()` method:
 
 ```{python}
 from great_tables import GT, md, html
@@ -23,7 +23,7 @@ islands_mini = islands.head(10)
 )
 ```
 
-The **Header** table component provides an opportunity to describe the data that's presented. Using `subtitle=` allows us to insert a subtitle, which is an optional part of the **Header**. We may also style the `title=` and `subtitle=` using Markdown! We do this by wrapping the values passed to `title=` or `subtitle=` with the [`md()`](`great_tables.md`) helper function (we may also use [`html()`](`great_tables.html`) in a similar fashion). Here is an example with the table data truncated for brevity:
+The **Header** table component provides an opportunity to describe the data that's presented. Using `subtitle=` allows us to insert a subtitle, which is an optional part of the **Header**. We may also style the `title=` and `subtitle=` using Markdown! We do this by wrapping the values passed to `title=` or `subtitle=` with the `md()` helper function (we may also use `html()` in a similar fashion). Here is an example with the table data truncated for brevity:
 
 ```{python}
 # Make a display table with the `islands_tbl` table;
@@ -39,7 +39,7 @@ gt_tbl = (
 gt_tbl
 ```
 
-A *source note* can be added to the table's **Footer** through use of the [`tab_source_note()`](`great_tables.GT.tab_source_note`) method. It works in the same way as [`tab_header()`](`great_tables.GT.tab_header`) (it also allows for Markdown inputs) except it can be called multiple times---each invocation results in the addition of a source note.
+A *source note* can be added to the table's **Footer** through use of the `~~GT.tab_source_note()` method. It works in the same way as `~~GT.tab_header()` (it also allows for Markdown inputs) except it can be called multiple times---each invocation results in the addition of a source note.
 
 ```{python}
 # Display the `islands_tbl` data with a heading and two source notes

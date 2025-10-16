@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 from great_tables._data_color.base import (
     _add_alpha,
+    _alpha_composite_with_white,
     _color_name_to_hex,
     _expand_short_hex,
     _float_to_hex,
@@ -18,11 +19,22 @@ from great_tables._data_color.base import (
     _is_short_hex,
     _is_standard_hex_col,
     _relative_luminance,
-    _remove_alpha,
     _rescale_numeric,
     _srgb,
 )
 from great_tables._data_color.palettes import GradientPalette
+from great_tables._tbl_data import is_na, Agnostic
+
+
+def assert_equal_with_na(x: list, y: list):
+    """Assert two lists are equal, evaluating all NAs as equivalent
+
+    Note that some cases like [np.nan] == [np.nan] will be True (since it checks id), but this
+    function handles cases that trigger equality checks (since np.nan == np.nan is False).
+    """
+    assert len(x) == len(y)
+    for ii in range(len(x)):
+        assert (is_na(Agnostic(), x[ii]) and is_na(Agnostic(), y[ii])) or (x[ii] == y[ii])
 
 
 def test_ideal_fgnd_color_dark_contrast():
@@ -248,18 +260,32 @@ def test_add_alpha_invalid_alpha():
         )
 
 
-def test_remove_alpha():
-    colors = ["#FF0000FF", "#00FF00FF", "#0000FFFF"]
-    result = _remove_alpha(colors)
-    assert result == ["#FF0000", "#00FF00", "#0000FF"]
+def test_alpha_composite_with_white():
+    colors = ["#FF000040", "#00FF0040", "#0000FF40"]  # 25% alpha
+    result = [_alpha_composite_with_white(color) for color in colors]
+    expected = ["#FFBFBF", "#BFFFBF", "#BFBFFF"]
+    assert result == expected
 
-    colors = ["#FF000080", "#00FF0080", "#0000FF80"]
-    result = _remove_alpha(colors)
-    assert result == ["#FF0000", "#00FF00", "#0000FF"]
+    colors = ["#FF000080", "#00FF0080", "#0000FF80"]  # 50% alpha
+    result = [_alpha_composite_with_white(color) for color in colors]
+    expected = ["#FF7F7F", "#7FFF7F", "#7F7FFF"]
+    assert result == expected
 
+    colors = ["#FF0000FF", "#00FF00FF", "#0000FFFF"]  # 100% alpha
+    result = [_alpha_composite_with_white(color) for color in colors]
+    expected = ["#FF0000", "#00FF00", "#0000FF"]
+    assert result == expected
+
+    colors = ["#FF000000", "#00FF0000", "#0000FF00"]  # 0% alpha
+    result = [_alpha_composite_with_white(color) for color in colors]
+    expected = ["#FFFFFF", "#FFFFFF", "#FFFFFF"]
+    assert result == expected
+
+    # Test colors without alpha
     colors = ["#FF0000", "#00FF00", "#0000FF"]
-    result = _remove_alpha(colors)
-    assert result == ["#FF0000", "#00FF00", "#0000FF"]
+    result = [_alpha_composite_with_white(color) for color in colors]
+    expected = ["#FF0000", "#00FF00", "#0000FF"]
+    assert result == expected
 
 
 def test_float_to_hex():
@@ -468,7 +494,7 @@ def test_rescale_numeric():
     domain = [1, 5]
     expected_result = [np.nan, np.nan]
     result = _rescale_numeric(df, vals, domain)
-    assert result == expected_result
+    assert_equal_with_na(result, expected_result)
 
     # Test case 3: Rescale values with NA values
     df = pd.DataFrame({"col": [1, 2, np.nan, 4, 5]})
@@ -476,7 +502,7 @@ def test_rescale_numeric():
     domain = [1, 5]
     expected_result = [0.25, np.nan, 0.75]
     result = _rescale_numeric(df, vals, domain)
-    assert result == expected_result
+    assert_equal_with_na(result, expected_result)
 
 
 def test_get_domain_numeric():

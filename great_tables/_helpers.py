@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 import re
 import string
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Callable, Literal
 
 from typing_extensions import Self, TypeAlias
@@ -354,6 +354,17 @@ def google_font(name: str) -> GoogleFont:
     """
 
     return GoogleFont(font=name)
+
+
+@dataclass(frozen=True)
+class GoogleFontImports:
+    imports: frozenset[str] = field(default_factory=frozenset)
+
+    def add(self, import_stmt: str) -> "GoogleFontImports":
+        return GoogleFontImports(self.imports | frozenset([import_stmt]))
+
+    def to_css(self) -> str:
+        return "\n".join(sorted(self.imports))
 
 
 def system_fonts(name: FontStackName = "system-ui") -> list[str]:
@@ -889,14 +900,16 @@ class UnitDefinitionList:
 
         units_str = ""
 
+        common_condition = len(self) == 3 and self[1].unit == "/"
         for unit_add in built_units:
-            if re.search("\\($|\\[$", units_str) or re.search("^\\)|^\\]", unit_add):
+            if (
+                common_condition
+                or re.search("\\($|\\[$", units_str)
+                or re.search("^\\)|^\\]", unit_add)
+            ):
                 spacer = ""
             else:
                 spacer = " "
-
-            if len(self) == 3 and self[1].unit == "/":
-                spacer = ""
 
             units_str += f"{spacer}{unit_add}"
 
@@ -1116,10 +1129,7 @@ def define_units(units_notation: str) -> UnitDefinitionList:
     # Get a list of raw tokens
     tokens_list = _generate_tokens_list(units_notation=units_notation)
 
-    # Initialize a list to store the units
-    units_list = []
-
-    if len(tokens_list) == 0:
+    if not tokens_list:
         return UnitDefinitionList(units_list=[])
 
     units_list = [UnitDefinition.from_token(token) for token in tokens_list]

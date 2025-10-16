@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     PlNull = pl.Null
 
     NpNan = np.nan
+    NpInteger = np.integer
 
     DataFrameLike = Union[PdDataFrame, PlDataFrame, PyArrowTable]
     SeriesLike = Union[PdSeries, PlSeries, PyArrowArray, PyArrowChunkedArray]
@@ -85,6 +86,9 @@ else:
 
     class NpNan(AbstractBackend):
         _backends = [("numpy", "nan")]
+
+    class NpInteger(AbstractBackend):
+        _backends = [("numpy", "integer")]
 
     # TODO: these types are imported throughout gt, so we need to either put
     # those imports under TYPE_CHECKING, or continue to make available dynamically here.
@@ -325,7 +329,7 @@ def _(data: PlDataFrame, group_key: str) -> dict[Any, list[int]]:
     # TODO: should ensure row count name isn't already in data
     import polars as pl
 
-    # with_row_index supercedes with_row_count
+    # with_row_index supersedes with_row_count
     meth_row_number = getattr(data, "with_row_index", None)
     if not meth_row_number:
         meth_row_number = data.with_row_count
@@ -481,12 +485,13 @@ def _eval_select_from_list(
 
     # TODO: should prohibit duplicate names in expr?
     res: list[tuple[str, int]] = []
+    n_cols = len(columns)
     for col in expr:
         if isinstance(col, str):
             if col in col_pos:
                 res.append((col, col_pos[col]))
         elif isinstance(col, int):
-            _pos = col if col >= 0 else len(columns) + col
+            _pos = col if col >= 0 else n_cols + col
             res.append((columns[col], _pos))
         else:
             raise TypeError(
@@ -516,7 +521,7 @@ def _(df: PdDataFrame):
 def _(df: PlDataFrame):
     import polars as pl
 
-    return df.clear().cast(pl.Utf8).clear(len(df))
+    return df.clear(len(df)).cast(pl.Utf8)
 
 
 @create_empty_frame.register
@@ -569,7 +574,7 @@ def _(df: PlDataFrame):
     import polars.selectors as cs
 
     list_cols = [
-        name for name, dtype in zip(df.columns, df.dtypes) if issubclass(dtype.base_type(), pl.List)
+        name for name, dtype in df.schema.items() if issubclass(dtype.base_type(), pl.List)
     ]
 
     return df.with_columns(
@@ -750,7 +755,7 @@ def _(df: PlDataFrame, x: Any) -> bool:
 
     import polars as pl
 
-    return isinstance(x, (pl.Null, type(None))) or (isinstance(x, float) and isnan(x))
+    return x is None or isinstance(x, pl.Null) or (isinstance(x, float) and isnan(x))
 
 
 @is_na.register
@@ -869,3 +874,65 @@ def _(ser: PyArrowChunkedArray, name: Optional[str] = None) -> PyArrowTable:
     import pyarrow as pa
 
     return pa.table({name: ser})
+
+
+# eval_aggregate ----
+
+
+@singledispatch
+def eval_aggregate(df, expr) -> dict[str, Any]:
+    """Evaluate an expression against data and return a single row as a dictionary.
+
+    This is designed for aggregation operations that produce summary statistics.
+    The result should be a single row with values for each column.
+
+    Parameters
+    ----------
+    data
+        The input data (DataFrame)
+    expr
+        The expression to evaluate (Polars expression or callable)
+
+    Returns
+    -------
+    dict[str, Any]
+        A dictionary mapping column names to their aggregated values
+    """
+    raise NotImplementedError(f"eval_aggregate not implemented for type: {type(df)}")
+
+
+@eval_aggregate.register
+def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> dict[str, Any]:
+    res = expr(df)
+
+    if not isinstance(res, PdSeries):
+        raise ValueError(f"Result must be a pandas Series. Received {type(res)}")
+
+    return res.to_dict()
+
+
+@eval_aggregate.register
+def _(df: PlDataFrame, expr: PlExpr) -> dict[str, Any]:
+    res = df.select(expr)
+
+    if len(res) != 1:
+        raise ValueError(
+            f"Expression must produce exactly 1 row (aggregation). Got {len(res)} rows."
+        )
+
+    return res.to_dicts()[0]
+
+
+@eval_aggregate.register
+def _(df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowTable]) -> dict[str, Any]:
+    res = expr(df)
+
+    if not isinstance(res, PyArrowTable):
+        raise ValueError(f"Result must be a PyArrow Table. Received {type(res)}")
+
+    if res.num_rows != 1:
+        raise ValueError(
+            f"Expression must produce exactly 1 row (aggregation). Got {res.num_rows} rows."
+        )
+
+    return {col: res.column(col)[0].as_py() for col in res.column_names}

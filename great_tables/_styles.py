@@ -257,7 +257,7 @@ class CellStyleText(CellStyle):
             rendered += f"color: {self.color};"
         if self.font:
             font = self.font
-            if isinstance(font, str) or isinstance(font, FromColumn):
+            if isinstance(font, (str, FromColumn)):
                 # Case where `font=` is a string or a FromColumn expression
                 font_name = font
             elif isinstance(font, GoogleFont):
@@ -390,7 +390,7 @@ class CellStyleBorders(CellStyle):
 
         border_css_list: list[str] = []
         for side in self.sides:
-            if side not in ["top", "bottom", "left", "right"]:
+            if side not in ("top", "bottom", "left", "right"):
                 raise ValueError(f"Invalid side '{side}' provided.")
             border_css_list.append(f"border-{side}: {weight} {style} {color};")
 

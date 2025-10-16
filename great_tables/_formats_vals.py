@@ -1,13 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from typing_extensions import TypeAlias
 
-from .gt import GT, _get_column_of_values
-from ._gt_data import GTData
+from ._gt_data import GTData, FramelessData
 from ._tbl_data import SeriesLike, to_frame
+from .gt import GT, _get_column_of_values
+
+# TODO: these imports make it so that vals.fmt_integer does not require pandas
+# as part of broader work to remove the pandas dependency from val functions.
+from ._formats import _get_locale_sep_mark, _resolve_locale, fmt_integer_context
+from functools import partial
+
 
 if TYPE_CHECKING:
     from ._formats import DateStyle, TimeStyle
@@ -15,6 +21,12 @@ if TYPE_CHECKING:
 
 
 X: TypeAlias = "Any | list[Any] | SeriesLike"
+
+
+def _upgrade_to_list(x: Any) -> list[Any]:
+    if not isinstance(x, (tuple, list, SeriesLike)):
+        return [x]
+    return x
 
 
 def _make_one_col_table(vals: X) -> GT:
@@ -254,10 +266,18 @@ def val_fmt_integer(
     ```
     """
 
-    gt_obj: GTData = _make_one_col_table(vals=x)
+    x = _upgrade_to_list(x)
 
-    gt_obj_fmt = gt_obj.fmt_integer(
-        columns="x",
+    # TODO: handle data init from fmt_integer()
+    # e.g. locale
+    locale = _resolve_locale(None, locale)
+    # Use locale-based marks if a locale ID is provided
+    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+
+    # data: GTData is used for ._tbl_data, so we just need to wrap Agnostic
+    pf = partial(
+        fmt_integer_context,
+        data=FramelessData(),
         use_seps=use_seps,
         accounting=accounting,
         scale_by=scale_by,
@@ -265,12 +285,10 @@ def val_fmt_integer(
         pattern=pattern,
         sep_mark=sep_mark,
         force_sign=force_sign,
-        locale=locale,
+        context="html",
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
-
-    return vals_fmt
+    return [pf(val) for val in x]
 
 
 def val_fmt_scientific(
@@ -541,6 +559,7 @@ def val_fmt_currency(
     accounting: bool = False,
     use_seps: bool = True,
     scale_by: float = 1,
+    compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -601,6 +620,10 @@ def val_fmt_currency(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    compact
+        Whether to use compact formatting. This is a boolean value that, when set to `True`, will
+        format large numbers in a more compact form (e.g., `1,000,000` becomes `1M`). This is
+        `False` by default.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -652,6 +675,7 @@ def val_fmt_currency(
         accounting=accounting,
         use_seps=use_seps,
         scale_by=scale_by,
+        compact=compact,
         pattern=pattern,
         sep_mark=sep_mark,
         dec_mark=dec_mark,

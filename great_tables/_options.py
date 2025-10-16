@@ -128,13 +128,13 @@ def tab_options(
     # summary_row_border_style: str | None = None,
     # summary_row_border_width: str | None = None,
     # summary_row_border_color: str | None = None,
-    # grand_summary_row_background_color: str | None = None,
-    # grand_summary_row_text_transform: str | None = None,
-    # grand_summary_row_padding: str | None = None,
-    # grand_summary_row_padding_horizontal: str | None = None,
-    # grand_summary_row_border_style: str | None = None,
-    # grand_summary_row_border_width: str | None = None,
-    # grand_summary_row_border_color: str | None = None,
+    grand_summary_row_background_color: str | None = None,
+    grand_summary_row_text_transform: str | None = None,
+    grand_summary_row_padding: str | None = None,
+    grand_summary_row_padding_horizontal: str | None = None,
+    grand_summary_row_border_style: str | None = None,
+    grand_summary_row_border_width: str | None = None,
+    grand_summary_row_border_color: str | None = None,
     # footnotes_background_color: str | None = None,
     # footnotes_font_size: str | None = None,
     # footnotes_padding: str | None = None,
@@ -784,22 +784,22 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         raise ValueError("`scale` must be a value between `0` and `3`.")
 
     # Get the parameters from the options that relate to vertical padding
-    vertical_padding_params = [
+    vertical_padding_params = (
         "heading_padding",
         "column_labels_padding",
         "data_row_padding",
         "row_group_padding",
         "source_notes_padding",
-    ]
+    )
 
     # Get the current values for the vertical padding parameters
-    vertical_padding_vals = [
+    vertical_padding_vals = (
         self._options.heading_padding.value,
         self._options.column_labels_padding.value,
         self._options.data_row_padding.value,
         self._options.row_group_padding.value,
         self._options.source_notes_padding.value,
-    ]
+    )
 
     # Multiply each of the padding values by the `scale` factor but strip off the units first
     # then reattach the units after the multiplication
@@ -862,7 +862,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 
     The overall effect of scaling the horizontal padding is that the table will appear wider or
     and there will added buffer space between the table elements. The overall look of the table will
-    be more spacious and neigboring pieces of text will be less cramped.
+    be more spacious and neighboring pieces of text will be less cramped.
 
     Let's go the other way and scale the horizontal padding of the table by a factor of `0.5` using
     the `opt_horizontal_padding()` method.
@@ -881,22 +881,22 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         raise ValueError("`scale` must be a value between `0` and `3`.")
 
     # Get the parameters from the options that relate to horizontal padding
-    horizontal_padding_params = [
+    horizontal_padding_params = (
         "heading_padding_horizontal",
         "column_labels_padding_horizontal",
         "data_row_padding_horizontal",
         "row_group_padding_horizontal",
         "source_notes_padding_horizontal",
-    ]
+    )
 
     # Get the current values for the horizontal padding parameters
-    horizontal_padding_vals = [
+    horizontal_padding_vals = (
         self._options.heading_padding_horizontal.value,
         self._options.column_labels_padding_horizontal.value,
         self._options.data_row_padding_horizontal.value,
         self._options.row_group_padding_horizontal.value,
         self._options.source_notes_padding_horizontal.value,
-    ]
+    )
 
     # Multiply each of the padding values by the `scale` factor but strip off the units first
     # then reattach the units after the multiplication
@@ -1252,13 +1252,9 @@ def opt_table_font(
                 # Case where the list item is a GoogleFont object
                 new_font_list.append(item.get_font_name())
 
-                # Append the import statement to the `table_additional_css` list
-                existing_additional_css = self._options.table_additional_css.value + [
-                    item.make_import_stmt()
-                ]
-
-                # Add revised CSS list via the `tab_options()` method
-                res = tab_options(res, table_additional_css=existing_additional_css)
+                # Add the Google Font import statement to the internal font imports
+                import_stmt = item.make_import_stmt()
+                res = res._replace(_google_font_imports=res._google_font_imports.add(import_stmt))
 
             else:
                 raise TypeError(
@@ -1380,7 +1376,7 @@ def opt_stylize(
     """
 
     # Validate the `style` and `color` arguments
-    if style not in [1, 2, 3, 4, 5, 6]:
+    if style not in (1, 2, 3, 4, 5, 6):
         raise ValueError("`style` must be an integer value from `1` to `6`.")
     color = _utils._match_arg(x=color, lst=["gray", "blue", "cyan", "pink", "green", "red"])
 
@@ -1390,10 +1386,8 @@ def opt_stylize(
     # Omit keys that are not needed for the `tab_options()` method
     # TODO: the omitted keys are for future use when:
     #  (1) summary rows are implemented
-    #  (2) grand summary rows are implemented
     omit_keys = {
         "summary_row_background_color",
-        "grand_summary_row_background_color",
     }
 
     def dict_omit_keys(dict: dict[str, str], omit_keys: set[str]) -> dict[str, str]:
@@ -1407,12 +1401,12 @@ def opt_stylize(
     if add_row_striping:
         mapped_params["row_striping_include_table_body"] = ["True"]
 
-    if style in [2, 4, 5]:
+    if style in (2, 4, 5):
         # For styles 2, 4, and 5 we need to set the border colors and widths
 
         # Use a dictionary comprehension to generate the border parameters
-        directions = ["top", "bottom", "left", "right"]
-        attributes = ["color", "width", "style"]
+        directions = ("top", "bottom", "left", "right")
+        attributes = ("color", "width", "style")
 
         border_params: dict[str, str] = {
             f"table_border_{d}_{a}": (
@@ -1444,6 +1438,8 @@ class StyleMapper:
     data_vlines_style: str
     data_vlines_color: str
     row_striping_background_color: str
+    grand_summary_row_background_color: str
+    # summary_row_background_color: str
 
     mappings: ClassVar[dict[str, list[str]]] = {
         "table_hlines_color": ["table_border_top_color", "table_border_bottom_color"],
@@ -1465,6 +1461,8 @@ class StyleMapper:
         "data_vlines_style": ["table_body_vlines_style"],
         "data_vlines_color": ["table_body_vlines_color"],
         "row_striping_background_color": ["row_striping_background_color"],
+        "grand_summary_row_background_color": ["grand_summary_row_background_color"],
+        # "summary_row_background_color": ["summary_row_background_color"],
     }
 
     def map_entry(self, name: str) -> dict[str, list[str]]:

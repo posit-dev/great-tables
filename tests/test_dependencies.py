@@ -18,3 +18,10 @@ def test_no_pandas_import_exibble_raises():
 
 def test_no_pandas_import():
     from great_tables import GT
+
+
+def test_no_pandas_vals_funcs_polars():
+    from great_tables import vals
+    import polars as pl
+
+    assert vals.fmt_percent(pl.Series([0.11, 0.22]), decimals=0) == ["11%", "22%"]

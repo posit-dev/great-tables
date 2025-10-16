@@ -6,7 +6,7 @@ from typing_extensions import Self
 
 # Main gt imports ----
 from ._body import body_reassemble
-from ._boxhead import cols_align, cols_label
+from ._boxhead import cols_align, cols_label, cols_label_rotate
 from ._data_color import data_color
 from ._export import as_latex, as_raw_html, save, show, write_raw_html
 from ._formats import (
@@ -25,13 +25,14 @@ from ._formats import (
     fmt_percent,
     fmt_roman,
     fmt_scientific,
+    fmt_tf,
     fmt_time,
     fmt_units,
 )
 from ._gt_data import GTData
 from ._heading import tab_header
 from ._helpers import random_id
-from ._modify_rows import row_group_order, tab_stub, with_id, with_locale
+from ._modify_rows import grand_summary_rows, row_group_order, tab_stub, with_id, with_locale
 from ._options import (
     opt_align_table_header,
     opt_all_caps,
@@ -56,6 +57,7 @@ from ._spanners import (
     cols_unhide,
     cols_width,
     tab_spanner,
+    tab_spanner_delim,
 )
 from ._stub import reorder_stub_df
 from ._stubhead import tab_stubhead
@@ -237,6 +239,7 @@ class GT(
     fmt_flag = fmt_flag
     fmt_units = fmt_units
     fmt_nanoplot = fmt_nanoplot
+    fmt_tf = fmt_tf
     data_color = data_color
 
     sub_missing = sub_missing
@@ -260,10 +263,12 @@ class GT(
     cols_move_to_end = cols_move_to_end
     cols_hide = cols_hide
     cols_unhide = cols_unhide
+    cols_label_rotate = cols_label_rotate
 
     tab_header = tab_header
     tab_source_note = tab_source_note
     tab_spanner = tab_spanner
+    tab_spanner_delim = tab_spanner_delim
     tab_stubhead = tab_stubhead
     tab_style = tab_style
     tab_options = tab_options
@@ -272,6 +277,7 @@ class GT(
     tab_stub = tab_stub
     with_id = with_id
     with_locale = with_locale
+    grand_summary_rows = grand_summary_rows
 
     save = save
     show = show

@@ -1,7 +1,9 @@
 import pandas as pd
+import pytest
 from great_tables import GT
 from great_tables.gt import _get_column_labels
 from great_tables._helpers import UnitStr
+from tests.test_utils_render_html import assert_rendered_columns
 
 
 def test_cols_label():
@@ -32,7 +34,38 @@ def test_cols_label_units_text():
     assert x[2] == "Zee"
 
 
-def test_final_columns_stub_move_to_begining():
+def test_cols_label_rotate(snapshot: str):
+    df = pd.DataFrame({"x": [1.234, 2.345], "y": [3.456, 4.567], "z": [5.678, 6.789]})
+    gt_tbl = GT(df, id="test").cols_label_rotate(columns=["x", "y"])
+    assert_rendered_columns(snapshot, gt_tbl)
+
+
+def test_cols_label_rotate_align_fails():
+    with pytest.raises(ValueError) as exc_info:
+        df = pd.DataFrame({"x": [], "y": []})
+        GT(df).cols_label_rotate(align="invalid")  # noqa
+
+    assert "Align must be one of" in exc_info.value.args[0]
+
+
+def test_cols_label_rotate_dir_fails():
+    with pytest.raises(ValueError) as exc_info:
+        df = pd.DataFrame({"x": [], "y": []})
+        GT(df).cols_label_rotate(dir="invalid")  # noqa
+
+    assert "Dir must be one of" in exc_info.value.args[0]
+
+
+def test_cols_label_rotate_align_default():
+    df = pd.DataFrame({"x": [], "y": []})
+    gt1 = GT(df).cols_label_rotate(columns=["x"], dir="sideways-rl")
+    gt2 = GT(df).cols_label_rotate(columns=["y"], dir="sideways-lr")
+
+    assert "text-align: right;" in gt1._styles[0].styles[0].rule
+    assert "text-align: left;" in gt2._styles[0].styles[0].rule
+
+
+def test_final_columns_stub_move_to_beginning():
     df = pd.DataFrame({"w": [1], "x": [1], "y": [2], "z": [3]})
     gt = GT(df, rowname_col="y")
 

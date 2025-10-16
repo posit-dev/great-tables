@@ -7,14 +7,25 @@ from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, TypedDict, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    ClassVar,
+    Literal,
+    TypedDict,
+    TypeVar,
+    Union,
+    cast,
+    overload,
+)
 
 import babel
 import faicons
 from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
 
-from ._gt_data import FormatFn, FormatFns, FormatInfo, GTData
+from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData, PFrameData
 from ._helpers import px
 from ._locale import (
     _get_currencies_data,
@@ -518,7 +529,7 @@ def fmt_integer(
 
 def fmt_integer_context(
     x: float | None,
-    data: GTData,
+    data: PFrameData,
     use_seps: bool,
     scale_by: float,
     accounting: bool,
@@ -661,10 +672,6 @@ def fmt_scientific(
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    sep_mark
-        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
-        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
-        ignored if a `locale` is supplied (i.e., is not `None`).
     dec_mark
         The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
         `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
@@ -694,8 +701,7 @@ def fmt_scientific(
     This formatting method can adapt outputs according to a provided `locale` value. Examples
     include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
     locale ID here means separator and decimal marks will be correct for the given locale. Should
-    any values be provided in `sep_mark` or `dec_mark`, they will be overridden by the locale's
-    preferred values.
+    a value be provided in `dec_mark` it will be overridden by the locale's preferred values.
 
     Note that a `locale` value provided here will override any global locale setting performed in
     [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
@@ -723,14 +729,9 @@ def fmt_scientific(
     a single numerical value (or a list of them).
     """
 
-    # Set a default value for `use_seps`; these separators are only used for very
-    # large exponent values
-    use_seps = True
-
     locale = _resolve_locale(self, locale=locale)
 
-    # Use locale-based marks if a locale ID is provided
-    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    # Use a locale-based decimal mark if a locale ID is provided
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     pf_format = partial(
@@ -742,7 +743,6 @@ def fmt_scientific(
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         scale_by=scale_by,
         exp_style=exp_style,
-        sep_mark=sep_mark,
         dec_mark=dec_mark,
         force_sign_m=force_sign_m,
         force_sign_n=force_sign_n,
@@ -762,7 +762,6 @@ def fmt_scientific_context(
     drop_trailing_dec_mark: bool,
     scale_by: float,
     exp_style: str,
-    sep_mark: str,
     dec_mark: str,
     force_sign_m: bool,
     force_sign_n: bool,
@@ -1128,6 +1127,7 @@ def fmt_currency(
     use_seps: bool = True,
     accounting: bool = False,
     scale_by: float = 1,
+    compact: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -1193,6 +1193,10 @@ def fmt_currency(
         All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
         Since the `default` value is `1`, no values will be changed unless a different multiplier
         value is supplied.
+    compact
+        Whether to use compact formatting. This is a boolean value that, when set to `True`, will
+        format large numbers in a more compact form (e.g., `1,000,000` becomes `1M`). This is
+        `False` by default.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -1294,6 +1298,7 @@ def fmt_currency(
         use_seps=use_seps,
         accounting=accounting,
         scale_by=scale_by,
+        compact=compact,
         sep_mark=sep_mark,
         dec_mark=dec_mark,
         force_sign=force_sign,
@@ -1314,6 +1319,7 @@ def fmt_currency_context(
     use_seps: bool,
     accounting: bool,
     scale_by: float,
+    compact: bool,
     sep_mark: str,
     dec_mark: str,
     force_sign: bool,
@@ -1338,9 +1344,14 @@ def fmt_currency_context(
     if currency_symbol == "$":
         currency_symbol = _context_dollar_mark(context=context)
 
-    # Format the value to decimal notation; this is done before the currency symbol is
-    # affixed to the value
-    x_formatted = _value_to_decimal_notation(
+    # Choose the appropriate formatting function based on the `compact=` option
+    if compact:
+        f_formatter = _format_number_compactly
+    else:
+        f_formatter = _value_to_decimal_notation
+
+    # Perform formatting to decimal notation
+    x_formatted = f_formatter(
         value=x,
         decimals=decimals,
         n_sigfig=None,
@@ -1796,8 +1807,7 @@ def fmt_date(
         formatted. Alternatively, we can supply a list of row indices.
     date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
-        ISO 8601 date formatting. There are 41 date styles in total and their short names can be
-        viewed using `info_date_style()`.
+        ISO 8601 date formatting. There are 41 date styles in total.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -1806,11 +1816,12 @@ def fmt_date(
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
-    Formatting with the `date_style` argument
+    Formatting with the `date_style=` argument
     -----------------------------------------
-    We need to supply a preset date style to the `date_style` argument. The date styles are numerous
-    and can handle localization to any supported locale. The following table provides a listing of
-    all date styles and their output values (corresponding to an input date of `2000-02-29`).
+    We need to supply a preset date style to the `date_style=` argument. The date styles are
+    numerous and can handle localization to any supported locale. The following table provides a
+    listing of all date styles and their output values (corresponding to an input date of
+    `2000-02-29`).
 
     |    | Date Style            | Output                  |
     |----|-----------------------|-------------------------|
@@ -1831,9 +1842,6 @@ def fmt_date(
     | 15 | `"y.mn.day"`          | `"00/02/29"`            |
     | 16 | `"year_week"`         | `"2000-W09"`            |
     | 17 | `"year_quarter"`      | `"2000-Q1"`             |
-
-    We can use the `info_date_style()` function within the console to view a similar table of date
-    styles with example output.
 
     Returns
     -------
@@ -1954,8 +1962,7 @@ def fmt_time(
         formatted. Alternatively, we can supply a list of row indices.
     time_style
         The time style to use. By default this is the short name `"iso"` which corresponds to how
-        times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
-        their short names can be viewed using `info_time_style()`.
+        times are formatted within ISO 8601 datetime values. There are 5 time styles in total.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -1964,11 +1971,12 @@ def fmt_time(
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
-    Formatting with the `time_style` argument
+    Formatting with the `time_style=` argument
     -----------------------------------------
-    We need to supply a preset time style to the `time_style` argument. The time styles are numerous
-    and can handle localization to any supported locale. The following table provides a listing of
-    all time styles and their output values (corresponding to an input time of `14:35:00`).
+    We need to supply a preset time style to the `time_style=` argument. The time styles are
+    numerous and can handle localization to any supported locale. The following table provides a
+    listing of all time styles and their output values (corresponding to an input time of
+    `14:35:00`).
 
     |    | Time Style    | Output                          | Notes         |
     |----|---------------|---------------------------------|---------------|
@@ -1977,9 +1985,6 @@ def fmt_time(
     | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                  | 12h           |
     | 4  | `"h_m_p"`     | `"2:35 PM"`                     | 12h           |
     | 5  | `"h_p"`       | `"2 PM"`                        | 12h           |
-
-    We can use the `info_time_style()` function within the console to view a similar table of time
-    styles with example output.
 
     Returns
     -------
@@ -2030,6 +2035,7 @@ def fmt_time(
         time_format_str=time_format_str,
         pattern=pattern,
         locale=locale,
+        context=None,  # Ensure the 'context' parameter is explicitly handled
     )
 
     return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
@@ -2081,6 +2087,7 @@ def fmt_datetime(
     rows: int | list[int] | None = None,
     date_style: DateStyle = "iso",
     time_style: TimeStyle = "iso",
+    format_str: str | None = None,
     sep: str = " ",
     pattern: str = "{x}",
     locale: str | None = None,
@@ -2103,19 +2110,33 @@ def fmt_datetime(
         formatted. Alternatively, we can supply a list of row indices.
     date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
-        ISO 8601 date formatting. There are 41 date styles in total and their short names can be
-        viewed using `info_date_style()`.
+        ISO 8601 date formatting. There are 41 date styles in total.
     time_style
         The time style to use. By default this is the short name `"iso"` which corresponds to how
-        times are formatted within ISO 8601 datetime values. There are 5 time styles in total and
-        their short names can be viewed using `info_time_style()`.
+        times are formatted within ISO 8601 datetime values. There are 5 time styles in total.
+    format_str
+        A string that specifies the format of the datetime string. This is a `strftime()` format
+        string that can be used to format date or datetime input. If `format=` is provided, the
+        `date_style=` and `time_style=` arguments are ignored.
+    sep
+        A string that separates the date and time components of the datetime string. The default is
+        a space character (`" "`). This is ignored if `format=` is provided.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    locale
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+        Only relevant if `date_style=` or `time_style=` are provided.
 
-    Formatting with the `date_style` and `time_style` arguments
-    ------------------------------------------------------------
-    We need to supply a preset date style to the `date_style` argument and a preset time style to
-    the `time_style` argument. The date styles are numerous and can handle localization to any
-    supported locale. The following table provides a listing of all date styles and their output
-    values (corresponding to an input date of `2000-02-29 14:35:00`).
+    Formatting with the `date_style=` and `time_style=` arguments
+    -------------------------------------------------------------
+    If not supplying a formatting string to `format_str=` we need to supply a preset date style to
+    the `date_style=` argument and a preset time style to the `time_style=` argument. The date
+    styles are numerous and can handle localization to any supported locale. The following table
+    provides a listing of all date styles and their output values (corresponding to an input date of
+    `2000-02-29 14:35:00`).
 
     |    | Date Style            | Output                  |
     |----|-----------------------|-------------------------|
@@ -2137,9 +2158,9 @@ def fmt_datetime(
     | 16 | `"year_week"`         | `"2000-W09"`            |
     | 17 | `"year_quarter"`      | `"2000-Q1"`             |
 
-    The time styles are numerous and can handle localization to any supported locale. The following
-    table provides a listing of all time styles and their output values (corresponding to an input
-    time of `2000-02-29 14:35:00`).
+    The time styles can also handle localization to any supported locale. The following table
+    provides a listing of all time styles and their output values (corresponding to an input time of
+    `2000-02-29 14:35:00`).
 
     |    | Time Style    | Output                          | Notes         |
     |----|---------------|---------------------------------|---------------|
@@ -2148,9 +2169,6 @@ def fmt_datetime(
     | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                  | 12h           |
     | 4  | `"h_m_p"`     | `"2:35 PM"`                     | 12h           |
     | 5  | `"h_p"`       | `"2 PM"`                        | 12h           |
-
-    We can use the `info_date_style()` and `info_time_style()` functions within the console to view
-    similar tables of date and time styles with example output.
 
     Returns
     -------
@@ -2194,6 +2212,7 @@ def fmt_datetime(
         data=self,
         date_format_str=date_format_str,
         time_format_str=time_format_str,
+        format_str=format_str,
         sep=sep,
         pattern=pattern,
         locale=locale,
@@ -2207,6 +2226,7 @@ def fmt_datetime_context(
     data: GTData,
     date_format_str: str,
     time_format_str: str,
+    format_str: str | None,
     sep: str,
     pattern: str,
     locale: str | None,
@@ -2214,9 +2234,6 @@ def fmt_datetime_context(
 ) -> str:
     if is_na(data._tbl_data, x):
         return x
-
-    # From the date and time format strings, create a datetime format string
-    datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
 
     # If `x` is a string, assume it is an ISO datetime string and convert it to a datetime object
     if isinstance(x, str):
@@ -2227,14 +2244,24 @@ def fmt_datetime_context(
         # Stop if `x` is not a valid datetime object
         _validate_datetime_obj(x=x)
 
-    # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
-    if locale is None:
-        locale = "en_US"
-    else:
-        locale = _str_replace(locale, "-", "_")
+    if format_str is not None:
+        if locale is not None:
+            raise ValueError("The `format_str=` and `locale=` arguments cannot be used together.")
 
-    # Format the datetime object to a string using Babel's `format_datetime()` function
-    x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
+        x_formatted = x.strftime(format_str)
+
+    else:
+        # From the date and time format strings, create a datetime format string
+        datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
+
+        # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
+        if locale is None:
+            locale = "en_US"
+        else:
+            locale = _str_replace(locale, "-", "_")
+
+        # Format the datetime object to a string using Babel's `format_datetime()` function
+        x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
@@ -2245,6 +2272,321 @@ def fmt_datetime_context(
         x_formatted = pattern.replace("{x}", x_formatted)
 
     return x_formatted
+
+
+def fmt_tf(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    tf_style: str = "true-false",
+    pattern: str = "{x}",
+    true_val: str | None = None,
+    false_val: str | None = None,
+    na_val: str | None = None,
+    colors: list[str] | None = None,
+) -> GTSelf:
+    """
+    Format True and False values
+
+    There can be times where boolean values are useful in a display table. You might want to express
+    a 'yes' or 'no', a 'true' or 'false', or, perhaps use pairings of complementary symbols that
+    make sense in a table. The `fmt_tf()` method has a set of `tf_style=` presets that can be used
+    to quickly map `True`/`False` values to strings, or, symbols like up/down or left/right arrows
+    and open/closed shapes.
+
+    While the presets are nice, you can provide your own mappings through the `true_val=` and
+    `false_val=` arguments. For extra customization, you can also apply color to the individual
+    `True`, `False`, and NA mappings. Just supply a list of colors (up to a length of 3) to the
+    `colors=` argument.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    tf_style
+        The `True`/`False` mapping style to use. By default this is the short name `"true-false"`
+        which corresponds to the words `"true"` and `"false"`. Two other `tf_style=` values produce
+        words: `"yes-no"` and `"up-down"`. The remaining options involve pairs of symbols (e.g.,
+        `"check-mark"` displays a check mark for `True` and an ✗ symbol for `False`).
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    true_val
+        While the choice of a `tf_style=` will typically supply the `true_val=` and `false_val=`
+        text, we could override this and supply text for any `True` values. This doesn't need to be
+        used in conjunction with `false_val=`.
+    false_val
+        While the choice of a `tf_style=` will typically supply the `true_val=` and `false_val=`
+        text, we could override this and supply text for any `False` values. This doesn't need to be
+        used in conjunction with `true_val=`.
+    na_val
+        None of the `tf_style` presets will replace any missing values encountered in the targeted
+        cells. While we always have the option to use `sub_missing()` for NA replacement, we have
+        the opportunity handle missing values here with the `na_val=` option. This is useful because
+        we also have the means to add color to the `na_val=` text or symbol and doing that requires
+        that a replacement value for NAs is specified here.
+    colors
+        Providing a list of color values to colors will progressively add color to the formatted
+        result depending on the number of colors provided. With a single color, all formatted values
+        will be in that color. Using two colors results in `True` values being the first color, and
+        `False` values receiving the second. With the three-color option, the final color will be
+        given to any missing values replaced through `na_val=`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Formatting with the `tf_style=` argument
+    ----------------------------------------
+    We need to supply a preset `tf_style=` value. The following table provides a listing of all
+    `tf_style=` values and their output `True` and `False` values.
+
+    |    | TF Style        | Output                  |
+    |----|-----------------|-------------------------|
+    | 1  | `"true-false"`  | `"true" / `"false"`     |
+    | 2  | `"yes-no"`      | `"yes" / `"no"`         |
+    | 3  | `"up-down"`     | `"up" / `"down"`        |
+    | 4  | `"check-mark"`  | `"✓" / `"✗"`            |
+    | 5  | `"circles"`     | `"●" / `"○"`            |
+    | 6  | `"squares"`     | `"■" / `"□"`            |
+    | 7  | `"diamonds"`    | `"◆" / `"◇"`            |
+    | 8  | `"arrows"`      | `"↑" / `"↓"`            |
+    | 9  | `"triangles"`   | `"▲" / `"▼"`            |
+    | 10 | `"triangles-lr"`| `"▶" / `"◀"`            |
+
+    Examples
+    --------
+    Let's use a subset of the `sp500` dataset to create a small table containing opening and closing
+    price data for the last few days in 2015. We added a boolean column (`dir`) where `True`
+    indicates a price increase from opening to closing and `False` is the opposite. Using `fmt_tf()`
+    generates up and down arrows in the `dir` column. We elect to use green upward arrows and red
+    downward arrows (through the `colors=` option).
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import sp500
+    import polars as pl
+
+    sp500_mini = (
+        pl.from_pandas(sp500)
+        .slice(0, 5)
+        .drop(["volume", "adj_close", "high", "low"])
+        .with_columns(dir = pl.col("close") > pl.col("open"))
+    )
+
+    (
+        GT(sp500_mini, rowname_col="date")
+        .fmt_tf(columns="dir", tf_style="arrows", colors=["green", "red"])
+        .fmt_currency(columns=["open", "close"])
+        .cols_label(
+            open="Opening",
+            close="Closing",
+            dir=""
+        )
+    )
+    ```
+    """
+    # If colors is a string, convert it to a list
+    if isinstance(colors, str):
+        colors = [colors]
+
+    pf_format = partial(
+        fmt_tf_context,
+        data=self,
+        tf_style=tf_style,
+        pattern=pattern,
+        true_val=true_val,
+        false_val=false_val,
+        na_val=na_val,
+        colors=colors,
+    )
+
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
+
+
+def fmt_tf_context(
+    x: Any,
+    data: GTData,
+    tf_style: str,
+    pattern: str,
+    true_val: str | None,
+    false_val: str | None,
+    na_val: str | None,
+    colors: list[str] | None,
+    context: str,
+) -> str | FormatterSkipElement:
+    if is_na(data._tbl_data, x):
+        x = None
+    elif not isinstance(x, bool):
+        raise ValueError(f"Expected boolean value or NA, but got {type(x)}.")
+
+    x = cast(Union[bool, None], x)
+
+    # Validate `tf_style=` value
+    if tf_style not in TF_FORMATS:
+        raise ValueError(
+            f"Invalid `tf_style`: {tf_style}. Must be one of {list(TF_FORMATS.keys())}."
+        )
+
+    # Check type of `na_val=` and raise error if not a string or None
+    if na_val is not None and not isinstance(na_val, str):
+        raise ValueError("The `na_val` argument must be a string or None.")
+
+    # If `x` is None and `na_val` is None, skip formatting entirely
+    if x is None and na_val is None:
+        return FormatterSkipElement()
+
+    # Add warning in LaTeX context about `colors=` not being supported
+    if context == "latex" and colors is not None:
+        raise ValueError("The `colors=` argument is not currently supported for LaTeX tables.")
+
+    # Obtain the list of `True`/`False` text values with overrides
+    tf_vals_list = _get_tf_vals(tf_style=tf_style, true_val=true_val, false_val=false_val)
+
+    tf_vals = TfMap(*tf_vals_list, na_color=na_val)
+
+    x_formatted = tf_vals.get_color(x, data, strict=True)
+
+    # Apply colors to the formatted value
+    if context == "html" and colors is not None:
+        # Ensure that the `colors=` value satisfies the requirements
+        _check_colors(colors=colors)
+
+        # Create color mapping
+        color_map = TfMap.from_list(colors)
+
+        # Get the appropriate color for this value
+        color = color_map.get_color(x, data, strict=False)
+
+        x_styled = f'<span style="color:{color}">{x_formatted}</span>'
+
+    else:
+        x_styled = x_formatted
+
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_out = pattern.replace("{x}", x_styled)
+    else:
+        x_out = x_styled
+
+    return x_out
+
+
+TF_FORMATS: dict[str, list[str]] = {
+    "true-false": ["true", "false"],
+    "yes-no": ["yes", "no"],
+    "up-down": ["up", "down"],
+    "check-mark": ["\u2714", "\u2718"],
+    "circles": ["\u25cf", "\u2b58"],
+    "squares": ["\u25a0", "\u25a1"],
+    "diamonds": ["\u25c6", "\u25c7"],
+    "arrows": ["\u2191", "\u2193"],
+    "triangles": ["\u25b2", "\u25bc"],
+    "triangles-lr": ["\u25b6", "\u25c0"],
+}
+
+
+def _check_colors(colors: list[str]):
+    """
+    Check if the provided colors are valid.
+
+    Parameters
+    ----------
+    colors
+        A list of colors to check.
+    Raises
+    ------
+    ValueError
+        If the colors are not valid.
+    """
+    if len(colors) > 3 or len(colors) < 1:
+        raise ValueError("The `colors` argument must be a list of 1 to 3 colors.")
+    for color in colors:
+        if not isinstance(color, str):
+            raise ValueError("Each color in the `colors` list must be a string.")
+
+
+def _get_tf_vals(
+    tf_style: str, true_val: str | None = None, false_val: str | None = None
+) -> list[str]:
+    """
+    Get the `True`/`False` text values based on the `tf_style`, with optional overrides.
+
+    Parameters
+    ----------
+    tf_style
+        The `True`/`False` mapping style to use.
+    true_val
+        Optional override for the True value.
+    false_val
+        Optional override for the False value.
+
+    Returns
+    -------
+    list[str]
+        A list of two strings representing the `True` and `False` values.
+    """
+    # Get the base values from the TF_FORMATS dictionary
+    tf_vals = TF_FORMATS[tf_style].copy()
+
+    # Override with provided values if any
+    if true_val is not None:
+        tf_vals[0] = true_val
+    if false_val is not None:
+        tf_vals[1] = false_val
+
+    return tf_vals
+
+
+@dataclass
+class TfMap:
+    true_color: str | None = None
+    false_color: str | None = None
+    na_color: str | None = None
+
+    @classmethod
+    def from_list(cls, colors: list[str]) -> TfMap:
+        if len(colors) == 1:
+            return cls(true_color=colors[0], false_color=colors[0])
+        elif len(colors) == 2:
+            return cls(true_color=colors[0], false_color=colors[1])
+        elif len(colors) == 3:
+            return cls(true_color=colors[0], false_color=colors[1], na_color=colors[2])
+        else:
+            raise ValueError("Colors list must have 1-3 elements.")
+
+    @overload
+    def get_color(self, x: bool | None, data: GTData, strict: Literal[False]) -> str | None: ...
+
+    @overload
+    def get_color(self, x: bool | None, data: GTData, strict: Literal[True]) -> str: ...
+
+    def get_color(self, x: bool | None, data: GTData, strict: bool = False) -> str | None:
+        if x is True:
+            res = self.true_color
+        elif x is False:
+            res = self.false_color
+        elif is_na(data._tbl_data, x):
+            res = self.na_color
+        else:
+            raise TypeError(f"Unexpected value type: {type(x)}")
+
+        if strict and res is None:
+            raise ValueError("No style defined for this value in TfMap.")
+
+        return res
 
 
 def fmt_markdown(
@@ -2597,7 +2939,7 @@ def _value_to_engineering_notation(value: int | float, n_sigfig: int, exp_style:
 
     is_negative, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
 
-    eng_power = int(3 * math.floor(ten_power / 3))
+    eng_power = 3 * math.floor(ten_power / 3)
     eng_dot = dot_power + ten_power - eng_power
 
     result = (
@@ -2798,7 +3140,7 @@ def _get_number_profile(value: int | float, n_sigfig: int) -> tuple[str, int, bo
     value = abs(value)
 
     if value == 0:
-        sig_digits = str(("0" * n_sigfig))
+        sig_digits = "0" * n_sigfig
         power = -(1 - n_sigfig)
     else:
         power = -1 * math.floor(math.log10(value)) + n_sigfig - 1
@@ -2811,7 +3153,7 @@ def _get_number_profile(value: int | float, n_sigfig: int) -> tuple[str, int, bo
 
         sig_digits = str(int(round(value * 10.0**power)))
 
-    return sig_digits, int(-power), is_negative
+    return sig_digits, -power, is_negative
 
 
 def _get_sci_parts(value: int | float, n_sigfig: int) -> tuple[bool, str, int, int]:
@@ -3036,7 +3378,7 @@ def _get_locale_sep_mark(default: str, use_seps: bool, locale: str | None = None
 
     # Replace any `""` or "\u00a0" with `" "` since an empty string actually
     # signifies a space character, and, we want to normalize to a simple space
-    sep_mark = " " if sep_mark == "" or sep_mark == "\u00a0" else sep_mark
+    sep_mark = " " if sep_mark in {"", "\u00a0"} else sep_mark
 
     return sep_mark
 
@@ -3158,7 +3500,10 @@ def _normalize_locale(locale: str | None = None) -> str | None:
     return supplied_locale
 
 
-def _resolve_locale(x: GTData, locale: str | None = None) -> str | None:
+def _resolve_locale(x: GTData | None, locale: str | None = None) -> str | None:
+    if x is None and locale is None:
+        return None
+
     # Get the locale from the locale value set globally; note that this may also be None
     # but a None value will eventually be resolved to the 'en' locale
     locale = x._locale._locale if locale is None else locale
@@ -3331,7 +3676,7 @@ def _get_currency_exponent(currency: str) -> int:
 
     else:
         # TODO: in what situation are we given a currency code with no match?
-        # why return this? E.g. what if someone mispelled a currency code?
+        # why return this? E.g. what if someone misspelled a currency code?
         exponent = 2
 
     return exponent
@@ -3436,7 +3781,7 @@ def _validate_case(case: str) -> None:
     Raises:
         ValueError: If the case argument is not 'upper' or 'lower'.
     """
-    if case not in ["upper", "lower"]:
+    if case not in ("upper", "lower"):
         raise ValueError(f"The `case` argument must be either 'upper' or 'lower' (not '{case}').")
 
 
@@ -4099,7 +4444,7 @@ class FmtIcon:
         if self.stroke_width is None:
             stroke_width = "1px"
         elif isinstance(self.stroke_width, (int, float)):
-            stroke_width = f"{str(self.stroke_width)}px"
+            stroke_width = f"{self.stroke_width}px"
         else:
             stroke_width = self.stroke_width
 
@@ -4295,7 +4640,7 @@ class FmtFlag:
 
         for flag in flag_list:
             # If the number of characters in the country code is not 2 or 3, then we raise an error
-            if len(flag) not in [2, 3]:
+            if len(flag) not in (2, 3):
                 raise ValueError("The country code provided must be either 2 or 3 characters long.")
 
             # Since we allow 2- or 3- character country codes, create the name of the lookup
@@ -4587,7 +4932,7 @@ def fmt_nanoplot(
             f"\n\nReceived: {columns}"
         )
 
-    if plot_type not in ["line", "bar"]:
+    if plot_type not in ("line", "bar"):
         raise NotImplementedError(
             "Currently, fmt_nanoplot() only support line or bar as plot_type"
             f"\n\n Received: {plot_type}"
@@ -4612,7 +4957,7 @@ def fmt_nanoplot(
 
     # If a bar plot is requested and the data consists of single y values, then we need to
     # obtain a list of all single y values in the targeted column (from `columns`)
-    if plot_type in ["line", "bar"] and scalar_vals:
+    if plot_type in ("line", "bar") and scalar_vals:
         # Check each cell in the column and get each of them that contains a scalar value
         # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
         all_single_y_vals = to_list(data_tbl[columns])
@@ -4640,7 +4985,7 @@ def fmt_nanoplot(
 
         all_y_vals = []
 
-        for i, data_vals_i in enumerate(all_y_vals_raw):
+        for data_vals_i in all_y_vals_raw:
             # TODO: this dictionary handling seems redundant with _generate_data_vals dict handling?
             # Can this if-clause be removed?
             if isinstance(data_vals_i, dict):

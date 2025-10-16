@@ -1,6 +1,7 @@
 import re
 
 import pandas as pd
+import polars as pl
 import pytest
 from great_tables import GT, exibble, md, google_font
 from great_tables._scss import compile_scss
@@ -466,6 +467,19 @@ def test_opt_stylize_no_striping(snapshot):
     )
 
     assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+
+
+def test_opt_striping_with_group_snap(snapshot):
+    pl_df = pl.DataFrame(
+        {"a": [1, 2, 3, 4, 5, 6], "b": ["a", "b", "a", "b", "a", "b"], "c": ["val"] * 6}
+    )
+
+    gt = GT(pl_df, groupname_col="b", rowname_col="a").opt_row_striping()
+
+    built = gt._build_data("html")
+    body = create_body_component_h(built)
+
+    assert snapshot == body
 
 
 @pytest.mark.parametrize("style", [1, 2, 3, 4, 5, 6])

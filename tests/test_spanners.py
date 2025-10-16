@@ -2,7 +2,8 @@ import pandas as pd
 import polars as pl
 import polars.selectors as cs
 import pytest
-from great_tables import GT, exibble
+from dataclasses import asdict
+from great_tables import GT, exibble, loc, style
 from great_tables._gt_data import Boxhead, ColInfo, ColInfoTypeEnum, SpannerInfo, Spanners
 from great_tables._helpers import UnitStr
 from great_tables._spanners import (
@@ -15,8 +16,11 @@ from great_tables._spanners import (
     empty_spanner_matrix,
     spanners_print_matrix,
     tab_spanner,
+    SpannerTransformer,
 )
 from great_tables._utils_render_html import _get_table_defs
+from .test_utils_render_html import assert_rendered_columns
+from typing import Any
 
 
 @pytest.fixture
@@ -426,3 +430,103 @@ def test_validate_sel_cols_raises():
         "All `columns` must exist and be visible in the input `data` table."
         in exc_info.value.args[0]
     )
+
+
+@pytest.mark.parametrize(
+    "params, src, dst",
+    [
+        [dict(), "span_1.A", ["span_1", "A"]],
+        [dict(), "span_1.B.x", ["span_1", "B", "x"]],
+        [dict(reverse=True), "span_1.A", ["A", "span_1"]],
+        [dict(limit=1), "span_1.A", ["span_1", "A"]],
+        [dict(limit=1), "span_1.B.x", ["span_1.B", "x"]],
+        [dict(limit=1, split="first"), "span_1.A", ["span_1", "A"]],
+        [dict(limit=1, split="first"), "span_1.B.x", ["span_1", "B.x"]],
+        [dict(limit=1, split="first", reverse=True), "span_1.A", ["A", "span_1"]],
+        [dict(limit=1, split="first", reverse=True), "span_1.B.x", ["B.x", "span_1"]],
+    ],
+)
+def test_spanner_transformer_split(params: dict[str, Any], src: str, dst: list[str]):
+    res = SpannerTransformer.split_string(src, **params)
+    assert res == dst
+
+
+def test_spanner_transformer_split_columns():
+    #
+    res = SpannerTransformer(delim=",", limit=1, split="first").split_columns(
+        ["span_1,A", "span_1,B,x"]
+    )
+    assert res == {
+        "span_1,A": ["span_1", "A"],
+        "span_1,B,x": ["span_1", "B,x"],
+    }
+
+
+def test_spanner_transformer_get_rectangle():
+    src = {"a.b": ["a", "b"], "c": ["c", None]}
+    res = SpannerTransformer().get_rectangle(src)
+
+    assert res == [{"a.b": "a", "c": "c"}, {"a.b": "b", "c": None}]
+
+
+def test_spanner_transformer_spanner_groups():
+    groups = SpannerTransformer().spanner_groups({"a.s1": "s1", "b.s2": "s2", "c.s1": "s1"})
+
+    assert len(groups) == 2
+    assert groups[0] == {"label": "s1", "columns": ["a.s1", "c.s1"]}
+    assert groups[1] == {"label": "s2", "columns": ["b.s2"]}
+
+
+def test_tab_spanner_delim_level_one():
+    df = pl.DataFrame({"span_1.a": [], "span_2.b": [], "span_1.c": []})
+
+    gt = GT(df).tab_spanner_delim()
+
+    assert len(gt._spanners) == 2
+    info1, info2 = gt._spanners
+    assert info1.spanner_id == "span_1"
+    assert info1.spanner_level == 0
+
+    assert info2.spanner_id == "span_2"
+    assert info2.spanner_level == 0
+
+    # note that span_1 for col "a" and "c" does not gather
+    # so two span_1 labels are shown. This emerges from these
+    # columns not having been moved next to each other.
+    assert len(gt._boxhead) == 3
+    assert gt._boxhead[0].column_label == "a"
+    assert gt._boxhead[1].column_label == "b"
+    assert gt._boxhead[2].column_label == "c"
+
+
+def test_tab_spanner_delim_level_multi():
+    df = pl.DataFrame({"top.mid.a": [], "mid.b": []})
+
+    gt = GT(df).tab_spanner_delim()
+
+    assert len(gt._spanners) == 2
+    info1, info2 = gt._spanners
+    assert info1.spanner_id == "mid"
+    assert info1.spanner_level == 0
+
+    assert info2.spanner_id == "top"
+    assert info2.spanner_level == 1
+
+    assert len(gt._boxhead) == 2
+    assert gt._boxhead[0].column_label == "a"
+    assert gt._boxhead[1].column_label == "b"
+
+
+def test_spanners_styled(snapshot: str):
+    df = pl.DataFrame({"a": 1, "b": 2, "c": 3, "d": 4, "group": "A", "row": "row_1"})
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .tab_spanner("A", ["a", "b", "c"])
+        .tab_spanner("B", ["b", "c", "d"])
+        .tab_spanner("C", ["b", "c"])
+        .tab_style(style=style.fill(color="#33BB88"), locations=loc.spanner_labels(ids=["A"]))
+        .tab_style(style=style.fill(color="#1133FF"), locations=loc.spanner_labels(ids=["B", "C"]))
+    )
+
+    assert_rendered_columns(snapshot, gt)
