@@ -63,6 +63,63 @@
   
   '''
 # ---
+# name: test_snap_render_as_latex_groups_as_column
+  '''
+  \begin{table}[!t]
+  
+  
+  \fontsize{12.0pt}{14.4pt}\selectfont
+  
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rllrrrrl}
+  \toprule
+    & num & char & fctr & date & time & datetime & currency & row \\ 
+  \midrule\addlinespace[2.5pt]
+  grp\_a & 0.1111 & apricot & one & 2015-01-15 & 13:35 & 2018-01-01 02:22 & 49.95 & row\_1 \\
+   & 2.222 & banana & two & 2015-02-15 & 14:40 & 2018-02-02 14:33 & 17.95 & row\_2 \\
+   & 33.33 & coconut & three & 2015-03-15 & 15:45 & 2018-03-03 03:44 & 1.39 & row\_3 \\
+   & 444.4 & durian & four & 2015-04-15 & 16:50 & 2018-04-04 15:55 & 65100.0 & row\_4 \\
+  grp\_b & 5550.0 & nan & five & 2015-05-15 & 17:55 & 2018-05-05 04:00 & 1325.81 & row\_5 \\
+   & nan & fig & six & 2015-06-15 & nan & 2018-06-06 16:11 & 13.255 & row\_6 \\
+   & 777000.0 & grapefruit & seven & nan & 19:10 & 2018-07-07 05:22 & nan & row\_7 \\
+   & 8880000.0 & honeydew & eight & 2015-08-15 & 20:20 & nan & 0.44 & row\_8 \\
+  \bottomrule
+  \end{tabular*}
+  
+  \end{table}
+  
+  '''
+# ---
+# name: test_snap_render_as_latex_groups_only
+  '''
+  \begin{table}[!t]
+  
+  
+  \fontsize{12.0pt}{14.4pt}\selectfont
+  
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}rllrrrrl}
+  \toprule
+  num & char & fctr & date & time & datetime & currency & row \\ 
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{8}{l}{grp\_a} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  0.1111 & apricot & one & 2015-01-15 & 13:35 & 2018-01-01 02:22 & 49.95 & row\_1 \\
+  2.222 & banana & two & 2015-02-15 & 14:40 & 2018-02-02 14:33 & 17.95 & row\_2 \\
+  33.33 & coconut & three & 2015-03-15 & 15:45 & 2018-03-03 03:44 & 1.39 & row\_3 \\
+  444.4 & durian & four & 2015-04-15 & 16:50 & 2018-04-04 15:55 & 65100.0 & row\_4 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{8}{l}{grp\_b} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  5550.0 & nan & five & 2015-05-15 & 17:55 & 2018-05-05 04:00 & 1325.81 & row\_5 \\
+  nan & fig & six & 2015-06-15 & nan & 2018-06-06 16:11 & 13.255 & row\_6 \\
+  777000.0 & grapefruit & seven & nan & 19:10 & 2018-07-07 05:22 & nan & row\_7 \\
+  8880000.0 & honeydew & eight & 2015-08-15 & 20:20 & nan & 0.44 & row\_8 \\
+  \bottomrule
+  \end{tabular*}
+  
+  \end{table}
+  
+  '''
+# ---
 # name: test_snap_render_as_latex_longtable
   '''
   \begingroup
@@ -93,6 +150,115 @@
   Note 2\\
   \end{minipage}
   \endgroup
+  
+  '''
+# ---
+# name: test_snap_render_as_latex_no_stub_no_groups
+  '''
+  \begin{table}[!t]
+  
+  
+  \fontsize{12.0pt}{14.4pt}\selectfont
+  
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}rllrrrrll}
+  \toprule
+  num & char & fctr & date & time & datetime & currency & row & group \\ 
+  \midrule\addlinespace[2.5pt]
+  0.1111 & apricot & one & 2015-01-15 & 13:35 & 2018-01-01 02:22 & 49.95 & row\_1 & grp\_a \\
+  2.222 & banana & two & 2015-02-15 & 14:40 & 2018-02-02 14:33 & 17.95 & row\_2 & grp\_a \\
+  33.33 & coconut & three & 2015-03-15 & 15:45 & 2018-03-03 03:44 & 1.39 & row\_3 & grp\_a \\
+  444.4 & durian & four & 2015-04-15 & 16:50 & 2018-04-04 15:55 & 65100.0 & row\_4 & grp\_a \\
+  5550.0 & nan & five & 2015-05-15 & 17:55 & 2018-05-05 04:00 & 1325.81 & row\_5 & grp\_b \\
+  nan & fig & six & 2015-06-15 & nan & 2018-06-06 16:11 & 13.255 & row\_6 & grp\_b \\
+  777000.0 & grapefruit & seven & nan & 19:10 & 2018-07-07 05:22 & nan & row\_7 & grp\_b \\
+  8880000.0 & honeydew & eight & 2015-08-15 & 20:20 & nan & 0.44 & row\_8 & grp\_b \\
+  \bottomrule
+  \end{tabular*}
+  
+  \end{table}
+  
+  '''
+# ---
+# name: test_snap_render_as_latex_stub_and_groups
+  '''
+  \begin{table}[!t]
+  
+  
+  \fontsize{12.0pt}{14.4pt}\selectfont
+  
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rllrrrr}
+  \toprule
+    & num & char & fctr & date & time & datetime & currency \\ 
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{8}{l}{grp\_a} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  row\_1 & 0.1111 & apricot & one & 2015-01-15 & 13:35 & 2018-01-01 02:22 & 49.95 \\
+  row\_2 & 2.222 & banana & two & 2015-02-15 & 14:40 & 2018-02-02 14:33 & 17.95 \\
+  row\_3 & 33.33 & coconut & three & 2015-03-15 & 15:45 & 2018-03-03 03:44 & 1.39 \\
+  row\_4 & 444.4 & durian & four & 2015-04-15 & 16:50 & 2018-04-04 15:55 & 65100.0 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{8}{l}{grp\_b} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  row\_5 & 5550.0 & nan & five & 2015-05-15 & 17:55 & 2018-05-05 04:00 & 1325.81 \\
+  row\_6 & nan & fig & six & 2015-06-15 & nan & 2018-06-06 16:11 & 13.255 \\
+  row\_7 & 777000.0 & grapefruit & seven & nan & 19:10 & 2018-07-07 05:22 & nan \\
+  row\_8 & 8880000.0 & honeydew & eight & 2015-08-15 & 20:20 & nan & 0.44 \\
+  \bottomrule
+  \end{tabular*}
+  
+  \end{table}
+  
+  '''
+# ---
+# name: test_snap_render_as_latex_stub_and_groups_as_column
+  '''
+  \begin{table}[!t]
+  
+  
+  \fontsize{12.0pt}{14.4pt}\selectfont
+  
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}ll|rllrrrr}
+  \toprule
+    &   & num & char & fctr & date & time & datetime & currency \\ 
+  \midrule\addlinespace[2.5pt]
+  grp\_a & row\_1 & 0.1111 & apricot & one & 2015-01-15 & 13:35 & 2018-01-01 02:22 & 49.95 \\
+   & row\_2 & 2.222 & banana & two & 2015-02-15 & 14:40 & 2018-02-02 14:33 & 17.95 \\
+   & row\_3 & 33.33 & coconut & three & 2015-03-15 & 15:45 & 2018-03-03 03:44 & 1.39 \\
+   & row\_4 & 444.4 & durian & four & 2015-04-15 & 16:50 & 2018-04-04 15:55 & 65100.0 \\
+  grp\_b & row\_5 & 5550.0 & nan & five & 2015-05-15 & 17:55 & 2018-05-05 04:00 & 1325.81 \\
+   & row\_6 & nan & fig & six & 2015-06-15 & nan & 2018-06-06 16:11 & 13.255 \\
+   & row\_7 & 777000.0 & grapefruit & seven & nan & 19:10 & 2018-07-07 05:22 & nan \\
+   & row\_8 & 8880000.0 & honeydew & eight & 2015-08-15 & 20:20 & nan & 0.44 \\
+  \bottomrule
+  \end{tabular*}
+  
+  \end{table}
+  
+  '''
+# ---
+# name: test_snap_render_as_latex_stub_only
+  '''
+  \begin{table}[!t]
+  
+  
+  \fontsize{12.0pt}{14.4pt}\selectfont
+  
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rllrrrrl}
+  \toprule
+    & num & char & fctr & date & time & datetime & currency & group \\ 
+  \midrule\addlinespace[2.5pt]
+  row\_1 & 0.1111 & apricot & one & 2015-01-15 & 13:35 & 2018-01-01 02:22 & 49.95 & grp\_a \\
+  row\_2 & 2.222 & banana & two & 2015-02-15 & 14:40 & 2018-02-02 14:33 & 17.95 & grp\_a \\
+  row\_3 & 33.33 & coconut & three & 2015-03-15 & 15:45 & 2018-03-03 03:44 & 1.39 & grp\_a \\
+  row\_4 & 444.4 & durian & four & 2015-04-15 & 16:50 & 2018-04-04 15:55 & 65100.0 & grp\_a \\
+  row\_5 & 5550.0 & nan & five & 2015-05-15 & 17:55 & 2018-05-05 04:00 & 1325.81 & grp\_b \\
+  row\_6 & nan & fig & six & 2015-06-15 & nan & 2018-06-06 16:11 & 13.255 & grp\_b \\
+  row\_7 & 777000.0 & grapefruit & seven & nan & 19:10 & 2018-07-07 05:22 & nan & grp\_b \\
+  row\_8 & 8880000.0 & honeydew & eight & 2015-08-15 & 20:20 & nan & 0.44 & grp\_b \\
+  \bottomrule
+  \end{tabular*}
+  
+  \end{table}
   
   '''
 # ---
