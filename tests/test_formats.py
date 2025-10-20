@@ -1155,6 +1155,191 @@ def test_fmt_scientific_case(
 
 
 # ------------------------------------------------------------------------------
+# Tests of `fmt_engineering()`
+# ------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "fmt_engineering_kwargs,x_in,x_out",
+    [
+        (
+            dict(decimals=2),
+            [
+                829300232923103939802.4,
+                492032183020.5,
+                84930284002.1,
+                203820929.2,
+                84729202.4,
+                2323435.1,
+                230323.4,
+                50000.01,
+                1000.001,
+                10.00001,
+                1.2345,
+                0.12345,
+                0.0000123456,
+            ],
+            [
+                "829.30 × 10<sup style='font-size: 65%;'>18</sup>",
+                "492.03 × 10<sup style='font-size: 65%;'>9</sup>",
+                "84.93 × 10<sup style='font-size: 65%;'>9</sup>",
+                "203.82 × 10<sup style='font-size: 65%;'>6</sup>",
+                "84.73 × 10<sup style='font-size: 65%;'>6</sup>",
+                "2.32 × 10<sup style='font-size: 65%;'>6</sup>",
+                "230.32 × 10<sup style='font-size: 65%;'>3</sup>",
+                "50.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "1.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "10.00",
+                "1.23",
+                "123.45 × 10<sup style='font-size: 65%;'>−3</sup>",
+                "12.35 × 10<sup style='font-size: 65%;'>−6</sup>",
+            ],
+        ),
+        (
+            dict(decimals=2),
+            [
+                -50000.01,
+                -1000.001,
+                -10.00001,
+                -12345,
+                -1234.5,
+                -123.45,
+                -1.2345,
+                -0.12345,
+                -0.0000123456,
+            ],
+            [
+                "−50.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "−1.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "−10.00",
+                "−12.35 × 10<sup style='font-size: 65%;'>3</sup>",
+                "−1.23 × 10<sup style='font-size: 65%;'>3</sup>",
+                "−123.45",
+                "−1.23",
+                "−123.45 × 10<sup style='font-size: 65%;'>−3</sup>",
+                "−12.35 × 10<sup style='font-size: 65%;'>−6</sup>",
+            ],
+        ),
+        (
+            dict(decimals=2, exp_style="E"),
+            [-3.49e13, -3453, -0.000234, 0, 0.00007534, 82794, 7.16e14],
+            [
+                "−34.90E12",
+                "−3.45E03",
+                "−234.00E−06",
+                "0.00E00",
+                "75.34E−06",
+                "82.79E03",
+                "716.00E12",
+            ],
+        ),
+        (
+            dict(decimals=2, exp_style="E1"),
+            [-3.49e13, -3453, -0.000234, 0, 0.00007534, 82794, 7.16e14],
+            [
+                "−34.90E12",
+                "−3.45E3",
+                "−234.00E−6",
+                "0.00E0",
+                "75.34E−6",
+                "82.79E3",
+                "716.00E12",
+            ],
+        ),
+        (
+            dict(decimals=2, force_sign_m=True),
+            [-3.49e13, -3453, -0.000234, 0, 0.00007534, 82794, 7.16e14],
+            [
+                "−34.90 × 10<sup style='font-size: 65%;'>12</sup>",
+                "−3.45 × 10<sup style='font-size: 65%;'>3</sup>",
+                "−234.00 × 10<sup style='font-size: 65%;'>−6</sup>",
+                "0.00",
+                "+75.34 × 10<sup style='font-size: 65%;'>−6</sup>",
+                "+82.79 × 10<sup style='font-size: 65%;'>3</sup>",
+                "+716.00 × 10<sup style='font-size: 65%;'>12</sup>",
+            ],
+        ),
+        (
+            dict(decimals=2, force_sign_n=True),
+            [-3.49e13, -3453, -0.000234, 0, 0.00007534, 82794, 7.16e14],
+            [
+                "−34.90 × 10<sup style='font-size: 65%;'>+12</sup>",
+                "−3.45 × 10<sup style='font-size: 65%;'>+3</sup>",
+                "−234.00 × 10<sup style='font-size: 65%;'>−6</sup>",
+                "0.00",
+                "75.34 × 10<sup style='font-size: 65%;'>−6</sup>",
+                "82.79 × 10<sup style='font-size: 65%;'>+3</sup>",
+                "716.00 × 10<sup style='font-size: 65%;'>+12</sup>",
+            ],
+        ),
+        (
+            dict(decimals=2, force_sign_m=True, force_sign_n=True),
+            [-3.49e13, -3453, -0.000234, 0, 0.00007534, 82794, 7.16e14],
+            [
+                "−34.90 × 10<sup style='font-size: 65%;'>+12</sup>",
+                "−3.45 × 10<sup style='font-size: 65%;'>+3</sup>",
+                "−234.00 × 10<sup style='font-size: 65%;'>−6</sup>",
+                "0.00",
+                "+75.34 × 10<sup style='font-size: 65%;'>−6</sup>",
+                "+82.79 × 10<sup style='font-size: 65%;'>+3</sup>",
+                "+716.00 × 10<sup style='font-size: 65%;'>+12</sup>",
+            ],
+        ),
+        (
+            dict(decimals=2, pattern="a {x} b"),
+            [1234.5, 0.000123],
+            [
+                "a 1.23 × 10<sup style='font-size: 65%;'>3</sup> b",
+                "a 123.00 × 10<sup style='font-size: 65%;'>−6</sup> b",
+            ],
+        ),
+        (
+            dict(decimals=2, scale_by=1 / 1000),
+            [492032183020.5, 50000.01],
+            [
+                "492.03 × 10<sup style='font-size: 65%;'>6</sup>",
+                "50.00",
+            ],
+        ),
+        (
+            dict(decimals=5),
+            [
+                -1.5e200,
+                -1.5e100,
+                -2.5,
+                -3.5e-100,
+                -3.5e-200,
+                1.5e-200,
+                1.5e-100,
+                2.5,
+                3.5e100,
+                3.5e200,
+            ],
+            [
+                "−150.00000 × 10<sup style='font-size: 65%;'>198</sup>",
+                "−15.00000 × 10<sup style='font-size: 65%;'>99</sup>",
+                "−2.50000",
+                "−350.00000 × 10<sup style='font-size: 65%;'>−102</sup>",
+                "−35.00000 × 10<sup style='font-size: 65%;'>−201</sup>",
+                "15.00000 × 10<sup style='font-size: 65%;'>−201</sup>",
+                "150.00000 × 10<sup style='font-size: 65%;'>−102</sup>",
+                "2.50000",
+                "35.00000 × 10<sup style='font-size: 65%;'>99</sup>",
+                "350.00000 × 10<sup style='font-size: 65%;'>198</sup>",
+            ],
+        ),
+    ],
+)
+def test_fmt_engineering_case(
+    fmt_engineering_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]
+):
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_engineering(columns="x", **fmt_engineering_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+# ------------------------------------------------------------------------------
 # Tests of `fmt_currency()`
 # ------------------------------------------------------------------------------
 
