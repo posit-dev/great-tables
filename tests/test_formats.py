@@ -1336,7 +1336,44 @@ def test_fmt_engineering_case(
     df = pd.DataFrame({"x": x_in})
     gt = GT(df).fmt_engineering(columns="x", **fmt_engineering_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
+
     assert x == x_out
+
+
+def test_fmt_engineering_with_missing_values():
+    df = pd.DataFrame({"x": [1234.5, None, float("nan"), 0.000123]})
+    gt = GT(df).fmt_engineering(columns="x", decimals=2)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[1] == "<NA>"
+    assert x[2] == "<NA>"
+
+
+def test_fmt_engineering_exp_style_force_sign():
+    df = pd.DataFrame({"x": [1e6, 1e3, 1, 1e-3, 1e-6]})
+    gt = GT(df).fmt_engineering(columns="x", decimals=2, exp_style="E1", force_sign_n=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x == [
+        "1.00E+6",
+        "1.00E+3",
+        "1.00E+0",
+        "1.00E−3",
+        "1.00E−6",
+    ]
+
+
+def test_fmt_engineering_latex_output():
+    df = pd.DataFrame({"x": [1234.5, 0.000123]})
+    gt = GT(df).fmt_engineering(columns="x", decimals=2, pattern="Value: {x} units")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+
+    assert "Value:" in x[0]
+    assert "units" in x[0]
+    assert "1.23" in x[0]
+    assert "Value:" in x[1]
+    assert "units" in x[1]
+    assert "123.00" in x[1]
 
 
 # ------------------------------------------------------------------------------
