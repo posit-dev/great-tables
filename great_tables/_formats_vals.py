@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable, ParamSpec
 
 from typing_extensions import TypeAlias
 
 from ._gt_data import GTData, FramelessData
-from ._tbl_data import SeriesLike, to_frame
+from ._tbl_data import PlExpr, SeriesLike, to_frame
 from .gt import GT, _get_column_of_values
 
 # TODO: these imports make it so that vals.fmt_integer does not require pandas
@@ -21,6 +21,34 @@ if TYPE_CHECKING:
 
 
 X: TypeAlias = "Any | list[Any] | SeriesLike"
+
+
+# decorator for dispatching Polars expressions ----
+
+P = ParamSpec("P")
+
+
+# * if first argument to wrapped function is a Polars expression, then return
+#   an expression via .map_element
+
+
+def expressive(func: Callable[P, "list[str]"]) -> Callable[P, "list[str] | PlExpr"]:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> "list[str] | PlExpr":
+        data, rest = args[0], args[1:]
+        if isinstance(data, PlExpr):
+            from polars import String
+
+            return data.map_elements(
+                lambda x: func(x, *rest, **kwargs).pop(),
+                return_dtype=String,
+            )
+        else:
+            return func(data, *rest, **kwargs)
+
+    return wrapper
+
+
+# everything else ----
 
 
 def _upgrade_to_list(x: Any) -> list[Any]:
@@ -59,6 +87,7 @@ def _make_one_col_table(vals: X) -> GT:
     return gt_obj
 
 
+@expressive
 def val_fmt_number(
     x: X,
     decimals: int = 2,
@@ -189,6 +218,7 @@ def val_fmt_number(
     return vals_fmt
 
 
+@expressive
 def val_fmt_integer(
     x: X,
     use_seps: bool = True,
@@ -291,6 +321,7 @@ def val_fmt_integer(
     return [pf(val) for val in x]
 
 
+@expressive
 def val_fmt_scientific(
     x: X,
     decimals: int = 2,
@@ -421,6 +452,7 @@ def val_fmt_scientific(
     return vals_fmt
 
 
+@expressive
 def val_fmt_percent(
     x: X,
     decimals: int = 2,
@@ -550,6 +582,7 @@ def val_fmt_percent(
     return vals_fmt
 
 
+@expressive
 def val_fmt_currency(
     x: X,
     currency: str | None = None,
@@ -690,6 +723,7 @@ def val_fmt_currency(
     return vals_fmt
 
 
+@expressive
 def val_fmt_roman(
     x: X,
     case: str = "upper",
@@ -739,6 +773,7 @@ def val_fmt_roman(
     return vals_fmt
 
 
+@expressive
 def val_fmt_bytes(
     x: X,
     standard: str = "decimal",
@@ -859,6 +894,7 @@ def val_fmt_bytes(
     return vals_fmt
 
 
+@expressive
 def val_fmt_date(
     x: X,
     date_style: DateStyle = "iso",
@@ -945,6 +981,7 @@ def val_fmt_date(
     return vals_fmt
 
 
+@expressive
 def val_fmt_time(
     x: X,
     time_style: TimeStyle = "iso",
@@ -1019,6 +1056,7 @@ def val_fmt_time(
     return vals_fmt
 
 
+@expressive
 def val_fmt_markdown(
     x: X,
 ) -> list[str]:
@@ -1072,6 +1110,7 @@ def val_fmt_markdown(
     return vals_fmt
 
 
+@expressive
 def val_fmt_image(
     x: X,
     height: str | int | None = None,
