@@ -285,3 +285,98 @@ def _get_visible_cells(data: TblData) -> list[tuple[str, int]]:
 
 def is_valid_http_schema(url: str) -> bool:
     return url.startswith(("http://", "https://"))
+
+
+# Column merge pattern processing utilities ----
+
+# Token used to represent missing values during pattern processing
+_MISSING_VAL_TOKEN = "::NA::"
+
+
+def _process_col_merge_pattern(
+    pattern: str,
+    col_values: dict[str, str],
+    col_is_missing: dict[str, bool],
+) -> str:
+    """Process a column merge pattern by substituting values and handling missing data."""
+
+    # Replace values with tokens if they are truly missing
+    processed_values = {}
+    for key, value in col_values.items():
+        # Consider a value missing if it matches a known NA representation
+        # and the original data was also NA
+        # - "NA": generic representation
+        # - "<NA>": pandas representation
+        # - "None": Polars representation (str(None))
+        if col_is_missing.get(key, False) and value in ("NA", "<NA>", "None"):
+            processed_values[key] = _MISSING_VAL_TOKEN
+        else:
+            processed_values[key] = value
+
+    # Substitute `{n}`` placeholders with values
+    result = pattern
+    for key, value in processed_values.items():
+        result = result.replace(f"{{{key}}}", value)
+
+    # Process conditional sections (`<<...>>`)
+    if "<<" in result and ">>" in result:
+        result = _resolve_conditional_sections(result)
+
+    # Clean up any remaining missing value tokens
+    result = result.replace(_MISSING_VAL_TOKEN, "NA")
+
+    return result
+
+
+def _resolve_conditional_sections(text: str) -> str:
+    """Resolve conditional sections marked with <<...>> in text."""
+    # Process from innermost to outermost sections
+    max_iterations = 100  # Prevent infinite looping
+    iteration = 0
+
+    while "<<" in text and ">>" in text and iteration < max_iterations:
+        iteration += 1
+
+        # Find the last occurrence of `<<` (innermost section start)
+        last_open = text.rfind("<<")
+        if last_open == -1:
+            break
+
+        # Find the first `>>` after that `<<`
+        first_close = text.find(">>", last_open)
+        if first_close == -1:
+            break
+
+        # Extract the content between << and >>
+        section_content = text[last_open + 2 : first_close]
+
+        # Check if the section contains a missing value token
+        if _MISSING_VAL_TOKEN in section_content:
+            # Remove the entire section (including the markers)
+            replacement = ""
+        else:
+            # Keep the content without the markers
+            replacement = section_content
+
+        # Replace this section in the text
+        text = text[:last_open] + replacement + text[first_close + 2 :]
+
+    return text
+
+
+def _extract_pattern_columns(pattern: str) -> list[str]:
+    """Extract column references from a pattern string."""
+
+    # Find all `{n}` patterns
+    matches = re.findall(r"\{(\d+)\}", pattern)
+
+    # Return unique matches in order they appear
+    seen = set()
+    result = []
+
+    for match in matches:
+        if match not in seen:
+            result.append(match)
+            seen.add(match)
+
+    return result
