@@ -1,4 +1,5 @@
 import base64
+import polars as pl
 from pathlib import Path
 from importlib_resources import files
 
@@ -29,3 +30,11 @@ def test_val_fmt_image_multiple(img_paths: Path):
 
     assert 'img src="data:image/svg+xml;base64' in img1
     assert 'img src="data:image/svg+xml;base64' in img2
+
+
+def test_val_fmt_to_expression():
+    expr = vals.fmt_integer(pl.col("x"))
+    assert isinstance(expr, pl.Expr)
+
+    res = pl.DataFrame({"x": [1.23]}).select(expr)
+    assert res[0, "x"] == "1"
