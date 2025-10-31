@@ -71,7 +71,7 @@ dev = [
 dev-no-pandas = [
     "ruff==0.8.0",
     "jupyter",
-    "quartodoc @ git+https://github.com/rich-iannone/quartodoc.git@feat-place-description-at-top; python_version >= '3.9'",
+    "quartodoc @ git+https://github.com/rich-iannone/quartodoc.git@feat-place-description-at-top",
     "griffe==0.38.1",
     "polars",
     "pre-commit==2.15.0",
