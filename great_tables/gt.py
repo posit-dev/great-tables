@@ -15,6 +15,7 @@ from ._formats import (
     fmt_currency,
     fmt_date,
     fmt_datetime,
+    fmt_engineering,
     fmt_flag,
     fmt_icon,
     fmt_image,
@@ -227,6 +228,7 @@ class GT(
     fmt_integer = fmt_integer
     fmt_percent = fmt_percent
     fmt_scientific = fmt_scientific
+    fmt_engineering = fmt_engineering
     fmt_currency = fmt_currency
     fmt_bytes = fmt_bytes
     fmt_roman = fmt_roman
