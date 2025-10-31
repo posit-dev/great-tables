@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Concatenate, ParamSpec, overload
+from typing import TYPE_CHECKING, Any, Callable, overload
 
-from typing_extensions import TypeAlias
+from typing_extensions import TypeAlias, Concatenate, ParamSpec
 
 from ._gt_data import GTData, FramelessData
 from ._tbl_data import PlExpr, SeriesLike, to_frame
