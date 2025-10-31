@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import wraps
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Concatenate, ParamSpec, overload
 
@@ -37,6 +38,7 @@ def expressive(
     @overload
     def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> "list[str]": ...
 
+    @wraps(func)
     def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> "list[str] | PlExpr":
         if isinstance(data, PlExpr):
             from polars import String
