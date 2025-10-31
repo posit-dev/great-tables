@@ -222,11 +222,8 @@ def _get_cell(data: DataFrameLike, row: int, column: str) -> Any:
 def _(data: Any, row: int, column: str) -> Any:
     import polars as pl
 
-    islist = isinstance(data[column].dtype, pl.List)
-    isarray = isinstance(data[column].dtype, pl.Array)
-
-    # if it's container dtype, it should return list[]
-    if islist or isarray:
+    # if container dtype, convert pl.Series to list
+    if isinstance(data[column].dtype, (pl.List, pl.Array)):
         return data[column][row].to_list()
 
     return data[column][row]
