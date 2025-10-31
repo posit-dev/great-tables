@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, ParamSpec
+from typing import TYPE_CHECKING, Any, Callable, Concatenate, ParamSpec, overload
 
 from typing_extensions import TypeAlias
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from ._tbl_data import SeriesLike
 
 
-X: TypeAlias = "Any | list[Any] | SeriesLike"
+X: TypeAlias = "Any | list[Any] | SeriesLike | PlExpr"
 
 
 # decorator for dispatching Polars expressions ----
@@ -28,22 +28,25 @@ X: TypeAlias = "Any | list[Any] | SeriesLike"
 P = ParamSpec("P")
 
 
-# * if first argument to wrapped function is a Polars expression, then return
-#   an expression via .map_element
+def expressive(
+    func: Callable[Concatenate[X, P], "list[str]"],
+) -> Callable[Concatenate[X, P], "list[str] | PlExpr"]:
+    @overload
+    def wrapper(data: PlExpr, *args: P.args, **kwargs: P.kwargs) -> PlExpr: ...
 
+    @overload
+    def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> "list[str]": ...
 
-def expressive(func: Callable[P, "list[str]"]) -> Callable[P, "list[str] | PlExpr"]:
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> "list[str] | PlExpr":
-        data, rest = args[0], args[1:]
+    def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> "list[str] | PlExpr":
         if isinstance(data, PlExpr):
             from polars import String
 
             return data.map_elements(
-                lambda x: func(x, *rest, **kwargs).pop(),
+                lambda x: func(x, *args, **kwargs).pop(),
                 return_dtype=String,
             )
         else:
-            return func(data, *rest, **kwargs)
+            return func(data, *args, **kwargs)
 
     return wrapper
 
