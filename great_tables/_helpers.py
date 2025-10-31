@@ -1375,8 +1375,8 @@ def nanoplot_options(
     show_reference_area = True if show_reference_area is None else show_reference_area
     show_vertical_guides = True if show_vertical_guides is None else show_vertical_guides
     show_y_axis_guide = True if show_y_axis_guide is None else show_y_axis_guide
-
-    interactive_data_values = interactive_data_values or True
+    
+    interactive_data_values = True if interactive_data_values is None else interactive_data_values
 
     # y_val_fmt_fn, y_axis_fmt_fn, and y_ref_line_fmt_fn
     # are not assigned to a default value
