@@ -73,6 +73,7 @@ dev-no-pandas = [
     "jupyter",
     "quartodoc>=0.11.0; python_version >= '3.9'",
     "griffe==0.38.1",
+    "gt-extras>=0.0.7",
     "polars",
     "pre-commit==2.15.0",
     "pyarrow",
