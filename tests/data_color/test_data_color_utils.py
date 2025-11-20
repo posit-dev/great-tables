@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 from great_tables._data_color.base import (
     _add_alpha,
+    _alpha_composite_with_white,
     _color_name_to_hex,
     _expand_short_hex,
     _float_to_hex,
@@ -21,7 +22,6 @@ from great_tables._data_color.base import (
     _is_short_hex,
     _is_standard_hex_col,
     _relative_luminance,
-    _remove_alpha,
     _rescale_numeric,
     _srgb,
 )
@@ -198,15 +198,21 @@ def test_add_alpha_float_alpha(alpha: float, context: Any) -> None:
 
 
 @pytest.mark.parametrize(
-    ("colors", "result"),
+    ("colors", "expected"),
     [
-        (["#FF0000FF", "#00FF00FF", "#0000FFFF"], ["#FF0000", "#00FF00", "#0000FF"]),
-        (["#FF000080", "#00FF0080", "#0000FF80"], ["#FF0000", "#00FF00", "#0000FF"]),
-        (["#FF0000", "#00FF00", "#0000FF"], ["#FF0000", "#00FF00", "#0000FF"]),
+        (["#FF000040", "#00FF0040", "#0000FF40"], ["#FFBFBF", "#BFFFBF", "#BFBFFF"]),  # 25% alpha
+        (["#FF000080", "#00FF0080", "#0000FF80"], ["#FF7F7F", "#7FFF7F", "#7F7FFF"]),  # 50% alpha
+        (["#FF0000FF", "#00FF00FF", "#0000FFFF"], ["#FF0000", "#00FF00", "#0000FF"]),  # 100% alpha
+        (["#FF000000", "#00FF0000", "#0000FF00"], ["#FFFFFF", "#FFFFFF", "#FFFFFF"]),  # 0% alpha
+        (
+            ["#FF0000", "#00FF00", "#0000FF"],
+            ["#FF0000", "#00FF00", "#0000FF"],
+        ),  # colors without alpha
     ],
 )
-def test_remove_alpha(colors: list[str], result: list[str]) -> None:
-    assert _remove_alpha(colors) == result
+def test_alpha_composite_with_white(colors: list[str], expected: list[str]):
+    result = [_alpha_composite_with_white(color) for color in colors]
+    assert result == expected
 
 
 @pytest.mark.parametrize(
