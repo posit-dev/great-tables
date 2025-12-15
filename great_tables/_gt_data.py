@@ -988,7 +988,7 @@ Formats = list
 # Summary Rows ---
 
 # This can't conflict with actual group ids since we have a
-# seperate data structure for grand summary row infos
+# separate data structure for grand summary row infos
 
 
 @dataclass(frozen=True)
@@ -1009,7 +1009,7 @@ class SummaryRowInfo:
 class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
     """A sequence of summary rows
 
-    The following strctures should always be true about summary rows:
+    The following structures should always be true about summary rows:
         - The id is also the label (often the same as the function name)
         - There is at most 1 row for each group and id pairing
         - If a summary row is added and no row exists for that group and id, add it
