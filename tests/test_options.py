@@ -65,6 +65,8 @@ def gt_tbl():
             container_height="500px",
             container_overflow_x="hidden",
             container_overflow_y="hidden",
+            container_padding_x=css_length_val_small,
+            container_padding_y=css_length_val_small,
             table_width=css_length_val_large,
             table_layout="auto",
             table_margin_left=css_length_val_margin,
