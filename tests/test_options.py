@@ -191,6 +191,8 @@ def test_options_all_available(gt_tbl: GT):
     assert gt_tbl._options.container_height.value == "500px"
     assert gt_tbl._options.container_overflow_x.value == "hidden"
     assert gt_tbl._options.container_overflow_y.value == "hidden"
+    assert gt_tbl._options.container_padding_x.value == css_length_val_small
+    assert gt_tbl._options.container_padding_y.value == css_length_val_small
     assert gt_tbl._options.table_width.value == css_length_val_large
     assert gt_tbl._options.table_layout.value == "auto"
     assert gt_tbl._options.table_margin_left.value == css_length_val_margin
