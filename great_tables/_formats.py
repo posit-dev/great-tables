@@ -7,44 +7,23 @@ from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    ClassVar,
-    Literal,
-    TypedDict,
-    TypeVar,
-    Union,
-    cast,
-    overload,
-)
+from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Literal, TypedDict,
+                    TypeVar, Union, cast, overload)
 
 import babel
 import faicons
 from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
 
-from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData, PFrameData
+from ._gt_data import (FormatFn, FormatFns, FormatInfo, FormatterSkipElement,
+                       GTData, PFrameData)
 from ._helpers import px
-from ._locale import (
-    _get_currencies_data,
-    _get_default_locales_data,
-    _get_flags_data,
-    _get_locales_data,
-)
+from ._locale import (_get_currencies_data, _get_default_locales_data,
+                      _get_flags_data, _get_locales_data)
 from ._locations import resolve_cols_c, resolve_rows_i
-from ._tbl_data import (
-    Agnostic,
-    DataFrameLike,
-    PlExpr,
-    SelectExpr,
-    _get_column_dtype,
-    is_na,
-    is_series,
-    to_list,
-)
-from ._text import _md_html, escape_pattern_str_latex
+from ._tbl_data import (Agnostic, DataFrameLike, PlExpr, SelectExpr,
+                        _get_column_dtype, is_na, is_series, to_list)
+from ._text import _md_html, _md_latex, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace, is_valid_http_schema
 from ._utils_nanoplots import _generate_nanoplot
 
@@ -2668,7 +2647,7 @@ def fmt_markdown_context(
     context: str,
 ) -> str:
     if context == "latex":
-        raise NotImplementedError("fmt_markdown() is not supported in LaTeX.")
+        return _md_latex(x)
 
     if is_na(data._tbl_data, x):
         return x
