@@ -83,6 +83,7 @@ class GTData:
     _locale: Locale | None
     _formats: Formats
     _substitutions: Formats
+    _col_merge: ColMerges
     _options: Options
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
@@ -132,6 +133,7 @@ class GTData:
             _locale=Locale(locale),
             _formats=[],
             _substitutions=[],
+            _col_merge=[],
             _options=options,
             _google_font_imports=GoogleFontImports(),
         )
@@ -983,6 +985,20 @@ class FormatInfo:
 #     def __init__(self):
 #         pass
 Formats = list
+
+
+# Column Merge ----
+
+
+@dataclass(frozen=True)
+class ColMergeInfo:
+    vars: list[str]
+    rows: list[int]
+    type: str  # type of merge operation (only 'merge' used currently)
+    pattern: str | None = None
+
+
+ColMerges = list[ColMergeInfo]
 
 
 # Summary Rows ---
