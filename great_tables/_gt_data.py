@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import re
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
 from itertools import chain, product
@@ -75,6 +75,8 @@ class GTData:
     _spanners: Spanners
     _heading: Heading
     _stubhead: Stubhead
+    _summary_rows: SummaryRows
+    _summary_rows_grand: SummaryRows
     _source_notes: SourceNotes
     _footnotes: Footnotes
     _styles: Styles
@@ -122,6 +124,8 @@ class GTData:
             _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=None,
+            _summary_rows=SummaryRows(),
+            _summary_rows_grand=SummaryRows(_is_grand_summary=True),
             _source_notes=[],
             _footnotes=[],
             _styles=[],
@@ -220,6 +224,11 @@ class ColInfoTypeEnum(Enum):
     row_group = auto()
     hidden = auto()
 
+    # A placeholder column created when there is no table data in the stub,
+    # but summary rows need to create one for their labels.  e.g. "mean" to indicate
+    # the row is mean summaries
+    summary_placeholder = auto()
+
 
 @dataclass(frozen=True)
 class ColInfo:
@@ -249,7 +258,11 @@ class ColInfo:
 
     @property
     def is_stub(self) -> bool:
-        return self.type in (ColInfoTypeEnum.stub, ColInfoTypeEnum.row_group)
+        return self.type in (
+            ColInfoTypeEnum.stub,
+            ColInfoTypeEnum.row_group,
+            ColInfoTypeEnum.summary_placeholder,
+        )
 
     @property
     def defaulted_align(self) -> str:
@@ -510,10 +523,12 @@ class Boxhead(_Sequence[ColInfo]):
 
     # Obtain the number of visible columns in the built table; this should
     # account for the size of the stub in the final, built table
-    def _get_effective_number_of_columns(self, stub: Stub, options: Options) -> int:
+    def _get_effective_number_of_columns(
+        self, stub: Stub, has_summary_rows: bool, options: Options
+    ) -> int:
         n_data_cols = self._get_number_of_visible_data_columns()
 
-        stub_layout = stub._get_stub_layout(options=options)
+        stub_layout = stub._get_stub_layout(has_summary_rows=has_summary_rows, options=options)
         # Once the stub is defined in the package, we need to account
         # for the width of the stub at build time to fully obtain the number
         # of visible columns in the built table
@@ -674,7 +689,7 @@ class Stub:
 
         return row_group_as_column
 
-    def _get_stub_layout(self, options: Options) -> list[str]:
+    def _get_stub_layout(self, has_summary_rows: bool, options: Options) -> list[str]:
         # Determine which stub components are potentially present as columns
         stub_rownames_is_column = "row_id" in self._get_stub_components()
         stub_groupnames_is_column = self._stub_group_names_has_column(options=options)
@@ -684,14 +699,12 @@ class Stub:
 
         # Resolve the layout of the stub (i.e., the roles of columns if present)
         if n_stub_cols == 0:
-            # TODO: If summary rows are present, we will use the `rowname` column
-            # # for the summary row labels
-            # if _summary_exists(data=data):
-            #     stub_layout = ["rowname"]
-            # else:
-            #     stub_layout = []
-
-            stub_layout = []
+            # If summary rows are present, we will use the `rowname` column
+            # for the summary row labels
+            if has_summary_rows:
+                stub_layout = ["rowname"]
+            else:
+                stub_layout = []
 
         else:
             stub_layout = [
@@ -719,7 +732,7 @@ class GroupRowInfo:
     indices: list[int] = field(default_factory=list)
     # row_start: int | None = None
     # row_end: int | None = None
-    has_summary_rows: bool = False
+    # has_summary_rows: bool = False  # TODO: remove
     summary_row_side: str | None = None
 
     def defaulted_label(self) -> str:
@@ -972,6 +985,162 @@ class FormatInfo:
 Formats = list
 
 
+# Summary Rows ---
+
+# This can't conflict with actual group ids since we have a
+# separate data structure for grand summary row infos
+
+
+@dataclass(frozen=True)
+class SummaryRowInfo:
+    """Information about a single summary row"""
+
+    id: str
+    label: str  # For now, label and id are identical
+    # The motivation for values as a dict is to ensure cols_* functions don't have to consider
+    # the implications on existing SummaryRowInfo objects
+    values: dict[str, Any]  # TODO: consider datatype, series?
+    side: Literal["top", "bottom"]  # TODO: consider enum
+
+
+# TODO: refactor into a collection/dataclass wrapping the list part
+#       put most of the methods for filtering, adding, replacing there.
+#       Make immutable to avoid potential bugs.
+class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
+    """A sequence of summary rows
+
+    The following structures should always be true about summary rows:
+        - The id is also the label (often the same as the function name)
+        - There is at most 1 row for each group and id pairing
+        - If a summary row is added and no row exists for that group and id, add it
+        - If a summary row is added and a row exists for that group and id pairing,
+            then replace all cells (in values) that are numeric in the new version
+    """
+
+    _d: dict[str, list[SummaryRowInfo]]
+    _is_grand_summary: bool
+
+    LIST_CLS = list
+    GRAND_SUMMARY_KEY = "grand"
+
+    def __init__(
+        self,
+        entries: dict[str, list[SummaryRowInfo]] | None = None,
+        _is_grand_summary: bool = False,
+    ):
+        if entries is None:
+            self._d = {}
+        else:
+            self._d = entries
+        self._is_grand_summary = _is_grand_summary
+
+    def __bool__(self) -> bool:
+        """Return True if there are any summary rows, False otherwise."""
+        return len(self._d) > 0
+
+    def __getitem__(self, key: str | None) -> list[SummaryRowInfo]:
+        if self._is_grand_summary:
+            key = SummaryRows.GRAND_SUMMARY_KEY
+
+        if not key:
+            raise KeyError("Summary row group key must not be None for group summary rows.")
+
+        if key not in self._d:
+            raise KeyError(f"Group '{key}' not found in summary rows.")
+
+        return self.LIST_CLS(self._d[key])
+
+    def define(self, **kwargs: list[SummaryRowInfo]) -> Self:
+        """Define multiple summary row groups at once, replacing any existing groups."""
+
+        new_d = dict(self._d)
+        for group_id, summary_rows in kwargs.items():
+            new_d[group_id] = summary_rows
+
+        return self.__class__(new_d, _is_grand_summary=self._is_grand_summary)
+
+    def add_summary_row(self, summary_row: SummaryRowInfo, group_id: str | None = None) -> Self:
+        """Add a summary row following the merging rules in the class docstring."""
+
+        # TODO: group_id can be None for grand summary configuration, but can't be none
+        # for regular summary configuration (a bit double barrelled).
+        if self._is_grand_summary and group_id is None:
+            group_id = SummaryRows.GRAND_SUMMARY_KEY
+        elif group_id is None:
+            raise TypeError("group_id must be provided for group summary rows.")
+
+        existing_group = self.get(group_id)
+
+        if not existing_group:
+            return self.define(**{group_id: [summary_row]})
+
+        else:
+            existing_index = next(
+                (ii for ii, crnt_row in enumerate(existing_group) if crnt_row.id == summary_row.id),
+                None,
+            )
+
+            new_rows = self.LIST_CLS(existing_group)
+
+            if existing_index is None:
+                # No existing row for this group and id, add it
+                new_rows.append(summary_row)
+            else:
+                # Replace existing row, but merge numeric values from new version
+                existing_row = new_rows[existing_index]
+
+                # Start with existing values
+                merged_values = existing_row.values.copy()
+
+                # Replace with numeric values from new row
+                for key, new_value in summary_row.values.items():
+                    merged_values[key] = new_value
+
+                # Create merged row with new row's properties but merged values
+                merged_row = SummaryRowInfo(
+                    id=summary_row.id,
+                    label=summary_row.label,
+                    values=merged_values,
+                    # Setting this to existing row instead of summary_row means original
+                    # side is fixed by whatever side is first assigned to this row
+                    side=existing_row.side,
+                )
+
+                new_rows[existing_index] = merged_row
+
+        return self.define(**{group_id: new_rows})
+
+    def get_summary_rows(
+        self, group_id: str | None = None, side: str | None = None
+    ) -> list[SummaryRowInfo]:
+        """Get list of summary rows for that group. If side is None, do not filter by side.
+        Sorts result with 'top' side first, then 'bottom'."""
+
+        result: list[SummaryRowInfo] = []
+
+        if self._is_grand_summary:
+            group_id = SummaryRows.GRAND_SUMMARY_KEY
+        elif group_id is None:
+            raise TypeError("group_id must be provided for group summary rows.")
+
+        summary_row_group = self.get(group_id)
+
+        if summary_row_group:
+            for summary_row in summary_row_group:
+                if side is None or summary_row.side == side:
+                    result.append(summary_row)
+
+        # Sort: 'top' first, then 'bottom'
+        result.sort(key=lambda r: 0 if r.side == "top" else 1)  # TODO: modify if enum for side
+        return result
+
+    def __iter__(self):
+        raise NotImplementedError
+
+    def __len__(self):
+        raise NotImplementedError
+
+
 # Options ----
 
 default_fonts_list = [
@@ -1130,25 +1299,25 @@ class Options:
     # summary_row_border_style: OptionsInfo = OptionsInfo(True, "summary_row", "value", "solid")
     # summary_row_border_width: OptionsInfo = OptionsInfo(True, "summary_row", "px", "2px")
     # summary_row_border_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", "#D3D3D3")
-    # grand_summary_row_padding: OptionsInfo = OptionsInfo(True, "grand_summary_row", "px", "8px")
-    # grand_summary_row_padding_horizontal: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "px", "5px"
-    # )
-    # grand_summary_row_background_color: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", None
-    # )
-    # grand_summary_row_text_transform: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", "inherit"
-    # )
-    # grand_summary_row_border_style: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", "double"
-    # )
-    # grand_summary_row_border_width: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "px", "6px"
-    # )
-    # grand_summary_row_border_color: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", "#D3D3D3"
-    # )
+    grand_summary_row_padding: OptionsInfo = OptionsInfo(True, "grand_summary_row", "px", "8px")
+    grand_summary_row_padding_horizontal: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "px", "5px"
+    )
+    grand_summary_row_background_color: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", None
+    )
+    grand_summary_row_text_transform: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "inherit"
+    )
+    grand_summary_row_border_style: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "double"
+    )
+    grand_summary_row_border_width: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "px", "6px"
+    )
+    grand_summary_row_border_color: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "#D3D3D3"
+    )
     # footnotes_font_size: OptionsInfo = OptionsInfo(True, "footnotes", "px", "90%")
     # footnotes_padding: OptionsInfo = OptionsInfo(True, "footnotes", "px", "4px")
     # footnotes_padding_horizontal: OptionsInfo = OptionsInfo(True, "footnotes", "px", "5px")

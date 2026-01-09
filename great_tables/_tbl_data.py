@@ -874,3 +874,65 @@ def _(ser: PyArrowChunkedArray, name: Optional[str] = None) -> PyArrowTable:
     import pyarrow as pa
 
     return pa.table({name: ser})
+
+
+# eval_aggregate ----
+
+
+@singledispatch
+def eval_aggregate(df, expr) -> dict[str, Any]:
+    """Evaluate an expression against data and return a single row as a dictionary.
+
+    This is designed for aggregation operations that produce summary statistics.
+    The result should be a single row with values for each column.
+
+    Parameters
+    ----------
+    data
+        The input data (DataFrame)
+    expr
+        The expression to evaluate (Polars expression or callable)
+
+    Returns
+    -------
+    dict[str, Any]
+        A dictionary mapping column names to their aggregated values
+    """
+    raise NotImplementedError(f"eval_aggregate not implemented for type: {type(df)}")
+
+
+@eval_aggregate.register
+def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> dict[str, Any]:
+    res = expr(df)
+
+    if not isinstance(res, PdSeries):
+        raise ValueError(f"Result must be a pandas Series. Received {type(res)}")
+
+    return res.to_dict()
+
+
+@eval_aggregate.register
+def _(df: PlDataFrame, expr: PlExpr) -> dict[str, Any]:
+    res = df.select(expr)
+
+    if len(res) != 1:
+        raise ValueError(
+            f"Expression must produce exactly 1 row (aggregation). Got {len(res)} rows."
+        )
+
+    return res.to_dicts()[0]
+
+
+@eval_aggregate.register
+def _(df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowTable]) -> dict[str, Any]:
+    res = expr(df)
+
+    if not isinstance(res, PyArrowTable):
+        raise ValueError(f"Result must be a PyArrow Table. Received {type(res)}")
+
+    if res.num_rows != 1:
+        raise ValueError(
+            f"Expression must produce exactly 1 row (aggregation). Got {res.num_rows} rows."
+        )
+
+    return {col: res.column(col)[0].as_py() for col in res.column_names}
