@@ -95,6 +95,7 @@ quartodoc:
   render_interlinks: true
   renderer:
     style: markdown
+    desc_first: true
     table_style: description-list
   sections:
     - title: Table Creation
