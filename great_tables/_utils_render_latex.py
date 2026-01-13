@@ -561,7 +561,10 @@ def _render_as_latex(data: GTData, use_longtable: bool = False, tbl_pos: str | N
         )
 
     # Get list representation of stub layout
-    stub_layout = data._stub._get_stub_layout(options=data._options)
+    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
+    stub_layout = data._stub._get_stub_layout(
+        has_summary_rows=has_summary_rows, options=data._options
+    )
 
     # Throw exception if a stub is present in the table
     if "rowname" in stub_layout or "group_label" in stub_layout:

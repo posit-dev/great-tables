@@ -128,13 +128,13 @@ def tab_options(
     # summary_row_border_style: str | None = None,
     # summary_row_border_width: str | None = None,
     # summary_row_border_color: str | None = None,
-    # grand_summary_row_background_color: str | None = None,
-    # grand_summary_row_text_transform: str | None = None,
-    # grand_summary_row_padding: str | None = None,
-    # grand_summary_row_padding_horizontal: str | None = None,
-    # grand_summary_row_border_style: str | None = None,
-    # grand_summary_row_border_width: str | None = None,
-    # grand_summary_row_border_color: str | None = None,
+    grand_summary_row_background_color: str | None = None,
+    grand_summary_row_text_transform: str | None = None,
+    grand_summary_row_padding: str | None = None,
+    grand_summary_row_padding_horizontal: str | None = None,
+    grand_summary_row_border_style: str | None = None,
+    grand_summary_row_border_width: str | None = None,
+    grand_summary_row_border_color: str | None = None,
     # footnotes_background_color: str | None = None,
     # footnotes_font_size: str | None = None,
     # footnotes_padding: str | None = None,
@@ -1387,10 +1387,8 @@ def opt_stylize(
     # Omit keys that are not needed for the `tab_options()` method
     # TODO: the omitted keys are for future use when:
     #  (1) summary rows are implemented
-    #  (2) grand summary rows are implemented
     omit_keys = {
         "summary_row_background_color",
-        "grand_summary_row_background_color",
     }
 
     def dict_omit_keys(dict: dict[str, str], omit_keys: set[str]) -> dict[str, str]:
@@ -1441,6 +1439,8 @@ class StyleMapper:
     data_vlines_style: str
     data_vlines_color: str
     row_striping_background_color: str
+    grand_summary_row_background_color: str
+    # summary_row_background_color: str
 
     mappings: ClassVar[dict[str, list[str]]] = {
         "table_hlines_color": ["table_border_top_color", "table_border_bottom_color"],
@@ -1462,6 +1462,8 @@ class StyleMapper:
         "data_vlines_style": ["table_body_vlines_style"],
         "data_vlines_color": ["table_body_vlines_color"],
         "row_striping_background_color": ["row_striping_background_color"],
+        "grand_summary_row_background_color": ["grand_summary_row_background_color"],
+        # "summary_row_background_color": ["summary_row_background_color"],
     }
 
     def map_entry(self, name: str) -> dict[str, list[str]]:

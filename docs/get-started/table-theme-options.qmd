@@ -25,6 +25,7 @@ gt_ex = (
     .tab_header("THE HEADING", "(a subtitle)")
     .tab_stubhead("THE STUBHEAD")
     .tab_source_note("THE SOURCE NOTE")
+    .grand_summary_rows(fns={"GRAND SUMMARY ROW": lambda df: df.sum(numeric_only=True)})
 )
 
 gt_ex
@@ -48,6 +49,7 @@ The code below illustrates the table parts `~~GT.tab_options()` can target, by s
         row_group_background_color="lightyellow",
         stub_background_color="lightgreen",
         source_notes_background_color="#f1e2af",
+        grand_summary_row_background_color="lightpink",
     )
 )
 ```
