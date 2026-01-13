@@ -8,7 +8,7 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
           }
-
+  
   #test_table thead, tbody, tfoot, tr, td, th { border-style: none; }
    tr { background-color: transparent; }
   #test_table p { margin: 0; padding: 0; }
@@ -54,11 +54,11 @@
    #test_table .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
    #test_table .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
    #test_table .gt_asterisk { font-size: 100%; vertical-align: 0; }
-
+   
   </style>
   <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
-
+  
     <tr class="gt_heading">
       <td colspan="4" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></td>
     </tr>
@@ -130,18 +130,18 @@
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4"><span class="gt_from_md">This is only a subset of the dataset.</span></td></tr></tfoot>
   </table>
-
+  
   </div>
-
+          
   '''
 # ---
 # name: test_html_string_generated_inline_css
   '''
   <div id="test_table_small" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-
+  
   <table class="gt_table" data-quarto-bootstrap="false" data-quarto-disable-processing="false" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;display: table;border-collapse: collapse;line-height: normal;margin-left: auto;margin-right: auto;color: #333333;font-size: 16px;font-weight: normal;font-style: normal;background-color: #FFFFFF;width: auto;border-top-style: solid;border-top-width: 2px;border-top-color: #A8A8A8;border-right-style: none;border-right-width: 2px;border-right-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #A8A8A8;border-left-style: none;border-left-width: 2px;border-left-color: #D3D3D3;">
   <thead style="border-style: none;">
-
+  
   <tr class="gt_col_headings" style="border-style: none;background-color: transparent;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;">
     <th class="gt_col_heading gt_columns_bottom_border gt_right" id="test_table_small-num" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">num</th>
     <th class="gt_col_heading gt_columns_bottom_border gt_left" id="test_table_small-char" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: left;">char</th>
@@ -157,9 +157,9 @@
       <td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">banana</td>
     </tr>
   </tbody>
-
+  
   </table>
-
+  
   </div>
   '''
 # ---
@@ -170,10 +170,10 @@
   </head>
   <body>
   <div id="test_table_small" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-
+  
   <table class="gt_table" data-quarto-bootstrap="false" data-quarto-disable-processing="false" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;display: table;border-collapse: collapse;line-height: normal;margin-left: auto;margin-right: auto;color: #333333;font-size: 16px;font-weight: normal;font-style: normal;background-color: #FFFFFF;width: auto;border-top-style: solid;border-top-width: 2px;border-top-color: #A8A8A8;border-right-style: none;border-right-width: 2px;border-right-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #A8A8A8;border-left-style: none;border-left-width: 2px;border-left-color: #D3D3D3;">
   <thead style="border-style: none;">
-
+  
   <tr class="gt_col_headings" style="border-style: none;background-color: transparent;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;">
     <th class="gt_col_heading gt_columns_bottom_border gt_right" id="test_table_small-num" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">num</th>
     <th class="gt_col_heading gt_columns_bottom_border gt_left" id="test_table_small-char" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;overflow-x: hidden;text-align: left;">char</th>
@@ -189,13 +189,13 @@
       <td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">banana</td>
     </tr>
   </tbody>
-
+  
   </table>
-
+  
   </div>
-
-
-
+          
+  
+  
               </body></html>
   '''
 # ---
@@ -205,7 +205,7 @@
   \setlength\LTleft{\dimexpr(0.5\linewidth - 225pt)}
   \setlength\LTright{\dimexpr(0.5\linewidth - 225pt)}
   \fontsize{9.0pt}{10.8pt}\selectfont
-
+  
   \setlength{\LTpost}{0mm}
   \begin{longtable}{@{\extracolsep{\fill}}llrrr}
   \caption*{
@@ -213,9 +213,9 @@
   {\small The subtitle}
   } \\
   \toprule
-  \multicolumn{2}{c}{Make \_and\_ Model} & \multicolumn{2}{c}{Performance} &  \\
+  \multicolumn{2}{c}{Make \_and\_ Model} & \multicolumn{2}{c}{Performance} &  \\ 
   \cmidrule(lr){1-2} \cmidrule(lr){3-4}
-  mfr & model & hp & trq & msrp \\
+  mfr & model & hp & trq & msrp \\ 
   \midrule\addlinespace[2.5pt]
   Ford & GT & 647.0 & 550.0 & \$447,000.00 \\
   Ferrari & 458 Speciale & 597.0 & 398.0 & \$291,744.00 \\
@@ -229,39 +229,6 @@
   Note 2\\
   \end{minipage}
   \endgroup
-
-  '''
-# ---
-# name: test_snap_render_as_latex
-  '''
-  \begingroup
-  \setlength\LTleft{\dimexpr(0.5\linewidth - 225pt)}
-  \setlength\LTright{\dimexpr(0.5\linewidth - 225pt)}
-  \fontsize{9.0pt}{10.8pt}\selectfont
-
-  \setlength{\LTpost}{0mm}
-  \begin{longtable}{@{\extracolsep{\fill}}llrrr}
-  \caption*{
-  {\large The \_title\_} \\
-  {\small The subtitle}
-  } \\
-  \toprule
-  \multicolumn{2}{c}{Make \_and\_ Model} & \multicolumn{2}{c}{Performance} &  \\
-  \cmidrule(lr){1-2} \cmidrule(lr){3-4}
-  mfr & model & hp & trq & msrp \\
-  \midrule\addlinespace[2.5pt]
-  Ford & GT & 647.0 & 550.0 & \$447,000.00 \\
-  Ferrari & 458 Speciale & 597.0 & 398.0 & \$291,744.00 \\
-  Ferrari & 458 Spider & 562.0 & 398.0 & \$263,553.00 \\
-  Ferrari & 458 Italia & 562.0 & 398.0 & \$233,509.00 \\
-  Ferrari & 488 GTB & 661.0 & 561.0 & \$245,400.00 \\
-  \bottomrule
-  \end{longtable}
-  \begin{minipage}{\linewidth}
-  Note 1\\
-  Note 2\\
-  \end{minipage}
-  \endgroup
-
+  
   '''
 # ---
