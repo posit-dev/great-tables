@@ -32,7 +32,7 @@ from ._formats import (
 from ._gt_data import GTData
 from ._heading import tab_header
 from ._helpers import random_id
-from ._modify_rows import row_group_order, tab_stub, with_id, with_locale
+from ._modify_rows import grand_summary_rows, row_group_order, tab_stub, with_id, with_locale
 from ._options import (
     opt_align_table_header,
     opt_all_caps,
@@ -279,6 +279,7 @@ class GT(
     tab_stub = tab_stub
     with_id = with_id
     with_locale = with_locale
+    grand_summary_rows = grand_summary_rows
 
     save = save
     show = show
