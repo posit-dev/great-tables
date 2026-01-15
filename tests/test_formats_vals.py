@@ -1,4 +1,5 @@
 import base64
+import polars as pl
 from pathlib import Path
 from importlib_resources import files
 
@@ -43,3 +44,11 @@ def test_val_fmt_engineering_multiple():
         "123.00 × 10<sup style='font-size: 65%;'>−6</sup>",
         "1.00 × 10<sup style='font-size: 65%;'>6</sup>",
     ]
+
+
+def test_val_fmt_to_expression():
+    expr = vals.fmt_integer(pl.col("x"))
+    assert isinstance(expr, pl.Expr)
+
+    res = pl.DataFrame({"x": [1.23]}).select(expr)
+    assert res[0, "x"] == "1"
