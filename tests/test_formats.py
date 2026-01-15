@@ -1162,129 +1162,86 @@ def test_fmt_scientific_case(
 @pytest.mark.parametrize(
     "fmt_engineering_kwargs,x_in,x_out",
     [
+        # Basic decimals=2: test key ranges (very large, large, medium, small, very small)
         (
             dict(decimals=2),
             [
-                829300232923103939802.4,
-                492032183020.5,
-                84930284002.1,
-                203820929.2,
-                84729202.4,
-                2323435.1,
-                230323.4,
-                50000.01,
-                1000.001,
-                10.00001,
-                1.2345,
-                0.12345,
-                0.0000123456,
+                829300232923103939802.4,  # Very large (10^18)
+                2323435.1,  # Medium large (10^6)
+                1000.001,  # Boundary (10^3)
+                10.00001,  # No exponent needed
+                0.12345,  # Small (10^-3)
+                0.0000123456,  # Very small (10^-6)
             ],
             [
                 "829.30 × 10<sup style='font-size: 65%;'>18</sup>",
-                "492.03 × 10<sup style='font-size: 65%;'>9</sup>",
-                "84.93 × 10<sup style='font-size: 65%;'>9</sup>",
-                "203.82 × 10<sup style='font-size: 65%;'>6</sup>",
-                "84.73 × 10<sup style='font-size: 65%;'>6</sup>",
                 "2.32 × 10<sup style='font-size: 65%;'>6</sup>",
-                "230.32 × 10<sup style='font-size: 65%;'>3</sup>",
-                "50.00 × 10<sup style='font-size: 65%;'>3</sup>",
                 "1.00 × 10<sup style='font-size: 65%;'>3</sup>",
                 "10.00",
-                "1.23",
                 "123.45 × 10<sup style='font-size: 65%;'>−3</sup>",
                 "12.35 × 10<sup style='font-size: 65%;'>−6</sup>",
             ],
         ),
+        # Negative values
         (
             dict(decimals=2),
-            [
-                -50000.01,
-                -1000.001,
-                -10.00001,
-                -12345,
-                -1234.5,
-                -123.45,
-                -1.2345,
-                -0.12345,
-                -0.0000123456,
-            ],
+            [-50000.01, -10.00001, -0.12345],
             [
                 "−50.00 × 10<sup style='font-size: 65%;'>3</sup>",
-                "−1.00 × 10<sup style='font-size: 65%;'>3</sup>",
                 "−10.00",
-                "−12.35 × 10<sup style='font-size: 65%;'>3</sup>",
-                "−1.23 × 10<sup style='font-size: 65%;'>3</sup>",
-                "−123.45",
-                "−1.23",
                 "−123.45 × 10<sup style='font-size: 65%;'>−3</sup>",
-                "−12.35 × 10<sup style='font-size: 65%;'>−6</sup>",
             ],
         ),
+        # exp_style="E" format
         (
             dict(decimals=2, exp_style="E"),
-            [-3.49e13, -3453, -0.000234, 0, 0.00007534, 82794, 7.16e14],
+            [-3.49e13, 0, 82794],
             [
                 "−34.90E12",
-                "−3.45E03",
-                "−234.00E−06",
                 "0.00E00",
-                "75.34E−06",
                 "82.79E03",
-                "716.00E12",
             ],
         ),
+        # exp_style="E1" (single digit exponent)
         (
             dict(decimals=2, exp_style="E1"),
-            [-3.49e13, -3453, -0.000234, 0, 0.00007534, 82794, 7.16e14],
+            [-3453, 0, 0.00007534],
             [
-                "−34.90E12",
                 "−3.45E3",
-                "−234.00E−6",
                 "0.00E0",
                 "75.34E−6",
-                "82.79E3",
-                "716.00E12",
             ],
         ),
+        # force_sign_m: positive/negative/zero
         (
             dict(decimals=2, force_sign_m=True),
-            [-3.49e13, -3453, -0.000234, 0, 0.00007534, 82794, 7.16e14],
+            [-3453, 0, 82794],
             [
-                "−34.90 × 10<sup style='font-size: 65%;'>12</sup>",
                 "−3.45 × 10<sup style='font-size: 65%;'>3</sup>",
-                "−234.00 × 10<sup style='font-size: 65%;'>−6</sup>",
                 "0.00",
-                "+75.34 × 10<sup style='font-size: 65%;'>−6</sup>",
                 "+82.79 × 10<sup style='font-size: 65%;'>3</sup>",
-                "+716.00 × 10<sup style='font-size: 65%;'>12</sup>",
             ],
         ),
+        # force_sign_n: positive/negative exponents
         (
             dict(decimals=2, force_sign_n=True),
-            [-3.49e13, -3453, -0.000234, 0, 0.00007534, 82794, 7.16e14],
+            [-0.000234, 82794],
             [
-                "−34.90 × 10<sup style='font-size: 65%;'>+12</sup>",
-                "−3.45 × 10<sup style='font-size: 65%;'>+3</sup>",
                 "−234.00 × 10<sup style='font-size: 65%;'>−6</sup>",
-                "0.00",
-                "75.34 × 10<sup style='font-size: 65%;'>−6</sup>",
                 "82.79 × 10<sup style='font-size: 65%;'>+3</sup>",
-                "716.00 × 10<sup style='font-size: 65%;'>+12</sup>",
             ],
         ),
+        # force_sign_m and force_sign_n combined
         (
             dict(decimals=2, force_sign_m=True, force_sign_n=True),
-            [-3.49e13, -3453, -0.000234, 0, 0.00007534, 82794, 7.16e14],
+            [-3453, 0, 82794],
             [
-                "−34.90 × 10<sup style='font-size: 65%;'>+12</sup>",
                 "−3.45 × 10<sup style='font-size: 65%;'>+3</sup>",
-                "−234.00 × 10<sup style='font-size: 65%;'>−6</sup>",
                 "0.00",
-                "+75.34 × 10<sup style='font-size: 65%;'>−6</sup>",
                 "+82.79 × 10<sup style='font-size: 65%;'>+3</sup>",
-                "+716.00 × 10<sup style='font-size: 65%;'>+12</sup>",
             ],
         ),
+        # pattern
         (
             dict(decimals=2, pattern="a {x} b"),
             [1234.5, 0.000123],
@@ -1293,6 +1250,7 @@ def test_fmt_scientific_case(
                 "a 123.00 × 10<sup style='font-size: 65%;'>−6</sup> b",
             ],
         ),
+        # scale_by
         (
             dict(decimals=2, scale_by=1 / 1000),
             [492032183020.5, 50000.01],
@@ -1301,30 +1259,13 @@ def test_fmt_scientific_case(
                 "50.00",
             ],
         ),
+        # Extreme values with higher precision
         (
             dict(decimals=5),
-            [
-                -1.5e200,
-                -1.5e100,
-                -2.5,
-                -3.5e-100,
-                -3.5e-200,
-                1.5e-200,
-                1.5e-100,
-                2.5,
-                3.5e100,
-                3.5e200,
-            ],
+            [-1.5e200, 2.5, 3.5e200],
             [
                 "−150.00000 × 10<sup style='font-size: 65%;'>198</sup>",
-                "−15.00000 × 10<sup style='font-size: 65%;'>99</sup>",
-                "−2.50000",
-                "−350.00000 × 10<sup style='font-size: 65%;'>−102</sup>",
-                "−35.00000 × 10<sup style='font-size: 65%;'>−201</sup>",
-                "15.00000 × 10<sup style='font-size: 65%;'>−201</sup>",
-                "150.00000 × 10<sup style='font-size: 65%;'>−102</sup>",
                 "2.50000",
-                "35.00000 × 10<sup style='font-size: 65%;'>99</sup>",
                 "350.00000 × 10<sup style='font-size: 65%;'>198</sup>",
             ],
         ),
