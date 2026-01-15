@@ -1062,7 +1062,6 @@ def fmt_engineering(
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         scale_by=scale_by,
         exp_style=exp_style,
-        sep_mark=sep_mark,
         dec_mark=dec_mark,
         force_sign_m=force_sign_m,
         force_sign_n=force_sign_n,
@@ -1082,7 +1081,6 @@ def fmt_engineering_context(
     drop_trailing_dec_mark: bool,
     scale_by: float,
     exp_style: str,
-    sep_mark: str,
     dec_mark: str,
     force_sign_m: bool,
     force_sign_n: bool,
@@ -1111,7 +1109,7 @@ def fmt_engineering_context(
             drop_trailing_zeros=drop_trailing_zeros,
             drop_trailing_dec_mark=drop_trailing_dec_mark,
             use_seps=False,
-            sep_mark=sep_mark,
+            sep_mark=",",
             dec_mark=dec_mark,
             force_sign=False,
         )
@@ -1132,7 +1130,7 @@ def fmt_engineering_context(
             drop_trailing_zeros=drop_trailing_zeros,
             drop_trailing_dec_mark=drop_trailing_dec_mark,
             use_seps=False,
-            sep_mark=sep_mark,
+            sep_mark=",",
             dec_mark=dec_mark,
             force_sign=False,
         )
