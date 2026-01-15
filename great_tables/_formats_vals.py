@@ -464,7 +464,6 @@ def val_fmt_engineering(
     scale_by: float = 1,
     exp_style: str = "x10n",
     pattern: str = "{x}",
-    sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign_m: bool = False,
     force_sign_n: bool = False,
@@ -529,10 +528,6 @@ def val_fmt_engineering(
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    sep_mark
-        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
-        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
-        ignored if a `locale` is supplied (i.e., is not `None`).
     dec_mark
         The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
         `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
@@ -576,7 +571,6 @@ def val_fmt_engineering(
         scale_by=scale_by,
         exp_style=exp_style,
         pattern=pattern,
-        sep_mark=sep_mark,
         dec_mark=dec_mark,
         force_sign_m=force_sign_m,
         force_sign_n=force_sign_n,

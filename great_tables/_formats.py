@@ -874,7 +874,6 @@ def fmt_engineering(
     scale_by: float = 1,
     exp_style: str = "x10n",
     pattern: str = "{x}",
-    sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign_m: bool = False,
     force_sign_n: bool = False,
@@ -944,10 +943,6 @@ def fmt_engineering(
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
         characters will be interpreted as string literals.
-    sep_mark
-        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
-        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
-        ignored if a `locale` is supplied (i.e., is not `None`).
     dec_mark
         The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
         `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
@@ -976,9 +971,8 @@ def fmt_engineering(
     --------------------------------------
     This formatting method can adapt outputs according to a provided `locale` value. Examples
     include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
-    locale ID here means separator and decimal marks will be correct for the given locale. Should
-    a value be provided in `dec_mark` or `sep_mark` it will be overridden by the locale's preferred
-    values.
+    locale ID here means decimal marks will be correct for the given locale. Should a value be
+    provided in `dec_mark` it will be overridden by the locale's preferred values.
 
     Note that a `locale` value provided here will override any global locale setting performed in
     [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
@@ -1049,8 +1043,7 @@ def fmt_engineering(
 
     locale = _resolve_locale(self, locale=locale)
 
-    # Use a locale-based marks if a locale ID is provided
-    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=True, locale=locale)
+    # Use a locale-based decimal mark if a locale ID is provided
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     pf_format = partial(
