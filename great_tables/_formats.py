@@ -3271,29 +3271,6 @@ def _value_to_scientific_notation(
     return result
 
 
-def _value_to_engineering_notation(value: int | float, n_sigfig: int, exp_style: str) -> str:
-    """
-    Engineering notation.
-
-    Returns a string value with the correct precision and an exponent that is divisible by three.
-    The `exp_style` text is placed between the decimal value and the exponent.
-    """
-
-    is_negative, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
-
-    eng_power = 3 * math.floor(ten_power / 3)
-    eng_dot = dot_power + ten_power - eng_power
-
-    result = (
-        ("-" if is_negative else "")
-        + _insert_decimal_mark(digits=sig_digits, power=eng_dot)
-        + exp_style
-        + str(eng_power)
-    )
-
-    return result
-
-
 def _format_number_n_sigfig(
     value: int | float,
     n_sigfig: int,
