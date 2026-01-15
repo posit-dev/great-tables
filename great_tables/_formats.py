@@ -1119,8 +1119,6 @@ def fmt_engineering_context(
         power_3 = 0
     else:
         # Calculate the power of 1000 (engineering notation uses multiples of 3)
-        import math
-
         power_3 = int(math.floor(math.log10(abs(x)) / 3) * 3)
 
         # Calculate the mantissa by dividing by 10^power_3
