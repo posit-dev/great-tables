@@ -980,13 +980,27 @@ def fmt_engineering(
 
     Examples
     --------
-    Let's define a DataFrame that contains two columns of values (one small and one large). After
-    creating a simple table with `GT()`, we'll call `fmt_engineering()` on both columns.
+    With numeric values in a table, we can perform formatting so that the targeted values are
+    rendered in engineering notation. For example, the number `0.0000345` can be written in
+    engineering notation as `34.50 x 10^-6`.
 
     ```{python}
     import polars as pl
     from great_tables import GT
 
+    numbers_df = pl.DataFrame({
+        "numbers": [0.0000345, 3450, 3450000]
+    })
+
+    GT(numbers_df).fmt_engineering()
+    ```
+
+    Notice that in each case, the exponent is a multiple of `3`.
+
+    Let's define a DataFrame that contains two columns of values (one small and one large). After
+    creating a simple table with `GT()`, we'll call `fmt_engineering()` on both columns.
+
+    ```{python}
     small_large_df = pl.DataFrame({
         "small": [10**-i for i in range(12, 0, -1)],
         "large": [10**i for i in range(1, 13)]
