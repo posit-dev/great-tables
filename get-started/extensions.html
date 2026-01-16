@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.26">
+<meta name="generator" content="quarto-1.8.27">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -73,7 +73,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-0b37c64f34216b628666a8dac638b53b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -421,7 +421,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="wrapping" class="level3">
 <h3 class="anchored" data-anchor-id="wrapping">Wrapping</h3>
 <p>Let’s wrap <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" title="0"><code>tab_style()</code></a> to perform a specific action supported by the general function. <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" title="0"><code>tab_style()</code></a> takes <code>locations=</code> and <code>style=</code> parameters, so let’s assign those. Something this lightweight might be useful for someone who knows what effect they want, but doesn’t want to investigate the entire space of options for styling.</p>
-<div id="debfb7c5" class="cell" data-execution_count="1">
+<div id="669d81d8" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> highlight_cols(gt: GT, columns: SelectExpr) <span class="op">-&gt;</span> GT:</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    locations <span class="op">=</span> [</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        loc.body(columns<span class="op">=</span>columns),</span>
@@ -440,7 +440,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <h3 class="anchored" data-anchor-id="composing">Composing</h3>
 <p>A little more complex than wrapping, we can also compose methods to perform several steps, such as applying multiple styles, formatting, or themes all at once.</p>
 <p>Here’s a flavor of the composed methods that <strong>gt-extras</strong> used in the <a href="https://posit-dev.github.io/gt-extras/reference/gt_theme_espn">ESPN theme</a>:</p>
-<div id="33cb25bc" class="cell" data-execution_count="2">
+<div id="315e00b1" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> some_theme(gt: GT) <span class="op">-&gt;</span> GT:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        gt.opt_all_caps()</span>
@@ -456,7 +456,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="extending" class="level3">
 <h3 class="anchored" data-anchor-id="extending">Extending</h3>
 <p>Perhaps the most complex, this involves new behavior not supported by <strong>Great Tables</strong> methods alone. Formatting values is a common way to do this:</p>
-<div id="5412c54a" class="cell" data-execution_count="3">
+<div id="66fbff3c" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fmt_threshold(gt, columns, threshold: <span class="bu">float</span>):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Format values to 0 if they are under threshold."""</span><span class="st">"</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="er">    def _truncate</span>(val: <span class="bu">float</span>)</span>
@@ -465,7 +465,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gt.fmt(_truncate, columns)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Alternatively, we can extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate <a href="../reference/GT.html#great_tables.GT" title="0"><code>GT</code></a> objects, renders them as HTML using <a href="../reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" title="0"><code>as_raw_html()</code></a>, and then joins them in custom HTML structure, which would not be possible with <strong>Great Tables</strong> methods alone.</p>
-<div id="8646c11a" class="cell" data-execution_count="4">
+<div id="9b7c752b" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> double_table(gt1: GT, gt2: GT) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    table_1_html <span class="op">=</span> gt1.as_raw_html()</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    table_2_html <span class="op">=</span> gt2.as_raw_html()</span>
@@ -480,7 +480,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <p>Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some plotting is already built in, called <a href="../get-started/nanoplots.html">nanoplots</a>. But there are endless plot types you could want in your great tables, and for these <a href="../reference/GT.fmt.html#great_tables.GT.fmt" title="0"><code>fmt()</code></a> is your friend.</p>
 <p>The key to adding custom plots to your tables is using <a href="../reference/GT.fmt.html#great_tables.GT.fmt" title="0"><code>fmt()</code></a> with a function that converts your data values into visual representations. Your formatting function should take a value from your table and return an HTML string containing your plot – whether that’s an SVG, a series of styled <code>&lt;div&gt;</code> elements, or even embedded images.</p>
 <p>Here’s a basic pattern for a plot extension:</p>
-<div id="cfa50018" class="cell" data-execution_count="5">
+<div id="7f7fe0b6" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_my_plot(value):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Transform the data value into a visual representation</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This could use any plotting library or even pure HTML/CSS</span></span>
@@ -501,7 +501,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <li><em>Apply custom styling:</em> Add animations, colors, or hover effects to your icons</li>
 </ul>
 <p>Here’s an example of how you might create a custom icon extension that maps numerical ratings to star icons:</p>
-<div id="d1d85392" class="cell" data-execution_count="6">
+<div id="422a1891" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fmt_star_rating(filled_stars: <span class="bu">int</span>):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    star_html <span class="op">=</span> <span class="st">"★"</span> <span class="op">*</span> filled_stars</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f'&lt;span style="color: gold; font-size: 18px;"&gt;</span><span class="sc">{</span>star_html<span class="sc">}</span><span class="ss">&lt;/span&gt;'</span></span>
