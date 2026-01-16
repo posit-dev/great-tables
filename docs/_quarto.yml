@@ -139,6 +139,7 @@ quartodoc:
         - GT.fmt_integer
         - GT.fmt_percent
         - GT.fmt_scientific
+        - GT.fmt_engineering
         - GT.fmt_currency
         - GT.fmt_bytes
         - GT.fmt_roman
