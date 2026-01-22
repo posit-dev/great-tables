@@ -554,9 +554,11 @@ def tab_options(
             modified_args["table_font_names"] = [modified_args["table_font_names"]]
 
     # - `table_additional_css` should be a list but if given as a string, ensure it is list
+    #   Also filter out empty strings to avoid extra newlines in CSS output
     if "table_additional_css" in modified_args:
         if isinstance(modified_args["table_additional_css"], str):
-            modified_args["table_additional_css"] = [modified_args["table_additional_css"]]
+            css_val = modified_args["table_additional_css"].strip()
+            modified_args["table_additional_css"] = [css_val] if css_val else []
 
     new_options_info = {
         k: replace(getattr(self._options, k), value=v) for k, v in modified_args.items()
