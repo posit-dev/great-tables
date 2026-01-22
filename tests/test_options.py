@@ -552,31 +552,42 @@ def test_opt_horizontal_padding_raises(gt_tbl: GT, scale: float):
     assert "`scale` must be a value between `0` and `3`." in exc_info.value.args[0]
 
 
-def test_opt_css_basic():
-    # Test adding CSS
+def test_opt_css_add_single_rule():
+    # Test adding a single CSS rule
     res = GT(exibble).opt_css(css=".gt_table { background-color: red; }")
     assert res._options.table_additional_css.value == [".gt_table { background-color: red; }"]
 
-    # Test chaining CSS additions
-    res_2 = res.opt_css(css=".gt_row { color: blue; }")
-    assert len(res_2._options.table_additional_css.value) == 2
-    assert ".gt_table { background-color: red; }" in res_2._options.table_additional_css.value
-    assert ".gt_row { color: blue; }" in res_2._options.table_additional_css.value
+
+def test_opt_css_chaining():
+    # Test chaining multiple CSS additions
+    res = (
+        GT(exibble)
+        .opt_css(css=".gt_table { background-color: red; }")
+        .opt_css(css=".gt_row { color: blue; }")
+    )
+    assert len(res._options.table_additional_css.value) == 2
+    assert ".gt_table { background-color: red; }" in res._options.table_additional_css.value
+    assert ".gt_row { color: blue; }" in res._options.table_additional_css.value
 
 
-def test_opt_css_duplicate_handling():
+def test_opt_css_duplicate_prevented():
+    # Test that duplicate CSS is prevented by default
     gt_tbl = GT(exibble)
     css_rule = ".gt_table { color: green; }"
 
-    # Add same CSS twice (should only appear once)
     res = gt_tbl.opt_css(css=css_rule).opt_css(css=css_rule)
 
     assert res._options.table_additional_css.value == [css_rule]
 
-    # Test for allowing duplicates
-    res_2 = gt_tbl.opt_css(css=css_rule).opt_css(css=css_rule, allow_duplicates=True)
 
-    assert res_2._options.table_additional_css.value == [css_rule, css_rule]
+def test_opt_css_allow_duplicates():
+    # Test that duplicates are allowed when allow_duplicates=True
+    gt_tbl = GT(exibble)
+    css_rule = ".gt_table { color: green; }"
+
+    res = gt_tbl.opt_css(css=css_rule).opt_css(css=css_rule, allow_duplicates=True)
+
+    assert res._options.table_additional_css.value == [css_rule, css_rule]
 
 
 def test_opt_css_replace_mode():
@@ -606,6 +617,24 @@ def test_opt_css_whitespace_handling():
     # Test CSS with leading and trailing whitespace (it should get stripped)
     res_3 = gt_tbl.opt_css(css="  .gt_table { color: red; }  ")
     assert res_3._options.table_additional_css.value == [".gt_table { color: red; }"]
+
+
+def test_opt_css_empty_string_preserves_existing():
+    # Test that opt_css(css="") preserves existing CSS when add=True (default)
+    gt_tbl = GT(exibble).opt_css(css=".gt_table { color: red; }")
+
+    res = gt_tbl.opt_css(css="")
+
+    assert res._options.table_additional_css.value == [".gt_table { color: red; }"]
+
+
+def test_opt_css_empty_string_clears_with_add_false():
+    # Test that opt_css(css="", add=False) clears existing CSS
+    gt_tbl = GT(exibble).opt_css(css=".gt_table { color: red; }")
+
+    res = gt_tbl.opt_css(css="", add=False)
+
+    assert res._options.table_additional_css.value == []
 
 
 def test_opt_css_multiline():
@@ -659,3 +688,10 @@ def test_opt_css_with_tab_options():
     html = res.as_raw_html()
 
     assert html.index(".added { color: blue; }") > html.index(".initial { color: red; }")
+
+
+def test_tab_options_empty_string_css():
+    # Test that tab_options(table_additional_css="") results in empty list, not [""]
+    res = GT(exibble).tab_options(table_additional_css="")
+
+    assert res._options.table_additional_css.value == []
