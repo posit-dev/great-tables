@@ -2,6 +2,7 @@
 
 import pandas as pd
 import polars as pl
+import pyarrow as pa
 import pytest
 
 from great_tables._tbl_data_align import (
@@ -78,6 +79,48 @@ class TestClassifyDtypePolars:
         assert classify_dtype_for_alignment(df, "col") == "numeric"
 
 
+class TestClassifyDtypePyArrow:
+    """Test dtype classification for PyArrow."""
+
+    @pytest.mark.parametrize(
+        "pyarrow_type,expected",
+        [
+            (pa.int64(), "numeric"),
+            (pa.int32(), "numeric"),
+            (pa.uint8(), "numeric"),
+            (pa.float64(), "numeric"),
+            (pa.float32(), "numeric"),
+        ],
+    )
+    def test_numeric_types(self, pyarrow_type, expected):
+        table = pa.table({"col": pa.array([1, 2, 3], type=pyarrow_type)})
+        assert classify_dtype_for_alignment(table, "col") == expected
+
+    def test_string_type(self):
+        table = pa.table({"col": pa.array(["a", "b", "c"], type=pa.string())})
+        assert classify_dtype_for_alignment(table, "col") == "string"
+
+    def test_large_string_type(self):
+        table = pa.table({"col": pa.array(["a", "b", "c"], type=pa.large_string())})
+        # large_string doesn't match STRING_DTYPES exactly, gets "other"
+        assert classify_dtype_for_alignment(table, "col") == "other"
+
+    def test_bool_type(self):
+        table = pa.table({"col": pa.array([True, False, True], type=pa.bool_())})
+        assert classify_dtype_for_alignment(table, "col") == "other"
+
+    def test_date_type(self):
+        import datetime
+
+        table = pa.table({"col": pa.array([datetime.date(2024, 1, 1), datetime.date(2024, 1, 2)])})
+        assert classify_dtype_for_alignment(table, "col") == "numeric"
+
+    def test_utf8_type(self):
+        # utf8 is an alias for string in PyArrow
+        table = pa.table({"col": pa.array(["a", "b", "c"], type=pa.utf8())})
+        assert classify_dtype_for_alignment(table, "col") == "string"
+
+
 class TestNumberLikeDetection:
     """Tests for is_number_like_column() function."""
 
@@ -111,6 +154,15 @@ class TestNumberLikeDetection:
         # Polars string columns work with number-like detection
         df_str = pl.DataFrame({"col": ["2024-01-15", "2024-02-20"]})
         assert is_number_like_column(df_str, "col") is True
+
+    def test_pyarrow_number_like(self):
+        # PyArrow string columns work with number-like detection
+        table = pa.table({"col": pa.array(["2024-01-15", "2024-02-20"])})
+        assert is_number_like_column(table, "col") is True
+
+    def test_pyarrow_not_number_like(self):
+        table = pa.table({"col": pa.array(["hello", "world"])})
+        assert is_number_like_column(table, "col") is False
 
 
 class TestAlignmentMap:
@@ -161,3 +213,22 @@ class TestAutoAlignIntegration:
         gt_tbl = gt.GT(df)
         aligns = [col.column_align for col in gt_tbl._boxhead._d]
         assert aligns == ["left"]  # mixed text -> left
+
+    def test_pyarrow_auto_align(self):
+        table = pa.table({"num": [1, 2], "text": ["a", "b"]})
+        gt_tbl = gt.GT(table)
+        aligns = [col.column_align for col in gt_tbl._boxhead._d]
+        assert aligns == ["right", "left"]  # int64 -> right, string -> left
+
+    def test_pyarrow_mixed_types(self):
+        table = pa.table(
+            {
+                "int_col": pa.array([1, 2, 3], type=pa.int64()),
+                "float_col": pa.array([1.1, 2.2, 3.3], type=pa.float64()),
+                "str_col": pa.array(["a", "b", "c"], type=pa.string()),
+                "bool_col": pa.array([True, False, True], type=pa.bool_()),
+            }
+        )
+        gt_tbl = gt.GT(table)
+        aligns = [col.column_align for col in gt_tbl._boxhead._d]
+        assert aligns == ["right", "right", "left", "center"]
