@@ -377,9 +377,9 @@ class Boxhead(_Sequence[ColInfo]):
         for col in get_column_names(data):
             dtype = _get_column_dtype(data, col)
 
-            if dtype == "object":
-                # Check whether all values in 'object' columns are strings that
-                # for all intents and purpose are 'number-like'
+            if dtype == "object" or str(dtype).lower() == "str":
+                # Check whether all values in 'object' columns (pandas 2.x) or
+                # 'str' columns (pandas 3.x) are strings that are 'number-like'
 
                 col_vals = data[col].to_list()
 
@@ -399,7 +399,7 @@ class Boxhead(_Sequence[ColInfo]):
         # Get a list of `align` values by translating the column classes
         align: list[str] = []
 
-        align_to_left = {"object", "utf8", "string"}
+        align_to_left = {"object", "utf8", "string", "str"}
         for col_class in col_classes:
             # Ensure that `col_class` is lowercase
             col_class = str(col_class).lower()
