@@ -1508,7 +1508,7 @@ def opt_css(
         # If `css` is empty and we are adding CSS, keep the existing CSS
         additional_css = existing_additional_css
     elif not allow_duplicates and css in existing_additional_css:
-        # if CSS already exists and we don't allow duplicates, return self
+        # If CSS already exists and we don't allow duplicates, return self
         return self
     else:
         # Add the new CSS to the existing CSS
