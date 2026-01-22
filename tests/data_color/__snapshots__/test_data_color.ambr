@@ -129,27 +129,27 @@
     <tr>
       <td style="color: #000000; background-color: #f7fcf5;" class="gt_row gt_right">1</td>
       <td style="color: #FFFFFF; background-color: #00441b;" class="gt_row gt_right">10</td>
-      <td class="gt_row gt_left">one</td>
+      <td class="gt_row gt_center">one</td>
     </tr>
     <tr>
       <td style="color: #000000; background-color: #c7e9c0;" class="gt_row gt_right">2</td>
       <td style="color: #000000; background-color: #238b45;" class="gt_row gt_right">9</td>
-      <td class="gt_row gt_left">two</td>
+      <td class="gt_row gt_center">two</td>
     </tr>
     <tr>
       <td style="color: #000000; background-color: #74c476;" class="gt_row gt_right">3</td>
       <td style="color: #000000; background-color: #74c476;" class="gt_row gt_right">8</td>
-      <td class="gt_row gt_left">three</td>
+      <td class="gt_row gt_center">three</td>
     </tr>
     <tr>
       <td style="color: #000000; background-color: #238b45;" class="gt_row gt_right">4</td>
       <td style="color: #000000; background-color: #c7e9c0;" class="gt_row gt_right">7</td>
-      <td class="gt_row gt_left">four</td>
+      <td class="gt_row gt_center">four</td>
     </tr>
     <tr>
       <td style="color: #FFFFFF; background-color: #00441b;" class="gt_row gt_right">5</td>
       <td style="color: #000000; background-color: #f7fcf5;" class="gt_row gt_right">6</td>
-      <td class="gt_row gt_left">five</td>
+      <td class="gt_row gt_center">five</td>
     </tr>
   </tbody>
   '''
@@ -428,17 +428,17 @@
     <tr>
       <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_right">1</td>
       <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">10</td>
-      <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_left">one</td>
+      <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_center">one</td>
     </tr>
     <tr>
       <td style="color: #000000; background-color: #25bce6;" class="gt_row gt_right">2</td>
       <td style="color: #000000; background-color: #25bce6;" class="gt_row gt_right">9</td>
-      <td style="color: #000000; background-color: #25bce6;" class="gt_row gt_left">two</td>
+      <td style="color: #000000; background-color: #25bce6;" class="gt_row gt_center">two</td>
     </tr>
     <tr>
       <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">3</td>
       <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_right">8</td>
-      <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_left">three</td>
+      <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_center">three</td>
     </tr>
   </tbody>
   '''
@@ -553,27 +553,27 @@
     <tr>
       <td style="color: #FFFFFF; background-color: #440154;" class="gt_row gt_right">1</td>
       <td style="color: #000000; background-color: #fde725;" class="gt_row gt_right">10</td>
-      <td class="gt_row gt_left">one</td>
+      <td class="gt_row gt_center">one</td>
     </tr>
     <tr>
       <td style="color: #FFFFFF; background-color: #3b518a;" class="gt_row gt_right">2</td>
       <td style="color: #000000; background-color: #5fc861;" class="gt_row gt_right">9</td>
-      <td class="gt_row gt_left">two</td>
+      <td class="gt_row gt_center">two</td>
     </tr>
     <tr>
       <td style="color: #000000; background-color: #22908c;" class="gt_row gt_right">3</td>
       <td style="color: #000000; background-color: #22908c;" class="gt_row gt_right">8</td>
-      <td class="gt_row gt_left">three</td>
+      <td class="gt_row gt_center">three</td>
     </tr>
     <tr>
       <td style="color: #000000; background-color: #5fc861;" class="gt_row gt_right">4</td>
       <td style="color: #FFFFFF; background-color: #3b518a;" class="gt_row gt_right">7</td>
-      <td class="gt_row gt_left">four</td>
+      <td class="gt_row gt_center">four</td>
     </tr>
     <tr>
       <td style="color: #000000; background-color: #fde725;" class="gt_row gt_right">5</td>
       <td style="color: #FFFFFF; background-color: #440154;" class="gt_row gt_right">6</td>
-      <td class="gt_row gt_left">five</td>
+      <td class="gt_row gt_center">five</td>
     </tr>
   </tbody>
   '''
