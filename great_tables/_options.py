@@ -967,45 +967,48 @@ def opt_all_caps(
 
     # If providing a scalar string value, normalize it to be in a list
     if not isinstance(locations, list):
-        locations = _utils._str_scalar_to_list(cast(str, locations))
+        locations = _utils._str_scalar_to_list(locations)
 
     # Ensure that the `locations` value is a list of strings
     _utils._assert_str_list(locations)
 
     # TODO: Ensure that all values within `locations` are valid
 
-    # Set new options for `locations` selected, or, reset to default options
-    # if `all_caps` is False
-    # TODO: the code constantly reassigns res, in order to prepare for a
-    # world where options are not mutating the GT options object.
-    # TODO: is there a way to set multiple options at once?
+    # Define the style settings for each location when all_caps is enabled vs disabled
+    # Each location has: (font_size, font_weight, text_transform)
+    all_caps_styles = ("80%", "bolder", "uppercase")
+    default_styles = {
+        "column_labels": ("100%", "normal", "inherit"),
+        "stub": ("100%", "initial", "inherit"),
+        "row_group": ("100%", "initial", "inherit"),
+    }
+
     res = self
+
     if all_caps:
-        if "column_labels" in locations:
-            res = tab_options(res, column_labels_font_size="80%")
-            res = tab_options(res, column_labels_font_weight="bolder")
-            res = tab_options(res, column_labels_text_transform="uppercase")
-
-        if "stub" in locations:
-            res = tab_options(res, stub_font_size="80%")
-            res = tab_options(res, stub_font_weight="bolder")
-            res = tab_options(res, stub_text_transform="uppercase")
-
-        if "row_group" in locations:
-            res = tab_options(res, row_group_font_size="80%")
-            res = tab_options(res, row_group_font_weight="bolder")
-            res = tab_options(res, row_group_text_transform="uppercase")
-
+        # Apply all caps styling only to specified locations
+        for loc in locations:
+            if loc in default_styles:
+                font_size, font_weight, text_transform = all_caps_styles
+                res = tab_options(
+                    res,
+                    **{
+                        f"{loc}_font_size": font_size,
+                        f"{loc}_font_weight": font_weight,
+                        f"{loc}_text_transform": text_transform,
+                    },
+                )
     else:
-        res = tab_options(res, column_labels_font_size="100%")
-        res = tab_options(res, column_labels_font_weight="normal")
-        res = tab_options(res, column_labels_text_transform="inherit")
-        res = tab_options(res, stub_font_size="100%")
-        res = tab_options(res, stub_font_weight="initial")
-        res = tab_options(res, stub_text_transform="inherit")
-        res = tab_options(res, row_group_font_size="100%")
-        res = tab_options(res, row_group_font_weight="initial")
-        res = tab_options(res, row_group_text_transform="inherit")
+        # Reset all locations to their default values
+        for loc, (font_size, font_weight, text_transform) in default_styles.items():
+            res = tab_options(
+                res,
+                **{
+                    f"{loc}_font_size": font_size,
+                    f"{loc}_font_weight": font_weight,
+                    f"{loc}_text_transform": text_transform,
+                },
+            )
 
     return res
 
