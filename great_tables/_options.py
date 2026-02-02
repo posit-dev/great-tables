@@ -972,8 +972,6 @@ def opt_all_caps(
     # Ensure that the `locations` value is a list of strings
     _utils._assert_str_list(locations)
 
-    # TODO: Ensure that all values within `locations` are valid
-
     # Define the style settings for each location when all_caps is enabled vs disabled
     # Each location has: (font_size, font_weight, text_transform)
     all_caps_styles = ("80%", "bolder", "uppercase")
@@ -983,32 +981,31 @@ def opt_all_caps(
         "row_group": ("100%", "initial", "inherit"),
     }
 
+    # Validate that all specified locations are valid
+    valid_locations = set(default_styles.keys())
+    invalid_locations = [loc for loc in locations if loc not in valid_locations]
+    if invalid_locations:
+        raise ValueError(
+            f"Invalid location(s): {invalid_locations}. "
+            f"Valid locations are: {sorted(valid_locations)}."
+        )
+
     res = self
 
-    if all_caps:
-        # Apply all caps styling only to specified locations
-        for loc in locations:
-            if loc in default_styles:
-                font_size, font_weight, text_transform = all_caps_styles
-                res = tab_options(
-                    res,
-                    **{
-                        f"{loc}_font_size": font_size,
-                        f"{loc}_font_weight": font_weight,
-                        f"{loc}_text_transform": text_transform,
-                    },
-                )
-    else:
-        # Reset all locations to their default values
-        for loc, (font_size, font_weight, text_transform) in default_styles.items():
-            res = tab_options(
-                res,
-                **{
-                    f"{loc}_font_size": font_size,
-                    f"{loc}_font_weight": font_weight,
-                    f"{loc}_text_transform": text_transform,
-                },
-            )
+    # Apply styling to specified locations
+    for loc in locations:
+        if all_caps:
+            font_size, font_weight, text_transform = all_caps_styles
+        else:
+            font_size, font_weight, text_transform = default_styles[loc]
+        res = tab_options(
+            res,
+            **{
+                f"{loc}_font_size": font_size,
+                f"{loc}_font_weight": font_weight,
+                f"{loc}_text_transform": text_transform,
+            },
+        )
 
     return res
 

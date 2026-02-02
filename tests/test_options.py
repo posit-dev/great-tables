@@ -550,3 +550,107 @@ def test_opt_horizontal_padding_raises(gt_tbl: GT, scale: float):
         gt_tbl.opt_horizontal_padding(scale=scale)
 
     assert "`scale` must be a value between `0` and `3`." in exc_info.value.args[0]
+
+
+# Tests for opt_all_caps()
+def test_opt_all_caps_default():
+    """Test opt_all_caps with default parameters (all_caps=True, all locations)."""
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    tbl = GT(df).opt_all_caps()
+
+    assert tbl._options.column_labels_font_size.value == "80%"
+    assert tbl._options.column_labels_font_weight.value == "bolder"
+    assert tbl._options.column_labels_text_transform.value == "uppercase"
+    assert tbl._options.stub_font_size.value == "80%"
+    assert tbl._options.stub_font_weight.value == "bolder"
+    assert tbl._options.stub_text_transform.value == "uppercase"
+    assert tbl._options.row_group_font_size.value == "80%"
+    assert tbl._options.row_group_font_weight.value == "bolder"
+    assert tbl._options.row_group_text_transform.value == "uppercase"
+
+
+def test_opt_all_caps_single_location():
+    """Test opt_all_caps with a single location as scalar string."""
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    tbl = GT(df).opt_all_caps(locations="stub")
+
+    # Stub should have all caps styling
+    assert tbl._options.stub_font_size.value == "80%"
+    assert tbl._options.stub_font_weight.value == "bolder"
+    assert tbl._options.stub_text_transform.value == "uppercase"
+    # Other locations should retain default values (not uppercase)
+    assert tbl._options.column_labels_text_transform.value == "inherit"
+    assert tbl._options.row_group_text_transform.value == "inherit"
+
+
+def test_opt_all_caps_multiple_locations():
+    """Test opt_all_caps with multiple locations as list."""
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    tbl = GT(df).opt_all_caps(locations=["column_labels", "row_group"])
+
+    # Specified locations should have all caps styling
+    assert tbl._options.column_labels_font_size.value == "80%"
+    assert tbl._options.column_labels_text_transform.value == "uppercase"
+    assert tbl._options.row_group_font_size.value == "80%"
+    assert tbl._options.row_group_text_transform.value == "uppercase"
+    # Stub should retain default values
+    assert tbl._options.stub_text_transform.value == "inherit"
+
+
+def test_opt_all_caps_false_resets_only_specified_locations():
+    """Test that all_caps=False only resets the specified locations."""
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    # First apply all caps to all locations
+    tbl = GT(df).opt_all_caps()
+
+    # Then reset only stub
+    tbl = tbl.opt_all_caps(locations="stub", all_caps=False)
+
+    # Stub should be reset to defaults
+    assert tbl._options.stub_font_size.value == "100%"
+    assert tbl._options.stub_font_weight.value == "initial"
+    assert tbl._options.stub_text_transform.value == "inherit"
+    # Other locations should still have all caps styling
+    assert tbl._options.column_labels_text_transform.value == "uppercase"
+    assert tbl._options.row_group_text_transform.value == "uppercase"
+
+
+def test_opt_all_caps_false_all_locations():
+    """Test that all_caps=False with all locations resets everything."""
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    # First apply all caps to all locations
+    tbl = GT(df).opt_all_caps()
+
+    # Then reset all locations
+    tbl = tbl.opt_all_caps(all_caps=False)
+
+    # All locations should be reset to defaults
+    assert tbl._options.column_labels_font_size.value == "100%"
+    assert tbl._options.column_labels_font_weight.value == "normal"
+    assert tbl._options.column_labels_text_transform.value == "inherit"
+    assert tbl._options.stub_font_size.value == "100%"
+    assert tbl._options.stub_font_weight.value == "initial"
+    assert tbl._options.stub_text_transform.value == "inherit"
+    assert tbl._options.row_group_font_size.value == "100%"
+    assert tbl._options.row_group_font_weight.value == "initial"
+    assert tbl._options.row_group_text_transform.value == "inherit"
+
+
+def test_opt_all_caps_invalid_location_raises():
+    """Test that invalid locations raise a ValueError."""
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    with pytest.raises(ValueError) as exc_info:
+        GT(df).opt_all_caps(locations="invalid_location")
+
+    assert "Invalid location(s)" in exc_info.value.args[0]
+    assert "invalid_location" in exc_info.value.args[0]
+
+
+def test_opt_all_caps_invalid_location_in_list_raises():
+    """Test that invalid locations in a list raise a ValueError."""
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    with pytest.raises(ValueError) as exc_info:
+        GT(df).opt_all_caps(locations=["column_labels", "bad_loc", "stub"])
+
+    assert "Invalid location(s)" in exc_info.value.args[0]
+    assert "bad_loc" in exc_info.value.args[0]
