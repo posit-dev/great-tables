@@ -48,6 +48,10 @@
    #test_table .gt_font_bold { font-weight: bold; }
    #test_table .gt_font_italic { font-style: italic; }
    #test_table .gt_super { font-size: 65%; }
+   #test_table .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+   #test_table .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+   #test_table .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+   #test_table .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
    #test_table .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
    #test_table .gt_asterisk { font-size: 100%; vertical-align: 0; }
    
@@ -124,14 +128,7 @@
       <td class="gt_row gt_right">$0.44</td>
     </tr>
   </tbody>
-    <tfoot class="gt_sourcenotes">
-    
-    <tr>
-      <td class="gt_sourcenote" colspan="4">This is only a subset of the dataset.</td>
-    </tr>
-  
-  </tfoot>
-  
+  <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4"><span class="gt_from_md">This is only a subset of the dataset.</span></td></tr></tfoot>
   </table>
   
   </div>
@@ -160,7 +157,6 @@
       <td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">banana</td>
     </tr>
   </tbody>
-  
   
   </table>
   
@@ -194,7 +190,6 @@
     </tr>
   </tbody>
   
-  
   </table>
   
   </div>
@@ -205,39 +200,6 @@
   '''
 # ---
 # name: test_snap_as_latex
-  '''
-  \begingroup
-  \setlength\LTleft{\dimexpr(0.5\linewidth - 225pt)}
-  \setlength\LTright{\dimexpr(0.5\linewidth - 225pt)}
-  \fontsize{9.0pt}{10.8pt}\selectfont
-  
-  \setlength{\LTpost}{0mm}
-  \begin{longtable}{@{\extracolsep{\fill}}llrrr}
-  \caption*{
-  {\large The \_title\_} \\
-  {\small The subtitle}
-  } \\
-  \toprule
-  \multicolumn{2}{c}{Make \_and\_ Model} & \multicolumn{2}{c}{Performance} &  \\ 
-  \cmidrule(lr){1-2} \cmidrule(lr){3-4}
-  mfr & model & hp & trq & msrp \\ 
-  \midrule\addlinespace[2.5pt]
-  Ford & GT & 647.0 & 550.0 & \$447,000.00 \\
-  Ferrari & 458 Speciale & 597.0 & 398.0 & \$291,744.00 \\
-  Ferrari & 458 Spider & 562.0 & 398.0 & \$263,553.00 \\
-  Ferrari & 458 Italia & 562.0 & 398.0 & \$233,509.00 \\
-  Ferrari & 488 GTB & 661.0 & 561.0 & \$245,400.00 \\
-  \bottomrule
-  \end{longtable}
-  \begin{minipage}{\linewidth}
-  Note 1\\
-  Note 2\\
-  \end{minipage}
-  \endgroup
-  
-  '''
-# ---
-# name: test_snap_render_as_latex
   '''
   \begingroup
   \setlength\LTleft{\dimexpr(0.5\linewidth - 225pt)}

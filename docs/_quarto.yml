@@ -125,6 +125,7 @@ quartodoc:
         - GT.tab_spanner_delim
         - GT.tab_stub
         - GT.tab_stubhead
+        - GT.tab_footnote
         - GT.tab_source_note
         - GT.tab_style
         - GT.tab_options
@@ -237,6 +238,7 @@ quartodoc:
         - GT.opt_table_outline
         - GT.opt_table_font
         - GT.opt_stylize
+        - GT.opt_footnote_marks
     - title: Export
       desc: >
         There may come a day when you need to export a table to some specific format. A great method

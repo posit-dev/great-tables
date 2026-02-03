@@ -9,6 +9,7 @@ from ._body import body_reassemble
 from ._boxhead import cols_align, cols_label, cols_label_rotate
 from ._data_color import data_color
 from ._export import as_latex, as_raw_html, save, show, write_raw_html
+from ._footnotes import tab_footnote
 from ._formats import (
     fmt,
     fmt_bytes,
@@ -70,9 +71,8 @@ from ._utils_render_html import (
     _get_table_defs,
     create_body_component_h,
     create_columns_component_h,
-    create_footnotes_component_h,
+    create_footer_component_h,
     create_heading_component_h,
-    create_source_notes_component_h,
 )
 
 if TYPE_CHECKING:
@@ -269,6 +269,7 @@ class GT(
 
     tab_header = tab_header
     tab_source_note = tab_source_note
+    tab_footnote = tab_footnote
     tab_spanner = tab_spanner
     tab_spanner_delim = tab_spanner_delim
     tab_stubhead = tab_stubhead
@@ -367,8 +368,7 @@ class GT(
         heading_component = create_heading_component_h(data=self)
         column_labels_component = create_columns_component_h(data=self)
         body_component = create_body_component_h(data=self)
-        source_notes_component = create_source_notes_component_h(data=self)
-        footnotes_component = create_footnotes_component_h(data=self)
+        footer_component = create_footer_component_h(data=self)
 
         # Get attributes for the table
         table_defs = _get_table_defs(data=self)
@@ -395,8 +395,7 @@ class GT(
 {column_labels_component}
 </thead>
 {body_component}
-{source_notes_component}
-{footnotes_component}
+{footer_component}
 </table>
 """
 

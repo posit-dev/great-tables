@@ -553,6 +553,13 @@ def _render_as_latex(data: GTData, use_longtable: bool = False, tbl_pos: str | N
     if data._styles:
         _not_implemented("Styles are not yet supported in LaTeX output.")
 
+    # Throw exception if footnotes are present in the table
+    if data._footnotes:
+        raise NotImplementedError(
+            "Footnotes are not yet supported in LaTeX output. "
+            "Consider removing all `.tab_footnote()` calls before using `.as_latex()`."
+        )
+
     # Get list representation of stub layout
     has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
     stub_layout = data._stub._get_stub_layout(

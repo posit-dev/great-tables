@@ -865,7 +865,7 @@ class FootnoteInfo:
     locname: Loc | None = None
     grpname: str | None = None
     colname: str | None = None
-    locnum: int | None = None
+    locnum: int | float | None = None
     rownum: int | None = None
     colnum: int | None = None
     footnotes: list[str] | None = None
@@ -1303,7 +1303,7 @@ class Options:
     # footnotes_border_lr_style: OptionsInfo = OptionsInfo(True, "footnotes", "value", "none")
     # footnotes_border_lr_width: OptionsInfo = OptionsInfo(True, "footnotes", "px", "2px")
     # footnotes_border_lr_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", "#D3D3D3")
-    # footnotes_marks: OptionsInfo = OptionsInfo(False, "footnotes", "values", "numbers")
+    footnotes_marks: OptionsInfo = OptionsInfo(False, "footnotes", "values", "numbers")
     # footnotes_multiline: OptionsInfo = OptionsInfo(False, "footnotes", "boolean", True)
     # footnotes_sep: OptionsInfo = OptionsInfo(False, "footnotes", "value", " ")
     source_notes_padding: OptionsInfo = OptionsInfo(True, "source_notes", "px", "4px")

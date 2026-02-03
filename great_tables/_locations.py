@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import itertools
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal, Union
 
 from typing_extensions import TypeAlias
 
@@ -20,10 +20,45 @@ from ._gt_data import (
 )
 from ._styles import CellStyle
 from ._tbl_data import PlDataFrame, PlExpr, eval_select, eval_transform, get_column_names
+from ._text import _process_text
 
 if TYPE_CHECKING:
     from ._gt_data import TblData
     from ._tbl_data import SelectExpr
+    from ._text import Text
+
+
+@dataclass(frozen=True)
+class FootnoteEntry:
+    """A footnote specification that can be applied to a location along with styles."""
+
+    footnote: str | Text
+    placement: PlacementOptions = "auto"
+
+
+def footnotes_split_style_list(
+    entries: list[CellStyle | FootnoteEntry],
+) -> tuple[list[CellStyle], list[FootnoteInfo]]:
+    """Split a list containing both styles and footnote entries.
+
+    Returns a tuple of (styles, footnote_infos).
+    """
+    styles: list[CellStyle] = []
+    footnote_infos: list[FootnoteInfo] = []
+
+    for entry in entries:
+        if isinstance(entry, FootnoteEntry):
+            place = FootnotePlacement[entry.placement]
+            # Convert Text to string using `_process_text()`
+            footnote_str = _process_text(entry.footnote)
+            footnote_info = FootnoteInfo(footnotes=[footnote_str], placement=place)
+            footnote_infos.append(footnote_info)
+        else:
+            # It's a CellStyle
+            styles.append(entry)
+
+    return styles, footnote_infos
+
 
 # Misc Types ===========================================================================
 
@@ -1131,8 +1166,8 @@ def _(loc: LocBody, data: GTData) -> list[CellPos]:
 
 
 @singledispatch
-def set_style(loc: Loc, data: GTData, style: list[str]) -> GTData:
-    """Set style for location."""
+def set_style(loc: Loc, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTData:
+    """Set style and footnotes for location."""
     raise NotImplementedError(f"Unsupported location type: {type(loc)}")
 
 
@@ -1156,109 +1191,173 @@ def _(
         | LocSourceNotes
     ),
     data: GTData,
-    style: list[CellStyle],
+    style: list[CellStyle | FootnoteEntry],
 ) -> GTData:
+    styles, new_footnotes = footnotes_split_style_list(style)
+
     # validate ----
-    for entry in style:
+    for entry in styles:
         entry._raise_if_requires_data(loc)
 
-    return data._replace(_styles=data._styles + [StyleInfo(locname=loc, styles=style)])
+    # Update footnote infos with location information
+    updated_footnotes = []
+    for footnote_info in new_footnotes:
+        # Determine locnum based on location type
+        if isinstance(loc, LocTitle):
+            locnum = 1
+        elif isinstance(loc, LocSubTitle):
+            locnum = 2
+        elif isinstance(loc, LocStubhead) or isinstance(loc, LocStubheadLabel):
+            locnum = 2.5
+        else:
+            locnum = 6  # Default for footer-area locations
 
+        updated_footnote = replace(footnote_info, locname=loc, locnum=locnum)
+        updated_footnotes.append(updated_footnote)
 
-@set_style.register
-def _(loc: LocColumnLabels, data: GTData, style: list[CellStyle]) -> GTData:
-    selected = resolve(loc, data)
-
-    # evaluate any column expressions in styles
-    styles = [entry._evaluate_expressions(data._tbl_data) for entry in style]
-
-    all_info: list[StyleInfo] = []
-    for name, pos in selected:
-        crnt_info = StyleInfo(
-            locname=loc,
-            colname=name,
-            styles=styles,
-        )
-        all_info.append(crnt_info)
-    return data._replace(_styles=data._styles + all_info)
-
-
-@set_style.register
-def _(loc: LocSpannerLabels, data: GTData, style: list[CellStyle]) -> GTData:
-    # validate ----
-    for entry in style:
-        entry._raise_if_requires_data(loc)
-    # TODO resolve
-
-    new_loc = resolve(loc, data._spanners)
     return data._replace(
-        _styles=data._styles + [StyleInfo(locname=new_loc, grpname=new_loc.ids, styles=style)]
+        _styles=data._styles + [StyleInfo(locname=loc, styles=styles)],
+        _footnotes=data._footnotes + updated_footnotes,
     )
 
 
 @set_style.register
-def _(loc: LocRowGroups, data: GTData, style: list[CellStyle]) -> GTData:
+def _(loc: LocColumnLabels, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
+    styles, new_footnotes = footnotes_split_style_list(style)
+
+    selected = resolve(loc, data)
+
+    # evaluate any column expressions in styles
+    styles_ready = [entry._evaluate_expressions(data._tbl_data) for entry in styles]
+
+    all_info: list[StyleInfo] = []
+    updated_footnotes: list[FootnoteInfo] = []
+
+    for name, pos in selected:
+        # Add style info
+        crnt_info = StyleInfo(
+            locname=loc,
+            colname=name,
+            styles=styles_ready,
+        )
+        all_info.append(crnt_info)
+
+        # Add footnote info for this column
+        for footnote_info in new_footnotes:
+            updated_footnote = replace(footnote_info, locname=loc, colname=name, locnum=4)
+            updated_footnotes.append(updated_footnote)
+
+    return data._replace(
+        _styles=data._styles + all_info, _footnotes=data._footnotes + updated_footnotes
+    )
+
+
+@set_style.register
+def _(loc: LocSpannerLabels, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
+    styles, new_footnotes = footnotes_split_style_list(style)
+
     # validate ----
-    for entry in style:
+    for entry in styles:
+        entry._raise_if_requires_data(loc)
+    # TODO resolve
+
+    new_loc = resolve(loc, data._spanners)
+
+    # Update footnotes with location info
+    updated_footnotes = []
+    for spanner_id in new_loc.ids:
+        for footnote_info in new_footnotes:
+            updated_footnote = replace(footnote_info, locname=loc, grpname=spanner_id, locnum=3)
+            updated_footnotes.append(updated_footnote)
+
+    return data._replace(
+        _styles=data._styles + [StyleInfo(locname=new_loc, grpname=new_loc.ids, styles=styles)],
+        _footnotes=data._footnotes + updated_footnotes,
+    )
+
+
+@set_style.register
+def _(loc: LocRowGroups, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
+    styles, new_footnotes = footnotes_split_style_list(style)
+
+    # validate ----
+    for entry in styles:
         entry._raise_if_requires_data(loc)
 
     row_groups = resolve(loc, data)
+
+    # Update footnotes with location info
+    updated_footnotes = []
+    for group_name in row_groups:
+        for footnote_info in new_footnotes:
+            updated_footnote = replace(footnote_info, locname=loc, grpname=group_name, locnum=5)
+            updated_footnotes.append(updated_footnote)
+
     return data._replace(
-        _styles=data._styles + [StyleInfo(locname=loc, grpname=row_groups, styles=style)]
+        _styles=data._styles + [StyleInfo(locname=loc, grpname=row_groups, styles=styles)],
+        _footnotes=data._footnotes + updated_footnotes,
     )
 
 
 # @set_style.register(LocSummaryStub)
 @set_style.register(LocStub)
 @set_style.register(LocGrandSummaryStub)
-def _(loc: (LocStub | LocGrandSummaryStub), data: GTData, style: list[CellStyle]) -> GTData:
+def _(
+    loc: (LocStub | LocGrandSummaryStub), data: GTData, style: list[Union[CellStyle, FootnoteEntry]]
+) -> GTData:
+    styles, new_footnotes = footnotes_split_style_list(style)
+
     # validate ----
-    for entry in style:
+    for entry in styles:
         entry._raise_if_requires_data(loc)
     # TODO resolve
     cells = resolve(loc, data)
 
-    new_styles = [StyleInfo(locname=loc, rownum=rownum, styles=style) for rownum in cells]
-    return data._replace(_styles=data._styles + new_styles)
+    new_styles = [StyleInfo(locname=loc, rownum=rownum, styles=styles) for rownum in cells]
+
+    # Handle footnotes
+    updated_footnotes = []
+    for row_pos in cells:
+        for footnote_info in new_footnotes:
+            updated_footnote = replace(footnote_info, locname=loc, rownum=row_pos, locnum=5)
+            updated_footnotes.append(updated_footnote)
+
+    return data._replace(
+        _styles=data._styles + new_styles, _footnotes=data._footnotes + updated_footnotes
+    )
 
 
 # @set_style.register(LocSummary)
 @set_style.register(LocBody)
 @set_style.register(LocGrandSummary)
-def _(loc: (LocBody | LocGrandSummary), data: GTData, style: list[CellStyle]) -> GTData:
+def _(
+    loc: (LocBody | LocGrandSummary), data: GTData, style: list[Union[CellStyle, FootnoteEntry]]
+) -> GTData:
     positions: list[CellPos] = resolve(loc, data)
 
+    styles, new_footnotes = footnotes_split_style_list(style)
+
     # evaluate any column expressions in styles
-    style_ready = [entry._evaluate_expressions(data._tbl_data) for entry in style]
+    style_ready = [entry._evaluate_expressions(data._tbl_data) for entry in styles]
 
     all_info: list[StyleInfo] = []
+    updated_footnotes: list[FootnoteInfo] = []
+
     for col_pos in positions:
+        # Handle styles
         row_styles = [entry._from_row(data._tbl_data, col_pos.row) for entry in style_ready]
         crnt_info = StyleInfo(
             locname=loc, colname=col_pos.colname, rownum=col_pos.row, styles=row_styles
         )
         all_info.append(crnt_info)
 
-    return data._replace(_styles=data._styles + all_info)
+        # Handle footnotes for this position
+        for footnote_info in new_footnotes:
+            updated_footnote = replace(
+                footnote_info, locname=loc, colname=col_pos.colname, rownum=col_pos.row, locnum=5
+            )
+            updated_footnotes.append(updated_footnote)
 
-
-# Set footnote generic =================================================================
-
-
-@singledispatch
-def set_footnote(loc: Loc, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
-    """Set footnote for location."""
-    raise NotImplementedError(f"Unsupported location type: {type(loc)}")
-
-
-@set_footnote.register(type(None))
-def _(loc: None, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
-    place = FootnotePlacement[placement]
-    info = FootnoteInfo(locname="none", footnotes=[footnote], placement=place)
-
-    return data._replace(_footnotes=data._footnotes + [info])
-
-
-@set_footnote.register
-def _(loc: LocTitle, data: GTData, footnote: str, placement: PlacementOptions) -> GTData:
-    raise NotImplementedError()
+    return data._replace(
+        _styles=data._styles + all_info, _footnotes=data._footnotes + updated_footnotes
+    )
