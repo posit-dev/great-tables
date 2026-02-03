@@ -992,10 +992,147 @@ Formats = list
 
 @dataclass(frozen=True)
 class ColMergeInfo:
+    """Information about a column merge operation.
+
+    This class stores the configuration for a column merge and provides methods
+    to validate the pattern and perform the actual value merging.
+
+    Attributes
+    ----------
+    vars
+        List of column names to merge. The first column is the target column.
+    rows
+        List of row indices to apply the merge to.
+    type
+        Type of merge operation (currently only 'merge' is used).
+    pattern
+        The pattern string for merging, using {1}, {2}, etc. for column references.
+        Supports conditional sections with <<...>> for handling missing values.
+
+    Notes
+    -----
+    The pattern uses 1-based indexing (e.g., {1} for the first column) for consistency
+    with R's gt package pattern syntax.
+
+    Examples
+    --------
+    >>> info = ColMergeInfo(
+    ...     vars=["first", "last"],
+    ...     rows=[0, 1, 2],
+    ...     type="merge",
+    ...     pattern="{1} {2}"
+    ... )
+    >>> info.merge_values({"1": "John", "2": "Doe"}, {"1": False, "2": False})
+    'John Doe'
+    """
+
     vars: list[str]
     rows: list[int]
     type: str  # type of merge operation (only 'merge' used currently)
     pattern: str | None = None
+
+    def __post_init__(self) -> None:
+        """Validate the pattern references on initialization."""
+        # We can't raise on __post_init__ for frozen dataclass if validation fails
+        # because the pattern might be None (set later by cols_merge).
+        # Instead, we cache the extracted pattern columns for efficiency.
+        pass
+
+    @property
+    def pattern_columns(self) -> list[str]:
+        """Extract column references from the pattern string.
+
+        Returns
+        -------
+        list[str]
+            List of column reference numbers as strings (e.g., ["1", "2"]).
+        """
+        if self.pattern is None:
+            return []
+        # Import here to avoid circular imports
+        from ._utils import _extract_pattern_columns
+
+        return _extract_pattern_columns(self.pattern)
+
+    def validate_pattern(self) -> None:
+        """Validate that pattern references are valid for the provided columns.
+
+        Raises
+        ------
+        ValueError
+            If the pattern is None (required for merge operations).
+        ValueError
+            If the pattern references a column index less than 1 (0-based indexing error).
+        ValueError
+            If the pattern references a column index greater than the number of columns.
+        """
+        if self.pattern is None:
+            raise ValueError("Pattern must be provided for column merge operations.")
+
+        pattern_cols = self.pattern_columns
+
+        for col_ref in pattern_cols:
+            # The pattern syntax uses 1-based indexing
+            col_idx = int(col_ref) - 1
+
+            if col_idx < 0:
+                raise ValueError(
+                    f"Pattern references column {{{col_ref}}} but column indexing starts "
+                    f"at {{1}}, not {{0}}. Please use 1-based indexing in patterns."
+                )
+            if col_idx >= len(self.vars):
+                raise ValueError(
+                    f"Pattern references column {{{col_ref}}} but only {len(self.vars)} "
+                    f"columns were provided to cols_merge()."
+                )
+
+    def merge_values(
+        self,
+        col_values: dict[str, str],
+        col_is_missing: dict[str, bool],
+    ) -> str:
+        """Merge column values according to the pattern.
+
+        Parameters
+        ----------
+        col_values
+            Dictionary mapping column indices (as strings, 1-based) to their display values.
+        col_is_missing
+            Dictionary mapping column indices (as strings, 1-based) to whether the
+            original value was missing.
+
+        Returns
+        -------
+        str
+            The merged string result.
+
+        Raises
+        ------
+        ValueError
+            If the pattern is None.
+
+        Examples
+        --------
+        >>> info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1}-{2}")
+        >>> info.merge_values({"1": "10", "2": "20"}, {"1": False, "2": False})
+        '10-20'
+
+        >>> # With missing value handling
+        >>> info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1}<< ({2})>>")
+        >>> info.merge_values({"1": "10", "2": "NA"}, {"1": False, "2": True})
+        '10'
+        """
+        if self.pattern is None:
+            raise ValueError("Pattern must be provided for column merge operations.")
+
+        # Import here to avoid circular imports
+        from ._utils import _process_col_merge_pattern
+
+        return _process_col_merge_pattern(
+            pattern=self.pattern,
+            col_values=col_values,
+            col_is_missing=col_is_missing,
+        )
 
 
 ColMerges = list[ColMergeInfo]
