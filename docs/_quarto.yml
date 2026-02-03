@@ -264,6 +264,7 @@ quartodoc:
         - vals.fmt_number
         - vals.fmt_integer
         - vals.fmt_scientific
+        - vals.fmt_engineering
         - vals.fmt_percent
         - vals.fmt_currency
         - vals.fmt_roman
