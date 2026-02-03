@@ -237,6 +237,7 @@ quartodoc:
         - GT.opt_table_outline
         - GT.opt_table_font
         - GT.opt_stylize
+        - GT.opt_css
     - title: Export
       desc: >
         There may come a day when you need to export a table to some specific format. A great method
@@ -263,6 +264,7 @@ quartodoc:
         - vals.fmt_number
         - vals.fmt_integer
         - vals.fmt_scientific
+        - vals.fmt_engineering
         - vals.fmt_percent
         - vals.fmt_currency
         - vals.fmt_roman
