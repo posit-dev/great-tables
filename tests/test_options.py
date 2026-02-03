@@ -695,3 +695,202 @@ def test_tab_options_empty_string_css():
     res = GT(exibble).tab_options(table_additional_css="")
 
     assert res._options.table_additional_css.value == []
+
+
+def test_opt_all_caps_default_locations():
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_all_caps()
+
+    # column_labels options should be set
+    assert gt_tbl._options.column_labels_font_size.value == "80%"
+    assert gt_tbl._options.column_labels_font_weight.value == "bolder"
+    assert gt_tbl._options.column_labels_text_transform.value == "uppercase"
+
+    # stub options should be set
+    assert gt_tbl._options.stub_font_size.value == "80%"
+    assert gt_tbl._options.stub_font_weight.value == "bolder"
+    assert gt_tbl._options.stub_text_transform.value == "uppercase"
+
+    # row_group options should be set
+    assert gt_tbl._options.row_group_font_size.value == "80%"
+    assert gt_tbl._options.row_group_font_weight.value == "bolder"
+    assert gt_tbl._options.row_group_text_transform.value == "uppercase"
+
+
+def test_opt_all_caps_column_labels_only():
+    gt_tbl = GT(exibble).opt_all_caps(locations="column_labels")
+
+    # column_labels options should be set
+    assert gt_tbl._options.column_labels_font_size.value == "80%"
+    assert gt_tbl._options.column_labels_font_weight.value == "bolder"
+    assert gt_tbl._options.column_labels_text_transform.value == "uppercase"
+
+    # stub options should remain at defaults (not affected)
+    assert gt_tbl._options.stub_font_size.value == "100%"
+    assert gt_tbl._options.stub_font_weight.value == "initial"
+    assert gt_tbl._options.stub_text_transform.value == "inherit"
+
+    # row_group options should remain at defaults (not affected)
+    assert gt_tbl._options.row_group_font_size.value == "100%"
+    assert gt_tbl._options.row_group_font_weight.value == "initial"
+    assert gt_tbl._options.row_group_text_transform.value == "inherit"
+
+
+def test_opt_all_caps_stub_only():
+    gt_tbl = GT(exibble, rowname_col="row").opt_all_caps(locations="stub")
+
+    # column_labels options should remain at defaults
+    assert gt_tbl._options.column_labels_font_size.value == "100%"
+    assert gt_tbl._options.column_labels_font_weight.value == "normal"
+    assert gt_tbl._options.column_labels_text_transform.value == "inherit"
+
+    # stub options should be set
+    assert gt_tbl._options.stub_font_size.value == "80%"
+    assert gt_tbl._options.stub_font_weight.value == "bolder"
+    assert gt_tbl._options.stub_text_transform.value == "uppercase"
+
+    # row_group options should remain at defaults
+    assert gt_tbl._options.row_group_font_size.value == "100%"
+    assert gt_tbl._options.row_group_font_weight.value == "initial"
+    assert gt_tbl._options.row_group_text_transform.value == "inherit"
+
+
+def test_opt_all_caps_row_group_only():
+    gt_tbl = GT(exibble, groupname_col="group").opt_all_caps(locations="row_group")
+
+    # column_labels options should remain at defaults
+    assert gt_tbl._options.column_labels_font_size.value == "100%"
+    assert gt_tbl._options.column_labels_font_weight.value == "normal"
+    assert gt_tbl._options.column_labels_text_transform.value == "inherit"
+
+    # stub options should remain at defaults
+    assert gt_tbl._options.stub_font_size.value == "100%"
+    assert gt_tbl._options.stub_font_weight.value == "initial"
+    assert gt_tbl._options.stub_text_transform.value == "inherit"
+
+    # row_group options should be set
+    assert gt_tbl._options.row_group_font_size.value == "80%"
+    assert gt_tbl._options.row_group_font_weight.value == "bolder"
+    assert gt_tbl._options.row_group_text_transform.value == "uppercase"
+
+
+def test_opt_all_caps_multiple_locations_as_list():
+    gt_tbl = GT(exibble, rowname_col="row").opt_all_caps(locations=["column_labels", "stub"])
+
+    # column_labels options should be set
+    assert gt_tbl._options.column_labels_font_size.value == "80%"
+    assert gt_tbl._options.column_labels_font_weight.value == "bolder"
+    assert gt_tbl._options.column_labels_text_transform.value == "uppercase"
+
+    # stub options should be set
+    assert gt_tbl._options.stub_font_size.value == "80%"
+    assert gt_tbl._options.stub_font_weight.value == "bolder"
+    assert gt_tbl._options.stub_text_transform.value == "uppercase"
+
+    # row_group options should remain at defaults
+    assert gt_tbl._options.row_group_font_size.value == "100%"
+    assert gt_tbl._options.row_group_font_weight.value == "initial"
+    assert gt_tbl._options.row_group_text_transform.value == "inherit"
+
+
+def test_opt_all_caps_disabled():
+    # First enable all caps, then disable
+    gt_tbl = (
+        GT(exibble, rowname_col="row", groupname_col="group")
+        .opt_all_caps()
+        .opt_all_caps(all_caps=False)
+    )
+
+    # column_labels options should be reset to defaults
+    assert gt_tbl._options.column_labels_font_size.value == "100%"
+    assert gt_tbl._options.column_labels_font_weight.value == "normal"
+    assert gt_tbl._options.column_labels_text_transform.value == "inherit"
+
+    # stub options should be reset to defaults
+    assert gt_tbl._options.stub_font_size.value == "100%"
+    assert gt_tbl._options.stub_font_weight.value == "initial"
+    assert gt_tbl._options.stub_text_transform.value == "inherit"
+
+    # row_group options should be reset to defaults
+    assert gt_tbl._options.row_group_font_size.value == "100%"
+    assert gt_tbl._options.row_group_font_weight.value == "initial"
+    assert gt_tbl._options.row_group_text_transform.value == "inherit"
+
+
+def test_opt_all_caps_disabled_without_prior_enable():
+    gt_tbl = GT(exibble).opt_all_caps(all_caps=False)
+
+    # All locations should have default values
+    assert gt_tbl._options.column_labels_font_size.value == "100%"
+    assert gt_tbl._options.column_labels_font_weight.value == "normal"
+    assert gt_tbl._options.column_labels_text_transform.value == "inherit"
+    assert gt_tbl._options.stub_font_size.value == "100%"
+    assert gt_tbl._options.stub_font_weight.value == "initial"
+    assert gt_tbl._options.stub_text_transform.value == "inherit"
+    assert gt_tbl._options.row_group_font_size.value == "100%"
+    assert gt_tbl._options.row_group_font_weight.value == "initial"
+    assert gt_tbl._options.row_group_text_transform.value == "inherit"
+
+
+def test_opt_all_caps_no_mutation():
+    gt_tbl_original = GT(exibble)
+    gt_tbl_all_caps = gt_tbl_original.opt_all_caps()
+
+    # Original should not be mutated
+    assert gt_tbl_original._options.column_labels_font_size.value == "100%"
+    assert gt_tbl_original._options.column_labels_text_transform.value == "inherit"
+
+    # New table should have the changes
+    assert gt_tbl_all_caps._options.column_labels_font_size.value == "80%"
+    assert gt_tbl_all_caps._options.column_labels_text_transform.value == "uppercase"
+
+
+def test_opt_all_caps_chaining():
+    gt_tbl = (
+        GT(exibble, rowname_col="row", groupname_col="group")
+        .opt_all_caps()
+        .tab_header(title="Test Title")
+        .opt_row_striping()
+    )
+
+    # opt_all_caps settings should be applied
+    assert gt_tbl._options.column_labels_text_transform.value == "uppercase"
+
+    # Other method effects should also be present
+    assert gt_tbl._heading.title == "Test Title"
+    assert gt_tbl._options.row_striping_include_table_body.value == True
+
+
+@pytest.mark.parametrize(
+    "location",
+    ["column_labels", "stub", "row_group"],
+)
+def test_opt_all_caps_single_location_string(location: str):
+    gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_all_caps(locations=location)
+
+    # Map location to option prefix
+    prefix_map = {
+        "column_labels": "column_labels",
+        "stub": "stub",
+        "row_group": "row_group",
+    }
+    prefix = prefix_map[location]
+
+    # Check that the specified location has all caps settings
+    assert getattr(gt_tbl._options, f"{prefix}_font_size").value == "80%"
+    assert getattr(gt_tbl._options, f"{prefix}_font_weight").value == "bolder"
+    assert getattr(gt_tbl._options, f"{prefix}_text_transform").value == "uppercase"
+
+
+def test_opt_all_caps_empty_list():
+    gt_tbl = GT(exibble).opt_all_caps(locations=[])
+
+    # All locations should remain at defaults
+    assert gt_tbl._options.column_labels_font_size.value == "100%"
+    assert gt_tbl._options.column_labels_font_weight.value == "normal"
+    assert gt_tbl._options.column_labels_text_transform.value == "inherit"
+    assert gt_tbl._options.stub_font_size.value == "100%"
+    assert gt_tbl._options.stub_font_weight.value == "initial"
+    assert gt_tbl._options.stub_text_transform.value == "inherit"
+    assert gt_tbl._options.row_group_font_size.value == "100%"
+    assert gt_tbl._options.row_group_font_weight.value == "initial"
+    assert gt_tbl._options.row_group_text_transform.value == "inherit"
