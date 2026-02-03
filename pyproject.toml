@@ -43,7 +43,6 @@ dependencies = [
     "htmltools>=0.4.1",
     "importlib-metadata",
     "typing_extensions>=3.10.0.0",
-    "numpy>=1.22.4",
     "Babel>=2.13.1",
     "importlib-resources"
 ]
@@ -64,6 +63,9 @@ extra = [
 dev = [
     "great_tables[dev-no-pandas]",
     "pandas",
+    "plotnine",
+    "numpy>=1.22.4",
+
 ]
 
 dev-no-pandas = [
@@ -78,6 +80,7 @@ dev-no-pandas = [
     "pytest>=3",
     "pytest-cov",
     "shiny",
+    "svg.py",
     "syrupy"
 ]
 
@@ -100,6 +103,10 @@ markers = [
 
 [tool.ruff]
 line-length = 100
+
+
+[tool.ruff.format]
+exclude = ["great_tables/vals.py"]
 
 
 [tool.ruff.lint]

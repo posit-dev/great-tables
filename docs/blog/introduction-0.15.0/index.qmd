@@ -133,7 +133,7 @@ from great_tables import GT
 import polars as pl
 
 df = pl.DataFrame({
-    "number_type": ["negative", "postive"],
+    "number_type": ["negative", "positive"],
     "number": [-1.2, 23.6],
     "integer": [-2323, 23213],
     "currency": [-24334.23, 7323.253],

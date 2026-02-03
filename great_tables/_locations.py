@@ -19,7 +19,7 @@ from ._gt_data import (
     StyleInfo,
 )
 from ._styles import CellStyle
-from ._tbl_data import PlDataFrame, PlExpr, eval_select, eval_transform
+from ._tbl_data import PlDataFrame, PlExpr, eval_select, eval_transform, get_column_names
 
 if TYPE_CHECKING:
     from ._gt_data import TblData
@@ -480,8 +480,66 @@ class LocRowGroups(Loc):
     rows: RowSelectExpr = None
 
 
+# @dataclass
+# class LocSummaryStub(Loc):
+#     rows: RowSelectExpr = None
+
+
 @dataclass
-class LocSummaryLabel(Loc):
+class LocGrandSummaryStub(Loc):
+    """Target the grand summary stub.
+
+    With `loc.grand_summary_stub()` we can target the cells containing the grand summary row labels,
+    which reside in the table stub. This is useful for applying custom styling with the
+    [`tab_style()`](`great_tables.GT.tab_style`) method. That method has a `locations=` argument and
+    this class should be used there to perform the targeting.
+
+    Parameters
+    ----------
+    rows
+        The rows to target within the grand summary stub. Can either be a single row name or a
+        series of row names provided in a list. If no rows are specified, all grand summary rows
+        are targeted. Note that if rows are targeted by index, top and bottom grand summary rows
+        are indexed as one combined list starting with the top rows.
+
+    Returns
+    -------
+    LocGrandSummaryStub
+        A LocGrandSummaryStub object, which is used for a `locations=` argument if specifying the
+        table's grand summary rows' labels.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style the entire table grand
+    summary stub (the row labels) by using `locations=loc.grand_summary_stub()` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc, vals
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "mpg_c"]].head(6),
+            rowname_col="model",
+        )
+        .fmt_integer(columns=["hp", "trq", "mpg_c"])
+        .grand_summary_rows(
+            fns={
+                "Min": lambda df: df.min(numeric_only=True),
+                "Max": lambda x: x.max(numeric_only=True),
+            },
+            side="top",
+            fmt=vals.fmt_integer,
+        )
+        .tab_style(
+            style=[style.text(color="crimson", weight="bold"), style.fill(color="lightgray")],
+            locations=loc.grand_summary_stub(),
+        )
+    )
+    ```
+    """
+
     rows: RowSelectExpr = None
 
 
@@ -550,11 +608,75 @@ class LocBody(Loc):
     mask: PlExpr | None = None
 
 
+# @dataclass
+# class LocSummary(Loc):
+#     # TODO: these can be tidyselectors
+#     columns: SelectExpr = None
+#     rows: RowSelectExpr = None
+#     mask: PlExpr | None = None
+
+
 @dataclass
-class LocSummary(Loc):
+class LocGrandSummary(Loc):
+    """Target the data cells in grand summary rows.
+
+    With `loc.grand_summary()` we can target the cells containing the grand summary data.
+    This is useful for applying custom styling with the [`tab_style()`](`great_tables.GT.tab_style`)
+    method. That method has a `locations=` argument and this class should be used there to perform
+    the targeting.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        The rows to target. Can either be a single row name or a series of row names provided in a
+        list. Note that if rows are targeted by index, top and bottom grand summary rows are indexed
+        as one combined list starting with the top rows.
+
+    Returns
+    -------
+    LocGrandSummary
+        A LocGrandSummary object, which is used for a `locations=` argument if specifying the
+        table's grand summary rows.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset in a new table. We will style all of the grand
+    summary cells by using `locations=loc.grand_summary()` within
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, style, loc, vals
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq", "mpg_c"]].head(6),
+            rowname_col="model",
+        )
+        .fmt_integer(columns=["hp", "trq", "mpg_c"])
+        .grand_summary_rows(
+            fns={
+                "Min": lambda df: df.min(numeric_only=True),
+                "Max": lambda x: x.max(numeric_only=True),
+            },
+            side="top",
+            fmt=vals.fmt_integer,
+        )
+        .tab_style(
+            style=[style.text(color="crimson", weight="bold"), style.fill(color="lightgray")],
+            locations=loc.grand_summary(),
+        )
+    )
+    ```
+    """
+
     # TODO: these can be tidyselectors
     columns: SelectExpr = None
     rows: RowSelectExpr = None
+    mask: PlExpr | None = None
 
 
 @dataclass
@@ -702,10 +824,7 @@ def resolve_cols_i(
 
         # TODO: special handling of "stub()"
         if isinstance(expr, list) and any(isinstance(x, str) and x == "stub()" for x in expr):
-            if len(stub_var):
-                return [(stub_var[0], 1)]
-
-            return []
+            return [(stub_var[0], 1)] if stub_var else []
 
         # If expr is None, we want to select everything or nothing depending on
         # the value of `null_means`
@@ -715,7 +834,7 @@ def resolve_cols_i(
 
                 return [
                     (col, ii)
-                    for ii, col in enumerate(data._tbl_data.columns)
+                    for ii, col in enumerate(get_column_names(data._tbl_data))
                     if col not in cols_excl
                 ]
 
@@ -736,18 +855,18 @@ def resolve_cols_i(
             # always excluded but in certain cases (i.e., `rows_add()`)
             # we may want to include this column
             _group_vars = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
-            group_var = _group_vars[0] if len(_group_vars) else None
+            group_var = _group_vars[0] if _group_vars else None
         else:
             group_var = None
 
-        cols_excl = [stub_var, group_var]
+        cols_excl = (stub_var, group_var)
 
         tbl_data = data._tbl_data
     else:
         # I am not sure if this gets used in the R program, but it's
         # convenient for testing
         tbl_data = data
-        cols_excl = []
+        cols_excl = ()
 
     selected = eval_select(tbl_data, expr, strict)
     return [name_pos for name_pos in selected if name_pos[0] not in cols_excl]
@@ -802,7 +921,7 @@ def resolve_rows_i(
 
     elif isinstance(expr, PlExpr):
         # TODO: decide later on the name supplied to `name`
-        # with_row_index supercedes with_row_count
+        # with_row_index supersedes with_row_count
         frame: PlDataFrame = data._tbl_data
         meth_row_number = getattr(frame, "with_row_index", None)
         if not meth_row_number:
@@ -914,11 +1033,56 @@ def _(loc: LocRowGroups, data: GTData) -> set[str]:
 
 
 @resolve.register
+def _(loc: LocGrandSummaryStub, data: GTData) -> set[int]:
+    # Select just grand summary rows
+    grand_summary_rows = data._summary_rows_grand.get_summary_rows()
+    grand_summary_rows_ids = [row.id for row in grand_summary_rows]
+
+    rows = resolve_rows_i(data=grand_summary_rows_ids, expr=loc.rows)
+
+    cell_pos = set(row[1] for row in rows)
+    return cell_pos
+
+
+# @resolve.register(LocSummaryStub)
+# Also target by groupname in styleinfo
+
+
+@resolve.register
 def _(loc: LocStub, data: GTData) -> set[int]:
     # TODO: what are the rules for matching row groups?
     rows = resolve_rows_i(data=data, expr=loc.rows)
     cell_pos = set(row[1] for row in rows)
     return cell_pos
+
+
+@resolve.register
+def _(loc: LocGrandSummary, data: GTData) -> list[CellPos]:
+    if (loc.columns is not None or loc.rows is not None) and loc.mask is not None:
+        raise ValueError(
+            "Cannot specify the `mask` argument along with `columns` or `rows` in `loc.body()`."
+        )
+
+    grand_summary_rows = data._summary_rows_grand.get_summary_rows()
+    grand_summary_rows_ids = [row.id for row in grand_summary_rows]
+
+    if loc.mask is None:
+        rows = resolve_rows_i(data=grand_summary_rows_ids, expr=loc.rows)
+        cols = resolve_cols_i(data=data, expr=loc.columns)
+        # TODO: dplyr arranges by `Var1`, and does distinct (since you can tidyselect the same
+        # thing multiple times
+        cell_pos = [
+            CellPos(col[1], row[1], colname=col[0]) for col, row in itertools.product(cols, rows)
+        ]
+    else:
+        # I am not sure how to approach this, since GTData._summary_rows is not a frame
+        # We could convert to a frame, but I don't think that's a simple step
+        raise NotImplementedError("Masked selection is not yet implemented for Grand Summary Rows")
+    return cell_pos
+
+
+# @resolve.register(LocSummary)
+# Also target by groupname in styleinfo
 
 
 @resolve.register
@@ -956,9 +1120,11 @@ def _(loc: LocBody, data: GTData) -> list[CellPos]:
 # LocStub
 # LocRowGroupLabel
 # LocRowLabel
-# LocSummaryLabel
+# LocSummaryStub
+# LocGrandSummaryStub
 # LocBody
 # LocSummary
+# LocGrandSummary
 # LocFooter
 # LocFootnotes
 # LocSourceNotes
@@ -1042,8 +1208,10 @@ def _(loc: LocRowGroups, data: GTData, style: list[CellStyle]) -> GTData:
     )
 
 
-@set_style.register
-def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
+# @set_style.register(LocSummaryStub)
+@set_style.register(LocStub)
+@set_style.register(LocGrandSummaryStub)
+def _(loc: (LocStub | LocGrandSummaryStub), data: GTData, style: list[CellStyle]) -> GTData:
     # validate ----
     for entry in style:
         entry._raise_if_requires_data(loc)
@@ -1054,8 +1222,10 @@ def _(loc: LocStub, data: GTData, style: list[CellStyle]) -> GTData:
     return data._replace(_styles=data._styles + new_styles)
 
 
-@set_style.register
-def _(loc: LocBody, data: GTData, style: list[CellStyle]) -> GTData:
+# @set_style.register(LocSummary)
+@set_style.register(LocBody)
+@set_style.register(LocGrandSummary)
+def _(loc: (LocBody | LocGrandSummary), data: GTData, style: list[CellStyle]) -> GTData:
     positions: list[CellPos] = resolve(loc, data)
 
     # evaluate any column expressions in styles

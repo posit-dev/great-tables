@@ -1,10 +1,9 @@
 from __future__ import annotations
 
+import random
 from typing import Any, Callable
 
-import numpy as np
-
-from ._tbl_data import Agnostic, is_na
+from ._tbl_data import Agnostic, NpInteger, is_na
 from ._utils import _flatten_list, _match_arg
 
 REFERENCE_LINE_KEYWORDS = ["mean", "median", "min", "max", "q1", "q3"]
@@ -53,10 +52,10 @@ def _is_integerlike(val_list: list[Any]) -> bool:
     """
 
     # If the list is empty, return False
-    if len(val_list) == 0:
+    if not val_list:
         return False
 
-    return all((isinstance(val, (int, np.integer)) or _is_na(val)) for val in val_list)
+    return all((isinstance(val, (int, NpInteger)) or _is_na(val)) for val in val_list)
 
 
 def _any_na_in_list(x: list[Any]) -> bool:
@@ -392,22 +391,21 @@ def _generate_ref_line_from_keyword(vals: list[int | float], keyword: str) -> in
     return ref_line
 
 
-def _normalize_vals(x: list[int] | list[float] | list[int | float]) -> list[int | float]:
+def _normalize_vals(x: list[int] | list[float] | list[int | float]) -> list[float | None]:
     """
     Normalize a list of numeric values to be between 0 and 1. Account for missing values.
     """
 
     x_missing = [i for i, val in enumerate(x) if _is_na(val)]
-    mean_x = np.mean([val for val in x if not _is_na(val)])
-    x = [mean_x if _is_na(val) else val for val in x]
-    x = np.array(x)
-    min_attr = np.min(x, axis=0)
-    max_attr = np.max(x, axis=0)
-    x = x - min_attr
-    x = x / (max_attr - min_attr)
-    x = x.tolist()
-    x = [np.nan if i in x_missing else val for i, val in enumerate(x)]
-    return x
+    mean_x: float = sum(val for val in x if not _is_na(val)) / sum(
+        1 for val in x if not _is_na(val)
+    )
+    x: list[float] = [mean_x if _is_na(val) else val for val in x]
+    min_attr: float = min(x)
+    max_attr: float = max(x)
+    xmin: list[float] = [val - min_attr for val in x]
+    xover_diff: list[float] = [x / (max_attr - min_attr) for x in xmin]
+    return [None if i in x_missing else val for i, val in enumerate(xover_diff)]
 
 
 # TODO: example nanoplot showing when jitter vals might be applied
@@ -418,7 +416,7 @@ def _jitter_vals(x: list[int | float], amount: float) -> list[int | float]:
     Jitter a list of numeric values by a small amount.
     """
 
-    return [val + np.random.uniform(-amount, amount) for val in x]
+    return [val + random.uniform(-amount, amount) for val in x]
 
 
 def _normalize_to_dict(**kwargs: list[int | float]) -> dict[str, list[int | float]]:
@@ -434,7 +432,7 @@ def _normalize_to_dict(**kwargs: list[int | float]) -> dict[str, list[int | floa
         raise ValueError("At least two values must be provided.")
 
     # Get args as a dictionary
-    args = dict(kwargs)
+    args = kwargs.copy()
 
     # Extract the values from the dictionary as a list
     all_vals = list(args.values())
@@ -572,7 +570,7 @@ def _generate_nanoplot(
     # Determine where a zero line is considered and provide the stroke color and width
     #
 
-    zero_line_considered = True if plot_type in ["bar", "boxplot"] else False
+    zero_line_considered = True if plot_type in ("bar", "boxplot") else False
 
     zero_line_stroke_color = "#BFBFBF"
     zero_line_stroke_width = 4
@@ -676,7 +674,7 @@ def _generate_nanoplot(
 
     # If `y_vals` is a scalar value we requested a 'line' or 'bar' plot, then
     # reset several parameters
-    if isinstance(y_vals, (int, float)) and plot_type in ["line", "bar"]:
+    if isinstance(y_vals, (int, float)) and plot_type in ("line", "bar"):
         single_horizontal_plot = True
         show_data_points = True
         show_data_line = True
@@ -707,10 +705,7 @@ def _generate_nanoplot(
 
     # Handle cases where collection of `y_vals` is invariant
     if y_scale_min == y_scale_max and expand_y is None:
-        if y_scale_min == 0:
-            expand_y_dist = 5
-        else:
-            expand_y_dist = (y_scale_min / 10) * 2
+        expand_y_dist = 5 if y_scale_min == 0 else (y_scale_min / 10) * 2
 
         # Expand the `y` scale, centering around the `y_scale_min` value
         expand_y = [y_scale_min - expand_y_dist, y_scale_min + expand_y_dist]
@@ -929,21 +924,14 @@ def _generate_nanoplot(
         x_proportions = x_proportions_list["vals"]
 
     else:
-        x_proportions = np.linspace(0, 1, num_y_vals)
+        x_proportions = [i / (num_y_vals - 1) if num_y_vals > 1 else 0 for i in range(num_y_vals)]
 
     #
     # Create normalized (and inverted for SVG) data `x` and `y` values for the
     # plot area; these are named `data_x_points` and `data_y_points`
     #
-
-    for i in range(len(y_proportions)):
-        y_proportions[i] = safe_y_d + ((1 - y_proportions[i]) * data_y_height)
-
-    for i in range(len(x_proportions)):
-        x_proportions[i] = (data_x_width * x_proportions[i]) + safe_x_d
-
-    data_y_points = y_proportions
-    data_x_points = x_proportions
+    data_y_points = tuple(safe_y_d + ((1 - y_p) * data_y_height) for y_p in y_proportions)
+    data_x_points = tuple((data_x_width * x_p) + safe_x_d for x_p in x_proportions)
 
     #
     # Ensure that certain options have their lengths checked and
@@ -1025,7 +1013,7 @@ def _generate_nanoplot(
             line_x = data_x_points[start_data_y_points[i] : end_data_y_points[i]]
             line_y = data_y_points[start_data_y_points[i] : end_data_y_points[i]]
 
-            line_xy = " ".join([f"{x},{y}" for x, y in zip(line_x, line_y)])
+            line_xy = " ".join((f"{x},{y}" for x, y in zip(line_x, line_y)))
 
             data_path_tags_i = f'<polyline points="{line_xy}" stroke="{data_line_stroke_color}" stroke-width="{data_line_stroke_width}" fill="none"></polyline>'
 
@@ -1040,22 +1028,22 @@ def _generate_nanoplot(
     if plot_type == "line" and show_data_points:
         circle_strings = []
 
-        for i, _ in enumerate(data_x_points):
+        for i, (data_x_point_i, data_y_point_i) in enumerate(zip(data_x_points, data_y_points)):
             data_point_radius_i = data_point_radius[i]
             data_point_stroke_color_i = data_point_stroke_color[i]
             data_point_stroke_width_i = data_point_stroke_width[i]
             data_point_fill_color_i = data_point_fill_color[i]
 
-            if data_y_points[i] is None:
+            if data_y_point_i is None:
                 if missing_vals == "marker":
                     # Create a symbol that should denote that a missing value is present
-                    circle_strings_i = f'<circle cx="{data_x_points[i]}" cy="{safe_y_d + (data_y_height / 2)}" r="{data_point_radius_i + (data_point_radius_i / 2)}" stroke="red" stroke-width="{data_point_stroke_width_i}" fill="white"></circle>'
+                    circle_strings_i = f'<circle cx="{data_x_point_i}" cy="{safe_y_d + (data_y_height / 2)}" r="{data_point_radius_i + (data_point_radius_i / 2)}" stroke="red" stroke-width="{data_point_stroke_width_i}" fill="white"></circle>'
 
                 else:
                     continue
 
             else:
-                circle_strings_i = f'<circle cx="{data_x_points[i]}" cy="{data_y_points[i]}" r="{data_point_radius_i}" stroke="{data_point_stroke_color_i}" stroke-width="{data_point_stroke_width_i}" fill="{data_point_fill_color_i}"></circle>'
+                circle_strings_i = f'<circle cx="{data_x_point_i}" cy="{data_y_point_i}" r="{data_point_radius_i}" stroke="{data_point_stroke_color_i}" stroke-width="{data_point_stroke_width_i}" fill="{data_point_fill_color_i}"></circle>'
 
             circle_strings.append(circle_strings_i)
 
@@ -1068,16 +1056,16 @@ def _generate_nanoplot(
     if plot_type == "bar" and single_horizontal_plot is False:
         bar_strings = []
 
-        for i, _ in enumerate(data_x_points):
+        for i, (data_x_point_i, data_y_point_i) in enumerate(zip(data_x_points, data_y_points)):
             data_point_radius_i = data_point_radius[i]
             data_bar_stroke_color_i = data_bar_stroke_color[i]
             data_bar_stroke_width_i = data_bar_stroke_width[i]
             data_bar_fill_color_i = data_bar_fill_color[i]
 
-            if data_y_points[i] is None:
+            if data_y_point_i is None:
                 if missing_vals == "marker":
                     # Create a symbol that should denote that a missing value is present
-                    bar_strings_i = f'<circle cx="{data_x_points[i]}" cy="{safe_y_d + (data_y_height / 2)}" r="{data_point_radius_i + (data_point_radius_i / 2)}" stroke="red" stroke-width="{data_bar_stroke_width_i}" fill="transparent"></circle>'
+                    bar_strings_i = f'<circle cx="{data_x_point_i}" cy="{safe_y_d + (data_y_height / 2)}" r="{data_point_radius_i + (data_point_radius_i / 2)}" stroke="red" stroke-width="{data_bar_stroke_width_i}" fill="transparent"></circle>'
 
                 else:
                     continue
@@ -1085,14 +1073,14 @@ def _generate_nanoplot(
             else:
                 if y_vals[i] < 0:
                     y_value_i = data_y0_point
-                    y_height = data_y_points[i] - data_y0_point
+                    y_height = data_y_point_i - data_y0_point
                     data_bar_stroke_color_i = data_bar_negative_stroke_color
                     data_bar_stroke_width_i = data_bar_negative_stroke_width
                     data_bar_fill_color_i = data_bar_negative_fill_color
 
                 elif y_vals[i] > 0:
-                    y_value_i = data_y_points[i]
-                    y_height = data_y0_point - data_y_points[i]
+                    y_value_i = data_y_point_i
+                    y_height = data_y0_point - data_y_point_i
 
                 elif y_vals[i] == 0:
                     y_value_i = data_y0_point - 1
@@ -1101,7 +1089,7 @@ def _generate_nanoplot(
                     data_bar_stroke_width_i = 4
                     data_bar_fill_color_i = "#808080"
 
-                bar_strings_i = f'<rect x="{data_x_points[i] - (x_d - 10) / 2}" y="{y_value_i}" width="{x_d - 10}" height="{y_height}" stroke="{data_bar_stroke_color_i}" stroke-width="{data_bar_stroke_width_i}" fill="{data_bar_fill_color_i}"></rect>'
+                bar_strings_i = f'<rect x="{data_x_point_i - (x_d - 10) / 2}" y="{y_value_i}" width="{x_d - 10}" height="{y_height}" stroke="{data_bar_stroke_color_i}" stroke-width="{data_bar_stroke_width_i}" fill="{data_bar_fill_color_i}"></rect>'
 
             bar_strings.append(bar_strings_i)
 
@@ -1384,15 +1372,15 @@ def _generate_nanoplot(
 
         g_guide_strings = []
 
-        for i, _ in enumerate(data_x_points):
-            rect_strings_i = f'<rect x="{data_x_points[i] - 10}" y="{top_y}" width="20" height="{bottom_y}" stroke="transparent" stroke-width="{vertical_guide_stroke_width}" fill="transparent"></rect>'
+        for i, (data_x_point_i, y_val_i) in enumerate(zip(data_x_points, y_vals)):
+            rect_strings_i = f'<rect x="{data_x_point_i - 10}" y="{top_y}" width="20" height="{bottom_y}" stroke="transparent" stroke-width="{vertical_guide_stroke_width}" fill="transparent"></rect>'
 
             # Format value in a compact manner
             y_value_i = _format_number_compactly(
-                val=y_vals[i], currency=currency, as_integer=y_vals_integerlike, fn=y_val_fmt_fn
+                val=y_val_i, currency=currency, as_integer=y_vals_integerlike, fn=y_val_fmt_fn
             )
 
-            x_text = data_x_points[i] + 10
+            x_text = data_x_point_i + 10
 
             if y_value_i == "NA":
                 x_text = x_text + 2

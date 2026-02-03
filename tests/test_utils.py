@@ -1,4 +1,5 @@
 from collections.abc import Generator
+import re
 import pytest
 
 
@@ -14,6 +15,7 @@ from great_tables._utils import (
     _match_arg,
     _migrate_unformatted_to_output,
     OrderedSet,
+    _str_detect,
     _str_scalar_to_list,
     is_valid_http_schema,
     heading_has_subtitle,
@@ -224,3 +226,24 @@ def test_migrate_unformatted_to_output_html():
 )
 def test_is_valid_http_schema(url: str):
     assert is_valid_http_schema(url)
+
+
+@pytest.mark.parametrize(
+    ("string", "expected"),
+    [
+        ("int16", True),
+        ("uint8", True),
+        ("float32", True),
+        ("date", True),
+        ("datetime", True),
+        ("string", False),
+        ("object", False),
+        ("utf8", False),
+        ("bool", False),
+        ("boolean", False),
+        ("binary", False),
+    ],
+)
+def test_str_detect_align_right_pattern(string: str, expected: bool) -> None:
+    pattern = r"int|uint|float|date"
+    assert _str_detect(string, pattern) is expected

@@ -77,7 +77,7 @@ def show(
 ):
     """Display the table in a notebook or a web browser.
 
-    Note that this function is often unecessary in a notebook. However, it's sometimes useful for
+    Note that this function is often unnecessary in a notebook. However, it's sometimes useful for
     manually triggering display within a code cell.
 
     Parameters
@@ -135,27 +135,36 @@ def as_raw_html(
     """
     Get the HTML content of a GT object.
 
-    Get the HTML content from a GT object as a string. By default, the generated HTML will have
-    inlined styles, where CSS styles (that were previously contained in CSS rule sets external to
-    the `<table>` element are included as style attributes in the HTML table's tags. This option is
-    preferable when using the output HTML table in an emailing context.
+    The `as_raw_html()` method extracts the HTML representation of a GT table and returns it as a
+    string. This is useful when you need to embed a table in existing HTML content, email templates,
+    web applications, or other contexts where you need direct access to the HTML markup rather than
+    displaying the table directly.
+
+    By default, the method returns an HTML fragment containing just the table and its associated
+    CSS styles in a `<style>` block. However, the method provides several parameters for customizing
+    the output format--like `inline_css=`, `make_page=`, and `all_important=`.
 
     Parameters
     ----------
     gt
         A GT object.
     inline_css
-        An option to supply styles to table elements as inlined CSS styles. This is useful when
-        including the table HTML as part of an HTML email message body, since inlined styles are
-        largely supported in email clients over using CSS in a `<style>` block.
+        If `True`, all CSS styles are inlined into the HTML elements as `style` attributes.
+        This is essential for email clients, which often strip out `<style>` blocks but preserve
+        inline styles.
     make_page
-        An option to wrap the table in a complete HTML page. This is useful when you want to display
-        the table in a web browser.
+        If `True`, the table will be wrapped in a complete HTML page with proper `<html>`, `<head>`,
+        and `<body>` tags. This is useful when you want to display the table in a web browser or
+        save it as a standalone HTML file.
+    all_important
+        If `True`, all CSS declarations are marked with `!important` to ensure they take precedence
+        over other styles that might be present in the document.
 
     Returns
     -------
     str
-        An HTML fragment containing a table.
+        An HTML string containing the table. The format depends on the parameters passed to the
+        method.
 
     Examples:
     ------
@@ -241,7 +250,7 @@ def as_raw_html(
                 id = table_id
 
             # Compile the SCSS as CSS
-            table_css = str(compile_scss(self, id=id, compress=False, all_important=all_important))
+            table_css = compile_scss(self, id=id, compress=False, all_important=all_important)
 
             return inline_fragment(html=table_html, css=table_css)
 

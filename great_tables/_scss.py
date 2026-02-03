@@ -10,7 +10,7 @@ from importlib_resources import files
 from ._data_color.base import _html_color, _ideal_fgnd_color
 from ._gt_data import GTData
 from ._helpers import pct, px
-from ._utils import _as_css_font_family_attr, OrderedSet
+from ._utils import OrderedSet, _as_css_font_family_attr
 
 DEFAULTS_TABLE_BACKGROUND = (
     "heading_background_color",
@@ -22,12 +22,12 @@ DEFAULTS_TABLE_BACKGROUND = (
     "grand_summary_row_background_color",
     "footnotes_background_color",
     "source_notes_background_color",
+    "row_striping_background_color",
 )
 
 FONT_COLOR_VARS = (
     "table_background_color",
     "heading_background_color",
-    "column_labels_background_color",
     "column_labels_background_color",
     "row_group_background_color",
     "stub_background_color",
@@ -36,6 +36,7 @@ FONT_COLOR_VARS = (
     "grand_summary_row_background_color",
     "footnotes_background_color",
     "source_notes_background_color",
+    "row_striping_background_color",
 )
 
 
@@ -53,10 +54,10 @@ def font_color(color: str, dark_option: str, light_option: str) -> str:
         # With the `transparent` color, the font color should have the same value
         # as the `dark_option` option since the background will be transparent
         return dark_normalized
-    if color in ["currentcolor", "currentColor"]:
+    if color in ("currentcolor", "currentColor"):
         # With two variations of `currentColor` value, normalize to `currentcolor`
         return "currentcolor"
-    if color in ["inherit", "initial", "unset"]:
+    if color in ("inherit", "initial", "unset"):
         # For the other valid CSS color attribute values, we should pass them through
         return color
 
@@ -141,7 +142,12 @@ def compile_scss(
     # Generate styles ----
     gt_table_open_str = f"#{id} table" if has_id else ".gt_table"
 
-    # Prepend any additional CSS ----
+    # Get Google Font imports ----
+    google_font_css = (
+        data._google_font_imports.to_css() + "\n" if data._google_font_imports.to_css() else ""
+    )
+
+    # Process any additional CSS that will be appended at the end ----
     additional_css = data._options.table_additional_css.value
 
     # Determine if there are any additional CSS statements
@@ -153,11 +159,11 @@ def compile_scss(
     # separating with `\n`; use an empty string if list is empty or value is None
     if has_additional_css:
         additional_css_unique = OrderedSet(additional_css).as_list()
-        table_additional_css = "\n".join(additional_css_unique) + "\n"
+        table_additional_css = "\n".join(additional_css_unique)
     else:
         table_additional_css = ""
 
-    gt_table_class_str = f"""{table_additional_css}{gt_table_open_str} {{
+    gt_table_class_str = f"""{gt_table_open_str} {{
           {font_family_attr}
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
@@ -181,6 +187,8 @@ def compile_scss(
     if all_important:
         compiled_css = re.sub(r";", " !important;", compiled_css, count=0, flags=re.MULTILINE)
 
-    finalized_css = f"{gt_table_class_str}\n\n{compiled_css}"
+    # Assemble blocks of CSS ----
+    additional_css_block = f"\n{table_additional_css}\n" if has_additional_css else ""
+    finalized_css = f"{google_font_css}{gt_table_class_str}\n\n{compiled_css}{additional_css_block}"
 
     return finalized_css

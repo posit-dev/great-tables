@@ -38,7 +38,7 @@ def heading_has_subtitle(subtitle: str | BaseText | None) -> bool:
 
 def _match_arg(x: str, lst: list[str]) -> str:
     # Ensure that `lst` has at least one element
-    if len(lst) == 0:
+    if not lst:
         raise ValueError("The `lst` object must contain at least one element.")
 
     # Ensure that all elements in `lst` are strings
@@ -53,7 +53,7 @@ def _match_arg(x: str, lst: list[str]) -> str:
     matched = [el for el in lst if x in el]
 
     # Raise error if there is no match
-    if len(matched) == 0:
+    if not matched:
         raise ValueError(f"The supplied value (`{x}`) is not an allowed option.")
 
     return matched.pop()
@@ -284,4 +284,4 @@ def _get_visible_cells(data: TblData) -> list[tuple[str, int]]:
 
 
 def is_valid_http_schema(url: str) -> bool:
-    return url.startswith("http://") or url.startswith("https://")
+    return url.startswith(("http://", "https://"))

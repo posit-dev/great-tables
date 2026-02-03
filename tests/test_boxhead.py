@@ -65,7 +65,7 @@ def test_cols_label_rotate_align_default():
     assert "text-align: left;" in gt2._styles[0].styles[0].rule
 
 
-def test_final_columns_stub_move_to_begining():
+def test_final_columns_stub_move_to_beginning():
     df = pd.DataFrame({"w": [1], "x": [1], "y": [2], "z": [3]})
     gt = GT(df, rowname_col="y")
 

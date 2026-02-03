@@ -59,6 +59,12 @@ def test_sub_missing_meth(df):
     assert_series_equals(new_gt._body.body["col1"], ["--", "--", None])
 
 
+def test_sub_missing_meth_implicit_columns(df):
+    # Drive by: https://github.com/posit-dev/great-tables/issues/667
+    new_gt = GT(df).sub_missing(missing_text="--")._render_formats("html")
+    assert_series_equals(new_gt._body.body["col1"], ["--", "--", None])
+
+
 @pytest.mark.parametrize("el", [0, 0.0])
 def test_sub_zero_el(el):
     assert SubZero("--").to_html(el) == "--"

@@ -22,7 +22,7 @@ def tab_options(
     table_margin_left: str | None = None,
     table_margin_right: str | None = None,
     table_background_color: str | None = None,
-    table_additional_css: list[str] | None = None,
+    table_additional_css: str | list[str] | None = None,
     table_font_names: str | list[str] | None = None,
     table_font_size: str | None = None,
     table_font_weight: str | int | float | None = None,
@@ -128,13 +128,13 @@ def tab_options(
     # summary_row_border_style: str | None = None,
     # summary_row_border_width: str | None = None,
     # summary_row_border_color: str | None = None,
-    # grand_summary_row_background_color: str | None = None,
-    # grand_summary_row_text_transform: str | None = None,
-    # grand_summary_row_padding: str | None = None,
-    # grand_summary_row_padding_horizontal: str | None = None,
-    # grand_summary_row_border_style: str | None = None,
-    # grand_summary_row_border_width: str | None = None,
-    # grand_summary_row_border_color: str | None = None,
+    grand_summary_row_background_color: str | None = None,
+    grand_summary_row_text_transform: str | None = None,
+    grand_summary_row_padding: str | None = None,
+    grand_summary_row_padding_horizontal: str | None = None,
+    grand_summary_row_border_style: str | None = None,
+    grand_summary_row_border_width: str | None = None,
+    grand_summary_row_border_color: str | None = None,
     # footnotes_background_color: str | None = None,
     # footnotes_font_size: str | None = None,
     # footnotes_padding: str | None = None,
@@ -553,6 +553,13 @@ def tab_options(
         if isinstance(modified_args["table_font_names"], str):
             modified_args["table_font_names"] = [modified_args["table_font_names"]]
 
+    # - `table_additional_css` should be a list but if given as a string, ensure it is list
+    #   Also filter out empty strings to avoid extra newlines in CSS output
+    if "table_additional_css" in modified_args:
+        if isinstance(modified_args["table_additional_css"], str):
+            css_val = modified_args["table_additional_css"].strip()
+            modified_args["table_additional_css"] = [css_val] if css_val else []
+
     new_options_info = {
         k: replace(getattr(self._options, k), value=v) for k, v in modified_args.items()
     }
@@ -784,22 +791,22 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         raise ValueError("`scale` must be a value between `0` and `3`.")
 
     # Get the parameters from the options that relate to vertical padding
-    vertical_padding_params = [
+    vertical_padding_params = (
         "heading_padding",
         "column_labels_padding",
         "data_row_padding",
         "row_group_padding",
         "source_notes_padding",
-    ]
+    )
 
     # Get the current values for the vertical padding parameters
-    vertical_padding_vals = [
+    vertical_padding_vals = (
         self._options.heading_padding.value,
         self._options.column_labels_padding.value,
         self._options.data_row_padding.value,
         self._options.row_group_padding.value,
         self._options.source_notes_padding.value,
-    ]
+    )
 
     # Multiply each of the padding values by the `scale` factor but strip off the units first
     # then reattach the units after the multiplication
@@ -862,7 +869,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 
     The overall effect of scaling the horizontal padding is that the table will appear wider or
     and there will added buffer space between the table elements. The overall look of the table will
-    be more spacious and neigboring pieces of text will be less cramped.
+    be more spacious and neighboring pieces of text will be less cramped.
 
     Let's go the other way and scale the horizontal padding of the table by a factor of `0.5` using
     the `opt_horizontal_padding()` method.
@@ -881,22 +888,22 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
         raise ValueError("`scale` must be a value between `0` and `3`.")
 
     # Get the parameters from the options that relate to horizontal padding
-    horizontal_padding_params = [
+    horizontal_padding_params = (
         "heading_padding_horizontal",
         "column_labels_padding_horizontal",
         "data_row_padding_horizontal",
         "row_group_padding_horizontal",
         "source_notes_padding_horizontal",
-    ]
+    )
 
     # Get the current values for the horizontal padding parameters
-    horizontal_padding_vals = [
+    horizontal_padding_vals = (
         self._options.heading_padding_horizontal.value,
         self._options.column_labels_padding_horizontal.value,
         self._options.data_row_padding_horizontal.value,
         self._options.row_group_padding_horizontal.value,
         self._options.source_notes_padding_horizontal.value,
-    ]
+    )
 
     # Multiply each of the padding values by the `scale` factor but strip off the units first
     # then reattach the units after the multiplication
@@ -1252,13 +1259,9 @@ def opt_table_font(
                 # Case where the list item is a GoogleFont object
                 new_font_list.append(item.get_font_name())
 
-                # Append the import statement to the `table_additional_css` list
-                existing_additional_css = self._options.table_additional_css.value + [
-                    item.make_import_stmt()
-                ]
-
-                # Add revised CSS list via the `tab_options()` method
-                res = tab_options(res, table_additional_css=existing_additional_css)
+                # Add the Google Font import statement to the internal font imports
+                import_stmt = item.make_import_stmt()
+                res = res._replace(_google_font_imports=res._google_font_imports.add(import_stmt))
 
             else:
                 raise TypeError(
@@ -1380,7 +1383,7 @@ def opt_stylize(
     """
 
     # Validate the `style` and `color` arguments
-    if style not in [1, 2, 3, 4, 5, 6]:
+    if style not in (1, 2, 3, 4, 5, 6):
         raise ValueError("`style` must be an integer value from `1` to `6`.")
     color = _utils._match_arg(x=color, lst=["gray", "blue", "cyan", "pink", "green", "red"])
 
@@ -1390,10 +1393,8 @@ def opt_stylize(
     # Omit keys that are not needed for the `tab_options()` method
     # TODO: the omitted keys are for future use when:
     #  (1) summary rows are implemented
-    #  (2) grand summary rows are implemented
     omit_keys = {
         "summary_row_background_color",
-        "grand_summary_row_background_color",
     }
 
     def dict_omit_keys(dict: dict[str, str], omit_keys: set[str]) -> dict[str, str]:
@@ -1407,12 +1408,12 @@ def opt_stylize(
     if add_row_striping:
         mapped_params["row_striping_include_table_body"] = ["True"]
 
-    if style in [2, 4, 5]:
+    if style in (2, 4, 5):
         # For styles 2, 4, and 5 we need to set the border colors and widths
 
         # Use a dictionary comprehension to generate the border parameters
-        directions = ["top", "bottom", "left", "right"]
-        attributes = ["color", "width", "style"]
+        directions = ("top", "bottom", "left", "right")
+        attributes = ("color", "width", "style")
 
         border_params: dict[str, str] = {
             f"table_border_{d}_{a}": (
@@ -1431,6 +1432,99 @@ def opt_stylize(
     return res
 
 
+def opt_css(
+    self: GTSelf,
+    css: str,
+    add: bool = True,
+    allow_duplicates: bool = False,
+) -> GTSelf:
+    """
+    Option to add custom CSS for the table.
+
+    `opt_css()` makes it possible to add extra CSS rules to a table. This CSS will be added after
+    the compiled CSS that Great Tables generates automatically when the object is transformed to an
+    HTML output table.
+
+    If you want to set CSS styles on a specific table location, use `tab_style()` with `style.css()`
+    instead.
+
+    Parameters
+    ----------
+    css
+        The CSS to include as part of the rendered table's `<style>` element.
+    add
+        If `True`, the default, the CSS is added to any already-defined CSS (typically from
+        previous calls of `opt_css()` or `tab_options(table_additional_css=...)`). If this is set to
+        `False`, the CSS provided here will replace any previously-stored CSS.
+    allow_duplicates
+        When this is `False` (the default), the CSS provided here won't be added (provided that
+        `add=True`) if it is seen in the already-defined CSS.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that
+        we can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `num` and
+    `currency` columns). Through use of the `opt_css()` method, we can insert CSS rulesets as a
+    string. We need to ensure that the table ID is set explicitly (we've done so here with the ID
+    value of `"one"`, setting it up with `GT(id=)`).
+
+    ```{python}
+    from great_tables import GT, exibble
+    import polars as pl
+
+    exibble_mini = pl.from_pandas(exibble).select(["num", "currency"])
+
+    (
+        GT(exibble_mini, id="one")
+        .fmt_currency(columns="currency", currency="HKD")
+        .fmt_scientific(columns="num")
+        .opt_css(
+            css='''
+            #one .gt_table {
+              background-color: skyblue;
+            }
+            #one .gt_row {
+              padding: 20px 30px;
+            }
+            #one .gt_col_heading {
+              text-align: center !important;
+            }
+            '''
+        )
+    )
+    ```
+    """
+
+    # Get the current additional CSS from `_options.table_additional_css`
+    existing_additional_css: list[str] = self._options.table_additional_css.value or []
+
+    # Convert CSS to a consistent format by stripping any leading or trailing whitespace
+    css = css.strip()
+
+    if not add:
+        # If `add=False`, or if `css` is empty, replace the existing CSS
+        additional_css = [css] if css else []
+    elif not css:
+        # If `css` is empty and we are adding CSS, keep the existing CSS
+        additional_css = existing_additional_css
+    elif not allow_duplicates and css in existing_additional_css:
+        # If CSS already exists and we don't allow duplicates, return self
+        return self
+    else:
+        # Add the new CSS to the existing CSS
+        additional_css = existing_additional_css + [css]
+
+    # Use tab_options() to set the additional CSS
+    res = tab_options(self, table_additional_css=additional_css)
+
+    return res
+
+
 @dataclass
 class StyleMapper:
     table_hlines_color: str
@@ -1444,6 +1538,8 @@ class StyleMapper:
     data_vlines_style: str
     data_vlines_color: str
     row_striping_background_color: str
+    grand_summary_row_background_color: str
+    # summary_row_background_color: str
 
     mappings: ClassVar[dict[str, list[str]]] = {
         "table_hlines_color": ["table_border_top_color", "table_border_bottom_color"],
@@ -1465,6 +1561,8 @@ class StyleMapper:
         "data_vlines_style": ["table_body_vlines_style"],
         "data_vlines_color": ["table_body_vlines_color"],
         "row_striping_background_color": ["row_striping_background_color"],
+        "grand_summary_row_background_color": ["grand_summary_row_background_color"],
+        # "summary_row_background_color": ["summary_row_background_color"],
     }
 
     def map_entry(self, name: str) -> dict[str, list[str]]:

@@ -183,12 +183,12 @@ def test_normalize_to_dict():
     assert _normalize_to_dict(a=3.5, b=-0.3) == {"a": [1.0], "b": [0.0]}
 
     # Test case 2: Normalization with missing values
-    assert _normalize_to_dict(a=3.5, b=np.nan, c=4.0) == {"a": [0.0], "b": [np.nan], "c": [1.0]}
+    assert _normalize_to_dict(a=3.5, b=np.nan, c=4.0) == {"a": [0.0], "b": [None], "c": [1.0]}
 
     # Test case 3: Normalization with negative values
     assert _normalize_to_dict(a=3.5, b=np.nan, c=4.0, werwdf=-5) == {
         "a": [0.9444444444444444],
-        "b": [np.nan],
+        "b": [None],
         "c": [1.0],
         "werwdf": [0.0],
     }

@@ -105,6 +105,25 @@ def test_google_font_class():
     )
 
 
+def test_google_font_make_import_stmt_with_spaces():
+    # Font names with spaces should have those spaces replaced with a '+'
+    font = GoogleFont("Open Sans")
+    expected = "@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');"
+    assert font.make_import_stmt() == expected
+
+
+def test_google_font_repr():
+    # Font name without spaces
+    font = GoogleFont("Helvetica")
+    assert repr(font) == "GoogleFont(Helvetica)"
+    assert str(font) == "GoogleFont(Helvetica)"
+
+    # Font name with spaces
+    font_spaces = GoogleFont("IBM Plex Sans")
+    assert repr(font_spaces) == "GoogleFont(IBM Plex Sans)"
+    assert str(font_spaces) == "GoogleFont(IBM Plex Sans)"
+
+
 def test_get_font_stack_raises():
     name = "fake_name"
     with pytest.raises(ValueError) as exc_info:

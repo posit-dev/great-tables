@@ -433,12 +433,12 @@
     <tr>
       <td style="color: #000000; background-color: #25bce6;" class="gt_row gt_right">2</td>
       <td style="color: #000000; background-color: #25bce6;" class="gt_row gt_right">9</td>
-      <td style="color: #000000; background-color: #4cbd81;" class="gt_row gt_left">two</td>
+      <td style="color: #000000; background-color: #25bce6;" class="gt_row gt_left">two</td>
     </tr>
     <tr>
       <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">3</td>
       <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_right">8</td>
-      <td style="color: #FFFFFF; background-color: #9653ca;" class="gt_row gt_left">three</td>
+      <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_left">three</td>
     </tr>
   </tbody>
   '''
@@ -453,17 +453,17 @@
     </tr>
     <tr>
       <td style="color: #FFFFFF; background-color: #070304;" class="gt_row gt_right">2.222</td>
-      <td style="color: #000000; background-color: #80b156;" class="gt_row gt_left">banana</td>
+      <td style="color: #000000; background-color: #4cbd81;" class="gt_row gt_left">banana</td>
       <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_right">17.95</td>
     </tr>
     <tr>
       <td style="color: #FFFFFF; background-color: #752b38;" class="gt_row gt_right">33.33</td>
-      <td style="color: #000000; background-color: #25bce6;" class="gt_row gt_left">coconut</td>
+      <td style="color: #FFFFFF; background-color: #9653ca;" class="gt_row gt_left">coconut</td>
       <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_right">1.39</td>
     </tr>
     <tr>
       <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">444.4</td>
-      <td style="color: #000000; background-color: #d73a91;" class="gt_row gt_left">durian</td>
+      <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_left">durian</td>
       <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">65100.0</td>
     </tr>
   </tbody>
@@ -479,17 +479,17 @@
     </tr>
     <tr>
       <td style="color: #FFFFFF; background-color: #070304;" class="gt_row gt_right">2.222</td>
-      <td style="color: #000000; background-color: #80b156;" class="gt_row gt_left">banana</td>
+      <td style="color: #000000; background-color: #4cbd81;" class="gt_row gt_left">banana</td>
       <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_right">17.95</td>
     </tr>
     <tr>
       <td style="color: #FFFFFF; background-color: #752b38;" class="gt_row gt_right">33.33</td>
-      <td style="color: #000000; background-color: #25bce6;" class="gt_row gt_left">coconut</td>
+      <td style="color: #FFFFFF; background-color: #9653ca;" class="gt_row gt_left">coconut</td>
       <td style="color: #FFFFFF; background-color: #000000;" class="gt_row gt_right">1.39</td>
     </tr>
     <tr>
       <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">444.4</td>
-      <td style="color: #000000; background-color: #d73a91;" class="gt_row gt_left">durian</td>
+      <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_left">durian</td>
       <td style="color: #000000; background-color: #9e9e9e;" class="gt_row gt_right">65100.0</td>
     </tr>
   </tbody>
