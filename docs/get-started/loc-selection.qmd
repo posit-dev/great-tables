@@ -23,7 +23,11 @@ data = [
     ["", "loc.column_labels()", "columns"],
     ["row stub", "loc.stub()", "rows"],
     ["", "loc.row_groups()", "rows"],
+    # ["", "loc.summary_stub()", "rows"],
+    ["", "loc.grand_summary_stub()", "rows"],
     ["table body", "loc.body()", "columns and rows"],
+    # ["", "loc.summary_rows()", "columns and rows"],
+    ["", "loc.grand_summary_rows()", "columns and rows"],
     ["footer", "loc.footer()", "composite"],
     ["", "loc.source_notes()", ""],
 ]
