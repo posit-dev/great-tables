@@ -1445,6 +1445,12 @@ def opt_css(
     the compiled CSS that Great Tables generates automatically when the object is transformed to an
     HTML output table.
 
+    This method differs from `style.css()` (used with `tab_style()`). Whereas `style.css()` applies
+    custom CSS to specific table locations via the `loc` module, `opt_css()` allows you to add
+    arbitrary CSS rulesets that can target any table element using CSS selectors. This makes using
+    `opt_css()` more of an 'expert' mode to styling, giving you full control but requiring knowledge
+    of the table's generated HTML structure and class names.
+
     Parameters
     ----------
     css
