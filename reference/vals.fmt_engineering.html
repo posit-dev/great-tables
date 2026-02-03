@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>gt.fmt_scientific – great_tables</title>
+<title>vals.fmt_engineering – great_tables</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -58,7 +58,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -112,9 +112,6 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </script>
-<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
-
-<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-margin-left="28"></script>
 <script async="" src="https://plausible.io/js/pa-N27-YgfNQBpdNqDqGcyE1.js"></script>
 <script>
@@ -190,9 +187,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   <ul>
   <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
-  <li><a href="#adapting-output-to-a-specific-locale" id="toc-adapting-output-to-a-specific-locale" class="nav-link" data-scroll-target="#adapting-output-to-a-specific-locale">Adapting output to a specific <code>locale</code></a></li>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
-  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
   </ul>
 </nav>
     </div>
@@ -201,7 +196,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">GT.fmt_scientific</h1>
+<h1 class="title">vals.fmt_engineering</h1>
 </div>
 
 
@@ -218,25 +213,23 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </header>
 
 
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>GT.fmt_scientific(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    rows<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    decimals<span class="op">=</span><span class="dv">2</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    n_sigfig<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    drop_trailing_zeros<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    drop_trailing_dec_mark<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    scale_by<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    exp_style<span class="op">=</span><span class="st">'x10n'</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    pattern<span class="op">=</span><span class="st">'</span><span class="sc">{x}</span><span class="st">'</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    sep_mark<span class="op">=</span><span class="st">','</span>,</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    dec_mark<span class="op">=</span><span class="st">'.'</span>,</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    force_sign_m<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    force_sign_n<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    locale<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Format values to scientific notation.</p>
-<p>With numeric values in a table, we can perform formatting so that the targeted values are rendered in scientific notation, where extremely large or very small numbers can be expressed in a more practical fashion. Here, numbers are written in the form of a mantissa (<code>m</code>) and an exponent (<code>n</code>) with the construction <em>m</em> x 10^<em>n</em> or <em>m</em>E<em>n</em>. The mantissa component is a number between <code>1</code> and <code>10</code>. For instance, <code>2.5 x 10^9</code> can be used to represent the value 2,500,000,000 in scientific notation. In a similar way, 0.00000012 can be expressed as <code>1.2 x 10^-7</code>. Due to its ability to describe numbers more succinctly and its ease of calculation, scientific notation is widely employed in scientific and technical domains.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>vals.fmt_engineering(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    x,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    decimals<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    n_sigfig<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    drop_trailing_zeros<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    drop_trailing_dec_mark<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    scale_by<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    exp_style<span class="op">=</span><span class="st">'x10n'</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    pattern<span class="op">=</span><span class="st">'</span><span class="sc">{x}</span><span class="st">'</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    dec_mark<span class="op">=</span><span class="st">'.'</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    force_sign_m<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    force_sign_n<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    locale<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Format values to engineering notation.</p>
+<p>With numeric values in a list, we can perform formatting so that the input values are rendered in engineering notation, where numbers are written in the form of a mantissa (<code>m</code>) and an exponent (<code>n</code>). When combined the construction is either of the form <em>m</em> x 10^<em>n</em> or <em>m</em>E<em>n</em>. The mantissa is a number between <code>1</code> and <code>1000</code> and the exponent is a multiple of <code>3</code>. For example, the number <code>0.0000345</code> can be written in engineering notation as <code>34.50 x 10^-6</code>. This notation helps to simplify calculations and make it easier to compare numbers that are on very different scales.</p>
+<p>Engineering notation is particularly useful as it aligns with SI prefixes (e.g., <em>milli-</em>, <em>micro-</em>, <em>kilo-</em>, <em>mega-</em>). For instance, numbers in engineering notation with exponent <code>-3</code> correspond to milli-units, while those with exponent <code>6</code> correspond to mega-units.</p>
 <p>We have fine control over the formatting task, with the following options:</p>
 <ul>
 <li>decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice of the decimal symbol</li>
@@ -247,13 +240,9 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <dl>
-<dt><code><span class="parameter-name"><strong>columns</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>SelectExpr</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>x</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>X</code></span></code></dt>
 <dd>
-<p>The columns to target. Can either be a single column name or a series of column names provided in a list.</p>
-</dd>
-<dt><code><span class="parameter-name"><strong>rows</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | <code>list</code>[<code>int</code>] | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
-<dd>
-<p>In conjunction with <code>columns=</code>, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in targeted columns being formatted. Alternatively, we can supply a list of row indices.</p>
+<p>A list of values to be formatted.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>decimals</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">2</span></code></dt>
 <dd>
@@ -277,7 +266,7 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </dd>
 <dt><code><span class="parameter-name"><strong>exp_style</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'x10n'</span></code></dt>
 <dd>
-<p>Style of formatting to use for the scientific notation formatting. By default this is <code>"x10n"</code> but other options include using a single letter (e.g., <code>"e"</code>, <code>"E"</code>, etc.), a letter followed by a <code>"1"</code> to signal a minimum digit width of one, or <code>"low-ten"</code> for using a stylized <code>"10"</code> marker.</p>
+<p>Style of formatting to use for the engineering notation formatting. By default this is <code>"x10n"</code> but other options include using a single letter (e.g., <code>"e"</code>, <code>"E"</code>, etc.), a letter followed by a <code>"1"</code> to signal a minimum digit width of one, or <code>"low-ten"</code> for using a stylized <code>"10"</code> marker.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>pattern</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'{x}'</span></code></dt>
 <dd>
@@ -304,196 +293,23 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
 <dl>
-<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../reference/GT.html#great_tables.GT">GT</a></span></code></dt>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>list</code>[<code>str</code>]</span></code></dt>
 <dd>
-<p>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</p>
+<p>A list of formatted values is returned.</p>
 </dd>
 </dl>
 </section>
-<section id="adapting-output-to-a-specific-locale" class="level2 doc-section doc-section-adapting-output-to-a-specific-locale">
-<h2 class="doc-section doc-section-adapting-output-to-a-specific-locale anchored" data-anchor-id="adapting-output-to-a-specific-locale">Adapting output to a specific <code>locale</code></h2>
-<p>This formatting method can adapt outputs according to a provided <code>locale</code> value. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France). The use of a valid locale ID here means separator and decimal marks will be correct for the given locale. Should a value be provided in <code>dec_mark</code> it will be overridden by the locale’s preferred values.</p>
-<p>Note that a <code>locale</code> value provided here will override any global locale setting performed in <a href="../reference/GT.html#great_tables.GT"><span><code>GT()</code></span></a>’s own <code>locale</code> argument (it is settable there as a value received by all other methods that have a <code>locale</code> argument).</p>
-</section>
 <section id="examples" class="level2 doc-section doc-section-examples">
 <h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
-<p>For this example, we’ll use the <code>exibble</code> dataset as the input table. With the <code>fmt_scientific()</code> method, we’ll format the <code>num</code> column to contain values in scientific formatting.</p>
-<div id="7dcbad62" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
+<div id="096aedd5" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> vals</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>(</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    GT(exibble)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    .fmt_scientific(columns<span class="op">=</span><span class="st">"num"</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>vals.fmt_engineering([<span class="dv">123456789</span>, <span class="fl">0.000000425639</span>], decimals<span class="op">=</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="iwlyejjsji" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>
-#iwlyejjsji table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#iwlyejjsji thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#iwlyejjsji p { margin: 0; padding: 0; }
- #iwlyejjsji .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #iwlyejjsji .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #iwlyejjsji .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #iwlyejjsji .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #iwlyejjsji .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #iwlyejjsji .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #iwlyejjsji .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #iwlyejjsji .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #iwlyejjsji .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #iwlyejjsji .gt_column_spanner_outer:first-child { padding-left: 0; }
- #iwlyejjsji .gt_column_spanner_outer:last-child { padding-right: 0; }
- #iwlyejjsji .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #iwlyejjsji .gt_spanner_row { border-bottom-style: hidden; }
- #iwlyejjsji .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #iwlyejjsji .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #iwlyejjsji .gt_from_md> :first-child { margin-top: 0; }
- #iwlyejjsji .gt_from_md> :last-child { margin-bottom: 0; }
- #iwlyejjsji .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #iwlyejjsji .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #iwlyejjsji .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #iwlyejjsji .gt_row_group_first td { border-top-width: 2px; }
- #iwlyejjsji .gt_row_group_first th { border-top-width: 2px; }
- #iwlyejjsji .gt_striped { color: #333333; background-color: #F4F4F4; }
- #iwlyejjsji .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #iwlyejjsji .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #iwlyejjsji .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #iwlyejjsji .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #iwlyejjsji .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #iwlyejjsji .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #iwlyejjsji .gt_left { text-align: left; }
- #iwlyejjsji .gt_center { text-align: center; }
- #iwlyejjsji .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #iwlyejjsji .gt_font_normal { font-weight: normal; }
- #iwlyejjsji .gt_font_bold { font-weight: bold; }
- #iwlyejjsji .gt_font_italic { font-style: italic; }
- #iwlyejjsji .gt_super { font-size: 65%; }
- #iwlyejjsji .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #iwlyejjsji .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-
-<tr class="gt_col_headings">
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="num">num</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="char">char</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="fctr">fctr</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="date">date</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="time">time</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="datetime">datetime</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="currency">currency</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="row">row</th>
-  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group">group</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-  <tr>
-    <td class="gt_row gt_right">1.11 × 10<sup style="font-size: 65%;">−1</sup></td>
-    <td class="gt_row gt_left">apricot</td>
-    <td class="gt_row gt_left">one</td>
-    <td class="gt_row gt_right">2015-01-15</td>
-    <td class="gt_row gt_right">13:35</td>
-    <td class="gt_row gt_right">2018-01-01 02:22</td>
-    <td class="gt_row gt_right">49.95</td>
-    <td class="gt_row gt_left">row_1</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">2.22</td>
-    <td class="gt_row gt_left">banana</td>
-    <td class="gt_row gt_left">two</td>
-    <td class="gt_row gt_right">2015-02-15</td>
-    <td class="gt_row gt_right">14:40</td>
-    <td class="gt_row gt_right">2018-02-02 14:33</td>
-    <td class="gt_row gt_right">17.95</td>
-    <td class="gt_row gt_left">row_2</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">3.33 × 10<sup style="font-size: 65%;">1</sup></td>
-    <td class="gt_row gt_left">coconut</td>
-    <td class="gt_row gt_left">three</td>
-    <td class="gt_row gt_right">2015-03-15</td>
-    <td class="gt_row gt_right">15:45</td>
-    <td class="gt_row gt_right">2018-03-03 03:44</td>
-    <td class="gt_row gt_right">1.39</td>
-    <td class="gt_row gt_left">row_3</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">4.44 × 10<sup style="font-size: 65%;">2</sup></td>
-    <td class="gt_row gt_left">durian</td>
-    <td class="gt_row gt_left">four</td>
-    <td class="gt_row gt_right">2015-04-15</td>
-    <td class="gt_row gt_right">16:50</td>
-    <td class="gt_row gt_right">2018-04-04 15:55</td>
-    <td class="gt_row gt_right">65100.0</td>
-    <td class="gt_row gt_left">row_4</td>
-    <td class="gt_row gt_left">grp_a</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">5.55 × 10<sup style="font-size: 65%;">3</sup></td>
-    <td class="gt_row gt_left"><na></na></td>
-    <td class="gt_row gt_left">five</td>
-    <td class="gt_row gt_right">2015-05-15</td>
-    <td class="gt_row gt_right">17:55</td>
-    <td class="gt_row gt_right">2018-05-05 04:00</td>
-    <td class="gt_row gt_right">1325.81</td>
-    <td class="gt_row gt_left">row_5</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right"><na></na></td>
-    <td class="gt_row gt_left">fig</td>
-    <td class="gt_row gt_left">six</td>
-    <td class="gt_row gt_right">2015-06-15</td>
-    <td class="gt_row gt_right"><na></na></td>
-    <td class="gt_row gt_right">2018-06-06 16:11</td>
-    <td class="gt_row gt_right">13.255</td>
-    <td class="gt_row gt_left">row_6</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">7.77 × 10<sup style="font-size: 65%;">5</sup></td>
-    <td class="gt_row gt_left">grapefruit</td>
-    <td class="gt_row gt_left">seven</td>
-    <td class="gt_row gt_right"><na></na></td>
-    <td class="gt_row gt_right">19:10</td>
-    <td class="gt_row gt_right">2018-07-07 05:22</td>
-    <td class="gt_row gt_right"><na></na></td>
-    <td class="gt_row gt_left">row_7</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
-  <tr>
-    <td class="gt_row gt_right">8.88 × 10<sup style="font-size: 65%;">6</sup></td>
-    <td class="gt_row gt_left">honeydew</td>
-    <td class="gt_row gt_left">eight</td>
-    <td class="gt_row gt_right">2015-08-15</td>
-    <td class="gt_row gt_right">20:20</td>
-    <td class="gt_row gt_right"><na></na></td>
-    <td class="gt_row gt_right">0.44</td>
-    <td class="gt_row gt_left">row_8</td>
-    <td class="gt_row gt_left">grp_b</td>
-  </tr>
-</tbody>
-
-
-</table>
-
-</div>
-        
+<pre><code>["123.46 × 10&lt;sup style='font-size: 65%;'&gt;6&lt;/sup&gt;",
+ "425.64 × 10&lt;sup style='font-size: 65%;'&gt;−9&lt;/sup&gt;"]</code></pre>
 </div>
 </div>
-</section>
-<section id="see-also" class="level2 doc-section doc-section-see-also">
-<h2 class="doc-section doc-section-see-also anchored" data-anchor-id="see-also">See Also</h2>
-<p>The functional version of this method, <a href="../reference/vals.fmt_scientific.html#great_tables.vals.fmt_scientific"><code>val_fmt_scientific()</code></a>, allows you to format a single numerical value (or a list of them).</p>
 
 
 </section>
