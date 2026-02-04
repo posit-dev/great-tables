@@ -303,12 +303,8 @@ def _process_col_merge_pattern(
     # Replace values with tokens if they are truly missing
     processed_values = {}
     for key, value in col_values.items():
-        # Consider a value missing if it matches a known NA representation
-        # and the original data was also NA
-        # - "NA": generic representation
-        # - "<NA>": pandas representation
-        # - "None": Polars representation (str(None))
-        if col_is_missing.get(key, False) and value in ("NA", "<NA>", "None"):
+        # If the original data was NA, use the missing token for conditional handling
+        if col_is_missing.get(key, False):
             processed_values[key] = _MISSING_VAL_TOKEN
         else:
             processed_values[key] = value
