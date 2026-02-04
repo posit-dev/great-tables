@@ -1,8 +1,10 @@
+import math
+
 import pandas as pd
 import polars as pl
 import pytest
 from great_tables import GT
-from great_tables._gt_data import ColMergeInfo
+from great_tables._cols_merge import ColMergeInfo, merge_pattern
 
 
 @pytest.fixture
@@ -20,6 +22,88 @@ def missing_df():
             "val3": [5.0, None, None],
         }
     )
+
+
+class TestReplaceNa:
+    """Tests for the ColMergeInfo.replace_na() static method."""
+
+    def test_replace_na_with_none(self):
+        """Test that None values are replaced with None."""
+        result = ColMergeInfo.replace_na("hello", None, "world")
+        assert result == ("hello", None, "world")
+
+    def test_replace_na_with_nan(self):
+        """Test that NaN values are replaced with None."""
+        result = ColMergeInfo.replace_na("hello", math.nan, "world")
+        assert result == ("hello", None, "world")
+
+    def test_replace_na_with_float_nan(self):
+        """Test that float('nan') values are replaced with None."""
+        result = ColMergeInfo.replace_na(10, float("nan"), 30)
+        assert result[0] == 10
+        assert result[1] is None
+        assert result[2] == 30
+
+    def test_replace_na_preserves_non_missing(self):
+        """Test that non-missing values are preserved."""
+        result = ColMergeInfo.replace_na("a", "b", "c", 1, 2, 3)
+        assert result == ("a", "b", "c", 1, 2, 3)
+
+    def test_replace_na_empty(self):
+        """Test replace_na with no arguments."""
+        result = ColMergeInfo.replace_na()
+        assert result == ()
+
+    def test_replace_na_single_value(self):
+        """Test replace_na with single value."""
+        assert ColMergeInfo.replace_na(42) == (42,)
+        assert ColMergeInfo.replace_na(None) == (None,)
+        assert ColMergeInfo.replace_na(math.nan) == (None,)
+
+    def test_replace_na_all_missing(self):
+        """Test replace_na when all values are missing."""
+        result = ColMergeInfo.replace_na(None, math.nan, float("nan"))
+        assert result == (None, None, None)
+
+
+class TestMergePattern:
+    """Tests for the merge_pattern() convenience function."""
+
+    def test_simple_merge(self):
+        """Test basic merge pattern."""
+        result = merge_pattern("{1} {2}", "John", "Doe")
+        assert result == "John Doe"
+
+    def test_merge_with_separator(self):
+        """Test merge pattern with em dash separator."""
+        result = merge_pattern("{1}—{2}", 10, 20)
+        assert result == "10—20"
+
+    def test_merge_with_none_value(self):
+        """Test merge pattern with None value in conditional section."""
+        result = merge_pattern("{1}<< ({2})>>", "John", None)
+        assert result == "John"
+
+    def test_merge_with_all_present(self):
+        """Test merge pattern with all values present."""
+        result = merge_pattern("{1}<< ({2})>>", "John", "123-456")
+        assert result == "John (123-456)"
+
+    def test_nested_conditionals(self):
+        """Test merge pattern with nested conditional sections."""
+        result = merge_pattern("{1}<< to {2}<< to {3}>>>>", 10, 20, None)
+        assert result == "10 to 20"
+
+        result2 = merge_pattern("{1}<< to {2}<< to {3}>>>>", 10, None, None)
+        assert result2 == "10"
+
+        result3 = merge_pattern("{1}<< to {2}<< to {3}>>>>", 10, 20, 30)
+        assert result3 == "10 to 20 to 30"
+
+    def test_merge_three_columns(self):
+        """Test merge pattern with three values."""
+        result = merge_pattern("{1} {2} {3}", "A", "B", "C")
+        assert result == "A B C"
 
 
 class TestColMergeInfoUnit:
@@ -80,6 +164,62 @@ class TestColMergeInfoUnit:
         with pytest.raises(ValueError, match="Pattern references column"):
             info.validate_pattern()
 
+    # Tests for the new merge() method (simple interface)
+    def test_merge_simple(self):
+        """Test merge() with simple patterns."""
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1} {2}")
+        result = info.merge("Hello", "World")
+        assert result == "Hello World"
+
+    def test_merge_with_separator(self):
+        """Test merge() with different separators."""
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1}—{2}")
+        result = info.merge(10, 20)
+        assert result == "10—20"
+
+    def test_merge_conditional_missing(self):
+        """Test merge() with conditional sections and missing values."""
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1}<< ({2})>>")
+
+        # Non-missing: include the conditional section
+        result1 = info.merge(10, 20)
+        assert result1 == "10 (20)"
+
+        # Missing value (None): remove the conditional section
+        result2 = info.merge(10, None)
+        assert result2 == "10"
+
+    def test_merge_nested_conditionals(self):
+        """Test merge() with nested conditional sections."""
+        info = ColMergeInfo(
+            vars=["a", "b", "c"], rows=[0], type="merge", pattern="{1}<< ({2}-<<{3}>>)>>"
+        )
+
+        # All present
+        result1 = info.merge(10, 15, 5)
+        assert result1 == "10 (15-5)"
+
+        # Third missing
+        result2 = info.merge(10, 15, None)
+        assert result2 == "10 (15-)"
+
+        # Second missing (and third)
+        result3 = info.merge(10, None, None)
+        assert result3 == "10"
+
+    def test_merge_pattern_none_raises(self):
+        """Test merge() raises when pattern is None."""
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern=None)
+        with pytest.raises(ValueError, match="Pattern must be provided"):
+            info.merge(10, 20)
+
+    def test_merge_three_values(self):
+        """Test merge() with three values."""
+        info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{1} {2} {3}")
+        result = info.merge("A", "B", "C")
+        assert result == "A B C"
+
+    # Tests for the dict-based merge_values() method (internal interface)
     def test_merge_values_simple(self):
         """Test merge_values with simple patterns."""
         info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1} {2}")
@@ -327,6 +467,12 @@ class TestColsMergeIntegration:
         assert "3.000+6" in html
 
     def test_with_sub_missing(self, missing_df: pd.DataFrame):
+        """Test that sub_missing() replacements are NOT treated as missing.
+
+        In R's gt, sub_missing() replacements mean the value is no longer considered
+        NA for cols_merge() purposes. The "--" replacement should appear in the
+        merged output, not cause the conditional section to be omitted.
+        """
         # calling sub_missing() before cols_merge()
         gt_1 = (
             GT(missing_df)
