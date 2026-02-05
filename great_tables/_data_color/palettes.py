@@ -131,20 +131,26 @@ class GradientPalette:
         rgb = self.vals_to_rgb(data)
         return [rgb_to_hex(x) if x is not None else None for x in rgb]
 
-    def vals_to_rgb(self, data: list[float]) -> "list[RGBColor | None]":
+    def vals_to_rgb(self, data: list[float | None]) -> "list[RGBColor | None]":
         """Return data transformed to RGB values."""
 
         out: "list[RGBColor | None]" = []
         for ii, x in enumerate(data):
+            if x is None:
+                out.append(None)
+                continue
+
             if isinf(x) or isnan(x):
                 out.append(None)
-            elif x < 0 or x > 1:
+                continue
+
+            if x < 0 or x > 1:
                 raise ValueError(f"Element {ii} is outside the range [0, 1]. Value: {x}.")
-            else:
-                r = self._interpolate(x, self._r_coeffs)
-                g = self._interpolate(x, self._g_coeffs)
-                b = self._interpolate(x, self._b_coeffs)
-                out.append((round(r), round(g), round(b)))
+
+            r = self._interpolate(x, self._r_coeffs)
+            g = self._interpolate(x, self._g_coeffs)
+            b = self._interpolate(x, self._b_coeffs)
+            out.append((round(r), round(g), round(b)))
 
         return out
 

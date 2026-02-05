@@ -220,9 +220,11 @@ sza_pivot = (
 
 ```{python}
 # | echo: false
+import warnings
 from great_tables import GT, md, html, system_fonts
 import pandas as pd
 
+warnings.filterwarnings("ignore")
 power_cie_prepared_tbl = pd.read_csv("./_data/power_cie_prepared_tbl.csv")
 
 
@@ -361,7 +363,7 @@ import polars as pl
 import polars.selectors as cs
 from great_tables import GT, loc, style
 
-coffee_sales = pl.DataFrame.deserialize("./_data/coffee-sales.json", format="json")
+coffee_sales = pl.read_ndjson("./_data/coffee-sales.ndjson")
 
 sel_rev = cs.starts_with("revenue")
 sel_prof = cs.starts_with("profit")

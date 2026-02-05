@@ -5,7 +5,7 @@ html-table-processing: none
 ---
 
 :::{.callout-warning}
-`fmt_nanoplot()` is still experimental.
+`~~GT.fmt_nanoplot()` is still experimental.
 :::
 
 Nanoplots are tiny plots you can use in your table. They are simple by design, mainly because there isn't a lot of space to work with. With that simplicity, however, you do get a set of very succinct data visualizations that adapt nicely to the amount of data you feed into them. Here's some of the main features:
@@ -17,7 +17,7 @@ Nanoplots are tiny plots you can use in your table. They are simple by design, m
 
 ## A simple line-based nanoplot
 
-Let's make some simple plots with a Polars DataFrame. Here we are using lists to define data values for each cell in the `numbers` column. The [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) method understands that these are input values for a line plot (the default type of nanoplot).
+Let's make some simple plots with a Polars DataFrame. Here we are using lists to define data values for each cell in the `numbers` column. The `~~GT.fmt_nanoplot()` method understands that these are input values for a line plot (the default type of nanoplot).
 
 ```{python}
 from great_tables import GT
@@ -45,7 +45,7 @@ Hovering over (or touching) the values is something of a treat! You might notice
 - data values are automatically formatted for you in a compact fashion
 - the plot elements also display pertinent values
 
-This sort of interactively is baked into the rendered SVG graphics that [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) generates from your data and selection of options.
+This sort of interactively is baked into the rendered SVG graphics that `~~GT.fmt_nanoplot()` generates from your data and selection of options.
 
 Polars lets us express 'lists-of-values-per-cell' in different ways and **Great Tables** is pretty good at understanding different column *dtypes*. So, you can alternatively create the same table as above with the following code.
 
@@ -65,7 +65,7 @@ random_numbers_df = pl.DataFrame(
 GT(random_numbers_df).fmt_nanoplot(columns="numbers")
 ```
 
-Both forms of the `numbers` column in the two DataFrames look the same to [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`). The key for the list of values (here, `"val"`) can be anything as long as it's repeated down the column. So the choice is yours on how you want to prepare those column values.
+Both forms of the `numbers` column in the two DataFrames look the same to `~~GT.fmt_nanoplot()`. The key for the list of values (here, `"val"`) can be anything as long as it's repeated down the column. So the choice is yours on how you want to prepare those column values.
 
 ## The reference line and the reference area
 
@@ -93,9 +93,9 @@ GT(random_numbers_df).fmt_nanoplot(columns="numbers", autoscale=True)
 
 If you hover along or touch the left side of any of the plots above, you'll see that each *y* scale runs from `-12.0` to `37.0`. Using `autoscale=True` is very useful if you want to compare the magnitudes of values across rows in addition to their trends. It won't, however, make much sense if the overall magnitudes of values vary wildly across rows (e.g., comparing changing currency values or stock prices over time).
 
-## Using the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function
+## Using the `nanoplot_options()`{.qd-no-link} helper function
 
-There are many options for customization. You can radically change the look of a collection of nanoplots with the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function. With that function, you invoke it in the `options=` argument of [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`). You can modify the sizes and colors of different elements, decide which elements are even present, and much more! Here's an example where a line-based nanoplot retains all of its elements, but the overall appearance is greatly altered.
+There are many options for customization. You can radically change the look of a collection of nanoplots with the `nanoplot_options()` helper function. With that function, you invoke it in the `options=` argument of `~~GT.fmt_nanoplot()`. You can modify the sizes and colors of different elements, decide which elements are even present, and much more! Here's an example where a line-based nanoplot retains all of its elements, but the overall appearance is greatly altered.
 
 ```{python}
 from great_tables import nanoplot_options
@@ -123,7 +123,7 @@ As can be seen, you have a lot of fine-grained control over the look of a nanopl
 
 ## Making nanoplots with bars using `plot_type="bar"`
 
-We don't just support line plots in [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`), we also have the option to show bar plots. The only thing you need to change is the value of `plot_type=` argument to `"bar"`:
+We don't just support line plots in `~~GT.fmt_nanoplot()`, we also have the option to show bar plots. The only thing you need to change is the value of `plot_type=` argument to `"bar"`:
 
 ```{python}
 GT(random_numbers_df).fmt_nanoplot(columns="numbers", plot_type="bar")
@@ -131,7 +131,7 @@ GT(random_numbers_df).fmt_nanoplot(columns="numbers", plot_type="bar")
 
 An important difference between line plots and bar plots is that the bars project from a zero line. Notice that some negative values in the bar-based nanoplot appear red and radiate downward from the gray zero line.
 
-Using `plot_type="bar"` still allows us to supply a reference line and a reference area with `reference_line=` and `reference_area=`. The `autoscale=` option works here as well. We also have a set of options just for bar plots available inside [`nanoplot_options()`](`great_tables.nanoplot_options`). Here's an example where we use all of the aforementioned customization possibilities:
+Using `plot_type="bar"` still allows us to supply a reference line and a reference area with `reference_line=` and `reference_area=`. The `autoscale=` option works here as well. We also have a set of options just for bar plots available inside `nanoplot_options()`. Here's an example where we use all of the aforementioned customization possibilities:
 
 ```{python}
 (
@@ -159,7 +159,7 @@ Using `plot_type="bar"` still allows us to supply a reference line and a referen
 
 ## Horizontal bar and line plots
 
-Single-value bar plots, running in the horizontal direction, can be made by simply invoking [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`) on a column of numeric values. These plots are meant for comparison across rows so the method automatically scales the horizontal bars to facilitate this type of display. Here's a simple example that uses `plot_type="bar"` on the `numbers` column that contains a single numeric value in every cell.
+Single-value bar plots, running in the horizontal direction, can be made by simply invoking `~~GT.fmt_nanoplot()` on a column of numeric values. These plots are meant for comparison across rows so the method automatically scales the horizontal bars to facilitate this type of display. Here's a simple example that uses `plot_type="bar"` on the `numbers` column that contains a single numeric value in every cell.
 
 ```{python}
 single_vals_df = pl.DataFrame(
@@ -182,7 +182,7 @@ You get to customize the line and the data point marker with the latter display 
 
 ## Line plots with paired *x* and *y* values
 
-Aside from a single stream of *y* values, we can plot pairs of *x* and *y* values. This works only for the `"line"` type of plot. We can set up a column of Polars `struct` values in a DataFrame to have this input data prepared for [`fmt_nanoplot()`](`great_tables.GT.fmt_nanoplot`). Notice that the dictionary values in the enclosed list must have the `"x"` and `"y"` keys. Further to this, the list lengths for each of `"x"` and `"y"` must match (i.e., to make valid pairs of *x* and *y*).
+Aside from a single stream of *y* values, we can plot pairs of *x* and *y* values. This works only for the `"line"` type of plot. We can set up a column of Polars `struct` values in a DataFrame to have this input data prepared for `~~GT.fmt_nanoplot()`. Notice that the dictionary values in the enclosed list must have the `"x"` and `"y"` keys. Further to this, the list lengths for each of `"x"` and `"y"` must match (i.e., to make valid pairs of *x* and *y*).
 
 ```{python}
 weather_2 = pl.DataFrame(
@@ -220,4 +220,4 @@ weather_2 = pl.DataFrame(
 )
 ```
 
-The options for removing the *data area* and the *data line* (though the corresponding `show_*` arguments of [`nanoplot_options()`](`great_tables.nanoplot_options`)) make the finalized nanoplots look somewhat like scatter plots.
+The options for removing the *data area* and the *data line* (though the corresponding `show_*` arguments of `nanoplot_options()`) make the finalized nanoplots look somewhat like scatter plots.

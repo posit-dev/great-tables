@@ -1,5 +1,5 @@
 ---
-title: Stying the Table Body
+title: Styling the Table Body
 jupyter: python3
 html-table-processing: none
 ---
@@ -21,9 +21,14 @@ gt_air = GT(air_head)
 gt_pl_air = GT(pl.from_pandas(air_head))
 ```
 
+
+:::{.callout-note}
+When using Great Tables with VS Code, the IDE suppresses some forms of table styling displayed in notebooks. For example, border styles might not appear. Use `.show("browser")` to see the styled GT table in a separate browser window.
+:::
+
 ## Style basics
 
-We use the [`tab_style()`](`great_tables.GT.tab_style`) method in combination with [`loc.body()`](`great_tables.loc.body`) to set styles on cells of data in the table body. For example, the table-making code below applies a yellow background color to specific cells.
+We use the `~~GT.tab_style()` method in combination with `loc.body()` to set styles on cells of data in the table body. For example, the table-making code below applies a yellow background color to specific cells.
 
 ```{python}
 gt_air.tab_style(
@@ -32,16 +37,16 @@ gt_air.tab_style(
 )
 ```
 
-There are two important arguments to [`tab_style()`](`great_tables.GT.tab_style`): `style=` and `locations=`. We are calling a specific function for each of these:
+There are two important arguments to `~~GT.tab_style()`: `style=` and `locations=`. We are calling a specific function for each of these:
 
-* [`style.fill()`](`great_tables.style.fill`): the type of style to apply. In this case the *fill* (or background color).
-* [`loc.body()`](`great_tables.loc.body`): the area we want to style. In this case, it's the table body with specific columns and rows specified.
+* `style.fill()`: the type of style to apply. In this case the *fill* (or background color).
+* `loc.body()`: the area we want to style. In this case, it's the table body with specific columns and rows specified.
 
-In addition to [`style.fill()`](`great_tables.style.fill`), several other styling functions exist. We'll look at styling borders and text in the following sections.
+In addition to `style.fill()`, several other styling functions exist. We'll look at styling borders and text in the following sections.
 
 ### Customizing Borders
 
-Let's use [`style.borders()`](`great_tables.style.borders`) to place borders around targeted cells. In this next example, the table has a red dashed border above two rows.
+Let's use `style.borders()` to place borders around targeted cells. In this next example, the table has a red dashed border above two rows.
 
 ```{python}
 gt_air.tab_style(
@@ -52,7 +57,7 @@ gt_air.tab_style(
 
 ### Customizing Text
 
-We can style text with by using the [`style.text()`](`great_tables.style.text`) function. This gives us many customization possibilities for any text we target. For example, the `Solar_R` column below has green, bolded text in a custom font.
+We can style text with by using the `style.text()` function. This gives us many customization possibilities for any text we target. For example, the `Solar_R` column below has green, bolded text in a custom font.
 
 ```{python}
 gt_air.tab_style(
@@ -63,7 +68,7 @@ gt_air.tab_style(
 
 ## Column-based Styles
 
-In addition to setting styles to specific values (e.g., a `"yellow"` background fill), you can also use parameter values from table columns to specify styles. The way to do this is to use the [`from_column()`](`great_tables.from_column`) helper function to access those values.
+In addition to setting styles to specific values (e.g., a `"yellow"` background fill), you can also use parameter values from table columns to specify styles. The way to do this is to use the `from_column()` helper function to access those values.
 
 ```{python}
 df = pl.DataFrame({"x": [1, 2], "background": ["lightyellow", "lightblue"]})
@@ -79,9 +84,9 @@ df = pl.DataFrame({"x": [1, 2], "background": ["lightyellow", "lightblue"]})
 
 Notice that in the code above, we used values from the `background` column to specify the fill color for each styled row.
 
-In the next few sections, we'll first show how this combines nicely with the [`cols_hide()`](`great_tables.GT.cols_hide`) method, then, we'll demonstrate how to use **Polars** expressions to do everything much more simply.
+In the next few sections, we'll first show how this combines nicely with the `~~GT.cols_hide()` method, then, we'll demonstrate how to use **Polars** expressions to do everything much more simply.
 
-### Combining Styling with [`cols_hide()`](`great_tables.GT.cols_hide`)
+### Combining Styling with `cols_hide()`
 
 One common approach is to specify a style from a column, and then hide that column in the final output. For example, we can add a background column to our `airquality` data:
 
@@ -115,8 +120,8 @@ We can then use this `background` column to set the fill color of certain body c
 
 Note the two methods used above:
 
-* [`tab_style()`](`great_tables.GT.tab_style`): uses [`from_column()`](`great_tables.from_column`) to set the color using the values of the `background` column.
-* [`cols_hide()`](`great_tables.GT.cols_hide`): prevents the `background` column from being displayed in the output.
+* `~~GT.tab_style()`: uses `from_column()` to set the color using the values of the `background` column.
+* `~~GT.cols_hide()`: prevents the `background` column from being displayed in the output.
 
 ### Using **Polars** expressions
 
@@ -228,9 +233,20 @@ gt_pl_air.tab_style(
 )
 ```
 
+Lastly, you can use **Polars** selectors or expressions to conditionally select rows on a per-column basis.
+```{python}
+import polars.selectors as cs
+
+gt_pl_air.tab_style(
+    style=style.fill(color="yellow"),
+    locations=loc.body(mask=cs.all().eq(cs.all().max())),
+)
+```
+
+
 ## Learning more
 
 * API Docs:
-  - [`GT.tab_style()`](/reference/GT.tab_style.qmd).
-  - [`style.*` and `loc.*` functions](/reference/index.qmd#location-targeting-and-styling-classes).
-  - [`from_column()`](/reference/from_column.qmd).
+  - `~~GT.tab_style()`
+  - [`style.*` and `loc.*` functions](/reference/index.qmd#location-targeting-and-styling-classes)
+  - `from_column()`

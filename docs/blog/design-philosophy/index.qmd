@@ -260,7 +260,7 @@ We wanted to help the type of user that wanted to present data in this way. This
 
 Tables have come a long way and we've learned a lot from our continued research in tabular design. We hope to make the [**Great Tables**][great-tables] package useful for your generation of summary tables. Given there's ample room for innovation in this area, we'll keep plugging away at doing that work to improve the API. We measure success by the quality of the tables the package is able to produce and we always keep that goal top of mind.
 
-We're very excited about where things are going with [**Great Tables**][great-tables] and we geniunely appreciate community feedback. If ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV) and drop us a line!
+We're very excited about where things are going with [**Great Tables**][great-tables] and we genuinely appreciate community feedback. If ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV) and drop us a line!
 
 Many thanks to Curtis Kephart and [Anthony Baker](https://anthonywbaker.com) for providing helpful advice when writing this article.
 

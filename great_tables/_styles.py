@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, Union
 
 from typing_extensions import Self, TypeAlias
 
-from ._helpers import px
+from ._helpers import GoogleFont, px
 from ._tbl_data import PlExpr, TblData, _get_cell, eval_transform
 
 if TYPE_CHECKING:
@@ -126,6 +126,37 @@ class CellStyle:
 
 
 @dataclass
+class CellStyleCss(CellStyle):
+    """A style specification for custom CSS rules.
+
+    The `style.css()` class is to be used with the `tab_style()` method, which itself allows for
+    the setting of custom styles to one or more cells. With `style.css()`, you can specify any CSS
+    rule that you would like to apply to the targeted cells.
+
+    Parameters
+    ----------
+    rule
+        The CSS rule to apply to the targeted cells. This can be any valid CSS rule, such as
+        `background-color: red;` or `font-size: 14px;`.
+
+    Returns
+    -------
+    CellStyleCss
+        A CellStyleCss object, which is used for a `styles` argument if specifying a custom CSS
+        rule.
+
+    Examples
+    --------
+    See [`GT.tab_style()`](`great_tables.GT.tab_style`).
+    """
+
+    rule: str
+
+    def _to_html_style(self):
+        return self.rule
+
+
+@dataclass
 class CellStyleText(CellStyle):
     """A style specification for cell text.
 
@@ -188,7 +219,7 @@ class CellStyleText(CellStyle):
     """
 
     color: str | ColumnExpr | None = None
-    font: str | ColumnExpr | None = None
+    font: str | ColumnExpr | GoogleFont | None = None
     size: str | ColumnExpr | None = None
     align: Literal["center", "left", "right", "justify"] | ColumnExpr | None = None
     v_align: Literal["middle", "top", "bottom"] | ColumnExpr | None = None
@@ -225,7 +256,17 @@ class CellStyleText(CellStyle):
         if self.color:
             rendered += f"color: {self.color};"
         if self.font:
-            rendered += f"font-family: {self.font};"
+            font = self.font
+            if isinstance(font, (str, FromColumn)):
+                # Case where `font=` is a string or a FromColumn expression
+                font_name = font
+            elif isinstance(font, GoogleFont):
+                # Case where `font=` is a GoogleFont
+                font_name = font.get_font_name()
+            else:
+                # Case where font is of an invalid type
+                raise ValueError(f"Invalid font type '{type(font)}' provided.")
+            rendered += f"font-family: {font_name};"
         if self.size:
             rendered += f"font-size: {self.size};"
         if self.align:
@@ -317,7 +358,6 @@ class CellStyleBorders(CellStyle):
     sides: (
         Literal["all", "top", "bottom", "left", "right"]
         | list[Literal["all", "top", "bottom", "left", "right"]]
-        | ColumnExpr
     ) = "all"
     color: str | ColumnExpr = "#000000"
     style: str | ColumnExpr = "solid"
@@ -350,7 +390,7 @@ class CellStyleBorders(CellStyle):
 
         border_css_list: list[str] = []
         for side in self.sides:
-            if side not in ["top", "bottom", "left", "right"]:
+            if side not in ("top", "bottom", "left", "right"):
                 raise ValueError(f"Invalid side '{side}' provided.")
             border_css_list.append(f"border-{side}: {weight} {style} {color};")
 

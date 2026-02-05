@@ -30,6 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -38,10 +39,10 @@ classifiers = [
 ]
 dependencies = [
     "commonmark>=0.9.1",
+    "faicons>=0.2.2",
     "htmltools>=0.4.1",
     "importlib-metadata",
     "typing_extensions>=3.10.0.0",
-    "numpy>=1.22.4",
     "Babel>=2.13.1",
     "importlib-resources"
 ]
@@ -54,19 +55,23 @@ all = [
 ]
 
 extra = [
+    "css-inline>=0.14.1",
     "selenium>=4.18.1",
     "Pillow>=10.2.0",
 ]
 
 dev = [
     "great_tables[dev-no-pandas]",
-    "pandas"
+    "pandas",
+    "plotnine",
+    "numpy>=1.22.4",
+
 ]
 
 dev-no-pandas = [
-    "black",
+    "ruff==0.8.0",
     "jupyter",
-    "quartodoc>=0.7.1; python_version >= '3.9'",
+    "quartodoc>=0.11.0; python_version >= '3.9'",
     "griffe==0.38.1",
     "polars",
     "pre-commit==2.15.0",
@@ -75,29 +80,13 @@ dev-no-pandas = [
     "pytest>=3",
     "pytest-cov",
     "shiny",
+    "svg.py",
     "syrupy"
 ]
 
 [project.urls]
 homepage = "https://github.com/posit-dev/great-tables"
 documentation = "https://posit-dev.github.io/great-tables/"
-
-[tool.flake8]
-exclude = ["docs", ".venv", "tests/*"]
-
-ignore = [
-    "E402",    # module level import not at top of file
-    "E501",    # line too long (maximum 100 characters)
-    "W503",    # line break before binary operator
-    "F811",    # redefinition of unused name
-    "E203",    # whitespace before ':'
-    "F401",    # 'module' imported but unused
-    "F841",    # local variable 'name' is assigned to but never used
-    "E702",    # multiple statements on one line (semicolon)
-    "E704",    # multiple statements on one line (def)
-]
-
-max-line-length = 100
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -112,5 +101,27 @@ markers = [
     "no_pandas: test meant to run without pandas installed",
 ]
 
-[tool.black]
+[tool.ruff]
 line-length = 100
+
+
+[tool.ruff.format]
+exclude = ["great_tables/vals.py"]
+
+
+[tool.ruff.lint]
+exclude = ["docs", ".venv", "tests/*"]
+
+ignore = [
+    "E402",    # module level import not at top of file
+    "E501",    # line too long (maximum 100 characters)
+    "F811",    # redefinition of unused name
+    "E203",    # whitespace before ':'
+    "F841",    # local variable 'name' is assigned to but never used
+    "E702",    # multiple statements on one line (semicolon)
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:"
+]

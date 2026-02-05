@@ -4,7 +4,7 @@ jupyter: python3
 html-table-processing: none
 ---
 
-The values within the table body, specifically those within the body cells, can be formatted with a large selection of `fmt_*()` methods like [`fmt_number()`](`great_tables.GT.fmt_number`), [`fmt_integer()`](`great_tables.GT.fmt_integer`), [`fmt_scientific()`](`great_tables.GT.fmt_scientific`), and more. Let's use a portion of the `exibble` dataset and introduce some formatting to the cell values. First, we'll generate the basic GT object and take a look at the table without any cell formatting applied.
+The values within the table body, specifically those within the body cells, can be formatted with a large selection of `fmt_*()` methods like `~~GT.fmt_number()`, `~~GT.fmt_integer()`, `~~GT.fmt_scientific()`, and more. Let's use a portion of the `exibble` dataset and introduce some formatting to the cell values. First, we'll generate the basic GT object and take a look at the table without any cell formatting applied.
 
 ```{python}
 from great_tables import GT
@@ -16,7 +16,7 @@ gt_ex = GT(exibble[["num", "date", "time", "currency"]].head(5))
 gt_ex
 ```
 
-The `num` column contains both small and much larger numbers. We can use the [`fmt_number()`](`great_tables.GT.fmt_number`) method to obtain formatted values have a fixed level of decimal precision and grouping separators. At the same time, we'll format the numeric values in `currency` column to get monetary values.
+The `num` column contains both small and much larger numbers. We can use the `~~GT.fmt_number()` method to obtain formatted values have a fixed level of decimal precision and grouping separators. At the same time, we'll format the numeric values in `currency` column to get monetary values.
 
 ```{python}
 gt_ex = gt_ex.fmt_number(columns="num", decimals=2).fmt_currency(columns="currency")
@@ -24,7 +24,7 @@ gt_ex = gt_ex.fmt_number(columns="num", decimals=2).fmt_currency(columns="curren
 gt_ex
 ```
 
-Dates and times can be formatted as well. As long as they are in ISO 8601 form, the [`fmt_date()`](`great_tables.GT.fmt_date`) and [`fmt_time()`](`great_tables.GT.fmt_time`) methods can be used to format such values. These methods have corresponding `date_style=` and `time_style=` arguments that accept a number of keywords that act as preset formatting styles.
+Dates and times can be formatted as well. As long as they are in ISO 8601 form, the `~~GT.fmt_date()` and `~~GT.fmt_time()` methods can be used to format such values. These methods have corresponding `date_style=` and `time_style=` arguments that accept a number of keywords that act as preset formatting styles.
 
 ```{python}
 gt_ex = (
@@ -63,7 +63,7 @@ While we can use the `fmt_*()` methods on a table, we can also use the functiona
 - `pattern=`: option to use a text pattern for decoration of the formatted values
 - `locale=`: providing a locale ID (e.g., `"en"`, `"fr"`, `"de-AT"`, etc.) will result in numeric formatting specific to the chosen locale
 
-Here are a number of examples that use [`vals.fmt_number()`](`great_tables.vals.fmt_number`).
+Here are a number of examples that use `vals.fmt_number()`.
 
 ```{python}
 fmt_number_1 = vals.fmt_number([1.64, 3.26, 3000.63, 236742.37])
@@ -75,7 +75,7 @@ fmt_number_5 = vals.fmt_number([1.64, 3.26, 3000.63, 236742.37], locale="es")
 print(fmt_number_1, fmt_number_2, fmt_number_3, fmt_number_4, fmt_number_5, sep="\n")
 ```
 
-Scientific notation can be done with [`vals.fmt_scientific()`](`great_tables.vals.fmt_scientific`).
+Scientific notation can be done with `vals.fmt_scientific()`.
 
 ```{python}
 fmt_sci_1 = vals.fmt_scientific([0.00064, 7.353, 863454.63])
@@ -86,7 +86,7 @@ fmt_sci_4 = vals.fmt_scientific([1.64, 3.26, 3000.63], locale="de")
 print(fmt_sci_1, fmt_sci_2, fmt_sci_3, fmt_sci_4, sep="\n")
 ```
 
-Dates and times are handled with [`vals.fmt_date()`](`great_tables.vals.fmt_date`) and [`vals.fmt_time()`](`great_tables.vals.fmt_time`).
+Dates and times are handled with `vals.fmt_date()` and `vals.fmt_time()`.
 
 ```{python}
 fmt_date_1 = vals.fmt_date(
@@ -99,4 +99,4 @@ fmt_time_2 = vals.fmt_time(["23:03", "00:55", "08:23"], time_style="h_p")
 print(fmt_date_1, fmt_date_2, fmt_time_1, fmt_time_2, sep="\n")
 ```
 
-Sometimes it's easier and more convenient to experiment with formatting using the formatting functions in the `vals` module. There are many options to explore with each type of formatting and so visiting the [API Reference](https://posit-dev.github.io/great-tables/reference/) is certainly worthwhile.
+Sometimes it's easier and more convenient to experiment with formatting using the formatting functions in the `vals` module. There are many options to explore with each type of formatting and so visiting the [API Reference](/reference/index.qmd) is certainly worthwhile.

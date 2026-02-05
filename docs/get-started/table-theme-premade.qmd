@@ -3,12 +3,12 @@ title: Premade Themes
 jupyter: python3
 ---
 
-Great Tables provides convenience methods starting with `opt_` (e.g. `GT.opt_row_striping()`), as a shortcut for various styles that can be set via `GT.tab_options()`.
+Great Tables provides convenience methods starting with `opt_` (e.g. `~~GT.opt_row_striping()`), as a shortcut for various styles that can be set via `~~GT.tab_options()`.
 
 There are two important kinds of `GT.opt_*()` methods:
 
-* `GT.opt_stylize()`: allows setting one of six premade table themes.
-* The remaining `GT.opt_*()` methods: shortcuts for common uses of `GT.tab_options()`.
+* `~~GT.opt_stylize()`: allows setting one of six premade table themes.
+* The remaining `opt_*()` methods: shortcuts for common uses of `~~GT.tab_options()`.
 
 We'll use the basic GT object below for most examples, since it marks some of the table parts.
 
@@ -52,7 +52,7 @@ gt_ex.opt_stylize(style=2, color="red")
 :::
 ::::::
 
-Notice that first table (blue) emphasizes the row labels with a solid background color. The second table (red) emphasizes the column labels, and uses solid lines to separate the body cell values. See [`opt_stylize()`](`great_tables.GT.opt_stylize`) for all available color options.
+Notice that first table (blue) emphasizes the row labels with a solid background color. The second table (red) emphasizes the column labels, and uses solid lines to separate the body cell values. See `~~GT.opt_stylize()` for all available color options.
 
 There are six styles available, each emphasizing different table parts. The `style=` values are numbered from `1` to `6`:
 
@@ -87,7 +87,7 @@ print(":::")
 
 ## `opt_*()` convenience methods
 
-This section shows the different `GT.opt_*()` methods available. They serve as convenience methods for common `GT.tab_options()` tasks.
+This section shows the different `opt_*()` methods available. They serve as convenience methods for common `~~GT.tab_options()` tasks.
 
 ### Align table header
 

@@ -47,7 +47,7 @@ df = (
     .with_columns(
         z=pl.when((pl.col("x") == 7) & (pl.col("y") == 4)).then(pl.lit("4/7")).otherwise("z")
     )
-    .pivot(index="x", values="z", columns="y")
+    .pivot(index="x", values="z", on="y")
     .with_row_index()
 )
 

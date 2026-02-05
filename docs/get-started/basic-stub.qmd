@@ -8,7 +8,7 @@ The **Stub** component of a table is the area to the left that typically contain
 
 ## Row names
 
-An easy way to generate a **Stub** part is by specifying a stub column in the [`GT()`](`great_tables.GT`) class with the `rowname_col=` argument. This will signal to **Great Tables** that the named column should be used as the stub, using the contents of that column to make *row labels*. Let's add a stub with our `islands` dataset by using `rowname_col=` in the call to [`GT()`](`great_tables.GT`):
+An easy way to generate a **Stub** part is by specifying a stub column in the `GT()` class with the `rowname_col=` argument. This will signal to **Great Tables** that the named column should be used as the stub, using the contents of that column to make *row labels*. Let's add a stub with our `islands` dataset by using `rowname_col=` in the call to `GT`:
 
 ```{python}
 from great_tables import GT, md, html
@@ -19,7 +19,7 @@ islands_mini = islands.head(10)
 GT(islands_mini).tab_stub(rowname_col="name")
 ```
 
-Notice that the landmass names are now placed to the left? That's the **Stub**. Notably, there is a prominent border to the right of it but there's no label above the **Stub**. We can change this and apply what's known as a *stubhead label* through use of the [`tab_stubhead()`](`great_tables.GT.tab_stubhead`) method:
+Notice that the landmass names are now placed to the left? That's the **Stub**. Notably, there is a prominent border to the right of it but there's no label above the **Stub**. We can change this and apply what's known as a *stubhead label* through use of the `~~GT.tab_stubhead()` method:
 
 ```{python}
 (
@@ -33,7 +33,7 @@ A very important thing to note here is that the table now has one column. Before
 
 ## Row groups
 
-Let's incorporate row groups into the display table. This divides rows into groups, creating *row groups*, and results in a display of a *row group labels* right above the each group. This can be easily done with a table containing row labels and the key is to use the `groupname_col=` argument of the [`GT()`](`great_tables.GT`) class. Here we will create three row groups (with row group labels `"continent"`, `"country"`, and `"subregion"`) to have a grouping of rows.
+Let's incorporate row groups into the display table. This divides rows into groups, creating *row groups*, and results in a display of a *row group labels* right above the each group. This can be easily done with a table containing row labels and the key is to use the `groupname_col=` argument of the `GT` class. Here we will create three row groups (with row group labels `"continent"`, `"country"`, and `"subregion"`) to have a grouping of rows.
 
 ```{python}
 island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] * 2 + ["continent"] * 6)
@@ -47,7 +47,7 @@ island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] 
 
 ## GT convenience arguments
 
-Rather than using the `GT.tab_stub()` method, the `GT(rowname_col=..., groupname_col=...)` arguments
+Rather than using the `~~GT.tab_stub()` method, the `GT(rowname_col=..., groupname_col=...)` arguments
 provide a quick way to specify row names and groups.
 
 

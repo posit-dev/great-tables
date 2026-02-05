@@ -2,7 +2,7 @@ on:
   push:
     branches:
       - main
-      - 'docs-preview-**'
+      - "docs-preview-**"
   pull_request:
     branches:
       - main
@@ -21,6 +21,10 @@ jobs:
         run: |
           python -m pip install ".[all]"
       - uses: quarto-dev/quarto-actions/setup@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tinytex: true
       - name: Build docs
         run: |
           make docs-build

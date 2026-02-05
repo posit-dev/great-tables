@@ -1,17 +1,20 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
-from ._locations import resolve_cols_c
-from ._utils import _assert_list_is_subset
+from ._locations import LocColumnLabels, resolve_cols_c
+from ._styles import CellStyleCss
 from ._tbl_data import SelectExpr
-from ._text import Text
+from ._text import BaseText
+from ._utils import _assert_list_is_subset
 
 if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
+def cols_label(
+    self: GTSelf, cases: dict[str, str | BaseText] | None = None, **kwargs: str | BaseText
+) -> GTSelf:
     """
     Relabel one or more columns.
 
@@ -26,10 +29,13 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
 
     Parameters
     ----------
+    cases
+        A dictionary where the keys are column names and the values are the labels. Labels may use
+        [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helpers for formatting.
+
     **kwargs
-        New labels expressed as keyword arguments. Column names should be the keyword (left-hand side).
-        Labels may use [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helpers for
-        formatting.
+        Keyword arguments to specify column labels. Each keyword corresponds to a column name, with
+        its value indicating the new label.
 
     Returns
     -------
@@ -111,26 +117,26 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
     """
     from great_tables._helpers import UnitStr
 
-    # If nothing is provided, return `data` unchanged
-    if len(kwargs) == 0:
-        return self
+    cases = cases if cases is not None else {}
+    new_cases = cases | kwargs
 
-    mod_columns = list(kwargs.keys())
+    # If nothing is provided, return `data` unchanged
+    if not new_cases:
+        return self
 
     # Get the full list of column names for the data
     column_names = self._boxhead._get_columns()
+    mod_columns = list(new_cases.keys())
 
     # Stop function if any of the column names specified are not in `cols_labels`
     # msg: "All column names provided must exist in the input `.data` table."
     _assert_list_is_subset(mod_columns, set_list=column_names)
 
     # Handle units syntax in labels (e.g., "Density ({{ppl / mi^2}})")
-    new_kwargs: dict[str, UnitStr | str | Text] = {}
+    new_kwargs: dict[str, UnitStr | str | BaseText] = {}
 
-    for k, v in kwargs.items():
-
+    for k, v in new_cases.items():
         if isinstance(v, str):
-
             unitstr_v = UnitStr.from_str(v)
 
             if len(unitstr_v.units_str) == 1 and isinstance(unitstr_v.units_str[0], str):
@@ -138,12 +144,12 @@ def cols_label(self: GTSelf, **kwargs: str | Text) -> GTSelf:
             else:
                 new_kwargs[k] = unitstr_v
 
-        elif isinstance(v, Text):
+        elif isinstance(v, BaseText):
             new_kwargs[k] = v
 
         else:
             raise ValueError(
-                "Column labels must be strings or Text objects. Use `md()` or `html()` for formatting."
+                "Column labels must be strings or BaseText objects. Use `md()` or `html()` for formatting."
             )
 
     boxhead = self._boxhead._set_column_labels(new_kwargs)
@@ -197,7 +203,7 @@ def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) ->
     """
 
     # Throw if `align` is not one of the three allowed values
-    if align not in ["left", "center", "right"]:
+    if align not in ("left", "center", "right"):
         raise ValueError("Align must be one of 'left', 'center', or 'right'.")
 
     # Get the full list of column names for the data
@@ -214,3 +220,124 @@ def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) ->
 
     # Set the alignment for each column
     return self._replace(_boxhead=self._boxhead._set_column_aligns(sel_cols, align=align))
+
+
+def cols_label_rotate(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    dir: Literal["sideways-lr", "sideways-rl", "vertical-lr"] = "sideways-lr",
+    align: Literal["left", "center", "right"] | None = None,
+    padding: int = 8,
+) -> GTSelf:
+    """
+    Rotate the column label for one or more columns.
+
+    The `cols_label_rotate()` method sets the orientation of the column label text to make it flow
+    vertically. The `dir` argument can be set to one of `"sideways-lr"`, `"sideways-rl"`, or
+    `"vertical-lr"`, and the `columns` argument can be used to specify which columns to apply the
+    alignment to. If `columns` is not specified, the alignment is applied to all columns.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list. If `None`, the alignment is applied to all columns.
+    dir
+        A string that gives the direction of the text. Options: `"sideways-lr"`, `"sideways-rl"`,
+        `"vertical-lr"`. See note for information on text layout.
+    align
+        The alignment to apply. Must be one of `"left"`, `"center"`, `"right"`, or `"none"`. If text
+        is laid out vertically, this affects alignment along the vertical axis.
+    padding
+        The vertical padding to apply to the column labels.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    The example below rotates column labels such that the text is set to the left.
+
+    ```{python}
+    from great_tables import GT, style, loc, exibble
+
+    exibble_sm = exibble[["num", "fctr", "row", "group"]]
+
+    (
+        GT(exibble_sm, rowname_col="row", groupname_col="group")
+        .cols_label_rotate(columns=["num", "fctr"])
+    )
+    ```
+
+    Other styles you provide won't override the column label rotation directives. Here we set the
+    text to the right.
+
+    ```{python}
+    (
+        GT(exibble_sm, rowname_col="row", groupname_col="group")
+        .cols_label_rotate(columns=["num", "fctr"], dir="vertical-lr")
+        .tab_style(style=style.text(weight="bold"), locations=loc.column_labels(["fctr"]))
+    )
+    ```
+
+    Labels that are restricted by the height of the stub head will wrap horizontally.
+
+    ```{python}
+    (
+        GT(exibble_sm, rowname_col="row", groupname_col="group")
+        .cols_label({"fctr": "A longer description of the values in the column below"})
+        .cols_label_rotate(columns=["num", "fctr"], dir="sideways-lr")
+        .tab_style(
+            style=[style.text(weight="bold"), style.css(rule="height: 200px;")],
+            locations=loc.column_labels(["fctr"])
+        )
+    )
+    ```
+
+    Note
+    --------
+    The `dir` parameter uses the following keywords to alter the direction of the column label text.
+
+    ##### `"sideways-lr"`
+
+    For ltr scripts, content flows vertically from bottom to top. For rtl scripts, content flows
+    vertically from top to bottom. Characters are set sideways toward the left. Overflow lines are
+    appended to the right.
+
+    ##### `"sideways-rl"`
+
+    For ltr scripts, content flows vertically from top to bottom. For rtl scripts, content flows
+    vertically from bottom to top. Characters are set sideways toward the right. Overflow lines are
+    appended to the left.
+
+    ##### `"vertical-lr"`
+
+    Identical to `"sideways-rl"`, but overflow lines are appended to the right.
+
+    """
+    # Throw if `align` is not one of the four allowed values
+    if align not in (None, "left", "center", "right"):
+        raise ValueError("Align must be one of `None`, 'left', 'center', or 'right'.")
+
+    # Throw if `dir` is not one of the three allowed values
+    if dir not in ("sideways-lr", "sideways-rl", "vertical-lr"):
+        raise ValueError("Dir must be one of 'sideways-lr', 'sideways-rl', or 'vertical-lr'.")
+
+    # If user doesn't set an align value then align to the bottom, which is left in the case of
+    # "sideways-lr" and right in all other cases
+    if not align:
+        if dir == "sideways-lr":
+            align = "left"
+        else:
+            align = "right"
+
+    res = self.tab_style(
+        style=CellStyleCss(
+            f"writing-mode: {dir}; vertical-align: middle; text-align: {align}; padding: {padding}px 0px;"
+        ),
+        locations=LocColumnLabels(columns=columns),
+    )
+    return res

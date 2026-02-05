@@ -1,25 +1,32 @@
 from __future__ import annotations
 
-import itertools
-from typing import TYPE_CHECKING
+import copy
+import warnings
+from collections import defaultdict
+from dataclasses import dataclass
+from itertools import chain
+from typing import TYPE_CHECKING, Literal
 
+from typing_extensions import TypeAlias, TypedDict
+
+from ._boxhead import cols_label
 from ._gt_data import SpannerInfo, Spanners
 from ._locations import resolve_cols_c
 from ._tbl_data import SelectExpr
-from ._text import Text
-from ._utils import OrderedSet
+from ._text import BaseText, Text
+from ._utils import OrderedSet, _assert_list_is_subset
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
     from ._types import GTSelf
 
 
-SpannerMatrix = "list[dict[str, str | None]]"
+SpannerMatrix: TypeAlias = list[dict[str, "str | None"]]
 
 
 def tab_spanner(
     self: GTSelf,
-    label: str | Text,
+    label: str | BaseText,
     columns: SelectExpr = None,
     spanners: str | list[str] | None = None,
     level: int | None = None,
@@ -91,7 +98,7 @@ def tab_spanner(
     performance under a unifying label.
 
     ```{python}
-    from great_tables import GT
+    from great_tables import GT, md
     from great_tables.data import gtcars
 
     colnames = ["model", "hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"]
@@ -106,16 +113,60 @@ def tab_spanner(
     )
     ```
 
+    One cool feature of `tab_spanner()` is its support for multiple levels, allowing you to group
+    columns in various ways. For example, you can create three bottom spanners and a top spanner:
+
+    ```{python}
+    (
+        GT(gtcars_mini)
+        .tab_spanner(
+            label="hp",
+            columns=["hp", "hp_rpm"],
+        )
+        .tab_spanner(
+            label="trq",
+            columns=["trq", "trq_rpm"],
+        )
+        .tab_spanner(
+            label="mpg",
+            columns=["mpg_c", "mpg_h"],
+        )
+        .tab_spanner(
+            label="performance",
+            columns=["hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"],
+        )
+    )
+    ```
+
+    Did you notice that the spanners stacked automatically? What if you want granular control to
+    specify a spanner in a specific hierarchy? **Great Tables** has you covered. By using the `level=`
+    parameter, you can easily adjust the hierarchy of spanners. For example, by specifying `level=0`
+    for the last call of `tab_spanner()`, you can place that spanner at the bottom level (level `0`)
+    instead of the top level (level `2`).
+
+    ```{python}
+    (
+        GT(gtcars_mini)
+        .tab_spanner(
+            label="hp",
+            columns=["hp", "hp_rpm"],
+        )
+        .tab_spanner(
+            label="performance",
+            columns=["hp", "hp_rpm", "trq", "trq_rpm"],
+        )
+        .tab_spanner(
+            label="trq",
+            columns=["trq", "trq_rpm"],
+            level=0,
+        )
+    )
+    ```
+
     We can also use Markdown formatting for the spanner label. In this example, we'll use
     `gt.md("*Performance*")` to make the label italicized.
 
     ```{python}
-    from great_tables import GT, md
-    from great_tables.data import gtcars
-
-    colnames = ["model", "hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"]
-    gtcars_mini = gtcars[colnames].head(10)
-
     (
         GT(gtcars_mini)
         .tab_spanner(
@@ -172,10 +223,10 @@ def tab_spanner(
         raise NotImplementedError("columns/spanners must be specified")
 
     # get column names associated with selected spanners ----
-    _vars = [span.vars for span in self._spanners if span.spanner_id in spanner_ids]
-    spanner_column_names = OrderedSet(itertools.chain(*_vars))
+    _vars = (span.vars for span in self._spanners if span.spanner_id in spanner_ids)
+    spanner_column_names = OrderedSet(chain.from_iterable(_vars)).as_list()
 
-    column_names = list(OrderedSet([*selected_column_names, *spanner_column_names]))
+    column_names = OrderedSet([*selected_column_names, *spanner_column_names]).as_list()
     # combine columns names and those from spanners ----
 
     # get spanner level ----
@@ -189,7 +240,6 @@ def tab_spanner(
 
     # Handle units syntax in the label (e.g., "Density ({{ppl / mi^2}})")
     if isinstance(label, str):
-
         unitstr = UnitStr.from_str(label)
 
         if len(unitstr.units_str) == 1 and isinstance(unitstr.units_str[0], str):
@@ -197,7 +247,7 @@ def tab_spanner(
         else:
             new_label = unitstr
 
-    elif isinstance(label, Text):
+    elif isinstance(label, BaseText):
         new_label = label
 
     else:
@@ -223,8 +273,201 @@ def tab_spanner(
     return new_data
 
 
+class _SpannerArgs(TypedDict):
+    label: str
+    columns: list[str]
+
+
+@dataclass
+class SpannerTransformer:
+    """
+    https://github.com/posit-dev/great-tables/pull/604
+    """
+
+    delim: str = "."
+    split: Literal["first", "last"] = "last"
+    limit: int = -1
+    reverse: bool = False
+
+    @staticmethod
+    def split_string(
+        s: str,
+        delim: str = ".",
+        split: Literal["first", "last"] = "last",
+        limit: int = -1,
+        reverse: bool = False,
+    ) -> list[str]:
+        # TODO: better guard
+        f_split = str.split if split == "first" else str.rsplit
+
+        res = f_split(s, delim, limit)
+        if reverse:
+            return list(reversed(res))
+
+        return res
+
+    def split_columns(self, columns: list[str]) -> dict[str, list[str]]:
+        d: dict[str, list[str]] = {}
+        for col in columns:
+            col_names = self.split_string(col, self.delim, self.split, self.limit, self.reverse)
+            d[col] = col_names
+        return d
+
+    @staticmethod
+    def get_rectangle(splits: dict[str, list[str]]) -> list[dict[str, str | None]]:
+        """Return a dictionary mapping col name to label for each spanner level.
+
+        Note that columns without a spanner at a given level are marked with None.
+
+        Examples
+        --------
+        >>> src = {"a.b": ["a", "b"], "c": ["c", None]}
+        >>> SpannerTransformer().get_rectangle(src)
+        [{"a.b": "a", "c": "c"}, {"a.b": "b", "c": None}]
+
+
+        """
+        n_max = max(map(len, splits.values()))
+        framed = {k: [*v, *[None] * (n_max - len(v))] for k, v in splits.items()}
+
+        return [{k: v[ii] for k, v in framed.items()} for ii in range(n_max)]
+
+    @staticmethod
+    def spanner_groups(cols: dict[str, str | None]) -> list[_SpannerArgs]:
+        labels_to_cols: dict[str, list[str]] = defaultdict(list)
+        for k, v in cols.items():
+            if v is None:
+                continue
+
+            labels_to_cols[v].append(k)
+
+        return [_SpannerArgs(label=k, columns=v) for k, v in labels_to_cols.items()]
+
+
+def tab_spanner_delim(
+    self: GTSelf,
+    delim: str = ".",
+    columns: SelectExpr = None,
+    split: Literal["first", "last"] = "last",
+    limit: int = -1,
+    reverse: bool = False,
+) -> GTSelf:
+    """Insert spanners by splitting column names with a delimiter.
+
+    This generates one or more spanners (and sets column labels), by splitting the column name by
+    the specified delimiter text (delim) and placing the fragments from top to bottom (i.e.,
+    higher-level spanners to the column labels) or vice versa.
+
+    For example, the three side-by-side column names rating_1, rating_2, and rating_3 will
+    by default produce a spanner labeled "rating" above columns labeled "1", "2", and "3".
+
+    Parameters
+    ----------
+    delim
+        Delimiter for splitting, default to `"."`.
+
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+
+    split
+        Should the delimiter splitting occur from the "last" instance of the delim character or
+        from the "first"? The default here uses the "last" keyword, and splitting begins at the
+        last instance of the delimiter in the column name. This option only has some consequence
+        when there is a limit value applied that is lesser than the number of delimiter characters
+        for a given column name (i.e., number of splits is not the maximum possible number).
+
+    limit
+        Limit for splitting. An optional limit to place on the splitting procedure. The default -1
+        means that a column name will be split as many times are there are delimiter characters.
+        In other words, the default means there is no limit. If an integer value is given to limit
+        then splitting will cease at the iteration given by limit. This works in tandem with split
+        since we can adjust the number of splits from either the right side (split = "last") or
+        left side (split = "first") of the column name.
+
+    reverse
+        Should the order of split names be reversed? By default, this is `False`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's create a table table that includes the column names province.NL_ZH.pop, province.NL_ZH.gdp,
+    province.NL_NH.pop, and province.NL_NH.gdp, we can see that we have a naming system that has
+    a well-defined structure. We start with the more general to the left ("province") and move to
+    the more specific on the right ("pop"). If the columns are in the table in this exact order,
+    then things are in an ideal state as the eventual spanner labels will form from this neighboring.
+    When using tab_spanner_delim() here with delim set as "." we get the following table:
+
+    ```{python}
+    import polars as pl
+    import polars.selectors as cs
+    from great_tables import GT
+
+    data = {
+        "province.NL_ZH.pop": [1, 2, 3],
+        "province.NL_ZH.gdp": [4, 5, 6],
+        "province.NL_NH.pop": [7, 8, 9],
+        "province.NL_NH.gdp": [10, 11, 12],
+    }
+
+    gt = GT(pl.DataFrame(data))
+    gt.tab_spanner_delim()
+    ```
+
+    ```{python}
+    gt.tab_spanner_delim(limit=1)
+    ```
+
+    ```{python}
+    # the name "province" repeats in the styled table,
+    # because the first spanner is column names
+    gt.tab_spanner_delim(reverse=True)
+    ```
+
+
+    ```{python}
+    from great_tables.data import towny
+
+    lil_towny = (
+        pl.DataFrame(towny)
+        .select("name", cs.starts_with("population"))
+        .head()
+    )
+
+    GT(lil_towny).tab_spanner_delim(delim="_")
+    ```
+    """
+
+    sel_cols = resolve_cols_c(data=self, expr=columns)
+
+    # TODO: replace the not reverse
+    spter = SpannerTransformer(delim=delim, split=split, limit=limit, reverse=not reverse)
+
+    # TODO: validate, and wrap rect in dataclass
+    # since there are constraints, like level 0 (labels) can't be None
+    rect = spter.get_rectangle(spter.split_columns(sel_cols))
+
+    new_obj = copy.copy(self)
+
+    # for `first_col`, call `.cols_label()`
+    new_obj = cols_label(new_obj, {k: v for k, v in rect[0].items() if v is not None})
+
+    # for `other_cols`, call `.tab_spanner()`
+
+    for col_labels in rect[1:]:
+        spanner_cfgs = spter.spanner_groups(col_labels)
+        for cfg in spanner_cfgs:
+            new_obj = tab_spanner(new_obj, gather=False, **cfg)
+    return new_obj
+
+
 def _validate_sel_cols(sel_cols: list[str], col_vars: list[str]) -> None:
-    if not len(sel_cols):
+    if not sel_cols:
         raise Exception("No columns selected.")
     elif not all(col in col_vars for col in sel_cols):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
@@ -294,11 +537,11 @@ def cols_move(self: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
 
     col_vars = [col.var for col in self._boxhead]
 
-    if not len(sel_after):
+    if not sel_after:
         raise ValueError(f"Column {after} not found in table.")
     elif len(sel_after) > 1:
         raise ValueError(
-            f"Only 1 value should be supplied to `after`, recieved argument: {sel_after}"
+            f"Only 1 value should be supplied to `after`, received argument: {sel_after}"
         )
 
     _validate_sel_cols(sel_cols, col_vars)
@@ -307,7 +550,11 @@ def cols_move(self: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
     other_columns = [col for col in col_vars if col not in moving_columns]
 
     indx = other_columns.index(after)
-    final_vars = [*other_columns[: indx + 1], *moving_columns, *other_columns[indx + 1 :]]
+    final_vars = [
+        *other_columns[: indx + 1],
+        *moving_columns,
+        *other_columns[indx + 1 :],
+    ]
 
     new_boxhead = self._boxhead.reorder(final_vars)
     return self._replace(_boxhead=new_boxhead)
@@ -515,6 +762,65 @@ def cols_hide(self: GTSelf, columns: SelectExpr) -> GTSelf:
     return self._replace(_boxhead=new_boxhead)
 
 
+def cols_unhide(self: GTSelf, columns: SelectExpr) -> GTSelf:
+    """Unhide one or more columns.
+
+    The `cols_unhide()` method allows us to unhide one or more columns from appearing in the final
+    output table. This may be important in cases where the user obtains a `GT` instance with hidden
+    columns and there is motivation to reveal one or more of those.
+
+    Parameters
+    ----------
+    columns
+        The columns to unhide in the output display table. Can either be a single column name or a
+        series of column names provided in a list.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+
+    Examples
+    --------
+    For this example, we'll use a portion of the `countrypops` dataset to create a simple table.
+    We'll hide the `year` column using `cols_hide()` and then unhide it with `cols_unhide()`,
+    ensuring that the `year` column remains visible in the table.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import countrypops
+
+    countrypops_mini = countrypops.loc[countrypops["country_name"] == "Benin"][
+        ["country_name", "year", "population"]
+    ].tail(5)
+
+    GT(countrypops_mini).cols_hide(columns="year").cols_unhide(columns="year")
+    ```
+
+    See Also
+    --------
+    The counterpart of this function,
+    [`cols_hide()`](`great_tables.GT.cols_hide`), allows you to hide one or more columns.
+    """
+
+    # If `columns` is a string, convert it to a list
+    if isinstance(columns, str):
+        columns = [columns]
+
+    sel_cols = resolve_cols_c(data=self, expr=columns)
+
+    col_vars = [col.var for col in self._boxhead]
+
+    _validate_sel_cols(sel_cols, col_vars)
+
+    # New boxhead with hidden columns
+    new_boxhead = self._boxhead.set_cols_unhidden(sel_cols)
+
+    return self._replace(_boxhead=new_boxhead)
+
+
 def spanners_print_matrix(
     spanners: Spanners,
     boxhead: Boxhead,
@@ -555,12 +861,13 @@ def spanners_print_matrix(
     ]
 
     for span_ii, span in enumerate(crnt_spans):
+        label_matrix_spanner_level = label_matrix[span.spanner_level]
         for var in span.vars:
             # This if clause skips spanned columns that are not in the
             # boxhead vars we are planning to use (e.g. not in the visible ones
             # or in the stub).
-            if var in label_matrix[span.spanner_level]:
-                label_matrix[span.spanner_level][var] = spanner_reprs[span_ii]
+            if var in label_matrix_spanner_level:
+                label_matrix_spanner_level[var] = spanner_reprs[span_ii]
 
     # reverse order , so if you were to print it out, level 0 would appear on the bottom
     label_matrix.reverse()
@@ -581,7 +888,7 @@ def empty_spanner_matrix(
     return [{var: var for var in vars}], vars
 
 
-def cols_width(self: GTSelf, cases: dict[str, str]) -> GTSelf:
+def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str) -> GTSelf:
     """Set the widths of columns.
 
     Manual specifications of column widths can be performed using the `cols_width()` method. We
@@ -594,6 +901,10 @@ def cols_width(self: GTSelf, cases: dict[str, str]) -> GTSelf:
     cases
         A dictionary where the keys are column names and the values are the widths. Widths can be
         specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`).
+
+    **kwargs
+        Keyword arguments to specify column widths. Each keyword corresponds to a column name, with
+        its value indicating the width in pixels or percentages.
 
     Returns
     -------
@@ -610,8 +921,10 @@ def cols_width(self: GTSelf, cases: dict[str, str]) -> GTSelf:
     affected (their widths will be automatically set by their content).
 
     ```{python}
+    import warnings
     from great_tables import GT, exibble
 
+    warnings.filterwarnings("ignore")
     exibble_mini = exibble[["num", "char", "date", "datetime", "row"]].head(5)
 
     (
@@ -684,10 +997,32 @@ def cols_width(self: GTSelf, cases: dict[str, str]) -> GTSelf:
     column widths based on the content (and you wouldn't get the overflowing behavior seen in the
     previous example).
     """
+    cases = cases if cases is not None else {}
+    new_cases = cases | kwargs
+
+    # If nothing is provided, return `data` unchanged
+    if not new_cases:
+        return self
 
     curr_boxhead = self._boxhead
 
-    for col, width in cases.items():
+    # Get the full list of column names for the data
+    column_names = curr_boxhead._get_columns()
+    mod_columns = list(new_cases.keys())
+
+    # Stop function if any of the column names specified are not in `cols_width`
+    # msg: "All column names provided must exist in the input `.data` table."
+    _assert_list_is_subset(mod_columns, set_list=column_names)
+
+    for col, width in new_cases.items():
+        if not isinstance(width, str):
+            warnings.warn(
+                "Column widths must be a string."
+                f" Column `{col}` specified width using a {type(width)}."
+                " Coercing width to a string, but in the future this will raise an error.",
+                DeprecationWarning,
+            )
+            width = str(width)
         curr_boxhead = curr_boxhead._set_column_width(col, width)
 
     return self._replace(_boxhead=curr_boxhead)

@@ -178,7 +178,7 @@ Note two important pieces:
 
 Currently, Great Tables only supports styling the table body. In the (very near) future, other `loc.*` functions will allow styling other parts of the table (e.g. the title, column labels, etc..).
 
-For more details on styles, see [Styling the Table Body](/get-started/basic-styling.qmd) in the Geting Started guide.
+For more details on styles, see [Styling the Table Body](/get-started/basic-styling.qmd) in the Getting Started guide.
 
 
 ## Set column spanners

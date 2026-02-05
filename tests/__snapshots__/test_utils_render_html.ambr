@@ -35,6 +35,74 @@
   </tbody>
   '''
 # ---
+# name: test_groupname_with_no_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">A</th>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">0</td>
+      <td class="gt_row gt_right">22</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">B</th>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">33</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_loc_kitchen_sink
+  '''
+  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+  
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" style="HEADER TITLE">title</td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="HEADER SUBTITLE">subtitle</td>
+    </tr>
+  <tr class="gt_col_headings gt_spanner_row">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" style="STUBHEAD" scope="col" id="stubhead">stubhead</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" style="COLUMN_HEADER COLUMN_LABEL" scope="col" id="num">num</th>
+    <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" style="COLUMN_HEADER SPANNER_LABEL" scope="colgroup" id="spanner">
+      <span class="gt_column_spanner">spanner</span>
+    </th>
+  </tr>
+  <tr class="gt_col_headings">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="COLUMN_HEADER" scope="col" id="char">char</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="COLUMN_HEADER" scope="col" id="fctr">fctr</th>
+  </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="4" style="GROUP_LABEL">grp_a</th>
+    </tr>
+    <tr>
+      <th style="STUB ROW_LABEL" class="gt_row gt_left gt_stub">row_1</th>
+      <td style="BODY" class="gt_row gt_right">0.1111</td>
+      <td style="BODY" class="gt_row gt_left">apricot</td>
+      <td style="BODY" class="gt_row gt_left">one</td>
+    </tr>
+  </tbody>
+    <tfoot class="gt_sourcenotes">
+    
+    <tr>
+      <td class="gt_sourcenote" colspan="4" style="FOOTER SOURCE_NOTES">yo</td>
+    </tr>
+  
+  </tfoot>
+  
+  </table>
+  
+  </div>
+          
+  '''
+# ---
 # name: test_multiple_spanners_pads_for_stubhead_label
   '''
   <tr class="gt_col_headings gt_spanner_row">
@@ -126,6 +194,50 @@
   <tbody class="gt_table_body">
     <tr>
       <td class="gt_row gt_center">[1, 2]</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_row_group_as_column_with_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="2">A</th>
+      <th class="gt_row gt_left gt_stub">0</th>
+      <td class="gt_row gt_right">22</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">1</th>
+      <td class="gt_row gt_right">33</td>
+    </tr>
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="1">B</th>
+      <th class="gt_row gt_left gt_stub">2</th>
+      <td class="gt_row gt_right">44</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_row_group_as_column_without_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="2">A</th>
+      <td class="gt_row gt_right">0</td>
+      <td class="gt_row gt_right">22</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">33</td>
+    </tr>
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="1">B</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">44</td>
     </tr>
   </tbody>
   '''
@@ -334,5 +446,13 @@
       <td style="border-top: 1px solid #000000;border-bottom: 1px solid #000000;border-left: 1px solid #000000;border-right: 1px solid #000000;" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
+  '''
+# ---
+# name: test_table_id_used_in_headers
+  '''
+  <tr class="gt_col_headings">
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_id-Count">Count</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="test_id-Group-Label">Group Label</th>
+  </tr>
   '''
 # ---

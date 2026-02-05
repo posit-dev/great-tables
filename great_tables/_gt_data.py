@@ -1,21 +1,24 @@
 from __future__ import annotations
 
 import copy
-import re
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
-from typing import Any, Callable, Tuple, TypeVar, overload, TYPE_CHECKING
+from itertools import chain, product
+from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, TypeVar, overload
 
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self, TypeAlias, Union
+
+from ._helpers import GoogleFontImports
 
 # TODO: move this class somewhere else (even gt_data could work)
-from ._options import tab_options
 from ._styles import CellStyle
 from ._tbl_data import (
+    Agnostic,
     DataFrameLike,
     TblData,
     _get_cell,
+    _get_column_dtype,
     _set_cell,
     copy_data,
     create_empty_frame,
@@ -24,18 +27,37 @@ from ._tbl_data import (
     to_list,
     validate_frame,
 )
-from ._utils import _str_detect, OrderedSet
+from ._tbl_data_align import (
+    ALIGNMENT_MAP,
+    classify_dtype_for_alignment,
+    is_number_like_column,
+)
+from ._text import BaseText
+from ._utils import OrderedSet
 
 if TYPE_CHECKING:
-    from ._helpers import Md, Html, UnitStr, Text
+    from ._helpers import UnitStr
+    from ._locations import Loc
 
 T = TypeVar("T")
+
+
+# Frame Data ----
+# this is a reduced form of GTData, with just the DataFrame-like object
+class PFrameData(Protocol):
+    _tbl_data: TblData | Agnostic
+
+
+class FramelessData:
+    _tbl_data: Agnostic = Agnostic()
 
 
 # GT Data ----
 
 
-def _prep_gt(data, rowname_col, groupname_col, auto_align) -> Tuple[Stub, Boxhead, GroupRows]:
+def _prep_gt(
+    data, rowname_col: str | None, groupname_col: str | None, auto_align: bool
+) -> tuple[Stub, Boxhead]:
     # this function is similar to Stub._set_cols, except it differs in two ways.
     #   * it supports auto-alignment (an expensive operation)
     #   * it assumes its run on data initialization, whereas _set_cols may be run after
@@ -57,6 +79,8 @@ class GTData:
     _spanners: Spanners
     _heading: Heading
     _stubhead: Stubhead
+    _summary_rows: SummaryRows
+    _summary_rows_grand: SummaryRows
     _source_notes: SourceNotes
     _footnotes: Footnotes
     _styles: Styles
@@ -64,6 +88,7 @@ class GTData:
     _formats: Formats
     _substitutions: Formats
     _options: Options
+    _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
 
     def _replace(self, **kwargs: Any) -> Self:
@@ -103,6 +128,8 @@ class GTData:
             _spanners=Spanners([]),
             _heading=Heading(),
             _stubhead=None,
+            _summary_rows=SummaryRows(),
+            _summary_rows_grand=SummaryRows(_is_grand_summary=True),
             _source_notes=[],
             _footnotes=[],
             _styles=[],
@@ -110,6 +137,7 @@ class GTData:
             _formats=[],
             _substitutions=[],
             _options=options,
+            _google_font_imports=GoogleFontImports(),
         )
 
 
@@ -123,12 +151,12 @@ class _Sequence(Sequence[T]):
     def __getitem__(self, ii: int) -> T: ...
 
     @overload
-    def __getitem__(self, ii: slice) -> Self[T]: ...
+    def __getitem__(self, ii: slice) -> Self: ...
 
     @overload
-    def __getitem__(self, ii: list[int]) -> Self[T]: ...
+    def __getitem__(self, ii: list[int]) -> Self: ...
 
-    def __getitem__(self, ii: int | slice | list[int]) -> T | Self[T]:
+    def __getitem__(self, ii: int | slice | list[int]) -> T | Self:
         if isinstance(ii, slice):
             return self.__class__(self._d[ii])
         elif isinstance(ii, list):
@@ -136,10 +164,10 @@ class _Sequence(Sequence[T]):
 
         return self._d[ii]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._d)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{type(self).__name__}({self._d.__repr__()})"
 
     def __eq__(self, other: Any) -> bool:
@@ -172,11 +200,15 @@ class Body:
                 # TODO: I think that this is very inefficient with polars, so
                 # we could either accumulate results and set them per column, or
                 # could always use a pandas DataFrame inside Body?
-                _set_cell(self.body, row, col, result)
+                new_body = _set_cell(self.body, row, col, result)
+                if new_body is not None:
+                    # Some backends do not support inplace operations, but return a new dataframe
+                    # TODO: Consolidate the behaviour of _set_cell
+                    self.body = new_body
 
         return self
 
-    def copy(self):
+    def copy(self) -> Self:
         return self.__class__(copy_data(self.body))
 
     @classmethod
@@ -187,13 +219,7 @@ class Body:
 
 
 # Boxhead ----
-
-
-class ColumnAlignment(Enum):
-    left = auto()
-    center = auto()
-    right = auto()
-    justify = auto()
+ColumnAlignment: TypeAlias = Literal["left", "center", "right", "justify"]
 
 
 class ColInfoTypeEnum(Enum):
@@ -202,13 +228,18 @@ class ColInfoTypeEnum(Enum):
     row_group = auto()
     hidden = auto()
 
+    # A placeholder column created when there is no table data in the stub,
+    # but summary rows need to create one for their labels.  e.g. "mean" to indicate
+    # the row is mean summaries
+    summary_placeholder = auto()
+
 
 @dataclass(frozen=True)
 class ColInfo:
     # TODO: Make var readonly
     var: str
     type: ColInfoTypeEnum = ColInfoTypeEnum.default
-    column_label: str | Md | Html | UnitStr | None = None
+    column_label: str | BaseText | None = None
     column_align: ColumnAlignment | None = None
     column_width: str | None = None
 
@@ -231,7 +262,11 @@ class ColInfo:
 
     @property
     def is_stub(self) -> bool:
-        return self.type == ColInfoTypeEnum.stub or self.type == ColInfoTypeEnum.row_group
+        return self.type in (
+            ColInfoTypeEnum.stub,
+            ColInfoTypeEnum.row_group,
+            ColInfoTypeEnum.summary_placeholder,
+        )
 
     @property
     def defaulted_align(self) -> str:
@@ -239,6 +274,16 @@ class ColInfo:
 
 
 class Boxhead(_Sequence[ColInfo]):
+    """Map columns of the input table to their final rendered placement in the boxhead.
+
+    The boxhead is the part of the table that contains the column labels and the stub head. This
+    class is responsible for the following:
+
+    - rendered boxhead: column order, labels, alignment, and visibility
+    - rendered body: alignment of data values for each column
+    - rendered stub: this class records which input column is used for the stub
+    """
+
     _d: list[ColInfo]
 
     def __new__(
@@ -247,7 +292,7 @@ class Boxhead(_Sequence[ColInfo]):
         auto_align: bool = True,
         rowname_col: str | None = None,
         groupname_col: str | None = None,
-    ):
+    ) -> Self:
         obj = super().__new__(cls)
 
         if isinstance(data, list):
@@ -264,10 +309,19 @@ class Boxhead(_Sequence[ColInfo]):
 
         return obj
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        data: TblData | list[ColInfo],
+        auto_align: bool = True,
+        rowname_col: str | None = None,
+        groupname_col: str | None = None,
+    ):
         pass
 
-    def set_stub_cols(self, rowname_col: str | None, groupname_col: str | None):
+    def __getnewargs__(self):
+        return (self._d,)
+
+    def set_stub_cols(self, rowname_col: str | None, groupname_col: str | None) -> Self:
         # Note that None unsets a column
         # TODO: validate that rowname_col is in the boxhead
         if rowname_col is not None and rowname_col == groupname_col:
@@ -275,7 +329,9 @@ class Boxhead(_Sequence[ColInfo]):
                 "rowname_col and groupname_col may not be set to the same column. "
                 f"Received column name: `{rowname_col}`."
             )
+
         new_cols = []
+        stub_or_row_group = (ColInfoTypeEnum.stub, ColInfoTypeEnum.row_group)
         for col in self:
             # either set the col to be the new stub or row_group ----
             # note that this assumes col.var is always a string, so never equals None
@@ -284,7 +340,7 @@ class Boxhead(_Sequence[ColInfo]):
             elif col.var == groupname_col:
                 new_col = replace(col, type=ColInfoTypeEnum.row_group)
             # otherwise, unset the existing stub or row_group ----
-            elif col.type == ColInfoTypeEnum.stub or col.type == ColInfoTypeEnum.row_group:
+            elif col.type in stub_or_row_group:
                 new_col = replace(col, type=ColInfoTypeEnum.default)
             else:
                 new_col = replace(col)
@@ -293,22 +349,23 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self.__class__(new_cols)
 
-    def set_cols_hidden(self, colnames: list[str]):
+    def _set_cols_info_type(self, colnames: list[str], colinfo_type: ColInfoTypeEnum) -> Self:
         # TODO: validate that colname is in the boxhead
-        res: list[ColInfo] = []
-        for col in self._d:
-            if col.var in colnames:
-                new_col = replace(col, type=ColInfoTypeEnum.hidden)
-                res.append(new_col)
-            else:
-                res.append(col)
-
+        res: list[ColInfo] = [
+            replace(col, type=colinfo_type) if col.var in colnames else col for col in self._d
+        ]
         return self.__class__(res)
 
-    def align_from_data(self, data: TblData):
+    def set_cols_hidden(self, colnames: list[str]) -> Self:
+        return self._set_cols_info_type(colnames=colnames, colinfo_type=ColInfoTypeEnum.hidden)
+
+    def set_cols_unhidden(self, colnames: list[str]) -> Self:
+        return self._set_cols_info_type(colnames=colnames, colinfo_type=ColInfoTypeEnum.default)
+
+    def align_from_data(self, data: TblData) -> Self:
         """Updates align attribute in entries based on data types."""
 
-        # TODO: validate that data columns and ColInfo list correspond
+        # Validate that data columns and ColInfo list correspond
         if len(get_column_names(data)) != len(self._d):
             raise ValueError("Number of data columns must match length of Boxhead")
 
@@ -317,67 +374,24 @@ class Boxhead(_Sequence[ColInfo]):
         ):
             raise ValueError("Column names must match between data and Boxhead")
 
-        # Obtain a list of column classes for each of the column names by iterating
-        # through each of the columns and obtaining the type of the column from
-        # a Pandas DataFrame or a Polars DataFrame
-        col_classes = []
-        for col in get_column_names(data):
-            dtype = data[col].dtype
-
-            if dtype == "object":
-                # Check whether all values in 'object' columns are strings that
-                # for all intents and purpose are 'number-like'
-
-                col_vals = data[col].to_list()
-
-                # Detect whether all non-NA values in the column are 'number-like'
-                # through use of a regular expression
-                number_like_matches = []
-
-                for val in col_vals:
-                    if isinstance(val, str):
-                        number_like_matches.append(re.match("^[0-9 -/:\\.]*$", val))
-
-                # If all values in the column are 'number-like', then set the
-                # dtype to 'character-numeric'
-                if all(number_like_matches):
-                    dtype = "character-numeric"
-
-            col_classes.append(dtype)
-
-        # Get a list of `align` values by translating the column classes
+        # Classify each column and map to alignment
         align: list[str] = []
+        for col in get_column_names(data):
+            classification = classify_dtype_for_alignment(data, col)
 
-        for col_class in col_classes:
-            # Ensure that `col_class` is lowercase
-            col_class = str(col_class).lower()
+            # Special case: string columns with number-like content -> right-align
+            # This handles both "object" (pandas 2.x) and "str" (pandas 3.x) dtypes
+            if classification == "string":
+                dtype = str(_get_column_dtype(data, col)).lower()
+                if dtype in ("object", "str") and is_number_like_column(data, col):
+                    classification = "numeric"
 
-            # Translate the column classes to an alignment value of 'left', 'right', or 'center'
-            if col_class == "character-numeric":
-                align.append("right")
-            elif col_class == "object":
-                align.append("left")
-            elif col_class == "utf8":
-                align.append("left")
-            elif col_class == "string":
-                align.append("left")
-            elif _str_detect(col_class, "int") or _str_detect(col_class, "float"):
-                align.append("right")
-            elif _str_detect(col_class, "date"):
-                align.append("right")
-            elif _str_detect(col_class, "bool"):
-                align.append("center")
-            elif col_class == "factor":
-                align.append("center")
-            elif col_class == "list":
-                align.append("center")
-            else:
-                align.append("center")
+            align.append(ALIGNMENT_MAP[classification])
 
         # Set the alignment for each column in the boxhead
-        new_cols: list[ColInfo] = []
-        for col, alignment in zip(self._d, align):
-            new_cols.append(replace(col, column_align=alignment))
+        new_cols: list[ColInfo] = [
+            replace(col_info, column_align=alignment) for col_info, alignment in zip(self._d, align)
+        ]
 
         return self.__class__(new_cols)
 
@@ -393,39 +407,46 @@ class Boxhead(_Sequence[ColInfo]):
 
         return self[new_order]
 
+    def final_columns(self, options: Options) -> list[ColInfo]:
+        row_group_info = self._get_row_group_column()
+        row_group_column = (
+            [row_group_info] if row_group_info and options.row_group_as_column.value else []
+        )
+
+        stub_info = self._get_stub_column()
+        stub_column = [stub_info] if stub_info else []
+
+        default_columns = self._get_default_columns()
+
+        return [*row_group_column, *stub_column, *default_columns]
+
     # Get a list of columns
     def _get_columns(self) -> list[str]:
         return [x.var for x in self._d]
 
     # Get a list of column labels
-    def _get_column_labels(self) -> list[str | None]:
+    def _get_column_labels(self) -> list[str | BaseText | None]:
         return [x.column_label for x in self._d]
 
     # Set column label
-    def _set_column_labels(self, col_labels: dict[str, str | UnitStr | Text]) -> Self:
-        out_cols: list[ColInfo] = []
-        for x in self._d:
-            new_label = col_labels.get(x.var, None)
-            if new_label is not None:
-                out_cols.append(replace(x, column_label=new_label))
-            else:
-                out_cols.append(x)
+    def _set_column_labels(self, col_labels: dict[str, str | BaseText]) -> Self:
+        out_cols: list[ColInfo] = [
+            replace(x, column_label=col_labels[x.var]) if x.var in col_labels else x
+            for x in self._d
+        ]
 
         return self.__class__(out_cols)
 
     # Set column alignments
     def _set_column_aligns(self, columns: list[str], align: str) -> Self:
         set_cols = set(columns)
-        out_cols: list[ColInfo] = []
-        for x in self._d:
-            if x.var in set_cols:
-                out_cols.append(replace(x, column_align=align))
-            else:
-                out_cols.append(x)
+        out_cols: list[ColInfo] = [
+            replace(x, column_align=align) if x.var in set_cols else x for x in self._d
+        ]
 
         return self.__class__(out_cols)
 
-    # Get a list of column widths
+    # Get a list of all column widths
     def _get_column_widths(self) -> list[str | None]:
         return [x.column_width for x in self._d]
 
@@ -436,18 +457,14 @@ class Boxhead(_Sequence[ColInfo]):
 
     def _get_stub_column(self) -> ColInfo | None:
         stub_column = [x for x in self._d if x.type == ColInfoTypeEnum.stub]
-        if len(stub_column) == 0:
-            return None
-        return stub_column[0]
+        return None if not stub_column else stub_column[0]
 
     def _get_row_group_column(self) -> ColInfo | None:
         column = [x for x in self._d if x.type == ColInfoTypeEnum.row_group]
-        if len(column) == 0:
-            return None
-        return column[0]
+        return None if not column else column[0]
 
     # Get a list of visible column labels
-    def _get_default_column_labels(self) -> list[str | None]:
+    def _get_default_column_labels(self) -> list[Union[str, BaseText, None]]:
         default_column_labels = [
             x.column_label for x in self._d if x.type == ColInfoTypeEnum.default
         ]
@@ -470,13 +487,8 @@ class Boxhead(_Sequence[ColInfo]):
         if len(alignment) != 1:
             raise ValueError("Alignment must be length 1.")
 
-        if len(alignment) == 0:
-            raise ValueError(f"The `var` used ({var}) doesn't exist in the boxhead.")
-
         # Convert the single alignment value in the list to a string
-        alignment = str(alignment[0])
-
-        return alignment
+        return str(alignment[0])
 
     # Get the number of columns for the visible (not hidden) data; this
     # excludes the number of columns required for the table stub
@@ -485,10 +497,12 @@ class Boxhead(_Sequence[ColInfo]):
 
     # Obtain the number of visible columns in the built table; this should
     # account for the size of the stub in the final, built table
-    def _get_effective_number_of_columns(self, stub: Stub, options: Options) -> int:
+    def _get_effective_number_of_columns(
+        self, stub: Stub, has_summary_rows: bool, options: Options
+    ) -> int:
         n_data_cols = self._get_number_of_visible_data_columns()
 
-        stub_layout = stub._get_stub_layout(options=options)
+        stub_layout = stub._get_stub_layout(has_summary_rows=has_summary_rows, options=options)
         # Once the stub is defined in the package, we need to account
         # for the width of the stub at build time to fully obtain the number
         # of visible columns in the built table
@@ -497,18 +511,15 @@ class Boxhead(_Sequence[ColInfo]):
         return n_data_cols
 
     def _set_column_width(self, colname: str, width: str) -> Self:
-        out_cols: list[ColInfo] = []
-
         colnames = [x.var for x in self._d]
 
         if colname not in colnames:
             raise ValueError(f"Column name {colname} not found in table.")
 
-        for x in self._d:
-            if x.var == colname:
-                out_cols.append(replace(x, column_width=width))
-            else:
-                out_cols.append(x)
+        out_cols = [
+            replace(x, column_width=width) if xvar == colname else x
+            for x, xvar in zip(self._d, colnames)
+        ]
 
         return self.__class__(out_cols)
 
@@ -553,11 +564,13 @@ class Stub:
     group_rows: GroupRows
 
     def __init__(self, rows: list[RowInfo], group_rows: GroupRows):
-        self.rows = self._d = list(rows)
+        self.rows = self._d = rows.copy()
         self.group_rows = group_rows
 
     @classmethod
-    def from_data(cls, data, rowname_col: str | None = None, groupname_col: str | None = None):
+    def from_data(
+        cls, data, rowname_col: str | None = None, groupname_col: str | None = None
+    ) -> Self:
         # Obtain a list of row indices from the data and initialize
         # the `_stub` from that
         row_indices = list(range(n_rows(data)))
@@ -577,14 +590,16 @@ class Stub:
         row_info = [RowInfo(*i) for i in zip(row_indices, group_id, row_names)]
 
         # create groups, and ensure they're ordered by first observed
-        group_names = list(OrderedSet(row.group_id for row in row_info if row.group_id is not None))
+        group_names = OrderedSet(
+            row.group_id for row in row_info if row.group_id is not None
+        ).as_list()
         group_rows = GroupRows(data, group_key=groupname_col).reorder(group_names)
 
         return cls(row_info, group_rows)
 
     def _set_cols(
         self, data: TblData, boxhead: Boxhead, rowname_col: str | None, groupname_col: str | None
-    ) -> Tuple[Stub, Boxhead]:
+    ) -> tuple[Stub, Boxhead]:
         """Return a new Stub and Boxhead, with updated rowname and groupname columns.
 
         Note that None unsets a column.
@@ -604,11 +619,11 @@ class Stub:
 
         return self.__class__(new_rows, self.group_rows)
 
-    def order_groups(self, group_order: RowGroups):
+    def order_groups(self, group_order: RowGroups) -> Self:
         # TODO: validate
         return self.__class__(self.rows, self.group_rows.reorder(group_order))
 
-    def group_indices_map(self) -> list[tuple[int, str | None]]:
+    def group_indices_map(self) -> list[tuple[int, GroupRowInfo | None]]:
         return self.group_rows.indices_map(len(self.rows))
 
     def __iter__(self):
@@ -648,7 +663,7 @@ class Stub:
 
         return row_group_as_column
 
-    def _get_stub_layout(self, options: Options) -> list[str]:
+    def _get_stub_layout(self, has_summary_rows: bool, options: Options) -> list[str]:
         # Determine which stub components are potentially present as columns
         stub_rownames_is_column = "row_id" in self._get_stub_components()
         stub_groupnames_is_column = self._stub_group_names_has_column(options=options)
@@ -658,22 +673,20 @@ class Stub:
 
         # Resolve the layout of the stub (i.e., the roles of columns if present)
         if n_stub_cols == 0:
-            # TODO: If summary rows are present, we will use the `rowname` column
-            # # for the summary row labels
-            # if _summary_exists(data=data):
-            #     stub_layout = ["rowname"]
-            # else:
-            #     stub_layout = []
-
-            stub_layout = []
+            # If summary rows are present, we will use the `rowname` column
+            # for the summary row labels
+            if has_summary_rows:
+                stub_layout = ["rowname"]
+            else:
+                stub_layout = []
 
         else:
             stub_layout = [
                 label
-                for label, condition in [
+                for label, condition in (
                     ("group_label", stub_groupnames_is_column),
                     ("rowname", stub_rownames_is_column),
-                ]
+                )
                 if condition
             ]
 
@@ -693,7 +706,7 @@ class GroupRowInfo:
     indices: list[int] = field(default_factory=list)
     # row_start: int | None = None
     # row_end: int | None = None
-    has_summary_rows: bool = False
+    # has_summary_rows: bool = False  # TODO: remove
     summary_row_side: str | None = None
 
     def defaulted_label(self) -> str:
@@ -720,25 +733,23 @@ class GroupRows(_Sequence[GroupRowInfo]):
         else:
             from ._tbl_data import group_splits
 
-            self._d = []
-            for group_id, ind in group_splits(data, group_key=group_key).items():
-                self._d.append(GroupRowInfo(group_id, indices=ind))
+            self._d = [
+                GroupRowInfo(group_id, indices=ind)
+                for group_id, ind in group_splits(data, group_key=group_key).items()
+            ]
 
     def reorder(self, group_ids: list[str | MISSING_GROUP]) -> Self:
         # TODO: validate all group_ids are in data
-        non_missing = [g for g in group_ids if not isinstance(g, MISSING_GROUP)]
+        non_missing = (g for g in group_ids if not isinstance(g, MISSING_GROUP))
         crnt_order = {grp.group_id: ii for ii, grp in enumerate(self)}
 
         set_gids = set(group_ids)
-        missing_groups = [grp.group_id for grp in self if grp.group_id not in set_gids]
-        reordered = [
-            *[self[crnt_order[g]] for g in non_missing],
-            *[self[crnt_order[g]] for g in missing_groups],
-        ]
+        missing_groups = (grp.group_id for grp in self if grp.group_id not in set_gids)
+        reordered = [self[crnt_order[g]] for g in chain(non_missing, missing_groups)]
 
         return self.__class__(reordered)
 
-    def indices_map(self, n: int) -> list[tuple[int, str | None]]:
+    def indices_map(self, n: int) -> list[tuple[int, GroupRowInfo | None]]:
         """Return pairs of row index, group label for all rows in data.
 
         Note that when no groupings exist, n is used to return from range(n).
@@ -746,10 +757,11 @@ class GroupRows(_Sequence[GroupRowInfo]):
         distinct from MISSING_GROUP (which may currently be unused?).
 
         """
-
-        if not len(self._d):
-            return [(ii, None) for ii in range(n)]
-        return [(ind, info.defaulted_label()) for info in self for ind in info.indices]
+        return (
+            [(ii, None) for ii in range(n)]
+            if not self._d
+            else [(ind, info) for info in self for ind in info.indices]
+        )
 
 
 # Spanners ----
@@ -759,13 +771,13 @@ class GroupRows(_Sequence[GroupRowInfo]):
 class SpannerInfo:
     spanner_id: str
     spanner_level: int
-    spanner_label: str | Text | UnitStr | None = None
+    spanner_label: str | BaseText | UnitStr | None = None
     spanner_units: str | None = None
     spanner_pattern: str | None = None
     vars: list[str] = field(default_factory=list)
     built: str | None = None
 
-    def built_label(self) -> str:
+    def built_label(self) -> str | BaseText | UnitStr:
         """Return a list of spanner labels that have been built."""
         label = self.built if self.built is not None else self.spanner_label
         if label is None:
@@ -827,8 +839,8 @@ class Spanners(_Sequence[SpannerInfo]):
 
 @dataclass(frozen=True)
 class Heading:
-    title: str | None = None
-    subtitle: str | None = None
+    title: str | BaseText | None = None
+    subtitle: str | BaseText | None = None
     preheader: str | list[str] | None = None
 
 
@@ -850,7 +862,7 @@ class FootnotePlacement(Enum):
 
 @dataclass(frozen=True)
 class FootnoteInfo:
-    locname: str | None = None
+    locname: Loc | None = None
     grpname: str | None = None
     colname: str | None = None
     locnum: int | None = None
@@ -867,8 +879,7 @@ Footnotes: TypeAlias = list[FootnoteInfo]
 
 @dataclass(frozen=True)
 class StyleInfo:
-    locname: str
-    locnum: int
+    locname: Loc
     grpname: str | None = None
     colname: str | None = None
     rownum: int | None = None
@@ -905,13 +916,12 @@ class FormatFns:
     default: FormatFn | None
 
     def __init__(self, **kwargs: FormatFn):
-        for format in ["html", "latex", "rtf", "default"]:
+        for format in ("html", "latex", "rtf", "default"):
             if fmt := kwargs.get(format):
                 setattr(self, format, fmt)
 
 
 class CellSubset:
-
     def resolve(self) -> list[tuple[str, int]]:
         raise NotImplementedError("Not implemented")
 
@@ -924,8 +934,8 @@ class CellRectangle(CellSubset):
         self.cols = cols
         self.rows = rows
 
-    def resolve(self):
-        return list((col, row) for col in self.cols for row in self.rows)
+    def resolve(self) -> list[tuple[str, int]]:
+        return list(product(self.cols, self.rows))
 
 
 class FormatInfo:
@@ -947,6 +957,162 @@ class FormatInfo:
 #     def __init__(self):
 #         pass
 Formats = list
+
+
+# Summary Rows ---
+
+# This can't conflict with actual group ids since we have a
+# separate data structure for grand summary row infos
+
+
+@dataclass(frozen=True)
+class SummaryRowInfo:
+    """Information about a single summary row"""
+
+    id: str
+    label: str  # For now, label and id are identical
+    # The motivation for values as a dict is to ensure cols_* functions don't have to consider
+    # the implications on existing SummaryRowInfo objects
+    values: dict[str, Any]  # TODO: consider datatype, series?
+    side: Literal["top", "bottom"]  # TODO: consider enum
+
+
+# TODO: refactor into a collection/dataclass wrapping the list part
+#       put most of the methods for filtering, adding, replacing there.
+#       Make immutable to avoid potential bugs.
+class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
+    """A sequence of summary rows
+
+    The following structures should always be true about summary rows:
+        - The id is also the label (often the same as the function name)
+        - There is at most 1 row for each group and id pairing
+        - If a summary row is added and no row exists for that group and id, add it
+        - If a summary row is added and a row exists for that group and id pairing,
+            then replace all cells (in values) that are numeric in the new version
+    """
+
+    _d: dict[str, list[SummaryRowInfo]]
+    _is_grand_summary: bool
+
+    LIST_CLS = list
+    GRAND_SUMMARY_KEY = "grand"
+
+    def __init__(
+        self,
+        entries: dict[str, list[SummaryRowInfo]] | None = None,
+        _is_grand_summary: bool = False,
+    ):
+        if entries is None:
+            self._d = {}
+        else:
+            self._d = entries
+        self._is_grand_summary = _is_grand_summary
+
+    def __bool__(self) -> bool:
+        """Return True if there are any summary rows, False otherwise."""
+        return len(self._d) > 0
+
+    def __getitem__(self, key: str | None) -> list[SummaryRowInfo]:
+        if self._is_grand_summary:
+            key = SummaryRows.GRAND_SUMMARY_KEY
+
+        if not key:
+            raise KeyError("Summary row group key must not be None for group summary rows.")
+
+        if key not in self._d:
+            raise KeyError(f"Group '{key}' not found in summary rows.")
+
+        return self.LIST_CLS(self._d[key])
+
+    def define(self, **kwargs: list[SummaryRowInfo]) -> Self:
+        """Define multiple summary row groups at once, replacing any existing groups."""
+
+        new_d = dict(self._d)
+        for group_id, summary_rows in kwargs.items():
+            new_d[group_id] = summary_rows
+
+        return self.__class__(new_d, _is_grand_summary=self._is_grand_summary)
+
+    def add_summary_row(self, summary_row: SummaryRowInfo, group_id: str | None = None) -> Self:
+        """Add a summary row following the merging rules in the class docstring."""
+
+        # TODO: group_id can be None for grand summary configuration, but can't be none
+        # for regular summary configuration (a bit double barrelled).
+        if self._is_grand_summary and group_id is None:
+            group_id = SummaryRows.GRAND_SUMMARY_KEY
+        elif group_id is None:
+            raise TypeError("group_id must be provided for group summary rows.")
+
+        existing_group = self.get(group_id)
+
+        if not existing_group:
+            return self.define(**{group_id: [summary_row]})
+
+        else:
+            existing_index = next(
+                (ii for ii, crnt_row in enumerate(existing_group) if crnt_row.id == summary_row.id),
+                None,
+            )
+
+            new_rows = self.LIST_CLS(existing_group)
+
+            if existing_index is None:
+                # No existing row for this group and id, add it
+                new_rows.append(summary_row)
+            else:
+                # Replace existing row, but merge numeric values from new version
+                existing_row = new_rows[existing_index]
+
+                # Start with existing values
+                merged_values = existing_row.values.copy()
+
+                # Replace with numeric values from new row
+                for key, new_value in summary_row.values.items():
+                    merged_values[key] = new_value
+
+                # Create merged row with new row's properties but merged values
+                merged_row = SummaryRowInfo(
+                    id=summary_row.id,
+                    label=summary_row.label,
+                    values=merged_values,
+                    # Setting this to existing row instead of summary_row means original
+                    # side is fixed by whatever side is first assigned to this row
+                    side=existing_row.side,
+                )
+
+                new_rows[existing_index] = merged_row
+
+        return self.define(**{group_id: new_rows})
+
+    def get_summary_rows(
+        self, group_id: str | None = None, side: str | None = None
+    ) -> list[SummaryRowInfo]:
+        """Get list of summary rows for that group. If side is None, do not filter by side.
+        Sorts result with 'top' side first, then 'bottom'."""
+
+        result: list[SummaryRowInfo] = []
+
+        if self._is_grand_summary:
+            group_id = SummaryRows.GRAND_SUMMARY_KEY
+        elif group_id is None:
+            raise TypeError("group_id must be provided for group summary rows.")
+
+        summary_row_group = self.get(group_id)
+
+        if summary_row_group:
+            for summary_row in summary_row_group:
+                if side is None or summary_row.side == side:
+                    result.append(summary_row)
+
+        # Sort: 'top' first, then 'bottom'
+        result.sort(key=lambda r: 0 if r.side == "top" else 1)  # TODO: modify if enum for side
+        return result
+
+    def __iter__(self):
+        raise NotImplementedError
+
+    def __len__(self):
+        raise NotImplementedError
 
 
 # Options ----
@@ -984,7 +1150,7 @@ class Options:
     table_margin_left: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
     table_margin_right: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
     table_background_color: OptionsInfo = OptionsInfo(True, "table", "value", "#FFFFFF")
-    # table_additional_css: OptionsInfo = OptionsInfo(False, "table", "values", None)
+    table_additional_css: OptionsInfo = OptionsInfo(False, "table", "values", [])
     table_font_names: OptionsInfo = OptionsInfo(False, "table", "values", default_fonts_list)
     table_font_size: OptionsInfo = OptionsInfo(True, "table", "px", "16px")
     table_font_weight: OptionsInfo = OptionsInfo(True, "table", "value", "normal")
@@ -1107,25 +1273,25 @@ class Options:
     # summary_row_border_style: OptionsInfo = OptionsInfo(True, "summary_row", "value", "solid")
     # summary_row_border_width: OptionsInfo = OptionsInfo(True, "summary_row", "px", "2px")
     # summary_row_border_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", "#D3D3D3")
-    # grand_summary_row_padding: OptionsInfo = OptionsInfo(True, "grand_summary_row", "px", "8px")
-    # grand_summary_row_padding_horizontal: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "px", "5px"
-    # )
-    # grand_summary_row_background_color: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", None
-    # )
-    # grand_summary_row_text_transform: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", "inherit"
-    # )
-    # grand_summary_row_border_style: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", "double"
-    # )
-    # grand_summary_row_border_width: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "px", "6px"
-    # )
-    # grand_summary_row_border_color: OptionsInfo = OptionsInfo(
-    #    True, "grand_summary_row", "value", "#D3D3D3"
-    # )
+    grand_summary_row_padding: OptionsInfo = OptionsInfo(True, "grand_summary_row", "px", "8px")
+    grand_summary_row_padding_horizontal: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "px", "5px"
+    )
+    grand_summary_row_background_color: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", None
+    )
+    grand_summary_row_text_transform: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "inherit"
+    )
+    grand_summary_row_border_style: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "double"
+    )
+    grand_summary_row_border_width: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "px", "6px"
+    )
+    grand_summary_row_border_color: OptionsInfo = OptionsInfo(
+        True, "grand_summary_row", "value", "#D3D3D3"
+    )
     # footnotes_font_size: OptionsInfo = OptionsInfo(True, "footnotes", "px", "90%")
     # footnotes_padding: OptionsInfo = OptionsInfo(True, "footnotes", "px", "4px")
     # footnotes_padding_horizontal: OptionsInfo = OptionsInfo(True, "footnotes", "px", "5px")
@@ -1158,11 +1324,9 @@ class Options:
     )
     source_notes_multiline: OptionsInfo = OptionsInfo(False, "source_notes", "boolean", True)
     source_notes_sep: OptionsInfo = OptionsInfo(False, "source_notes", "value", " ")
-    # row_striping_background_color: OptionsInfo = OptionsInfo(
-    #     True, "row", "value", "rgba(128,128,128,0.05)"
-    # )
-    # row_striping_include_stub: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
-    # row_striping_include_table_body: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
+    row_striping_background_color: OptionsInfo = OptionsInfo(True, "row", "value", "#F4F4F4")
+    row_striping_include_stub: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
+    row_striping_include_table_body: OptionsInfo = OptionsInfo(False, "row", "boolean", False)
     container_width: OptionsInfo = OptionsInfo(False, "container", "px", "auto")
     container_height: OptionsInfo = OptionsInfo(False, "container", "px", "auto")
     container_padding_x: OptionsInfo = OptionsInfo(False, "container", "px", "0px")
@@ -1183,6 +1347,9 @@ class Options:
     # page_footer_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
     quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
     quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
+
+    def __getitem__(self, k: str) -> Any:
+        return getattr(self, k).value
 
     def _get_all_options_keys(self) -> list[str | None]:
         return [x.parameter for x in self._options.values()]

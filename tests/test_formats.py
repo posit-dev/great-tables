@@ -9,6 +9,7 @@ from great_tables import GT, _locale
 from great_tables._data_color.base import _html_color
 from great_tables._formats import (
     FmtImage,
+    _check_colors,
     _expand_exponential_to_full_string,
     _format_number_n_sigfig,
     _format_number_fixed_decimals,
@@ -68,6 +69,36 @@ def test_format_snap(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
+def test_format_accounting_snap(snapshot):
+    df = pl.DataFrame(
+        {
+            "number": [-1.2, 23.6],
+            "percent": [-0.0523, 0.363],
+            "integer": [-23213, 2323],
+            "currency": [-24334.23, 7323.253],
+        }
+    ).with_columns(
+        number_acc=pl.col("number"),
+        percent_acc=pl.col("percent"),
+        integer_acc=pl.col("integer"),
+        currency_acc=pl.col("currency"),
+    )
+
+    new_gt = (
+        GT(df)
+        .fmt_number(columns="number")
+        .fmt_percent(columns="percent")
+        .fmt_integer(columns="integer")
+        .fmt_currency(columns="currency")
+        .fmt_number(columns="number_acc", accounting=True)
+        .fmt_percent(columns="percent_acc", accounting=True)
+        .fmt_integer(columns="integer_acc", accounting=True)
+        .fmt_currency(columns="currency_acc", accounting=True)
+    )
+
+    assert_repr_html(snapshot, new_gt)
+
+
 def test_format_repr_snap(snapshot):
     new_gt = (
         GT(exibble)
@@ -94,7 +125,7 @@ def test_format_col_selection_multi(expr: Any):
 
 
 @pytest.mark.parametrize("expr", [1, pl.selectors.by_name("y"), "y"])
-def test_formt_col_selection_single(expr: Any):
+def test_format_col_selection_single(expr: Any):
     df = pd.DataFrame({"x": [1], "y": [2], "z": [3]})
 
     if isinstance(expr, pl.Expr):
@@ -762,7 +793,7 @@ def test_fmt_number_n_sigfig(n_sigfig: int, x_out: str):
 
 
 # TODO: Expect that the `drop_trailing_zeros` argument is ignored when formatting
-# to a fixed number of signficant digits
+# to a fixed number of significant digits
 
 
 @pytest.mark.parametrize(
@@ -1086,6 +1117,207 @@ def test_format_number_with_sep_dec_marks():
 
 
 # ------------------------------------------------------------------------------
+# Tests of `fmt_scientific()`
+# ------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "fmt_scientific_kwargs,x_in,x_out",
+    [
+        (dict(decimals=2), [123456789], ["1.23 × 10<sup style='font-size: 65%;'>8</sup>"]),
+        (dict(exp_style="low-ten"), [123456789], ["1.23<sub style='font-size: 65%;'>10</sub>08"]),
+        (dict(exp_style="E"), [123456789, 123123123123], ["1.23E08", "1.23E11"]),
+        (dict(exp_style="E1"), [123456789, 123123123123], ["1.23E8", "1.23E11"]),
+        (
+            dict(exp_style="E", force_sign_n=True),
+            [123456789, 123123123123],
+            ["1.23E+08", "1.23E+11"],
+        ),
+        (
+            dict(exp_style="E1", force_sign_n=True),
+            [123456789, 123123123123],
+            ["1.23E+8", "1.23E+11"],
+        ),
+        (
+            dict(exp_style="E", n_sigfig=5),
+            [123456789, 123123123123],
+            ["1.2346E08", "1.2312E11"],
+        ),
+    ],
+)
+def test_fmt_scientific_case(
+    fmt_scientific_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]
+):
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_scientific(columns="x", **fmt_scientific_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+# ------------------------------------------------------------------------------
+# Tests of `fmt_engineering()`
+# ------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "fmt_engineering_kwargs,x_in,x_out",
+    [
+        # Basic decimals=2: test key ranges (very large, large, medium, small, very small)
+        (
+            dict(decimals=2),
+            [
+                829300232923103939802.4,  # Very large (10^18)
+                2323435.1,  # Medium large (10^6)
+                1000.001,  # Boundary (10^3)
+                10.00001,  # No exponent needed
+                0.12345,  # Small (10^-3)
+                0.0000123456,  # Very small (10^-6)
+            ],
+            [
+                "829.30 × 10<sup style='font-size: 65%;'>18</sup>",
+                "2.32 × 10<sup style='font-size: 65%;'>6</sup>",
+                "1.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "10.00",
+                "123.45 × 10<sup style='font-size: 65%;'>−3</sup>",
+                "12.35 × 10<sup style='font-size: 65%;'>−6</sup>",
+            ],
+        ),
+        # Negative values
+        (
+            dict(decimals=2),
+            [-50000.01, -10.00001, -0.12345],
+            [
+                "−50.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "−10.00",
+                "−123.45 × 10<sup style='font-size: 65%;'>−3</sup>",
+            ],
+        ),
+        # exp_style="E" format
+        (
+            dict(decimals=2, exp_style="E"),
+            [-3.49e13, 0, 82794],
+            [
+                "−34.90E12",
+                "0.00E00",
+                "82.79E03",
+            ],
+        ),
+        # exp_style="E1" (single digit exponent)
+        (
+            dict(decimals=2, exp_style="E1"),
+            [-3453, 0, 0.00007534],
+            [
+                "−3.45E3",
+                "0.00E0",
+                "75.34E−6",
+            ],
+        ),
+        # force_sign_m: positive/negative/zero
+        (
+            dict(decimals=2, force_sign_m=True),
+            [-3453, 0, 82794],
+            [
+                "−3.45 × 10<sup style='font-size: 65%;'>3</sup>",
+                "0.00",
+                "+82.79 × 10<sup style='font-size: 65%;'>3</sup>",
+            ],
+        ),
+        # force_sign_n: positive/negative exponents
+        (
+            dict(decimals=2, force_sign_n=True),
+            [-0.000234, 82794],
+            [
+                "−234.00 × 10<sup style='font-size: 65%;'>−6</sup>",
+                "82.79 × 10<sup style='font-size: 65%;'>+3</sup>",
+            ],
+        ),
+        # force_sign_m and force_sign_n combined
+        (
+            dict(decimals=2, force_sign_m=True, force_sign_n=True),
+            [-3453, 0, 82794],
+            [
+                "−3.45 × 10<sup style='font-size: 65%;'>+3</sup>",
+                "0.00",
+                "+82.79 × 10<sup style='font-size: 65%;'>+3</sup>",
+            ],
+        ),
+        # pattern
+        (
+            dict(decimals=2, pattern="a {x} b"),
+            [1234.5, 0.000123],
+            [
+                "a 1.23 × 10<sup style='font-size: 65%;'>3</sup> b",
+                "a 123.00 × 10<sup style='font-size: 65%;'>−6</sup> b",
+            ],
+        ),
+        # scale_by
+        (
+            dict(decimals=2, scale_by=1 / 1000),
+            [492032183020.5, 50000.01],
+            [
+                "492.03 × 10<sup style='font-size: 65%;'>6</sup>",
+                "50.00",
+            ],
+        ),
+        # Extreme values with higher precision
+        (
+            dict(decimals=5),
+            [-1.5e200, 2.5, 3.5e200],
+            [
+                "−150.00000 × 10<sup style='font-size: 65%;'>198</sup>",
+                "2.50000",
+                "350.00000 × 10<sup style='font-size: 65%;'>198</sup>",
+            ],
+        ),
+    ],
+)
+def test_fmt_engineering_case(
+    fmt_engineering_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]
+):
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_engineering(columns="x", **fmt_engineering_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x == x_out
+
+
+def test_fmt_engineering_with_missing_values():
+    df = pd.DataFrame({"x": [1234.5, None, float("nan"), 0.000123]})
+    gt = GT(df).fmt_engineering(columns="x", decimals=2)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[1] == "<NA>"
+    assert x[2] == "<NA>"
+
+
+def test_fmt_engineering_exp_style_force_sign():
+    df = pd.DataFrame({"x": [1e6, 1e3, 1, 1e-3, 1e-6]})
+    gt = GT(df).fmt_engineering(columns="x", decimals=2, exp_style="E1", force_sign_n=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x == [
+        "1.00E+6",
+        "1.00E+3",
+        "1.00E+0",
+        "1.00E−3",
+        "1.00E−6",
+    ]
+
+
+def test_fmt_engineering_latex_output():
+    df = pd.DataFrame({"x": [1234.5, 0.000123]})
+    gt = GT(df).fmt_engineering(columns="x", decimals=2, pattern="Value: {x} units")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+
+    assert "Value:" in x[0]
+    assert "units" in x[0]
+    assert "1.23" in x[0]
+    assert "Value:" in x[1]
+    assert "units" in x[1]
+    assert "123.00" in x[1]
+
+
+# ------------------------------------------------------------------------------
 # Tests of `fmt_currency()`
 # ------------------------------------------------------------------------------
 
@@ -1104,6 +1336,7 @@ FMT_CURRENCY_CASES: list[tuple[dict[str, Any], list[str]]] = [
     (dict(placement="right"), ["1,234,567.00$", "−5,432.37$"]),
     (dict(placement="right", incl_space=True), ["1,234,567.00 $", "−5,432.37 $"]),
     (dict(incl_space=True), ["$ 1,234,567.00", "−$ 5,432.37"]),
+    (dict(compact=True), ["$1.23M", "−$5.43K"]),
 ]
 
 
@@ -1116,7 +1349,6 @@ def test_fmt_currency_case(fmt_currency_kwargs: dict[str, Any], x_out: list[str]
 
 
 def test_fmt_currency_force_sign():
-
     df = pd.DataFrame({"x": [-234.654, -0.0001, 0, 2352.23, 12354.3, 9939293923.23]})
 
     gt = GT(df).fmt_currency(columns="x", force_sign=True)
@@ -1139,35 +1371,30 @@ df_fmt_time = pd.DataFrame({"x": ["10:59:59", "13:23:59", "23:15"]})
 
 
 def test_fmt_time_iso():
-
     gt = GT(df_fmt_time).fmt_time(columns="x", time_style="iso")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["10:59:59", "13:23:59", "23:15:00"]
 
 
 def test_fmt_time_iso_short():
-
     gt = GT(df_fmt_time).fmt_time(columns="x", time_style="iso-short")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["10:59", "13:23", "23:15"]
 
 
 def test_fmt_time_h_m_s_p():
-
     gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_m_s_p")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["10:59:59 AM", "1:23:59 PM", "11:15:00 PM"]
 
 
 def test_fmt_time_h_m_p():
-
     gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_m_p")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["10:59 AM", "1:23 PM", "11:15 PM"]
 
 
 def test_fmt_time_h_p():
-
     gt = GT(df_fmt_time).fmt_time(columns="x", time_style="h_p")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["10 AM", "1 PM", "11 PM"]
@@ -1179,7 +1406,6 @@ def test_fmt_time_h_p():
 
 
 def test_fmt_date():
-
     df = pd.DataFrame(
         {
             "x": [
@@ -1209,7 +1435,6 @@ def test_fmt_date():
 
 
 def test_fmt_datetime():
-
     df = pd.DataFrame(
         {
             "x": [
@@ -1239,8 +1464,29 @@ def test_fmt_datetime():
     ]
 
 
-def test_fmt_datetime_bad_date_style_raises():
+def test_fmt_datetime_format_str():
+    df = pd.DataFrame(
+        {
+            "x": [
+                "2013-05-15 23:15",
+                "2020-05-20",
+            ],
+        }
+    )
 
+    gt = GT(df).fmt_datetime(
+        columns="x",
+        format_str="%A, %B %d, %Y at %I:%M %p",
+    )
+
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == [
+        "Wednesday, May 15, 2013 at 11:15 PM",
+        "Wednesday, May 20, 2020 at 12:00 AM",
+    ]
+
+
+def test_fmt_datetime_bad_date_style_raises():
     df = pd.DataFrame(
         {
             "x": [
@@ -1256,6 +1502,121 @@ def test_fmt_datetime_bad_date_style_raises():
         )
 
     assert "date_style must be one of:" in exc_info.value.args[0]
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_tf()`
+# ------------------------------------------------------------------------------
+
+FMT_TF_CASES: list[tuple[dict[str, Any], list[str]]] = [
+    (dict(), ["true", "false", "None"]),
+    (dict(tf_style="arrows"), ["↑", "↓", "None"]),
+    (dict(tf_style="yes-no"), ["yes", "no", "None"]),
+    (
+        dict(colors=["green"]),
+        [
+            '<span style="color:green">true</span>',
+            '<span style="color:green">false</span>',
+            "None",
+        ],
+    ),
+    (
+        dict(colors="blue"),
+        [
+            '<span style="color:blue">true</span>',
+            '<span style="color:blue">false</span>',
+            "None",
+        ],
+    ),
+    (
+        dict(colors=["green", "red"]),
+        [
+            '<span style="color:green">true</span>',
+            '<span style="color:red">false</span>',
+            "None",
+        ],
+    ),
+    (
+        dict(na_val="NA", colors=["green", "red", "blue"]),
+        [
+            '<span style="color:green">true</span>',
+            '<span style="color:red">false</span>',
+            '<span style="color:blue">NA</span>',
+        ],
+    ),
+    (dict(tf_style="yes-no", true_val="YES"), ["YES", "no", "None"]),
+    (dict(tf_style="yes-no", false_val="NO"), ["yes", "NO", "None"]),
+    (dict(tf_style="yes-no", na_val="NA"), ["yes", "no", "NA"]),
+    (dict(pattern="{x}!"), ["true!", "false!", "None"]),
+]
+
+
+@pytest.mark.parametrize("fmt_tf_kwargs,x_out", FMT_TF_CASES)
+def test_fmt_tf_case(fmt_tf_kwargs: dict[str, Any], x_out: list[str]):
+    df = pl.DataFrame({"x": [True, False, None]})
+    gt = GT(df).fmt_tf(columns="x", **fmt_tf_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+def test_fmt_tf_column_invalid_type():
+    df = pl.DataFrame({"x": [0, 1, 2]})
+    gt = GT(df).fmt_tf(columns="x")
+
+    with pytest.raises(ValueError) as exc_info:
+        # This triggers the actual formatting by accessing the formatted values
+        _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "Expected boolean value or NA, but got" in exc_info.value.args[0]
+
+
+def test_fmt_tf_invalid_na_val_type():
+    df = pl.DataFrame({"x": [True, False, None]})
+    gt = GT(df).fmt_tf(columns="x", na_val=123)  # Invalid: numeric na_val
+
+    with pytest.raises(ValueError, match="The `na_val` argument must be a string or None"):
+        _get_column_of_values(gt, column_name="x", context="html")
+
+
+def test_fmt_tf_skip_formatting_na_without_na_val():
+    df = pl.DataFrame({"x": [True, False, None]})
+    gt = GT(df).fmt_tf(columns="x")  # No na_val provided
+
+    # NA vals should be skipped (where the original value is preserved)
+    result = _get_column_of_values(gt, column_name="x", context="html")
+
+    # The NA value should remain as the string representation "None"
+    assert result[2] == "None"
+
+
+def test_fmt_tf_latex_context_with_colors():
+    df = pl.DataFrame({"x": [True, False]})
+    gt = GT(df).fmt_tf(columns="x", colors=["red", "blue"])
+
+    with pytest.raises(
+        ValueError, match="The `colors=` argument is not currently supported for LaTeX tables"
+    ):
+        _get_column_of_values(gt, column_name="x", context="latex")
+
+
+@pytest.mark.parametrize(
+    "invalid_na_val",
+    [
+        ["invalid"],  # list
+        {"invalid": "value"},  # dict
+        True,  # boolean
+        123,  # integer
+        12.34,  # float
+        ("tuple", "value"),  # tuple
+        set(["set_value"]),  # set
+    ],
+)
+def test_fmt_tf_na_val_type_validation(invalid_na_val):
+    df = pl.DataFrame({"x": [True, False, None]})
+    gt = GT(df).fmt_tf(columns="x", na_val=invalid_na_val)
+
+    with pytest.raises(ValueError, match="The `na_val` argument must be a string or None"):
+        _get_column_of_values(gt, column_name="x", context="html")
 
 
 # ------------------------------------------------------------------------------
@@ -1310,14 +1671,12 @@ df_fmt_roman = pd.DataFrame({"x": [-1234, 0, 0.4, 0.8, 1, 99, 4500]})
 
 
 def test_fmt_roman_upper():
-
     gt = GT(df_fmt_roman).fmt_roman(columns="x")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["MCCXXXIV", "N", "N", "I", "I", "XCIX", "ex terminis"]
 
 
 def test_fmt_roman_lower():
-
     gt = GT(df_fmt_roman).fmt_roman(columns="x", case="lower")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["mccxxxiv", "n", "n", "i", "i", "xcix", "ex terminis"]
@@ -1503,6 +1862,241 @@ def test_fmt_image_path_http(url: str):
     assert strip_windows_drive(res) == dst
 
 
+def test_fmt_icon_one_per_cell():
+    df = pd.DataFrame({"x": ["hippo", "burger", "pizza-slice"]})
+
+    gt = GT(df).fmt_icon(columns="x")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(re.search("^<span style.*?<svg.*?>.*?</svg></span>$", val))
+
+
+def test_fmt_icon_two_per_cell():
+    df = pd.DataFrame({"x": ["hippo,burger", "pizza-slice,fish"]})
+
+    gt = GT(df).fmt_icon(columns="x")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(
+            re.search(
+                "^<span style.*?<svg.*?>.*?</svg> <svg.*?>.*?</svg></span>$",
+                val,
+            )
+        )
+
+
+def test_fmt_icon_single_color():
+    df = pd.DataFrame({"x": ["hippo"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color="red")
+
+    assert 'style="fill:red;' in _get_column_of_values(gt, column_name="x", context="html")[0]
+
+
+def test_fmt_icon_two_colors():
+    df = pd.DataFrame({"x": ["dog,hippo"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color={"dog": "red", "hippo": "blue"})
+
+    assert 'style="fill:red;' in _get_column_of_values(gt, column_name="x", context="html")[0]
+    assert 'style="fill:blue;' in _get_column_of_values(gt, column_name="x", context="html")[0]
+
+
+def test_fmt_icon_stroke_width():
+    df = pd.DataFrame({"x": ["pizza-slice"]})
+
+    gt_px = GT(df).fmt_icon(columns="x", stroke_width="2px")
+    gt_num = GT(df).fmt_icon(columns="x", stroke_width=2)
+
+    column_vals_px = _get_column_of_values(gt_px, column_name="x", context="html")
+    column_vals_num = _get_column_of_values(gt_num, column_name="x", context="html")
+
+    assert bool(re.search("stroke-width:2px", column_vals_px[0]))
+
+    assert column_vals_px == column_vals_num
+
+
+def test_fmt_icon_fill_color():
+    df = pd.DataFrame({"x": ["hippo", "fish"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color="aqua")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(re.search('style="fill:aqua;', val))
+
+
+def test_fmt_icon_fill_color_dict():
+    df = pd.DataFrame({"x": ["hippo", "fish"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color={"hippo": "aqua", "fish": "blue"})
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert bool(re.search('style="fill:aqua;', column_vals[0]))
+    assert bool(re.search('style="fill:blue;', column_vals[1]))
+
+
+def test_fmt_icon_fill_color_dict_none():
+    df = pd.DataFrame({"x": ["hippo", "fish", "dog"]})
+
+    gt = GT(df).fmt_icon(columns="x", fill_color={"hippo": "aqua", "fish": "blue"})
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert bool(re.search('style="fill:aqua;', column_vals[0]))
+    assert bool(re.search('style="fill:blue;', column_vals[1]))
+    assert bool(
+        re.search(
+            'style="fill-opacity:None;stroke-width:1px;stroke-opacity:None;height:1em;width:1.12em;position:relative;vertical-align:-0.125em;overflow:visible;">',
+            column_vals[2],
+        )
+    )
+
+
+def test_fmt_icon_multiple_attrs():
+    df = pd.DataFrame({"x": ["hippo"]})
+
+    gt = GT(df).fmt_icon(
+        columns="x",
+        height="20px",
+        stroke_color="gray",
+        stroke_width=2,
+        stroke_alpha=0.5,
+        fill_color="red",
+        fill_alpha=0.25,
+        margin_left="3px",
+        margin_right="4px",
+    )
+
+    assert (
+        'style="fill:red;fill-opacity:0.25;stroke:gray;stroke-width:2px;stroke-opacity:0.5;height:20px;width:25.0px;margin-left:3px;margin-right:4px;position:relative;vertical-align:-0.125em;overflow:visible;"'
+        in _get_column_of_values(gt, column_name="x", context="html")[0]
+    )
+
+
+def test_fmt_flag_one_per_cell():
+    df = pd.DataFrame({"x": ["FR", "DE", "GB"]})
+
+    gt = GT(df).fmt_flag(columns="x")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(re.search("^<span style.*?<svg.*?>.*?</svg></span>$", val))
+
+
+def test_fmt_flag_na_values():
+    df = pd.DataFrame({"x": ["FR", pd.NA]})
+
+    gt = GT(df).fmt_flag(columns="x")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert bool(re.search("^<span style.*?<svg.*?>.*?</svg></span>$", column_vals[0]))
+    assert column_vals[1] == "<NA>"
+
+
+def test_fmt_flag_two_per_cell():
+    df = pd.DataFrame({"x": ["FR,DE", "TT,GB"]})
+
+    gt = GT(df).fmt_flag(columns="x")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(
+            re.search(
+                "^<span style.*?<svg.*?>.*?</svg> <svg.*?>.*?</svg></span>$",
+                val,
+            )
+        )
+
+
+def test_fmt_flag_separator():
+    df = pd.DataFrame({"x": ["FR,DE", "TT,GB"]})
+
+    gt = GT(df).fmt_flag(columns="x", sep=" / ")
+
+    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+
+    for val in column_vals:
+        assert bool(
+            re.search(
+                "^<span style.*?<svg.*?>.*?</svg> / <svg.*?>.*?</svg></span>$",
+                val,
+            )
+        )
+
+
+def test_fmt_flag_title():
+    df = pd.DataFrame({"x": ["FIN"]})
+
+    gt_title = GT(df).fmt_flag(columns="x", use_title=True)
+    gt_no_title = GT(df).fmt_flag(columns="x", use_title=False)
+
+    column_vals_title = _get_column_of_values(gt_title, column_name="x", context="html")
+    column_vals_no_title = _get_column_of_values(gt_no_title, column_name="x", context="html")
+
+    assert bool(re.search("<title>.*?</title>", column_vals_title[0]))
+    assert not bool(re.search("<title>.*?</title>", column_vals_no_title[0]))
+
+
+def test_fmt_flag_mixed_case_type():
+    df_1 = pd.DataFrame({"x": ["FR", "DE", "GB", "IT,ES"]})
+    df_2 = pd.DataFrame({"x": ["fr", "DEU", "gbr", "IT,esp"]})
+
+    gt_1 = GT(df_1).fmt_flag(columns="x")
+    gt_2 = GT(df_2).fmt_flag(columns="x")
+
+    column_vals_1 = _get_column_of_values(gt_1, column_name="x", context="html")
+    column_vals_2 = _get_column_of_values(gt_2, column_name="x", context="html")
+
+    assert column_vals_1 == column_vals_2
+
+
+def test_fmt_flag_height():
+    df = pd.DataFrame({"x": ["FR"]})
+
+    gt_px = GT(df).fmt_flag(columns="x", height="20px")
+    gt_num = GT(df).fmt_flag(columns="x", height=20)
+
+    column_vals_px = _get_column_of_values(gt_px, column_name="x", context="html")
+    column_vals_num = _get_column_of_values(gt_num, column_name="x", context="html")
+
+    assert bool(re.search("height:20px", column_vals_px[0]))
+
+    assert column_vals_px == column_vals_num
+
+
+@pytest.mark.parametrize(
+    "url", ["http://posit.co/", "http://posit.co", "https://posit.co/", "https://posit.co"]
+)
+def test_fmt_image_http(url: str):
+    formatter = FmtImage(encode=False, height=30)
+    res = formatter.to_html(url)
+    dst_img = '<img src="{}" style="height: 30px;vertical-align: middle;">'.format(
+        url.removesuffix("/")
+    )
+    dst = formatter.SPAN_TEMPLATE.format(dst_img)
+
+    assert strip_windows_drive(res) == dst
+
+
+def test_check_colors():
+    # Error on more than 3 colors provided
+    with pytest.raises(ValueError):
+        _check_colors(colors=["red", "blue", "green", "gray"])
+    # Error on not passing a list of strings
+    with pytest.raises(ValueError):
+        _check_colors(colors=[1, 2, 3])  # type: ignore
+
+
 @pytest.mark.parametrize(
     "src,dst",
     [
@@ -1587,7 +2181,6 @@ def test_fmt_image_path_http(url: str):
     ],
 )
 def test_fmt_units(src: str, dst: str):
-
     units_tbl = pl.DataFrame({"units": [src]})
     gt_tbl = GT(units_tbl).fmt_units(columns="units")
 
@@ -1626,7 +2219,6 @@ df_fmt_nanoplot_multi = pl.DataFrame(
     }
 )
 
-
 FMT_NANOPLOT_CASES: list[dict[str, Any]] = [
     # 1. default case
     dict(),
@@ -1651,7 +2243,6 @@ FMT_NANOPLOT_CASES: list[dict[str, Any]] = [
 
 # Test category 1: Horizontal line-based nanoplot single values
 def test_fmt_nanoplot_single_vals_only_line():
-
     gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
         columns="vals",
         plot_type="line",
@@ -1682,7 +2273,6 @@ def test_fmt_nanoplot_single_vals_only_line():
     # as this previous one (none will error as the non-relevant options are no ops)
 
     for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
-
         gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
             columns="vals",
             plot_type="line",
@@ -1695,7 +2285,6 @@ def test_fmt_nanoplot_single_vals_only_line():
 
 # Test category 2: Horizontal bar-based nanoplot single values
 def test_fmt_nanoplot_single_vals_only_bar():
-
     gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
         columns="vals",
         plot_type="bar",
@@ -1735,7 +2324,6 @@ def test_fmt_nanoplot_single_vals_only_bar():
     # All other test cases for the horizontal bar nanoplot will produce the same output
     # as this previous one (none will error as the non-relevant options are no ops)
     for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
-
         gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
             columns="vals",
             plot_type="bar",
@@ -1748,7 +2336,6 @@ def test_fmt_nanoplot_single_vals_only_bar():
 
 # Test category 3: Line-based nanoplot, multiple values per row
 def test_fmt_nanoplot_multi_vals_line():
-
     # Subcase with default options
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
@@ -1836,7 +2423,6 @@ def test_fmt_nanoplot_multi_vals_line():
 
 # Test category 3: Line-based nanoplot, multiple values per row, use of reference line
 def test_fmt_nanoplot_multi_vals_line_ref_line():
-
     # Subcase with reference line
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
@@ -1862,7 +2448,6 @@ def test_fmt_nanoplot_multi_vals_line_ref_line():
 # Test category 4: Line-based nanoplot, multiple values per row, use of reference
 # line and reference area
 def test_fmt_nanoplot_multi_vals_line_ref_line_ref_area():
-
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
         plot_type="line",
@@ -1897,7 +2482,6 @@ def test_fmt_nanoplot_multi_vals_line_ref_line_ref_area():
 
 # Test category 5: Bar-based nanoplot, multiple values per row
 def test_fmt_nanoplot_multi_vals_bar():
-
     # Subcase with default options
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
@@ -1945,7 +2529,6 @@ def test_fmt_nanoplot_multi_vals_bar():
 
 # Test category 6: Bar-based nanoplot, multiple values per row, use of reference line
 def test_fmt_nanoplot_multi_vals_bar_ref_line():
-
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
         plot_type="bar",
@@ -1969,7 +2552,6 @@ def test_fmt_nanoplot_multi_vals_bar_ref_line():
 
 # Test category 7: Bar-based nanoplot, multiple values per row, reference line and reference area
 def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
-
     gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
         columns="vals",
         plot_type="bar",
@@ -2000,6 +2582,60 @@ def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
             ("fill-opacity", "0.8"),
         ],
     )
+
+
+# Test category 8: Line-based nanoplot, multiple values per row, reference line and reference area
+def test_fmt_nanoplot_x_y_vals():
+    df_fmt_nanoplot_multi_xy = pl.DataFrame(
+        {
+            "vals": [
+                {
+                    "x": [6.1, 8.0],
+                    "y": [24.2, 28.2],
+                },
+            ]
+        }
+    )
+
+    gt = GT(df_fmt_nanoplot_multi_xy).fmt_nanoplot(
+        columns="vals",
+        plot_type="line",
+        **FMT_NANOPLOT_CASES[8],
+    )
+
+    res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="path",
+        attrs=[
+            ("stroke", "transparent"),
+            ("stroke-width", "2"),
+            ("fill-opacity", "0.7"),
+        ],
+    )
+
+    assert _nanoplot_has_tag_attrs(
+        res,
+        tag="polyline",
+        attrs=[
+            ("stroke", "#4682B4"),
+            ("stroke-width", "8"),
+            ("fill", "none"),
+        ],
+    )
+
+
+def test_fmt_nanoplot_accept_pl_uint():
+    """
+    https://github.com/posit-dev/great-tables/issues/571
+    """
+    single_vals_df = pl.DataFrame({"bars": [1, 2, 3, 5]})
+
+    # Call `as_raw_html()` to trigger `_generate_nanoplot()` and expose the rendering issue.
+    single_vals_df.select("bars").cast(pl.UInt32).style.fmt_nanoplot(
+        columns="bars", plot_type="bar"
+    ).as_raw_html()
 
 
 @pytest.mark.parametrize(
@@ -2103,3 +2739,93 @@ def test_get_currency_str():
 def test_get_currency_str_no_match_raises():
     with pytest.raises(Exception):
         _get_currency_str("NOT_A_CURRENCY")
+
+
+@pytest.mark.parametrize(
+    "src, fn",
+    [
+        (1, "fmt_number"),
+        (2, "fmt_integer"),
+        (3, "fmt_scientific"),
+        (4, "fmt_percent"),
+        (5, "fmt_currency"),
+        (6, "fmt_bytes"),
+        ("2023-12-31", "fmt_date"),
+        ("12:34:56", "fmt_time"),
+        ("2023-12-31 12:34:56", "fmt_datetime"),
+    ],
+)
+def test_fmt_with_locale1(src, fn):
+    df = pd.DataFrame({"x": [src]})
+    global_locale = local_locale = "en"
+
+    # w/o global locale, w/o local locale => use default locale => "en"
+    gt1 = getattr(GT(df), fn)()
+    x1 = _get_column_of_values(gt1, column_name="x", context="html")
+
+    # w global locale, w/o local locale => use global locale => "en"
+    gt2 = getattr(GT(df, locale=global_locale), fn)()
+    x2 = _get_column_of_values(gt2, column_name="x", context="html")
+
+    # w/o global locale, w local locale => use local locale => "en"
+    gt3 = getattr(GT(df), fn)(locale=local_locale)
+    x3 = _get_column_of_values(gt3, column_name="x", context="html")
+
+    assert x1 == x2 == x3
+
+
+@pytest.mark.parametrize(
+    "src, fn",
+    [
+        (1, "fmt_number"),
+        (2, "fmt_integer"),
+        (3, "fmt_scientific"),
+        (4, "fmt_percent"),
+        (5, "fmt_currency"),
+        (6, "fmt_bytes"),
+        ("2023-12-31", "fmt_date"),
+        ("12:34:56", "fmt_time"),
+        ("2023-12-31 12:34:56", "fmt_datetime"),
+    ],
+)
+def test_fmt_with_locale2(src, fn):
+    df = pd.DataFrame({"x": [src]})
+    global_locale = local_locale = "ja"
+
+    # w global locale, w/o local locale => use global locale => "ja"
+    gt1 = getattr(GT(df, locale=global_locale), fn)()
+    x1 = _get_column_of_values(gt1, column_name="x", context="html")
+
+    # w/o global locale, w local locale => use local locale => "ja"
+    gt2 = getattr(GT(df), fn)(locale=local_locale)
+    x2 = _get_column_of_values(gt2, column_name="x", context="html")
+
+    assert x1 == x2
+
+
+@pytest.mark.parametrize(
+    "src, fn",
+    [
+        (1, "fmt_number"),
+        (2, "fmt_integer"),
+        (3, "fmt_scientific"),
+        (4, "fmt_percent"),
+        (5, "fmt_currency"),
+        (6, "fmt_bytes"),
+        ("2023-12-31", "fmt_date"),
+        ("12:34:56", "fmt_time"),
+        ("2023-12-31 12:34:56", "fmt_datetime"),
+    ],
+)
+def test_fmt_with_locale3(src, fn):
+    df = pd.DataFrame({"x": [src]})
+    global_locale, local_locale = "ja", "de"
+
+    # w global locale, w local locale => use local locale => "de"
+    gt = getattr(GT(df, locale=global_locale), fn)(locale=local_locale)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    gt_de = getattr(GT(df, locale="de"), fn)()
+    x_de = _get_column_of_values(gt_de, column_name="x", context="html")
+
+    assert x == x_de

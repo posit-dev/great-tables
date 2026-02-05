@@ -1,18 +1,14 @@
 from __future__ import annotations
 
-
 import random
+import re
 import string
+from dataclasses import dataclass, field
 from typing import Any, Callable, Literal
 
-from typing_extensions import TypeAlias, Self
+from typing_extensions import Self, TypeAlias
 
-from ._text import Text, Md, Html
-
-import re
-from dataclasses import dataclass
-
-from great_tables._text import _md_html
+from ._text import BaseText, Html, Md, _md_html
 
 FontStackName: TypeAlias = Literal[
     "system-ui",
@@ -281,6 +277,96 @@ def LETTERS() -> list[str]:
     return list(string.ascii_uppercase)
 
 
+@dataclass
+class GoogleFont:
+    font: str
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({self.font})"
+
+    def make_import_stmt(self) -> str:
+        return f"@import url('https://fonts.googleapis.com/css2?family={self.font.replace(' ', '+')}&display=swap');"
+
+    def get_font_name(self) -> str:
+        return self.font
+
+
+def google_font(name: str) -> GoogleFont:
+    """Specify a font from the *Google Fonts* service.
+
+    The `google_font()` helper function can be used wherever a font name might be specified. There
+    are two instances where this helper can be used:
+
+    1. `opt_table_font(font=...)` (for setting a table font)
+    2. `style.text(font=...)` (itself used in [`tab_style()`](`great_tables.GT.tab_style`))
+
+    Parameters
+    ----------
+    name
+        The name of the Google Font to use.
+
+    Returns
+    -------
+    GoogleFont
+        A GoogleFont object, which contains the name of the font and methods for incorporating the
+        font in HTML output tables.
+
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a table of two columns and eight rows. We'll replace
+    missing values with em dashes using [`sub_missing()`](`great_tables.GT.sub_missing`). For text
+    in the time column, we will use the font called `"IBM Plex Mono"` which is available from Google
+    Fonts. This is defined inside the `google_font()` call, itself within the
+    [`style.text()`](`great_tables.style.text`) method that's applied to the `style=` parameter of
+    [`tab_style()`](`great_tables.GT.tab_style`).
+
+    ```{python}
+    from great_tables import GT, exibble, style, loc, google_font
+
+    (
+        GT(exibble[["char", "time"]])
+        .sub_missing()
+        .tab_style(
+            style=style.text(font=google_font(name="IBM Plex Mono")),
+            locations=loc.body(columns="time")
+        )
+    )
+    ```
+
+    We can use a subset of the `sp500` dataset to create a small table. With
+    [`fmt_currency()`](`great_tables.GT.fmt_currency`), we can display values as monetary values.
+    Then, we'll set a larger font size for the table and opt to use the `"Merriweather"` font by
+    calling `google_font()` within [`opt_table_font()`](`great_tables.GT.opt_table_font`). In cases
+    where that font may not materialize, we include two font fallbacks: `"Cochin"` and the catchall
+    `"Serif"` group.
+
+    ```{python}
+    from great_tables import GT, google_font
+    from great_tables.data import sp500
+
+    (
+        GT(sp500.drop(columns=["volume", "adj_close"]).head(10))
+        .fmt_currency(columns=["open", "high", "low", "close"])
+        .tab_options(table_font_size="20px")
+        .opt_table_font(font=[google_font(name="Merriweather"), "Cochin", "Serif"])
+    )
+    ```
+    """
+
+    return GoogleFont(font=name)
+
+
+@dataclass(frozen=True)
+class GoogleFontImports:
+    imports: frozenset[str] = field(default_factory=frozenset)
+
+    def add(self, import_stmt: str) -> "GoogleFontImports":
+        return GoogleFontImports(self.imports | frozenset([import_stmt]))
+
+    def to_css(self) -> str:
+        return "\n".join(sorted(self.imports))
+
+
 def system_fonts(name: FontStackName = "system-ui") -> list[str]:
     """Get a themed font stack that works well across systems.
 
@@ -515,7 +601,6 @@ def _get_font_stack(name: FontStackName = "system-ui", add_emoji: bool = True) -
 
 
 def _generate_tokens_list(units_notation: str) -> list[str]:
-
     # Remove any surrounding double braces before splitting the string into a list of tokens
     tokens_list = re.split(r"\s+", re.sub(r"^\{\{\s*|\s*\}\}$", "", units_notation))
 
@@ -547,7 +632,6 @@ class UnitDefinition:
 
     @classmethod
     def from_token(cls, token: str) -> UnitDefinition:
-
         unit_subscript = None
         sub_super_overstrike = False
         chemical_formula = False
@@ -556,7 +640,6 @@ class UnitDefinition:
         # Case: Chemical formula
         #   * e.g. "%C6H12O6%", where the '%' characters are used to denote a chemical formula
         if re.match(r"^%.*%$", token) and len(token) > 2:
-
             chemical_formula = True
 
             # Extract the formula w/o the surrounding `%` signs
@@ -565,7 +648,6 @@ class UnitDefinition:
         # Case: Subscript and exponent present inside square brackets, so overstriking required
         #   * e.g., 'm_[0^3]'
         elif re.search(r".+?\[_.+?\^.+?\]", token):
-
             sub_super_overstrike = True
 
             # Extract the unit w/o subscript from the string
@@ -583,7 +665,6 @@ class UnitDefinition:
         # Case: Subscript and exponent present (overstriking is *not* required here)
         #   * e.g., 'm_2^3'
         elif re.search(r".+?_.+?\^.+?", token):
-
             # Extract the unit w/o subscript from the string
             unit = re.sub(r"^(.+?)_.+?\^.+?$", r"\1", token)
 
@@ -602,7 +683,6 @@ class UnitDefinition:
         #     in the string)
         #   * e.g., 'm^2'
         elif re.search(r"\^", token):
-
             # Extract the unit w/o exponent from the string
             unit = re.sub(r"^(.+?)\^.+?$", r"\1", token)
 
@@ -614,7 +694,6 @@ class UnitDefinition:
         #     anywhere in the string)
         #   * e.g., 'm_2'
         elif re.search(r"_", token):
-
             # Extract the unit w/o subscript from the string
             unit = re.sub(r"^(.+?)_.+?$", r"\1", token)
 
@@ -713,7 +792,6 @@ class UnitDefinition:
             and units_object.unit_subscript is not None
             and units_object.exponent is not None
         ):
-
             units_str += _units_html_sub_super(
                 content_sub=_md_html(
                     _escape_html_tags(
@@ -735,7 +813,6 @@ class UnitDefinition:
         # and place all numbers (which are recognized now to be part of the chemical formula)
         # into spans that are styled to be subscripts:
         elif units_object.chemical_formula:
-
             units_str = re.sub(
                 "(\\d+)",
                 '<span style="white-space:nowrap;"><sub style="line-height:0;">\\1</sub></span>',
@@ -743,7 +820,6 @@ class UnitDefinition:
             )
 
         else:
-
             if unit_subscript is not None:
                 units_str += unit_subscript
 
@@ -753,15 +829,14 @@ class UnitDefinition:
         return units_str
 
 
-class UnitStr:
+class UnitStr(BaseText):
     def __init__(self, units_str: list[str | UnitDefinitionList]):
         self.units_str = units_str
 
     def __repr__(self) -> str:
-        return f"UnitStr({self.units_str})"
+        return f"{type(self).__name__}({self.units_str})"
 
     def to_html(self) -> str:
-
         built_units = "".join(
             [
                 unit_def.to_html() if isinstance(unit_def, UnitDefinitionList) else unit_def
@@ -771,6 +846,9 @@ class UnitStr:
 
         return built_units
 
+    def to_latex(self) -> str:
+        raise NotImplementedError("LaTeX conversion of units is not yet supported.")
+
     def _repr_html_(self):
         return self.to_html()
 
@@ -779,7 +857,6 @@ class UnitStr:
 
     @classmethod
     def from_str(cls, string: str) -> Self:
-
         # "energy ({{J m^-1}})"
         # UnitStr(["energy (", define_units("J m^-1"), ")"])
 
@@ -795,7 +872,6 @@ class UnitStr:
         token_parts: list[str | UnitDefinitionList] = []
 
         for part in re.split(r"(\{\{.*?\}\})", string):
-
             m = re.match(r"\{\{(.*?)\}\}", part)
 
             if m:
@@ -811,7 +887,7 @@ class UnitDefinitionList:
     units_list: list[UnitDefinition]
 
     def __repr__(self) -> str:
-        return f"UnitDefinitionList({self.units_list})"
+        return f"{type(self).__name__}({self.units_list})"
 
     def __len__(self) -> int:
         return len(self.units_list)
@@ -824,15 +900,16 @@ class UnitDefinitionList:
 
         units_str = ""
 
+        common_condition = len(self) == 3 and self[1].unit == "/"
         for unit_add in built_units:
-
-            if re.search("\\($|\\[$", units_str) or re.search("^\\)|^\\]", unit_add):
+            if (
+                common_condition
+                or re.search("\\($|\\[$", units_str)
+                or re.search("^\\)|^\\]", unit_add)
+            ):
                 spacer = ""
             else:
                 spacer = " "
-
-            if len(self) == 3 and self[1].unit == "/":
-                spacer = ""
 
             units_str += f"{spacer}{unit_add}"
 
@@ -867,7 +944,6 @@ def _units_html_sub_super(content_sub: str, content_sup: str) -> str:
 
 
 def _replace_units_symbol(text: str, detect: str, pattern: str, replace: str) -> str:
-
     if re.search(detect, text):
         text = re.sub(pattern, replace, text)
 
@@ -875,7 +951,6 @@ def _replace_units_symbol(text: str, detect: str, pattern: str, replace: str) ->
 
 
 def _units_symbol_replacements(text: str) -> str:
-
     # Replace certain units symbols with HTML entities; these are cases where the parsed
     # text should be at the beginning of a string (or should be the entire string)
     text = _replace_units_symbol(text, "^-", "^-", "&minus;")
@@ -893,7 +968,6 @@ def _units_symbol_replacements(text: str) -> str:
 
 
 def _escape_html_tags(text: str) -> str:
-
     # Replace the '<' and '>' characters with their HTML entity equivalents
     text = text.replace("<", "&lt;")
     text = text.replace(">", "&gt;")
@@ -920,7 +994,6 @@ UNITS_SYMBOLS_HTML = {
     ":micro:": "&micro;",
     ":ohm:": "&#8486;",
     ":angstrom:": "&#8491;",
-    ":times:": "&times;",
     ":plusminus:": "&plusmn;",
     ":permil:": "&permil;",
     ":permille:": "&permil;",
@@ -1125,10 +1198,7 @@ def define_units(units_notation: str) -> UnitDefinitionList:
     # Get a list of raw tokens
     tokens_list = _generate_tokens_list(units_notation=units_notation)
 
-    # Initialize a list to store the units
-    units_list = []
-
-    if len(tokens_list) == 0:
+    if not tokens_list:
         return UnitDefinitionList(units_list=[])
 
     units_list = [UnitDefinition.from_token(token) for token in tokens_list]
@@ -1141,16 +1211,15 @@ def define_units(units_notation: str) -> UnitDefinitionList:
 # dataclass and then pair on a post_init hook).
 # Check that certain values are either a list or a single value
 def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any) -> list[Any] | None:
-
     if nano_opt is None:
         return None
 
     if not isinstance(nano_opt, (option_type, list)):
         raise ValueError(f"Nanoplot option must be a {option_type} or a list of {option_type}s")
 
-    # If it is a list, check that the values are integers
+    # If it is a list, check that the values are same as `option_type`
     if isinstance(nano_opt, list):
-        if not all(isinstance(x, int) for x in nano_opt):
+        if not all(isinstance(x, option_type) for x in nano_opt):
             raise ValueError(f"Nanoplot option must be a list of {option_type}s")
 
     # If it is a single value, convert it to a list
