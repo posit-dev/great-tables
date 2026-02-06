@@ -14,10 +14,10 @@ def tab_options(
     self: GTSelf,
     container_width: str | None = None,
     container_height: str | None = None,
-    container_overflow_x: str | None = None,
-    container_overflow_y: str | None = None,
     container_padding_x: str | None = None,
     container_padding_y: str | None = None,
+    container_overflow_x: str | None = None,
+    container_overflow_y: str | None = None,
     table_width: str | None = None,
     table_layout: str | None = None,
     # table_align: str | None = None,
@@ -181,6 +181,13 @@ def tab_options(
         value, it is assumed that the value is given in units of pixels.
     container_height
         The height of the table's container.
+    container_padding_x
+        The horizontal padding of the table's container. Can be specified as a single-length
+        character with units of pixels or as a percentage. If provided as a scalar numeric
+        value, it is assumed that the value is given in units of pixels.
+    container_padding_y
+        The vertical padding of the table's container. Same rules apply as for
+        `container_padding_x`.
     container_overflow_x
         An option to enable scrolling in the horizontal direction when the table content overflows
         the container dimensions. Using `True` (the default) means that horizontal scrolling is
@@ -190,12 +197,6 @@ def tab_options(
         An option to enable scrolling in the vertical direction when the table content overflows.
         Same rules apply as for `container_overflow_x`; the dependency here is that of the table
         height (`container_height`).
-    container_padding_x
-        The horizontal padding of the table's container. Can be specified as a single-length
-        character with units of pixels or as a percentage. If provided as a scalar numeric
-        value, it is assumed that the value is given in units of pixels.
-    container_padding_y
-        The vertical padding of the table's container.
     table_width
         The width of the table. Can be specified as a string with units of pixels or as a
         percentage. If provided as a numeric value, it is assumed that the value is given in
