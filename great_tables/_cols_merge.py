@@ -27,13 +27,13 @@ class ColMergeInfo:
     type
         Type of merge operation (currently only 'merge' is used).
     pattern
-        The pattern string for merging, using {1}, {2}, etc. for column references.
+        The pattern string for merging, using {0}, {1}, etc. for column references.
         Supports conditional sections with <<...>> for handling missing values.
 
     Notes
     -----
-    The pattern uses 1-based indexing (e.g., {1} for the first column) for consistency
-    with R's gt package pattern syntax.
+    The pattern uses 0-based indexing (e.g., {0} for the first column), consistent
+    with standard Python indexing conventions.
 
     Examples
     --------
@@ -41,7 +41,7 @@ class ColMergeInfo:
     ...     vars=["first", "last"],
     ...     rows=[0, 1, 2],
     ...     type="merge",
-    ...     pattern="{1} {2}"
+    ...     pattern="{0} {1}"
     ... )
     >>> info.merge("John", "Doe")
     'John Doe'
@@ -59,7 +59,7 @@ class ColMergeInfo:
         Returns
         -------
         list[str]
-            List of column reference numbers as strings (e.g., ["1", "2"]).
+            List of column reference numbers as strings (e.g., ["0", "1"]).
         """
         if self.pattern is None:
             return []
@@ -74,9 +74,8 @@ class ColMergeInfo:
         ValueError
             If the pattern is None (required for merge operations).
         ValueError
-            If the pattern references a column index less than 1 (0-based indexing error).
-        ValueError
-            If the pattern references a column index greater than the number of columns.
+            If the pattern references a column index greater than or equal to
+            the number of columns.
         """
         if self.pattern is None:
             raise ValueError("Pattern must be provided for column merge operations.")
@@ -84,18 +83,12 @@ class ColMergeInfo:
         pattern_cols = self.pattern_columns
 
         for col_ref in pattern_cols:
-            # The pattern syntax uses 1-based indexing
-            col_idx = int(col_ref) - 1
+            col_idx = int(col_ref)
 
-            if col_idx < 0:
-                raise ValueError(
-                    f"Pattern references column {{{col_ref}}} but column indexing starts "
-                    f"at {{1}}, not {{0}}. Please use 1-based indexing in patterns."
-                )
             if col_idx >= len(self.vars):
                 raise ValueError(
                     f"Pattern references column {{{col_ref}}} but only {len(self.vars)} "
-                    f"columns were provided to cols_merge()."
+                    f"columns were provided (valid indices are 0 to {len(self.vars) - 1})."
                 )
 
     @staticmethod
@@ -140,7 +133,7 @@ class ColMergeInfo:
         Parameters
         ----------
         *values
-            Values to merge (positional, corresponding to {1}, {2}, etc.).
+            Values to merge (positional, corresponding to {0}, {1}, etc.).
             Pass None for missing values. Use `replace_na()` first if you need
             to convert NA values from table data.
 
@@ -156,19 +149,19 @@ class ColMergeInfo:
 
         Examples
         --------
-        >>> info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1} {2}")
+        >>> info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0} {1}")
         >>> info.merge("John", "Doe")
         'John Doe'
 
-        >>> info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1}<< ({2})>>")
+        >>> info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0}<< ({1})>>")
         >>> info.merge("John", None)
         'John'
         """
         if self.pattern is None:
             raise ValueError("Pattern must be provided for column merge operations.")
 
-        col_values = {str(i + 1): str(v) if v is not None else "" for i, v in enumerate(values)}
-        col_is_missing = {str(i + 1): v is None for i, v in enumerate(values)}
+        col_values = {str(i): str(v) if v is not None else "" for i, v in enumerate(values)}
+        col_is_missing = {str(i): v is None for i, v in enumerate(values)}
 
         return _process_col_merge_pattern(self.pattern, col_values, col_is_missing)
 
@@ -185,9 +178,9 @@ class ColMergeInfo:
         Parameters
         ----------
         col_values
-            Dictionary mapping column indices (as strings, 1-based) to their display values.
+            Dictionary mapping column indices (as strings, 0-based) to their display values.
         col_is_missing
-            Dictionary mapping column indices (as strings, 1-based) to whether the
+            Dictionary mapping column indices (as strings, 0-based) to whether the
             original value was missing.
 
         Returns
@@ -202,8 +195,8 @@ class ColMergeInfo:
 
         Examples
         --------
-        >>> info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1}-{2}")
-        >>> info.merge_values({"1": "10", "2": "20"}, {"1": False, "2": False})
+        >>> info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0}-{1}")
+        >>> info.merge_values({"0": "10", "1": "20"}, {"0": False, "1": False})
         '10-20'
         """
         if self.pattern is None:
@@ -228,11 +221,11 @@ def merge_pattern(pattern: str, *values: Any) -> str:
     Parameters
     ----------
     pattern
-        Pattern with {1}, {2}, etc. for positional values.
+        Pattern with {0}, {1}, etc. for positional values.
         Use <<...>> for conditional sections that are omitted
         if any referenced value inside is missing (None, NaN, etc.).
     *values
-        Values to substitute (1-indexed in pattern).
+        Values to substitute (0-indexed in pattern).
 
     Returns
     -------
@@ -241,16 +234,16 @@ def merge_pattern(pattern: str, *values: Any) -> str:
 
     Examples
     --------
-    >>> merge_pattern("{1} {2}", "John", "Doe")
+    >>> merge_pattern("{0} {1}", "John", "Doe")
     'John Doe'
 
-    >>> merge_pattern("{1}<< ({2})>>", "John", None)
+    >>> merge_pattern("{0}<< ({1})>>", "John", None)
     'John'
 
-    >>> merge_pattern("{1}—{2}", 10, 20)
+    >>> merge_pattern("{0}—{1}", 10, 20)
     '10—20'
 
-    >>> merge_pattern("{1}<< to {2}<< to {3}>>>>", 10, 20, None)
+    >>> merge_pattern("{0}<< to {1}<< to {2}>>>>", 10, 20, None)
     '10 to 20'
     """
     # Use replace_na to normalize NA values to None (no tbl_data needed)

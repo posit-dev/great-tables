@@ -1089,17 +1089,17 @@ def cols_merge(
 
     Integer values are placed in `{}` and those values correspond to the columns involved in the
     merge, in the order they are provided in the `columns=` argument. So the pattern
-    `"{1} ({2}-{3})"` corresponds to the target column value listed first in `columns` and the
+    `"{0} ({1}-{2})"` corresponds to the target column value listed first in `columns` and the
     second and third columns cited (formatted as a range in parentheses). With hypothetical values,
     this might result as the merged string `"38.2 (3-8)"`.
 
     Because some values involved in merging may be missing, it is likely that something like
     `"38.2 (3-None)"` would be undesirable. For such cases, placing sections of text in `<<>>`
     results in the entire span being eliminated if there were to be an `None` value (arising from
-    `{}` values). We could instead opt for a pattern like `"{1}<< ({2}-{3})>>"`, which results in
-    `"38.2"` if either columns `{2}` or `{3}` have a `None` value. We can even use a more complex
-    nesting pattern like `"{1}<< ({2}-<<{3}>>)>>"` to retain a lower limit in parentheses (where
-    `{3}` is `None`) but remove the range altogether if `{2}` is `None`.
+    `{}` values). We could instead opt for a pattern like `"{0}<< ({1}-{2})>>"`, which results in
+    `"38.2"` if either columns `{1}` or `{2}` have a `None` value. We can even use a more complex
+    nesting pattern like `"{0}<< ({1}-<<{2}>>)>>"` to retain a lower limit in parentheses (where
+    `{2}` is `None`) but remove the range altogether if `{1}` is `None`.
 
     One more thing to note here is that if `.sub_missing()` is used on values in a column, those
     specific values affected won't be considered truly missing by `.cols_merge()` (since they have
@@ -1128,8 +1128,8 @@ def cols_merge(
             decimals=2,
             use_seps=False
         )
-        .cols_merge(columns=["open", "close"], pattern="{1}&mdash;{2}")
-        .cols_merge(columns=["low", "high"], pattern="{1}&mdash;{2}")
+        .cols_merge(columns=["open", "close"], pattern="{0}&mdash;{1}")
+        .cols_merge(columns=["low", "high"], pattern="{0}&mdash;{1}")
         .cols_label(open="open/close", low="low/high")
     )
     ```
@@ -1153,8 +1153,8 @@ def cols_merge(
     (
         GT(gtcars_pl)
         .fmt_integer(columns=[cs.starts_with("trq"), cs.starts_with("mpg")])
-        .cols_merge(columns=["trq", "trq_rpm"], pattern="{1}<< ({2} rpm)>>")
-        .cols_merge(columns=["mpg_c", "mpg_h"], pattern="<<{1} city<</{2} hwy>>>>")
+        .cols_merge(columns=["trq", "trq_rpm"], pattern="{0}<< ({1} rpm)>>")
+        .cols_merge(columns=["mpg_c", "mpg_h"], pattern="<<{0} city<</{1} hwy>>>>")
         .cols_label(mfr="Manufacturer", model="Car Model", trq="Torque", mpg_c="MPG")
     )
     ```
@@ -1167,7 +1167,7 @@ def cols_merge(
 
     # Generate default pattern if not provided
     if pattern is None:
-        pattern = " ".join(f"{{{i+1}}}" for i in range(len(columns_resolved)))
+        pattern = " ".join(f"{{{i}}}" for i in range(len(columns_resolved)))
 
     # Resolve the rows supplied in the `rows` argument
     row_res = resolve_rows_i(self, rows)

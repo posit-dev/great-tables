@@ -71,38 +71,38 @@ class TestMergePattern:
 
     def test_simple_merge(self):
         """Test basic merge pattern."""
-        result = merge_pattern("{1} {2}", "John", "Doe")
+        result = merge_pattern("{0} {1}", "John", "Doe")
         assert result == "John Doe"
 
     def test_merge_with_separator(self):
         """Test merge pattern with em dash separator."""
-        result = merge_pattern("{1}—{2}", 10, 20)
+        result = merge_pattern("{0}—{1}", 10, 20)
         assert result == "10—20"
 
     def test_merge_with_none_value(self):
         """Test merge pattern with None value in conditional section."""
-        result = merge_pattern("{1}<< ({2})>>", "John", None)
+        result = merge_pattern("{0}<< ({1})>>", "John", None)
         assert result == "John"
 
     def test_merge_with_all_present(self):
         """Test merge pattern with all values present."""
-        result = merge_pattern("{1}<< ({2})>>", "John", "123-456")
+        result = merge_pattern("{0}<< ({1})>>", "John", "123-456")
         assert result == "John (123-456)"
 
     def test_nested_conditionals(self):
         """Test merge pattern with nested conditional sections."""
-        result = merge_pattern("{1}<< to {2}<< to {3}>>>>", 10, 20, None)
+        result = merge_pattern("{0}<< to {1}<< to {2}>>>>", 10, 20, None)
         assert result == "10 to 20"
 
-        result2 = merge_pattern("{1}<< to {2}<< to {3}>>>>", 10, None, None)
+        result2 = merge_pattern("{0}<< to {1}<< to {2}>>>>", 10, None, None)
         assert result2 == "10"
 
-        result3 = merge_pattern("{1}<< to {2}<< to {3}>>>>", 10, 20, 30)
+        result3 = merge_pattern("{0}<< to {1}<< to {2}>>>>", 10, 20, 30)
         assert result3 == "10 to 20 to 30"
 
     def test_merge_three_columns(self):
         """Test merge pattern with three values."""
-        result = merge_pattern("{1} {2} {3}", "A", "B", "C")
+        result = merge_pattern("{0} {1} {2}", "A", "B", "C")
         assert result == "A B C"
 
 
@@ -111,12 +111,12 @@ class TestColMergeInfoUnit:
 
     def test_creation(self):
         """Test basic ColMergeInfo creation."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0, 1, 2], type="merge", pattern="{1} {2}")
+        info = ColMergeInfo(vars=["a", "b"], rows=[0, 1, 2], type="merge", pattern="{0} {1}")
 
         assert info.vars == ["a", "b"]
         assert info.rows == [0, 1, 2]
         assert info.type == "merge"
-        assert info.pattern == "{1} {2}"
+        assert info.pattern == "{0} {1}"
 
     def test_pattern_optional(self):
         """Test that pattern can be None."""
@@ -125,12 +125,12 @@ class TestColMergeInfoUnit:
 
     def test_pattern_columns_extraction(self):
         """Test pattern_columns property extracts column references correctly."""
-        info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{1}—{2}—{3}")
-        assert info.pattern_columns == ["1", "2", "3"]
+        info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0}—{1}—{2}")
+        assert info.pattern_columns == ["0", "1", "2"]
 
         # Test with duplicate references
-        info2 = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1} {2} {1}")
-        assert info2.pattern_columns == ["1", "2"]
+        info2 = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0} {1} {0}")
+        assert info2.pattern_columns == ["0", "1"]
 
         # Test with None pattern
         info3 = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern=None)
@@ -138,12 +138,12 @@ class TestColMergeInfoUnit:
 
     def test_validate_pattern_success(self):
         """Test validate_pattern with valid patterns."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1} {2}")
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0} {1}")
         # Should not raise
         info.validate_pattern()
 
         # Test with subset of columns referenced
-        info2 = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{1} {3}")
+        info2 = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0} {2}")
         info2.validate_pattern()
 
     def test_validate_pattern_none_raises(self):
@@ -152,34 +152,34 @@ class TestColMergeInfoUnit:
         with pytest.raises(ValueError, match="Pattern must be provided"):
             info.validate_pattern()
 
-    def test_validate_pattern_zero_index_raises(self):
-        """Test validate_pattern raises when pattern uses 0-based indexing."""
+    def test_validate_pattern_zero_index_valid(self):
+        """Test validate_pattern accepts 0-based indexing."""
         info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0}-{1}")
-        with pytest.raises(ValueError, match="column indexing starts at"):
-            info.validate_pattern()
+        # Should not raise with 0-based indexing
+        info.validate_pattern()
 
     def test_validate_pattern_out_of_range_raises(self):
         """Test validate_pattern raises when pattern references non-existent column."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1} {2} {3}")
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0} {1} {2}")
         with pytest.raises(ValueError, match="Pattern references column"):
             info.validate_pattern()
 
     # Tests for the new merge() method (simple interface)
     def test_merge_simple(self):
         """Test merge() with simple patterns."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1} {2}")
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0} {1}")
         result = info.merge("Hello", "World")
         assert result == "Hello World"
 
     def test_merge_with_separator(self):
         """Test merge() with different separators."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1}—{2}")
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0}—{1}")
         result = info.merge(10, 20)
         assert result == "10—20"
 
     def test_merge_conditional_missing(self):
         """Test merge() with conditional sections and missing values."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1}<< ({2})>>")
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0}<< ({1})>>")
 
         # Non-missing: include the conditional section
         result1 = info.merge(10, 20)
@@ -192,7 +192,7 @@ class TestColMergeInfoUnit:
     def test_merge_nested_conditionals(self):
         """Test merge() with nested conditional sections."""
         info = ColMergeInfo(
-            vars=["a", "b", "c"], rows=[0], type="merge", pattern="{1}<< ({2}-<<{3}>>)>>"
+            vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0}<< ({1}-<<{2}>>)>>"
         )
 
         # All present
@@ -215,56 +215,56 @@ class TestColMergeInfoUnit:
 
     def test_merge_three_values(self):
         """Test merge() with three values."""
-        info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{1} {2} {3}")
+        info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0} {1} {2}")
         result = info.merge("A", "B", "C")
         assert result == "A B C"
 
     # Tests for the dict-based merge_values() method (internal interface)
     def test_merge_values_simple(self):
         """Test merge_values with simple patterns."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1} {2}")
-        result = info.merge_values({"1": "Hello", "2": "World"}, {"1": False, "2": False})
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0} {1}")
+        result = info.merge_values({"0": "Hello", "1": "World"}, {"0": False, "1": False})
         assert result == "Hello World"
 
     def test_merge_values_with_separator(self):
         """Test merge_values with different separators."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1}—{2}")
-        result = info.merge_values({"1": "10", "2": "20"}, {"1": False, "2": False})
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0}—{1}")
+        result = info.merge_values({"0": "10", "1": "20"}, {"0": False, "1": False})
         assert result == "10—20"
 
     def test_merge_values_conditional_missing(self):
         """Test merge_values with conditional sections and missing values."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{1}<< ({2})>>")
+        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0}<< ({1})>>")
 
         # Non-missing: include the conditional section
-        result1 = info.merge_values({"1": "10", "2": "20"}, {"1": False, "2": False})
+        result1 = info.merge_values({"0": "10", "1": "20"}, {"0": False, "1": False})
         assert result1 == "10 (20)"
 
         # Missing value: remove the conditional section
-        result2 = info.merge_values({"1": "10", "2": "NA"}, {"1": False, "2": True})
+        result2 = info.merge_values({"0": "10", "1": "NA"}, {"0": False, "1": True})
         assert result2 == "10"
 
     def test_merge_values_nested_conditionals(self):
         """Test merge_values with nested conditional sections."""
         info = ColMergeInfo(
-            vars=["a", "b", "c"], rows=[0], type="merge", pattern="{1}<< ({2}-<<{3}>>)>>"
+            vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0}<< ({1}-<<{2}>>)>>"
         )
 
         # All present
         result1 = info.merge_values(
-            {"1": "10", "2": "15", "3": "5"}, {"1": False, "2": False, "3": False}
+            {"0": "10", "1": "15", "2": "5"}, {"0": False, "1": False, "2": False}
         )
         assert result1 == "10 (15-5)"
 
         # Third missing
         result2 = info.merge_values(
-            {"1": "10", "2": "15", "3": "NA"}, {"1": False, "2": False, "3": True}
+            {"0": "10", "1": "15", "2": "NA"}, {"0": False, "1": False, "2": True}
         )
         assert result2 == "10 (15-)"
 
         # Second missing (and third)
         result3 = info.merge_values(
-            {"1": "10", "2": "NA", "3": "NA"}, {"1": False, "2": True, "3": True}
+            {"0": "10", "1": "NA", "2": "NA"}, {"0": False, "1": True, "2": True}
         )
         assert result3 == "10"
 
@@ -272,21 +272,21 @@ class TestColMergeInfoUnit:
         """Test merge_values raises when pattern is None."""
         info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern=None)
         with pytest.raises(ValueError, match="Pattern must be provided"):
-            info.merge_values({"1": "10", "2": "20"}, {"1": False, "2": False})
+            info.merge_values({"0": "10", "1": "20"}, {"0": False, "1": False})
 
     def test_merge_values_three_columns(self):
         """Test merge_values with three columns."""
-        info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{1} {2} {3}")
+        info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0} {1} {2}")
         result = info.merge_values(
-            {"1": "A", "2": "B", "3": "C"}, {"1": False, "2": False, "3": False}
+            {"0": "A", "1": "B", "2": "C"}, {"0": False, "1": False, "2": False}
         )
         assert result == "A B C"
 
     def test_merge_values_column_subset_in_pattern(self):
         """Test merge_values when pattern only uses a subset of columns."""
-        info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{1} {3}")
+        info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0} {2}")
         result = info.merge_values(
-            {"1": "First", "2": "Second", "3": "Third"}, {"1": False, "2": False, "3": False}
+            {"0": "First", "1": "Second", "2": "Third"}, {"0": False, "1": False, "2": False}
         )
         assert result == "First Third"
 
@@ -305,7 +305,7 @@ class TestColsMergeIntegration:
         # Check that merge was registered
         assert len(gt._col_merge) == 1
         assert gt._col_merge[0].vars == ["a", "b"]
-        assert gt._col_merge[0].pattern == "{1} {2}"
+        assert gt._col_merge[0].pattern == "{0} {1}"
         assert gt._col_merge[0].type == "merge"
 
         # Check rendered output
@@ -315,9 +315,9 @@ class TestColsMergeIntegration:
         assert "3 6" in html
 
     def test_custom_pattern(self, simple_df: pd.DataFrame):
-        gt = GT(simple_df).cols_merge(columns=["a", "b"], pattern="{1}—{2}")
+        gt = GT(simple_df).cols_merge(columns=["a", "b"], pattern="{0}—{1}")
 
-        assert gt._col_merge[0].pattern == "{1}—{2}"
+        assert gt._col_merge[0].pattern == "{0}—{1}"
 
         # Check rendered output with em dash
         html = gt.as_raw_html()
@@ -329,7 +329,7 @@ class TestColsMergeIntegration:
         gt = GT(simple_df).cols_merge(columns=["a", "b", "c"])
 
         assert gt._col_merge[0].vars == ["a", "b", "c"]
-        assert gt._col_merge[0].pattern == "{1} {2} {3}"
+        assert gt._col_merge[0].pattern == "{0} {1} {2}"
 
         # Check rendered output with three columns
         html = gt.as_raw_html()
@@ -339,7 +339,7 @@ class TestColsMergeIntegration:
 
     def test_subset_of_columns(self, simple_df: pd.DataFrame):
         # Provide three columns but only use first two in the pattern
-        gt1 = GT(simple_df).cols_merge(columns=["a", "b", "c"], pattern="{1} {2}")
+        gt1 = GT(simple_df).cols_merge(columns=["a", "b", "c"], pattern="{0} {1}")
 
         html1 = gt1.as_raw_html()
         assert "1 4" in html1
@@ -347,7 +347,7 @@ class TestColsMergeIntegration:
         assert "3 6" in html1
 
         # Provide three columns but only use first and third in the pattern
-        gt2 = GT(simple_df).cols_merge(columns=["a", "b", "c"], pattern="{1} {3}")
+        gt2 = GT(simple_df).cols_merge(columns=["a", "b", "c"], pattern="{0} {2}")
 
         html2 = gt2.as_raw_html()
         assert "1 7" in html2
@@ -355,7 +355,7 @@ class TestColsMergeIntegration:
         assert "3 9" in html2
 
         # Provide three columns but only use the third in the pattern
-        gt3 = GT(simple_df).cols_merge(columns=["a", "b", "c"], pattern="Value: {3}")
+        gt3 = GT(simple_df).cols_merge(columns=["a", "b", "c"], pattern="Value: {2}")
 
         html3 = gt3.as_raw_html()
         assert "Value: 7" in html3
@@ -388,7 +388,7 @@ class TestColsMergeIntegration:
         assert col_b.visible
 
     def test_specific_rows(self, simple_df: pd.DataFrame):
-        gt = GT(simple_df).cols_merge(columns=["a", "b"], rows=[0, 2], pattern="{1}-{2}")
+        gt = GT(simple_df).cols_merge(columns=["a", "b"], rows=[0, 2], pattern="{0}-{1}")
 
         assert gt._col_merge[0].rows == [0, 2]
 
@@ -402,13 +402,13 @@ class TestColsMergeIntegration:
     def test_multiple_operations(self, simple_df: pd.DataFrame):
         gt = (
             GT(simple_df)
-            .cols_merge(columns=["a", "b"], pattern="{1}+{2}")
-            .cols_merge(columns=["a", "c"], pattern="{1}*{2}")
+            .cols_merge(columns=["a", "b"], pattern="{0}+{1}")
+            .cols_merge(columns=["a", "c"], pattern="{0}*{1}")
         )
 
         assert len(gt._col_merge) == 2
-        assert gt._col_merge[0].pattern == "{1}+{2}"
-        assert gt._col_merge[1].pattern == "{1}*{2}"
+        assert gt._col_merge[0].pattern == "{0}+{1}"
+        assert gt._col_merge[1].pattern == "{0}*{1}"
 
         html = gt.as_raw_html()
 
@@ -418,7 +418,7 @@ class TestColsMergeIntegration:
         assert "3+6*9" in html
 
     def test_with_missing_values(self, missing_df: pd.DataFrame):
-        gt = GT(missing_df).cols_merge(columns=["val1", "val2"], pattern="{1}<< ({2})>>")
+        gt = GT(missing_df).cols_merge(columns=["val1", "val2"], pattern="{0}<< ({1})>>")
 
         html = gt.as_raw_html()
         assert "10 (15.0)" in html or "10.0 (15.0)" in html
@@ -427,7 +427,7 @@ class TestColsMergeIntegration:
 
     def test_nested_conditionals(self, missing_df: pd.DataFrame):
         gt = GT(missing_df).cols_merge(
-            columns=["val1", "val2", "val3"], pattern="{1}<< ({2}-<<{3}>>)>>"
+            columns=["val1", "val2", "val3"], pattern="{0}<< ({1}-<<{2}>>)>>"
         )
 
         html = gt.as_raw_html()
@@ -441,23 +441,25 @@ class TestColsMergeIntegration:
             GT(simple_df).cols_merge(columns=["a"])
 
     def test_invalid_pattern_reference(self, simple_df: pd.DataFrame):
-        gt = GT(simple_df).cols_merge(columns=["a", "b"], pattern="{1} {2} {3}")
+        gt = GT(simple_df).cols_merge(columns=["a", "b"], pattern="{0} {1} {2}")
 
         with pytest.raises(ValueError, match="Pattern references column"):
             gt._repr_html_()
 
-    def test_zero_based_index_error(self, simple_df: pd.DataFrame):
+    def test_zero_based_indexing(self, simple_df: pd.DataFrame):
+        """Test that 0-based indexing works correctly in patterns."""
         gt = GT(simple_df).cols_merge(columns=["a", "b"], pattern="{0}-{1}")
 
-        # Should raise error because pattern uses 1-based indexing, not 0-based
-        with pytest.raises(ValueError, match="column indexing starts at"):
-            gt._repr_html_()
+        html = gt.as_raw_html()
+        assert "1-4" in html
+        assert "2-5" in html
+        assert "3-6" in html
 
     def test_preserves_formatting(self, simple_df: pd.DataFrame):
         gt = (
             GT(simple_df)
             .fmt_number(columns="a", decimals=3)
-            .cols_merge(columns=["a", "b"], pattern="{1}+{2}")
+            .cols_merge(columns=["a", "b"], pattern="{0}+{1}")
         )
 
         html = gt.as_raw_html()
@@ -477,13 +479,13 @@ class TestColsMergeIntegration:
         gt_1 = (
             GT(missing_df)
             .sub_missing(columns=["val2", "val3"], missing_text="--")
-            .cols_merge(columns=["val1", "val2", "val3"], pattern="{1}<< to {2}<< to {3}>>>>")
+            .cols_merge(columns=["val1", "val2", "val3"], pattern="{0}<< to {1}<< to {2}>>>>")
         )
 
         # calling sub_missing() after cols_merge()
         gt_2 = (
             GT(missing_df)
-            .cols_merge(columns=["val1", "val2", "val3"], pattern="{1}<< to {2}<< to {3}>>>>")
+            .cols_merge(columns=["val1", "val2", "val3"], pattern="{0}<< to {1}<< to {2}>>>>")
             .sub_missing(columns=["val2", "val3"], missing_text="--")
         )
 
@@ -510,7 +512,7 @@ class TestColsMergeIntegration:
 
         gt = (
             GT(df)
-            .cols_merge(columns=["a", "b"], pattern="{1}<< ({2})>>")
+            .cols_merge(columns=["a", "b"], pattern="{0}<< ({1})>>")
             .fmt_integer(columns=["a", "b", "c"])
         )
 
