@@ -15,6 +15,7 @@ from ._formats import (
     fmt_currency,
     fmt_date,
     fmt_datetime,
+    fmt_engineering,
     fmt_flag,
     fmt_icon,
     fmt_image,
@@ -32,10 +33,11 @@ from ._formats import (
 from ._gt_data import GTData
 from ._heading import tab_header
 from ._helpers import random_id
-from ._modify_rows import row_group_order, tab_stub, with_id, with_locale
+from ._modify_rows import grand_summary_rows, row_group_order, tab_stub, with_id, with_locale
 from ._options import (
     opt_align_table_header,
     opt_all_caps,
+    opt_css,
     opt_footnote_marks,
     opt_horizontal_padding,
     opt_row_striping,
@@ -227,6 +229,7 @@ class GT(
     fmt_integer = fmt_integer
     fmt_percent = fmt_percent
     fmt_scientific = fmt_scientific
+    fmt_engineering = fmt_engineering
     fmt_currency = fmt_currency
     fmt_bytes = fmt_bytes
     fmt_roman = fmt_roman
@@ -248,6 +251,7 @@ class GT(
     opt_stylize = opt_stylize
     opt_align_table_header = opt_align_table_header
     opt_all_caps = opt_all_caps
+    opt_css = opt_css
     opt_footnote_marks = opt_footnote_marks
     opt_row_striping = opt_row_striping
     opt_vertical_padding = opt_vertical_padding
@@ -277,6 +281,7 @@ class GT(
     tab_stub = tab_stub
     with_id = with_id
     with_locale = with_locale
+    grand_summary_rows = grand_summary_rows
 
     save = save
     show = show

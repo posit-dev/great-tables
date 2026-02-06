@@ -22,12 +22,12 @@ DEFAULTS_TABLE_BACKGROUND = (
     "grand_summary_row_background_color",
     "footnotes_background_color",
     "source_notes_background_color",
+    "row_striping_background_color",
 )
 
 FONT_COLOR_VARS = (
     "table_background_color",
     "heading_background_color",
-    "column_labels_background_color",
     "column_labels_background_color",
     "row_group_background_color",
     "stub_background_color",
@@ -36,6 +36,7 @@ FONT_COLOR_VARS = (
     "grand_summary_row_background_color",
     "footnotes_background_color",
     "source_notes_background_color",
+    "row_striping_background_color",
 )
 
 
@@ -146,7 +147,7 @@ def compile_scss(
         data._google_font_imports.to_css() + "\n" if data._google_font_imports.to_css() else ""
     )
 
-    # Prepend any additional CSS ----
+    # Process any additional CSS that will be appended at the end ----
     additional_css = data._options.table_additional_css.value
 
     # Determine if there are any additional CSS statements
@@ -158,11 +159,11 @@ def compile_scss(
     # separating with `\n`; use an empty string if list is empty or value is None
     if has_additional_css:
         additional_css_unique = OrderedSet(additional_css).as_list()
-        table_additional_css = "\n".join(additional_css_unique) + "\n"
+        table_additional_css = "\n".join(additional_css_unique)
     else:
         table_additional_css = ""
 
-    gt_table_class_str = f"""{table_additional_css}{gt_table_open_str} {{
+    gt_table_class_str = f"""{gt_table_open_str} {{
           {font_family_attr}
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
@@ -186,6 +187,8 @@ def compile_scss(
     if all_important:
         compiled_css = re.sub(r";", " !important;", compiled_css, count=0, flags=re.MULTILINE)
 
-    finalized_css = f"{google_font_css}{gt_table_class_str}\n\n{compiled_css}"
+    # Assemble blocks of CSS ----
+    additional_css_block = f"\n{table_additional_css}\n" if has_additional_css else ""
+    finalized_css = f"{google_font_css}{gt_table_class_str}\n\n{compiled_css}{additional_css_block}"
 
     return finalized_css

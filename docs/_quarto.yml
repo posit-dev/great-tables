@@ -59,6 +59,14 @@ website:
 
 format:
   html:
+    include-in-header:
+    - text: |
+        <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-margin-left="28"></script>
+        <script async src="https://plausible.io/js/pa-N27-YgfNQBpdNqDqGcyE1.js"></script>
+        <script>
+          window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+          plausible.init()
+        </script>
     theme: cosmo
     css:
       - styles.css
@@ -131,6 +139,7 @@ quartodoc:
         - GT.fmt_integer
         - GT.fmt_percent
         - GT.fmt_scientific
+        - GT.fmt_engineering
         - GT.fmt_currency
         - GT.fmt_bytes
         - GT.fmt_roman
@@ -165,6 +174,13 @@ quartodoc:
         - GT.cols_move_to_end
         - GT.cols_hide
         - GT.cols_unhide
+    - title: Adding rows
+      desc: >
+        The [`grand_summary_rows()`](`great_tables.GT.grand_summary_rows`) function will add rows to
+        summarize data in your table, such as totals or averages.
+      contents:
+        - GT.grand_summary_rows
+
     - title: Location Targeting and Styling Classes
       desc: >
         Location targeting is a powerful feature of **Great Tables**. It allows for the precise
@@ -179,8 +195,10 @@ quartodoc:
         - loc.column_header
         - loc.spanner_labels
         - loc.column_labels
+        - loc.grand_summary_stub
         - loc.stub
         - loc.row_groups
+        - loc.grand_summary
         - loc.body
         - loc.footer
         - loc.source_notes
@@ -219,6 +237,7 @@ quartodoc:
         - GT.opt_table_outline
         - GT.opt_table_font
         - GT.opt_stylize
+        - GT.opt_css
     - title: Export
       desc: >
         There may come a day when you need to export a table to some specific format. A great method
@@ -245,6 +264,7 @@ quartodoc:
         - vals.fmt_number
         - vals.fmt_integer
         - vals.fmt_scientific
+        - vals.fmt_engineering
         - vals.fmt_percent
         - vals.fmt_currency
         - vals.fmt_roman
