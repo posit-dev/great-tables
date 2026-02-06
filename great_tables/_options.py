@@ -24,7 +24,7 @@ def tab_options(
     table_margin_left: str | None = None,
     table_margin_right: str | None = None,
     table_background_color: str | None = None,
-    table_additional_css: list[str] | None = None,
+    table_additional_css: str | list[str] | None = None,
     table_font_names: str | list[str] | None = None,
     table_font_size: str | None = None,
     table_font_weight: str | int | float | None = None,
@@ -560,6 +560,13 @@ def tab_options(
     if "table_font_names" in modified_args:
         if isinstance(modified_args["table_font_names"], str):
             modified_args["table_font_names"] = [modified_args["table_font_names"]]
+
+    # - `table_additional_css` should be a list but if given as a string, ensure it is list
+    #   Also filter out empty strings to avoid extra newlines in CSS output
+    if "table_additional_css" in modified_args:
+        if isinstance(modified_args["table_additional_css"], str):
+            css_val = modified_args["table_additional_css"].strip()
+            modified_args["table_additional_css"] = [css_val] if css_val else []
 
     new_options_info = {
         k: replace(getattr(self._options, k), value=v) for k, v in modified_args.items()
@@ -1429,6 +1436,99 @@ def opt_stylize(
 
     # Apply the style parameters to the table using the `tab_options()` method
     res = tab_options(self=self, **mapped_params)
+
+    return res
+
+
+def opt_css(
+    self: GTSelf,
+    css: str,
+    add: bool = True,
+    allow_duplicates: bool = False,
+) -> GTSelf:
+    """
+    Option to add custom CSS for the table.
+
+    `opt_css()` makes it possible to add extra CSS rules to a table. This CSS will be added after
+    the compiled CSS that Great Tables generates automatically when the object is transformed to an
+    HTML output table.
+
+    If you want to set CSS styles on a specific table location, use `tab_style()` with `style.css()`
+    instead.
+
+    Parameters
+    ----------
+    css
+        The CSS to include as part of the rendered table's `<style>` element.
+    add
+        If `True`, the default, the CSS is added to any already-defined CSS (typically from
+        previous calls of `opt_css()` or `tab_options(table_additional_css=...)`). If this is set to
+        `False`, the CSS provided here will replace any previously-stored CSS.
+    allow_duplicates
+        When this is `False` (the default), the CSS provided here won't be added (provided that
+        `add=True`) if it is seen in the already-defined CSS.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that
+        we can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `num` and
+    `currency` columns). Through use of the `opt_css()` method, we can insert CSS rulesets as a
+    string. We need to ensure that the table ID is set explicitly (we've done so here with the ID
+    value of `"one"`, setting it up with `GT(id=)`).
+
+    ```{python}
+    from great_tables import GT, exibble
+    import polars as pl
+
+    exibble_mini = pl.from_pandas(exibble).select(["num", "currency"])
+
+    (
+        GT(exibble_mini, id="one")
+        .fmt_currency(columns="currency", currency="HKD")
+        .fmt_scientific(columns="num")
+        .opt_css(
+            css='''
+            #one .gt_table {
+              background-color: skyblue;
+            }
+            #one .gt_row {
+              padding: 20px 30px;
+            }
+            #one .gt_col_heading {
+              text-align: center !important;
+            }
+            '''
+        )
+    )
+    ```
+    """
+
+    # Get the current additional CSS from `_options.table_additional_css`
+    existing_additional_css: list[str] = self._options.table_additional_css.value or []
+
+    # Convert CSS to a consistent format by stripping any leading or trailing whitespace
+    css = css.strip()
+
+    if not add:
+        # If `add=False`, or if `css` is empty, replace the existing CSS
+        additional_css = [css] if css else []
+    elif not css:
+        # If `css` is empty and we are adding CSS, keep the existing CSS
+        additional_css = existing_additional_css
+    elif not allow_duplicates and css in existing_additional_css:
+        # If CSS already exists and we don't allow duplicates, return self
+        return self
+    else:
+        # Add the new CSS to the existing CSS
+        additional_css = existing_additional_css + [css]
+
+    # Use tab_options() to set the additional CSS
+    res = tab_options(self, table_additional_css=additional_css)
 
     return res
 
