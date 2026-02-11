@@ -118,11 +118,6 @@ class TestColMergeInfoUnit:
         assert info.type == "merge"
         assert info.pattern == "{0} {1}"
 
-    def test_pattern_optional(self):
-        """Test that pattern can be None."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern=None)
-        assert info.pattern is None
-
     def test_pattern_columns_extraction(self):
         """Test pattern_columns property extracts column references correctly."""
         info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0}—{1}—{2}")
@@ -131,10 +126,6 @@ class TestColMergeInfoUnit:
         # Test with duplicate references
         info2 = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0} {1} {0}")
         assert info2.pattern_columns == ["0", "1"]
-
-        # Test with None pattern
-        info3 = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern=None)
-        assert info3.pattern_columns == []
 
     def test_validate_pattern_success(self):
         """Test validate_pattern with valid patterns."""
@@ -145,12 +136,6 @@ class TestColMergeInfoUnit:
         # Test with subset of columns referenced
         info2 = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0} {2}")
         info2.validate_pattern()
-
-    def test_validate_pattern_none_raises(self):
-        """Test validate_pattern raises when pattern is None."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern=None)
-        with pytest.raises(ValueError, match="Pattern must be provided"):
-            info.validate_pattern()
 
     def test_validate_pattern_zero_index_valid(self):
         """Test validate_pattern accepts 0-based indexing."""
@@ -164,7 +149,7 @@ class TestColMergeInfoUnit:
         with pytest.raises(ValueError, match="Pattern references column"):
             info.validate_pattern()
 
-    # Tests for the new merge() method (simple interface)
+    # Tests for the merge() method
     def test_merge_simple(self):
         """Test merge() with simple patterns."""
         info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0} {1}")
@@ -207,87 +192,16 @@ class TestColMergeInfoUnit:
         result3 = info.merge(10, None, None)
         assert result3 == "10"
 
-    def test_merge_pattern_none_raises(self):
-        """Test merge() raises when pattern is None."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern=None)
-        with pytest.raises(ValueError, match="Pattern must be provided"):
-            info.merge(10, 20)
-
     def test_merge_three_values(self):
         """Test merge() with three values."""
         info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0} {1} {2}")
         result = info.merge("A", "B", "C")
         assert result == "A B C"
 
-    # Tests for the dict-based merge_values() method (internal interface)
-    def test_merge_values_simple(self):
-        """Test merge_values with simple patterns."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0} {1}")
-        result = info.merge_values({"0": "Hello", "1": "World"}, {"0": False, "1": False})
-        assert result == "Hello World"
-
-    def test_merge_values_with_separator(self):
-        """Test merge_values with different separators."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0}—{1}")
-        result = info.merge_values({"0": "10", "1": "20"}, {"0": False, "1": False})
-        assert result == "10—20"
-
-    def test_merge_values_conditional_missing(self):
-        """Test merge_values with conditional sections and missing values."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0}<< ({1})>>")
-
-        # Non-missing: include the conditional section
-        result1 = info.merge_values({"0": "10", "1": "20"}, {"0": False, "1": False})
-        assert result1 == "10 (20)"
-
-        # Missing value: remove the conditional section
-        result2 = info.merge_values({"0": "10", "1": "NA"}, {"0": False, "1": True})
-        assert result2 == "10"
-
-    def test_merge_values_nested_conditionals(self):
-        """Test merge_values with nested conditional sections."""
-        info = ColMergeInfo(
-            vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0}<< ({1}-<<{2}>>)>>"
-        )
-
-        # All present
-        result1 = info.merge_values(
-            {"0": "10", "1": "15", "2": "5"}, {"0": False, "1": False, "2": False}
-        )
-        assert result1 == "10 (15-5)"
-
-        # Third missing
-        result2 = info.merge_values(
-            {"0": "10", "1": "15", "2": "NA"}, {"0": False, "1": False, "2": True}
-        )
-        assert result2 == "10 (15-)"
-
-        # Second missing (and third)
-        result3 = info.merge_values(
-            {"0": "10", "1": "NA", "2": "NA"}, {"0": False, "1": True, "2": True}
-        )
-        assert result3 == "10"
-
-    def test_merge_values_pattern_none_raises(self):
-        """Test merge_values raises when pattern is None."""
-        info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern=None)
-        with pytest.raises(ValueError, match="Pattern must be provided"):
-            info.merge_values({"0": "10", "1": "20"}, {"0": False, "1": False})
-
-    def test_merge_values_three_columns(self):
-        """Test merge_values with three columns."""
-        info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0} {1} {2}")
-        result = info.merge_values(
-            {"0": "A", "1": "B", "2": "C"}, {"0": False, "1": False, "2": False}
-        )
-        assert result == "A B C"
-
-    def test_merge_values_column_subset_in_pattern(self):
-        """Test merge_values when pattern only uses a subset of columns."""
+    def test_merge_column_subset_in_pattern(self):
+        """Test merge() when pattern only uses a subset of columns."""
         info = ColMergeInfo(vars=["a", "b", "c"], rows=[0], type="merge", pattern="{0} {2}")
-        result = info.merge_values(
-            {"0": "First", "1": "Second", "2": "Third"}, {"0": False, "1": False, "2": False}
-        )
+        result = info.merge("First", "Second", "Third")
         assert result == "First Third"
 
 
