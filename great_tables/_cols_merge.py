@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from ._tbl_data import Agnostic, _get_cell, _set_cell, is_na
-from ._utils import _extract_pattern_columns, _process_col_merge_pattern
+from ._utils import _process_col_merge_pattern
 
 if TYPE_CHECKING:
     from ._gt_data import Body, GTData
@@ -49,22 +50,30 @@ class ColMergeInfo:
 
     vars: list[str]
     rows: list[int]
-    type: str  # type of merge operation (only 'merge' used currently)
-    pattern: str | None = None
+    type: str
+    pattern: str
 
     @property
     def pattern_columns(self) -> list[str]:
-        """Extract column references from the pattern string.
+        """Extract unique column references from the pattern string.
 
         Returns
         -------
         list[str]
-            List of column reference numbers as strings (e.g., ["0", "1"]).
+            Unique column reference numbers as strings (e.g., ["0", "1"]),
+            in the order they first appear in the pattern.
         """
-        if self.pattern is None:
-            return []
+        matches = re.findall(r"\{(\d+)\}", self.pattern)
 
-        return _extract_pattern_columns(self.pattern)
+        seen: set[str] = set()
+        result: list[str] = []
+
+        for match in matches:
+            if match not in seen:
+                result.append(match)
+                seen.add(match)
+
+        return result
 
     def validate_pattern(self) -> None:
         """Validate that pattern references are valid for the provided columns.
@@ -72,17 +81,10 @@ class ColMergeInfo:
         Raises
         ------
         ValueError
-            If the pattern is None (required for merge operations).
-        ValueError
             If the pattern references a column index greater than or equal to
             the number of columns.
         """
-        if self.pattern is None:
-            raise ValueError("Pattern must be provided for column merge operations.")
-
-        pattern_cols = self.pattern_columns
-
-        for col_ref in pattern_cols:
+        for col_ref in self.pattern_columns:
             col_idx = int(col_ref)
 
             if col_idx >= len(self.vars):
@@ -142,11 +144,6 @@ class ColMergeInfo:
         str
             The merged string result.
 
-        Raises
-        ------
-        ValueError
-            If the pattern is None.
-
         Examples
         --------
         >>> info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0} {1}")
@@ -157,56 +154,10 @@ class ColMergeInfo:
         >>> info.merge("John", None)
         'John'
         """
-        if self.pattern is None:
-            raise ValueError("Pattern must be provided for column merge operations.")
-
         col_values = {str(i): str(v) if v is not None else "" for i, v in enumerate(values)}
         col_is_missing = {str(i): v is None for i, v in enumerate(values)}
 
         return _process_col_merge_pattern(self.pattern, col_values, col_is_missing)
-
-    def merge_values(
-        self,
-        col_values: dict[str, str],
-        col_is_missing: dict[str, bool],
-    ) -> str:
-        """Merge column values according to the pattern (dict-based interface).
-
-        This method is used internally when values and missing status are already
-        computed. For a simpler interface, use the `merge()` method instead.
-
-        Parameters
-        ----------
-        col_values
-            Dictionary mapping column indices (as strings, 0-based) to their display values.
-        col_is_missing
-            Dictionary mapping column indices (as strings, 0-based) to whether the
-            original value was missing.
-
-        Returns
-        -------
-        str
-            The merged string result.
-
-        Raises
-        ------
-        ValueError
-            If the pattern is None.
-
-        Examples
-        --------
-        >>> info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{0}-{1}")
-        >>> info.merge_values({"0": "10", "1": "20"}, {"0": False, "1": False})
-        '10-20'
-        """
-        if self.pattern is None:
-            raise ValueError("Pattern must be provided for column merge operations.")
-
-        return _process_col_merge_pattern(
-            pattern=self.pattern,
-            col_values=col_values,
-            col_is_missing=col_is_missing,
-        )
 
 
 ColMerges = list[ColMergeInfo]
@@ -246,7 +197,6 @@ def merge_pattern(pattern: str, *values: Any) -> str:
     >>> merge_pattern("{0}<< to {1}<< to {2}>>>>", 10, 20, None)
     '10 to 20'
     """
-    # Use replace_na to normalize NA values to None (no tbl_data needed)
     normalized = ColMergeInfo.replace_na(*values)
     info = ColMergeInfo(pattern=pattern, vars=[], rows=[], type="merge")
     return info.merge(*normalized)
@@ -268,14 +218,11 @@ def perform_col_merge(data: GTData) -> GTData:
     GTData
         The modified GTData object with merged columns.
     """
-    # If no column merging defined, return unchanged
     if not data._col_merge:
         return data
 
-    # Create a copy of the body for modification
     new_body = data._body.copy()
 
-    # Process each column merge operation in order
     for col_merge in data._col_merge:
         new_body = _apply_single_col_merge(
             col_merge=col_merge,
@@ -308,48 +255,41 @@ def _apply_single_col_merge(
         The modified body data.
     """
     if col_merge.type != "merge":
-        # TODO: incorporate other specialized merging operations (e.g., "merge_range") but
-        # only handle the basic 'merge' type for now
-        return body
+        raise NotImplementedError(
+            f"Column merge type {col_merge.type!r} is not supported. "
+            f"Only 'merge' is currently implemented."
+        )
 
-    # Validate the pattern
     col_merge.validate_pattern()
 
-    # Get the target column (column that receives the merged values)
     target_column = col_merge.vars[0]
 
-    # Process each row (according to the `rows=` parameter in `cols_merge()`)
     for row_idx in col_merge.rows:
-        # Collect values for all columns in this row
-        merge_values = []
+        # For each column, get the display value and determine if it's truly missing.
+        # A value is only considered missing if BOTH the body AND original are NA.
+        # This means sub_missing() replacements (e.g., "--") are not treated as missing,
+        # matching R's gt behavior.
+        values: list[Any] = []
 
         for col_name in col_merge.vars:
-            # Get the formatted value from the body
             formatted_value = _get_cell(body.body, row_idx, col_name)
-
-            # Get the original value from the data table
             original_value = _get_cell(tbl_data, row_idx, col_name)
 
-            body_is_na = is_na(body.body, formatted_value)
-            original_is_na = is_na(tbl_data, original_value)
+            original_na = ColMergeInfo.replace_na(original_value, tbl_data=tbl_data)
+            formatted_na = ColMergeInfo.replace_na(formatted_value, tbl_data=body.body)
 
-            # Determine the display value and whether it's missing for merge purposes
-            # A value is only considered missing if BOTH the body AND original are NA.
-            # This means sub_missing() replacements (e.g., "--") are not treated as missing.
-            if body_is_na and original_is_na:
-                # Truly missing: both body and original are NA
-                merge_values.append(None)
-            elif body_is_na and not original_is_na:
-                # Cell is unformatted but has a value in the original data
-                merge_values.append(str(original_value))
+            if formatted_na[0] is None and original_na[0] is None:
+                # Truly missing
+                values.append(None)
+            elif formatted_na[0] is None:
+                # Body is NA but original has a value (unformatted)
+                values.append(str(original_value))
             else:
-                # Cell is formatted (possibly by sub_missing): use formatted value
-                merge_values.append(str(formatted_value))
+                # Body has a value (possibly from sub_missing or formatting)
+                values.append(str(formatted_value))
 
-        # Use merge() as it checks `val is None` for missing detection
-        merged_value = col_merge.merge(*merge_values)
+        merged_value = col_merge.merge(*values)
 
-        # Set the merged value in the target column
         result = _set_cell(body.body, row_idx, target_column, merged_value)
 
         # For Pandas and Polars, _set_cell() modifies in place and returns None but
