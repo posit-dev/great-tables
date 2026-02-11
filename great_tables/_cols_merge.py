@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from ._tbl_data import Agnostic, _get_cell, _set_cell, is_na
-from ._utils import _process_col_merge_pattern
 
 if TYPE_CHECKING:
     from ._gt_data import Body, GTData
@@ -161,6 +160,74 @@ class ColMergeInfo:
 
 
 ColMerges = list[ColMergeInfo]
+
+
+# -- Pattern processing utilities -------------------------------------------------------
+
+# Token used to represent missing values during pattern processing
+_MISSING_VAL_TOKEN = "::NA::"
+
+
+def _process_col_merge_pattern(
+    pattern: str,
+    col_values: dict[str, str],
+    col_is_missing: dict[str, bool],
+) -> str:
+    """Process a column merge pattern by substituting values and handling missing data."""
+
+    # Replace values with tokens if they are truly missing
+    processed_values = {}
+    for key, value in col_values.items():
+        if col_is_missing.get(key, False):
+            processed_values[key] = _MISSING_VAL_TOKEN
+        else:
+            processed_values[key] = value
+
+    # Substitute `{n}` placeholders with values
+    result = pattern
+    for key, value in processed_values.items():
+        result = result.replace(f"{{{key}}}", value)
+
+    # Process conditional sections (`<<...>>`)
+    if "<<" in result and ">>" in result:
+        result = _resolve_conditional_sections(result)
+
+    # Clean up any remaining missing value tokens
+    result = result.replace(_MISSING_VAL_TOKEN, "NA")
+
+    return result
+
+
+def _resolve_conditional_sections(text: str) -> str:
+    """Resolve conditional sections marked with <<...>> in text."""
+    max_iterations = 100
+    iteration = 0
+
+    while "<<" in text and ">>" in text and iteration < max_iterations:
+        iteration += 1
+
+        # Find the last occurrence of `<<` (innermost section start)
+        last_open = text.rfind("<<")
+        if last_open == -1:
+            break
+
+        # Find the first `>>` after that `<<`
+        first_close = text.find(">>", last_open)
+        if first_close == -1:
+            break
+
+        # Extract the content between << and >>
+        section_content = text[last_open + 2 : first_close]
+
+        # Check if the section contains a missing value token
+        if _MISSING_VAL_TOKEN in section_content:
+            replacement = ""
+        else:
+            replacement = section_content
+
+        text = text[:last_open] + replacement + text[first_close + 2 :]
+
+    return text
 
 
 def merge_pattern(pattern: str, *values: Any) -> str:
