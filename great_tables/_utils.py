@@ -309,7 +309,7 @@ def _process_col_merge_pattern(
         else:
             processed_values[key] = value
 
-    # Substitute `{n}`` placeholders with values
+    # Substitute `{n}` placeholders with values
     result = pattern
     for key, value in processed_values.items():
         result = result.replace(f"{{{key}}}", value)
@@ -358,21 +358,3 @@ def _resolve_conditional_sections(text: str) -> str:
         text = text[:last_open] + replacement + text[first_close + 2 :]
 
     return text
-
-
-def _extract_pattern_columns(pattern: str) -> list[str]:
-    """Extract column references from a pattern string."""
-
-    # Find all `{n}` patterns
-    matches = re.findall(r"\{(\d+)\}", pattern)
-
-    # Return unique matches in order they appear
-    seen = set()
-    result = []
-
-    for match in matches:
-        if match not in seen:
-            result.append(match)
-            seen.add(match)
-
-    return result
