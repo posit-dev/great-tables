@@ -1065,7 +1065,7 @@ def cols_merge(
         A formatting pattern that specifies the arrangement of the column values and any string
         literals. The pattern uses numbers (within `{}`) that correspond to the indices of columns
         provided in `columns=`. If two columns are provided in `columns=` and we would like to
-        combine the cell data onto the first column, `"{1} {2}"` could be used. If a pattern isn't
+        combine the cell data onto the first column, `"{0} {1}"` could be used. If a pattern isn't
         provided then a space-separated pattern that includes all columns will be generated
         automatically. The pattern can also use `<<`/`>>` to surround spans of text that will be
         removed if any of the contained `{}` yields a missing value. Further details are provided in
