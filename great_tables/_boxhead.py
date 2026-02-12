@@ -173,7 +173,7 @@ def cols_label_with(
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
     fn
-        A function that accepts a column label as input and returns a transformed label as output.
+        A function that accepts a column name as input and returns a label as output.
 
     Returns
     -------
