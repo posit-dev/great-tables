@@ -106,6 +106,10 @@ markers = [
 line-length = 100
 
 
+[tool.ruff.format]
+exclude = ["great_tables/vals.py"]
+
+
 [tool.ruff.lint]
 exclude = ["docs", ".venv", "tests/*"]
 
