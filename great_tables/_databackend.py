@@ -19,7 +19,6 @@ def _load_class(mod_name: str, cls_name: str, strict: bool):
         if strict:
             raise e
         return MissingClass
-    return None
 
 
 class _AbstractBackendMeta(ABCMeta):
