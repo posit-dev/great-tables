@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, TypeVar, ove
 
 from typing_extensions import Self, TypeAlias, Union
 
+from ._cols_merge import ColMergeInfo, ColMerges  # noqa: F401 (re-exported)
 from ._helpers import GoogleFontImports
 
 # TODO: move this class somewhere else (even gt_data could work)
@@ -87,6 +88,7 @@ class GTData:
     _locale: Locale | None
     _formats: Formats
     _substitutions: Formats
+    _col_merge: ColMerges
     _options: Options
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
@@ -136,6 +138,7 @@ class GTData:
             _locale=Locale(locale),
             _formats=[],
             _substitutions=[],
+            _col_merge=[],
             _options=options,
             _google_font_imports=GoogleFontImports(),
         )
@@ -958,6 +961,9 @@ class FormatInfo:
 #         pass
 Formats = list
 
+
+# Column Merge ----
+# ColMergeInfo and ColMerges are defined in _cols_merge.py but re-exported here
 
 # Summary Rows ---
 
