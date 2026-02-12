@@ -174,6 +174,7 @@ quartodoc:
         - GT.cols_move_to_end
         - GT.cols_hide
         - GT.cols_unhide
+        - GT.cols_merge
     - title: Adding rows
       desc: >
         The [`grand_summary_rows()`](`great_tables.GT.grand_summary_rows`) function will add rows to
