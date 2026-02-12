@@ -19,8 +19,11 @@ if TYPE_CHECKING:
     import polars as pl
     import pyarrow as pa
 
-    # the class behind selectors
-    from polars.selectors import Selector
+    # backwards compatible import of polars Selector type
+    try:
+        from polars.selectors import Selector
+    except:
+        from polars.selectors import _selector_proxy_ as Selector
 
     PdDataFrame = pd.DataFrame
     PlDataFrame = pl.DataFrame
@@ -49,7 +52,7 @@ else:
 
     # we just need this as a static type hint, but singledispatch tries to resolve
     # any hints at runtime. So we need some value for it.
-    from typing import Any as _selector_proxy_
+    from typing import Any as Selector
 
     class PdDataFrame(AbstractBackend):
         _backends = [("pandas", "DataFrame")]
@@ -61,7 +64,7 @@ else:
         _backends = [("pyarrow", "Table")]
 
     class PlSelectExpr(AbstractBackend):
-        _backends = [("polars.selectors", "_selector_proxy_")]
+        _backends = [("polars.selectors", "_selector_proxy_"), ("polars.selectors", "Selector")]
 
     class PlExpr(AbstractBackend):
         _backends = [("polars", "Expr")]
@@ -398,9 +401,7 @@ def _(
 
 
 @eval_select.register
-def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool = True) -> _NamePos:
-    # TODO: how to annotate type of a polars selector?
-    # Seems to be polars.selectors._selector_proxy_.
+def _(data: PlDataFrame, expr: Union[list[str], PlSelector], strict: bool = True) -> _NamePos:
     import polars as pl
     import polars.selectors as cs
     from polars import Expr
@@ -409,10 +410,6 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
 
     pl_version = _re_version(pl.__version__)
     expand_opts = {"strict": False} if pl_version >= (0, 20, 30) else {}
-
-    # just in case _selector_proxy_ gets renamed or something
-    # it inherits from Expr, so we can just use that in a pinch
-    cls_selector = getattr(cs, "_selector_proxy_", Expr)
 
     if isinstance(expr, (str, int)):
         expr = [expr]
@@ -436,7 +433,7 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
             for col_name in cs.expand_selector(data, sel, **expand_opts)
         ).as_list()
     else:
-        if not isinstance(expr, (cls_selector, Expr)):
+        if not isinstance(expr, (PlSelector, Expr)):
             raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
         final_columns = cs.expand_selector(data, expr, **expand_opts)
@@ -449,7 +446,7 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
 
 @eval_select.register
 def _(
-    data: PyArrowTable, expr: Union[list[str], _selector_proxy_], strict: bool = True
+    data: PyArrowTable, expr: Union[list[str], PlSelector], strict: bool = True
 ) -> _NamePos:
     if isinstance(expr, (str, int)):
         expr = [expr]
