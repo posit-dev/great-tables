@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     # backwards compatible import of polars Selector type
     try:
         from polars.selectors import Selector
-    except:
+    except ImportError:
         from polars.selectors import _selector_proxy_ as Selector
 
     PdDataFrame = pd.DataFrame
