@@ -6,6 +6,7 @@ from ._formats_vals import (
     val_fmt_number as fmt_number,
     val_fmt_integer as fmt_integer,
     val_fmt_scientific as fmt_scientific,
+    val_fmt_engineering as fmt_engineering,
     val_fmt_percent as fmt_percent,
     val_fmt_currency as fmt_currency,
     val_fmt_roman as fmt_roman,
