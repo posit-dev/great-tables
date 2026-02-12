@@ -4,11 +4,22 @@ import sys
 import importlib
 
 from abc import ABCMeta
+from typing import List, Tuple
 
 
-def _load_class(mod_name: str, cls_name: str):
-    mod = importlib.import_module(mod_name)
-    return getattr(mod, cls_name)
+class MissingClass:
+    """Represent a class that can't be found."""
+
+
+def _load_class(mod_name: str, cls_name: str, strict: bool):
+    try:
+        mod = importlib.import_module(mod_name)
+        return getattr(mod, cls_name)
+    except AttributeError as e:
+        if strict:
+            raise e
+        return MissingClass
+    return None
 
 
 class _AbstractBackendMeta(ABCMeta):
@@ -18,6 +29,9 @@ class _AbstractBackendMeta(ABCMeta):
 
 
 class AbstractBackend(metaclass=_AbstractBackendMeta):
+    _backends: List[Tuple[str, str]]
+    _strict: bool = True
+
     @classmethod
     def __init_subclass__(cls):
         if not hasattr(cls, "_backends"):
@@ -32,7 +46,7 @@ class AbstractBackend(metaclass=_AbstractBackendMeta):
                 # so skip here.
                 continue
             else:
-                parent_candidate = _load_class(mod_name, cls_name)
+                parent_candidate = _load_class(mod_name, cls_name, cls._strict)
                 if issubclass(subclass, parent_candidate):
                     return True
 

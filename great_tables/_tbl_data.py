@@ -65,6 +65,7 @@ else:
 
     class PlSelectExpr(AbstractBackend):
         _backends = [("polars.selectors", "_selector_proxy_"), ("polars.selectors", "Selector")]
+        _strict = False
 
     class PlExpr(AbstractBackend):
         _backends = [("polars", "Expr")]
@@ -401,7 +402,7 @@ def _(
 
 
 @eval_select.register
-def _(data: PlDataFrame, expr: Union[list[str], PlSelector], strict: bool = True) -> _NamePos:
+def _(data: PlDataFrame, expr: Union[list[str], PlSelectExpr], strict: bool = True) -> _NamePos:
     import polars as pl
     import polars.selectors as cs
     from polars import Expr
@@ -433,7 +434,7 @@ def _(data: PlDataFrame, expr: Union[list[str], PlSelector], strict: bool = True
             for col_name in cs.expand_selector(data, sel, **expand_opts)
         ).as_list()
     else:
-        if not isinstance(expr, (PlSelector, Expr)):
+        if not isinstance(expr, (PlSelectExpr, Expr)):
             raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
         final_columns = cs.expand_selector(data, expr, **expand_opts)
@@ -445,9 +446,7 @@ def _(data: PlDataFrame, expr: Union[list[str], PlSelector], strict: bool = True
 
 
 @eval_select.register
-def _(
-    data: PyArrowTable, expr: Union[list[str], PlSelector], strict: bool = True
-) -> _NamePos:
+def _(data: PyArrowTable, expr: Union[list[str], PlSelectExpr], strict: bool = True) -> _NamePos:
     if isinstance(expr, (str, int)):
         expr = [expr]
 
