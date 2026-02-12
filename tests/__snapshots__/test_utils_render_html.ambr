@@ -198,6 +198,50 @@
   </tbody>
   '''
 # ---
+# name: test_row_group_as_column_with_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="2">A</th>
+      <th class="gt_row gt_left gt_stub">0</th>
+      <td class="gt_row gt_right">22</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">1</th>
+      <td class="gt_row gt_right">33</td>
+    </tr>
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="1">B</th>
+      <th class="gt_row gt_left gt_stub">2</th>
+      <td class="gt_row gt_right">44</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_row_group_as_column_without_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="2">A</th>
+      <td class="gt_row gt_right">0</td>
+      <td class="gt_row gt_right">22</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">33</td>
+    </tr>
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="1">B</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">44</td>
+    </tr>
+  </tbody>
+  '''
+# ---
 # name: test_source_notes_snap
   '''
     <tfoot class="gt_sourcenotes">

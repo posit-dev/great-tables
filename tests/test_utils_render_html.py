@@ -61,6 +61,26 @@ def test_render_groups_reordered(snapshot):
     assert_rendered_body(snapshot, new_gt)
 
 
+def test_row_group_as_column_with_rowname(snapshot):
+    df = pd.DataFrame({"g": ["A", "A", "B"], "x": ["0", "1", "2"], "y": [22, 33, 44]})
+
+    new_gt = GT(df, groupname_col="g", rowname_col="x").tab_options(
+        row_group_as_column=True,
+    )
+
+    assert_rendered_body(snapshot, new_gt)
+
+
+def test_row_group_as_column_without_rowname(snapshot):
+    df = pd.DataFrame({"g": ["A", "A", "B"], "x": ["0", "1", "2"], "y": [22, 33, 44]})
+
+    new_gt = GT(df, groupname_col="g").tab_options(
+        row_group_as_column=True,
+    )
+
+    assert_rendered_body(snapshot, new_gt)
+
+
 def test_groupname_with_no_rowname(snapshot):
     df = pd.DataFrame({"g": ["A", "B"], "x": ["0", "1"], "y": ["22", "33"]})
 
