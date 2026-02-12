@@ -13,6 +13,8 @@ from great_tables._locations import (
     LocSpannerLabels,
     LocStub,
     LocTitle,
+    LocGrandSummaryStub,
+    LocGrandSummary,
     resolve,
     resolve_cols_i,
     resolve_rows_i,
@@ -295,3 +297,50 @@ def test_set_style_loc_title_from_column_error(snapshot):
         set_style(loc, gt_df, [style])
 
     assert snapshot == exc_info.value.args[0]
+
+
+@pytest.mark.parametrize(
+    "rows, res",
+    [
+        (0, {0}),
+        ("min", {1}),
+        (["min"], {1}),
+        (["min", 0], {0, 1}),
+        (["min", -1], {1}),
+    ],
+)
+def test_resolve_loc_grand_summary_stub(rows, res):
+    df = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
+    gt = (
+        GT(df)
+        .grand_summary_rows(fns={"min": lambda x: x.min()}, side="bottom")
+        .grand_summary_rows(fns={"max": lambda x: x.max()}, side="top")
+    )
+
+    cells = resolve(LocGrandSummaryStub(rows), gt)
+
+    assert cells == res
+
+
+@pytest.mark.parametrize(
+    "cols, rows, resolved_subset, length",
+    [
+        (["x"], ["max"], CellPos(column=0, row=0, colname="x", rowname=None), 1),
+        ([1], ["min"], CellPos(column=1, row=1, colname="y", rowname=None), 1),
+        ([-1], [0, 1], CellPos(column=1, row=0, colname="y", rowname=None), 2),
+        ([-1, "x"], ["max", 1], CellPos(column=0, row=0, colname="x", rowname=None), 4),
+    ],
+)
+def test_resolve_loc_grand_summary(cols, rows, resolved_subset, length):
+    df = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
+    gt = (
+        GT(df)
+        .grand_summary_rows(fns={"min": lambda x: x.min()}, side="bottom")
+        .grand_summary_rows(fns={"max": lambda x: x.max()}, side="top")
+    )
+
+    cells = resolve(LocGrandSummary(columns=cols, rows=rows), gt)
+
+    assert isinstance(cells, list)
+    assert len(cells) == length
+    assert resolved_subset in cells
