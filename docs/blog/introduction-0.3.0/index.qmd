@@ -16,8 +16,10 @@ Before `v0.3.0`, you could not alter the widths of individual columns. This mean
 Here's an example where the widths of all columns are set with our preferred length values (in `px`).
 
 ```{python}
+import warnings
 from great_tables import GT, exibble
 
+warnings.filterwarnings("ignore")
 exibble_mini = exibble[["num", "char", "date", "datetime", "row"]].head(5)
 
 (

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import numpy as np
-from great_tables._locations import resolve_cols_c, resolve_rows_i, RowSelectExpr
-from great_tables._tbl_data import DataFrameLike, is_na, SelectExpr
+from typing_extensions import TypeAlias
+
+from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
+from great_tables._tbl_data import DataFrameLike, SelectExpr, get_column_names, is_na
 from great_tables.loc import body
 from great_tables.style import fill, text
-from typing_extensions import TypeAlias
 
 from .constants import ALL_PALETTES, COLOR_NAME_TO_HEX, DEFAULT_PALETTE
 
@@ -28,6 +28,7 @@ def data_color(
     alpha: int | float | None = None,
     reverse: bool = False,
     autocolor_text: bool = True,
+    truncate: bool = False,
 ) -> GTSelf:
     """
     Perform data cell colorization.
@@ -73,6 +74,11 @@ def data_color(
     autocolor_text
         Whether or not to automatically color the text of the data values. If `True`, then the text
         will be colored according to the background color of the cell.
+    truncate
+        If `True`, then any values that fall outside of the domain will be truncated to the
+        minimum or maximum value of the domain (will have the same color). If `False`, then any
+        values that fall outside of the domain will be set to `NaN` and will follow the `na_color=`
+        color.
 
     Returns
     -------
@@ -132,9 +138,10 @@ def data_color(
     do this with the `exibble` dataset:
 
     ```{python}
-    import great_tables as gt
+    from great_tables import GT
+    from great_tables.data import exibble
 
-    gt.GT(gt.data.exibble).data_color()
+    GT(exibble).data_color()
     ```
 
     What's happened is that `data_color()` applies background colors to all cells of every column
@@ -146,8 +153,7 @@ def data_color(
     supply `palette=` values of `"red"` and `"green"`.
 
     ```{python}
-
-    gt.GT(gt.data.exibble).data_color(
+    GT(exibble).data_color(
         columns=["num", "currency"],
         palette=["red", "green"]
     )
@@ -164,7 +170,7 @@ def data_color(
     (so we'll set that to `"lightgray"`).
 
     ```{python}
-    gt.GT(gt.data.exibble).data_color(
+    GT(exibble).data_color(
         columns="currency",
         palette=["red", "green"],
         domain=[0, 50],
@@ -209,7 +215,7 @@ def data_color(
     columns_resolved: list[str]
 
     if columns is None:
-        columns_resolved = data_table.columns
+        columns_resolved = get_column_names(data_table)
     else:
         columns_resolved = resolve_cols_c(data=self, expr=columns)
 
@@ -237,7 +243,9 @@ def data_color(
                 domain = _get_domain_numeric(df=data_table, vals=column_vals)
 
             # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-            scaled_vals = _rescale_numeric(df=data_table, vals=column_vals, domain=domain)
+            scaled_vals = _rescale_numeric(
+                df=data_table, vals=column_vals, domain=domain, truncate=truncate
+            )
 
         elif all(isinstance(x, str) for x in filtered_column_vals):
             # If `domain` is not provided, then infer it from the data values
@@ -255,7 +263,7 @@ def data_color(
             )
 
         # Replace NA values in `scaled_vals` with `None`
-        scaled_vals = [np.nan if is_na(data_table, x) else x for x in scaled_vals]
+        scaled_vals = [None if is_na(data_table, x) else x for x in scaled_vals]
 
         # Create a color scale function from the palette
         color_scale_fn = GradientPalette(colors=palette)
@@ -263,7 +271,7 @@ def data_color(
         # Call the color scale function on the scaled values to get a list of colors
         color_vals = color_scale_fn(scaled_vals)
 
-        # Replace 'None' and 'np.nan' values in `color_vals` with the `na_color=` color
+        # Replace 'None' values in `color_vals` with the `na_color=` color
         color_vals = [na_color if is_na(data_table, x) else x for x in color_vals]
 
         # for every color value in color_vals, apply a fill to the corresponding cell
@@ -285,8 +293,8 @@ def data_color(
 
 
 def _ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000000") -> str:
-    # Remove alpha value from hexadecimal color value in `bgnd_color=`
-    bgnd_color = _remove_alpha(colors=[bgnd_color])[0]
+    # Compose alpha value from hexadecimal color value in `bgnd_color=`
+    bgnd_color = _alpha_composite_with_white(bgnd_color)
 
     contrast_dark = _get_wcag_contrast_ratio(color_1=dark, color_2=bgnd_color)
     contrast_light = _get_wcag_contrast_ratio(color_1=light, color_2=bgnd_color)
@@ -294,6 +302,49 @@ def _ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000
     fgnd_color = dark if abs(contrast_dark) > abs(contrast_light) else light
 
     return fgnd_color
+
+
+def _alpha_composite_with_white(color: str) -> str:
+    """
+    Alpha composite a color with white background
+
+    Parameters
+    ----------
+    color : str
+        Hexadecimal color value, either #RRGGBB or #RRGGBBAA format
+
+    Returns
+    -------
+    str
+        Composited color in #RRGGBB format
+    """
+
+    # If no alpha channel, return as-is
+    if len(color) != 9:
+        return color
+
+    # Extract RGB and alpha components
+    r = int(color[1:3], 16)
+    g = int(color[3:5], 16)
+    b = int(color[5:7], 16)
+    alpha = int(color[7:9], 16) / 255.0
+
+    # White background (255, 255, 255) with full opacity
+    white_r, white_g, white_b = 255, 255, 255
+
+    # Apply alpha compositing formula: cr = cf * af + cb * ab * (1 - af)
+    result_r = int(r * alpha + white_r * (1 - alpha))
+    result_g = int(g * alpha + white_g * (1 - alpha))
+    result_b = int(b * alpha + white_b * (1 - alpha))
+
+    # Clamp values to [0, 255] range
+    result_r = max(0, min(255, result_r))
+    result_g = max(0, min(255, result_g))
+    result_b = max(0, min(255, result_b))
+
+    # Convert back to hex format
+    # TODO: After refactor, use rgb_to_hex (now in palettes.py)
+    return f"#{result_r:02X}{result_g:02X}{result_b:02X}"
 
 
 def _get_wcag_contrast_ratio(color_1: str, color_2: str) -> float:
@@ -419,7 +470,6 @@ def _html_color(colors: list[str], alpha: int | float | None = None) -> list[str
     all_hex_colors = all(_is_hex_col(colors=colors))
 
     if not all_hex_colors:
-
         # Translate named colors to hexadecimal values
         colors = _color_name_to_hex(colors=colors)
 
@@ -459,21 +509,6 @@ def _add_alpha(colors: list[str], alpha: int | float) -> list[str]:
     return colors
 
 
-def _remove_alpha(colors: list[str]) -> list[str]:
-    # Loop through the colors and remove the alpha value from each one
-    for i in range(len(colors)):
-        color = colors[i]
-        # If the color value is already in the `#RRGGBB` format, then we need to add the
-        # alpha value to it before removing the alpha value
-        if _is_standard_hex_col([color])[0]:
-            color = color + "FF"
-
-        # Remove the alpha value from the color value
-        colors[i] = color[:-2]
-
-    return colors
-
-
 def _float_to_hex(x: float) -> str:
     """
     Convert a float to a hexadecimal value.
@@ -509,7 +544,6 @@ def _color_name_to_hex(colors: list[str]) -> list[str]:
     hex_colors: list[str] = []
 
     for color in colors:
-
         if _is_hex_col([color])[0]:
             hex_colors.append(color)
         else:
@@ -565,13 +599,12 @@ def _expand_short_hex(hex_color: str) -> str:
 
     # Return the expanded 6-digit hexadecimal color value
     expanded = "#" + "".join(x * 2 for x in hex_color)
-    expanded = expanded.upper()
-    return expanded
+    return expanded.upper()
 
 
 def _rescale_numeric(
-    df: DataFrameLike, vals: list[int | float], domain: list[float]
-) -> list[float]:
+    df: DataFrameLike, vals: list[int | float], domain: list[float], truncate: bool = False
+) -> list[float | None]:
     """
     Rescale numeric values
 
@@ -586,15 +619,16 @@ def _rescale_numeric(
 
     if domain_range == 0:
         # In the case where the domain range is 0, all scaled values in `vals` will be `0`
-        scaled_vals = [0.0 if not is_na(df, x) else x for x in vals]
-    else:
-        # Rescale the values in `vals` to the range [0, 1], pass through NA values
-        scaled_vals = [(x - domain_min) / domain_range if not is_na(df, x) else x for x in vals]
+        return [0.0 if not is_na(df, x) else x for x in vals]
 
-    # Add NA values to any values in `scaled_vals` that are not in the [0, 1] range
-    scaled_vals = [x if not is_na(df, x) and (x >= 0 and x <= 1) else np.nan for x in scaled_vals]
+    # Rescale the values in `vals` to the range [0, 1], pass through NA values
+    scaled: list[float | None] = [
+        None if is_na(df, x) else (x - domain_min) / domain_range for x in vals
+    ]
 
-    return scaled_vals
+    min_val, max_val = (0, 1) if truncate else (None, None)
+
+    return [None if x is None else min_val if x < 0 else max_val if x > 1 else x for x in scaled]
 
 
 def _rescale_factor(
@@ -618,8 +652,8 @@ def _rescale_factor(
     # use NA; then scale these index values to the range [0, 1]
     scaled_vals = _rescale_numeric(
         df=df,
-        vals=[domain.index(x) if x in domain else np.nan for x in vals],
-        domain=[0, domain_length],
+        vals=[domain.index(x) if x in domain else None for x in vals],
+        domain=[0, domain_length - 1],
     )
 
     return scaled_vals

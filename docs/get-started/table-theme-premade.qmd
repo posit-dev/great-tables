@@ -3,31 +3,35 @@ title: Premade Themes
 jupyter: python3
 ---
 
-Great Tables provides convenience methods starting with `opt_` (e.g. `GT.opt_row_striping()`), as a shortcut for various styles that can be set via `GT.tab_options()`.
+Great Tables provides convenience methods starting with `opt_` (e.g. `~~GT.opt_row_striping()`), as a shortcut for various styles that can be set via `~~GT.tab_options()`.
 
 There are two important kinds of `GT.opt_*()` methods:
 
-* `GT.opt_stylize()`: allows setting one of six premade table themes.
-* The remaining `GT.opt_*()` methods: shortcuts for common uses of `GT.tab_options()`.
+* `~~GT.opt_stylize()`: allows setting one of six premade table themes.
+* The remaining `opt_*()` methods: shortcuts for common uses of `~~GT.tab_options()`.
 
 We'll use the basic GT object below for most examples, since it marks some of the table parts.
 
-
 ```{python}
-from great_tables import GT, exibble
+from great_tables import GT, exibble, md
 
 lil_exibble = exibble.head(5)[["num", "char", "row", "group"]]
 
 gt_ex = (
     GT(lil_exibble, rowname_col="row", groupname_col="group")
-    .tab_header("THE HEADING", "(a subtitle)")
-    .tab_stubhead("THE STUBHEAD")
-    .tab_source_note("THE SOURCE NOTE")
+    .tab_header(
+        title=md("Data listing from exibble"),
+        subtitle=md("This is a **Great Tables** dataset."),
+    )
+    .tab_stubhead(label="row")
+    .fmt_number(columns="num")
+    .fmt_currency(columns="currency")
+    .tab_source_note(source_note="This is only a portion of the dataset.")
+    .opt_vertical_padding(scale=0.5)
 )
 
 gt_ex
 ```
-
 
 ## `opt_stylize()`: premade themes
 
@@ -37,25 +41,53 @@ Below are the first two premade styles. The first uses `color="blue"`, and the s
 :::{.g-col-lg-6 .g-col-12}
 
 ```{python}
-gt_ex.opt_stylize(style = 1, color = "blue")
+gt_ex.opt_stylize(style=1, color="blue")
 ```
 
 :::
 :::{.g-col-lg-6 .g-col-12}
 ```{python}
-gt_ex.opt_stylize(style = 2, color = "red")
+gt_ex.opt_stylize(style=2, color="red")
 ```
 :::
 ::::::
 
-Notice that first table (blue) emphasizes the row labels with a solid background color. The second table (red) emphasizes the column labels, and uses solid lines to separate the body cell values.
+Notice that first table (blue) emphasizes the row labels with a solid background color. The second table (red) emphasizes the column labels, and uses solid lines to separate the body cell values. See `~~GT.opt_stylize()` for all available color options.
 
-There are six styles available, each emphasizing different table parts. The styles are currently numbered 1-6. The options for colors are `"blue"`, `"cyan"`, `"pink"`, `"green"`, `"red"`, and `"gray"`.
+There are six styles available, each emphasizing different table parts. The `style=` values are numbered from `1` to `6`:
 
+```{=html}
+<style>
+.shrink-example table {
+    zoom: 60%;
+}
+</style>
+```
+
+```{python}
+# | echo: false
+# | output: asis
+
+print(":::{.grid}")
+
+for ii in range(1, 7):
+
+    gt_html = gt_ex.opt_stylize(style=ii).as_raw_html()
+
+    print(
+        ":::{.g-col-lg-4 .g-col-12 .shrink-example}",
+        f"<div style='text-align:center;'>{ii}</div>",
+        gt_html,
+        ":::",
+        sep="\n\n"
+    )
+
+print(":::")
+```
 
 ## `opt_*()` convenience methods
 
-This section shows the different `GT.opt_*()` methods available. They serve as convenience methods for common `GT.tab_options()` tasks.
+This section shows the different `opt_*()` methods available. They serve as convenience methods for common `~~GT.tab_options()` tasks.
 
 ### Align table header
 

@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def tab_source_note(data: GTSelf, source_note: str | Text) -> GTSelf:
+def tab_source_note(self: GTSelf, source_note: str | Text) -> GTSelf:
     """
     Add a source note citation.
 
@@ -51,4 +51,4 @@ def tab_source_note(data: GTSelf, source_note: str | Text) -> GTSelf:
     ```
     """
 
-    return data._replace(_source_notes=data._source_notes + [source_note])
+    return self._replace(_source_notes=self._source_notes + [source_note])

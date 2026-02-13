@@ -34,23 +34,43 @@ website:
             - get-started/basic-header.qmd
             - get-started/basic-stub.qmd
             - get-started/basic-column-labels.qmd
-        - section: Format and Style
+        - section: Format
           contents:
             - get-started/basic-formatting.qmd
+            - get-started/nanoplots.qmd
+        - section: Style
+          contents:
             - get-started/basic-styling.qmd
+            - get-started/targeted-styles.qmd
             - get-started/colorizing-with-data.qmd
+        - section: Theming
+          contents:
             - get-started/table-theme-options.qmd
             - get-started/table-theme-premade.qmd
-        - section: Extra Topics
+        - section: Selecting table parts
           contents:
             - get-started/column-selection.qmd
             - get-started/row-selection.qmd
-            - get-started/nanoplots.qmd
+            - get-started/loc-selection.qmd
+        - section: Extra
+          contents:
+            - get-started/contributing.qmd
+            - get-started/extensions.qmd
 
 format:
   html:
+    include-in-header:
+    - text: |
+        <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-margin-left="28"></script>
+        <script async src="https://plausible.io/js/pa-N27-YgfNQBpdNqDqGcyE1.js"></script>
+        <script>
+          window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+          plausible.init()
+        </script>
     theme: cosmo
-    css: styles.css
+    css:
+      - styles.css
+      - reference/_styles-quartodoc.css
     toc: true
     page-layout: full
 
@@ -59,6 +79,9 @@ filters:
 
 interlinks:
   fast: true
+  autolink: true
+  aliases:
+    great_tables: [null, gt]
   sources:
     numpy:
       url: https://numpy.org/doc/stable/
@@ -72,8 +95,12 @@ quartodoc:
   dir: reference
   title: API Reference
   style: pkgdown
+  css: reference/_styles-quartodoc.css
   dynamic: true
   render_interlinks: true
+  renderer:
+    style: markdown
+    table_style: description-list
   sections:
     - title: Table Creation
       desc: >
@@ -81,7 +108,10 @@ quartodoc:
         class, we supply the input data table and some basic options for creating a stub and row
         groups (with the `rowname_col=` and `groupname_col=` arguments).
       contents:
-        - GT
+        - name: GT
+          children: linked
+
+
     - title: Creating or modifying parts of a table
       desc: >
         A table can contain a few useful components for conveying additional information. These
@@ -92,6 +122,7 @@ quartodoc:
       contents:
         - GT.tab_header
         - GT.tab_spanner
+        - GT.tab_spanner_delim
         - GT.tab_stub
         - GT.tab_stubhead
         - GT.tab_source_note
@@ -108,15 +139,19 @@ quartodoc:
         - GT.fmt_integer
         - GT.fmt_percent
         - GT.fmt_scientific
+        - GT.fmt_engineering
         - GT.fmt_currency
         - GT.fmt_bytes
         - GT.fmt_roman
         - GT.fmt_date
         - GT.fmt_time
+        - GT.fmt_tf
         - GT.fmt_datetime
         - GT.fmt_markdown
         - GT.fmt_units
         - GT.fmt_image
+        - GT.fmt_icon
+        - GT.fmt_flag
         - GT.fmt_nanoplot
         - GT.fmt
         - GT.data_color
@@ -133,10 +168,21 @@ quartodoc:
         - GT.cols_align
         - GT.cols_width
         - GT.cols_label
+        - GT.cols_label_with
+        - GT.cols_label_rotate
         - GT.cols_move
         - GT.cols_move_to_start
         - GT.cols_move_to_end
         - GT.cols_hide
+        - GT.cols_unhide
+        - GT.cols_merge
+    - title: Adding rows
+      desc: >
+        The [`grand_summary_rows()`](`great_tables.GT.grand_summary_rows`) function will add rows to
+        summarize data in your table, such as totals or averages.
+      contents:
+        - GT.grand_summary_rows
+
     - title: Location Targeting and Styling Classes
       desc: >
         Location targeting is a powerful feature of **Great Tables**. It allows for the precise
@@ -144,10 +190,24 @@ quartodoc:
         [`tab_style()`](`great_tables.GT.tab_style`) method). The styling classes allow for the
         specification of the styling properties to be applied to the targeted locations.
       contents:
+        - loc.header
+        - loc.title
+        - loc.subtitle
+        - loc.stubhead
+        - loc.column_header
+        - loc.spanner_labels
+        - loc.column_labels
+        - loc.grand_summary_stub
+        - loc.stub
+        - loc.row_groups
+        - loc.grand_summary
         - loc.body
+        - loc.footer
+        - loc.source_notes
         - style.fill
         - style.text
         - style.borders
+        - style.css
     - title: Helper functions
       desc: >
         An assortment of helper functions is available in the **Great Tables** package. The
@@ -162,6 +222,7 @@ quartodoc:
         - md
         - html
         - from_column
+        - google_font
         - system_fonts
         - define_units
         - nanoplot_options
@@ -171,21 +232,32 @@ quartodoc:
         having to use `tab_options()` directly.
       contents:
         - GT.opt_align_table_header
+        - GT.opt_row_striping
         - GT.opt_all_caps
         - GT.opt_vertical_padding
         - GT.opt_horizontal_padding
         - GT.opt_table_outline
         - GT.opt_table_font
         - GT.opt_stylize
+        - GT.opt_css
     - title: Export
       desc: >
         There may come a day when you need to export a table to some specific format. A great method
         for that is `save()`, which allows us to save the table as a standalone image file. You can
-        also get the table code as an HTML fragment with the `as_raw_html()` method.
+        also get the table code as an HTML fragment with the `*_raw_html()` methods.
       contents:
         - GT.save
         - GT.show
         - GT.as_raw_html
+        - GT.write_raw_html
+        - GT.as_latex
+    - title: Pipeline
+      desc: >
+        Sometimes, you might want to programmatically manipulate the table while still benefiting
+        from the chained API that **Great Tables** offers. `pipe()` is designed to tackle this
+        issue.
+      contents:
+        - GT.pipe
     - title: Value formatting functions
       desc: >
         If you have single values (or lists of them) in need of formatting, we have a set of
@@ -194,6 +266,7 @@ quartodoc:
         - vals.fmt_number
         - vals.fmt_integer
         - vals.fmt_scientific
+        - vals.fmt_engineering
         - vals.fmt_percent
         - vals.fmt_currency
         - vals.fmt_roman
@@ -201,11 +274,13 @@ quartodoc:
         - vals.fmt_date
         - vals.fmt_time
         - vals.fmt_markdown
+        - vals.fmt_image
     - title: Built in datasets
       desc: >
-        The **Great Tables** package is equipped with ten datasets that come in all shapes and
-        sizes. Many examples thoughout the help docs use these datasets to quickly demonstrate the
-        awesome features of the package!
+        The **Great Tables** package is equipped with sixteen datasets that come in all shapes and
+        sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the
+        awesome features of the package! Please note that using any of these datasets requires the
+        Pandas library to be installed.
       contents:
         - data.countrypops
         - data.sza

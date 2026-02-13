@@ -3,47 +3,58 @@ from __future__ import annotations
 import html
 import re
 from dataclasses import dataclass
-from typing import Literal, Union
+from typing import Callable
 
 import commonmark
 
 
+class BaseText:
+    """Abstract base class for text elements"""
+
+    def to_html(self) -> str:
+        raise NotImplementedError("Method not implemented")
+
+    def to_latex(self) -> str:
+        raise NotImplementedError("Method not implemented")
+
+
 @dataclass
-class Text:
+class Text(BaseText):
+    """As-is text"""
+
     text: str
+
+    def to_html(self) -> str:
+        return self.text
+
+    def to_latex(self) -> str:
+        return self.text
 
 
 class Md(Text):
     """Markdown text"""
 
+    def to_html(self) -> str:
+        return _md_html(self.text)
+
+    def to_latex(self) -> str:
+        return _md_latex(self.text)
+
 
 class Html(Text):
     """HTML text"""
 
+    def to_html(self) -> str:
+        return self.text
 
-class StringBuilder:
-    pieces: list[Union[str, "StringBuilder"]]
+    def to_latex(self) -> str:
+        from ._utils_render_latex import _not_implemented
 
-    def __init__(self, *args: Union[str, "StringBuilder"]):
-        self.pieces = list(args)
+        _not_implemented(
+            "Using the `html()` helper function won't convert HTML to LaTeX. Escaping HTML string instead."
+        )
 
-    def _collect(self, lst: list[str]):
-        for piece in self.pieces:
-            if isinstance(piece, str):
-                lst.append(piece)
-            else:
-                piece._collect(lst)
-
-    def make_string(self) -> str:
-        lst = []
-        self._collect(lst)
-        return "".join(lst)
-
-    def append(self, *args: str) -> None:
-        self.pieces.extend(args)
-
-    def prepend(self, *args: str) -> None:
-        self.pieces[0:0] = args
+        return _latex_escape(self.text)
 
 
 def _md_html(x: str) -> str:
@@ -51,29 +62,79 @@ def _md_html(x: str) -> str:
     return re.sub(r"^<p>|</p>\n$", "", str)
 
 
-def _process_text(x: str | Text | None) -> str:
-    from great_tables._helpers import UnitStr
+def _md_latex(x: str) -> str:
+    # TODO: Implement commonmark to LaTeX conversion (through a different library as
+    # commonmark-py does not support it)
+    raise NotImplementedError("Markdown to LaTeX conversion is not supported yet")
 
+
+def _process_text(x: str | BaseText | None, context: str = "html") -> str:
     if x is None:
         return ""
 
-    if isinstance(x, Md):
-        return _md_html(x.text)
-    elif isinstance(x, Html):
-        return x.text
-    elif isinstance(x, str):
-        return _html_escape(x)
-    elif isinstance(x, Text):
-        return x.text
-    elif isinstance(x, UnitStr):
-        return x.to_html()
-    else:
-        raise TypeError(f"Invalid type: {type(x)}")
+    escape_fn = _html_escape if context == "html" else _latex_escape
+
+    if isinstance(x, str):
+        return escape_fn(x)
+
+    elif isinstance(x, BaseText):
+        return x.to_html() if context == "html" else x.to_latex()
+
+    raise TypeError(f"Invalid type: {type(x)}")
 
 
-def _process_text_id(x: str | Text | None) -> str:
-    return _process_text(x)
+def _process_text_id(x: str | BaseText | None) -> str:
+    return _process_text(x).replace(" ", "-")
 
 
 def _html_escape(x: str) -> str:
     return html.escape(x)
+
+
+def _latex_escape(text: str) -> str:
+    latex_escape_regex = "[\\\\&%$#_{}~^]"
+    text = re.sub(latex_escape_regex, lambda match: "\\" + match.group(), text)
+
+    return text
+
+
+def escape_pattern_str_latex(pattern_str: str) -> str:
+    pattern = r"(\{[x0-9]+\})"
+
+    return process_string(pattern_str, pattern, _latex_escape)
+
+
+def process_string(string: str, pattern: str, func: Callable[[str], str]) -> str:
+    """
+    Apply a function to segments of a string that are unmatched by a regex pattern.
+
+    This function splits a string based on a regex pattern to a list of strings, and invokes the
+    supplied function (in `func=`) to those list elements that *do not* match the pattern (i.e.,
+    the matched components are untouched). Finally, the processed list of text fragments is then
+    joined back into a single .
+
+    Parameters
+    ----------
+    string
+        The string to process.
+    pattern
+        The regex pattern used for splitting the input string.
+    func
+        The function applied to elements that do not match the pattern.
+
+    Returns
+    -------
+    str
+        A processed string.
+    """
+
+    # Split the string by the pattern
+    split_result = re.split(pattern, string)
+
+    # Apply the function to elements that do not match the pattern
+    processed_list = (func(part) if not re.match(pattern, part) else part for part in split_result)
+
+    # Recombine the list elements to obtain a selectively processed string
+    combined_str = "".join(processed_list)
+
+    return combined_str

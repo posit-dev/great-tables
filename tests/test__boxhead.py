@@ -56,6 +56,58 @@ def test_cols_label_return_self_if_no_kwargs():
     assert isinstance(unmodified_table, gt.GT)
 
 
+def test_cols_label_with_relabel_columns():
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df)
+    modified_table = table.cols_label_with(fn=str.lower)
+    assert modified_table._boxhead._get_column_labels() == ["a", "b"]
+
+
+def test_cols_label_with_single_column():
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df)
+    modified_table = table.cols_label_with("A", fn=str.lower)
+    assert modified_table._boxhead._get_column_labels() == ["a", "B"]
+
+
+def test_cols_label_with_relabel_columns_with_markdown():
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df)
+    modified_table = table.cols_label_with("A", lambda x: gt.md(f"**{x}**"))
+    modified_column_labels = modified_table._boxhead._get_column_labels()
+    assert modified_column_labels[0].text == "**A**"
+    assert modified_column_labels[1] == "B"
+
+
+def test_cols_label_with_raises():
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df)
+    with pytest.raises(ValueError) as exc_info:
+        table.cols_label_with()
+    assert "Must provide the `fn=` parameter to use `cols_label_with()`." in exc_info.value.args[0]
+
+
+def test_cols_label_with_does_not_mutate_original():
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df)
+    table.cols_label_with(fn=str.lower)
+    assert table._boxhead._get_column_labels() == ["A", "B"]
+
+
+def test_cols_label_with_uses_data_column_names():
+    """fn receives original data column names, not display labels set by cols_label()."""
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    table = gt.GT(df).cols_label(A="Alpha", B="Beta")
+    received = []
+
+    def capture(name):
+        received.append(name)
+        return name.lower()
+
+    table.cols_label_with(fn=capture)
+    assert received == ["A", "B"]
+
+
 def test_cols_align_default():
     df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
     table = gt.GT(df)
@@ -99,7 +151,9 @@ def test_cols_align_columns_list_of_str():
 
 
 def test_cols_align_pl_expr():
-    df = pl.DataFrame({"col1": [1, 2], "col2": [3.3, 4.4], "c": ["x", "y"]})
+    df = pl.DataFrame({"col1": [1, 2], "col2": [3.3, 4.4], "c": ["x", "y"]}).with_columns(
+        pl.col("col1").cast(pl.UInt8).alias("d")
+    )
     table = gt.GT(df)
 
     # Select columns by polars expressions
@@ -110,6 +164,7 @@ def test_cols_align_pl_expr():
         "center",  # manually assign
         "center",  # manually assign
         "left",  # `auto_align` for `str` is "left"
+        "right",  # `auto_align` for `pl.UInt` is "right"
     ]
 
 

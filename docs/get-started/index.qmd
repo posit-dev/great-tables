@@ -20,6 +20,11 @@ pip install great_tables
 
 ## A Basic Table using **Great Tables**
 
+::: {.callout-note}
+The example below requires the Pandas library to be installed. But Pandas is not required to
+use Great Tables. You can also use a Polars DataFrame.
+:::
+
 Let’s use a subset of the `islands` dataset available within `great_tables.data`:
 
 ```{python}
@@ -40,6 +45,31 @@ gt_tbl
 ```
 
 That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a **Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
+
+::: {.callout-note}
+Typically we use Great Tables in an notebook environment or within a Quarto document. Tables won't print to the console, but using the `~~GT.show()` method on a table object while in the console will open the HTML table in your default browser.
+:::
+
+## **Polars** DataFrame support
+
+`GT` accepts both **Pandas** and **Polars** DataFrames. You can pass a **Polars** DataFrame to `GT`, or use its `DataFrame.style` property.
+
+```{python}
+import polars as pl
+
+df_polars = pl.from_pandas(islands_mini)
+
+# Approach 1: call GT ----
+GT(df_polars)
+
+# Approach 2: Polars style property ----
+df_polars.style
+```
+
+:::{.callout-note}
+The `polars.DataFrame.style` property is currently considered [unstable](https://docs.pola.rs/api/python/stable/reference/dataframe/style.html#polars.DataFrame.style), and may change in the future. Using `GT` on a **Polars** DataFrame will always work.
+:::
+
 
 ## Some Beautiful Examples
 

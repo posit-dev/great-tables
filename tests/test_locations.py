@@ -1,13 +1,20 @@
 import pandas as pd
 import polars as pl
+import polars.selectors as cs
 import pytest
 from great_tables import GT
 from great_tables._gt_data import Spanners
 from great_tables._locations import (
     CellPos,
     LocBody,
-    LocColumnSpanners,
+    LocColumnLabels,
+    LocSpannerLabels,
+    LocRowGroups,
+    LocSpannerLabels,
+    LocStub,
     LocTitle,
+    LocGrandSummaryStub,
+    LocGrandSummary,
     resolve,
     resolve_cols_i,
     resolve_rows_i,
@@ -116,6 +123,9 @@ def test_resolve_rows_i_raises(bad_expr):
     assert "a callable that takes a DataFrame and returns a boolean Series" in expected
 
 
+# Resolve Loc tests --------------------------------------------------------------------------------
+
+
 def test_resolve_loc_body():
     gt = GT(pd.DataFrame({"x": [1, 2], "y": [3, 4]}))
 
@@ -132,28 +142,118 @@ def test_resolve_loc_body():
     assert pos.colname == "x"
 
 
-def test_resolve_column_spanners_simple():
-    # note that this essentially a no-op
-    ids = ["a", "b", "c"]
-
-    spanners = Spanners.from_ids(ids)
-    loc = LocColumnSpanners(ids=["a", "c"])
+@pytest.mark.xfail
+def test_resolve_loc_spanners_label_single():
+    spanners = Spanners.from_ids(["a", "b"])
+    loc = LocSpannerLabels(ids="a")
 
     new_loc = resolve(loc, spanners)
 
-    assert new_loc == loc
-    assert new_loc.ids == ["a", "c"]
+    assert new_loc.ids == ["a"]
 
 
-def test_resolve_column_spanners_error_missing():
+@pytest.mark.parametrize(
+    "expr",
+    [
+        ["a", "c"],
+        pytest.param(cs.by_name("a", "c"), marks=pytest.mark.xfail),
+    ],
+)
+def test_resolve_loc_spanners_label(expr):
     # note that this essentially a no-op
     ids = ["a", "b", "c"]
 
     spanners = Spanners.from_ids(ids)
-    loc = LocColumnSpanners(ids=["a", "d"])
+    loc = LocSpannerLabels(ids=expr)
+
+    new_loc = resolve(loc, spanners)
+
+    assert new_loc.ids == ["a", "c"]
+
+
+def test_resolve_loc_spanner_label_error_missing():
+    # note that this essentially a no-op
+    ids = ["a", "b", "c"]
+
+    spanners = Spanners.from_ids(ids)
+    loc = LocSpannerLabels(ids=["a", "d"])
 
     with pytest.raises(ValueError):
         resolve(loc, spanners)
+
+
+@pytest.mark.parametrize(
+    "rows, res",
+    [
+        (2, {"b"}),
+        ([2], {"b"}),
+        ("b", {"b"}),
+        (["a", "c"], {"a", "c"}),
+        ([0, 1], {"a"}),
+        (None, {"a", "b", "c"}),
+        (pl.col("group") == "b", {"b"}),
+    ],
+)
+def test_resolve_loc_row_groups(rows, res):
+    df = pl.DataFrame({"group": ["a", "a", "b", "c"]})
+    loc = LocRowGroups(rows=rows)
+    new_loc = resolve(loc, GT(df, groupname_col="group"))
+
+    assert isinstance(new_loc, set)
+    assert new_loc == res
+
+
+@pytest.mark.parametrize(
+    "rows, res",
+    [
+        (2, {2}),
+        ([2], {2}),
+        ("b", {2}),
+        (["a", "c"], {0, 1, 3}),
+        ([0, 1], {0, 1}),
+        (pl.col("row") == "a", {0, 1}),
+    ],
+)
+def test_resolve_loc_stub(rows, res):
+    df = pl.DataFrame({"row": ["a", "a", "b", "c"]})
+    loc = LocStub(rows=rows)
+    new_loc = resolve(loc, GT(df, rowname_col="row"))
+
+    assert isinstance(new_loc, set)
+    assert new_loc == res
+
+
+@pytest.mark.parametrize(
+    "cols, res",
+    [
+        (["b"], [("b", 1)]),
+        ([0, 2], [("a", 0), ("c", 2)]),
+        (cs.by_name("a"), [("a", 0)]),
+    ],
+)
+def test_resolve_loc_column_labels(cols, res):
+    df = pl.DataFrame({"a": [0], "b": [1], "c": [2]})
+    loc = LocColumnLabels(columns=cols)
+
+    selected = resolve(loc, GT(df))
+    assert selected == res
+
+
+@pytest.mark.parametrize(
+    "ids, res",
+    [
+        (["b"], ["b"]),
+        (["a", "b"], ["a", "b"]),
+        pytest.param(cs.by_name("a"), ["a"], marks=pytest.mark.xfail),
+    ],
+)
+def test_resolve_loc_spanner_labels(ids, res):
+    df = pl.DataFrame({"x": [0], "y": [1], "z": [2]})
+    gt = GT(df).tab_spanner("a", ["x", "y"]).tab_spanner("b", ["z"])
+    loc = LocSpannerLabels(ids=ids)
+
+    new_loc = resolve(loc, gt._spanners)
+    assert new_loc.ids == res
 
 
 @pytest.mark.parametrize(
@@ -190,10 +290,57 @@ def test_set_style_loc_body_from_column(expr):
 def test_set_style_loc_title_from_column_error(snapshot):
     df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
     gt_df = GT(df)
-    loc = LocTitle("title")
+    loc = LocTitle()
     style = CellStyleText(color=FromColumn("color"))
 
     with pytest.raises(TypeError) as exc_info:
         set_style(loc, gt_df, [style])
 
     assert snapshot == exc_info.value.args[0]
+
+
+@pytest.mark.parametrize(
+    "rows, res",
+    [
+        (0, {0}),
+        ("min", {1}),
+        (["min"], {1}),
+        (["min", 0], {0, 1}),
+        (["min", -1], {1}),
+    ],
+)
+def test_resolve_loc_grand_summary_stub(rows, res):
+    df = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
+    gt = (
+        GT(df)
+        .grand_summary_rows(fns={"min": lambda x: x.min()}, side="bottom")
+        .grand_summary_rows(fns={"max": lambda x: x.max()}, side="top")
+    )
+
+    cells = resolve(LocGrandSummaryStub(rows), gt)
+
+    assert cells == res
+
+
+@pytest.mark.parametrize(
+    "cols, rows, resolved_subset, length",
+    [
+        (["x"], ["max"], CellPos(column=0, row=0, colname="x", rowname=None), 1),
+        ([1], ["min"], CellPos(column=1, row=1, colname="y", rowname=None), 1),
+        ([-1], [0, 1], CellPos(column=1, row=0, colname="y", rowname=None), 2),
+        ([-1, "x"], ["max", 1], CellPos(column=0, row=0, colname="x", rowname=None), 4),
+    ],
+)
+def test_resolve_loc_grand_summary(cols, rows, resolved_subset, length):
+    df = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
+    gt = (
+        GT(df)
+        .grand_summary_rows(fns={"min": lambda x: x.min()}, side="bottom")
+        .grand_summary_rows(fns={"max": lambda x: x.max()}, side="top")
+    )
+
+    cells = resolve(LocGrandSummary(columns=cols, rows=rows), gt)
+
+    assert isinstance(cells, list)
+    assert len(cells) == length
+    assert resolved_subset in cells

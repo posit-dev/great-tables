@@ -1,5 +1,5 @@
 # %%
-from ast import NodeVisitor, Import, ImportFrom, alias, parse
+from ast import NodeVisitor, Import, ImportFrom, parse
 from pathlib import Path
 from os import walk
 

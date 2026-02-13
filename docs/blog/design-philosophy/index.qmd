@@ -139,7 +139,7 @@ The grid cells couldn't be styled with borders for presentation purposes, the va
 
 Over time, and this took about 10-15 years, tables-within-spreadsheets got a little easier on the eyes. By the early 1990s, Excel could paint borders on your tables, better typographical support was available, and the formatting of values was fully-featured (though, [wonky](https://www.cnet.com/tech/computing/prevent-excel-from-reformatting-two-numbers-to-a-date-and-month/)). Great! Problem solved, right? Not really.
 
-While Excel tables from the last three decades looked much better than 1980s-spreadsheet-borne tables, they could never hold a candle to the what was shown in the *Census Manual* (no matter how much of an Excel expert you became). Further to this, data analysis started to became a thing accomplished outside of Excel. One example of that is Python and its use inside Jupyter notebooks. We now have a bag of problematic scenarios
+While Excel tables from the last three decades looked much better than 1980s-spreadsheet-borne tables, they could never hold a candle to what was shown in the *Census Manual* (no matter how much of an Excel expert you became). Further to this, data analysis started to became a thing accomplished outside of Excel. One example of that is Python and its use inside Jupyter notebooks. We now have a bag of problematic scenarios
 
 - all Python: analyze data and generate tables all in Python (bad tables)
 - all Excel: analyze data and make tables in Excel (less flexible analysis)
@@ -215,16 +215,16 @@ The problem grows worse when values need to be conveyed as images or plots. If y
 # | code-fold: true
 # | code-summary: "Show the code"
 
-import great_tables
 from great_tables import GT, md
 from great_tables.data import illness
 import polars as pl
+from polars import selectors as cs
 
 illness_mini = (
     pl.from_pandas(illness)
     .head(10)
     .select(
-        "test", values=pl.concat_str(pl.exclude("test", "units"), separator=" ", ignore_nulls=True)
+        "test", values=pl.concat_str(cs.starts_with("day"), separator=" ", ignore_nulls=True)
     )
     .slice(1, 9)
 )
@@ -236,7 +236,7 @@ illness_mini = (
     .tab_stubhead(label=md("**Test**"))
     .cols_label(values=md("*Progression*"))
     .cols_align(align="center", columns="values")
-    .tab_source_note(source_note="Measurements from Day 3 through to Day 8.")
+    .tab_source_note(source_note="Measurements from Day 3 through Day 9.")
 )
 ```
 
@@ -260,7 +260,7 @@ We wanted to help the type of user that wanted to present data in this way. This
 
 Tables have come a long way and we've learned a lot from our continued research in tabular design. We hope to make the [**Great Tables**][great-tables] package useful for your generation of summary tables. Given there's ample room for innovation in this area, we'll keep plugging away at doing that work to improve the API. We measure success by the quality of the tables the package is able to produce and we always keep that goal top of mind.
 
-We're very excited about where things are going with [**Great Tables**][great-tables] and we geniunely appreciate community feedback. If ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV) and drop us a line!
+We're very excited about where things are going with [**Great Tables**][great-tables] and we genuinely appreciate community feedback. If ever you want to talk tables with us, you're always welcome to jump into our [Discord Server](https://discord.com/invite/Ux7nrcXHVV) and drop us a line!
 
 Many thanks to Curtis Kephart and [Anthony Baker](https://anthonywbaker.com) for providing helpful advice when writing this article.
 

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ._helpers import GoogleFont
 from ._locations import Loc, PlacementOptions, set_footnote, set_style
 from ._styles import CellStyle
-
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -118,6 +118,30 @@ def tab_style(
         locations = [locations]
 
     new_data = self
+
+    # Intercept `font` in CellStyleText to capture Google Fonts and:
+    # 1. transform dictionary to string (with Google Font name)
+    # 2. add Google Font import statement
+    if any(isinstance(s, CellStyle) for s in style):
+        for s in style:
+            if (
+                isinstance(s, CellStyle)
+                and hasattr(s, "font")
+                and s.font is not None
+                and isinstance(s.font, GoogleFont)
+            ):
+                # Obtain font name and import statement as local variables
+                font_name = s.font.get_font_name()
+                font_import_stmt = s.font.make_import_stmt()
+
+                # Replace GoogleFont class with font name
+                s.font = font_name
+
+                # Add the Google Font import statement to the internal font imports
+                new_data = new_data._replace(
+                    _google_font_imports=new_data._google_font_imports.add(font_import_stmt)
+                )
+
     for loc in locations:
         new_data = set_style(loc, new_data, style)
 
@@ -141,7 +165,7 @@ def tab_footnote(
         The footnote text.
     locations
         The location to place the footnote. If None, then a footnote is created without
-        a correesponding marker on the table (TODO: double check this).
+        a corresponding marker on the table (TODO: double check this).
     placement
         Where to affix the footnote marks to the table content.
 
