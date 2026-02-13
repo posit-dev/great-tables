@@ -732,34 +732,33 @@ def test_opt_all_caps(gt_tbl: GT):
     assert tbl._options.row_group_font_weight.value == "bolder"
     assert tbl._options.row_group_text_transform.value == "uppercase"
 
-    # Activate the following tests once the circular import issue is resolved.
-    # tbl = gt_tbl.opt_all_caps()
+    tbl = gt_tbl.opt_all_caps()
 
-    # assert tbl._options.column_labels_font_size.value == "80%"
-    # assert tbl._options.column_labels_font_weight.value == "bolder"
-    # assert tbl._options.column_labels_text_transform.value == "uppercase"
+    assert tbl._options.column_labels_font_size.value == "80%"
+    assert tbl._options.column_labels_font_weight.value == "bolder"
+    assert tbl._options.column_labels_text_transform.value == "uppercase"
 
-    # assert tbl._options.stub_font_size.value == "80%"
-    # assert tbl._options.stub_font_weight.value == "bolder"
-    # assert tbl._options.stub_text_transform.value == "uppercase"
+    assert tbl._options.stub_font_size.value == "80%"
+    assert tbl._options.stub_font_weight.value == "bolder"
+    assert tbl._options.stub_text_transform.value == "uppercase"
 
-    # assert tbl._options.row_group_font_size.value == "80%"
-    # assert tbl._options.row_group_font_weight.value == "bolder"
-    # assert tbl._options.row_group_text_transform.value == "uppercase"
+    assert tbl._options.row_group_font_size.value == "80%"
+    assert tbl._options.row_group_font_weight.value == "bolder"
+    assert tbl._options.row_group_text_transform.value == "uppercase"
 
-    # tbl = gt_tbl.opt_all_caps(all_caps=False)
+    tbl = gt_tbl.opt_all_caps(all_caps=False)
 
-    # assert tbl._options.column_labels_font_size.value == "100%"
-    # assert tbl._options.column_labels_font_weight.value == "normal"
-    # assert tbl._options.column_labels_text_transform.value == "inherit"
+    assert tbl._options.column_labels_font_size.value == "100%"
+    assert tbl._options.column_labels_font_weight.value == "normal"
+    assert tbl._options.column_labels_text_transform.value == "inherit"
 
-    # assert tbl._options.stub_font_size.value == "100%"
-    # assert tbl._options.stub_font_weight.value == "initial"
-    # assert tbl._options.stub_text_transform.value == "inherit"
+    assert tbl._options.stub_font_size.value == "100%"
+    assert tbl._options.stub_font_weight.value == "initial"
+    assert tbl._options.stub_text_transform.value == "inherit"
 
-    # assert tbl._options.row_group_font_size.value == "100%"
-    # assert tbl._options.row_group_font_weight.value == "initial"
-    # assert tbl._options.row_group_text_transform.value == "inherit"
+    assert tbl._options.row_group_font_size.value == "100%"
+    assert tbl._options.row_group_font_weight.value == "initial"
+    assert tbl._options.row_group_text_transform.value == "inherit"
 
 
 def test_opt_all_caps_raises(gt_tbl: GT):
