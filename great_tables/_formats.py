@@ -92,7 +92,7 @@ MissingVals: TypeAlias = Literal[
 
 def fmt(
     self: GTSelf,
-    fns: FormatFn | FormatFns,
+    fns: FormatFn,
     columns: SelectExpr = None,
     rows: int | list[int] | None = None,
     is_substitution: bool = False,
