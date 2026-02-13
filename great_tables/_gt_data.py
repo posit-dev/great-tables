@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
@@ -10,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, TypeVar, ove
 
 from typing_extensions import Self, TypeAlias, Union
 
+from ._cols_merge import ColMergeInfo, ColMerges  # noqa: F401 (re-exported)
 from ._helpers import GoogleFontImports
 
 # TODO: move this class somewhere else (even gt_data could work)
@@ -24,12 +24,18 @@ from ._tbl_data import (
     copy_data,
     create_empty_frame,
     get_column_names,
+    is_na,
     n_rows,
     to_list,
     validate_frame,
 )
+from ._tbl_data_align import (
+    ALIGNMENT_MAP,
+    classify_dtype_for_alignment,
+    is_number_like_column,
+)
 from ._text import BaseText
-from ._utils import OrderedSet, _str_detect
+from ._utils import OrderedSet
 
 if TYPE_CHECKING:
     from ._helpers import UnitStr
@@ -83,6 +89,7 @@ class GTData:
     _locale: Locale | None
     _formats: Formats
     _substitutions: Formats
+    _col_merge: ColMerges
     _options: Options
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
@@ -132,6 +139,7 @@ class GTData:
             _locale=Locale(locale),
             _formats=[],
             _substitutions=[],
+            _col_merge=[],
             _options=options,
             _google_font_imports=GoogleFontImports(),
         )
@@ -361,7 +369,7 @@ class Boxhead(_Sequence[ColInfo]):
     def align_from_data(self, data: TblData) -> Self:
         """Updates align attribute in entries based on data types."""
 
-        # TODO: validate that data columns and ColInfo list correspond
+        # Validate that data columns and ColInfo list correspond
         if len(get_column_names(data)) != len(self._d):
             raise ValueError("Number of data columns must match length of Boxhead")
 
@@ -370,49 +378,19 @@ class Boxhead(_Sequence[ColInfo]):
         ):
             raise ValueError("Column names must match between data and Boxhead")
 
-        # Obtain a list of column classes for each of the column names by iterating
-        # through each of the columns and obtaining the type of the column from
-        # a Pandas DataFrame or a Polars DataFrame
-        col_classes = []
-        for col in get_column_names(data):
-            dtype = _get_column_dtype(data, col)
-
-            if dtype == "object":
-                # Check whether all values in 'object' columns are strings that
-                # for all intents and purpose are 'number-like'
-
-                col_vals = data[col].to_list()
-
-                # Detect whether all non-NA values in the column are 'number-like'
-                # through use of a regular expression
-                number_like_matches = (
-                    re.match("^[0-9 -/:\\.]*$", val) for val in col_vals if isinstance(val, str)
-                )
-
-                # If all values in the column are 'number-like', then set the
-                # dtype to 'character-numeric'
-                if all(number_like_matches):
-                    dtype = "character-numeric"
-
-            col_classes.append(dtype)
-
-        # Get a list of `align` values by translating the column classes
+        # Classify each column and map to alignment
         align: list[str] = []
+        for col in get_column_names(data):
+            classification = classify_dtype_for_alignment(data, col)
 
-        align_to_left = {"object", "utf8", "string"}
-        for col_class in col_classes:
-            # Ensure that `col_class` is lowercase
-            col_class = str(col_class).lower()
+            # Special case: string columns with number-like content -> right-align
+            # This handles both "object" (pandas 2.x) and "str" (pandas 3.x) dtypes
+            if classification == "string":
+                dtype = str(_get_column_dtype(data, col)).lower()
+                if dtype in ("object", "str") and is_number_like_column(data, col):
+                    classification = "numeric"
 
-            # Translate the column classes to an alignment value of 'left', 'right', or 'center'
-            if col_class == "character-numeric" or _str_detect(
-                col_class, r"int|uint|float|date|double"
-            ):
-                align.append("right")
-            elif col_class in align_to_left:
-                align.append("left")
-            else:
-                align.append("center")
+            align.append(ALIGNMENT_MAP[classification])
 
         # Set the alignment for each column in the boxhead
         new_cols: list[ColInfo] = [
@@ -649,6 +627,49 @@ class Stub:
         # TODO: validate
         return self.__class__(self.rows, self.group_rows.reorder(group_order))
 
+    def update_group_row_labels(self, body: Body, tbl_data: TblData, boxhead: Boxhead) -> Self:
+        """Update group row labels using formatted values from the rendered body.
+
+        For each group, the formatted cell value for the first row of the group is
+        looked up in `body`. If the cell was not formatted (i.e., it is still NA),
+        the original value from `tbl_data` is used instead.
+
+        If no row-group column exists in `boxhead`, the stub is returned unchanged.
+
+        Parameters
+        ----------
+        body
+            The rendered body whose cells may contain formatted values.
+        tbl_data
+            The original (unformatted) source data.
+        boxhead
+            The boxhead containing column metadata, used to identify the row-group column.
+
+        Returns
+        -------
+        Stub
+            A new Stub with group labels replaced by formatted values, or the
+            original Stub if no row-group column exists.
+        """
+        rowgroup_var = boxhead._get_row_group_column()
+        if rowgroup_var is None:
+            return self
+
+        new_group_rows: list[Any] = []
+
+        for group_row in self.group_rows:
+            first_index = group_row.indices[0]
+            cell_content = _get_cell(body.body, first_index, rowgroup_var.var)
+
+            # When no formatter was applied, the cell is still NA — fall back to
+            # the original data value.
+            if is_na(tbl_data, cell_content):
+                cell_content = _get_cell(tbl_data, first_index, rowgroup_var.var)
+
+            new_group_rows.append(group_row.with_group_label(cell_content))
+
+        return self.__class__(self.rows, GroupRows(new_group_rows))
+
     def group_indices_map(self) -> list[tuple[int, GroupRowInfo | None]]:
         return self.group_rows.indices_map(len(self.rows))
 
@@ -739,6 +760,10 @@ class GroupRowInfo:
         """Return a group label that has been defaulted."""
         label = self.group_label if self.group_label is not None else self.group_id
         return label
+
+    def with_group_label(self, label: str | None) -> Self:
+        """Return a copy of the object with the specified group label."""
+        return replace(self, group_label=label)
 
 
 class MISSING_GROUP:
@@ -985,10 +1010,13 @@ class FormatInfo:
 Formats = list
 
 
+# Column Merge ----
+# ColMergeInfo and ColMerges are defined in _cols_merge.py but re-exported here
+
 # Summary Rows ---
 
 # This can't conflict with actual group ids since we have a
-# seperate data structure for grand summary row infos
+# separate data structure for grand summary row infos
 
 
 @dataclass(frozen=True)
@@ -1009,7 +1037,7 @@ class SummaryRowInfo:
 class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
     """A sequence of summary rows
 
-    The following strctures should always be true about summary rows:
+    The following structures should always be true about summary rows:
         - The id is also the label (often the same as the function name)
         - There is at most 1 row for each group and id pairing
         - If a summary row is added and no row exists for that group and id, add it

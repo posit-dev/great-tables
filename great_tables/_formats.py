@@ -93,7 +93,7 @@ MissingVals: TypeAlias = Literal[
 
 def fmt(
     self: GTSelf,
-    fns: FormatFn | FormatFns,
+    fns: FormatFn,
     columns: SelectExpr = None,
     rows: int | list[int] | None = None,
     is_substitution: bool = False,
@@ -105,13 +105,12 @@ def fmt(
     values in a way that can consider all output contexts.
 
     Along with the `columns` and `rows` arguments that provide some precision in targeting data
-    cells, the `fns` argument allows you to define one or more functions for manipulating the
-    raw data.
+    cells, the `fns` argument allows you to define a function for manipulating the raw data.
 
     Parameters
     ----------
     fns
-        Either a single formatting function or a named list of functions.
+        A formatting function to apply to the targeted cells.
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
@@ -145,8 +144,12 @@ def fmt(
 
     # If a single function is supplied to `fns` then
     # repackage that into a list as the `default` function
-    if isinstance(fns, Callable):
+    if isinstance(fns, FormatFns):
+        pass
+    elif isinstance(fns, Callable):
         fns = FormatFns(default=fns)
+    else:
+        raise TypeError("Input to fns= should be a callable.")
 
     row_res = resolve_rows_i(self, rows)
     row_pos = [name_pos[1] for name_pos in row_res]
@@ -826,6 +829,353 @@ def fmt_scientific_context(
             exp_marks = _context_exp_marks(context=context)
 
             # Create the formatted string based on `exp_marks` and the two `sci_parts`
+            x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
+
+    else:
+        # Define the exponent string based on the `exp_style` that's not the default
+        # value of 'x10n'
+
+        exp_str = _context_exp_str(exp_style=exp_style)
+
+        n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
+
+        # The `n_part` will be extracted here and it must be padded to
+        # the defined minimum number of decimal places
+        if _str_detect(n_part, "-"):
+            n_part = _str_replace(n_part, "-", "")
+            n_part = n_part.rjust(n_min_width, "0")
+            n_part = "-" + n_part
+        else:
+            n_part = n_part.rjust(n_min_width, "0")
+            if force_sign_n:
+                n_part = "+" + n_part
+
+        # Implement minus sign replacement for `m_part` and `n_part`
+        m_part = _replace_minus(m_part, minus_mark=minus_mark)
+        n_part = _replace_minus(n_part, minus_mark=minus_mark)
+
+        x_formatted = m_part + exp_str + n_part
+
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
+
+
+def fmt_engineering(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    decimals: int = 2,
+    n_sigfig: int | None = None,
+    drop_trailing_zeros: bool = False,
+    drop_trailing_dec_mark: bool = True,
+    scale_by: float = 1,
+    exp_style: str = "x10n",
+    pattern: str = "{x}",
+    dec_mark: str = ".",
+    force_sign_m: bool = False,
+    force_sign_n: bool = False,
+    locale: str | None = None,
+) -> GTSelf:
+    """
+    Format values to engineering notation.
+
+    With numeric values in a table, we can perform formatting so that the targeted values are
+    rendered in engineering notation, where numbers are written in the form of a mantissa (`m`) and
+    an exponent (`n`). When combined the construction is either of the form *m* x 10^*n* or *m*E*n*.
+    The mantissa is a number between `1` and `1000` and the exponent is a multiple of `3`. For
+    example, the number `0.0000345` can be written in engineering notation as `34.50 x 10^-6`. This
+    notation helps to simplify calculations and make it easier to compare numbers that are on very
+    different scales.
+
+    Engineering notation is particularly useful as it aligns with SI prefixes (e.g., *milli-*,
+    *micro-*, *kilo-*, *mega-*). For instance, numbers in engineering notation with exponent `-3`
+    correspond to milli-units, while those with exponent `6` correspond to mega-units.
+
+    We have fine control over the formatting task, with the following options:
+
+    - decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice
+    of the decimal symbol
+    - scaling: we can choose to scale targeted values by a multiplier value
+    - pattern: option to use a text pattern for decoration of the formatted values
+    - locale-based formatting: providing a locale ID will result in formatting specific to the
+    chosen locale
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    decimals
+        The `decimals` values corresponds to the exact number of decimal places to use. A value such
+        as `2.34` can, for example, be formatted with `0` decimal places and it would result in
+        `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
+        can be removed with `drop_trailing_zeros=True`.
+    n_sigfig
+        A option to format numbers to *n* significant figures. By default, this is `None` and thus
+        number values will be formatted according to the number of decimal places set via
+        `decimals`. If opting to format according to the rules of significant figures, `n_sigfig`
+        must be a number greater than or equal to `1`. Any values passed to the `decimals` and
+        `drop_trailing_zeros` arguments will be ignored.
+    drop_trailing_zeros
+        A boolean value that allows for removal of trailing zeros (those redundant zeros after the
+        decimal mark).
+    drop_trailing_dec_mark
+        A boolean value that determines whether decimal marks should always appear even if there are
+        no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
+        default trailing decimal marks are not shown.
+    scale_by
+        All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
+        Since the `default` value is `1`, no values will be changed unless a different multiplier
+        value is supplied.
+    exp_style
+        Style of formatting to use for the engineering notation formatting. By default this is
+        `"x10n"` but other options include using a single letter (e.g., `"e"`, `"E"`, etc.), a
+        letter followed by a `"1"` to signal a minimum digit width of one, or `"low-ten"` for using
+        a stylized `"10"` marker.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    dec_mark
+        The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
+        `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
+        `locale` is supplied (i.e., is not `None`).
+    force_sign_m
+        Should the plus sign be shown for positive values of the mantissa (first component)? This
+        would effectively show a sign for all values except zero on the first numeric component of
+        the notation. If so, use `True` (the default for this is `False`), where only negative
+        numbers will display a sign.
+    force_sign_n
+        Should the plus sign be shown for positive values of the exponent (second component)? This
+        would effectively show a sign for all values except zero on the second numeric component of
+        the notation. If so, use `True` (the default for this is `False`), where only negative
+        numbers will display a sign.
+    locale
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Adapting output to a specific `locale`
+    --------------------------------------
+    This formatting method can adapt outputs according to a provided `locale` value. Examples
+    include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
+    locale ID here means decimal marks will be correct for the given locale. Should a value be
+    provided in `dec_mark` it will be overridden by the locale's preferred values.
+
+    Note that a `locale` value provided here will override any global locale setting performed in
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
+
+    Examples
+    --------
+    With numeric values in a table, we can perform formatting so that the targeted values are
+    rendered in engineering notation. For example, the number `0.0000345` can be written in
+    engineering notation as `34.50 x 10^-6`.
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT
+
+    numbers_df = pl.DataFrame({
+        "numbers": [0.0000345, 3450, 3450000]
+    })
+
+    GT(numbers_df).fmt_engineering()
+    ```
+
+    Notice that in each case, the exponent is a multiple of `3`.
+
+    Let's define a DataFrame that contains two columns of values (one small and one large). After
+    creating a simple table with `GT()`, we'll call `fmt_engineering()` on both columns.
+
+    ```{python}
+    small_large_df = pl.DataFrame({
+        "small": [10**-i for i in range(12, 0, -1)],
+        "large": [10**i for i in range(1, 13)]
+    })
+
+    GT(small_large_df).fmt_engineering()
+    ```
+
+    Notice that within the form of *m* x 10^*n*, the *n* values move in steps of 3 (away from 0),
+    and *m* values can have 1-3 digits before the decimal. Further to this, any values where *n* is
+    0 results in a display of only *m* (the first two values in the `large` column demonstrates
+    this).
+
+    Engineering notation expresses values so that they align to certain SI prefixes. Here is a table
+    that compares select SI prefixes and their symbols to decimal and engineering-notation
+    representations of the key numbers.
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT
+
+    prefixes_df = pl.DataFrame({
+        "name": [
+            "peta", "tera", "giga", "mega", "kilo",
+            None,
+            "milli", "micro", "nano", "pico", "femto"
+        ],
+        "symbol": [
+            "P", "T", "G", "M", "k",
+            None,
+            "m", "μ", "n", "p", "f"
+        ],
+        "decimal": [float(10**i) for i in range(15, -18, -3)],
+    })
+
+    prefixes_df = prefixes_df.with_columns(
+        engineering=pl.col("decimal")
+    )
+
+    (
+        GT(prefixes_df)
+        .fmt_number(columns="decimal", n_sigfig=1)
+        .fmt_engineering(columns="engineering")
+        .sub_missing()
+    )
+    ```
+
+    See Also
+    --------
+    The functional version of this method,
+    [`val_fmt_engineering()`](`great_tables._formats_vals.val_fmt_engineering`), allows you to
+    format a single numerical value (or a list of them).
+    """
+
+    locale = _resolve_locale(self, locale=locale)
+
+    # Use a locale-based decimal mark if a locale ID is provided
+    dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
+
+    pf_format = partial(
+        fmt_engineering_context,
+        data=self,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        scale_by=scale_by,
+        exp_style=exp_style,
+        dec_mark=dec_mark,
+        force_sign_m=force_sign_m,
+        force_sign_n=force_sign_n,
+        pattern=pattern,
+    )
+
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
+
+
+# Generate a function that will operate on single `x` values in the table body
+def fmt_engineering_context(
+    x: float | None,
+    data: GTData,
+    decimals: int,
+    n_sigfig: int | None,
+    drop_trailing_zeros: bool,
+    drop_trailing_dec_mark: bool,
+    scale_by: float,
+    exp_style: str,
+    dec_mark: str,
+    force_sign_m: bool,
+    force_sign_n: bool,
+    pattern: str,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
+
+    # Scale `x` value by a defined `scale_by` value
+    x = x * scale_by
+
+    # Determine whether the value is positive
+    is_positive = _has_positive_value(value=x)
+
+    minus_mark = _context_minus_mark(context=context)
+
+    # For engineering notation, we need to calculate the exponent that is a multiple of 3
+    # and adjust the mantissa accordingly
+    if x == 0:
+        # Special case for zero
+        m_part = _value_to_decimal_notation(
+            value=0,
+            decimals=decimals,
+            n_sigfig=n_sigfig,
+            drop_trailing_zeros=drop_trailing_zeros,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=False,
+            sep_mark=",",
+            dec_mark=dec_mark,
+            force_sign=False,
+        )
+        n_part = "0"
+        power_3 = 0
+    else:
+        # Calculate the power of 1000 (engineering notation uses multiples of 3)
+        power_3 = int(math.floor(math.log10(abs(x)) / 3) * 3)
+
+        # Calculate the mantissa by dividing by 10^power_3
+        mantissa = x / (10**power_3)
+
+        # Format the mantissa
+        m_part = _value_to_decimal_notation(
+            value=mantissa,
+            decimals=decimals,
+            n_sigfig=n_sigfig,
+            drop_trailing_zeros=drop_trailing_zeros,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=False,
+            sep_mark=",",
+            dec_mark=dec_mark,
+            force_sign=False,
+        )
+
+        n_part = str(power_3)
+
+    # Force the positive sign to be present if the `force_sign_m` option is taken
+    if is_positive and force_sign_m:
+        m_part = "+" + m_part
+
+    if exp_style == "x10n":
+        # Define the exponent string based on the `exp_style` that is the default
+        # ('x10n'); this is styled as 'x 10^n' instead of using a fixed symbol like 'E'
+
+        # Determine which values don't require the (x 10^n) for engineering formatting
+        # since their exponent would be zero
+        small_pos = power_3 == 0
+
+        # Force the positive sign to be present if the `force_sign_n` option is taken
+        if force_sign_n and not _str_detect(n_part, "-"):
+            n_part = "+" + n_part
+
+        # Implement minus sign replacement for `m_part` and `n_part`
+        m_part = _replace_minus(m_part, minus_mark=minus_mark)
+        n_part = _replace_minus(n_part, minus_mark=minus_mark)
+
+        if small_pos:
+            # If the exponent is zero, then the formatted value is based on only the `m_part`
+            x_formatted = m_part
+        else:
+            # Get the set of exponent marks, which are used to decorate the `n_part`
+            exp_marks = _context_exp_marks(context=context)
+
+            # Create the formatted string based on `exp_marks` and the two parts
             x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
 
     else:
@@ -2925,29 +3275,6 @@ def _value_to_scientific_notation(
         + _insert_decimal_mark(digits=sig_digits, power=dot_power, dec_mark=dec_mark)
         + "E"
         + str(ten_power)
-    )
-
-    return result
-
-
-def _value_to_engineering_notation(value: int | float, n_sigfig: int, exp_style: str) -> str:
-    """
-    Engineering notation.
-
-    Returns a string value with the correct precision and an exponent that is divisible by three.
-    The `exp_style` text is placed between the decimal value and the exponent.
-    """
-
-    is_negative, sig_digits, dot_power, ten_power = _get_sci_parts(value, n_sigfig)
-
-    eng_power = 3 * math.floor(ten_power / 3)
-    eng_dot = dot_power + ten_power - eng_power
-
-    result = (
-        ("-" if is_negative else "")
-        + _insert_decimal_mark(digits=sig_digits, power=eng_dot)
-        + exp_style
-        + str(eng_power)
     )
 
     return result
